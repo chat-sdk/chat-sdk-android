@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="firebase-simple-login-LATEST">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/build/exploded-aar/AndroidChatSDK/sdk/unspecified/libs/firebase-simple-login-LATEST.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
