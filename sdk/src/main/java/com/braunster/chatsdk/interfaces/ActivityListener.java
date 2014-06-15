@@ -1,7 +1,8 @@
 package com.braunster.chatsdk.interfaces;
 
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
+
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
 
 /**
  * Created by itzik on 6/8/2014.

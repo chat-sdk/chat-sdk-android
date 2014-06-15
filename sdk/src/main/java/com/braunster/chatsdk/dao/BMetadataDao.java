@@ -10,6 +10,8 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BMetadata;
 
@@ -36,6 +38,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
 
     private DaoSession daoSession;
 
+    private Query<BMetadata> bUser_BMetadataQuery;
 
     public BMetadataDao(DaoConfig config) {
         super(config);
@@ -50,7 +53,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BMETADATA' (" + //
-                "'AUTHENTICATION_ID' TEXT NOT NULL ," + // 0: authentication_id
+                "'AUTHENTICATION_ID' TEXT," + // 0: authentication_id
                 "'DIRTY' INTEGER," + // 1: dirty
                 "'TYPE' TEXT NOT NULL ," + // 2: type
                 "'KEY' TEXT NOT NULL ," + // 3: Key
@@ -68,7 +71,11 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     @Override
     protected void bindValues(SQLiteStatement stmt, BMetadata entity) {
         stmt.clearBindings();
-        stmt.bindString(1, entity.getAuthentication_id());
+ 
+        String authentication_id = entity.getAuthentication_id();
+        if (authentication_id != null) {
+            stmt.bindString(1, authentication_id);
+        }
  
         Boolean dirty = entity.getDirty();
         if (dirty != null) {
@@ -100,7 +107,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     @Override
     public BMetadata readEntity(Cursor cursor, int offset) {
         BMetadata entity = new BMetadata( //
-            cursor.getString(offset + 0), // authentication_id
+            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // authentication_id
             cursor.isNull(offset + 1) ? null : cursor.getShort(offset + 1) != 0, // dirty
             cursor.getString(offset + 2), // type
             cursor.getString(offset + 3), // Key
@@ -113,7 +120,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, BMetadata entity, int offset) {
-        entity.setAuthentication_id(cursor.getString(offset + 0));
+        entity.setAuthentication_id(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
         entity.setDirty(cursor.isNull(offset + 1) ? null : cursor.getShort(offset + 1) != 0);
         entity.setType(cursor.getString(offset + 2));
         entity.setKey(cursor.getString(offset + 3));
@@ -140,6 +147,20 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
         return true;
     }
     
+    /** Internal query to resolve the "BMetadata" to-many relationship of BUser. */
+    public List<BMetadata> _queryBUser_BMetadata(String Owner) {
+        synchronized (this) {
+            if (bUser_BMetadataQuery == null) {
+                QueryBuilder<BMetadata> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Owner.eq(null));
+                bUser_BMetadataQuery = queryBuilder.build();
+            }
+        }
+        Query<BMetadata> query = bUser_BMetadataQuery.forCurrentThread();
+        query.setParameter(0, Owner);
+        return query.list();
+    }
+
     private String selectDeep;
 
     protected String getSelectDeep() {

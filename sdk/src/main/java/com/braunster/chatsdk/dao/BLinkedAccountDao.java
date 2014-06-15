@@ -10,6 +10,8 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BLinkedAccount;
 
@@ -33,6 +35,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
 
     private DaoSession daoSession;
 
+    private Query<BLinkedAccount> bUser_BLinkedAccountQuery;
 
     public BLinkedAccountDao(DaoConfig config) {
         super(config);
@@ -48,7 +51,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BLINKED_ACCOUNT' (" + //
                 "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
-                "'AUTHENTICATION_ID' TEXT NOT NULL ," + // 1: authentication_id
+                "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
                 "'USER' TEXT);"); // 2: user
     }
 
@@ -67,7 +70,11 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         if (entityID != null) {
             stmt.bindString(1, entityID);
         }
-        stmt.bindString(2, entity.getAuthentication_id());
+ 
+        String authentication_id = entity.getAuthentication_id();
+        if (authentication_id != null) {
+            stmt.bindString(2, authentication_id);
+        }
  
         String user = entity.getUser();
         if (user != null) {
@@ -92,7 +99,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     public BLinkedAccount readEntity(Cursor cursor, int offset) {
         BLinkedAccount entity = new BLinkedAccount( //
             cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
-            cursor.getString(offset + 1), // authentication_id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2) // user
         );
         return entity;
@@ -102,7 +109,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     @Override
     public void readEntity(Cursor cursor, BLinkedAccount entity, int offset) {
         entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setAuthentication_id(cursor.getString(offset + 1));
+        entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setUser(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
      }
     
@@ -128,6 +135,20 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         return true;
     }
     
+    /** Internal query to resolve the "BLinkedAccount" to-many relationship of BUser. */
+    public List<BLinkedAccount> _queryBUser_BLinkedAccount(String user) {
+        synchronized (this) {
+            if (bUser_BLinkedAccountQuery == null) {
+                QueryBuilder<BLinkedAccount> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.User.eq(null));
+                bUser_BLinkedAccountQuery = queryBuilder.build();
+            }
+        }
+        Query<BLinkedAccount> query = bUser_BLinkedAccountQuery.forCurrentThread();
+        query.setParameter(0, user);
+        return query.list();
+    }
+
     private String selectDeep;
 
     protected String getSelectDeep() {

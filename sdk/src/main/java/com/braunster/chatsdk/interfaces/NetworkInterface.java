@@ -3,10 +3,9 @@ package com.braunster.chatsdk.interfaces;
 import android.location.LocationManager;
 import android.widget.ImageView;
 
-
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
-import com.braunster.chatsdk.entities.BUser;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 
 import java.util.ArrayList;
 import java.util.Date;

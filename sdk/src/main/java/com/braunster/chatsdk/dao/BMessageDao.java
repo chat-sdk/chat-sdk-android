@@ -34,9 +34,11 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
         public final static Property Text = new Property(5, String.class, "text", false, "TEXT");
         public final static Property Type = new Property(6, String.class, "type", false, "TYPE");
         public final static Property Owner = new Property(7, String.class, "Owner", false, "OWNER");
+        public final static Property BMessageentityID = new Property(8, String.class, "BMessageentityID", false, "BMESSAGEENTITY_ID");
     };
 
     private Query<BMessage> bThread_MessagesQuery;
+    private Query<BMessage> bUser_MessagesQuery;
 
     public BMessageDao(DaoConfig config) {
         super(config);
@@ -57,7 +59,8 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
                 "'RESOURCES_PATH' TEXT," + // 4: resourcesPath
                 "'TEXT' TEXT," + // 5: text
                 "'TYPE' TEXT," + // 6: type
-                "'OWNER' TEXT);"); // 7: Owner
+                "'OWNER' TEXT," + // 7: Owner
+                "'BMESSAGEENTITY_ID' TEXT);"); // 8: BMessageentityID
     }
 
     /** Drops the underlying database table. */
@@ -163,15 +166,29 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     }
     
     /** Internal query to resolve the "messages" to-many relationship of BThread. */
-    public List<BMessage> _queryBThread_Messages(String Owner) {
+    public List<BMessage> _queryBThread_Messages(String BMessageentityID) {
         synchronized (this) {
             if (bThread_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Owner.eq(null));
+                queryBuilder.where(Properties.BMessageentityID.eq(null));
                 bThread_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bThread_MessagesQuery.forCurrentThread();
+        query.setParameter(0, BMessageentityID);
+        return query.list();
+    }
+
+    /** Internal query to resolve the "messages" to-many relationship of BUser. */
+    public List<BMessage> _queryBUser_Messages(String Owner) {
+        synchronized (this) {
+            if (bUser_MessagesQuery == null) {
+                QueryBuilder<BMessage> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Owner.eq(null));
+                bUser_MessagesQuery = queryBuilder.build();
+            }
+        }
+        Query<BMessage> query = bUser_MessagesQuery.forCurrentThread();
         query.setParameter(0, Owner);
         return query.list();
     }

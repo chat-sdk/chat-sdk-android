@@ -16,12 +16,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-
-    task run {
-        println 'Run!'
-        dir = "../generator"
-        tasks = ["run"]
-    }
 }
 
 dependencies {
@@ -35,12 +29,6 @@ dependencies {
     compile files('libs/Parse-1.5.0.jar')
 }
 
-
-
-
-//gradle.projectsEvaluated {
-//    tasks.android.dependsOn(run)
-//}
 
 
 

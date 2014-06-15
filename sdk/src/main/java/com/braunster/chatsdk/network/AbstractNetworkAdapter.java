@@ -3,9 +3,9 @@ package com.braunster.chatsdk.network;
 import android.location.LocationManager;
 import android.widget.ImageView;
 
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
-import com.braunster.chatsdk.entities.BUser;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -42,7 +42,7 @@ public abstract class AbstractNetworkAdapter {
     /** Send message by given data stored in the BMessage Obj.*/
     public abstract void sendMessage(BMessage message, CompletionListener completionListener);
 
-    /** Create a new messaged thread with the given users as participants.*/ // ASK Is this private or public ?
+    /** Create a new messaged thread with the given users as participants.*/
     public abstract void createThreadWithUsers(ArrayList<BUser> users, CompletionListener completionListener);
 
     /** Create a public thread for given name.*/
@@ -54,7 +54,7 @@ public abstract class AbstractNetworkAdapter {
     /** Delete thread for given id.*/
     public abstract void deleteThreadWithEntityID(String entityId, CompletionListener completionListener);
 
-    public abstract ArrayList<BThread> threadsWithType(BThread.threadType type/*ASK what this mean bThreadType type, and if truly return List of threads.*/);
+    public abstract ArrayList<BThread> threadsWithType(BThread type/*ASK what this mean bThreadType type, and if truly return List of threads.*/);
 
     /** Delete thread by given BThread Obj given.*/
     public abstract void deleteThread(BThread thread, CompletionListener completionListener);

@@ -12,6 +12,7 @@ import de.greenrobot.daogenerator.ToOne;
  */
 public class Generator {
 
+    // TODO set not null attribute to the properties that needs it.
     private static String outputDir = "../sdk/src/main/java";
 
     private static Entity user, linkedAccount, threads, message, linkedContact, metaData;
@@ -19,8 +20,8 @@ public class Generator {
     private static Property entityIDProp;
 
     public static void main(String args[]) throws Exception{
-        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(6 , "com.braunster.chatsdk.dao");
+//        System.out.print("Generating... " + args[0].toString());
+        Schema schema = new Schema(8, "com.braunster.chatsdk.dao");
 
         addUser(schema);
         addLinkedAccounts(schema);
@@ -39,8 +40,8 @@ public class Generator {
     private static void addUser(Schema schema) {
         user = schema.addEntity(EntityProperties.BUser);
         entityIDProp = user.addStringProperty(EntityProperties.EntityID).primaryKey().getProperty();
-        user.addStringProperty(EntityProperties.AuthenticationID).notNull();
-        user.addStringProperty(EntityProperties.FacebookID).notNull();
+        user.addStringProperty(EntityProperties.AuthenticationID);
+        user.addStringProperty(EntityProperties.FacebookID);
 
         user.addBooleanProperty(EntityProperties.Dirty);
         user.addStringProperty(EntityProperties.Name);
@@ -58,20 +59,20 @@ public class Generator {
     private static void addLinkedAccounts(Schema schema) {
         linkedAccount = schema.addEntity(EntityProperties.BLinkedAccount);
         linkedAccount.addStringProperty(EntityProperties.EntityID).primaryKey();
-        linkedAccount.addStringProperty(EntityProperties.AuthenticationID).notNull();
+        linkedAccount.addStringProperty(EntityProperties.AuthenticationID);
         linkedAccount.setSuperclass("Entity");
     }
 
     private static void addLinkedContact(Schema schema) {
         linkedContact = schema.addEntity(EntityProperties.BLinkedContact);
         linkedContact.addStringProperty(EntityProperties.EntityID).primaryKey();
-        linkedContact.addStringProperty(EntityProperties.AuthenticationID).notNull();
+        linkedContact.addStringProperty(EntityProperties.AuthenticationID);
         linkedContact.setSuperclass("Entity");
     }
 
     private static void addMetaData(Schema schema) {
         metaData = schema.addEntity(EntityProperties.BMetaData);
-        metaData.addStringProperty(EntityProperties.AuthenticationID).notNull();
+        metaData.addStringProperty(EntityProperties.AuthenticationID);
         metaData.addBooleanProperty(EntityProperties.Dirty);
         metaData.addStringProperty(EntityProperties.Type).notNull();
         metaData.addStringProperty(EntityProperties.Key).notNull();
@@ -114,7 +115,7 @@ public class Generator {
 
         Property userProp3 = metaData.addStringProperty(EntityProperties.Owner).getProperty();
         metaData.addToOne(user, userProp3);
-//        LinkedContact, LinkedAccount and MetaData - END
+        //LinkedContact, LinkedAccount and MetaData - END
 
         // Threads - START
         Property lastMessageProp = threads.addStringProperty(EntityProperties.LastMessageAdded+EntityProperties.EntityID).getProperty();
@@ -136,25 +137,25 @@ public class Generator {
 //        ToMany threadForMessages = message.addToMany(threads, entityIDProp);
 //        threadForMessages.setName(EntityProperties.Thread);
         // Messages - END
-//
+
 //        // Users - START
-//        ToMany contacts = user.addToMany(linkedContact, userProp);
-//        contacts.setName(EntityProperties.BLinkedContact);
-//
-//        ToMany accounts = user.addToMany(linkedAccount, userProp2);
-//        accounts.setName(EntityProperties.BLinkedAccount);
-//
-//        ToMany metadata = user.addToMany(metaData, userProp3);
-//        metadata.setName(EntityProperties.BMetaData);
-//
-//        ToMany messagesForUser = user.addToMany(message, userProp);
-//        messagesForUser.setName(EntityProperties.Messages);
-//
-//        ToMany threadsForUser = user.addToMany(threads, userProp);
-//        threadsForUser.setName(EntityProperties.Threads);
-//
-//        ToMany threadsCreatedForUser = user.addToMany(threads, userProp);
-//        threadsCreatedForUser.setName(EntityProperties.ThreadsCreated);
+        ToMany contacts = user.addToMany(linkedContact, userProp);
+        contacts.setName(EntityProperties.BLinkedContact);
+
+        ToMany accounts = user.addToMany(linkedAccount, userProp2);
+        accounts.setName(EntityProperties.BLinkedAccount);
+
+        ToMany metadata = user.addToMany(metaData, userProp3);
+        metadata.setName(EntityProperties.BMetaData);
+
+        ToMany messagesForUser = user.addToMany(message, userProp);
+        messagesForUser.setName(EntityProperties.Messages);
+
+        ToMany threadsForUser = user.addToMany(threads, userProp);
+        threadsForUser.setName(EntityProperties.Threads);
+
+        ToMany threadsCreatedForUser = user.addToMany(threads, userProp);
+        threadsCreatedForUser.setName(EntityProperties.ThreadsCreated);
 //        // Users - END
 
     }

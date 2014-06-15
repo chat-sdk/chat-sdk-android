@@ -9,7 +9,6 @@ import de.greenrobot.dao.DaoException;
  */
 public class BMetadata extends Entity  {
 
-    /** Not-null value. */
     private String authentication_id;
     private Boolean dirty;
     /** Not-null value. */
@@ -48,12 +47,10 @@ public class BMetadata extends Entity  {
         myDao = daoSession != null ? daoSession.getBMetadataDao() : null;
     }
 
-    /** Not-null value. */
     public String getAuthentication_id() {
         return authentication_id;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setAuthentication_id(String authentication_id) {
         this.authentication_id = authentication_id;
     }

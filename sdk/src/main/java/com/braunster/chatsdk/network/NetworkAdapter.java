@@ -1,8 +1,8 @@
 package com.braunster.chatsdk.network;
 
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
-import com.braunster.chatsdk.entities.BUser;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.NetworkInterface;
@@ -54,8 +54,9 @@ public class NetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
+    // FIXME fix type
     @Override
-    public ArrayList<BThread> threadsWithType(BThread.threadType type) {
+    public ArrayList<BThread> threadsWithType(BThread type) {
         return null;
     }
 

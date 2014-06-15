@@ -2,7 +2,11 @@ package com.braunster.chatsdk.dao;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+
+import com.braunster.greendao.generator.EntityProperties;
+import com.firebase.client.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +19,7 @@ import de.greenrobot.dao.query.QueryBuilder;
  * Manage all creation, deletion and updating Entities.
  */
 public class DaoCore {
+    private static final String TAG = DaoCore.class.getSimpleName();
 
     private static final String DB_NAME = "andorid-chatsdk-database";
     private static String dbName;
@@ -28,6 +33,10 @@ public class DaoCore {
 
     public static void init(Context ctx) {
         dbName = DB_NAME;
+        context = ctx;
+        openDB();
+//        createTestData();
+        getData();
     }
 
     public static void init(Context ctx, String name){
@@ -44,9 +53,65 @@ public class DaoCore {
         db = helper.getWritableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
+    }
 
-        List<BMetadata> list = fetchEntitiesWithProperty(new BMetadata().getClass(), BMetadataDao.Properties.Dirty, "ss");
+    private static void createTestData(){
+        BUser user = new BUser();
+        user.setName("Uzi");
+        user.setEntityID("kdj3jk25");
+        daoSession.insert(user);
 
+
+        BMetadata bMetadata;
+
+        String[] values = new String[]{"Israel" , "UK", "Italy", "India", "Iraq"};
+        for (int i = 0 ; i < 5 ; i++)
+        {
+            bMetadata = new BMetadata();
+            bMetadata.setOwner(user.getEntityID());
+            bMetadata.setType("Nationality");
+            bMetadata.setKey("Country");
+            bMetadata.setValue(values[i]);
+            daoSession.insert(bMetadata);
+        }
+
+
+
+    }
+
+    private static void getData(){
+        QueryBuilder<BUser> queryBuilder = daoSession.queryBuilder(BUser.class);
+        BUser bUser = queryBuilder.where(BUserDao.Properties.EntityID .eq("kdj3jk25")).unique();
+
+        if (bUser == null)
+        {
+            Log.d(TAG, "user is null");
+            bUser = queryBuilder.where(BUserDao.Properties.Name .eq("Uzi")).unique();
+        }
+
+        if (bUser == null)
+        {
+            Log.d(TAG, "user is null");
+        }
+        else
+        {
+            Log.d(TAG, "has user");
+        }
+
+        for (BUser u : daoSession.loadAll(BUser.class))
+        {
+            if (u == null)
+                Log.d(TAG, "user is null");
+            else
+            {
+                Log.d(TAG, "has user, entity: " + u.getEntityID());
+                Log.d(TAG, "Metadat Size: "  + u.getBMetadata().size());
+                for (BMetadata m : u.getBMetadata())
+                {
+                    Log.d(TAG, "Metadata oener: " + m.getBUser().getName() );
+                }
+            }
+        }
     }
 
     public static <T extends Entity> T fetchEntityWithID(Class c, String entityID){

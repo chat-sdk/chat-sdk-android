@@ -1,8 +1,8 @@
 package com.braunster.chatsdk.network;
 
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
-import com.braunster.chatsdk.entities.BUser;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.firebase.FirebasePaths;
 import com.braunster.chatsdk.firebase.FirebaseTags;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -60,8 +60,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
+    // FIXME type
     @Override
-    public ArrayList<BThread> threadsWithType(BThread.threadType type) {
+    public ArrayList<BThread> threadsWithType(BThread type) {
         return null;
     }
 

@@ -10,6 +10,8 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BThread;
 
@@ -35,10 +37,13 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         public final static Property LastMaessageAddedentityID = new Property(6, String.class, "LastMaessageAddedentityID", false, "LAST_MAESSAGE_ADDEDENTITY_ID");
         public final static Property CreatorentityID = new Property(7, String.class, "creatorentityID", false, "CREATORENTITY_ID");
         public final static Property BMessageentityID = new Property(8, String.class, "BMessageentityID", false, "BMESSAGEENTITY_ID");
+        public final static Property Owner = new Property(9, String.class, "Owner", false, "OWNER");
     };
 
     private DaoSession daoSession;
 
+    private Query<BThread> bUser_ThreadsQuery;
+    private Query<BThread> bUser_ThreadsCreatedQuery;
 
     public BThreadDao(DaoConfig config) {
         super(config);
@@ -61,7 +66,8 @@ public class BThreadDao extends AbstractDao<BThread, String> {
                 "'TYPE' TEXT," + // 5: type
                 "'LAST_MAESSAGE_ADDEDENTITY_ID' TEXT," + // 6: LastMaessageAddedentityID
                 "'CREATORENTITY_ID' TEXT," + // 7: creatorentityID
-                "'BMESSAGEENTITY_ID' TEXT);"); // 8: BMessageentityID
+                "'BMESSAGEENTITY_ID' TEXT," + // 8: BMessageentityID
+                "'OWNER' TEXT);"); // 9: Owner
     }
 
     /** Drops the underlying database table. */
@@ -186,6 +192,34 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         return true;
     }
     
+    /** Internal query to resolve the "threads" to-many relationship of BUser. */
+    public List<BThread> _queryBUser_Threads(String Owner) {
+        synchronized (this) {
+            if (bUser_ThreadsQuery == null) {
+                QueryBuilder<BThread> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Owner.eq(null));
+                bUser_ThreadsQuery = queryBuilder.build();
+            }
+        }
+        Query<BThread> query = bUser_ThreadsQuery.forCurrentThread();
+        query.setParameter(0, Owner);
+        return query.list();
+    }
+
+    /** Internal query to resolve the "threadsCreated" to-many relationship of BUser. */
+    public List<BThread> _queryBUser_ThreadsCreated(String Owner) {
+        synchronized (this) {
+            if (bUser_ThreadsCreatedQuery == null) {
+                QueryBuilder<BThread> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Owner.eq(null));
+                bUser_ThreadsCreatedQuery = queryBuilder.build();
+            }
+        }
+        Query<BThread> query = bUser_ThreadsCreatedQuery.forCurrentThread();
+        query.setParameter(0, Owner);
+        return query.list();
+    }
+
     private String selectDeep;
 
     protected String getSelectDeep() {

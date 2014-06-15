@@ -35,6 +35,8 @@ public class BUserDao extends AbstractDao<BUser, String> {
         public final static Property TextColor = new Property(9, String.class, "textColor", false, "TEXT_COLOR");
     };
 
+    private DaoSession daoSession;
+
 
     public BUserDao(DaoConfig config) {
         super(config);
@@ -42,6 +44,7 @@ public class BUserDao extends AbstractDao<BUser, String> {
     
     public BUserDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -49,8 +52,8 @@ public class BUserDao extends AbstractDao<BUser, String> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BUSER' (" + //
                 "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
-                "'AUTHENTICATION_ID' TEXT NOT NULL ," + // 1: authentication_id
-                "'FACEBOOK_ID' TEXT NOT NULL ," + // 2: facebookID
+                "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
+                "'FACEBOOK_ID' TEXT," + // 2: facebookID
                 "'DIRTY' INTEGER," + // 3: dirty
                 "'NAME' TEXT," + // 4: name
                 "'LAST_ONLINE' INTEGER," + // 5: lastOnline
@@ -75,8 +78,16 @@ public class BUserDao extends AbstractDao<BUser, String> {
         if (entityID != null) {
             stmt.bindString(1, entityID);
         }
-        stmt.bindString(2, entity.getAuthentication_id());
-        stmt.bindString(3, entity.getFacebookID());
+ 
+        String authentication_id = entity.getAuthentication_id();
+        if (authentication_id != null) {
+            stmt.bindString(2, authentication_id);
+        }
+ 
+        String facebookID = entity.getFacebookID();
+        if (facebookID != null) {
+            stmt.bindString(3, facebookID);
+        }
  
         Boolean dirty = entity.getDirty();
         if (dirty != null) {
@@ -114,6 +125,12 @@ public class BUserDao extends AbstractDao<BUser, String> {
         }
     }
 
+    @Override
+    protected void attachEntity(BUser entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
+    }
+
     /** @inheritdoc */
     @Override
     public String readKey(Cursor cursor, int offset) {
@@ -125,8 +142,8 @@ public class BUserDao extends AbstractDao<BUser, String> {
     public BUser readEntity(Cursor cursor, int offset) {
         BUser entity = new BUser( //
             cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
-            cursor.getString(offset + 1), // authentication_id
-            cursor.getString(offset + 2), // facebookID
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // facebookID
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // dirty
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // name
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // lastOnline
@@ -142,8 +159,8 @@ public class BUserDao extends AbstractDao<BUser, String> {
     @Override
     public void readEntity(Cursor cursor, BUser entity, int offset) {
         entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setAuthentication_id(cursor.getString(offset + 1));
-        entity.setFacebookID(cursor.getString(offset + 2));
+        entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setFacebookID(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setDirty(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
         entity.setName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setLastOnline(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));

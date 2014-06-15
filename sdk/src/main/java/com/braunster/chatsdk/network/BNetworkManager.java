@@ -4,9 +4,9 @@ package com.braunster.chatsdk.network;
 import android.location.LocationManager;
 import android.widget.ImageView;
 
-import com.braunster.chatsdk.entities.BMessage;
-import com.braunster.chatsdk.entities.BThread;
-import com.braunster.chatsdk.entities.BUser;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -80,7 +80,8 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public ArrayList<BThread> threadsWithType(BThread.threadType type) {
+    // TODO Fix type
+    public ArrayList<BThread> threadsWithType(BThread type) {
         if (networkAdapter != null)
             return networkAdapter.threadsWithType(type);
         else return null;

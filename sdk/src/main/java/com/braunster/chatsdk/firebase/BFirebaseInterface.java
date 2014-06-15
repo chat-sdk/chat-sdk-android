@@ -106,8 +106,8 @@ public class BFirebaseInterface {
             // Check if has priority
             if (entity.priority != null && !entity.priority.equals(""))
             {
-                // TODO cast to the right priority
-                ref.startAt(String.valueOf(entity.priority)).endAt(entity.priority).addListenerForSingleValueEvent(new ValueEventListener() {
+                // FIXME cast to the right priority
+                ref.startAt(String.valueOf(entity.priority)).endAt(String.valueOf(entity.priority)).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren())

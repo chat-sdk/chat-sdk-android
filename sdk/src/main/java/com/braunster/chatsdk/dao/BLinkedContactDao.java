@@ -10,6 +10,8 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BLinkedContact;
 
@@ -33,6 +35,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
 
     private DaoSession daoSession;
 
+    private Query<BLinkedContact> bUser_BLinkedContactQuery;
 
     public BLinkedContactDao(DaoConfig config) {
         super(config);
@@ -48,7 +51,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BLINKED_CONTACT' (" + //
                 "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
-                "'AUTHENTICATION_ID' TEXT NOT NULL ," + // 1: authentication_id
+                "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
                 "'OWNER' TEXT);"); // 2: Owner
     }
 
@@ -67,7 +70,11 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
         if (entityID != null) {
             stmt.bindString(1, entityID);
         }
-        stmt.bindString(2, entity.getAuthentication_id());
+ 
+        String authentication_id = entity.getAuthentication_id();
+        if (authentication_id != null) {
+            stmt.bindString(2, authentication_id);
+        }
  
         String Owner = entity.getOwner();
         if (Owner != null) {
@@ -92,7 +99,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
     public BLinkedContact readEntity(Cursor cursor, int offset) {
         BLinkedContact entity = new BLinkedContact( //
             cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
-            cursor.getString(offset + 1), // authentication_id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2) // Owner
         );
         return entity;
@@ -102,7 +109,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
     @Override
     public void readEntity(Cursor cursor, BLinkedContact entity, int offset) {
         entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setAuthentication_id(cursor.getString(offset + 1));
+        entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setOwner(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
      }
     
@@ -128,6 +135,20 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, String> {
         return true;
     }
     
+    /** Internal query to resolve the "BLinkedContact" to-many relationship of BUser. */
+    public List<BLinkedContact> _queryBUser_BLinkedContact(String Owner) {
+        synchronized (this) {
+            if (bUser_BLinkedContactQuery == null) {
+                QueryBuilder<BLinkedContact> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Owner.eq(null));
+                bUser_BLinkedContactQuery = queryBuilder.build();
+            }
+        }
+        Query<BLinkedContact> query = bUser_BLinkedContactQuery.forCurrentThread();
+        query.setParameter(0, Owner);
+        return query.list();
+    }
+
     private String selectDeep;
 
     protected String getSelectDeep() {

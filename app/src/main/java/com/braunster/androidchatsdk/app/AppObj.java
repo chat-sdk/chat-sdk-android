@@ -14,6 +14,7 @@ public class AppObj extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        BFacebookManager.init("247787328762280");
+
+        BFacebookManager.init("247787328762280", getApplicationContext());
     }
 }
