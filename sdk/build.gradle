@@ -16,6 +16,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    task run {
+        println 'Run!'
+        dir = "../generator"
+        tasks = ["run"]
+    }
 }
 
 dependencies {
@@ -24,6 +30,19 @@ dependencies {
     compile project(':facebook')
     compile project(':generator')
     compile files('libs/firebase-client-jvm-LATEST.jar')
+    compile ('de.greenrobot:greendao:1.3.0'){ exclude module: 'support-v4' }
     compile files('libs/firebase-simple-login-LATEST.jar')
     compile files('libs/Parse-1.5.0.jar')
 }
+
+
+
+
+//gradle.projectsEvaluated {
+//    tasks.android.dependsOn(run)
+//}
+
+
+
+
+

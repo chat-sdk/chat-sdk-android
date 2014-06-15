@@ -10,7 +10,7 @@ public class EntityProperties {
     public static final String BMessage = "BMessage";
     public static final String BThread = "BThread";
     public static final String BThreadCreated = "BThreadCreated";
-    public static final String MetaData = "Metadata";
+    public static final String BMetaData = "BMetadata";
     public static final String BLinkedAccount = "BLinkedAccount";
     public static final String BLinkedContact = "BLinkedContact";
     /* General*/
@@ -36,8 +36,8 @@ public class EntityProperties {
     public static final String Date = "date";
     public static final String FontSize = "fontSize";
     public static final String FontName = "fontName";
-    public static final String Resources = "resources";
-    public static final String ResourcesPath = "resourcesPath";
+    public static final String Resource= "resources";
+    public static final String ResourcePath = "resourcesPath";
     public static final String Text = "text";
     public static final String TextColor = "textColor";
     public static final String Thread = "thread";
@@ -51,4 +51,8 @@ public class EntityProperties {
 
 
     public static final String Creator = "creator";
+    public static final String Key = "Key";
+    public static final String Value = "Value";
+    public static final String LastMessageAdded = "LastMaessageAdded";
+    public static final String Owner = "Owner";
 }
