@@ -1,14 +1,21 @@
 package com.braunster.chatsdk.activities;
 
 import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private PagerSlidingTabStrip tabs;
+    private ViewPager pager;
+    private PagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

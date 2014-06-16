@@ -9,6 +9,8 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.tamplate.TestNetworkAdapter;
 import com.facebook.FacebookException;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -54,12 +56,12 @@ public class LoginActivity extends Activity{
         super.onResume();
 
         // Auto check for session state change if session is valid.
-       /* Session session = Session.getActiveSession();
+        Session session = Session.getActiveSession();
         if (session != null &&
                 (session.isOpened() || session.isClosed()) ) {
             onSessionStateChange(session, session.getState(), null);
         }
-*/
+
         uiHelper.onResume();
     }
 
@@ -93,7 +95,22 @@ public class LoginActivity extends Activity{
             @Override
             public void onDone() {
                 if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
-                Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
+                TestNetworkAdapter testNetworkAdapter = new TestNetworkAdapter();
+                testNetworkAdapter.syncWithProgress(new CompletionListener() {
+                    @Override
+                    public void onDone() {
+
+                    }
+
+                    @Override
+                    public void onDoneWithError() {
+
+                    }
+                });
+
+                BNetworkManager.setNetworkAdapter(testNetworkAdapter);
+
+                Intent intent = new Intent(LoginActivity.this, ThreadsActivity.class);
                 startActivity(intent);
             }
 

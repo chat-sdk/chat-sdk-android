@@ -87,6 +87,7 @@
     <orderEntry type="library" exported="" name="freemarker-2.3.19" level="project" />
     <orderEntry type="library" exported="" name="bolts" level="project" />
     <orderEntry type="module" module-name="generator" exported="" />
+    <orderEntry type="module" module-name="PagerSlidingTabStrip" exported="" />
     <orderEntry type="module" module-name="facebook" exported="" />
   </component>
 </module>

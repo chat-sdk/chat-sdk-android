@@ -23,6 +23,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
     compile project(':facebook')
     compile project(':generator')
+    compile project(':PagerSlidingTabStrip')
     compile files('libs/firebase-client-jvm-LATEST.jar')
     compile ('de.greenrobot:greendao:1.3.0'){ exclude module: 'support-v4' }
     compile files('libs/firebase-simple-login-LATEST.jar')

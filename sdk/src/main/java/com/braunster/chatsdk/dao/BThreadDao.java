@@ -33,16 +33,12 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         public final static Property Dirty = new Property(2, Boolean.class, "dirty", false, "DIRTY");
         public final static Property HasUnreadMessages = new Property(3, Boolean.class, "hasUnreadMessages", false, "HAS_UNREAD_MESSAGES");
         public final static Property Name = new Property(4, String.class, "name", false, "NAME");
-        public final static Property Type = new Property(5, String.class, "type", false, "TYPE");
-        public final static Property LastMaessageAddedentityID = new Property(6, String.class, "LastMaessageAddedentityID", false, "LAST_MAESSAGE_ADDEDENTITY_ID");
-        public final static Property CreatorentityID = new Property(7, String.class, "creatorentityID", false, "CREATORENTITY_ID");
-        public final static Property BMessageentityID = new Property(8, String.class, "BMessageentityID", false, "BMESSAGEENTITY_ID");
-        public final static Property Owner = new Property(9, String.class, "Owner", false, "OWNER");
+        public final static Property Type = new Property(5, Integer.class, "type", false, "TYPE");
+        public final static Property Creator = new Property(6, String.class, "creator", false, "CREATOR");
     };
 
     private DaoSession daoSession;
 
-    private Query<BThread> bUser_ThreadsQuery;
     private Query<BThread> bUser_ThreadsCreatedQuery;
 
     public BThreadDao(DaoConfig config) {
@@ -63,11 +59,8 @@ public class BThreadDao extends AbstractDao<BThread, String> {
                 "'DIRTY' INTEGER," + // 2: dirty
                 "'HAS_UNREAD_MESSAGES' INTEGER," + // 3: hasUnreadMessages
                 "'NAME' TEXT," + // 4: name
-                "'TYPE' TEXT," + // 5: type
-                "'LAST_MAESSAGE_ADDEDENTITY_ID' TEXT," + // 6: LastMaessageAddedentityID
-                "'CREATORENTITY_ID' TEXT," + // 7: creatorentityID
-                "'BMESSAGEENTITY_ID' TEXT," + // 8: BMessageentityID
-                "'OWNER' TEXT);"); // 9: Owner
+                "'TYPE' INTEGER," + // 5: type
+                "'CREATOR' TEXT);"); // 6: creator
     }
 
     /** Drops the underlying database table. */
@@ -106,24 +99,14 @@ public class BThreadDao extends AbstractDao<BThread, String> {
             stmt.bindString(5, name);
         }
  
-        String type = entity.getType();
+        Integer type = entity.getType();
         if (type != null) {
-            stmt.bindString(6, type);
+            stmt.bindLong(6, type);
         }
  
-        String LastMaessageAddedentityID = entity.getLastMaessageAddedentityID();
-        if (LastMaessageAddedentityID != null) {
-            stmt.bindString(7, LastMaessageAddedentityID);
-        }
- 
-        String creatorentityID = entity.getCreatorentityID();
-        if (creatorentityID != null) {
-            stmt.bindString(8, creatorentityID);
-        }
- 
-        String BMessageentityID = entity.getBMessageentityID();
-        if (BMessageentityID != null) {
-            stmt.bindString(9, BMessageentityID);
+        String creator = entity.getCreator();
+        if (creator != null) {
+            stmt.bindString(7, creator);
         }
     }
 
@@ -148,10 +131,8 @@ public class BThreadDao extends AbstractDao<BThread, String> {
             cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // dirty
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // hasUnreadMessages
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // name
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // type
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // LastMaessageAddedentityID
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // creatorentityID
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // BMessageentityID
+            cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // type
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // creator
         );
         return entity;
     }
@@ -164,10 +145,8 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         entity.setDirty(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
         entity.setHasUnreadMessages(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
         entity.setName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setType(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setLastMaessageAddedentityID(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setCreatorentityID(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setBMessageentityID(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setType(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
+        entity.setCreator(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
      }
     
     /** @inheritdoc */
@@ -192,31 +171,17 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         return true;
     }
     
-    /** Internal query to resolve the "threads" to-many relationship of BUser. */
-    public List<BThread> _queryBUser_Threads(String Owner) {
-        synchronized (this) {
-            if (bUser_ThreadsQuery == null) {
-                QueryBuilder<BThread> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Owner.eq(null));
-                bUser_ThreadsQuery = queryBuilder.build();
-            }
-        }
-        Query<BThread> query = bUser_ThreadsQuery.forCurrentThread();
-        query.setParameter(0, Owner);
-        return query.list();
-    }
-
     /** Internal query to resolve the "threadsCreated" to-many relationship of BUser. */
-    public List<BThread> _queryBUser_ThreadsCreated(String Owner) {
+    public List<BThread> _queryBUser_ThreadsCreated(String creator) {
         synchronized (this) {
             if (bUser_ThreadsCreatedQuery == null) {
                 QueryBuilder<BThread> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Owner.eq(null));
+                queryBuilder.where(Properties.Creator.eq(null));
                 bUser_ThreadsCreatedQuery = queryBuilder.build();
             }
         }
         Query<BThread> query = bUser_ThreadsCreatedQuery.forCurrentThread();
-        query.setParameter(0, Owner);
+        query.setParameter(0, creator);
         return query.list();
     }
 
@@ -227,12 +192,9 @@ public class BThreadDao extends AbstractDao<BThread, String> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getBMessageDao().getAllColumns());
-            builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BTHREAD T");
-            builder.append(" LEFT JOIN BMESSAGE T0 ON T.'LAST_MAESSAGE_ADDEDENTITY_ID'=T0.'ENTITY_ID'");
-            builder.append(" LEFT JOIN BUSER T1 ON T.'CREATORENTITY_ID'=T1.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'CREATOR'=T0.'ENTITY_ID'");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -243,12 +205,8 @@ public class BThreadDao extends AbstractDao<BThread, String> {
         BThread entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BMessage LastMaessageAdded = loadCurrentOther(daoSession.getBMessageDao(), cursor, offset);
-        entity.setLastMaessageAdded(LastMaessageAdded);
-        offset += daoSession.getBMessageDao().getAllColumns().length;
-
-        BUser creator = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setCreator(creator);
+        BUser bUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
+        entity.setBUser(bUser);
 
         return entity;    
     }

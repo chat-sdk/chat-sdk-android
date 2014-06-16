@@ -1,12 +1,14 @@
 package com.braunster.chatsdk.dao;
 
 import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
+import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
@@ -32,10 +34,12 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
         public final static Property Resources = new Property(3, String.class, "resources", false, "RESOURCES");
         public final static Property ResourcesPath = new Property(4, String.class, "resourcesPath", false, "RESOURCES_PATH");
         public final static Property Text = new Property(5, String.class, "text", false, "TEXT");
-        public final static Property Type = new Property(6, String.class, "type", false, "TYPE");
-        public final static Property Owner = new Property(7, String.class, "Owner", false, "OWNER");
-        public final static Property BMessageentityID = new Property(8, String.class, "BMessageentityID", false, "BMESSAGEENTITY_ID");
+        public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
+        public final static Property OwnerThread = new Property(7, String.class, "OwnerThread", false, "OWNER_THREAD");
+        public final static Property Sender = new Property(8, String.class, "Sender", false, "SENDER");
     };
+
+    private DaoSession daoSession;
 
     private Query<BMessage> bThread_MessagesQuery;
     private Query<BMessage> bUser_MessagesQuery;
@@ -46,6 +50,7 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     
     public BMessageDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -58,9 +63,9 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
                 "'RESOURCES' TEXT," + // 3: resources
                 "'RESOURCES_PATH' TEXT," + // 4: resourcesPath
                 "'TEXT' TEXT," + // 5: text
-                "'TYPE' TEXT," + // 6: type
-                "'OWNER' TEXT," + // 7: Owner
-                "'BMESSAGEENTITY_ID' TEXT);"); // 8: BMessageentityID
+                "'TYPE' INTEGER," + // 6: type
+                "'OWNER_THREAD' TEXT," + // 7: OwnerThread
+                "'SENDER' TEXT);"); // 8: Sender
     }
 
     /** Drops the underlying database table. */
@@ -104,10 +109,26 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
             stmt.bindString(6, text);
         }
  
-        String type = entity.getType();
+        Integer type = entity.getType();
         if (type != null) {
-            stmt.bindString(7, type);
+            stmt.bindLong(7, type);
         }
+ 
+        String OwnerThread = entity.getOwnerThread();
+        if (OwnerThread != null) {
+            stmt.bindString(8, OwnerThread);
+        }
+ 
+        String Sender = entity.getSender();
+        if (Sender != null) {
+            stmt.bindString(9, Sender);
+        }
+    }
+
+    @Override
+    protected void attachEntity(BMessage entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     /** @inheritdoc */
@@ -126,7 +147,9 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // resources
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resourcesPath
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // text
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // type
+            cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // OwnerThread
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // Sender
         );
         return entity;
     }
@@ -140,7 +163,9 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
         entity.setResources(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setResourcesPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setText(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setType(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setType(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
+        entity.setOwnerThread(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setSender(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }
     
     /** @inheritdoc */
@@ -166,31 +191,129 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     }
     
     /** Internal query to resolve the "messages" to-many relationship of BThread. */
-    public List<BMessage> _queryBThread_Messages(String BMessageentityID) {
+    public List<BMessage> _queryBThread_Messages(String OwnerThread) {
         synchronized (this) {
             if (bThread_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.BMessageentityID.eq(null));
+                queryBuilder.where(Properties.OwnerThread.eq(null));
                 bThread_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bThread_MessagesQuery.forCurrentThread();
-        query.setParameter(0, BMessageentityID);
+        query.setParameter(0, OwnerThread);
         return query.list();
     }
 
     /** Internal query to resolve the "messages" to-many relationship of BUser. */
-    public List<BMessage> _queryBUser_Messages(String Owner) {
+    public List<BMessage> _queryBUser_Messages(String Sender) {
         synchronized (this) {
             if (bUser_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Owner.eq(null));
+                queryBuilder.where(Properties.Sender.eq(null));
                 bUser_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bUser_MessagesQuery.forCurrentThread();
-        query.setParameter(0, Owner);
+        query.setParameter(0, Sender);
         return query.list();
     }
 
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getBThreadDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
+            builder.append(" FROM BMESSAGE T");
+            builder.append(" LEFT JOIN BTHREAD T0 ON T.'OWNER_THREAD'=T0.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T1 ON T.'SENDER'=T1.'ENTITY_ID'");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected BMessage loadCurrentDeep(Cursor cursor, boolean lock) {
+        BMessage entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        BThread BThreadOwner = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
+        entity.setBThreadOwner(BThreadOwner);
+        offset += daoSession.getBThreadDao().getAllColumns().length;
+
+        BUser BUserSender = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
+        entity.setBUserSender(BUserSender);
+
+        return entity;    
+    }
+
+    public BMessage loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<BMessage> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<BMessage> list = new ArrayList<BMessage>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<BMessage> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<BMessage> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

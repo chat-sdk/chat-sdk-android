@@ -3,6 +3,7 @@ package com.braunster.chatsdk.network;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.firebase.FirebasePaths;
 import com.braunster.chatsdk.firebase.FirebaseTags;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -21,7 +22,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     //TODO need to implement
     @Override
     public void syncWithProgress(CompletionListener completionListener) {
-
+        //TODO get facebook id from preferences;
+        String facebookID = "adsads'asf5a5sf4a";
+        currentUser  = DaoCore.fetchOrCreateUserWithEntityID(null, facebookID);
     }
 
     @Override
@@ -62,7 +65,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     // FIXME type
     @Override
-    public ArrayList<BThread> threadsWithType(BThread type) {
+    public ArrayList<BThread> threadsWithType(BThread.Type type) {
         return null;
     }
 

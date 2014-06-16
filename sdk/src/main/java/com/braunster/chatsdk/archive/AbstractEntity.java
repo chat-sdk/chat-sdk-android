@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.dao;
+package com.braunster.chatsdk.archive;
 
 import com.braunster.chatsdk.firebase.BPath;
 

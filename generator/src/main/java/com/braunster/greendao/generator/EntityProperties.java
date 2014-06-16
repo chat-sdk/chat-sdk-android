@@ -13,6 +13,8 @@ public class EntityProperties {
     public static final String BMetaData = "BMetadata";
     public static final String BLinkedAccount = "BLinkedAccount";
     public static final String BLinkedContact = "BLinkedContact";
+    public static final String BLinkData = "BLinkData";
+
     /* General*/
 
     public static final String EntityID = "entityID";

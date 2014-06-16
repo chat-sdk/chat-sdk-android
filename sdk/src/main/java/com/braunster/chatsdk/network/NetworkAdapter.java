@@ -56,7 +56,7 @@ public class NetworkAdapter extends AbstractNetworkAdapter {
 
     // FIXME fix type
     @Override
-    public ArrayList<BThread> threadsWithType(BThread type) {
+    public ArrayList<BThread> threadsWithType(BThread.Type type) {
         return null;
     }
 

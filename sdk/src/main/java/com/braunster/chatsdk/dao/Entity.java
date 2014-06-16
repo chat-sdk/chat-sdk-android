@@ -2,27 +2,20 @@ package com.braunster.chatsdk.dao;
 
 import com.braunster.chatsdk.firebase.BPath;
 
+import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
 
 /**
- * Created by itzik on 6/14/2014.
+ * Created by itzik on 6/16/2014.
  */
-public class Entity<E extends AbstractEntity> extends AbstractEntity<E> {
+public class Entity<T> implements com.braunster.chatsdk.dao.entity_interface.Entity<T>{
 
-    public Entity() {
-    }
+    public Entity(){
 
-    public Entity(String entityID, Objects priority) {
-        super(entityID, priority);
-    }
-
-    public Entity(String entityID) {
-        super(entityID);
     }
 
     @Override
-    public void updateFrom(E e) {
+    public void updateFrom(T t) {
 
     }
 
@@ -32,7 +25,7 @@ public class Entity<E extends AbstractEntity> extends AbstractEntity<E> {
     }
 
     @Override
-    public entityType getEntityType() {
+    public Type getEntityType() {
         return null;
     }
 
@@ -51,5 +44,18 @@ public class Entity<E extends AbstractEntity> extends AbstractEntity<E> {
         return null;
     }
 
+    @Override
+    public Date lastUpdated() {
+        return null;
+    }
 
+    @Override
+    public void setEntityId(String entityID) {
+
+    }
+
+    @Override
+    public String getEntityID() {
+        return null;
+    }
 }

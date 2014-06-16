@@ -5,14 +5,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 
-import com.braunster.greendao.generator.EntityProperties;
-import com.firebase.client.Query;
-
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.query.QueryBuilder;
+
+import static com.braunster.chatsdk.dao.entity_interface.Entity.Type.bEntityTypeUser;
 
 
 /**
@@ -20,7 +23,7 @@ import de.greenrobot.dao.query.QueryBuilder;
  */
 public class DaoCore {
     private static final String TAG = DaoCore.class.getSimpleName();
-
+    private static final boolean DEBUG = true;
     private static final String DB_NAME = "andorid-chatsdk-database";
     private static String dbName;
 
@@ -35,13 +38,12 @@ public class DaoCore {
         dbName = DB_NAME;
         context = ctx;
         openDB();
-//        createTestData();
-        getData();
+        test();
     }
 
-    public static void init(Context ctx, String name){
+    public static void init(Context ctx, String databaseName){
         context = ctx;
-        dbName = name;
+        dbName = databaseName;
         openDB();
     }
 
@@ -55,38 +57,119 @@ public class DaoCore {
         daoSession = daoMaster.newSession();
     }
 
-    private static void createTestData(){
-        BUser user = new BUser();
-        user.setName("Uzi");
-        user.setEntityID("kdj3jk25");
-        daoSession.insert(user);
-
-
-        BMetadata bMetadata;
-
-        String[] values = new String[]{"Israel" , "UK", "Italy", "India", "Iraq"};
-        for (int i = 0 ; i < 5 ; i++)
-        {
-            bMetadata = new BMetadata();
-            bMetadata.setOwner(user.getEntityID());
-            bMetadata.setType("Nationality");
-            bMetadata.setKey("Country");
-            bMetadata.setValue(values[i]);
-            daoSession.insert(bMetadata);
-        }
-
-
-
+    //region Test
+    private static void test(){
+        clearTestData();
+        createTestData();
+        getTestData2();
     }
 
-    private static void getData(){
-        QueryBuilder<BUser> queryBuilder = daoSession.queryBuilder(BUser.class);
-        BUser bUser = queryBuilder.where(BUserDao.Properties.EntityID .eq("kdj3jk25")).unique();
+    private static void clearTestData(){
+        daoSession.getBUserDao().deleteAll();
+        daoSession.getBMessageDao().deleteAll();
+        daoSession.getBThreadDao().deleteAll();
+        daoSession.getBMetadataDao().deleteAll();
+        daoSession.getBLinkedAccountDao().deleteAll();
+        daoSession.getBLinkedContactDao().deleteAll();
+    }
+
+    private static void createTestData(){
+        BUser user = null, user1 = null;
+        try {
+            user = new BUser();
+            user.setName("Dan");
+            user.setLastOnline(new Date(System.currentTimeMillis()));
+            user.setEntityID("asdasdas54d5a");
+            createEntity(user);
+
+            user1 = new BUser();
+            user1.setName("Alex");
+            user1.setLastOnline(new Date(System.currentTimeMillis()));
+            user1.setEntityID("54ads54fafs54a");
+            createEntity(user1);
+
+            BMetadata bMetadata, bMetadata1;
+
+            String[] key = new String[]{"Country" , "Gender", "Age", "FootballTeam", "NationalTeam"};
+            String[] values = new String[]{"Israel" , "Male", "23", "Juventus", "Italy"};
+
+            String[] key1 = new String[]{"Country" , "Gender", "Age", "FootballTeam", "NationalTeam"};
+            String[] values1 = new String[]{"Germany" , "Male", "26", "Herta Berlin", "Germany"};
+
+            for (int i = 0 ; i < 5 ; i++)
+            {
+                bMetadata = new BMetadata();
+                bMetadata.setOwner(user.getEntityID());
+                bMetadata.setType("0");
+                bMetadata.setKey(key[i]);
+                bMetadata.setValue(values[i]);
+                createEntity(bMetadata);
+
+                bMetadata1 = new BMetadata();
+                bMetadata1.setOwner(user1.getEntityID());
+                bMetadata1.setType("1");
+                bMetadata1.setKey(key1[i]);
+                bMetadata1.setValue(values1[i]);
+                createEntity(bMetadata1);
+            }
+
+            int t = 5;
+            BThread thread;
+            String [] threadNames = new String[] { "Work", "Family", "Party", "Serie A", "World Cup"};
+            BLinkData linkData;
+
+            for (int i = 0; i < t; i++) {
+
+                thread = new BThread();
+                thread.setEntityID(generateEntity());
+                thread.setType(BThread.Type.Private.ordinal());
+                thread.setName(threadNames[i]);
+                thread.setCreator(i % 2 == 0 ? user.getEntityID() : user1.getEntityID());
+                createEntity(thread);
+
+                //region LinkData
+                linkData = new BLinkData();
+                linkData.setEntityId(generateEntity());
+                linkData.setThreadID(thread.getEntityID());
+                linkData.setUserID(user.getEntityID());
+
+                createEntity(linkData);
+
+                linkData = new BLinkData();
+                linkData.setEntityId(generateEntity());
+                linkData.setThreadID(thread.getEntityID());
+                linkData.setUserID(user1.getEntityID());
+
+                createEntity(linkData);
+                //endregion
+
+                BMessage message;
+                for (int j = 0; j < 7; j++) {
+                    message = new BMessage();
+                    message.setEntityID(generateEntity());
+                    message.setOwnerThread(thread.getEntityID());
+                    message.setText(generateEntity());
+                    message.setDate(new Date(System.currentTimeMillis()));
+                    message.setType(BMessage.Type.bText.ordinal());
+                    message.setSender(j % 2 == 0 ? user.getEntityID() : user1.getEntityID());
+                    createEntity(message);
+                }
+            }
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void getTestData(){
+        //region Description
+/*        QueryBuilder<BUser> queryBuilder = daoSession.queryBuilder(BUser.class);
+        BUser bUser = queryBuilder.where(BUserDao.Properties.EntityID .eq("asdasdas54d5a")).unique();
 
         if (bUser == null)
         {
             Log.d(TAG, "user is null");
-            bUser = queryBuilder.where(BUserDao.Properties.Name .eq("Uzi")).unique();
+            bUser = queryBuilder.where(BUserDao.Properties.Name .eq("Dan")).unique();
         }
 
         if (bUser == null)
@@ -96,35 +179,72 @@ public class DaoCore {
         else
         {
             Log.d(TAG, "has user");
-        }
+        }*/
+        //endregion
 
-        for (BUser u : daoSession.loadAll(BUser.class))
+        printUsersData(daoSession.loadAll(BUser.class));
+    }
+
+    private static void printUsersData(List<BUser> users){
+        for (BUser u : users)
         {
             if (u == null)
                 Log.d(TAG, "user is null");
             else
             {
-                Log.d(TAG, "has user, entity: " + u.getEntityID());
-                Log.d(TAG, "Metadat Size: "  + u.getBMetadata().size());
+                Log.i(TAG, "User");
+                Log.i(TAG, "entity: " + u.getEntityID());
+                Log.i(TAG, "name: " + u.getName());
+                Log.i(TAG, "Metadata Size: " + u.getBMetadata().size());
+                Log.i(TAG, "Messages Amount: " + u.getMessages().size());
                 for (BMetadata m : u.getBMetadata())
                 {
-                    Log.d(TAG, "Metadata oener: " + m.getBUser().getName() );
+                    Log.i(TAG, "Metadata of " + m.getBUser().getName() + " key: " + m.getKey() + ", Value: " + m.getValue());
                 }
+                Log.d(TAG, "ThreadsCreated Size: "  + u.getThreadsCreated().size());
+
+                for (BThread t : u.getThreadsCreated())
+                {
+                    Log.d(TAG, "Thread, Name: " + t.getName() + ", Type: " + t.getType() + ", Messages Amount: " + t.getMessages().size());
+
+                    for (BMessage m : t.getMessages())
+                        Log.i(TAG, "Message, Sender: " + m.getBUserSender().getName() + ", Text: " + m.getText());
+                }
+
             }
         }
     }
 
-    public static <T extends Entity> T fetchEntityWithID(Class c, String entityID){
+    private static void getTestData2(){
+        List<BUser> list = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.Name, "Dan");
+        printUsersData(list);
+        BThread thread = fetchEntityWithID(BThread.class, "asdasda");
+        List<BThread> threads = fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, "0");
+    }
+
+    private static String generateEntity() {
+        return new BigInteger(130, new Random()).toString(32);
+    }
+    //endregion
+
+    public static <T extends Entity<T>> T fetchEntityWithID(Class c, String entityID){
         return (T) daoSession.load(c, entityID);
     }
 
-    public static <T extends Entity> List<T> fetchEntitiesWithProperty(Class c, Property property, String name){
+    public static <T extends Entity<T>> T fetchEntityWithProperty(Class c, Property property,String value){
         QueryBuilder qb = daoSession.queryBuilder(c);
-        qb.where(property.eq(name));
+        qb.where(property.eq(value));
+        return (T) qb.unique();
+    }
+
+    public static <T extends Entity<T>> List<T> fetchEntitiesWithProperty(Class c, Property property, Object value){
+        if (DEBUG) Log.v(TAG, "fetchEntitiesWithProperty");
+        QueryBuilder qb = daoSession.queryBuilder(c);
+        qb.where(property.eq(value));
         return qb.list();
     }
 
-    public static <T extends Entity> List<T> fetchEntitiesWithProperties(Class c, Property properties[], String... values){
+    public static <T extends Entity<T>> List<T> fetchEntitiesWithProperties(Class c, Property properties[], String... values){
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
 
@@ -183,18 +303,64 @@ public class DaoCore {
                     deleteEntity(u);
                 }
             }
-
             daoSession.update(user);
         }
 
         return user;
     }
 
-    private  static void  createEntity(AbstractEntity entity){
+    public static void  createEntity(Entity entity){
+        Log.v(TAG, "createEntity");
+
+        // Generate an id for the object if needed
+        if (entity.getEntityID() == null)
+        {
+            Log.d(TAG, "Creating id for entity.");
+            entity.setEntityId(generateEntity());
+        }
+
         daoSession.insert(entity);
     }
 
-    private static void deleteEntity(AbstractEntity entity){
+
+    public static void deleteEntity(Entity entity){
         daoSession.delete(entity);
     }
+
+    // TODO see if needed to check for bad values that return from the query and might wont get cast well.
+/*    private void throwValidationError(){
+
+    }*/
+
+
+/*    public static <T extends Entity> T createEntity(){
+
+   *//*      T t = null;
+
+       switch (type)
+        {
+            case bEntityTypeUser:
+                t = (T) new BUser();
+                break;
+
+            case bEntityTypeMessages:
+                t = (T) new BMessage();
+                break;
+
+            case bEntityTypeThread:
+
+                break;
+
+            case bEntityTypeGroup:
+
+                break;
+        }*//*
+
+        T t = (T) new Entity();
+
+        if (t != null)
+            t.setEntityId(generateEntity());
+
+        return t;
+    }*/
 }

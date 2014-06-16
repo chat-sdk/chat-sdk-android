@@ -3,16 +3,14 @@ package com.braunster.chatsdk.firebase;
 import android.util.Log;
 
 import com.braunster.chatsdk.activities.LoginActivity;
-import com.braunster.chatsdk.dao.AbstractEntity;
-import com.braunster.chatsdk.dao.Entity;
+import com.braunster.chatsdk.archive.AbstractEntity;
+import com.braunster.chatsdk.archive.Entity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-
-import java.util.Objects;
 
 /**
  * Created by itzik on 6/8/2014.
