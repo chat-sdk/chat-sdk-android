@@ -4,18 +4,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.query.QueryBuilder;
-
-import static com.braunster.chatsdk.dao.entity_interface.Entity.Type.bEntityTypeUser;
 
 
 /**
@@ -113,16 +109,17 @@ public class DaoCore {
                 createEntity(bMetadata1);
             }
 
-            int t = 5;
+            int t = 9;
             BThread thread;
-            String [] threadNames = new String[] { "Work", "Family", "Party", "Serie A", "World Cup"};
+            String [] threadNames = new String[] { "Work", "Family", "Party", "Serie A", "World Cup", "School", "Army Friends", "JCI"};
+            int [] threadType = new int[] { 0, 0, 1, 1, 1, 0, 0, 0};
             BLinkData linkData;
 
             for (int i = 0; i < t; i++) {
 
                 thread = new BThread();
                 thread.setEntityID(generateEntity());
-                thread.setType(BThread.Type.Private.ordinal());
+                thread.setType(threadType[i]);
                 thread.setName(threadNames[i]);
                 thread.setCreator(i % 2 == 0 ? user.getEntityID() : user1.getEntityID());
                 createEntity(thread);
@@ -222,7 +219,7 @@ public class DaoCore {
         List<BThread> threads = fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, "0");
     }
 
-    private static String generateEntity() {
+    public static String generateEntity() {
         return new BigInteger(130, new Random()).toString(32);
     }
     //endregion
@@ -313,10 +310,11 @@ public class DaoCore {
         Log.v(TAG, "createEntity");
 
         // Generate an id for the object if needed
-        if (entity.getEntityID() == null)
+        if (entity.getEntityID() == null || entity.getEntityID().equals(""))
         {
             Log.d(TAG, "Creating id for entity.");
             entity.setEntityId(generateEntity());
+            // FIXME entity id is not saved to the object
         }
 
         daoSession.insert(entity);

@@ -5,10 +5,10 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.NetworkInterface;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by itzik on 6/9/2014.
@@ -30,12 +30,12 @@ public class NetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void sendMessage(BMessage message, CompletionListener completionListener) {
+    public void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener) {
 
     }
 
     @Override
-    public void createThreadWithUsers(ArrayList<BUser> users, CompletionListener completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
 
     }
 

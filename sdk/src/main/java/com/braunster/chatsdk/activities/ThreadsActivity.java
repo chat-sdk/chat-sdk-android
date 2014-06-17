@@ -11,9 +11,6 @@ import android.widget.ListView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.List;
@@ -23,8 +20,9 @@ import java.util.List;
  */
 public class ThreadsActivity extends ActionBarActivity {
 
+
     //TODO add selection of thread type to see.
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    private static final String TAG = ThreadsActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 
     private ListView listThreads;
@@ -45,7 +43,7 @@ public class ThreadsActivity extends ActionBarActivity {
     }
 
     private void initList(){
-        List<BThread> threads = BNetworkManager.threadsWithType(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Private);
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + threads.size());
 

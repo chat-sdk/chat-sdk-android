@@ -2,11 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.braunster.androidchatsdk.app" >
 
+    <uses-sdk android:minSdkVersion="integer"/>
+
     <application
+
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
         android:name=".AppObj">
 
         <activity

@@ -1,17 +1,21 @@
 package com.braunster.chatsdk.network;
 
 
+import android.content.Context;
 import android.location.LocationManager;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,47 +28,75 @@ public class BNetworkManager implements ActivityListener {
     private static final String TAG = BNetworkManager.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    private static HashSet<ActivityListener> listeners = new HashSet<ActivityListener>();
+    private static BNetworkManager instance;
 
-    private static List<ActivityListener> activityListeners= new ArrayList<ActivityListener>();
+    private HashSet<ActivityListener> listeners = new HashSet<ActivityListener>();
 
-    private static AbstractNetworkAdapter networkAdapter;
+    private List<ActivityListener> activityListeners= new ArrayList<ActivityListener>();
+
+    private AbstractNetworkAdapter networkAdapter;
+
+    public static void init(Context ctx){
+        DaoCore.init(ctx);
+    }
+
+    public static BNetworkManager getInstance(){
+        if (DEBUG) Log.v(TAG, "getInstance");
+        if (instance == null) {
+            instance = new BNetworkManager();
+        }
+        return instance;
+    }
 
     /* Added set network adapter*/
-    public static void syncWithProgress(CompletionListener completionListener) {
+    public void syncWithProgress(CompletionListener completionListener) {
         if (networkAdapter != null)
             networkAdapter.syncWithProgress(completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static void getFriendsListWithListener(CompletionListenerWithData completionListenerWithData) {
+    public void getFriendsListWithListener(CompletionListenerWithData completionListenerWithData) {
         if (networkAdapter != null)
             networkAdapter.getFriendsListWithListener(completionListenerWithData);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static BUser currentUser() {
+    public BUser currentUser() {
         if (networkAdapter != null)
             return networkAdapter.currentUser();
-        else return null;
+        else
+        {
+            if (DEBUG) Log.e(TAG, "Network adapter is null");
+            return null;
+        }
     }
 
-    public static void createThreadWithUsers(ArrayList<BUser> users, CompletionListener completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
         if (networkAdapter != null)
             networkAdapter.createThreadWithUsers(users, completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static void createPublicThreadWithName(String name, CompletionListener completionListener) {
+    public void createThreadWithUsers(CompletionListenerWithData<String>  completionListener, BUser...users) {
+        if (networkAdapter != null)
+            networkAdapter.createThreadWithUsers(Arrays.asList(users), completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
+    }
+
+    public void createPublicThreadWithName(String name, CompletionListener completionListener) {
         if (networkAdapter != null)
             networkAdapter.createPublicThreadWithName(name, completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static void setLastOnline(Date lastOnline) {
+    public void setLastOnline(Date lastOnline) {
         if (networkAdapter != null)
             networkAdapter.setLastOnline(lastOnline);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static void deleteThreadWithEntityID(String entityId, final CompletionListener completionListener) {
+    public void deleteThreadWithEntityID(String entityId, final CompletionListener completionListener) {
         if (networkAdapter != null)
-        {
             networkAdapter.deleteThreadWithEntityID(entityId, new CompletionListener() {
                 @Override
                 public void onDone() {
@@ -77,46 +109,59 @@ public class BNetworkManager implements ActivityListener {
                     completionListener.onDoneWithError();
                 }
             });
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
+
+    }
+
+    public ArrayList<BThread> threadsWithType(BThread.Type type) {
+        if (networkAdapter != null)
+            return networkAdapter.threadsWithType(type);
+        else
+        {
+            if (DEBUG) Log.e(TAG, "Network adapter is null");
+            return null;
         }
     }
 
-    public static ArrayList<BThread> threadsWithType(BThread.Type type) {
-        if (networkAdapter != null)
-            return networkAdapter.threadsWithType(type);
-        else return null;
-    }
-
-    public static String serverURL() {
+    public String serverURL() {
         if (networkAdapter != null)
             return networkAdapter.serverURL();
         return ""; // Or should i return null, Will see in the future.
     }
 
-    public static void sendMessageWithText(String text, String threadEntityId, CompletionListener completionListener) {
+    public void sendMessageWithText(String text, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
+        if (DEBUG) Log.v(TAG, "sendMessageWithText");
         if (networkAdapter != null)
             networkAdapter.sendMessageWithText(text, threadEntityId, completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
      }
 
-    public static void sendMessageWithImage(ImageView imageView, String threadEntityId, CompletionListener completionListener) {
+    public void sendMessageWithImage(ImageView imageView, String threadEntityId, CompletionListener completionListener) {
         if (networkAdapter != null)
             networkAdapter.sendMessageWithImage(imageView, threadEntityId, completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public  static void sendMessageWithLocation(LocationManager locationManager, String threadEntityId, CompletionListener completionListener) {
+    public void sendMessageWithLocation(LocationManager locationManager, String threadEntityId, CompletionListener completionListener) {
         if (networkAdapter != null)
             networkAdapter.sendMessageWithLocation(locationManager, threadEntityId, completionListener);
+        else if (DEBUG) Log.e(TAG, "Network adapter is null");
     }
 
-    public static void save() {
+    public void save() {
         if (networkAdapter != null)
             networkAdapter.save();
     }
 
     // TODO add order veriable for the data.
-    public static List<BMessage> getMessagesForThreadForEntityID(String entityId) {
+    public List<BMessage> getMessagesForThreadForEntityID(String entityId) {
         if (networkAdapter != null)
             return networkAdapter.getMessagesForThreadForEntityID(entityId);
-        else return null;
+        else
+        {
+            if (DEBUG) Log.e(TAG, "Network adapter is null");
+            return null;
+        }
     }
 
     @Override
@@ -131,24 +176,35 @@ public class BNetworkManager implements ActivityListener {
             l.onMessageAdded(message);
     }
 
-    public static void setNetworkAdapter(AbstractNetworkAdapter adapter) {
+    public void setNetworkAdapter(AbstractNetworkAdapter adapter) {
         networkAdapter = adapter;
+        networkAdapter.setActivityListener(this);
     }
 
-    public static void setNewDataListener(ActivityListener newDataListener) {
-
-    }
-
-    public static void addActivityListener(ActivityListener activityListener){
+    public ActivityListener addActivityListener(ActivityListener activityListener){
         if (!listeners.contains(activityListener))
             listeners.add(activityListener);
+
+        return activityListener;
     }
 
     public void removeActivityListener(ActivityListener activityListener){
         listeners.remove(activityListener);
     }
 
+    public AbstractNetworkAdapter getNetworkAdapter() {
+        return networkAdapter;
+    }
 
+    public void dispatchMessageAdded(BMessage message){
+        for (ActivityListener a : listeners)
+            a.onMessageAdded(message);
+    }
+
+    public void dispatchThreadAdded(BThread thread){
+        for (ActivityListener a : listeners)
+            a.onThreadAdded(thread);
+    }
     /* ASK -(void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     if (_networkAdapter) {
         if ([_networkAdapter respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {

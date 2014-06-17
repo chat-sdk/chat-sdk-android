@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.braunster.chatsdk.fragments.ThreadsFragment">
+    <item android:id="@+id/action_add_chat_room"
+        android:title="@string/action_add_chat"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="10" />
+</menu>

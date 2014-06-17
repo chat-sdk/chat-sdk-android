@@ -57,4 +57,5 @@ public class EntityProperties {
     public static final String Value = "Value";
     public static final String LastMessageAdded = "LastMaessageAdded";
     public static final String Owner = "Owner";
+    public static final String Online = "Online";
 }

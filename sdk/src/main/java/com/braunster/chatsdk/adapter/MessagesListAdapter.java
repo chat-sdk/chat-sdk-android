@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BMessage;
 
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,8 +40,11 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private Date date;
 
-    public MessagesListAdapter(Activity activity){
+    private String userID = "";
+
+    public MessagesListAdapter(Activity activity, String userID){
         mActivity = activity;
+        this.userID = userID;
     }
 
     public MessagesListAdapter(Activity activity, List<BMessage> listData){
@@ -70,18 +72,18 @@ public class MessagesListAdapter extends BaseAdapter{
 
         row = view;
 
-/*
-        if (listData.get(position).direction.equals(Message.IN))
+
+        if (listData.get(position).getSender().equals(userID))
         {
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_friend, null);
+            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_user, null);
             row.setBackgroundColor(Color.CYAN);
         }
         else
         {
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_user, null);
+            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_friend, null);
             row.setBackgroundColor(Color.WHITE);
         }
-*/
+
 
         txtContent = (TextView) row.findViewById(R.id.txt_content);
         txtTime = (TextView) row.findViewById(R.id.txt_time);
@@ -92,8 +94,8 @@ public class MessagesListAdapter extends BaseAdapter{
             txtTime.setTextColor(textColor);
         }
 
-//        date = new Date(listData.get(position).time);
-//        txtContent.setText(listData.get(position).content == null ? "ERROR" : listData.get(position).content);
+        date = listData.get(position).getDate();
+        txtContent.setText(listData.get(position).getText() == null ? "ERROR" : listData.get(position).getText());
         txtTime.setText(String.valueOf(simpleDateFormat.format(date)));
         return row;
     }

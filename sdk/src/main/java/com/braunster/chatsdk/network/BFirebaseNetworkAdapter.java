@@ -5,11 +5,8 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.firebase.FirebasePaths;
-import com.braunster.chatsdk.firebase.FirebaseTags;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.facebook.model.GraphUser;
-import com.firebase.client.Firebase;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +25,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void getFriendsListWithListener(CompletionListenerWithData<List<GraphUser>> completionListener) {
+    public void getFriendsListWithListener(CompletionListenerWithData completionListener) {
         BFacebookManager.getUserFriendList(completionListener);
     }
 
@@ -39,12 +36,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void sendMessage(BMessage message, CompletionListener completionListener) {
+    public void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener) {
 
     }
 
     @Override
-    public void createThreadWithUsers(ArrayList<BUser> users, CompletionListener completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
 
     }
 

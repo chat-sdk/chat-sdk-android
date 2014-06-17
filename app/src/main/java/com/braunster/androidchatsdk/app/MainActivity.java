@@ -1,17 +1,15 @@
 package com.braunster.androidchatsdk.app;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.braunster.chatsdk.Utils;
+import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.facebook.widget.ProfilePictureView;
-
-import junit.framework.Test;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,7 +19,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_view_pager);
 
 
         String sha = Utils.getSHA(this, getPackageName());

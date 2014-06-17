@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(14, "com.braunster.chatsdk.dao");
+        Schema schema = new Schema(16, "com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -53,6 +53,7 @@ public class Generator {
 
         user.addDateProperty(EntityProperties.LastOnline);
         user.addDateProperty(EntityProperties.LastUpdated);
+        user.addBooleanProperty(EntityProperties.Online);
 
         user.addIntProperty(EntityProperties.FontSize);
         user.addStringProperty(EntityProperties.FontName);
@@ -67,7 +68,8 @@ public class Generator {
 
     private static void addLinkedContact(Schema schema) {
         linkedContact = schema.addEntity(EntityProperties.BLinkedContact);
-        linkedContact.addStringProperty(EntityProperties.EntityID).primaryKey();
+        linkedContact.addIdProperty();
+        linkedContact.addStringProperty(EntityProperties.EntityID);
         linkedContact.addStringProperty(EntityProperties.AuthenticationID);
     }
 
@@ -110,7 +112,8 @@ public class Generator {
     private static void setProperties(){
         // LinkedContact, LinkedAccount and MetaData - START
         Property userProp = linkedContact.addStringProperty(EntityProperties.Owner).getProperty();
-        linkedContact.addToOne(user, userProp);
+        ToOne toOneUserProp = linkedContact.addToOne(user, userProp);
+        toOneUserProp.setName("Contact");
 
         Property userProp2 = linkedAccount.addStringProperty(EntityProperties.User).getProperty();
         linkedAccount.addToOne(user, userProp2);

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils;
+import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -56,11 +56,11 @@ public class LoginActivity extends Activity{
         super.onResume();
 
         // Auto check for session state change if session is valid.
-        Session session = Session.getActiveSession();
-        if (session != null &&
-                (session.isOpened() || session.isClosed()) ) {
-            onSessionStateChange(session, session.getState(), null);
-        }
+//        Session session = Session.getActiveSession();
+//        if (session != null &&
+//                (session.isOpened() || session.isClosed()) ) {
+//            onSessionStateChange(session, session.getState(), null);
+//        }
 
         uiHelper.onResume();
     }
@@ -96,7 +96,9 @@ public class LoginActivity extends Activity{
             public void onDone() {
                 if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
                 TestNetworkAdapter testNetworkAdapter = new TestNetworkAdapter();
-                testNetworkAdapter.syncWithProgress(new CompletionListener() {
+
+                BNetworkManager.getInstance().setNetworkAdapter(testNetworkAdapter);
+                BNetworkManager.getInstance().syncWithProgress(new CompletionListener() {
                     @Override
                     public void onDone() {
 
@@ -108,9 +110,7 @@ public class LoginActivity extends Activity{
                     }
                 });
 
-                BNetworkManager.setNetworkAdapter(testNetworkAdapter);
-
-                Intent intent = new Intent(LoginActivity.this, ThreadsActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
 

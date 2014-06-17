@@ -13,7 +13,6 @@ import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.facebook.model.GraphUser;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +28,7 @@ public abstract class AbstractNetworkAdapter {
     private static final String TAG = AbstractNetworkAdapter.class.getSimpleName();
     private static final boolean DEBUG = true;
 
-    private ActivityListener newDataListener;
+    public ActivityListener activityListener;
 
     protected BUser currentUser;
     /*
@@ -42,16 +41,16 @@ public abstract class AbstractNetworkAdapter {
     public abstract void syncWithProgress(CompletionListener completionListener);
 
     /** Get user facebook friends, Calls The FBManager for preforming the fetch friends task.*/
-    public abstract void getFriendsListWithListener(CompletionListenerWithData<List<GraphUser>> completionListener);
+    public abstract void getFriendsListWithListener(CompletionListenerWithData completionListener);
 
     /** ASK I have no idea what is id<PUser> stands for.*/
     public abstract BUser currentUser();
 
     /** Send message by given data stored in the BMessage Obj.*/
-    public abstract void sendMessage(BMessage message, CompletionListener completionListener);
+    public abstract void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener);
 
     /** Create a new messaged thread with the given users as participants.*/
-    public abstract void createThreadWithUsers(ArrayList<BUser> users, CompletionListener completionListener);
+    public abstract void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener);
 
     /** Create a public thread for given name.*/
     public abstract void createPublicThreadWithName(String name, CompletionListener completionListener);
@@ -86,14 +85,15 @@ public abstract class AbstractNetworkAdapter {
     public abstract void deleteThread(BThread thread, CompletionListener completionListener);
 
     /** Set a listener that will notify the registered class each time a thread or a message is added. */
-    public void setNewDataListener(ActivityListener newDataListener){
-        this.newDataListener = newDataListener;
+    public void setActivityListener(ActivityListener newDataListener){
+        this.activityListener = newDataListener;
     }
 
     public abstract String serverURL();
 
     /** Send text message.*/
-    public void sendMessageWithText(String text, String threadEntityId, final CompletionListener completionListener){
+    public void sendMessageWithText(String text, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
+        if (DEBUG) Log.v(TAG, "sendMessageWithText");
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setText(text);
@@ -102,11 +102,12 @@ public abstract class AbstractNetworkAdapter {
         message.setDate(new Date(System.currentTimeMillis()));
         message.setBUserSender(currentUser());
 
-        sendMessage(message, new CompletionListener() {
+        sendMessage(message, new CompletionListenerWithData<BMessage>() {
             @Override
-            public void onDone() {
-                DaoCore.createEntity(message);
-                completionListener.onDone();
+            public void onDone(BMessage bMessage) {
+                if (DEBUG) Log.v(TAG, "sendMessageWithText, onDone. Message ID: " + bMessage.getEntityID());
+                DaoCore.createEntity(bMessage);
+                completionListener.onDone(bMessage);
             }
 
             @Override

@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -9,10 +8,6 @@ import android.widget.EditText;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
 
@@ -38,7 +33,7 @@ public class ProfileActivity extends ActionBarActivity {
         initActionBar();
         initViews();
 
-        BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
+       BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
             @Override
             public void onDone(GraphUser graphUser) {
                 Log.d(TAG, "Name: " + graphUser.getName());
@@ -63,8 +58,6 @@ public class ProfileActivity extends ActionBarActivity {
 
            }
        });
-
-
     }
 
     private void initActionBar(){

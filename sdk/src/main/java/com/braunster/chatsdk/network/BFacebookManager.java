@@ -3,7 +3,6 @@ package com.braunster.chatsdk.network;
 import android.content.Context;
 import android.util.Log;
 
-import com.braunster.chatsdk.dao.DaoCore;
 import com.braunster.chatsdk.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -50,7 +49,6 @@ public class BFacebookManager {
 
     public static void init(String id, Context context) {
        if (DEBUG) Log.i(TAG, "Initialized");
-        DaoCore.init(context);
         Firebase ref = FirebasePaths.firebaseRef();
         simpleLogin = new SimpleLogin(ref);
         facebookAppID = id;
@@ -67,6 +65,9 @@ public class BFacebookManager {
 
                     completionListener.onDone();
                 } else {
+                    if (error != null)
+                        Log.e(TAG, "Error: " + error.getMessage());
+
                     setNetworkCredentials(null, null, null);
                     completionListener.onDoneWithError();
                 }

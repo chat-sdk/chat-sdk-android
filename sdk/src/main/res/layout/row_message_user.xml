@@ -9,11 +9,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Name"
+        android:text="Content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:id="@+id/txt_content"
-        android:padding="5dp"/>
+        style="@style/TextViewStyle"/>
 
 
     <TextView
@@ -24,7 +24,6 @@
         android:id="@+id/txt_time"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:padding="5dp"
-        android:textSize="15dp"
+        style="@style/TextViewStyleSmall"
         android:layout_below="@+id/txt_content"/>
 </RelativeLayout>
