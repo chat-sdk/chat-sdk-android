@@ -14,6 +14,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.ImageLoading.ImageLoader;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
@@ -22,7 +23,7 @@ import com.braunster.chatsdk.dao.BUser;
 import java.util.HashMap;
 import java.util.List;
 
-public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
+public class VolleyContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;
     private List<String> _listDataHeader; // header titles
@@ -31,13 +32,13 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private TextView txtContactName;
     private TextView txtHeader;
-    private ImageView imgPicture;
+    private NetworkImageView imgPicture;
     private ImageLoader imageLoader;
     private LayoutInflater inflater;
     private BUser user;
 
-    public ContactsExpandableListAdapter(Context context, List<String> listDataHeader,
-                                 HashMap<String, List<BUser>> listChildData) {
+    public VolleyContactsExpandableListAdapter(Context context, List<String> listDataHeader,
+                                               HashMap<String, List<BUser>> listChildData) {
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
@@ -64,21 +65,18 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         final String childText = user.getName();
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.row_contact, null);
+            convertView = inflater.inflate(R.layout.row_volley_contact, null);
         }
 
         txtContactName = (TextView) convertView.findViewById(R.id.txt_name);
-        imgPicture = (ImageView) convertView.findViewById(R.id.img_profile_picture);
+        imgPicture = (NetworkImageView) convertView.findViewById(R.id.img_profile_picture);
 
         txtContactName.setText(childText);
 
         if (user.pictureExist)
         {
             imgPicture.setImageResource(0);
-//            imageLoader.DisplayImage(user.pictureURL, imgPicture);
-            VolleyUtills.getImageLoader().get(user.pictureURL,
-                                VolleyUtills.getImageLoader().getImageListener(imgPicture,
-                                        R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
+            imgPicture.setImageUrl(user.pictureURL, VolleyUtills.getImageLoader());
         }
         else
         {

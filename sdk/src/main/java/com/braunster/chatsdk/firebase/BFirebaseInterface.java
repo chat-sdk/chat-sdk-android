@@ -31,7 +31,7 @@ public class BFirebaseInterface {
                 Firebase ref = FirebasePaths.appendPathComponent(entity.getPath().toString());
                 String priority = "";
 
-                /* Ask if think this is needed in andoid or just check for null,
+                /* Ask if think this is needed in android or just check for null,
                 if ([entity respondsToSelector:@selector(getPriority)]) {
                     priority = entity.getPriority;
                 }*/

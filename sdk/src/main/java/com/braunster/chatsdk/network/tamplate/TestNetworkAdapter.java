@@ -9,7 +9,7 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.DaoCore;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
@@ -34,18 +34,6 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     public void syncWithProgress(CompletionListener completionListener) {
         currentUser = DaoCore.fetchEntityWithProperty(BUser.class, BThreadDao.Properties.Name, "Dan");
 
-        getFriendsListWithListener(new CompletionListenerWithData() {
-            @Override
-            public void onDone(Object o) {
-
-            }
-
-            @Override
-            public void onDoneWithError() {
-
-            }
-        });
-
         if (completionListener == null)
             return;
 
@@ -61,7 +49,11 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     // ASK if needed
     public  void getContactListWithListener(CompletionListenerWithData<List<BLinkedContact>> completionListenerWithData){
         // So we dont create the friends again.
-        // ASK if the owner is the user that added the contact or that owner is a llink to the contact profile.
+        /*
+          * ASK if the owner is the user that added the contact or that owner is a llink to the contact profile.
+          * ASK Do each user has one Linked contact that has in it a list of all the users that are his friends?.
+            */
+
         // Get the user contacts.
         List<BLinkedContact> linkedContacts = DaoCore.fetchEntitiesWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, currentUser().getEntityID());
         completionListenerWithData.onDone(linkedContacts);
@@ -69,81 +61,23 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void getFriendsListWithListener(CompletionListenerWithData completionListener) {
+    public void getFriendsListWithListener(final CompletionListenerWithData completionListener) {
 
-        if (isTestCreated)
-        {
-            completionListener.onDone(list);
-            return;
-        }
+        getContactListWithListener(new CompletionListenerWithData<List<BLinkedContact>>() {
+            @Override
+            public void onDone(List<BLinkedContact> bLinkedContacts) {
+                List<BUser> users = new ArrayList<BUser>();
+                for (BLinkedContact c : bLinkedContacts)
+                    users.add(c.getContact());
 
-        isTestCreated = true;
+                completionListener.onDone(users);
+            }
 
-        BUser user = new BUser();
-        user.setEntityId(DaoCore.generateEntity());
-        user.setName("Bob");
-        user.hasApp = true;
-        user.setOnline(true);
-        user.pictureExist = true;
-        user.pictureURL = "http://www.thedrinksbusiness.com/wordpress/wp-content/uploads/2012/05/Brad.jpg";
+            @Override
+            public void onDoneWithError() {
 
-        BUser user1 = new BUser();
-        user1.setEntityId(DaoCore.generateEntity());
-        user1.setName("Giorgio");
-        user1.hasApp = true;
-        user1.setOnline(false);
-        user1.pictureExist = true;
-        user1.pictureURL = "http://www.insidespanishfootball.com/wp-content/uploads/2013/07/Cheillini-300x203.jpg";
-
-        BUser user2 = new BUser();
-        user2.setEntityId(DaoCore.generateEntity());
-        user2.setName("Claudio");
-        user2.setOnline(false);
-        user2.hasApp = true;
-        user2.pictureExist = true;
-        user2.pictureURL = "http://www.affashionate.com/wp-content/uploads/2013/04/Claudio-Marchisio-season-2012-2013-claudio-marchisio-32347274-741-1024.jpg";
-
-        BUser user3 = new BUser();
-        user3.setEntityId(DaoCore.generateEntity());
-        user3.setName("John");
-        user3.hasApp = true;
-        user3.setOnline(true);
-        user3.pictureExist = true;
-        user3.pictureURL = "http://images2.alphacoders.com/249/249012.jpg";
-
-        list = new ArrayList<BUser>();
-        list.add(user);
-        list.add(user1);
-        list.add(user2);
-        list.add(user3);
-
-        DaoCore.createEntity(user);
-        DaoCore.createEntity(user1);
-        DaoCore.createEntity(user2);
-        DaoCore.createEntity(user3);
-
-        BLinkedContact linkedContact = new BLinkedContact();
-        linkedContact.setEntityId(currentUser().getEntityID());
-        linkedContact.setOwner(user.getEntityID());
-        DaoCore.createEntity(linkedContact);
-
-        BLinkedContact linkedContact1 = new BLinkedContact();
-        linkedContact1.setEntityId(currentUser().getEntityID());
-        linkedContact1.setOwner(user1.getEntityID());
-        DaoCore.createEntity(linkedContact1);
-
-        BLinkedContact linkedContact2 = new BLinkedContact();
-        linkedContact2.setEntityId(currentUser().getEntityID());
-        linkedContact2.setOwner(user2.getEntityID());
-        DaoCore.createEntity(linkedContact2);
-
-        BLinkedContact linkedContact3 = new BLinkedContact();
-        linkedContact3.setEntityId(currentUser().getEntityID());
-        linkedContact3.setOwner(user3.getEntityID());
-        DaoCore.createEntity(linkedContact3);
-
-
-        completionListener.onDone(list);
+            }
+        });
     }
 
     @Override
@@ -153,7 +87,7 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override
     public void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener) {
-        if (DEBUG) Log.v(TAG, "sendMessageWithText");
+        if (DEBUG) Log.v(TAG, "sendMessage");
         /* DO server stuff with the message*/
         // Generate id for the message, The id will come from the server.
         message.setEntityId(DaoCore.generateEntity());

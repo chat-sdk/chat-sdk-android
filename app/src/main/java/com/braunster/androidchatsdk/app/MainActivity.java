@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.braunster.chatsdk.Utils.Utils;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.facebook.widget.ProfilePictureView;
@@ -21,6 +22,11 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
 
+        Log.e("asfafsafsfafasfa" , "asdasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssjkdgjalkh" +
+                "agsdgalkdshgs" +
+                "agdsghaksjdhgkasjgh" +
+                "asdgjhdskjghakjdgh" +
+                "ajdsghkjdsgjdsh");
 
         String sha = Utils.getSHA(this, getPackageName());
 
@@ -56,6 +62,9 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Log.e("asdasd", "Settingssssssss");
+            DaoCore.clearTestData();
+            DaoCore.createTestData();
             return true;
         }
         return super.onOptionsItemSelected(item);

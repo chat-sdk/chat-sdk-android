@@ -34,7 +34,7 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
         public final static Property Resources = new Property(3, String.class, "resources", false, "RESOURCES");
         public final static Property ResourcesPath = new Property(4, String.class, "resourcesPath", false, "RESOURCES_PATH");
         public final static Property Text = new Property(5, String.class, "text", false, "TEXT");
-        public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
+        public final static Property Type = new Property(6, int.class, "type", false, "TYPE");
         public final static Property OwnerThread = new Property(7, String.class, "OwnerThread", false, "OWNER_THREAD");
         public final static Property Sender = new Property(8, String.class, "Sender", false, "SENDER");
     };
@@ -57,13 +57,13 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BMESSAGE' (" + //
-                "'DATE' INTEGER," + // 0: date
+                "'DATE' INTEGER NOT NULL ," + // 0: date
                 "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 1: entityID
                 "'DIRTY' INTEGER," + // 2: dirty
                 "'RESOURCES' TEXT," + // 3: resources
                 "'RESOURCES_PATH' TEXT," + // 4: resourcesPath
-                "'TEXT' TEXT," + // 5: text
-                "'TYPE' INTEGER," + // 6: type
+                "'TEXT' TEXT NOT NULL ," + // 5: text
+                "'TYPE' INTEGER NOT NULL ," + // 6: type
                 "'OWNER_THREAD' TEXT," + // 7: OwnerThread
                 "'SENDER' TEXT);"); // 8: Sender
     }
@@ -78,11 +78,7 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     @Override
     protected void bindValues(SQLiteStatement stmt, BMessage entity) {
         stmt.clearBindings();
- 
-        java.util.Date date = entity.getDate();
-        if (date != null) {
-            stmt.bindLong(1, date.getTime());
-        }
+        stmt.bindLong(1, entity.getDate().getTime());
  
         String entityID = entity.getEntityID();
         if (entityID != null) {
@@ -103,16 +99,8 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
         if (resourcesPath != null) {
             stmt.bindString(5, resourcesPath);
         }
- 
-        String text = entity.getText();
-        if (text != null) {
-            stmt.bindString(6, text);
-        }
- 
-        Integer type = entity.getType();
-        if (type != null) {
-            stmt.bindLong(7, type);
-        }
+        stmt.bindString(6, entity.getText());
+        stmt.bindLong(7, entity.getType());
  
         String OwnerThread = entity.getOwnerThread();
         if (OwnerThread != null) {
@@ -141,13 +129,13 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     @Override
     public BMessage readEntity(Cursor cursor, int offset) {
         BMessage entity = new BMessage( //
-            cursor.isNull(offset + 0) ? null : new java.util.Date(cursor.getLong(offset + 0)), // date
+            new java.util.Date(cursor.getLong(offset + 0)), // date
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // dirty
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // resources
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resourcesPath
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // text
-            cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
+            cursor.getString(offset + 5), // text
+            cursor.getInt(offset + 6), // type
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // OwnerThread
             cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // Sender
         );
@@ -157,13 +145,13 @@ public class BMessageDao extends AbstractDao<BMessage, String> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, BMessage entity, int offset) {
-        entity.setDate(cursor.isNull(offset + 0) ? null : new java.util.Date(cursor.getLong(offset + 0)));
+        entity.setDate(new java.util.Date(cursor.getLong(offset + 0)));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setDirty(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
         entity.setResources(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setResourcesPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setText(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setType(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
+        entity.setText(cursor.getString(offset + 5));
+        entity.setType(cursor.getInt(offset + 6));
         entity.setOwnerThread(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setSender(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }

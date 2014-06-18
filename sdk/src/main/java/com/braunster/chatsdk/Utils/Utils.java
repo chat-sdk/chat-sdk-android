@@ -1,16 +1,28 @@
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.core.Entity;
+
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
+import java.util.Date;
 
 /**
  * Created by itzik on 6/9/2014.
@@ -42,8 +54,7 @@ public class Utils {
         return "Error";
     }
 
-    public static void CopyStream(InputStream is, OutputStream os)
-    {
+    public static void CopyStream(InputStream is, OutputStream os){
         final int buffer_size=1024;
         try
         {
@@ -58,4 +69,35 @@ public class Utils {
         }
         catch(Exception ex){}
     }
+
+    private static String getRealPathFromURI(Activity activity, Uri uri){
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = activity.getContentResolver()
+                .query(uri, proj, null, null, null);
+
+        int column_index = cursor.getColumnIndexOrThrow(proj[0]);
+
+        cursor.moveToFirst();
+
+        String path = cursor.getString(column_index);
+
+        cursor.close();
+        return path;
+    }
+
+    public static File getFile(Activity activity, Uri uri) throws NullPointerException{
+        return  new File(Uri.parse(getRealPathFromURI(activity, uri)).getPath());
+    }
+
+    public static Bitmap decodeFrom64(byte[] bytesToDecode){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inDither = true;
+        byte[] bytes = Base64.decode(bytesToDecode, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        return bitmap;
+    }
+
+
 }

@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class ProfileActivity extends ActionBarActivity {
 
-
+    // TODO keyboard popups on screen load
     private static final String TAG = ProfileActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 

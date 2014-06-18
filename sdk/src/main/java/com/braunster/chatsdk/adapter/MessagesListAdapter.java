@@ -3,13 +3,16 @@ package com.braunster.chatsdk.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.dao.BMessage;
 
 import java.text.SimpleDateFormat;
@@ -25,6 +28,11 @@ public class MessagesListAdapter extends BaseAdapter{
     // FIXME  fix content overlap the hour.
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
 
+    /* Row types */
+    private static final int TYPE_TEXT =0;
+    private static final int TYPE_IMAGE = 1;
+    private static final int TYPE_LOCATION = 2;
+
     private Activity mActivity;
 
     private List<BMessage> listData = new ArrayList<BMessage>();
@@ -38,18 +46,42 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm");
 
+    private ImageView image;
+
     private Date date;
 
     private String userID = "";
 
+    private LayoutInflater inflater;
+
+    private BMessage message;
+
+    int type = -1;
+
     public MessagesListAdapter(Activity activity, String userID){
         mActivity = activity;
         this.userID = userID;
+        inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
     }
 
     public MessagesListAdapter(Activity activity, List<BMessage> listData){
         mActivity = activity;
+
+        if (listData == null)
+            listData = new ArrayList<BMessage>();
+
         this.listData = listData;
+        inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return BMessage.Type.values().length;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return listData.get(position).getType();
     }
 
     @Override
@@ -72,31 +104,49 @@ public class MessagesListAdapter extends BaseAdapter{
 
         row = view;
 
+        type = getItemViewType(position);
 
-        if (listData.get(position).getSender().equals(userID))
+        message = listData.get(position);
+
+        switch (type)
         {
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_user, null);
-            row.setBackgroundColor(Color.CYAN);
-        }
-        else
-        {
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_message_friend, null);
-            row.setBackgroundColor(Color.WHITE);
+            case TYPE_TEXT:
+
+                if (message.getSender().equals(userID))
+                {
+                    row = inflater.inflate(R.layout.row_message_user, null);
+                    row.setBackgroundColor(Color.CYAN);
+                    txtContent = (TextView) row.findViewById(R.id.txt_content);
+                    txtContent.setText(message.getText() == null ? "ERROR" : listData.get(position).getText());
+                }
+                else
+                {
+                    row = inflater.inflate(R.layout.row_message_friend, null);
+                    row.setBackgroundColor(Color.WHITE);
+                }
+                break;
+
+            case TYPE_IMAGE:
+                if (message.getSender().equals(userID))
+                    row = inflater.inflate(R.layout.row_image_user, null);
+                else
+                    row = inflater.inflate(R.layout.row_image_friend, null);
+
+                image = (ImageView) row.findViewById(R.id.image);
+                // TODO save image to cache
+                image.setImageBitmap(Utils.decodeFrom64(message.getText().getBytes()));
+                break;
+
+            case TYPE_LOCATION:
+
+                break;
         }
 
-
-        txtContent = (TextView) row.findViewById(R.id.txt_content);
+        // Set the time of the sending.
         txtTime = (TextView) row.findViewById(R.id.txt_time);
-
-        if (textColor != -1)
-        {
-            txtContent.setTextColor(textColor);
-            txtTime.setTextColor(textColor);
-        }
-
         date = listData.get(position).getDate();
-        txtContent.setText(listData.get(position).getText() == null ? "ERROR" : listData.get(position).getText());
         txtTime.setText(String.valueOf(simpleDateFormat.format(date)));
+
         return row;
     }
 
@@ -118,4 +168,5 @@ public class MessagesListAdapter extends BaseAdapter{
     public List<BMessage> getListData() {
         return listData;
     }
+
 }

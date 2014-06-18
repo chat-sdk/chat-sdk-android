@@ -2,6 +2,7 @@ package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.text.SimpleDateFormat;
@@ -52,6 +54,11 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     public ThreadsListAdapter(Activity activity, List<BThread> listData){
         mActivity = activity;
+
+        // Prevent crash due to null pointer. When a thread will be found it could be added using AddRow or setListData.
+        if (listData == null)
+            listData = new ArrayList<BThread>();
+
         this.listData = listData;
         init();
     }
@@ -91,14 +98,12 @@ public class ThreadsListAdapter extends BaseAdapter {
             holder.txtLastMsg = (TextView) row.findViewById(R.id.txt_last_message);
             holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
             holder.imgIcon = (ImageView) row.findViewById(R.id.img_thread_image);
+
+            row.setTag(holder);
         }
         else
             holder = (ViewHolder) row.getTag();
 
-
-
-        if (textColor != -1)
-            textView.setTextColor(textColor);
 
         // Check if thread has a name,
         // For private and one on one threads with no name we will put the other user name.
@@ -114,43 +119,16 @@ public class ThreadsListAdapter extends BaseAdapter {
                 thread.setName("Chat Room");
         }
 
+        if (holder == null)
+            Log.e(TAG, "Holder is null");
+
+        if (holder.txtName == null)
+            Log.e(TAG, "textview name is null");
+
         holder.txtName.setText(thread.getName());
         holder.txtLastMsg.setText(listData.get(position).getName());
 
-        //TODO get the last message from the thread.
-        BMessage message;
-        // If no message create dummy message.
-        if (listData.get(position).getMessages().size() == 0)
-        {
-            message = new BMessage();
-            message.setText("No Messages...");
-            message.setType(bText.ordinal());
-        }
-
-        else message = listData.get(position).getMessages().get(0);
-
-        switch (types[message.getType()])
-        {
-            case bText:
-                // TODO cut string if needed.
-                //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
-                holder.txtLastMsg.setText(message.getText());
-                break;
-
-            case bImage:
-                holder.txtLastMsg.setText("Image message");
-                break;
-
-            case bLocation:
-                holder.txtLastMsg.setText("Location message");
-                break;
-        }
-
-        // Check if not dummy message.
-        if (message.getDate() != null)
-            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(message.getDate())));
-        else
-            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(new Date(System.currentTimeMillis()))));
+        messageLogic(holder, position);
 
         if (listData.get(position).getUsers().size() > 2)
             holder.imgIcon.setImageResource(R.drawable.icn_user_x_2);
@@ -180,5 +158,51 @@ public class ThreadsListAdapter extends BaseAdapter {
     public void setListData(List<BThread> listData) {
         this.listData = listData;
         notifyDataSetChanged();
+    }
+
+    private void messageLogic(ViewHolder holder, int position){
+        //TODO get the last message from the thread.
+        BMessage message;
+        // If no message create dummy message.
+        if (thread.getMessages().size() == 0)
+        {
+            message = new BMessage();
+            message.setText("No Messages...");
+            message.setType(bText.ordinal());
+        }
+        else message = thread.getMessages().get(0);
+
+        Log.e(TAG, "Message Problem, Messages Amount: " + thread.getMessages().size()
+                + (message.getText() == null ? "No Text" : message.getText()));
+
+        if (message.getEntityID() == null)
+        {
+            Log.e(TAG, "Message has no entity");
+//            message = DaoCore.fetchEntityWithID(BMessage.class, message.getEntityID());
+        }
+
+        switch (types[message.getType()])
+        {
+            case bText:
+                // TODO cut string if needed.
+                //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
+                holder.txtLastMsg.setText(message.getText());
+                break;
+
+            case bImage:
+                holder.txtLastMsg.setText("Image message");
+                break;
+
+            case bLocation:
+                holder.txtLastMsg.setText("Location message");
+                break;
+        }
+
+        // Check if not dummy message.
+        if (message.getDate() != null)
+            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(message.getDate())));
+        else
+            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(new Date(System.currentTimeMillis()))));
+
     }
 }

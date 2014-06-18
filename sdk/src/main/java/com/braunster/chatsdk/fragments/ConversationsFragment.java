@@ -57,18 +57,16 @@ public class ConversationsFragment extends BaseFragment {
         return mainView;
     }
 
-    private void initViews() {
+    @Override
+    public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
 
         initList();
     }
 
     private void initList(){
-        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Private);
 
-        if (DEBUG) Log.d(TAG, "Threads, Amount: " + threads.size());
-
-        listAdapter = new ThreadsListAdapter(getActivity(), threads);
+        listAdapter = new ThreadsListAdapter(getActivity());
         listThreads.setAdapter(listAdapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -83,6 +81,19 @@ public class ConversationsFragment extends BaseFragment {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void loadData() {
+        super.loadData();
+
+        if (mainView == null)
+            return;
+
+        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Private);
+
+        listAdapter.setListData(threads);
+        if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
     @Override

@@ -67,7 +67,8 @@ public class ProfileFragment extends BaseFragment {
         return mainView;
     }
 
-    private void initViews(){
+    @Override
+    public void initViews(){
         etName = (EditText) mainView.findViewById(R.id.et_name);
         etMail = (EditText) mainView.findViewById(R.id.et_mail);
         etPhone = (EditText) mainView.findViewById(R.id.et_phone_number);

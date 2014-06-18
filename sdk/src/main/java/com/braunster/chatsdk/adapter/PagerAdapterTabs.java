@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ContactsFragment;
 import com.braunster.chatsdk.fragments.ConversationsFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
@@ -13,13 +14,13 @@ import com.braunster.chatsdk.fragments.ThreadsFragment;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class PagerAdapter extends FragmentPagerAdapter {
+public class PagerAdapterTabs extends FragmentPagerAdapter {
 
     private final String[] TITLES = { "Profile", "Chat Rooms", "Contacts", "Conversations"};
 
-    private final Fragment[] FRAGMENTS = new Fragment[] {ProfileFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ConversationsFragment.newInstance()};
+    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ProfileFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ConversationsFragment.newInstance()};
 
-    public PagerAdapter(FragmentManager fm) {
+    public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
     }
 
@@ -34,7 +35,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public BaseFragment getItem(int position) {
         return FRAGMENTS[position];
     }
 

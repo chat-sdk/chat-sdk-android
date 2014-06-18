@@ -78,7 +78,7 @@ public class PickFriendsActivity extends ActionBarActivity {
         listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
+                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getName()
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
 
                 BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<String>() {

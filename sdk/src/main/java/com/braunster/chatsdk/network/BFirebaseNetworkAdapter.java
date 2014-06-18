@@ -3,7 +3,7 @@ package com.braunster.chatsdk.network;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.DaoCore;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;

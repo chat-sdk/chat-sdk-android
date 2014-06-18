@@ -1,20 +1,29 @@
 package com.braunster.chatsdk.network;
 
 import android.location.LocationManager;
+import android.util.Base64;
 import android.util.Log;
-import android.widget.ImageView;
 
+import com.braunster.chatsdk.Utils.MsgSorter;
+import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.DaoCore;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -69,9 +78,19 @@ public abstract class AbstractNetworkAdapter {
         if (DEBUG) Log.d(TAG, "Thread, Amount: " + list.size() );
         for (BThread th : list)
         {
+            // FIXME: Thread messages is not up do date for some reason...
+            // FIXME: Calling messages separately for each thread.
+            th.setMessages(getMessagesForThreadForEntityID(th.getEntityID()));
+//            if (DEBUG) Log.d(TAG, "Messages from method: " + getMessagesForThreadForEntityID(th.getEntityID()).size());
             if (DEBUG) Log.d(TAG, "Messages, Amount: " + th.getMessages().size() );
             if (th.getMessages().size() > 0 || th.getBUser().equals(currentUser()))
+            {
                 threads.add(th);
+
+//                Log.i(TAG, "Before - FirstMessageText: " + th.getMessages().get(0).getText());
+                Collections.sort(th.getMessages(), new MsgSorter());
+//                Log.i(TAG, "After - FirstMessageText: " + th.getMessages().get(0).getText());
+            }
         }
 
         // TODO sort thread so the one with newest message will be on top.
@@ -99,13 +118,12 @@ public abstract class AbstractNetworkAdapter {
         message.setText(text);
         message.setOwnerThread(threadEntityId);
         message.setType(bText.ordinal());
-        message.setDate(new Date(System.currentTimeMillis()));
+        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
         sendMessage(message, new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage bMessage) {
-                if (DEBUG) Log.v(TAG, "sendMessageWithText, onDone. Message ID: " + bMessage.getEntityID());
                 DaoCore.createEntity(bMessage);
                 completionListener.onDone(bMessage);
             }
@@ -118,11 +136,41 @@ public abstract class AbstractNetworkAdapter {
     }
 
     /** Send message with an image.*/
-    public void sendMessageWithImage(ImageView imageView, String threadEntityId, CompletionListener completionListener){
+    public void sendMessageWithImage(File image, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
 
         // TODO Encode Image from 64 Bit Encoding
         // http://stackoverflow.com/questions/13119306/base64-image-encoding-using-java
+
+        final BMessage message = new BMessage();
+        message.setOwnerThread(threadEntityId);
+        message.setType(BMessage.Type.bImage.ordinal());
+        message.setDate(new Date());
+        message.setBUserSender(currentUser());
+        try {
+            message.setText(Base64.encodeToString(FileUtils.readFileToByteArray(image), Base64.DEFAULT));
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (DEBUG) Log.e(TAG, "Error encoding file");
+            completionListener.onDoneWithError();
+            return;
+        }
+
+        sendMessage(message, new CompletionListenerWithData<BMessage>() {
+            @Override
+            public void onDone(BMessage bMessage) {
+                if (DEBUG) Log.v(TAG, "sendMessageWithImage, onDone. Message ID: " + bMessage.getEntityID());
+                DaoCore.createEntity(bMessage);
+                completionListener.onDone(bMessage);
+            }
+
+            @Override
+            public void onDoneWithError() {
+                completionListener.onDoneWithError();
+            }
+        });
+
+
     }
 
     /**@see "http://developer.android.com/guide/topics/location/strategies.html"

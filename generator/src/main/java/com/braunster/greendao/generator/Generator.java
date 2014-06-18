@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(16, "com.braunster.chatsdk.dao");
+        Schema schema = new Schema(18, "com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -32,8 +32,6 @@ public class Generator {
         addThreadUsers(schema);
 
         setProperties();
-
-
 
 //        setImplementation();
         setSuperClass();
@@ -99,13 +97,13 @@ public class Generator {
 
     private static void addMessages(Schema schema){
         message = schema.addEntity(EntityProperties.BMessage);
-        message.addDateProperty(EntityProperties.Date);
+        message.addDateProperty(EntityProperties.Date).notNull();
         message.addStringProperty(EntityProperties.EntityID).primaryKey();
         message.addBooleanProperty(EntityProperties.Dirty);
         message.addStringProperty(EntityProperties.Resource);
         message.addStringProperty(EntityProperties.ResourcePath);
-        message.addStringProperty(EntityProperties.Text);
-        message.addIntProperty(EntityProperties.Type);
+        message.addStringProperty(EntityProperties.Text).notNull();
+        message.addIntProperty(EntityProperties.Type).notNull();
     }
     //endregion
 

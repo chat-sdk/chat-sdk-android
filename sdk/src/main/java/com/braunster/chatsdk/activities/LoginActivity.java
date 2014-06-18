@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 /**
  * Created by itzik on 6/8/2014.
  */
-public class LoginActivity extends Activity{
+public class LoginActivity extends BaseActivity{
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static boolean DEBUG = true;
@@ -83,7 +84,7 @@ public class LoginActivity extends Activity{
         uiHelper.onDestroy();
     }
 
-    Session.StatusCallback callback = new Session.StatusCallback() {
+    private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
             onSessionStateChange(session, state, exception);
@@ -95,23 +96,20 @@ public class LoginActivity extends Activity{
             @Override
             public void onDone() {
                 if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
-                TestNetworkAdapter testNetworkAdapter = new TestNetworkAdapter();
 
-                BNetworkManager.getInstance().setNetworkAdapter(testNetworkAdapter);
-                BNetworkManager.getInstance().syncWithProgress(new CompletionListener() {
+                // Called from the BaseActivity, Set my TestAdapter to the NetworkManager.
+                setNetworkAdapterAndSync(new CompletionListener() {
                     @Override
                     public void onDone() {
-
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
                     }
 
                     @Override
                     public void onDoneWithError() {
-
+                        Toast.makeText(LoginActivity.this, "Failed to set adapter and sync", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
             }
 
             @Override

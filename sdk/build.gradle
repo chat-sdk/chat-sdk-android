@@ -21,6 +21,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.mcxiaoke.volley:library:1.0.+'
     compile project(':facebook')
     compile project(':generator')
     compile project(':PagerSlidingTabStrip')

@@ -29,6 +29,8 @@ public class ThreadsFragment extends BaseFragment {
 
 
     //TODO add selection of thread type to see.
+    // TODO add new public thread.
+
     private static final String TAG = ThreadsFragment.class.getSimpleName();
     private static boolean DEBUG = true;
 
@@ -50,25 +52,26 @@ public class ThreadsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mainView = inflater.inflate(R.layout.activity_threads, null);
 
-        initViews();
+        init(inflater);
 
         return mainView;
     }
 
-    private void initViews() {
+    private void init(LayoutInflater inflater){
+        mainView = inflater.inflate(R.layout.activity_threads, null);
+        initViews();
+    }
+
+    @Override
+    public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
 
         initList();
     }
 
     private void initList(){
-        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Public);
-
-        if (DEBUG) Log.d(TAG, "Threads, Amount: " + threads.size());
-
-        listAdapter = new ThreadsListAdapter(getActivity(), threads);
+        listAdapter = new ThreadsListAdapter(getActivity());
         listThreads.setAdapter(listAdapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -83,6 +86,19 @@ public class ThreadsFragment extends BaseFragment {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void loadData() {
+        super.loadData();
+
+        if (mainView == null)
+            return;
+
+        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Public);
+
+        listAdapter.setListData(threads);
+        if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
     @Override
@@ -101,6 +117,7 @@ public class ThreadsFragment extends BaseFragment {
         activityListener = BNetworkManager.getInstance().addActivityListener(new ActivityListener() {
             @Override
             public void onThreadAdded(BThread thread) {
+                if (DEBUG) Log.d(TAG, "Thread is added");
                 listAdapter.addRow(thread);
             }
 
