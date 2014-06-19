@@ -64,7 +64,7 @@ public class UsersListAdapter extends BaseAdapter {
 
         if ( row == null)
         {
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_threads, null);
+            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_threads, null);
 
         }
 

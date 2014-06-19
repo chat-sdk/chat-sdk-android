@@ -36,19 +36,21 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/et_message_to_send"
+            android:id="@+id/chat_sdk_et_message_to_send"
             android:hint="Message"
             android:maxLength="140"
-            android:layout_alignBottom="@+id/btn_options"
-            android:layout_toLeftOf="@+id/btn_send"
-            android:layout_toRightOf="@+id/btn_options"/>
+            android:inputType="text"
+            android:imeOptions="actionSend"
+            android:layout_alignBottom="@+id/chat_sdk_btn_options"
+            android:layout_toLeftOf="@+id/chat_sdk_btn_chat_send_message"
+            android:layout_toRightOf="@+id/chat_sdk_btn_options"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send"
             android:layout_centerVertical="true"
-            android:id="@+id/btn_send"
+            android:id="@+id/chat_sdk_btn_chat_send_message"
             android:layout_alignParentRight="true"/>
 
         <ImageButton
@@ -56,7 +58,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/options_button_x_2"
             android:background="@android:color/transparent"
-            android:id="@+id/btn_options"
+            android:id="@+id/chat_sdk_btn_options"
             android:layout_alignParentLeft="true"/>
 
 

@@ -20,7 +20,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_pager);
+        setContentView(R.layout.chat_sdk_activity_view_pager);
 
         Log.e("asfafsafsfafasfa" , "asdasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssjkdgjalkh" +
                 "agsdgalkdshgs" +

@@ -2,16 +2,20 @@ package com.braunster.chatsdk.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
@@ -25,20 +29,27 @@ import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Created by itzik on 6/8/2014.
  */
-public class ChatActivity extends BaseActivity{
+public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
     // TODO listen to new  incoming  messages
+    // TODO add popup for message options.
+    // TODO add location message.
+    // TODO auto scroll to bottom.
 
     private static final String TAG = ChatActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
 
     private static final int PHOTO_PICKER_ID = 100;
+    private static final int CAPTURE_IMAGE = 101;
+    public static final int PICK_LOCATION = 102;
 
     public static final String THREAD_ID = "Thread_ID";
 
@@ -49,11 +60,12 @@ public class ChatActivity extends BaseActivity{
     private MessagesListAdapter messagesListAdapter;
     private ActivityListener activityListener;
     private BThread thread;
+    private PopupWindow optionPopup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.chat_sdk_activity_chat);
 
         if (BNetworkManager.getInstance().getNetworkAdapter() == null)
             setNetworkAdapterAndSync();
@@ -73,9 +85,9 @@ public class ChatActivity extends BaseActivity{
     }
 
     private void initViews(){
-        btnSend = (Button) findViewById(R.id.btn_send);
-        btnOptions = (ImageButton) findViewById(R.id.btn_options);
-        etMessage = (EditText) findViewById(R.id.et_message_to_send);
+        btnSend = (Button) findViewById(R.id.chat_sdk_btn_chat_send_message);
+        btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
+        etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
         initListView();
     }
 
@@ -132,26 +144,9 @@ public class ChatActivity extends BaseActivity{
             }
         });
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               sendLogic();
-            }
-        });
+        btnSend.setOnClickListener(this);
 
-        btnOptions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_PICK);
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(intent,
-                        "Complete action using"), PHOTO_PICKER_ID);
-            }
-        });
+        btnOptions.setOnClickListener(this);
     }
 
     @Override
@@ -204,6 +199,38 @@ public class ChatActivity extends BaseActivity{
                 default:
                     if (DEBUG) Log.d(TAG, "Default");
                     break;
+            }
+        }
+        else if (requestCode == PICK_LOCATION)
+        {
+            if (DEBUG) Log.d(TAG, "Location Pick returned");
+
+            if (resultCode == Activity.RESULT_CANCELED) {
+                if (DEBUG) Log.d(TAG, "Result Cancelled");
+            }
+            else if (resultCode == Activity.RESULT_OK)
+            {
+                if (DEBUG) Log.d(TAG, "Result OK");
+                BNetworkManager.getInstance().sendMessageWithLocation(
+                                        new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),
+                                        thread.getEntityID(), new CompletionListenerWithData<BMessage>() {
+                            @Override
+                            public void onDone(BMessage bMessage) {
+                                if (DEBUG) Log.v(TAG, "Image is sent");
+                                messagesListAdapter.addRow(bMessage);
+                            }
+
+                            @Override
+                            public void onDoneWithError() {
+                                Toast.makeText(ChatActivity.this, "Location could not been sent.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                /*TODO get the location snapshot saved in the SD card and add it to the message.
+                if (image != null)
+                {
+                    if (DEBUG) Log.d(TAG, "Location Image is not null");
+
+                }*/
             }
         }
 
@@ -274,4 +301,68 @@ public class ChatActivity extends BaseActivity{
 
         etMessage.getText().clear();
     }
+
+    private void showOptionPopup(){
+        if (optionPopup!= null && optionPopup.isShowing())
+        {
+            if (DEBUG) Log.d(TAG, "Tying to show option popup when already showing");
+            return;
+        }
+
+        View popupView = getLayoutInflater().inflate(R.layout.chat_sdk_popup_options, null);
+        optionPopup = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupView.findViewById(R.id.chat_sdk_btn_choose_picture).setOnClickListener(this);
+        popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(this);
+        popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(this);
+
+        // TODO fix popup size to wrap view size.
+        optionPopup.setContentView(popupView);
+        optionPopup.setBackgroundDrawable(new BitmapDrawable());
+        optionPopup.setOutsideTouchable(true);
+        optionPopup.setWidth(500);
+        optionPopup.setHeight(400);
+        optionPopup.showAsDropDown(btnOptions);
+    }
+
+    private void dismissOption(){
+        if (optionPopup != null)
+            optionPopup.dismiss();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id= v.getId();
+
+        if (id == R.id.chat_sdk_btn_chat_send_message) {
+            sendLogic();
+        }
+        else if (id == R.id.chat_sdk_btn_options){
+            showOptionPopup();
+        }
+        else  if (id == R.id.chat_sdk_btn_choose_picture) {
+            // TODO allow multiple pick of photos.
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_PICK);
+//                intent.setAction(Intent.ACTION_GET_CONTENT);
+//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(Intent.createChooser(intent,
+                    "Complete action using"), PHOTO_PICKER_ID);
+
+            dismissOption();
+        }
+        else  if (id == R.id.chat_sdk_btn_take_picture) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            // start the image capture Intent
+            startActivityForResult(intent, CAPTURE_IMAGE);
+        }
+        else  if (id == R.id.chat_sdk_btn_location) {
+            Intent intent = new Intent(ChatActivity.this, LocationActivity.class);
+            startActivityForResult(intent, PICK_LOCATION);
+            dismissOption();
+        }
+    }
+
 }

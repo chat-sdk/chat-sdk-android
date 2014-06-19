@@ -43,7 +43,7 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mainView = inflater.inflate(R.layout.activity_profile, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
 
         this.user = BNetworkManager.getInstance().currentUser();
 

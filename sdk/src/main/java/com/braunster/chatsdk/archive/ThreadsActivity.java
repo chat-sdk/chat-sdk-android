@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.activities;
+package com.braunster.chatsdk.archive;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -31,7 +32,7 @@ public class ThreadsActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_threads);
+        setContentView(R.layout.chat_sdk_activity_threads);
 
         initViews();
     }

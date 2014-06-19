@@ -15,6 +15,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.io.FileUtils;
 
@@ -27,6 +28,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import static com.braunster.chatsdk.dao.BMessage.Type.bImage;
+import static com.braunster.chatsdk.dao.BMessage.Type.bLocation;
 import static com.braunster.chatsdk.dao.BMessage.Type.bText;
 
 /**
@@ -139,12 +142,11 @@ public abstract class AbstractNetworkAdapter {
     public void sendMessageWithImage(File image, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
 
-        // TODO Encode Image from 64 Bit Encoding
         // http://stackoverflow.com/questions/13119306/base64-image-encoding-using-java
 
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
-        message.setType(BMessage.Type.bImage.ordinal());
+        message.setType(bImage.ordinal());
         message.setDate(new Date());
         message.setBUserSender(currentUser());
         try {
@@ -175,8 +177,28 @@ public abstract class AbstractNetworkAdapter {
 
     /**@see "http://developer.android.com/guide/topics/location/strategies.html"
      * Send user location.*/
-    public void sendMessageWithLocation(LocationManager locationManager, String threadEntityId, CompletionListener completionListener){
+    public void sendMessageWithLocation(LatLng location, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
+        final BMessage message = new BMessage();
+        message.setOwnerThread(threadEntityId);
+        message.setType(bLocation.ordinal());
+        message.setDate(new Date());
+        message.setBUserSender(currentUser());
+        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude));
+
+        sendMessage(message, new CompletionListenerWithData<BMessage>() {
+            @Override
+            public void onDone(BMessage bMessage) {
+                if (DEBUG) Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
+                DaoCore.createEntity(bMessage);
+                completionListener.onDone(bMessage);
+            }
+
+            @Override
+            public void onDoneWithError() {
+                completionListener.onDoneWithError();
+            }
+        });
     }
 
     /** Save user data to the local database*/

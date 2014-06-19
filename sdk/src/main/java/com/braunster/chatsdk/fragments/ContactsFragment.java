@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ContactsExpandableListAdapter;
-import com.braunster.chatsdk.adapter.VolleyContactsExpandableListAdapter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -62,7 +61,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mainView = inflater.inflate(R.layout.fragment_contacts, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
         this.user = BNetworkManager.getInstance().currentUser();
 

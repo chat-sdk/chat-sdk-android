@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:color/black">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Take Picture"
+        android:textColor="@android:color/white"
+        android:id="@+id/chat_sdk_btn_take_picture"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Picture"
+        android:textColor="@android:color/white"
+        android:id="@+id/chat_sdk_btn_choose_picture"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        android:textColor="@android:color/white"
+        android:id="@+id/chat_sdk_btn_location"/>
+
+</LinearLayout>

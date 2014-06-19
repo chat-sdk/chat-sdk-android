@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="commons-io-2.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/libs/commons-io-2.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

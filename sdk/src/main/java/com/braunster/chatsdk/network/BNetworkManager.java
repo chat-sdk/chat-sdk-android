@@ -13,6 +13,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -169,9 +170,9 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public void sendMessageWithLocation(LocationManager locationManager, String threadEntityId, CompletionListener completionListener) {
+    public void sendMessageWithLocation(LatLng location, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
         if (networkAdapter != null)
-            networkAdapter.sendMessageWithLocation(locationManager, threadEntityId, completionListener);
+            networkAdapter.sendMessageWithLocation(location, threadEntityId, completionListener);
         else
         {
             if (DEBUG) Log.e(TAG, "Network adapter is null");

@@ -2,6 +2,7 @@ package com.braunster.chatsdk.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
@@ -27,9 +29,7 @@ import java.util.List;
  */
 public class ThreadsFragment extends BaseFragment {
 
-
     //TODO add selection of thread type to see.
-    // TODO add new public thread.
 
     private static final String TAG = ThreadsFragment.class.getSimpleName();
     private static boolean DEBUG = true;
@@ -59,7 +59,7 @@ public class ThreadsFragment extends BaseFragment {
     }
 
     private void init(LayoutInflater inflater){
-        mainView = inflater.inflate(R.layout.activity_threads, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
         initViews();
     }
 
@@ -108,6 +108,32 @@ public class ThreadsFragment extends BaseFragment {
                 menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Chat");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        /* Cant use switch in the library*/
+        int id = item.getItemId();
+
+        if (id == R.id.action_add_chat_room)
+        {
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            DialogUtils.EditTextDialog dialog = DialogUtils.EditTextDialog.getInstace();
+
+            dialog.setTitleAndListen("Add Chat Room", new DialogUtils.EditTextDialog.EditTextDialogInterface() {
+                @Override
+                public void onFinished(String s) {
+                    if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
+                    // TODO add new thread to the database and server.
+                }
+            });
+
+            dialog.show(fm, "Add Public Chat Dialog");
+
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

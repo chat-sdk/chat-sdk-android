@@ -2,13 +2,21 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1.0"
-
+    buildToolsVersion '19.1.0'
+    signingConfigs {
+        debug {
+            //TODO create a key for this SDK and not use my own.
+            storeFile file('/home/braunster/Android/braunserkey')
+            keyAlias 'braunsteralias'
+            keyPassword 'Itzikbraun1991'
+            storePassword 'Itzikbraun1991'
+        }
+    }
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     buildTypes {
         release {
@@ -16,7 +24,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
@@ -24,12 +31,14 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+    productFlavors {
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:19.+'
-    compile project(":sdk")
+    compile project(':sdk')
 }
 
 

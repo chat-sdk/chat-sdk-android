@@ -2,12 +2,14 @@ package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
-import android.util.Log;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by itzik on 6/5/2014.
@@ -47,6 +50,8 @@ public class MessagesListAdapter extends BaseAdapter{
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm");
 
     private ImageView image;
+
+    private Button btnViewLocation;
 
     private Date date;
 
@@ -114,23 +119,24 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 if (message.getSender().equals(userID))
                 {
-                    row = inflater.inflate(R.layout.row_message_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_message_user, null);
                     row.setBackgroundColor(Color.CYAN);
-                    txtContent = (TextView) row.findViewById(R.id.txt_content);
-                    txtContent.setText(message.getText() == null ? "ERROR" : listData.get(position).getText());
                 }
                 else
                 {
-                    row = inflater.inflate(R.layout.row_message_friend, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_message_friend, null);
                     row.setBackgroundColor(Color.WHITE);
                 }
+
+                txtContent = (TextView) row.findViewById(R.id.txt_content);
+                txtContent.setText(message.getText() == null ? "ERROR" : listData.get(position).getText());
                 break;
 
             case TYPE_IMAGE:
                 if (message.getSender().equals(userID))
-                    row = inflater.inflate(R.layout.row_image_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_user, null);
                 else
-                    row = inflater.inflate(R.layout.row_image_friend, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
 
                 image = (ImageView) row.findViewById(R.id.image);
                 // TODO save image to cache
@@ -138,7 +144,22 @@ public class MessagesListAdapter extends BaseAdapter{
                 break;
 
             case TYPE_LOCATION:
+                if (message.getSender().equals(userID))
+                    row = inflater.inflate(R.layout.chat_sdk_row_location_user, null);
+                else
+                    row = inflater.inflate(R.layout.chat_sdk_row_location_user, null);
 
+                btnViewLocation = (Button) row.findViewById(R.id.chat_sdk_btn_show_location);
+                btnViewLocation.setTag(message.getText());
+                btnViewLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] loc = ((String)v.getTag()).split("&");
+                        openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
+                    }
+                });
+
+                image = (ImageView) row.findViewById(R.id.chat_sdk_image);
                 break;
         }
 
@@ -169,4 +190,9 @@ public class MessagesListAdapter extends BaseAdapter{
         return listData;
     }
 
+    private void openLocationInGoogleMaps(Double latitude, Double longitude){
+        String uri = String.format(Locale.ENGLISH, "geo:%f,%f", latitude, longitude);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        mActivity.startActivity(intent);
+    }
 }

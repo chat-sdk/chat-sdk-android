@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,8 +9,6 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.tamplate.TestNetworkAdapter;
 import com.facebook.FacebookException;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -34,7 +31,7 @@ public class LoginActivity extends BaseActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activty_login);
+        setContentView(R.layout.chat_sdk_activty_login);
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
 

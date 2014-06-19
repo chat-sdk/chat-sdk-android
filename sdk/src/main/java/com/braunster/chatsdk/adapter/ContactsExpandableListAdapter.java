@@ -64,7 +64,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         final String childText = user.getName();
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.row_contact, null);
+            convertView = inflater.inflate(R.layout.chat_sdk_row_contact, null);
         }
 
         txtContactName = (TextView) convertView.findViewById(R.id.txt_name);
@@ -117,7 +117,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
                              View convertView, ViewGroup parent) {
         String headerTitle = (String) getGroup(groupPosition);
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.list_group, null);
+            convertView = inflater.inflate(R.layout.chat_sdk_list_group, null);
         }
 
         txtHeader = (TextView) convertView.findViewById(R.id.txt_head);

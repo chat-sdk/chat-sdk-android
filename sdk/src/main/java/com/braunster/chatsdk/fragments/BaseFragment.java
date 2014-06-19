@@ -23,6 +23,7 @@ public class BaseFragment extends Fragment implements BaseFragmentInterface {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 //        mainView = inflater.inflate(resourceID, null);
+
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

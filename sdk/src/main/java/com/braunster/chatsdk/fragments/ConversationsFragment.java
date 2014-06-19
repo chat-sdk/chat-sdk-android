@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class ConversationsFragment extends BaseFragment {
 
+    // TODO multiselect of contacts to start chatting with.
 
     private static final String TAG = ConversationsFragment.class.getSimpleName();
     private static boolean DEBUG = true;
@@ -50,7 +51,7 @@ public class ConversationsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mainView = inflater.inflate(R.layout.activity_threads, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
 
         initViews();
 
@@ -116,7 +117,6 @@ public class ConversationsFragment extends BaseFragment {
             Intent intent = new Intent(getActivity(), PickFriendsActivity.class);
 
             startActivity(intent);
-//            startActivityForResult(intent, PickFriendsActivity.PICK_FRIENDS_FOR_CONVERSATION);
             return true;
         }
 

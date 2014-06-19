@@ -37,7 +37,7 @@ public class PickFriendsActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pick_friends);
+        setContentView(R.layout.chat_sdk_activity_pick_friends);
         initActionBar();
         initViews();
     }

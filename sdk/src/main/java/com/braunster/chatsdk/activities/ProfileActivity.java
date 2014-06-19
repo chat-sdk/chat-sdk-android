@@ -19,6 +19,9 @@ import java.util.List;
 public class ProfileActivity extends ActionBarActivity {
 
     // TODO keyboard popups on screen load
+    // TODO get user phone number from facebook?
+    // TODO option to select profile picture.
+
     private static final String TAG = ProfileActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 
@@ -28,7 +31,7 @@ public class ProfileActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.chat_sdk_activity_profile);
 
         initActionBar();
         initViews();

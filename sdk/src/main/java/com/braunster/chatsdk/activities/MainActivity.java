@@ -1,7 +1,9 @@
 package com.braunster.chatsdk.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.view.PagerAdapter;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -12,6 +14,8 @@ import com.astuetz.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.core.DaoCore;
+
+import java.io.File;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -25,12 +29,16 @@ public class MainActivity extends ActionBarActivity {
 
     private Menu menu;
 
+    private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_pager);
+        setContentView(R.layout.chat_sdk_activity_view_pager);
 
+        firstTimeInApp();
         initViews();
+
     }
 
     private void initViews(){
@@ -46,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (DEBUG) Log.v(TAG, "onPageScrolled");
+//                if (DEBUG) Log.v(TAG, "onPageScrolled");
             }
 
             @Override
@@ -57,7 +65,7 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
+//                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
             }
         });
     }
@@ -78,5 +86,22 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void firstTimeInApp(){
+        //TODO handle no SDCARD!
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(FIRST_TIME_IN_APP, true))
+        {
+            if (DEBUG) Log.d(TAG, "First time in app");
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                if (DEBUG) Log.d(TAG, "No SDCARD");
+            } else {
+                File directory = new File(Environment.getExternalStorageDirectory()+ File.separator+"AndroidChatSDK");
+                if (DEBUG) Log.d(TAG, "Creating app directory");
+                    directory.mkdirs();
+            }
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(FIRST_TIME_IN_APP, true).apply();
+        }
     }
 }

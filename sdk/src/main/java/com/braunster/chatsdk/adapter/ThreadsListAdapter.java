@@ -93,7 +93,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         if ( row == null)
         {
             holder = new ViewHolder();
-            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.row_threads, null);
+            row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_threads, null);
             holder.txtName = (TextView) row.findViewById(R.id.txt_name);
             holder.txtLastMsg = (TextView) row.findViewById(R.id.txt_last_message);
             holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
@@ -161,7 +161,6 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
 
     private void messageLogic(ViewHolder holder, int position){
-        //TODO get the last message from the thread.
         BMessage message;
         // If no message create dummy message.
         if (thread.getMessages().size() == 0)
@@ -172,13 +171,18 @@ public class ThreadsListAdapter extends BaseAdapter {
         }
         else message = thread.getMessages().get(0);
 
-        Log.e(TAG, "Message Problem, Messages Amount: " + thread.getMessages().size()
-                + (message.getText() == null ? "No Text" : message.getText()));
 
         if (message.getEntityID() == null)
         {
             Log.e(TAG, "Message has no entity");
-//            message = DaoCore.fetchEntityWithID(BMessage.class, message.getEntityID());
+            Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
+                    + (message.getText() == null ? "No Text" : message.getText()));
+
+            // Replace the problematic message with this dummy.
+            message.setText("Defected Message");
+            message.setEntityID(DaoCore.generateEntity());
+            message.setType(bText.ordinal());
+            message.setDate(new Date());
         }
 
         switch (types[message.getType()])

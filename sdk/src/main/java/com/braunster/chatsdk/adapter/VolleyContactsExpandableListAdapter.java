@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
@@ -65,7 +64,7 @@ public class VolleyContactsExpandableListAdapter extends BaseExpandableListAdapt
         final String childText = user.getName();
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.row_volley_contact, null);
+            convertView = inflater.inflate(R.layout.chat_sdk_row_volley_contact, null);
         }
 
         txtContactName = (TextView) convertView.findViewById(R.id.txt_name);
@@ -115,7 +114,7 @@ public class VolleyContactsExpandableListAdapter extends BaseExpandableListAdapt
                              View convertView, ViewGroup parent) {
         String headerTitle = (String) getGroup(groupPosition);
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.list_group, null);
+            convertView = inflater.inflate(R.layout.chat_sdk_list_group, null);
         }
 
         txtHeader = (TextView) convertView.findViewById(R.id.txt_head);
