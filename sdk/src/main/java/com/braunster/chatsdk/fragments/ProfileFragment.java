@@ -8,12 +8,15 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -24,7 +27,8 @@ public class ProfileFragment extends BaseFragment {
     private static boolean DEBUG = true;
 
     private EditText etName, etMail, etPhone;
-    private ProfilePictureView profilePictureView;
+//    private ProfilePictureView profilePictureView;
+    private CircleImageView profileCircleImageView;
 
     private BUser user;
 
@@ -55,7 +59,12 @@ public class ProfileFragment extends BaseFragment {
                 Log.d(TAG, "Name: " + graphUser.getName());
                 etName.setText(graphUser.getName());
                 etMail.setText((String) graphUser.getProperty("email"));
-                profilePictureView.setProfileId(graphUser.getId());
+//                profilePictureView.setProfileId(graphUser.getId());
+
+                profileCircleImageView.setImageResource(0);
+                VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
+                        VolleyUtills.getImageLoader().getImageListener(profileCircleImageView,
+                                R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
             }
 
             @Override
@@ -69,10 +78,11 @@ public class ProfileFragment extends BaseFragment {
 
     @Override
     public void initViews(){
-        etName = (EditText) mainView.findViewById(R.id.et_name);
-        etMail = (EditText) mainView.findViewById(R.id.et_mail);
-        etPhone = (EditText) mainView.findViewById(R.id.et_phone_number);
-        profilePictureView = (ProfilePictureView) mainView.findViewById(R.id.profile_pic);
+        etName = (EditText) mainView.findViewById(R.id.chat_sdk_et_name);
+        etMail = (EditText) mainView.findViewById(R.id.chat_sdk_et_mail);
+        etPhone = (EditText) mainView.findViewById(R.id.chat_sdk_et_phone_number);
+//        profilePictureView = (ProfilePictureView) mainView.findViewById(R.id.profile_pic);
+        profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
     }
 
     @Override

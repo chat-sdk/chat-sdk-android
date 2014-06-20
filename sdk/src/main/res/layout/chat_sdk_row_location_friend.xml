@@ -3,19 +3,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="right">
-
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/chat_sdk_image"/>
-    <!-- DO not change this ImageView id the id is used in all message layouts!-->
+    android:gravity="left">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -25,14 +18,11 @@
         android:padding="5dp"
             android:layout_weight="1"
         android:gravity="center" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="View"
-            android:layout_weight="1"
-            android:id="@+id/chat_sdk_btn_show_location"/>
-
     </LinearLayout>
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/chat_sdk_image"/>
+    <!-- DO not change this ImageView id the id is used in all message layouts!-->
 </LinearLayout>

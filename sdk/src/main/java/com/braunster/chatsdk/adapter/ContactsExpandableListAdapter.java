@@ -22,6 +22,8 @@ import com.braunster.chatsdk.dao.BUser;
 import java.util.HashMap;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;
@@ -31,7 +33,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private TextView txtContactName;
     private TextView txtHeader;
-    private ImageView imgPicture;
+    private CircleImageView imgPicture;
     private ImageLoader imageLoader;
     private LayoutInflater inflater;
     private BUser user;
@@ -68,13 +70,18 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         txtContactName = (TextView) convertView.findViewById(R.id.txt_name);
-        imgPicture = (ImageView) convertView.findViewById(R.id.img_profile_picture);
+        imgPicture = (CircleImageView) convertView.findViewById(R.id.img_profile_picture);
 
         txtContactName.setText(childText);
 
+        // TODO delete this only for testing the contact icon
+        user.pictureURL = "http://www.wandake.com/blog/wp-content/uploads/2011/07/bender-289x300.jpg";
+        user.pictureExist = true;
+        // TODO delete this only for testing the contact icon
+
         if (user.pictureExist)
         {
-            imgPicture.setImageResource(0);
+//            imgPicture.setImageResource(0);
 //            imageLoader.DisplayImage(user.pictureURL, imgPicture);
             VolleyUtills.getImageLoader().get(user.pictureURL,
                                 VolleyUtills.getImageLoader().getImageListener(imgPicture,

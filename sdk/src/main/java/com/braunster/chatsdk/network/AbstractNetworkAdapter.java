@@ -177,14 +177,16 @@ public abstract class AbstractNetworkAdapter {
 
     /**@see "http://developer.android.com/guide/topics/location/strategies.html"
      * Send user location.*/
-    public void sendMessageWithLocation(LatLng location, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
+    public void sendMessageWithLocation(String base64File, LatLng location, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
         message.setType(bLocation.ordinal());
         message.setDate(new Date());
         message.setBUserSender(currentUser());
-        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude));
+
+        // Add the LatLng data to the message and the base64 picture of the message if has any.
+        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) + (base64File!=null? "&" + base64File : ""));
 
         sendMessage(message, new CompletionListenerWithData<BMessage>() {
             @Override

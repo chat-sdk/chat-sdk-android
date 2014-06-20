@@ -24,6 +24,7 @@
         android:transcriptMode="alwaysScroll"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/linear"
+        android:descendantFocusability="afterDescendants"
         android:padding="5dp"/>
 
     <RelativeLayout

@@ -1,1 +1,1 @@
-include ':app', ':sdk', ':facebook', ':generator', ":PagerSlidingTabStrip"
+include ':app', ':sdk',':facebook', ':generator', ":PagerSlidingTabStrip"

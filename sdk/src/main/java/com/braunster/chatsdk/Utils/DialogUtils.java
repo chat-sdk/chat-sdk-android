@@ -1,44 +1,103 @@
 package com.braunster.chatsdk.Utils;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.facebook.android.Util;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Created by braunster on 19/06/14.
  */
 public class DialogUtils {
 
+    public static final String TAG = DialogUtils.class.getSimpleName();
+    public static final boolean DEBUG = true;
+
     // TODO show friends from facebook.
-    public static class FriendsListDialog extends android.app.DialogFragment {
+    public static class FriendsListDialog extends DialogFragment {
+
     }
 
-    public static class EditTextDialog extends DialogFragment implements TextView.OnEditorActionListener {
+    //region AlertDialog currently not working.
+    // TODO Customizing alert dialog id needed.
+    public static void showAlertDialog(FragmentManager fm, String alert, DialogInterface<Intent> listener){
+        ChatSDKAlertDialog dialog = ChatSDKAlertDialog.getInstace();
+
+        dialog.setAlert(alert, listener);
+
+        dialog.show(fm, "Alert Dialog");
+    }
+    //endregion
+
+    public static class ChatSDKAlertDialog extends DialogFragment {
+
+        private String alert = "Alert";
+        private DialogInterface<Intent> listener;
+
+        public static ChatSDKAlertDialog getInstace(){
+            return new ChatSDKAlertDialog();
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
+
+            ((TextView)view.findViewById(R.id.textView)).setText(alert);
+//
+//
+//            if ( listener != null)
+//                listener.onFinished();
+            return view;
+        }
+
+        public void setAlert(String alert, DialogInterface<Intent> listener){
+            this.alert = alert;
+            this.listener = listener;
+        }
+    }
+
+    /** A dialog that contain editText, Response from dialog is received through the interface.*/
+    public static class ChatSDKEditTextDialog extends DialogFragment implements TextView.OnEditorActionListener {
 
         private EditText mEditText;
         private String dialogTitle = "Title";
         private EditTextDialogInterface listener;
 
-        public static EditTextDialog getInstace(){
-            EditTextDialog f = new EditTextDialog();
+        public static ChatSDKEditTextDialog getInstace(){
+            ChatSDKEditTextDialog f = new ChatSDKEditTextDialog();
 
             return f;
         }
 
-        public EditTextDialog() {
+        public ChatSDKEditTextDialog() {
             // Empty constructor required for DialogFragment
         }
 
@@ -67,6 +126,7 @@ public class DialogUtils {
             this.listener = listener;
         }
 
+        /** Option to add more callbacks to the dialog.*/
         public interface EditTextDialogInterface extends DialogInterface<String>{
 
         }
@@ -95,6 +155,102 @@ public class DialogUtils {
         }
     }
 
+    /** A popup to select the type of message to send, "Text", "Image", "Location".*/
+    public static PopupWindow getMenuOptionPopup(Context context, View.OnClickListener listener){
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.chat_sdk_popup_options, null);
+        PopupWindow optionPopup = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupView.findViewById(R.id.chat_sdk_btn_choose_picture).setOnClickListener(listener);
+        popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
+        popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
+
+        // TODO fix popup size to wrap view size.
+        optionPopup.setContentView(popupView);
+        optionPopup.setBackgroundDrawable(new BitmapDrawable());
+        optionPopup.setOutsideTouchable(true);
+        optionPopup.setWidth(500);
+        optionPopup.setHeight(400);
+        return optionPopup;
+    }
+
+    /** Type indicate from where to load the file.*/
+    public enum LoadTypes{
+        LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64
+    }
+
+    /** Full screen popup for showing an image in greater size.*/
+    public static PopupWindow getImageDialog(final Context context, String data, LoadTypes loadingType){
+        if (DEBUG) Log.v(TAG, "getImageDialog");
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.chat_sdk_popup_image, null);
+
+        // Full screen popup.
+        final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+
+        // Dismiss popup when clicked.
+        popupView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePopup.dismiss();
+            }
+        });
+
+        final ImageView imageView = (ImageView) popupView.findViewById(R.id.chat_sdk_popup_image_imageview);
+        final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+
+        switch (loadingType)
+        {
+            case LOAD_FROM_BASE64:
+                if (DEBUG) Log.i(TAG, "Image is Base64");
+                progressBar.setVisibility(View.GONE);
+                imageView.setVisibility(View.VISIBLE);
+                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                imageView.setImageBitmap(Utils.decodeFrom64(data.getBytes()));
+                break;
+
+            case LOAD_FROM_URL:
+                if (DEBUG) Log.i(TAG, "Image from URL");
+                if (data != null && !data.equals(""))
+                    VolleyUtills.getImageLoader().get(data, new ImageLoader.ImageListener() {
+                        @Override
+                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                            if (isImmediate || response.getBitmap() != null)
+                            {
+                                progressBar.setVisibility(View.GONE);
+                                imageView.setVisibility(View.VISIBLE);
+                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                                imageView.setImageBitmap(response.getBitmap());
+                            }
+                        }
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(context, "Error while loading", Toast.LENGTH_SHORT).show();
+                            imagePopup.dismiss();
+                        }
+                    });
+                break;
+
+            case LOAD_FROM_PATH:
+                progressBar.setVisibility(View.GONE);
+                Utils.loadBitmapFromFile(data);
+                break;
+        }
+
+
+        // TODO fix popup size to wrap view size.
+        imagePopup.setContentView(popupView);
+        imagePopup.setBackgroundDrawable(new BitmapDrawable());
+        imagePopup.setOutsideTouchable(true);
+//        imagePopup.setWidth(500);
+//        imagePopup.setHeight(400);
+
+        return imagePopup;
+    }
+
+    /** Basic interface for getting callback from the dialog.*/
     public interface DialogInterface<T>{
         public void onFinished(T t);
     }

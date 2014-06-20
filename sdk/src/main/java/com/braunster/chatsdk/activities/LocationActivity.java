@@ -7,11 +7,15 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.ImageLoading.ImageLoader;
+import com.braunster.chatsdk.Utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -26,7 +30,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created by braunster on 19/06/14.
@@ -36,7 +44,15 @@ public class LocationActivity extends FragmentActivity
                                     GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener {
 
+    public static final String TAG = LocationActivity.class.getSimpleName();
+    public static final boolean DEBUG = true;
+
+    public static final String ERROR = "Error";
+    public static final String ERROR_SNAPSHOT = "error getting snapshot";
+    public static final String ERROR_SAVING_IMAGE = "error saving image";
+
     // TODO listen to marker and add option to send marker position.
+    // TODO show close locations: http://stackoverflow.com/questions/13488048/google-maps-show-close-places-to-current-user-poisition
 
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -63,6 +79,7 @@ public class LocationActivity extends FragmentActivity
     public static final String LANITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String SNAP_SHOT_PATH = "snap_shot_path";
+    public static final String BASE_64_FILE = "base_64_file";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,40 +123,54 @@ public class LocationActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
+        // TODO change to save file to cache not to the public dir of pictures.
         btnSendLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 takeSnapShot(new GoogleMap.SnapshotReadyCallback() {
                     @Override
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            String filePath = Environment.getExternalStorageDirectory()
-                                    + "/AndroidChatSdk/" + String.valueOf(System.currentTimeMillis()) + ".png";
+                            File savedFile = Utils.FileSaver.saveImage(LocationActivity.this, bitmapLocation, null);
+                            if ( savedFile == null)
+                                reportError(ERROR_SAVING_IMAGE);
+                            else
+                                reportSuccess(savedFile);
 
-                            FileOutputStream out = new FileOutputStream(filePath );
-                            bitmapLocation.compress(Bitmap.CompressFormat.PNG, 90, out);
-
-                            Intent intent = new Intent();
-                            intent.putExtra(LANITUDE, map.getMyLocation().getLatitude());
-                            intent.putExtra(LONGITUDE, map.getMyLocation().getLongitude());
-                            intent.putExtra(SNAP_SHOT_PATH, filePath);
-
-                            setResult(RESULT_OK, intent);
-                            finish();
-                            // TODO return the bitmap and the location to the caller activity
                         } catch (Exception e) {
-                            Intent intent = new Intent();
-                            intent.putExtra("Error", "error getting snapshot");
-                            setResult(RESULT_CANCELED, intent);
-                            finish();
-                            e.printStackTrace();
+                            reportError(ERROR_SNAPSHOT);
                         }
                     }
                 });
             }
         });
+    }
+
+    private void reportError(String error){
+        if (DEBUG) Log.e(TAG, "Failed");
+        Intent intent = new Intent();
+        intent.putExtra(ERROR, error);
+        setResult(RESULT_CANCELED, intent);
+        finish();
+    }
+
+    private void reportSuccess(File file){
+        // Reporting to the caller activity of the location picked and the snapshot image taken file location.
+        Intent intent = new Intent();
+        intent.putExtra(LANITUDE, map.getMyLocation().getLatitude());
+        intent.putExtra(LONGITUDE, map.getMyLocation().getLongitude());
+        intent.putExtra(SNAP_SHOT_PATH, file.getPath());
+
+        try {
+            String base = Base64.encodeToString(FileUtils.readFileToByteArray(file), Base64.DEFAULT);
+            intent.putExtra(BASE_64_FILE, base);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override

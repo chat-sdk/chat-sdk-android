@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +14,10 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.dao.BMessage;
 
@@ -30,6 +34,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
     /* Row types */
     private static final int TYPE_TEXT =0;
@@ -39,8 +44,6 @@ public class MessagesListAdapter extends BaseAdapter{
     private Activity mActivity;
 
     private List<BMessage> listData = new ArrayList<BMessage>();
-
-    private int textColor = -1;
 
     //View
     private View row;
@@ -138,31 +141,34 @@ public class MessagesListAdapter extends BaseAdapter{
                 else
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
 
-                image = (ImageView) row.findViewById(R.id.image);
-                // TODO save image to cache
-                image.setImageBitmap(Utils.decodeFrom64(message.getText().getBytes()));
+                // TODO save image to cache or to app directory
+                image = getImageViewfromRow(row, message.getText());
                 break;
 
             case TYPE_LOCATION:
-                if (message.getSender().equals(userID))
+                if (message.getSender().equals(userID)) {
                     row = inflater.inflate(R.layout.chat_sdk_row_location_user, null);
+                }
                 else
-                    row = inflater.inflate(R.layout.chat_sdk_row_location_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_location_friend, null);
 
                 btnViewLocation = (Button) row.findViewById(R.id.chat_sdk_btn_show_location);
-                btnViewLocation.setTag(message.getText());
-                btnViewLocation.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String[] loc = ((String)v.getTag()).split("&");
-                        openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
-                    }
-                });
 
-                image = (ImageView) row.findViewById(R.id.chat_sdk_image);
+                // Save the message text to the button tag so it could be found on the onClick.
+                btnViewLocation.setTag(message.getText());
+
+                // Open google maps on click.
+                btnViewLocation.setOnClickListener(new openGoogleMaps());
+
+                // Show the location image. Base64 code image.
+                String[] textArr = message.getText().split("&");
+                if (textArr.length == 3)
+                    image = getImageViewfromRow(row, textArr[2]);
+
                 break;
         }
 
+        // Add click event to image if message is picture or location.
         // Set the time of the sending.
         txtTime = (TextView) row.findViewById(R.id.txt_time);
         date = listData.get(position).getDate();
@@ -175,10 +181,6 @@ public class MessagesListAdapter extends BaseAdapter{
         listData.add(data);
 
         notifyDataSetChanged();
-    }
-
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
     }
 
     public void setListData(List<BMessage> listData) {
@@ -195,4 +197,37 @@ public class MessagesListAdapter extends BaseAdapter{
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         mActivity.startActivity(intent);
     }
+
+    private ImageView getImageViewfromRow(View row, String base64Data){
+        ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
+        image.setTag(base64Data);
+        image.setImageBitmap(Utils.decodeFrom64(base64Data.getBytes()));
+        image.setOnClickListener(new locationClickListener());
+
+        return image;
+    }
+
+    public class locationClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            if (DEBUG) Log.v(TAG, "OnClick - Location");
+            // Show the location image.
+            if (v.getTag() != null)
+            {
+                DialogUtils.getImageDialog(mActivity, (String) v.getTag(), DialogUtils.LoadTypes.LOAD_FROM_BASE64).
+//                  showAsDropDown(v);
+                            showAtLocation(v, Gravity.CENTER, 0, 0);
+            }
+            else Toast.makeText(mActivity, "Cant show image.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public class openGoogleMaps implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            String[] loc = ((String)v.getTag()).split("&");
+            openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
+        }
+    }
+    // TODO if picture is need to be collected from url or from file, Currently only using Base64. Dialog already support just need listener and logic.
 }

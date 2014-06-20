@@ -105,7 +105,7 @@ public class ThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Chat");
+                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Public chat Room");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
     }
@@ -118,9 +118,9 @@ public class ThreadsFragment extends BaseFragment {
         if (id == R.id.action_add_chat_room)
         {
             FragmentManager fm = getActivity().getSupportFragmentManager();
-            DialogUtils.EditTextDialog dialog = DialogUtils.EditTextDialog.getInstace();
+            DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
 
-            dialog.setTitleAndListen("Add Chat Room", new DialogUtils.EditTextDialog.EditTextDialogInterface() {
+            dialog.setTitleAndListen("Add Chat Room", new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
                 public void onFinished(String s) {
                     if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);

@@ -101,7 +101,7 @@ public class ConversationsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Chat");
+                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Conversation");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
     }

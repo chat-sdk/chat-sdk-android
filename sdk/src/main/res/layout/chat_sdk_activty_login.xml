@@ -4,22 +4,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:padding="50dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="50dp"
+    xmlns:tools = "http://schemas.android.com/tools"
+    tools:context="com.braunster.chatsdk.activities.LoginActivity">
 
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/imageView"
-        android:src="@android:color/darker_gray"
-        android:layout_centerHorizontal="true"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/icn_user_x_2"
+        app:border_width="2dp"
+        android:id="@+id/app_icon"
+        android:layout_alignParentTop="true"
+        app:border_color="@android:color/black" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:id="@+id/et_mail"
-        android:layout_below="@+id/imageView"
+        android:id="@+id/chat_sdk_et_mail"
+        android:layout_below="@+id/app_icon"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:gravity="center"
@@ -31,9 +37,9 @@
         android:inputType="textPassword"
         android:ems="10"
         android:id="@+id/et_password"
-        android:layout_below="@+id/et_mail"
-        android:layout_alignLeft="@+id/et_mail"
-        android:layout_alignStart="@+id/et_mail"
+        android:layout_below="@+id/chat_sdk_et_mail"
+        android:layout_alignLeft="@+id/chat_sdk_et_mail"
+        android:layout_alignStart="@+id/chat_sdk_et_mail"
         android:hint="@string/password"
         android:gravity="center"/>
 

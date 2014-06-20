@@ -90,6 +90,7 @@ public class ContactsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
+        // ASK what the add button do in this class
         if (id == R.id.action_add_chat_room)
         {
 //            Intent intent = new Intent(getActivity(), PickFriendsActivity.class);
@@ -124,6 +125,7 @@ public class ContactsFragment extends BaseFragment {
                 public void onDone(List<BLinkedContact> contacts) {
                     if (DEBUG) Log.d(TAG, "Contacts list size: " + contacts.size());
                     for (BLinkedContact contact : contacts) {
+
                         if (contact.getContact().getOnline() != null && contact.getContact().getOnline())
                             onlineContacts.add(contact.getContact());
                         else offlineContacts.add(contact.getContact());

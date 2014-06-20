@@ -9,5 +9,8 @@
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
+    <string name="alert_exit">"Are you sure you want to exit?</string>
+    <string name="exit">Exit</string>
+    <string name="stay">Stay</string>
     <string name="action_settings">action_setting</string>
 </resources>

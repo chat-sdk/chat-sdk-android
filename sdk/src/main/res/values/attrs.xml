@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleImageView">
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="RoundedCornerNetworkImageView"><!-- true for circular imageview -->
+        <attr name="isCircular" format="boolean" />
+        <!-- radius for circular edges of imageview -->
+        <attr name="radius" format="integer" />
+        <!-- margin for imageview -->
+        <attr name="margin" format="integer" />
+        <!-- true for drawing shadow on imageview -->
+        <attr name="isShadowPresent" format="boolean" />
+        <!-- specify color for the circular border -->
+        <attr name="circleColor" format="color" />
+        <!-- true to draw circular border -->
+        <attr name="drawCircle" format="boolean" />
+    </declare-styleable>
+</resources>

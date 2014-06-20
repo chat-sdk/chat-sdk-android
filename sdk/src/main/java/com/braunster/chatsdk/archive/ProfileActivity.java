@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.activities;
+package com.braunster.chatsdk.archive;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -42,7 +42,7 @@ public class ProfileActivity extends ActionBarActivity {
                 Log.d(TAG, "Name: " + graphUser.getName());
                 etName.setText(graphUser.getName());
                 etMail.setText((String) graphUser.getProperty("email"));
-                profilePictureView.setProfileId(graphUser.getId());
+//                profilePictureView.setProfileId(graphUser.getId());
             }
 
             @Override
@@ -68,10 +68,10 @@ public class ProfileActivity extends ActionBarActivity {
     }
 
     private void initViews(){
-        etName = (EditText) findViewById(R.id.et_name);
-        etMail = (EditText) findViewById(R.id.et_mail);
-        etPhone = (EditText) findViewById(R.id.et_phone_number);
-        profilePictureView = (ProfilePictureView) findViewById(R.id.profile_pic);
+        etName = (EditText) findViewById(R.id.chat_sdk_et_name);
+        etMail = (EditText) findViewById(R.id.chat_sdk_et_mail);
+        etPhone = (EditText) findViewById(R.id.chat_sdk_et_phone_number);
+//        profilePictureView = (ProfilePictureView) findViewById(R.id.profile_pic);
     }
 }
 

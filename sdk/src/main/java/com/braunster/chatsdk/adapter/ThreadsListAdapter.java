@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -20,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.braunster.chatsdk.dao.BMessage.Type.bText;
 import static com.braunster.chatsdk.dao.BMessage.Type.values;
@@ -35,8 +38,6 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     private List<BThread> listData = new ArrayList<BThread>();
 
-    private int textColor = -1;
-
     private BMessage.Type[] types;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm dd/MM/yy");
@@ -44,11 +45,11 @@ public class ThreadsListAdapter extends BaseAdapter {
     //View
     private View row;
 
-    private TextView textView;
     private BThread thread;
 
     public ThreadsListAdapter(Activity activity){
         mActivity = activity;
+
         init();
     }
 
@@ -68,7 +69,7 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
     @Override
     public int getCount() {
-        return listData.size();
+        return listData != null ? listData.size() : 0;
     }
 
     @Override
@@ -97,7 +98,7 @@ public class ThreadsListAdapter extends BaseAdapter {
             holder.txtName = (TextView) row.findViewById(R.id.txt_name);
             holder.txtLastMsg = (TextView) row.findViewById(R.id.txt_last_message);
             holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
-            holder.imgIcon = (ImageView) row.findViewById(R.id.img_thread_image);
+            holder.imgIcon = (CircleImageView) row.findViewById(R.id.img_thread_image);
 
             row.setTag(holder);
         }
@@ -141,7 +142,7 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     private class ViewHolder{
         TextView txtName, txtDate, txtLastMsg;
-        ImageView imgIcon;
+        CircleImageView imgIcon;
     }
 
     public void addRow(BThread thread){
@@ -149,10 +150,6 @@ public class ThreadsListAdapter extends BaseAdapter {
         listData.add(thread);
 
         notifyDataSetChanged();
-    }
-
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
     }
 
     public void setListData(List<BThread> listData) {

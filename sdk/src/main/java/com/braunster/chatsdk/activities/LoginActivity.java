@@ -122,4 +122,16 @@ public class LoginActivity extends BaseActivity{
         if(DEBUG) Log.v(TAG, "onActivityResult");
         uiHelper.onActivityResult(requestCode, resultCode, data);
     }
+
+    /* Exit Stuff*/
+    @Override
+    public void onBackPressed() {
+        // Exit the app.
+        // If logged out from the main activity pressing back in the LoginActivity will get me back to the Main so this have to be done.
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
 }

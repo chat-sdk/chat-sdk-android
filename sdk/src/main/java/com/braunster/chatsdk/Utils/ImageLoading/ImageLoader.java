@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -75,7 +77,7 @@ public class ImageLoader {
             conn.setInstanceFollowRedirects(true);
             InputStream is=conn.getInputStream();
             OutputStream os = new FileOutputStream(f);
-            Utils.CopyStream(is, os);
+            IOUtils.copy(is, os);
             os.close();
             bitmap = decodeFile(f);
             return bitmap;

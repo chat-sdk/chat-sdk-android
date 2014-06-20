@@ -1,15 +1,18 @@
 package com.braunster.chatsdk.network;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.braunster.chatsdk.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
+import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.firebase.client.Firebase;
 import com.firebase.simplelogin.FirebaseSimpleLoginError;
@@ -17,6 +20,10 @@ import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
 import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -187,6 +194,68 @@ public class BFacebookManager {
         });
 
         req.executeAsync();
+    }
+
+    public static void getInvitableFriendsList(final CompletionListenerWithData completionListenerWithData){
+
+        final Session session = Session.getActiveSession();
+        if (session != null && session.isOpened()) {
+
+            // Get a list of friends who have _not installed_ the game.
+            Request invitableFriendsRequest = Request.newGraphPathRequest(session,
+                    "/me/invitable_friends", new Request.Callback() {
+
+                        @Override
+                        public void onCompleted(Response response) {
+
+                            FacebookRequestError error = response.getError();
+                            if (error != null) {
+                                Log.e(TAG, error.toString());
+                                completionListenerWithData.onDoneWithError();
+                            } else if (session == Session.getActiveSession()) {
+                                if (response != null) {
+                                    // Get the result
+                                    GraphObject graphObject = response.getGraphObject();
+                                    JSONArray dataArray = (JSONArray)graphObject.getProperty("data");
+
+                                    List<JSONObject> invitableFriends = new ArrayList<JSONObject>();
+                                    if (dataArray.length() > 0) {
+                                        // Ensure the user has at least one friend ...
+
+                                        for (int i=0; i<dataArray.length(); i++) {
+                                            invitableFriends.add(dataArray.optJSONObject(i));
+                                        }
+                                    }
+                                    completionListenerWithData.onDone(invitableFriends);
+                                }
+                            }
+                        }
+
+                    });
+
+            Bundle invitableParams = new Bundle();
+            invitableParams.putString("fields", "id,first_name,picture");
+            invitableFriendsRequest.setParameters(invitableParams);
+            invitableFriendsRequest.executeAsync();
+        }
+        else
+        {
+            if (DEBUG) Log.d(TAG, "Session is closed");
+            completionListenerWithData.onDoneWithError();
+        }
+
+    }
+
+    /* Helpers */
+    public static String getPicUrl(String id){
+        return "http://graph.facebook.com/"+id+"/picture?type=large";
+    }
+
+    public static String getPicUrl(String id, String type){
+        return "http://graph.facebook.com/"+id+"/picture?type=" + type;
+    }
+    public static String getCurrentUserProfilePic(){
+        return getPicUrl(facebookAppID);
     }
 }
 

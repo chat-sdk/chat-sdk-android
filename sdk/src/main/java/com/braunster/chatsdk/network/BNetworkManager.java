@@ -170,9 +170,9 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public void sendMessageWithLocation(LatLng location, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
+    public void sendMessageWithLocation(String base64File, LatLng location, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
         if (networkAdapter != null)
-            networkAdapter.sendMessageWithLocation(location, threadEntityId, completionListener);
+            networkAdapter.sendMessageWithLocation(base64File, location, threadEntityId, completionListener);
         else
         {
             if (DEBUG) Log.e(TAG, "Network adapter is null");

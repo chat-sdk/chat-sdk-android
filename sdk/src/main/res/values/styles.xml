@@ -1,4 +1,6 @@
-<resources>
+<resources
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.Base.AppCompat.Light">
@@ -24,4 +26,13 @@
         <item name="android:textSize">13dp</item>
         <item name="android:padding">2dp</item>
     </style>
+
+    <style name="CircleIconStyle">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="border_color">@android:color/black</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="border_width">1dp</item>
+    </style>
+
 </resources>

@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +21,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
@@ -43,6 +46,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     // TODO add popup for message options.
     // TODO add location message.
     // TODO auto scroll to bottom.
+    // TODO add button to add users to action bar.
 
     private static final String TAG = ChatActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -93,7 +97,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
     private void initListView(){
         listMessages = (ListView) findViewById(R.id.list_chat);
-
+        listMessages.setItemsCanFocus(true);
         // If the user is null, Recreat the adapter and sync.
         if (BNetworkManager.getInstance().currentUser() != null)
             setNetworkAdapterAndSync(new CompletionListener() {
@@ -207,11 +211,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (DEBUG) Log.d(TAG, "Result Cancelled");
+                if (data.getExtras().containsKey(LocationActivity.ERROR))
+                    Toast.makeText(this, data.getExtras().getString(LocationActivity.ERROR), Toast.LENGTH_SHORT).show();
             }
             else if (resultCode == Activity.RESULT_OK)
             {
                 if (DEBUG) Log.d(TAG, "Result OK");
-                BNetworkManager.getInstance().sendMessageWithLocation(
+                // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
+                BNetworkManager.getInstance().sendMessageWithLocation(data.getExtras().getString(LocationActivity.BASE_64_FILE, null),
                                         new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),
                                         thread.getEntityID(), new CompletionListenerWithData<BMessage>() {
                             @Override
@@ -225,15 +232,24 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                                 Toast.makeText(ChatActivity.this, "Location could not been sent.", Toast.LENGTH_SHORT).show();
                             }
                         });
-                /*TODO get the location snapshot saved in the SD card and add it to the message.
-                if (image != null)
-                {
-                    if (DEBUG) Log.d(TAG, "Location Image is not null");
-
-                }*/
             }
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem item =
+                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Chat");
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        item.setIcon(android.R.drawable.ic_menu_add);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+        // ASK what add button do in this class
     }
 
     private boolean getThread(Bundle savedInstanceBundle){
@@ -309,18 +325,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             return;
         }
 
-        View popupView = getLayoutInflater().inflate(R.layout.chat_sdk_popup_options, null);
-        optionPopup = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupView.findViewById(R.id.chat_sdk_btn_choose_picture).setOnClickListener(this);
-        popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(this);
-        popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(this);
-
-        // TODO fix popup size to wrap view size.
-        optionPopup.setContentView(popupView);
-        optionPopup.setBackgroundDrawable(new BitmapDrawable());
-        optionPopup.setOutsideTouchable(true);
-        optionPopup.setWidth(500);
-        optionPopup.setHeight(400);
+        optionPopup = DialogUtils.getMenuOptionPopup(this, this);
         optionPopup.showAsDropDown(btnOptions);
     }
 
@@ -364,5 +369,4 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             dismissOption();
         }
     }
-
 }
