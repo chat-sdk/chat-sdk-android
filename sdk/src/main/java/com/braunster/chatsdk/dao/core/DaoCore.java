@@ -322,6 +322,10 @@ public class DaoCore {
     }
     //endregion
 
+    public static BUser fetchEntityWithFacebookID(Class c, String facebookID){
+        return fetchEntityWithProperty(c, BUserDao.Properties.FacebookID, facebookID);
+    }
+
     public static <T extends Entity<T>> T fetchEntityWithID(Class c, String entityID){
         return (T) daoSession.load(c, entityID);
     }

@@ -1,5 +1,6 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,15 +9,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.UsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.facebook.model.GraphUser;
 
 import java.util.List;
 
@@ -33,6 +37,7 @@ public class PickFriendsActivity extends ActionBarActivity {
     private ListView listContacts;
     private UsersListAdapter listAdapter;
     private ProgressBar progressBar;
+    private Button btnGetFBFriends;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,7 @@ public class PickFriendsActivity extends ActionBarActivity {
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.list_contacts);
         progressBar = (ProgressBar) findViewById(R.id.prg_bar);
+        btnGetFBFriends = (Button) findViewById(R.id.btn_invite_from_fb);
         initList();
     }
 
@@ -106,5 +112,20 @@ public class PickFriendsActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        btnGetFBFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+                DialogUtils.ChatSDKFacebookFriendsDialog dialog = DialogUtils.ChatSDKFacebookFriendsDialog.getInstance();
+                dialog.setFinishedListener(new DialogUtils.DialogInterface<List<GraphUser>>() {
+                    @Override
+                    public void onFinished(List<GraphUser> graphUsers) {
+
+                    }
+                });
+                dialog.show(fm, "FB_Friends_List");
+
+            }
+        });
     }
 }

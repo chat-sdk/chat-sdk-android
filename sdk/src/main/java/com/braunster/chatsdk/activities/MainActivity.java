@@ -36,6 +36,7 @@ import java.util.concurrent.Callable;
 public class MainActivity extends BaseActivity {
 
     // TODO add option to save up app in external storage. http://developer.android.com/guide/topics/data/install-location.html
+    // TODO add option to the exit dialog to not show it again and exit every time the user press the back button.
     private static final String TAG = MainActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 

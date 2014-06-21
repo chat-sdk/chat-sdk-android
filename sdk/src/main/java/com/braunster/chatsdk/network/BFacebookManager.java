@@ -196,6 +196,7 @@ public class BFacebookManager {
         req.executeAsync();
     }
 
+    /** Does not work if your app dosent have facebook game app privileges.*/
     public static void getInvitableFriendsList(final CompletionListenerWithData completionListenerWithData){
 
         final Session session = Session.getActiveSession();

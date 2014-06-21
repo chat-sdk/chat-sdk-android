@@ -1,8 +1,11 @@
+/*
 package com.braunster.chatsdk.adapter;
 
+*/
 /**
  * Created by itzik on 6/17/2014.
- */
+ *//*
+
 
 
 import android.content.Context;
@@ -15,7 +18,7 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.ImageLoading.ImageLoader;
+import com.braunster.chatsdk.archive.ImageLoading.ImageLoader;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 
@@ -133,4 +136,4 @@ public class VolleyContactsExpandableListAdapter extends BaseExpandableListAdapt
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
-}
+}*/

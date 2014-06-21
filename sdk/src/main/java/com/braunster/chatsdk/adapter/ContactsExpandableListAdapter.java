@@ -11,11 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.ImageLoading.ImageLoader;
+import com.braunster.chatsdk.archive.ImageLoading.ImageLoader;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 

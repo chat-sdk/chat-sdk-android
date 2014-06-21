@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.Utils.ImageLoading;
+package com.braunster.chatsdk.archive.ImageLoading;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Utils;
 
 import org.apache.commons.io.IOUtils;
 

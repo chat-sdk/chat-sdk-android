@@ -13,12 +13,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -28,9 +31,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.network.BFacebookManager;
+import com.facebook.android.Facebook;
 import com.facebook.android.Util;
+import com.facebook.model.GraphUser;
 
 import org.apache.commons.io.FileUtils;
+
+import java.util.List;
 
 /**
  * Created by braunster on 19/06/14.
@@ -155,6 +165,60 @@ public class DialogUtils {
         }
     }
 
+    public static class ChatSDKFacebookFriendsDialog extends DialogFragment {
+
+        private DialogInterface<List<GraphUser>> listener;
+
+        public static ChatSDKFacebookFriendsDialog getInstance(){
+            return new ChatSDKFacebookFriendsDialog();
+        }
+
+        // TODO add check option for each user and return the list when done.
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            final View view = inflater.inflate(R.layout.chat_sdk_fb_friends_list_dialog, null);
+
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+            BFacebookManager.getUserFriendList(new CompletionListenerWithData<List<GraphUser>>() {
+                @Override
+                public void onDone(List<GraphUser> graphUsers) {
+                    if (DEBUG) Log.v(TAG, "onDone");
+                    // The regular adapter (i.e not volley) have problem sometime with the loading so ive changed to the volley.
+                    // The adapter duplicate pictures.
+//                    FBFriendsListAdapter adapter = new FBFriendsListAdapter(getActivity(), graphUsers);
+                    FBFriendsListVolleyAdapter adapter = new FBFriendsListVolleyAdapter(getActivity(), graphUsers);
+                            ((ListView) view.findViewById(R.id.chat_sdk_listview_friends_list)).setAdapter(adapter);
+                }
+
+                @Override
+                public void onDoneWithError() {
+                    if (DEBUG) Log.e(TAG, "cant find friends.");
+                    Toast.makeText(getActivity(), "Cant find friends...", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            view.findViewById(R.id.chat_sdk_btn_fb_cancel).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (DEBUG) Log.v(TAG, "Cancel");
+                    dismiss();
+                }
+            });
+
+            view.findViewById(R.id.chat_sdk_btn_fb_send).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (DEBUG) Log.v(TAG, "Send");
+                }
+            });
+            return view;
+        }
+
+        public void setFinishedListener(DialogInterface<List<GraphUser>> listener){
+            this.listener = listener;
+        }
+    }
     /** A popup to select the type of message to send, "Text", "Image", "Location".*/
     public static PopupWindow getMenuOptionPopup(Context context, View.OnClickListener listener){
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

@@ -3,6 +3,8 @@ package com.braunster.chatsdk.Utils.volley;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v4.util.LruCache;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -59,4 +61,29 @@ public class VolleyUtills {
             throw new IllegalStateException("ImageLoader not initialized");
         }
     }
+
+    public static class BitmapCache extends LruCache<String, Bitmap> implements ImageLoader.ImageCache {
+        public BitmapCache(int maxSize) {
+            super(maxSize);
+        }
+
+
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getRowBytes() * value.getHeight();
+        }
+
+
+        @Override
+        public Bitmap getBitmap(String url) {
+            return get(url);
+        }
+
+
+        @Override
+        public void putBitmap(String url, Bitmap bitmap) {
+            put(url, bitmap);
+        }
+    }
+
 }
