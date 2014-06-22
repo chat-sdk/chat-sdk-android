@@ -1,6 +1,6 @@
 package com.braunster.chatsdk.dao.core;
 
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
 import java.util.Map;

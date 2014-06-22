@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.network;
 
 import com.braunster.chatsdk.dao.BMessage;
@@ -10,9 +11,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+*/
 /**
  * Created by itzik on 6/9/2014.
- */
+ *//*
+
 public class NetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public void syncWithProgress(CompletionListener completionListener) {
@@ -70,3 +73,4 @@ public class NetworkAdapter extends AbstractNetworkAdapter {
         return null;
     }
 }
+*/

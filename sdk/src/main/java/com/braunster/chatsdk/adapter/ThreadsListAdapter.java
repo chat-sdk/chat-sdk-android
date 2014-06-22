@@ -112,7 +112,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         {
             if (thread.getType() == BThread.Type.Private.ordinal())
             {
-                if (BNetworkManager.getInstance().currentUser().getEntityID().equals(thread.getUsers().get(0).getUserID()))
+                if (BNetworkManager.getInstance().currentUser().getId() == thread.getUsers().get(0).getUserID())
                     thread.setName(thread.getUsers().get(1).getBUser().getName());
                 else thread.setName(thread.getUsers().get(0).getBUser().getName());
             }
@@ -169,7 +169,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         else message = thread.getMessages().get(0);
 
 
-        if (message.getEntityID() == null)
+        if (message.getId() == null)
         {
             Log.e(TAG, "Message has no entity");
             Log.e(TAG, "Messages Amount: " + thread.getMessages().size()

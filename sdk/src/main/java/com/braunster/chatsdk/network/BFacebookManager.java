@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.braunster.chatsdk.firebase.FirebasePaths;
+import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.facebook.FacebookRequestError;
@@ -40,7 +40,7 @@ public class BFacebookManager {
      * User date that need to be stored.
      */
 
-    private static String userFacebookID, userFacebookAccessToken, userFacebookName;
+    public static String userFacebookID, userFacebookAccessToken, userFacebookName;
     private static String facebookAppID;/* Need to get it from a differnt source*/
 
     private static String userThirdPartyUserAccount; /* Not sure if needed*/
@@ -255,7 +255,7 @@ public class BFacebookManager {
     public static String getPicUrl(String id, String type){
         return "http://graph.facebook.com/"+id+"/picture?type=" + type;
     }
-    public static String getCurrentUserProfilePic(){
+    public static String getCurrentUserProfilePicURL(){
         return getPicUrl(facebookAppID);
     }
 }

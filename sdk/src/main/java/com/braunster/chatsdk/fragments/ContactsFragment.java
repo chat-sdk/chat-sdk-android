@@ -140,9 +140,9 @@ public class ContactsFragment extends BaseFragment {
                     expContacts.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                         @Override
                         public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                            BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<String>() {
+                            BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<Long>() {
                                 @Override
-                                public void onDone(String id) {
+                                public void onDone(Long id) {
                                     Intent intent = new Intent(getActivity(), ChatActivity.class);
                                     intent.putExtra(ChatActivity.THREAD_ID, id);
                                     startActivity(intent);

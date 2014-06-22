@@ -2,14 +2,16 @@ package com.braunster.chatsdk.network;
 
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.firebase.FirebasePaths;
+import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.firebase.client.Firebase;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,36 +27,80 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     //TODO need to implement
     @Override
-    public void syncWithProgress(CompletionListener completionListener) {
+    public void syncWithProgress(final CompletionListener completionListener) {
+        if (DEBUG) Log.v(TAG, "SyncWithProgress");
         //TODO get facebook id from preferences;
         // TODO update progress dialog.
         String facebookID = BFacebookManager.getUserFacebookID();
 
+        // If there is no facebook id cancel sync operation.
         if (facebookID == null)
         {
             if (DEBUG) Log.d(TAG, "Facebook Id is null");
             return;
         }
 
-        BUser user = DaoCore.fetchOrCreateUserWithEntityID(null, facebookID);
+        // Loading the user entity from the local db.
+        final BUser user = DaoCore.fetchOrCreateUserWithEntityID("", facebookID);
 
-//        Firebase ref = FirebasePaths.firebaseRef().appendPathComponent()
-/*
-        Firebase * ref = [[Firebase firebaseRef] appendPathComponent:entity.getPath.getPath];
+        if (DEBUG) Log.i(TAG, "Syncing user with facebookID, ID: " + facebookID +
+                ", Name: " + (user.getName() != null ? user.getName() : "No name") );
 
-        // If possible get the entity by it's address
-        if(entity.entityID && entity.entityID.length) {
+        BFirebaseInterface.getInstance().selectEntity(user, new CompletionListenerWithData<BUser>() {
+            @Override
+            public void onDone(BUser bUser) {
+                if (DEBUG) Log.i(TAG, "OnDone, Entity fetched from Firebase, BUser name: " + (bUser == null ? "User is null" :bUser.getName()));
 
-            [ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot * snapshot) {
-                id object = [BFirebaseInterface objectForSnapshot:snapshot];
-                if ([object isKindOfClass:[NSArray class]]) {
-                    object = ((NSArray *) object).firstObject;
+                // Delete Temp entity
+                if (user.getEntityID() == null)
+                {
+                    if (DEBUG) Log.d(TAG, "Deleting tmp user");
+                    DaoCore.deleteEntity(user);
                 }
-                completion(object);
-            }];
-        }
-*/
 
+                // ASK not sure if looking for null.
+                if (bUser == null)
+                {
+                    if (DEBUG) Log.d(TAG, "Fetched user from firebase is null");
+                    bUser = new BUser();
+                    bUser = DaoCore.createEntity(bUser);
+                }
+
+                Log.i(TAG, "Updating the user...");
+
+                bUser.setName(BFacebookManager.userFacebookName);
+                bUser.setFacebookID(BFacebookManager.userFacebookID);
+
+                bUser.pictureExist = true;
+                bUser.pictureURL = BFacebookManager.getCurrentUserProfilePicURL();
+                bUser.setLastOnline(new Date());
+
+                // Update the user.
+                bUser.setLastUpdated(new Date());
+
+                Log.i(TAG, "Pushing the updated user back to firebase...");
+                BFirebaseInterface.getInstance().pushEntity(bUser, new CompletionListenerWithData<BUser>() {
+                    @Override
+                    public void onDone(BUser bUser) {
+                        Log.i(TAG, "OnDine, User is pushed.");
+                        // TODO subscribe to push channel and add observer to this user.
+                        completionListener.onDone();
+                    }
+
+                    @Override
+                    public void onDoneWithError() {
+                        if (DEBUG) Log.e(TAG, "DoneWithError, PushEntity");
+                        completionListener.onDoneWithError();
+                    }
+                });
+            }
+
+            @Override
+            public void onDoneWithError() {
+                if (DEBUG) Log.e(TAG, "DoneWithError, selectEntity");
+                completionListener.onDoneWithError();
+            }
+        });
     }
 
     @Override
@@ -64,17 +110,37 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override
     public BUser currentUser() {
-        //TODO return the user from the local database
         return DaoCore.fetchEntityWithFacebookID(BUser.class, BFacebookManager.getUserFacebookID());
     }
 
     @Override
-    public void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener) {
+    public void sendMessage(BMessage message, final CompletionListenerWithData<BMessage> completionListener) {
 
+        if (message.getOwnerThread() != null)
+        {
+            BFirebaseInterface.getInstance().pushEntity(message, new CompletionListenerWithData<BMessage>() {
+                @Override
+                public void onDone(BMessage message) {
+
+                    // This will return to the abstract Adapter call, The adapter then save the entity and callback to the calling method.
+                    completionListener.onDone(message);
+                    // TODO if the thread is private send push notificatin to all the other users.
+                    // Check when recipients was last online
+                    // Don't use push notifications for public threads because
+                    // they could have hundreds of users and we don't want to be spammed
+                    // with push notifications
+                }
+
+                @Override
+                public void onDoneWithError() {
+                    completionListener.onDoneWithError();
+                }
+            });
+        }
     }
 
     @Override
-    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<Long> completionListener) {
 
     }
 
@@ -85,7 +151,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override
     public void setLastOnline(Date lastOnline) {
-
+        this.currentUser().setLastOnline(lastOnline);
     }
 
     @Override
@@ -107,5 +173,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public String serverURL() {
         return FirebasePaths.FIREBASE_PATH;
+    }
+
+    private void updateLastOnline(){
+        setLastOnline(new Date());
     }
 }

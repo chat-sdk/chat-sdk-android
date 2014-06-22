@@ -81,7 +81,7 @@ public class ThreadsFragment extends BaseFragment {
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
 
                 Intent intent = new Intent(getActivity(), ChatActivity.class);
-                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getEntityID());
+                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getId());
 
                 startActivity(intent);
             }

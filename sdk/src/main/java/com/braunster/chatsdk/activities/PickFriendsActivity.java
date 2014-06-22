@@ -87,9 +87,9 @@ public class PickFriendsActivity extends ActionBarActivity {
                 if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getName()
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
 
-                BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<String>() {
+                BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<Long>() {
                     @Override
-                    public void onDone(String id) {
+                    public void onDone(Long id) {
                         Intent intent = new Intent(PickFriendsActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.THREAD_ID, id);
                         startActivity(intent);

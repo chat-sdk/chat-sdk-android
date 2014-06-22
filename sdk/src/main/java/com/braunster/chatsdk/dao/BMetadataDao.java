@@ -28,12 +28,13 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Authentication_id = new Property(0, String.class, "authentication_id", false, "AUTHENTICATION_ID");
-        public final static Property Dirty = new Property(1, Boolean.class, "dirty", false, "DIRTY");
-        public final static Property Type = new Property(2, String.class, "type", false, "TYPE");
-        public final static Property Key = new Property(3, String.class, "Key", false, "KEY");
-        public final static Property Value = new Property(4, String.class, "Value", false, "VALUE");
-        public final static Property Owner = new Property(5, String.class, "Owner", false, "OWNER");
+        public final static Property EntityID = new Property(0, String.class, "entityID", false, "ENTITY_ID");
+        public final static Property Authentication_id = new Property(1, String.class, "authentication_id", false, "AUTHENTICATION_ID");
+        public final static Property Dirty = new Property(2, Boolean.class, "dirty", false, "DIRTY");
+        public final static Property Type = new Property(3, String.class, "type", false, "TYPE");
+        public final static Property Key = new Property(4, String.class, "Key", false, "KEY");
+        public final static Property Value = new Property(5, String.class, "Value", false, "VALUE");
+        public final static Property Owner = new Property(6, Long.class, "Owner", false, "OWNER");
     };
 
     private DaoSession daoSession;
@@ -53,12 +54,13 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BMETADATA' (" + //
-                "'AUTHENTICATION_ID' TEXT," + // 0: authentication_id
-                "'DIRTY' INTEGER," + // 1: dirty
-                "'TYPE' TEXT NOT NULL ," + // 2: type
-                "'KEY' TEXT NOT NULL ," + // 3: Key
-                "'VALUE' TEXT NOT NULL ," + // 4: Value
-                "'OWNER' TEXT);"); // 5: Owner
+                "'ENTITY_ID' TEXT," + // 0: entityID
+                "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
+                "'DIRTY' INTEGER," + // 2: dirty
+                "'TYPE' TEXT NOT NULL ," + // 3: type
+                "'KEY' TEXT NOT NULL ," + // 4: Key
+                "'VALUE' TEXT NOT NULL ," + // 5: Value
+                "'OWNER' INTEGER);"); // 6: Owner
     }
 
     /** Drops the underlying database table. */
@@ -72,22 +74,27 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     protected void bindValues(SQLiteStatement stmt, BMetadata entity) {
         stmt.clearBindings();
  
+        String entityID = entity.getEntityID();
+        if (entityID != null) {
+            stmt.bindString(1, entityID);
+        }
+ 
         String authentication_id = entity.getAuthentication_id();
         if (authentication_id != null) {
-            stmt.bindString(1, authentication_id);
+            stmt.bindString(2, authentication_id);
         }
  
         Boolean dirty = entity.getDirty();
         if (dirty != null) {
-            stmt.bindLong(2, dirty ? 1l: 0l);
+            stmt.bindLong(3, dirty ? 1l: 0l);
         }
-        stmt.bindString(3, entity.getType());
-        stmt.bindString(4, entity.getKey());
-        stmt.bindString(5, entity.getValue());
+        stmt.bindString(4, entity.getType());
+        stmt.bindString(5, entity.getKey());
+        stmt.bindString(6, entity.getValue());
  
-        String Owner = entity.getOwner();
+        Long Owner = entity.getOwner();
         if (Owner != null) {
-            stmt.bindString(6, Owner);
+            stmt.bindLong(7, Owner);
         }
     }
 
@@ -107,12 +114,13 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     @Override
     public BMetadata readEntity(Cursor cursor, int offset) {
         BMetadata entity = new BMetadata( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // authentication_id
-            cursor.isNull(offset + 1) ? null : cursor.getShort(offset + 1) != 0, // dirty
-            cursor.getString(offset + 2), // type
-            cursor.getString(offset + 3), // Key
-            cursor.getString(offset + 4), // Value
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // Owner
+            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
+            cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // dirty
+            cursor.getString(offset + 3), // type
+            cursor.getString(offset + 4), // Key
+            cursor.getString(offset + 5), // Value
+            cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6) // Owner
         );
         return entity;
     }
@@ -120,12 +128,13 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, BMetadata entity, int offset) {
-        entity.setAuthentication_id(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setDirty(cursor.isNull(offset + 1) ? null : cursor.getShort(offset + 1) != 0);
-        entity.setType(cursor.getString(offset + 2));
-        entity.setKey(cursor.getString(offset + 3));
-        entity.setValue(cursor.getString(offset + 4));
-        entity.setOwner(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
+        entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setDirty(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
+        entity.setType(cursor.getString(offset + 3));
+        entity.setKey(cursor.getString(offset + 4));
+        entity.setValue(cursor.getString(offset + 5));
+        entity.setOwner(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
      }
     
     /** @inheritdoc */
@@ -148,7 +157,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
     }
     
     /** Internal query to resolve the "BMetadata" to-many relationship of BUser. */
-    public List<BMetadata> _queryBUser_BMetadata(String Owner) {
+    public List<BMetadata> _queryBUser_BMetadata(Long Owner) {
         synchronized (this) {
             if (bUser_BMetadataQuery == null) {
                 QueryBuilder<BMetadata> queryBuilder = queryBuilder();
@@ -170,7 +179,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Void> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BMETADATA T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'OWNER'=T0.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'OWNER'=T0.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }

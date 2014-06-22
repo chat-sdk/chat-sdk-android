@@ -62,7 +62,7 @@ public abstract class AbstractNetworkAdapter {
     public abstract void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener);
 
     /** Create a new messaged thread with the given users as participants.*/
-    public abstract void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener);
+    public abstract void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<Long> completionListener);
 
     /** Create a public thread for given name.*/
     public abstract void createPublicThreadWithName(String name, CompletionListener completionListener);
@@ -83,7 +83,7 @@ public abstract class AbstractNetworkAdapter {
         {
             // FIXME: Thread messages is not up do date for some reason...
             // FIXME: Calling messages separately for each thread.
-            th.setMessages(getMessagesForThreadForEntityID(th.getEntityID()));
+            th.setMessages(getMessagesForThreadForEntityID(th.getId()));
 //            if (DEBUG) Log.d(TAG, "Messages from method: " + getMessagesForThreadForEntityID(th.getEntityID()).size());
             if (DEBUG) Log.d(TAG, "Messages, Amount: " + th.getMessages().size() );
             if (th.getMessages().size() > 0 || th.getBUser().equals(currentUser()))
@@ -114,7 +114,7 @@ public abstract class AbstractNetworkAdapter {
     public abstract String serverURL();
 
     /** Send text message.*/
-    public void sendMessageWithText(String text, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
+    public void sendMessageWithText(String text, long threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         if (DEBUG) Log.v(TAG, "sendMessageWithText");
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
@@ -139,7 +139,7 @@ public abstract class AbstractNetworkAdapter {
     }
 
     /** Send message with an image.*/
-    public void sendMessageWithImage(File image, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
+    public void sendMessageWithImage(File image, long threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
 
         // http://stackoverflow.com/questions/13119306/base64-image-encoding-using-java
@@ -177,7 +177,7 @@ public abstract class AbstractNetworkAdapter {
 
     /**@see "http://developer.android.com/guide/topics/location/strategies.html"
      * Send user location.*/
-    public void sendMessageWithLocation(String base64File, LatLng location, String threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
+    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> completionListener){
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
@@ -210,8 +210,8 @@ public abstract class AbstractNetworkAdapter {
 
     // TODO add order veriable for the data.
     /** Get all messages for given thread id ordered Ascending/Descending*/
-    public List<BMessage> getMessagesForThreadForEntityID(String entityId){
+    public List<BMessage> getMessagesForThreadForEntityID(Long id){
         /* Get the messages by pre defined order*/
-        return DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, entityId);
+        return DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, id);
     }
 }

@@ -1,6 +1,6 @@
 package com.braunster.chatsdk.archive;
 
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Map;
 import java.util.Objects;

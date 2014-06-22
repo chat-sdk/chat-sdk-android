@@ -95,7 +95,7 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<Long> completionListener) {
 
         // IF one on one chat
         if (users.size() == 2)
@@ -129,15 +129,15 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
             }
             //endregion
 
-            firUserThreads = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Creator, one.getEntityID());
-            secUserThread = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Creator, sec.getEntityID());
+            firUserThreads = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Creator, one.getId());
+            secUserThread = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Creator, sec.getId());
 
             for (BThread t : firUserThreads)
                 if (t.getUsers().size() == 2)
-                    if (t.getUsers().get(0).getBUser().getEntityID().equals(sec.getEntityID())
-                            || t.getUsers().get(1).getBUser().getEntityID().equals(sec.getEntityID()))
+                    if (t.getUsers().get(0).getBUser().getId().equals(sec.getId())
+                            || t.getUsers().get(1).getBUser().getId().equals(sec.getId()))
                     {
-                        completionListener.onDone(t.getEntityID());
+                        completionListener.onDone(t.getId());
                         return;
                     }
 
@@ -147,7 +147,7 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
                     if (t.getUsers().get(0).getBUser().getEntityID().equals(one.getEntityID())
                             || t.getUsers().get(1).getBUser().getEntityID().equals(one.getEntityID()))
                     {
-                        completionListener.onDone(t.getEntityID());
+                        completionListener.onDone(t.getId());
                         return;
                     }
                 }
@@ -155,7 +155,7 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
         // Creating the thread.
         BThread thread = new BThread();
         thread.setEntityID(DaoCore.generateEntity());
-        thread.setCreator(currentUser().getEntityID());
+        thread.setCreator(currentUser().getId());
         thread.setType(BThread.Type.Private.ordinal());
 
         DaoCore.createEntity(thread);
@@ -165,13 +165,13 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
         for (BUser u : users)
         {
             linkData = new BLinkData();
-            linkData.setUserID(u.getEntityID());
-            linkData.setThreadID(thread.getEntityID());
+            linkData.setUserID(u.getId());
+            linkData.setThreadID(thread.getId());
             DaoCore.createEntity(linkData);
         }
 
         activityListener.onThreadAdded(thread);
-        completionListener.onDone(thread.getEntityID());
+        completionListener.onDone(thread.getId());
     }
 
     @Override

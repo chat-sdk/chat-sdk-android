@@ -19,7 +19,7 @@ import com.braunster.chatsdk.dao.BThread;
 /** 
  * DAO for table BTHREAD.
 */
-public class BThreadDao extends AbstractDao<BThread, String> {
+public class BThreadDao extends AbstractDao<BThread, Long> {
 
     public static final String TABLENAME = "BTHREAD";
 
@@ -28,13 +28,14 @@ public class BThreadDao extends AbstractDao<BThread, String> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property EntityID = new Property(0, String.class, "entityID", true, "ENTITY_ID");
-        public final static Property CreationDate = new Property(1, java.util.Date.class, "creationDate", false, "CREATION_DATE");
-        public final static Property Dirty = new Property(2, Boolean.class, "dirty", false, "DIRTY");
-        public final static Property HasUnreadMessages = new Property(3, Boolean.class, "hasUnreadMessages", false, "HAS_UNREAD_MESSAGES");
-        public final static Property Name = new Property(4, String.class, "name", false, "NAME");
-        public final static Property Type = new Property(5, Integer.class, "type", false, "TYPE");
-        public final static Property Creator = new Property(6, String.class, "creator", false, "CREATOR");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
+        public final static Property CreationDate = new Property(2, java.util.Date.class, "creationDate", false, "CREATION_DATE");
+        public final static Property Dirty = new Property(3, Boolean.class, "dirty", false, "DIRTY");
+        public final static Property HasUnreadMessages = new Property(4, Boolean.class, "hasUnreadMessages", false, "HAS_UNREAD_MESSAGES");
+        public final static Property Name = new Property(5, String.class, "name", false, "NAME");
+        public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
+        public final static Property Creator = new Property(7, Long.class, "creator", false, "CREATOR");
     };
 
     private DaoSession daoSession;
@@ -54,13 +55,14 @@ public class BThreadDao extends AbstractDao<BThread, String> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BTHREAD' (" + //
-                "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
-                "'CREATION_DATE' INTEGER," + // 1: creationDate
-                "'DIRTY' INTEGER," + // 2: dirty
-                "'HAS_UNREAD_MESSAGES' INTEGER," + // 3: hasUnreadMessages
-                "'NAME' TEXT," + // 4: name
-                "'TYPE' INTEGER," + // 5: type
-                "'CREATOR' TEXT);"); // 6: creator
+                "'_id' INTEGER PRIMARY KEY ," + // 0: id
+                "'ENTITY_ID' TEXT," + // 1: entityID
+                "'CREATION_DATE' INTEGER," + // 2: creationDate
+                "'DIRTY' INTEGER," + // 3: dirty
+                "'HAS_UNREAD_MESSAGES' INTEGER," + // 4: hasUnreadMessages
+                "'NAME' TEXT," + // 5: name
+                "'TYPE' INTEGER," + // 6: type
+                "'CREATOR' INTEGER);"); // 7: creator
     }
 
     /** Drops the underlying database table. */
@@ -74,39 +76,44 @@ public class BThreadDao extends AbstractDao<BThread, String> {
     protected void bindValues(SQLiteStatement stmt, BThread entity) {
         stmt.clearBindings();
  
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
         String entityID = entity.getEntityID();
         if (entityID != null) {
-            stmt.bindString(1, entityID);
+            stmt.bindString(2, entityID);
         }
  
         java.util.Date creationDate = entity.getCreationDate();
         if (creationDate != null) {
-            stmt.bindLong(2, creationDate.getTime());
+            stmt.bindLong(3, creationDate.getTime());
         }
  
         Boolean dirty = entity.getDirty();
         if (dirty != null) {
-            stmt.bindLong(3, dirty ? 1l: 0l);
+            stmt.bindLong(4, dirty ? 1l: 0l);
         }
  
         Boolean hasUnreadMessages = entity.getHasUnreadMessages();
         if (hasUnreadMessages != null) {
-            stmt.bindLong(4, hasUnreadMessages ? 1l: 0l);
+            stmt.bindLong(5, hasUnreadMessages ? 1l: 0l);
         }
  
         String name = entity.getName();
         if (name != null) {
-            stmt.bindString(5, name);
+            stmt.bindString(6, name);
         }
  
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(6, type);
+            stmt.bindLong(7, type);
         }
  
-        String creator = entity.getCreator();
+        Long creator = entity.getCreator();
         if (creator != null) {
-            stmt.bindString(7, creator);
+            stmt.bindLong(8, creator);
         }
     }
 
@@ -118,21 +125,22 @@ public class BThreadDao extends AbstractDao<BThread, String> {
 
     /** @inheritdoc */
     @Override
-    public String readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     /** @inheritdoc */
     @Override
     public BThread readEntity(Cursor cursor, int offset) {
         BThread entity = new BThread( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
-            cursor.isNull(offset + 1) ? null : new java.util.Date(cursor.getLong(offset + 1)), // creationDate
-            cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // dirty
-            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // hasUnreadMessages
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // name
-            cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // type
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // creator
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
+            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // creationDate
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // dirty
+            cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // hasUnreadMessages
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // name
+            cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
+            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7) // creator
         );
         return entity;
     }
@@ -140,26 +148,28 @@ public class BThreadDao extends AbstractDao<BThread, String> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, BThread entity, int offset) {
-        entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setCreationDate(cursor.isNull(offset + 1) ? null : new java.util.Date(cursor.getLong(offset + 1)));
-        entity.setDirty(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
-        entity.setHasUnreadMessages(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
-        entity.setName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setType(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
-        entity.setCreator(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setCreationDate(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
+        entity.setDirty(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
+        entity.setHasUnreadMessages(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
+        entity.setName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setType(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
+        entity.setCreator(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
      }
     
     /** @inheritdoc */
     @Override
-    protected String updateKeyAfterInsert(BThread entity, long rowId) {
-        return entity.getEntityID();
+    protected Long updateKeyAfterInsert(BThread entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     /** @inheritdoc */
     @Override
-    public String getKey(BThread entity) {
+    public Long getKey(BThread entity) {
         if(entity != null) {
-            return entity.getEntityID();
+            return entity.getId();
         } else {
             return null;
         }
@@ -172,7 +182,7 @@ public class BThreadDao extends AbstractDao<BThread, String> {
     }
     
     /** Internal query to resolve the "threadsCreated" to-many relationship of BUser. */
-    public List<BThread> _queryBUser_ThreadsCreated(String creator) {
+    public List<BThread> _queryBUser_ThreadsCreated(Long creator) {
         synchronized (this) {
             if (bUser_ThreadsCreatedQuery == null) {
                 QueryBuilder<BThread> queryBuilder = queryBuilder();
@@ -194,7 +204,7 @@ public class BThreadDao extends AbstractDao<BThread, String> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BTHREAD T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'CREATOR'=T0.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'CREATOR'=T0.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }

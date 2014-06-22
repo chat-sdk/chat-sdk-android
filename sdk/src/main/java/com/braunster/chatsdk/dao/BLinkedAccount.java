@@ -7,12 +7,10 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
 import java.util.Map;
-
-import de.greenrobot.dao.DaoException;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BLINKED_ACCOUNT.
@@ -21,7 +19,7 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
 
     private String entityID;
     private String authentication_id;
-    private String user;
+    private Long user;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -30,7 +28,7 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
     private transient BLinkedAccountDao myDao;
 
     private BUser bUser;
-    private String bUser__resolvedKey;
+    private Long bUser__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -43,7 +41,7 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
         this.entityID = entityID;
     }
 
-    public BLinkedAccount(String entityID, String authentication_id, String user) {
+    public BLinkedAccount(String entityID, String authentication_id, Long user) {
         this.entityID = entityID;
         this.authentication_id = authentication_id;
         this.user = user;
@@ -71,18 +69,18 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
         this.authentication_id = authentication_id;
     }
 
-    public String getUser() {
+    public Long getUser() {
         return user;
     }
 
-    public void setUser(String user) {
+    public void setUser(Long user) {
         this.user = user;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getBUser() {
-        String __key = this.user;
-        if (bUser__resolvedKey == null || bUser__resolvedKey != __key) {
+        Long __key = this.user;
+        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
@@ -99,7 +97,7 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
     public void setBUser(BUser bUser) {
         synchronized (this) {
             this.bUser = bUser;
-            user = bUser == null ? null : bUser.getEntityID();
+            user = bUser == null ? null : bUser.getId();
             bUser__resolvedKey = user;
         }
     }

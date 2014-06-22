@@ -31,7 +31,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
         public final static Property Authentication_id = new Property(2, String.class, "authentication_id", false, "AUTHENTICATION_ID");
-        public final static Property Owner = new Property(3, String.class, "Owner", false, "OWNER");
+        public final static Property Owner = new Property(3, Long.class, "Owner", false, "OWNER");
     };
 
     private DaoSession daoSession;
@@ -54,7 +54,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ENTITY_ID' TEXT," + // 1: entityID
                 "'AUTHENTICATION_ID' TEXT," + // 2: authentication_id
-                "'OWNER' TEXT);"); // 3: Owner
+                "'OWNER' INTEGER);"); // 3: Owner
     }
 
     /** Drops the underlying database table. */
@@ -83,9 +83,9 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
             stmt.bindString(3, authentication_id);
         }
  
-        String Owner = entity.getOwner();
+        Long Owner = entity.getOwner();
         if (Owner != null) {
-            stmt.bindString(4, Owner);
+            stmt.bindLong(4, Owner);
         }
     }
 
@@ -108,7 +108,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authentication_id
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3) // Owner
+            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // Owner
         );
         return entity;
     }
@@ -119,7 +119,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setAuthentication_id(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setOwner(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setOwner(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
      }
     
     /** @inheritdoc */
@@ -146,7 +146,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
     }
     
     /** Internal query to resolve the "BLinkedContact" to-many relationship of BUser. */
-    public List<BLinkedContact> _queryBUser_BLinkedContact(String Owner) {
+    public List<BLinkedContact> _queryBUser_BLinkedContact(Long Owner) {
         synchronized (this) {
             if (bUser_BLinkedContactQuery == null) {
                 QueryBuilder<BLinkedContact> queryBuilder = queryBuilder();
@@ -168,7 +168,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BLINKED_CONTACT T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'OWNER'=T0.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'OWNER'=T0.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }

@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.firebase;
+package com.braunster.chatsdk.network.firebase;
 
 /**
  * Created by itzik on 6/8/2014.

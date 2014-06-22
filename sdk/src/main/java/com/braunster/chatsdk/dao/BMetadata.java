@@ -7,7 +7,7 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
 import java.util.Map;
@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class BMetadata extends Entity<BMetadata>  {
 
+    private String entityID;
     private String authentication_id;
     private Boolean dirty;
     /** Not-null value. */
@@ -25,7 +26,7 @@ public class BMetadata extends Entity<BMetadata>  {
     private String Key;
     /** Not-null value. */
     private String Value;
-    private String Owner;
+    private Long Owner;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -34,7 +35,7 @@ public class BMetadata extends Entity<BMetadata>  {
     private transient BMetadataDao myDao;
 
     private BUser bUser;
-    private String bUser__resolvedKey;
+    private Long bUser__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -43,7 +44,8 @@ public class BMetadata extends Entity<BMetadata>  {
     public BMetadata() {
     }
 
-    public BMetadata(String authentication_id, Boolean dirty, String type, String Key, String Value, String Owner) {
+    public BMetadata(String entityID, String authentication_id, Boolean dirty, String type, String Key, String Value, Long Owner) {
+        this.entityID = entityID;
         this.authentication_id = authentication_id;
         this.dirty = dirty;
         this.type = type;
@@ -56,6 +58,14 @@ public class BMetadata extends Entity<BMetadata>  {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBMetadataDao() : null;
+    }
+
+    public String getEntityID() {
+        return entityID;
+    }
+
+    public void setEntityID(String entityID) {
+        this.entityID = entityID;
     }
 
     public String getAuthentication_id() {
@@ -104,18 +114,18 @@ public class BMetadata extends Entity<BMetadata>  {
         this.Value = Value;
     }
 
-    public String getOwner() {
+    public Long getOwner() {
         return Owner;
     }
 
-    public void setOwner(String Owner) {
+    public void setOwner(Long Owner) {
         this.Owner = Owner;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getBUser() {
-        String __key = this.Owner;
-        if (bUser__resolvedKey == null || bUser__resolvedKey != __key) {
+        Long __key = this.Owner;
+        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
@@ -132,7 +142,7 @@ public class BMetadata extends Entity<BMetadata>  {
     public void setBUser(BUser bUser) {
         synchronized (this) {
             this.bUser = bUser;
-            Owner = bUser == null ? null : bUser.getEntityID();
+            Owner = bUser == null ? null : bUser.getId();
             bUser__resolvedKey = Owner;
         }
     }

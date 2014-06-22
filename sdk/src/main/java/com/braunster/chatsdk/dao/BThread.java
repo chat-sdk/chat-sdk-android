@@ -8,27 +8,25 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 
 import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.firebase.BPath;
-
-import de.greenrobot.dao.DaoException;
+import com.braunster.chatsdk.network.firebase.BPath;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BTHREAD.
  */
 public class BThread extends Entity<BThread>  {
 
+    private Long id;
     private String entityID;
     private java.util.Date creationDate;
     private Boolean dirty;
     private Boolean hasUnreadMessages;
     private String name;
     private Integer type;
-    private String creator;
+    private Long creator;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -37,7 +35,7 @@ public class BThread extends Entity<BThread>  {
     private transient BThreadDao myDao;
 
     private BUser bUser;
-    private String bUser__resolvedKey;
+    private Long bUser__resolvedKey;
 
     private List<BMessage> messages;
     private List<BLinkData> users;
@@ -51,11 +49,12 @@ public class BThread extends Entity<BThread>  {
     public BThread() {
     }
 
-    public BThread(String entityID) {
-        this.entityID = entityID;
+    public BThread(Long id) {
+        this.id = id;
     }
 
-    public BThread(String entityID, java.util.Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, Integer type, String creator) {
+    public BThread(Long id, String entityID, java.util.Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, Integer type, Long creator) {
+        this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
         this.dirty = dirty;
@@ -69,6 +68,14 @@ public class BThread extends Entity<BThread>  {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBThreadDao() : null;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEntityID() {
@@ -119,18 +126,18 @@ public class BThread extends Entity<BThread>  {
         this.type = type;
     }
 
-    public String getCreator() {
+    public Long getCreator() {
         return creator;
     }
 
-    public void setCreator(String creator) {
+    public void setCreator(Long creator) {
         this.creator = creator;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getBUser() {
-        String __key = this.creator;
-        if (bUser__resolvedKey == null || bUser__resolvedKey != __key) {
+        Long __key = this.creator;
+        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
@@ -147,7 +154,7 @@ public class BThread extends Entity<BThread>  {
     public void setBUser(BUser bUser) {
         synchronized (this) {
             this.bUser = bUser;
-            creator = bUser == null ? null : bUser.getEntityID();
+            creator = bUser == null ? null : bUser.getId();
             bUser__resolvedKey = creator;
         }
     }
@@ -159,7 +166,7 @@ public class BThread extends Entity<BThread>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BMessageDao targetDao = daoSession.getBMessageDao();
-            List<BMessage> messagesNew = targetDao._queryBThread_Messages(entityID);
+            List<BMessage> messagesNew = targetDao._queryBThread_Messages(id);
             synchronized (this) {
                 if(messages == null) {
                     messages = messagesNew;
@@ -181,7 +188,7 @@ public class BThread extends Entity<BThread>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> usersNew = targetDao._queryBThread_Users(entityID);
+            List<BLinkData> usersNew = targetDao._queryBThread_Users(id);
             synchronized (this) {
                 if(users == null) {
                     users = usersNew;

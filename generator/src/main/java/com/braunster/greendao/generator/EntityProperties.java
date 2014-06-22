@@ -32,6 +32,7 @@ public class EntityProperties {
     public static final String PictureExists = "pictureExist";
     public static final String PictureURL = "pictureURL";
     public static final String Threads = "threads";
+    public static final String BUser_FirebaseID = "BUser_FirebaseID";
 
     public static final String ThreadsCreated = "threadsCreated";
     /* Message*/

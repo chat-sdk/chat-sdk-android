@@ -7,12 +7,10 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
 import java.util.Map;
-
-import de.greenrobot.dao.DaoException;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BLINKED_CONTACT.
@@ -22,7 +20,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
     private Long id;
     private String entityID;
     private String authentication_id;
-    private String Owner;
+    private Long Owner;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -31,7 +29,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
     private transient BLinkedContactDao myDao;
 
     private BUser Contact;
-    private String Contact__resolvedKey;
+    private Long Contact__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -44,7 +42,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
         this.id = id;
     }
 
-    public BLinkedContact(Long id, String entityID, String authentication_id, String Owner) {
+    public BLinkedContact(Long id, String entityID, String authentication_id, Long Owner) {
         this.id = id;
         this.entityID = entityID;
         this.authentication_id = authentication_id;
@@ -81,18 +79,18 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
         this.authentication_id = authentication_id;
     }
 
-    public String getOwner() {
+    public Long getOwner() {
         return Owner;
     }
 
-    public void setOwner(String Owner) {
+    public void setOwner(Long Owner) {
         this.Owner = Owner;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getContact() {
-        String __key = this.Owner;
-        if (Contact__resolvedKey == null || Contact__resolvedKey != __key) {
+        Long __key = this.Owner;
+        if (Contact__resolvedKey == null || !Contact__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
@@ -109,7 +107,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
     public void setContact(BUser Contact) {
         synchronized (this) {
             this.Contact = Contact;
-            Owner = Contact == null ? null : Contact.getEntityID();
+            Owner = Contact == null ? null : Contact.getId();
             Contact__resolvedKey = Owner;
         }
     }

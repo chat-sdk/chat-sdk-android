@@ -1,10 +1,9 @@
 package com.braunster.chatsdk.dao.entity_interface;
 
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by itzik on 6/16/2014.

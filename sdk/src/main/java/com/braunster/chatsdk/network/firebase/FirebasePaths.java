@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.firebase;
+package com.braunster.chatsdk.network.firebase;
 
 import com.firebase.client.Firebase;
 
@@ -9,25 +9,16 @@ public class FirebasePaths extends Firebase{
 
     public static final String FIREBASE_PATH = "https://incandescent-fire-3147.firebaseio.com/";
 
-    private static FirebasePaths firebaseRef;
+    private  FirebasePaths firebaseRef;
 
     private FirebasePaths(String url) {
         super(url);
     }
 
-    /* Get firebase ref and firbase ref for URL.
-     * Get User ref for firebase id.
-     * Get threads ref for firebase id.
-     *
-     * appendPathComponent? - assemble the path for given Strings i think.
-     *
-     * ASK the self keyword confuse the flow for me to understand.*/
-
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
-
     /** @return The main firebase ref.*/
     public static FirebasePaths firebaseRef(){
-        return firebaseRef = fb(FIREBASE_PATH);
+        return fb(FIREBASE_PATH);
     }
 
     /** @return Firebase object for give url.*/
@@ -36,37 +27,33 @@ public class FirebasePaths extends Firebase{
         * It's a constructor https://www.firebase.com/docs/ios-api/Classes/Firebase.html#//api/name/initWithUrl:*/
         return new FirebasePaths(url);
     }
-
     /** @return Firebase object for the base path of firebase + the component given..*/
-    public static Firebase appendPathComponent(String component){
+    public FirebasePaths appendPathComponent(String component){
         /* Im pretty sure that this is what you wanted*/
-        return fb(firebaseRef().getPath().toString() + "/" + component);
+        return fb(this.toString() + "/" + component);
     }
 
     /* Users */
-
     /** @return The users main ref.*/
-    public static Firebase userRef(){
-        return appendPathComponent(FirebaseTags.BUsersPath);
+    public FirebasePaths userRef(){
+        return firebaseRef().appendPathComponent(FirebaseTags.BUsersPath);
     }
-
     /** @return The user ref for given id.*/
-    public static Firebase userRef(String firebaseId){
+    public Firebase userRef(String firebaseId){
         return userRef().child(firebaseId);
     }
 
     /* Threads */
-
     /** @return The thread main ref.*/
-    public static Firebase threadRef(){
+    public Firebase threadRef(){
         return appendPathComponent(FirebaseTags.BThreadPath);
     }
     /** @return The thread ref for given id.*/
-    public static Firebase threadRef(String firebaseId){
+    public Firebase threadRef(String firebaseId){
         return threadRef().child(firebaseId);
     }
     /** @return The public threads ref .*/
-    public static Firebase publicThreadRef(){
+    public Firebase publicThreadRef(){
         return appendPathComponent(FirebaseTags.BPublicThreadPath);
     }
 }

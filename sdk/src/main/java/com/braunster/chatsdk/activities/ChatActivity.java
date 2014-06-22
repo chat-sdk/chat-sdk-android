@@ -103,12 +103,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             setNetworkAdapterAndSync(new CompletionListener() {
                 @Override
                 public void onDone() {
-                    messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.getInstance().currentUser().getEntityID());
+                    messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.getInstance().currentUser().getId());
                     listMessages.setAdapter(messagesListAdapter);
 
                     if (thread == null)
                         Log.e(TAG, "Thread is null");
-                    messagesListAdapter.setListData(BNetworkManager.getInstance().getMessagesForThreadForEntityID(thread.getEntityID()));
+                    messagesListAdapter.setListData(BNetworkManager.getInstance().getMessagesForThreadForEntityID(thread.getId()));
                 }
 
                 @Override
@@ -123,7 +123,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (thread != null)
-            outState.putString(THREAD_ID, thread.getEntityID());
+            outState.putLong(THREAD_ID, thread.getId());
     }
 
     @Override
@@ -179,7 +179,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        BNetworkManager.getInstance().sendMessageWithImage(image, thread.getEntityID(), new CompletionListenerWithData<BMessage>() {
+                        BNetworkManager.getInstance().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
@@ -220,7 +220,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
                 BNetworkManager.getInstance().sendMessageWithLocation(data.getExtras().getString(LocationActivity.BASE_64_FILE, null),
                                         new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),
-                                        thread.getEntityID(), new CompletionListenerWithData<BMessage>() {
+                                        thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
@@ -269,7 +269,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                 return false;
             }
 
-            if (getIntent().getExtras().getString(THREAD_ID, "").equals(""))
+            if (getIntent().getExtras().getLong(THREAD_ID, 0) == 0)
             {
                 if (DEBUG) Log.e(TAG, "Thread id is empty");
                 finish();
@@ -280,8 +280,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         }
 
         thread = DaoCore.fetchEntityWithProperty(BThread.class,
-                BThreadDao.Properties.EntityID,
-                b.getString(THREAD_ID));
+                BThreadDao.Properties.Id,
+                b.getLong(THREAD_ID));
 
         if (thread == null)
         {
@@ -302,7 +302,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             return;
         }
 
-        BNetworkManager.getInstance().sendMessageWithText(etMessage.getText().toString(), thread.getEntityID(), new CompletionListenerWithData<BMessage>() {
+        BNetworkManager.getInstance().sendMessageWithText(etMessage.getText().toString(), thread.getId(), new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage message) {
                 if (DEBUG) Log.v(TAG, "Adding message");

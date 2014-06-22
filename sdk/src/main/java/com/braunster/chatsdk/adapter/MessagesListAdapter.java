@@ -58,7 +58,8 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private Date date;
 
-    private String userID = "";
+    private long userID = 0;
+    private String userEntityID = "";
 
     private LayoutInflater inflater;
 
@@ -66,7 +67,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     int type = -1;
 
-    public MessagesListAdapter(Activity activity, String userID){
+    public MessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -120,7 +121,7 @@ public class MessagesListAdapter extends BaseAdapter{
         {
             case TYPE_TEXT:
 
-                if (message.getSender().equals(userID))
+                if (message.getSender() == userID)
                 {
                     row = inflater.inflate(R.layout.chat_sdk_row_message_user, null);
                     row.setBackgroundColor(Color.CYAN);
@@ -136,7 +137,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 break;
 
             case TYPE_IMAGE:
-                if (message.getSender().equals(userID))
+                if (message.getSender() == userID)
                     row = inflater.inflate(R.layout.chat_sdk_row_image_user, null);
                 else
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
@@ -146,7 +147,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 break;
 
             case TYPE_LOCATION:
-                if (message.getSender().equals(userID)) {
+                if (message.getSender() == userID) {
                     row = inflater.inflate(R.layout.chat_sdk_row_location_user, null);
                 }
                 else

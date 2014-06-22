@@ -75,7 +75,7 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<String> completionListener) {
+    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<Long> completionListener) {
         if (networkAdapter != null)
             networkAdapter.createThreadWithUsers(users, completionListener);
         else
@@ -85,7 +85,7 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public void createThreadWithUsers(CompletionListenerWithData<String>  completionListener, BUser...users) {
+    public void createThreadWithUsers(CompletionListenerWithData<Long>  completionListener, BUser...users) {
         if (networkAdapter != null)
             networkAdapter.createThreadWithUsers(Arrays.asList(users), completionListener);
         else
@@ -149,7 +149,7 @@ public class BNetworkManager implements ActivityListener {
         return ""; // Or should i return null, Will see in the future.
     }
 
-    public void sendMessageWithText(String text, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
+    public void sendMessageWithText(String text, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
         if (DEBUG) Log.v(TAG, "sendMessageWithText");
         if (networkAdapter != null)
             networkAdapter.sendMessageWithText(text, threadEntityId, completionListener);
@@ -160,7 +160,7 @@ public class BNetworkManager implements ActivityListener {
         }
      }
 
-    public void sendMessageWithImage(File image, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
+    public void sendMessageWithImage(File image, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
         if (networkAdapter != null)
             networkAdapter.sendMessageWithImage(image, threadEntityId, completionListener);
         else
@@ -170,7 +170,7 @@ public class BNetworkManager implements ActivityListener {
         }
     }
 
-    public void sendMessageWithLocation(String base64File, LatLng location, String threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
+    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
         if (networkAdapter != null)
             networkAdapter.sendMessageWithLocation(base64File, location, threadEntityId, completionListener);
         else
@@ -186,9 +186,9 @@ public class BNetworkManager implements ActivityListener {
     }
 
     // TODO add order veriable for the data.
-    public List<BMessage> getMessagesForThreadForEntityID(String entityId) {
+    public List<BMessage> getMessagesForThreadForEntityID(long id) {
         if (networkAdapter != null)
-            return networkAdapter.getMessagesForThreadForEntityID(entityId);
+            return networkAdapter.getMessagesForThreadForEntityID(id);
         else
         {
             if (DEBUG) Log.e(TAG, "Network adapter is null");

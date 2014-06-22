@@ -30,7 +30,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     public static class Properties {
         public final static Property EntityID = new Property(0, String.class, "entityID", true, "ENTITY_ID");
         public final static Property Authentication_id = new Property(1, String.class, "authentication_id", false, "AUTHENTICATION_ID");
-        public final static Property User = new Property(2, String.class, "user", false, "USER");
+        public final static Property User = new Property(2, Long.class, "user", false, "USER");
     };
 
     private DaoSession daoSession;
@@ -52,7 +52,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         db.execSQL("CREATE TABLE " + constraint + "'BLINKED_ACCOUNT' (" + //
                 "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
                 "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
-                "'USER' TEXT);"); // 2: user
+                "'USER' INTEGER);"); // 2: user
     }
 
     /** Drops the underlying database table. */
@@ -76,9 +76,9 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
             stmt.bindString(2, authentication_id);
         }
  
-        String user = entity.getUser();
+        Long user = entity.getUser();
         if (user != null) {
-            stmt.bindString(3, user);
+            stmt.bindLong(3, user);
         }
     }
 
@@ -100,7 +100,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         BLinkedAccount entity = new BLinkedAccount( //
             cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2) // user
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // user
         );
         return entity;
     }
@@ -110,7 +110,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     public void readEntity(Cursor cursor, BLinkedAccount entity, int offset) {
         entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
         entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setUser(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setUser(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
      }
     
     /** @inheritdoc */
@@ -136,7 +136,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     }
     
     /** Internal query to resolve the "BLinkedAccount" to-many relationship of BUser. */
-    public List<BLinkedAccount> _queryBUser_BLinkedAccount(String user) {
+    public List<BLinkedAccount> _queryBUser_BLinkedAccount(Long user) {
         synchronized (this) {
             if (bUser_BLinkedAccountQuery == null) {
                 QueryBuilder<BLinkedAccount> queryBuilder = queryBuilder();
@@ -158,7 +158,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BLINKED_ACCOUNT T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'USER'=T0.'ENTITY_ID'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'USER'=T0.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }

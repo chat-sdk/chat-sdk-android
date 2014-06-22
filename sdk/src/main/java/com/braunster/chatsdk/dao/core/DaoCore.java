@@ -15,6 +15,8 @@ import com.braunster.chatsdk.dao.BUserDao;
 import com.braunster.chatsdk.dao.DaoMaster;
 import com.braunster.chatsdk.dao.DaoSession;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -135,14 +137,14 @@ public class DaoCore {
             for (int i = 0 ; i < 5 ; i++)
             {
                 bMetadata = new BMetadata();
-                bMetadata.setOwner(userDan.getEntityID());
+                bMetadata.setOwner(userDan.getId());
                 bMetadata.setType("0");
                 bMetadata.setKey(key[i]);
                 bMetadata.setValue(values[i]);
                 createEntity(bMetadata);
 
                 bMetadata1 = new BMetadata();
-                bMetadata1.setOwner(userAlex.getEntityID());
+                bMetadata1.setOwner(userAlex.getId());
                 bMetadata1.setType("1");
                 bMetadata1.setKey(key1[i]);
                 bMetadata1.setValue(values1[i]);
@@ -189,22 +191,22 @@ public class DaoCore {
 
             BLinkedContact linkedContact = new BLinkedContact();
             linkedContact.setEntityId(userDan.getEntityID());
-            linkedContact.setOwner(user.getEntityID());
+            linkedContact.setOwner(user.getId());
             DaoCore.createEntity(linkedContact);
 
             BLinkedContact linkedContact1 = new BLinkedContact();
             linkedContact1.setEntityId(userDan.getEntityID());
-            linkedContact1.setOwner(user1.getEntityID());
+            linkedContact1.setOwner(user1.getId());
             DaoCore.createEntity(linkedContact1);
 
             BLinkedContact linkedContact2 = new BLinkedContact();
             linkedContact2.setEntityId(userDan.getEntityID());
-            linkedContact2.setOwner(user2.getEntityID());
+            linkedContact2.setOwner(user2.getId());
             DaoCore.createEntity(linkedContact2);
 
             BLinkedContact linkedContact3 = new BLinkedContact();
             linkedContact3.setEntityId(userDan.getEntityID());
-            linkedContact3.setOwner(user3.getEntityID());
+            linkedContact3.setOwner(user3.getId());
             DaoCore.createEntity(linkedContact3);
 
             int t = 9;
@@ -219,21 +221,21 @@ public class DaoCore {
                 thread.setEntityID(generateEntity());
                 thread.setType(threadType[i]);
                 thread.setName(threadNames[i]);
-                thread.setCreator(i % 2 == 0 ? userDan.getEntityID() : userAlex.getEntityID());
+                thread.setCreator(i % 2 == 0 ? userDan.getId() : userAlex.getId());
                 createEntity(thread);
 
                 //region LinkData
                 linkData = new BLinkData();
                 linkData.setEntityId(generateEntity());
-                linkData.setThreadID(thread.getEntityID());
-                linkData.setUserID(userDan.getEntityID());
+                linkData.setThreadID(thread.getId());
+                linkData.setUserID(userDan.getId());
 
                 createEntity(linkData);
 
                 linkData = new BLinkData();
                 linkData.setEntityId(generateEntity());
-                linkData.setThreadID(thread.getEntityID());
-                linkData.setUserID(userAlex.getEntityID());
+                linkData.setThreadID(thread.getId());
+                linkData.setUserID(userAlex.getId());
 
                 createEntity(linkData);
                 //endregion
@@ -242,11 +244,11 @@ public class DaoCore {
                 for (int j = 0; j < 7; j++) {
                     message = new BMessage();
                     message.setEntityID(generateEntity());
-                    message.setOwnerThread(thread.getEntityID());
+                    message.setOwnerThread(thread.getId());
                     message.setText(generateEntity());
                     message.setDate(new Date(System.currentTimeMillis()));
                     message.setType(BMessage.Type.bText.ordinal());
-                    message.setSender(j % 2 == 0 ? userDan.getEntityID() : userAlex.getEntityID());
+                    message.setSender(j % 2 == 0 ? userDan.getId() : userAlex.getId());
                     createEntity(message);
                 }
             }
@@ -330,7 +332,7 @@ public class DaoCore {
         return (T) daoSession.load(c, entityID);
     }
 
-    public static <T extends Entity<T>> T fetchEntityWithProperty(Class c, Property property,String value){
+    public static <T extends Entity<T>> T fetchEntityWithProperty(Class c, Property property,Object value){
         QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
         return (T) qb.unique();
@@ -383,18 +385,18 @@ public class DaoCore {
 
         List<BUser> users = new ArrayList<BUser>();
 
-        if (entityId != null && facebookID != null){
+        if (entityId != null && facebookID != null && !entityId.equals("") && !facebookID.equals("")){
             users  = fetchEntitiesWithProperties(BUser.class,
                     new Property[]{BUserDao.Properties.EntityID, BUserDao.Properties.FacebookID},
                     entityId, facebookID);
         }
         else
         {
-            if (entityId != null)
+            if (entityId != null && !entityId.equals(""))
             {
                 users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.EntityID, entityId);
             }
-            else if (facebookID != null)
+            else if (facebookID != null && !facebookID.equals(""))
             {
                 users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.FacebookID, facebookID);
             }
@@ -402,11 +404,11 @@ public class DaoCore {
 
         BUser user = null;
 
-        if (users.size() == 0)
+        if (users.size() == 1)
         {
-            createEntity(user);
+            return user = users.get(0);
         }
-        else
+        if (users.size() > 1)
         {
             // It's possible that we could get multiple user records some registered
             // with a Facebook ID and some with a Firebase ID so we'll merge the records here
@@ -422,25 +424,73 @@ public class DaoCore {
             }
             daoSession.update(user);
         }
+        else
+        {
+            user = new BUser();
+            user.setEntityID(entityId);
+            user.setFacebookID(facebookID);
+            createEntity(user);
+        }
 
         return user;
+    }
+
+    public static BUser fetchOrCreateUserWithEntityID(Class c, String entityId){
+
+        Entity entity = fetchEntityWithID(c, entityId);
+        if (entity == null)
+        {
+            Class<?> clazz = null;
+            Object o = null;
+            try {
+                clazz = Class.forName(c.getName());
+                Constructor<?> ctor = clazz.getConstructor();
+                o = ctor.newInstance();
+            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+                if (DEBUG) Log.e(TAG, "ClassNotFoundException");
+            } catch (NoSuchMethodException e) {
+//                e.printStackTrace();
+                if (DEBUG) Log.e(TAG, "NoSuchMethodException");
+            } catch (InvocationTargetException e) {
+//                e.printStackTrace();
+                if (DEBUG) Log.e(TAG, "InvocationTargetException");
+            } catch (InstantiationException e) {
+//                e.printStackTrace();
+                if (DEBUG) Log.e(TAG, "InstantiationException");
+            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+                if (DEBUG) Log.e(TAG, "IllegalAccessException");
+            }
+
+            if (o != null)
+                createEntity((Entity) o);
+        }
+
+        return null;
     }
 
     public static  <T extends Entity> T createEntity(T entity){
 //        Log.v(TAG, "createEntity");
 
         // Generate an id for the object if needed
-        if (entity.getEntityID() == null || entity.getEntityID().equals(""))
+//        if (entity.getEntityID() == null || entity.getEntityID().equals(""))
+//        {
+//            Log.d(TAG, "Creating id for entity.");
+//            entity.setEntityId(generateEntity());
+//            // FIXME entity id is not saved to the object
+//        }
+
+        if (entity == null)
         {
-            Log.d(TAG, "Creating id for entity.");
-            entity.setEntityId(generateEntity());
-            // FIXME entity id is not saved to the object
+            if (DEBUG) Log.e(TAG, "Entity is null");
+            return null;
         }
 
         if(DEBUG)
         {
             Log.i(TAG, "Entity Report:");
-            Log.i(TAG, "Entity id:" + entity.getEntityID());
+            Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
             Log.i(TAG, "Entity Class:" + entity.getClass());
         }
 
@@ -448,7 +498,6 @@ public class DaoCore {
 
         return entity;
     }
-
 
     public static void deleteEntity(Entity entity){
         daoSession.delete(entity);

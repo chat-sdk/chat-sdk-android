@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.BPath;
+import com.braunster.chatsdk.network.firebase.FirebasePaths;
+import com.braunster.chatsdk.network.firebase.FirebaseTags;
 import com.braunster.greendao.generator.EntityProperties;
 // KEEP INCLUDES END
 /**
@@ -20,6 +22,7 @@ import com.braunster.greendao.generator.EntityProperties;
  */
 public class BUser extends Entity<BUser>  {
 
+    private Long id;
     private String entityID;
     private String authentication_id;
     private String facebookID;
@@ -55,11 +58,12 @@ public class BUser extends Entity<BUser>  {
     public BUser() {
     }
 
-    public BUser(String entityID) {
-        this.entityID = entityID;
+    public BUser(Long id) {
+        this.id = id;
     }
 
-    public BUser(String entityID, String authentication_id, String facebookID, Boolean dirty, String name, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
+    public BUser(Long id, String entityID, String authentication_id, String facebookID, Boolean dirty, String name, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
+        this.id = id;
         this.entityID = entityID;
         this.authentication_id = authentication_id;
         this.facebookID = facebookID;
@@ -77,6 +81,14 @@ public class BUser extends Entity<BUser>  {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBUserDao() : null;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEntityID() {
@@ -174,7 +186,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkedContactDao targetDao = daoSession.getBLinkedContactDao();
-            List<BLinkedContact> BLinkedContactNew = targetDao._queryBUser_BLinkedContact(entityID);
+            List<BLinkedContact> BLinkedContactNew = targetDao._queryBUser_BLinkedContact(id);
             synchronized (this) {
                 if(BLinkedContact == null) {
                     BLinkedContact = BLinkedContactNew;
@@ -196,7 +208,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkedAccountDao targetDao = daoSession.getBLinkedAccountDao();
-            List<BLinkedAccount> BLinkedAccountNew = targetDao._queryBUser_BLinkedAccount(entityID);
+            List<BLinkedAccount> BLinkedAccountNew = targetDao._queryBUser_BLinkedAccount(id);
             synchronized (this) {
                 if(BLinkedAccount == null) {
                     BLinkedAccount = BLinkedAccountNew;
@@ -218,7 +230,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BMetadataDao targetDao = daoSession.getBMetadataDao();
-            List<BMetadata> BMetadataNew = targetDao._queryBUser_BMetadata(entityID);
+            List<BMetadata> BMetadataNew = targetDao._queryBUser_BMetadata(id);
             synchronized (this) {
                 if(BMetadata == null) {
                     BMetadata = BMetadataNew;
@@ -240,7 +252,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BMessageDao targetDao = daoSession.getBMessageDao();
-            List<BMessage> messagesNew = targetDao._queryBUser_Messages(entityID);
+            List<BMessage> messagesNew = targetDao._queryBUser_Messages(id);
             synchronized (this) {
                 if(messages == null) {
                     messages = messagesNew;
@@ -262,7 +274,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BThreadDao targetDao = daoSession.getBThreadDao();
-            List<BThread> threadsCreatedNew = targetDao._queryBUser_ThreadsCreated(entityID);
+            List<BThread> threadsCreatedNew = targetDao._queryBUser_ThreadsCreated(id);
             synchronized (this) {
                 if(threadsCreated == null) {
                     threadsCreated = threadsCreatedNew;
@@ -284,7 +296,7 @@ public class BUser extends Entity<BUser>  {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> threadsNew = targetDao._queryBUser_Threads(entityID);
+            List<BLinkData> threadsNew = targetDao._queryBUser_Threads(id);
             synchronized (this) {
                 if(threads == null) {
                     threads = threadsNew;
@@ -361,7 +373,7 @@ public class BUser extends Entity<BUser>  {
     // TODO get path
     @Override
     public BPath getPath() {
-        return null;
+        return new BPath(FirebasePaths.FIREBASE_PATH).addPathComponent(FirebaseTags.BUsersPath, getEntityID());
     }
 
     @Override
