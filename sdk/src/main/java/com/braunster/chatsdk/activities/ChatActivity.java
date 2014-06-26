@@ -2,7 +2,6 @@ package com.braunster.chatsdk.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -35,7 +33,6 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
-import java.util.Locale;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -71,9 +68,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_chat);
 
-        if (BNetworkManager.getInstance().getNetworkAdapter() == null)
-            setNetworkAdapterAndSync();
-
         if ( !getThread(savedInstanceState) )
             return;
 
@@ -98,25 +92,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     private void initListView(){
         listMessages = (ListView) findViewById(R.id.list_chat);
         listMessages.setItemsCanFocus(true);
-        // If the user is null, Recreat the adapter and sync.
-        if (BNetworkManager.getInstance().currentUser() != null)
-            setNetworkAdapterAndSync(new CompletionListener() {
-                @Override
-                public void onDone() {
-                    messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.getInstance().currentUser().getId());
-                    listMessages.setAdapter(messagesListAdapter);
 
-                    if (thread == null)
-                        Log.e(TAG, "Thread is null");
-                    messagesListAdapter.setListData(BNetworkManager.getInstance().getMessagesForThreadForEntityID(thread.getId()));
-                }
+        messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
+        listMessages.setAdapter(messagesListAdapter);
 
-                @Override
-                public void onDoneWithError() {
-                    Toast.makeText(ChatActivity.this, "Failed to set adapter and sync.", Toast.LENGTH_SHORT).show();
-                }
-            });
-
+        if (thread == null)
+            Log.e(TAG, "Thread is null");
+        messagesListAdapter.setListData(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId()));
     }
 
     @Override
@@ -129,13 +111,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onPause() {
         super.onPause();
-        BNetworkManager.getInstance().removeActivityListener(activityListener);
+     /*   BNetworkManager.sharedManager().removeActivityListener(activityListener);*/
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        activityListener = BNetworkManager.getInstance().addActivityListener(new ActivityListener() {
+       /* activityListener = BNetworkManager.sharedManager().getNetworkAdapter().addActivityListener(new ActivityListener() {
             @Override
             public void onThreadAdded(BThread thread) {
 
@@ -143,10 +125,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onMessageAdded(BMessage message) {
-                if (!message.getSender().equals(BNetworkManager.getInstance().currentUser().getEntityID()) && message.getOwnerThread().equals(thread.getEntityID()))
+                if (!message.getSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) && message.getOwnerThread().equals(thread.getEntityID()))
                     messagesListAdapter.addRow(message);
             }
-        });
+        });*/
 
         btnSend.setOnClickListener(this);
 
@@ -156,6 +138,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (data == null)
+        {
+            if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
+            return;
+        }
 
         if (DEBUG) Log.v(TAG, "onActivityResult");
 
@@ -179,7 +167,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        BNetworkManager.getInstance().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
+                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
@@ -211,6 +199,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (DEBUG) Log.d(TAG, "Result Cancelled");
+                if (data.getExtras() == null)
+                    return;
+
                 if (data.getExtras().containsKey(LocationActivity.ERROR))
                     Toast.makeText(this, data.getExtras().getString(LocationActivity.ERROR), Toast.LENGTH_SHORT).show();
             }
@@ -218,7 +209,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             {
                 if (DEBUG) Log.d(TAG, "Result OK");
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
-                BNetworkManager.getInstance().sendMessageWithLocation(data.getExtras().getString(LocationActivity.BASE_64_FILE, null),
+                BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(data.getExtras().getString(LocationActivity.BASE_64_FILE, null),
                                         new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),
                                         thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
@@ -302,7 +293,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             return;
         }
 
-        BNetworkManager.getInstance().sendMessageWithText(etMessage.getText().toString(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(etMessage.getText().toString(), thread.getId(), new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage message) {
                 if (DEBUG) Log.v(TAG, "Adding message");

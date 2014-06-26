@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(20,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(33,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -45,15 +45,13 @@ public class Generator {
         user.addIdProperty();
         user.addStringProperty(EntityProperties.EntityID);
         user.addStringProperty(EntityProperties.AuthenticationID);
-        user.addStringProperty(EntityProperties.FacebookID);
-
+        user.addIntProperty(EntityProperties.AuthenticationType);
+        user.addStringProperty(EntityProperties.MessageColor);
         user.addBooleanProperty(EntityProperties.Dirty);
         user.addStringProperty(EntityProperties.Name);
-
         user.addDateProperty(EntityProperties.LastOnline);
         user.addDateProperty(EntityProperties.LastUpdated);
         user.addBooleanProperty(EntityProperties.Online);
-
         user.addIntProperty(EntityProperties.FontSize);
         user.addStringProperty(EntityProperties.FontName);
         user.addStringProperty(EntityProperties.TextColor);
@@ -61,8 +59,9 @@ public class Generator {
 
     private static void addLinkedAccounts(Schema schema) {
         linkedAccount = schema.addEntity(EntityProperties.BLinkedAccount);
-        linkedAccount.addStringProperty(EntityProperties.EntityID).primaryKey();
-        linkedAccount.addStringProperty(EntityProperties.AuthenticationID);
+        linkedAccount.addIdProperty();
+        linkedAccount.addStringProperty(EntityProperties.Token);
+        linkedAccount.addIntProperty(EntityProperties.Type);
     }
 
     private static void addLinkedContact(Schema schema) {
@@ -74,12 +73,13 @@ public class Generator {
 
     private static void addMetaData(Schema schema) {
         metaData = schema.addEntity(EntityProperties.BMetaData);
+        metaData.addIdProperty();
         metaData.addStringProperty(EntityProperties.EntityID);
         metaData.addStringProperty(EntityProperties.AuthenticationID);
         metaData.addBooleanProperty(EntityProperties.Dirty);
-        metaData.addStringProperty(EntityProperties.Type).notNull();
+        metaData.addIntProperty(EntityProperties.Type).notNull();
         metaData.addStringProperty(EntityProperties.Key).notNull();
-        metaData.addStringProperty(EntityProperties.Value).notNull();
+        metaData.addStringProperty(EntityProperties.Value);
     }
 
     private static void addThread(Schema schema) {
@@ -90,6 +90,7 @@ public class Generator {
         thread.addBooleanProperty(EntityProperties.Dirty);
         thread.addBooleanProperty(EntityProperties.HasUnreadMessaged);
         thread.addStringProperty(EntityProperties.Name);
+        thread.addDateProperty(EntityProperties.LastMessageAdded);
         thread.addIntProperty(EntityProperties.Type);
     }
 
@@ -120,8 +121,9 @@ public class Generator {
         Property userProp2 = linkedAccount.addLongProperty(EntityProperties.User).getProperty();
         linkedAccount.addToOne(user, userProp2);
 
-        Property userProp3 = metaData.addLongProperty(EntityProperties.Owner).getProperty();
-        metaData.addToOne(user, userProp3);
+        Property userProp3 = metaData.addLongProperty(EntityProperties.Owner_ID).getProperty();
+        ToOne one5 = metaData.addToOne(user, userProp3);
+        one5.setName(EntityProperties.Owner);
 
         // Add a thread owner to the message
         Property threadIDProp = message.addLongProperty("OwnerThread").getProperty();
@@ -141,25 +143,26 @@ public class Generator {
         //LinkedContact, LinkedAccount and MetaData - END
 
         // Threads - START
-        Property creatorProp = thread.addLongProperty(EntityProperties.Creator).getProperty();
-        thread.addToOne(user, creatorProp);
+        Property creatorProp = thread.addLongProperty(EntityProperties.CreatorID).getProperty();
+        ToOne one2 = thread.addToOne(user, creatorProp);
+        one2.setName(EntityProperties.Creator);
 
         ToMany messagesProp = thread.addToMany(message, threadIDProp);
         messagesProp.setName(EntityProperties.Messages);
 
         ToMany linkToUsers = thread.addToMany(threadUsers, threadIdProp);
-        linkToUsers.setName(EntityProperties.Users);
+        linkToUsers.setName(EntityProperties.BLinkData);
         // Threads - END
 
 //      // Users - START
         ToMany contacts = user.addToMany(linkedContact, userProp);
-        contacts.setName(EntityProperties.BLinkedContact);
+        contacts.setName(EntityProperties.BLinkedContacts);
 
         ToMany accounts = user.addToMany(linkedAccount, userProp2);
-        accounts.setName(EntityProperties.BLinkedAccount);
+        accounts.setName(EntityProperties.BLinkedAccounts);
 
         ToMany metadata = user.addToMany(metaData, userProp3);
-        metadata.setName(EntityProperties.BMetaData);
+        metadata.setName(EntityProperties.MetaData);
 
         ToMany messagesForUser = user.addToMany(message, senderIDProp);
         messagesForUser.setName(EntityProperties.Messages);
@@ -168,7 +171,7 @@ public class Generator {
         threadsCreatedForUser.setName(EntityProperties.ThreadsCreated);
 
         ToMany linkToThread = user.addToMany(threadUsers, userIdProp);
-        linkToThread.setName(EntityProperties.Threads);
+        linkToThread.setName(EntityProperties.BLinkData);
 //        // Users - END
 
     }
@@ -188,12 +191,12 @@ public class Generator {
     }
 
     private static void setSuperClass(){
-        user.setSuperclass("Entity<BUser>");
+        user.setSuperclass("BUserEntity");
         message.setSuperclass("Entity<BMessage>");
         thread.setSuperclass("Entity<BThread>");
-        linkedAccount.setSuperclass("Entity<BLinkedAccount>");
+        linkedAccount.setSuperclass("BLinkedAccountEntity");
         linkedContact.setSuperclass("Entity<BLinkedContact>");
-        metaData.setSuperclass("Entity<BMetadata>");
+        metaData.setSuperclass("BMetadataEntity");
         threadUsers.setSuperclass("Entity<BLinkData>");
     }
 }

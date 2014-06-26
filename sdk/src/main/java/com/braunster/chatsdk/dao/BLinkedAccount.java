@@ -7,6 +7,7 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.dao.entities.BLinkedAccountEntity;
 import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
@@ -15,10 +16,11 @@ import java.util.Map;
 /**
  * Entity mapped to table BLINKED_ACCOUNT.
  */
-public class BLinkedAccount extends Entity<BLinkedAccount>  {
+public class BLinkedAccount extends BLinkedAccountEntity  {
 
-    private String entityID;
-    private String authentication_id;
+    private Long id;
+    private String Token;
+    private Integer type;
     private Long user;
 
     /** Used to resolve relations */
@@ -37,13 +39,14 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
     public BLinkedAccount() {
     }
 
-    public BLinkedAccount(String entityID) {
-        this.entityID = entityID;
+    public BLinkedAccount(Long id) {
+        this.id = id;
     }
 
-    public BLinkedAccount(String entityID, String authentication_id, Long user) {
-        this.entityID = entityID;
-        this.authentication_id = authentication_id;
+    public BLinkedAccount(Long id, String Token, Integer type, Long user) {
+        this.id = id;
+        this.Token = Token;
+        this.type = type;
         this.user = user;
     }
 
@@ -53,20 +56,28 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
         myDao = daoSession != null ? daoSession.getBLinkedAccountDao() : null;
     }
 
-    public String getEntityID() {
-        return entityID;
+    public Long getId() {
+        return id;
     }
 
-    public void setEntityID(String entityID) {
-        this.entityID = entityID;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getAuthentication_id() {
-        return authentication_id;
+    public String getToken() {
+        return Token;
     }
 
-    public void setAuthentication_id(String authentication_id) {
-        this.authentication_id = authentication_id;
+    public void setToken(String Token) {
+        this.Token = Token;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Long getUser() {
@@ -128,17 +139,12 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
 
     // KEEP METHODS - put your custom methods here
     @Override
-    public void updateFrom(BLinkedAccount bLinkedAccount) {
-
-    }
-
-    @Override
     public BPath getPath() {
         return null;
     }
 
     @Override
-    public Type getEntityType() {
+    public com.braunster.chatsdk.dao.entity_interface.Entity.Type getEntityType() {
         return null;
     }
 
@@ -160,11 +166,6 @@ public class BLinkedAccount extends Entity<BLinkedAccount>  {
     @Override
     public Date lastUpdated() {
         return null;
-    }
-
-    @Override
-    public void setEntityId(String entityID) {
-        this.entityID = entityID;
     }
     // KEEP METHODS END
 

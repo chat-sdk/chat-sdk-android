@@ -17,10 +17,11 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ContactsExpandableListAdapter;
 import com.braunster.chatsdk.dao.BLinkedContact;
+import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.tamplate.TestNetworkAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class ContactsFragment extends BaseFragment {
 
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
-        this.user = BNetworkManager.getInstance().currentUser();
+        this.user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
         initViews();
 
@@ -118,58 +119,90 @@ public class ContactsFragment extends BaseFragment {
         onlineContacts.clear();
         offlineContacts.clear();
 
-        if (BNetworkManager.getInstance().getNetworkAdapter() != null)
-            ((TestNetworkAdapter)BNetworkManager.getInstance().getNetworkAdapter())
+        if (BNetworkManager.sharedManager().getNetworkAdapter() != null)
+        {
+            BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+
+            if (DEBUG) Log.d(TAG, "Contacts list size: " + currentUser.getContacts().size());
+            for (BUser contact : currentUser.getContacts()) {
+
+                if (contact.getOnline() != null && contact.getOnline())
+                    onlineContacts.add(contact);
+                else offlineContacts.add(contact);
+
+                listDataChild.put(listDataHeader.get(0), onlineContacts);
+                listDataChild.put(listDataHeader.get(1), offlineContacts);
+            }
+
+            expandableListAdapter = new ContactsExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
+            expContacts.setAdapter(expandableListAdapter);
+
+            expContacts.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                @Override
+                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                    BUser clickedUser = expandableListAdapter.getChild(groupPosition, childPosition);
+
+                    BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(clickedUser.getName(), new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
+
+                        BThread thread = null;
+
+                        @Override
+                        public boolean onMainFinised(BThread bThread, Object o) {
+                            if (o != null)
+                            {
+                                Toast.makeText(getActivity(), "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                                return true;
+                            }
+
+                            thread = bThread;
+
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onItem(BUser item) {
+                            return false;
+                        }
+
+                        @Override
+                        public void onDone() {
+                            if (thread != null)
+                            {
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onItemError(BUser user, Object o) {
+                            if (DEBUG) Log.d(TAG, "Failed to add user to thread, User name: " +user.getName());
+                        }
+                    }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+
+                    return false;
+                }
+            });
+            expContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                }
+            });
+        }
+        else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
+       /*     ((TestNetworkAdapter)BNetworkManager.sharedManager().getNetworkAdapter())
                     .getContactListWithListener(new CompletionListenerWithData<List<BLinkedContact>>() {
                 @Override
                 public void onDone(List<BLinkedContact> contacts) {
-                    if (DEBUG) Log.d(TAG, "Contacts list size: " + contacts.size());
-                    for (BLinkedContact contact : contacts) {
 
-                        if (contact.getContact().getOnline() != null && contact.getContact().getOnline())
-                            onlineContacts.add(contact.getContact());
-                        else offlineContacts.add(contact.getContact());
-
-                        listDataChild.put(listDataHeader.get(0), onlineContacts);
-                        listDataChild.put(listDataHeader.get(1), offlineContacts);
-                    }
-
-                    expandableListAdapter = new ContactsExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
-                    expContacts.setAdapter(expandableListAdapter);
-
-                    expContacts.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                        @Override
-                        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                            BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<Long>() {
-                                @Override
-                                public void onDone(Long id) {
-                                    Intent intent = new Intent(getActivity(), ChatActivity.class);
-                                    intent.putExtra(ChatActivity.THREAD_ID, id);
-                                    startActivity(intent);
-                                }
-
-                                @Override
-                                public void onDoneWithError() {
-                                    Toast.makeText(getActivity(), "Failed to start chat.", Toast.LENGTH_SHORT).show();
-                                }
-                            }, expandableListAdapter.getChild(groupPosition, childPosition), BNetworkManager.getInstance().currentUser());
-                            return false;
-                        }
-                    });
-                    expContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                        }
-                    });
                 }
 
                 @Override
                 public void onDoneWithError() {
                     Toast.makeText(getActivity(), "Failed to get contacs", Toast.LENGTH_SHORT).show();
                 }
-            });
-        else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
+            });*/
     }
 
     private ArrayList<String> getHeaders(){

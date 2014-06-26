@@ -7,26 +7,29 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.dao.entities.BMetadataEntity;
+import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BMETADATA.
  */
-public class BMetadata extends Entity<BMetadata>  {
+public class BMetadata extends BMetadataEntity  {
 
+    private Long id;
     private String entityID;
-    private String authentication_id;
+    private String authenticationId;
     private Boolean dirty;
-    /** Not-null value. */
-    private String type;
+    private int type;
     /** Not-null value. */
     private String Key;
-    /** Not-null value. */
     private String Value;
-    private Long Owner;
+    private Long OwnerID;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -34,8 +37,8 @@ public class BMetadata extends Entity<BMetadata>  {
     /** Used for active entity operations. */
     private transient BMetadataDao myDao;
 
-    private BUser bUser;
-    private Long bUser__resolvedKey;
+    private BUser Owner;
+    private Long Owner__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -44,20 +47,33 @@ public class BMetadata extends Entity<BMetadata>  {
     public BMetadata() {
     }
 
-    public BMetadata(String entityID, String authentication_id, Boolean dirty, String type, String Key, String Value, Long Owner) {
+    public BMetadata(Long id) {
+        this.id = id;
+    }
+
+    public BMetadata(Long id, String entityID, String authenticationId, Boolean dirty, int type, String Key, String Value, Long OwnerID) {
+        this.id = id;
         this.entityID = entityID;
-        this.authentication_id = authentication_id;
+        this.authenticationId = authenticationId;
         this.dirty = dirty;
         this.type = type;
         this.Key = Key;
         this.Value = Value;
-        this.Owner = Owner;
+        this.OwnerID = OwnerID;
     }
 
     /** called by internal mechanisms, do not call yourself. */
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBMetadataDao() : null;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEntityID() {
@@ -68,12 +84,12 @@ public class BMetadata extends Entity<BMetadata>  {
         this.entityID = entityID;
     }
 
-    public String getAuthentication_id() {
-        return authentication_id;
+    public String getAuthenticationId() {
+        return authenticationId;
     }
 
-    public void setAuthentication_id(String authentication_id) {
-        this.authentication_id = authentication_id;
+    public void setAuthenticationId(String authenticationId) {
+        this.authenticationId = authenticationId;
     }
 
     public Boolean getDirty() {
@@ -84,13 +100,11 @@ public class BMetadata extends Entity<BMetadata>  {
         this.dirty = dirty;
     }
 
-    /** Not-null value. */
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 
@@ -104,46 +118,44 @@ public class BMetadata extends Entity<BMetadata>  {
         this.Key = Key;
     }
 
-    /** Not-null value. */
     public String getValue() {
         return Value;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setValue(String Value) {
         this.Value = Value;
     }
 
-    public Long getOwner() {
-        return Owner;
+    public Long getOwnerID() {
+        return OwnerID;
     }
 
-    public void setOwner(Long Owner) {
-        this.Owner = Owner;
+    public void setOwnerID(Long OwnerID) {
+        this.OwnerID = OwnerID;
     }
 
     /** To-one relationship, resolved on first access. */
-    public BUser getBUser() {
-        Long __key = this.Owner;
-        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
+    public BUser getOwner() {
+        Long __key = this.OwnerID;
+        if (Owner__resolvedKey == null || !Owner__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BUserDao targetDao = daoSession.getBUserDao();
-            BUser bUserNew = targetDao.load(__key);
+            BUser OwnerNew = targetDao.load(__key);
             synchronized (this) {
-                bUser = bUserNew;
-            	bUser__resolvedKey = __key;
+                Owner = OwnerNew;
+            	Owner__resolvedKey = __key;
             }
         }
-        return bUser;
+        return Owner;
     }
 
-    public void setBUser(BUser bUser) {
+    public void setOwner(BUser Owner) {
         synchronized (this) {
-            this.bUser = bUser;
-            Owner = bUser == null ? null : bUser.getId();
-            bUser__resolvedKey = Owner;
+            this.Owner = Owner;
+            OwnerID = Owner == null ? null : Owner.getId();
+            Owner__resolvedKey = OwnerID;
         }
     }
 
@@ -179,11 +191,13 @@ public class BMetadata extends Entity<BMetadata>  {
 
     @Override
     public BPath getPath() {
-        return null;
+        if (getOwner() != null)
+            return getOwner().getPath().addPathComponent(BFirebaseDefines.Path.BMetaPath, entityID);
+        else return null;
     }
 
     @Override
-    public Type getEntityType() {
+    public com.braunster.chatsdk.dao.entity_interface.Entity.Type getEntityType() {
         return null;
     }
 
@@ -194,7 +208,12 @@ public class BMetadata extends Entity<BMetadata>  {
 
     @Override
     public Map<String, Object> asMap() {
-        return null;
+        Map<String , Object> map = new HashMap<String, Object>();
+
+        map.put(BDefines.Keys.Bkey, Key);
+        map.put(BDefines.Keys.BValue, Value);
+        map.put(BDefines.Keys.BType, type);
+        return map;
     }
 
     @Override

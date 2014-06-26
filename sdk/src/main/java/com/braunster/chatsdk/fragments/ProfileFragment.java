@@ -6,15 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.ProfilePictureView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,29 +50,27 @@ public class ProfileFragment extends BaseFragment {
 
         mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
 
-        this.user = BNetworkManager.getInstance().currentUser();
+        this.user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
         initViews();
 
-        BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
-            @Override
-            public void onDone(GraphUser graphUser) {
-                Log.d(TAG, "Name: " + graphUser.getName());
-                etName.setText(graphUser.getName());
-                etMail.setText((String) graphUser.getProperty("email"));
-//                profilePictureView.setProfileId(graphUser.getId());
+        Integer loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
 
-                profileCircleImageView.setImageResource(0);
-                VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
-                        VolleyUtills.getImageLoader().getImageListener(profileCircleImageView,
-                                R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
-            }
+        switch (loginType)
+        {
+            case BDefines.BAccountType.Facebook:
+                getDetailsFromFacebook();
+                break;
 
-            @Override
-            public void onDoneWithError() {
+            case BDefines.BAccountType.Password:
+                getPasswordAccountDetails();
+                break;
 
-            }
-        });
+            case BDefines.BAccountType.Twitter:
+                break;
+
+        }
+
 
         return mainView;
     }
@@ -98,5 +97,37 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    private void getDetailsFromFacebook(){
+        BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
+            @Override
+            public void onDone(GraphUser graphUser) {
+                Log.d(TAG, "Name: " + graphUser.getName());
+                etName.setText(graphUser.getName());
+                etMail.setText((String) graphUser.getProperty("email"));
+                //                profilePictureView.setProfileId(graphUser.getId());
+
+                profileCircleImageView.setImageResource(0);
+                VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
+                        VolleyUtills.getImageLoader().getImageListener(profileCircleImageView,
+                                R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
+            }
+
+            @Override
+            public void onDoneWithError() {
+                Toast.makeText(getActivity(), "Unable to fetch user details from fb", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getPasswordAccountDetails(){
+        hideFacebookButton();
+//        etName.setText(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().get);
+//        etMail.setText((String) graphUser.getProperty("email"));
+    }
+
+    private void hideFacebookButton(){
+        mainView.findViewById(R.id.authButton).setVisibility(View.GONE);
     }
 }

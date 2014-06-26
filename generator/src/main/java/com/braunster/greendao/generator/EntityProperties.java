@@ -18,23 +18,28 @@ public class EntityProperties {
     /* General*/
 
     public static final String EntityID = "entityID";
-
+    public static final String Owner = "Owner";
+    public static final String Owner_ID = "OwnerID";
     public static final String Name = "name";
     public static final String Type = "type";
     public static final String LastUpdated = "lastUpdated";
     public static final String Messages = "messages";
 
     /* User*/
-    public static final String FacebookID = "facebookID";
     public static final String Dirty = "dirty";
-    public static final String AuthenticationID = "authentication_id";
+    public static final String AuthenticationID = "authenticationId";
     public static final String LastOnline = "lastOnline";
     public static final String PictureExists = "pictureExist";
     public static final String PictureURL = "pictureURL";
     public static final String Threads = "threads";
     public static final String BUser_FirebaseID = "BUser_FirebaseID";
-
+    public static final String Online = "Online";
+    public static final String AuthenticationType = "AuthenticationType";
     public static final String ThreadsCreated = "threadsCreated";
+    public static final String MessageColor = "messageColor";
+    public static final String BLinkedContacts = "BLinkedContacts";
+    public static final String BLinkedAccounts = "BLinkedAccounts";
+
     /* Message*/
     public static final String Date = "date";
     public static final String FontSize = "fontSize";
@@ -46,17 +51,25 @@ public class EntityProperties {
     public static final String Thread = "thread";
     public static final String User = "user";
 
-    public static final String Color = "color";
     /* Thread */
     public static final String CreationDate = "creationDate";
     public static final String HasUnreadMessaged = "hasUnreadMessages";
+    public static final String LastMessageAdded = "LastMessageAdded";
     public static final String Users = "users";
-
-
     public static final String Creator = "creator";
+    public static final String CreatorID = "creator_ID";
+
+    /* Metadata*/
     public static final String Key = "Key";
     public static final String Value = "Value";
-    public static final String LastMessageAdded = "LastMaessageAdded";
-    public static final String Owner = "Owner";
-    public static final String Online = "Online";
+    public static final String MetaData = "Metadata";
+
+    /*Contact*/
+
+    /*Account*/
+    public static final String Token = "Token";
+
+
+
+
 }

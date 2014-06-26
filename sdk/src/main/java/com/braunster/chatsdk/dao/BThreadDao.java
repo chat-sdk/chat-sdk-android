@@ -34,8 +34,9 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         public final static Property Dirty = new Property(3, Boolean.class, "dirty", false, "DIRTY");
         public final static Property HasUnreadMessages = new Property(4, Boolean.class, "hasUnreadMessages", false, "HAS_UNREAD_MESSAGES");
         public final static Property Name = new Property(5, String.class, "name", false, "NAME");
-        public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
-        public final static Property Creator = new Property(7, Long.class, "creator", false, "CREATOR");
+        public final static Property LastMessageAdded = new Property(6, java.util.Date.class, "LastMessageAdded", false, "LAST_MESSAGE_ADDED");
+        public final static Property Type = new Property(7, Integer.class, "type", false, "TYPE");
+        public final static Property Creator_ID = new Property(8, Long.class, "creator_ID", false, "CREATOR__ID");
     };
 
     private DaoSession daoSession;
@@ -61,8 +62,9 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
                 "'DIRTY' INTEGER," + // 3: dirty
                 "'HAS_UNREAD_MESSAGES' INTEGER," + // 4: hasUnreadMessages
                 "'NAME' TEXT," + // 5: name
-                "'TYPE' INTEGER," + // 6: type
-                "'CREATOR' INTEGER);"); // 7: creator
+                "'LAST_MESSAGE_ADDED' INTEGER," + // 6: LastMessageAdded
+                "'TYPE' INTEGER," + // 7: type
+                "'CREATOR__ID' INTEGER);"); // 8: creator_ID
     }
 
     /** Drops the underlying database table. */
@@ -106,14 +108,19 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
             stmt.bindString(6, name);
         }
  
-        Integer type = entity.getType();
-        if (type != null) {
-            stmt.bindLong(7, type);
+        java.util.Date LastMessageAdded = entity.getLastMessageAdded();
+        if (LastMessageAdded != null) {
+            stmt.bindLong(7, LastMessageAdded.getTime());
         }
  
-        Long creator = entity.getCreator();
-        if (creator != null) {
-            stmt.bindLong(8, creator);
+        Integer type = entity.getType();
+        if (type != null) {
+            stmt.bindLong(8, type);
+        }
+ 
+        Long creator_ID = entity.getCreator_ID();
+        if (creator_ID != null) {
+            stmt.bindLong(9, creator_ID);
         }
     }
 
@@ -139,8 +146,9 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // dirty
             cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // hasUnreadMessages
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // name
-            cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
-            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7) // creator
+            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)), // LastMessageAdded
+            cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // type
+            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8) // creator_ID
         );
         return entity;
     }
@@ -154,8 +162,9 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         entity.setDirty(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
         entity.setHasUnreadMessages(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
         entity.setName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setType(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
-        entity.setCreator(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
+        entity.setLastMessageAdded(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
+        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
+        entity.setCreator_ID(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
      }
     
     /** @inheritdoc */
@@ -182,16 +191,16 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
     }
     
     /** Internal query to resolve the "threadsCreated" to-many relationship of BUser. */
-    public List<BThread> _queryBUser_ThreadsCreated(Long creator) {
+    public List<BThread> _queryBUser_ThreadsCreated(Long creator_ID) {
         synchronized (this) {
             if (bUser_ThreadsCreatedQuery == null) {
                 QueryBuilder<BThread> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Creator.eq(null));
+                queryBuilder.where(Properties.Creator_ID.eq(null));
                 bUser_ThreadsCreatedQuery = queryBuilder.build();
             }
         }
         Query<BThread> query = bUser_ThreadsCreatedQuery.forCurrentThread();
-        query.setParameter(0, creator);
+        query.setParameter(0, creator_ID);
         return query.list();
     }
 
@@ -204,7 +213,7 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BTHREAD T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'CREATOR'=T0.'_id'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'CREATOR__ID'=T0.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -215,8 +224,8 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         BThread entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BUser bUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUser(bUser);
+        BUser creator = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
+        entity.setCreator(creator);
 
         return entity;    
     }

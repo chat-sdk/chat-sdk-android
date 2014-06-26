@@ -179,6 +179,9 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public void addRow(BMessage data){
+        if (data == null)
+            return;
+
         listData.add(data);
 
         notifyDataSetChanged();

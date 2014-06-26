@@ -2,6 +2,9 @@ package com.braunster.chatsdk.network.firebase;
 
 import com.firebase.client.Firebase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by itzik on 6/8/2014.
  */
@@ -35,25 +38,48 @@ public class FirebasePaths extends Firebase{
 
     /* Users */
     /** @return The users main ref.*/
-    public FirebasePaths userRef(){
-        return firebaseRef().appendPathComponent(FirebaseTags.BUsersPath);
+    public static FirebasePaths userRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BUsersPath);
     }
     /** @return The user ref for given id.*/
-    public Firebase userRef(String firebaseId){
-        return userRef().child(firebaseId);
+    public static FirebasePaths userRef(String firebaseId){
+        return userRef().appendPathComponent(firebaseId);
     }
 
     /* Threads */
     /** @return The thread main ref.*/
-    public Firebase threadRef(){
-        return appendPathComponent(FirebaseTags.BThreadPath);
+    public static FirebasePaths threadRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BThreadPath);
     }
     /** @return The thread ref for given id.*/
-    public Firebase threadRef(String firebaseId){
-        return threadRef().child(firebaseId);
+    public static FirebasePaths threadRef(String firebaseId){
+        return threadRef().appendPathComponent(firebaseId);
     }
     /** @return The public threads ref .*/
     public Firebase publicThreadRef(){
-        return appendPathComponent(FirebaseTags.BPublicThreadPath);
+        return appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);
+    }
+
+    public static FirebasePaths indexRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BIndexPath);
+    }
+
+    public static FirebasePaths userOnlineRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BOnlinePath);
+    }
+
+    public static Map<String, Object> getMap(String[] keys,  Object...values){
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        for (int i = 0 ; i < keys.length; i++){
+
+            // More values then keys entered.
+            if (i == values.length)
+                break;
+
+            map.put(keys[i], values[i]);
+        }
+
+        return map;
     }
 }

@@ -7,11 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -110,11 +108,11 @@ public class ThreadsListAdapter extends BaseAdapter {
         // For private and one on one threads with no name we will put the other user name.
         if (thread.getName() == null || thread.getName().equals(""))
         {
-            if (thread.getType() == BThread.Type.Private.ordinal())
+            if (thread.getType() == BThread.Type.Private)
             {
-                if (BNetworkManager.getInstance().currentUser().getId() == thread.getUsers().get(0).getUserID())
-                    thread.setName(thread.getUsers().get(1).getBUser().getName());
-                else thread.setName(thread.getUsers().get(0).getBUser().getName());
+                if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
+                    thread.setName(thread.getUsers().get(1).getName());
+                else thread.setName(thread.getUsers().get(0).getName());
             }
             else
                 thread.setName("Chat Room");

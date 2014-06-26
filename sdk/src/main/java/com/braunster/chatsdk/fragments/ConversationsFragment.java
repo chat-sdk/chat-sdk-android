@@ -91,7 +91,7 @@ public class ConversationsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
         listAdapter.setListData(threads);
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );

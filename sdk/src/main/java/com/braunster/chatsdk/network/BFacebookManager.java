@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -26,33 +28,28 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+import static com.braunster.chatsdk.network.BDefines.*;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
+import static com.braunster.chatsdk.network.BDefines.Prefs.*;
+
+/*
  * Created by itzik on 6/8/2014.
  */
+
 
 public class BFacebookManager {
 
     private static final String TAG = BFacebookManager.class.getSimpleName();
     private static final boolean DEBUG = true;
 
-
-    /**
-     * User date that need to be stored.
-     */
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String DISPLAY_NAME = "displayName";
 
     public static String userFacebookID, userFacebookAccessToken, userFacebookName;
-    private static String facebookAppID;/* Need to get it from a differnt source*/
-
-    private static String userThirdPartyUserAccount; /* Not sure if needed*/
-
-
-    /**
-     * For login to facebook using firebase API
-     */
+    private static String facebookAppID;
+    private static String userThirdPartyUserAccount;
 
     private static SimpleLogin simpleLogin;
-
-    private static Session fbSession;
 
     public static void init(String id, Context context) {
        if (DEBUG) Log.i(TAG, "Initialized");
@@ -62,13 +59,13 @@ public class BFacebookManager {
     }
 
     public static void loginWithFacebook(final CompletionListener completionListener) {
-        simpleLogin.loginWithFacebook(facebookAppID, userFacebookAccessToken, new SimpleLoginAuthenticatedHandler() {
+        /*simpleLogin.loginWithFacebook(facebookAppID, userFacebookAccessToken, new SimpleLoginAuthenticatedHandler() {
             @Override
             public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
                 if (error == null && user != null) {
-                    String accessToken = (String) user.getThirdPartyUserData().get("accessToken");
+                    String accessToken = (String) user.getThirdPartyUserData().get(ACCESS_TOKEN);
 
-                    setNetworkCredentials(user.getUserId(), (String) user.getThirdPartyUserData().get("displayName"), accessToken);
+                    setNetworkCredentials(user.getUserId(), (String) user.getThirdPartyUserData().get(DISPLAY_NAME), accessToken);
 
                     completionListener.onDone();
                 } else {
@@ -80,6 +77,24 @@ public class BFacebookManager {
                 }
 
             }
+        });*/
+
+        BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
+                FirebasePaths.getMap(new String[]{ACCESS_TOKEN, LoginTypeKey}, userFacebookAccessToken, Facebook),
+                    new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+            @Override
+            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+                if (DEBUG) Log.i(TAG, "Logged to firebase");
+                // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
+                userFacebookID = firebaseSimpleLoginUser.getUserId();
+                completionListener.onDone();
+            }
+
+            @Override
+            public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
+                if (DEBUG) Log.e(TAG, "Log to firebase failed");
+                completionListener.onDone();
+            }
         });
     }
 
@@ -89,9 +104,7 @@ public class BFacebookManager {
         else if (DEBUG) Log.e(TAG, "Trying to logout but simple login is null");
     }
 
-    /**
-     * Re authenticate after session state changed.
-     */
+    /** Re authenticate after session state changed.*/
     public static void onSessionStateChange(Session session, SessionState state, Exception exception,final  CompletionListener completionListener) {
         if (DEBUG) Log.i(TAG, "Session changed state");
 
@@ -102,20 +115,16 @@ public class BFacebookManager {
             if (DEBUG) Log.i(TAG, "Session is open.");
 
             // We will need this session later to make request.
-            fbSession = session.getActiveSession();
-            userFacebookAccessToken = fbSession.getAccessToken();
-
+            userFacebookAccessToken = Session.getActiveSession().getAccessToken();
             loginWithFacebook(new CompletionListener() {
                 @Override
                 public void onDone() {
-                    if (DEBUG) Log.i(TAG, "Logged to facebook");
                     completionListener.onDone();
                 }
 
                 @Override
                 public void onDoneWithError() {
                     simpleLogin.logout();
-                    if (DEBUG) Log.i(TAG, "Error while login.");
                     completionListener.onDoneWithError();
 
                 }
@@ -134,12 +143,6 @@ public class BFacebookManager {
         }
     }
 
-    private static void setNetworkCredentials(String facebookID, String name, String accessToken) {
-        userFacebookID = facebookID;
-        userFacebookName = name;
-        userFacebookAccessToken = accessToken;
-    }
-
     public static boolean isAuthenticated() {
         return userFacebookID != null && userFacebookAccessToken != null;
     }
@@ -149,10 +152,11 @@ public class BFacebookManager {
     }
 
     public static void getUserDetails(final CompletionListenerWithData<GraphUser> listenerWithData){
-        if (fbSession != null && fbSession.getState().isOpened() && isAuthenticated())
+        if (DEBUG) Log.v(TAG, "getUserDetails, Sessios State: " + Session.getActiveSession().getState().isOpened() + " isAuth: " + isAuthenticated());
+        if (Session.getActiveSession().getState().isOpened() && isAuthenticated())
         {
             // Request user data and show the results
-            Request.newMeRequest(fbSession, new Request.GraphUserCallback()
+            Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback()
             {
                 @Override
                 public void onCompleted(GraphUser user, Response response)
@@ -172,17 +176,14 @@ public class BFacebookManager {
                     }
                 }
             }).executeAsync();
-        }
+        } else listenerWithData.onDoneWithError();
     }
 
-    public static void getProfilePictureForFacebookID(String facebookId, CompletionListener completionListener){
-        // ASK if needed to implement this as facebook giving the ProfilePictureView
-    }
-
-    /** No need for access token in SDK V3*/
-    /** Get the friend list from facebook that is using the app.*/
+    /*
+    * No need for access token in SDK V3
+    * Get the friend list from facebook that is using the app.*/
     public static void getUserFriendList(final CompletionListenerWithData completionListener){
-        Request req = Request.newMyFriendsRequest(fbSession, new Request.GraphUserListCallback() {
+        Request req = Request.newMyFriendsRequest(Session.getActiveSession(), new Request.GraphUserListCallback() {
             @Override
             public void onCompleted(List<GraphUser> users, Response response) {
 //                if (DEBUG) Log.d(TAG, "Completed: " + response.getRawResponse());
@@ -247,11 +248,10 @@ public class BFacebookManager {
 
     }
 
-    /* Helpers */
+    /*Helpers */
     public static String getPicUrl(String id){
         return "http://graph.facebook.com/"+id+"/picture?type=large";
     }
-
     public static String getPicUrl(String id, String type){
         return "http://graph.facebook.com/"+id+"/picture?type=" + type;
     }
@@ -260,12 +260,13 @@ public class BFacebookManager {
     }
 }
 
-/*ASK  Authenticate, Login, Logout, getFacebook data: profile pic and friends list. Save credentials for user.*/
+//ASK  Authenticate, Login, Logout, getFacebook data: profile pic and friends list. Save credentials for user.
+//
+//
+//    @property (nonatomic, readwrite) ACAccount * userThirdPartyUserAccount; // Seems not relevant to android.
+//
+//    @synthesize networkAdapter;
+//
 
-/*
-    @property (nonatomic, readwrite) ACAccount * userThirdPartyUserAccount; // Seems not relevant to android.
-
-    @synthesize networkAdapter;
-    */
 
 

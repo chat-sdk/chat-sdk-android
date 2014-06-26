@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
@@ -19,7 +20,10 @@ import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.ActivityListener;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.List;
@@ -95,7 +99,7 @@ public class ThreadsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Public);
+        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
 
         listAdapter.setListData(threads);
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
@@ -122,9 +126,42 @@ public class ThreadsFragment extends BaseFragment {
 
             dialog.setTitleAndListen("Add Chat Room", new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
-                public void onFinished(String s) {
+                public void onFinished(final String s) {
                     if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
                     // TODO add new thread to the database and server.
+                    BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, Object>() {
+                        @Override
+                        public void onDone(BThread bThread) {
+
+                            // Add the current user to the thread.
+                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(bThread,
+                                    new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                                @Override
+                                public boolean onItem(BUser user) {
+
+                                    return false;
+                                }
+
+                                @Override
+                                public void onDone() {
+
+                                }
+
+                                @Override
+                                public void onItemError(BUser user, Object o) {
+
+                                }
+                            }, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+
+                            listAdapter.addRow(bThread);
+                            Toast.makeText(getActivity(), "Public thread " + s + " is created.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onDoneWithError(BThread bThread, Object o) {
+                            Toast.makeText(getActivity(), "Failed to create public thread " + s + ".", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             });
 
@@ -140,7 +177,7 @@ public class ThreadsFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
 
-        activityListener = BNetworkManager.getInstance().addActivityListener(new ActivityListener() {
+        /*activityListener = BNetworkManager.sharedManager().getNetworkAdapter().addActivityListener(new ActivityListener() {
             @Override
             public void onThreadAdded(BThread thread) {
                 if (DEBUG) Log.d(TAG, "Thread is added");
@@ -150,7 +187,7 @@ public class ThreadsFragment extends BaseFragment {
             @Override
             public void onMessageAdded(BMessage message) {
             }
-        });
+        });*/
     }
 
     @Override
@@ -161,6 +198,6 @@ public class ThreadsFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BNetworkManager.getInstance().removeActivityListener(activityListener);
+       /* BNetworkManager.sharedManager().getNetworkAdapter().removeActivityListener(activityListener);*/
     }
 }

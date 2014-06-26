@@ -2,28 +2,29 @@ package com.braunster.chatsdk.activities;
 
 import android.support.v7.app.ActionBarActivity;
 
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BFirebaseNetworkAdapter;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.tamplate.TestNetworkAdapter;
 
 /**
  * Created by braunster on 18/06/14.
  */
 public class BaseActivity extends ActionBarActivity{
 
-    public void setNetworkAdapterAndSync(CompletionListener completionListener){
+  /*  public void setNetworkAdapterAndSync(CompletionListener completionListener){
         //region TestAdapter
 //        TestNetworkAdapter testNetworkAdapter = new TestNetworkAdapter();
 //
-//        BNetworkManager.getInstance().setNetworkAdapter(testNetworkAdapter);
-//        BNetworkManager.getInstance().syncWithProgress(completionListener);
+//        BNetworkManager.sharedManager().setNetworkAdapter(testNetworkAdapter);
+//        BNetworkManager.sharedManager().syncWithProgress(completionListener);
         //endregion -
 
         //region FirebaseAdapter
         BFirebaseNetworkAdapter firebaseNetworkAdapter = new BFirebaseNetworkAdapter();
-        BNetworkManager.getInstance().setNetworkAdapter(firebaseNetworkAdapter);
-        BNetworkManager.getInstance().syncWithProgress(completionListener);
+        BNetworkManager.sharedManager().setNetworkAdapter(firebaseNetworkAdapter);
+        BNetworkManager.sharedManager().syncWithProgress(completionListener);
         //endregion
     }
 
@@ -31,8 +32,8 @@ public class BaseActivity extends ActionBarActivity{
         //region TestAdapter
 //        TestNetworkAdapter testNetworkAdapter = new TestNetworkAdapter();
 //
-//        BNetworkManager.getInstance().setNetworkAdapter(testNetworkAdapter);
-//        BNetworkManager.getInstance().syncWithProgress(new CompletionListener() {
+//        BNetworkManager.sharedManager().setNetworkAdapter(testNetworkAdapter);
+//        BNetworkManager.sharedManager().syncWithProgress(new CompletionListener() {
 //            @Override
 //            public void onDone() {
 //
@@ -47,8 +48,8 @@ public class BaseActivity extends ActionBarActivity{
 
         //region FirebaseAdapter
         BFirebaseNetworkAdapter firebaseNetworkAdapter = new BFirebaseNetworkAdapter();
-        BNetworkManager.getInstance().setNetworkAdapter(firebaseNetworkAdapter);
-        BNetworkManager.getInstance().syncWithProgress(new CompletionListener() {
+        BNetworkManager.sharedManager().setNetworkAdapter(firebaseNetworkAdapter);
+        BNetworkManager.sharedManager().getNetworkAdapter().(new CompletionListener() {
             @Override
             public void onDone() {
 
@@ -60,5 +61,9 @@ public class BaseActivity extends ActionBarActivity{
             }
         });
         //endregion
+    }*/
+
+    public void authenticate(CompletionListenerWithDataAndError<BUser, Object> listener){
+        BNetworkManager.sharedManager().getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
     }
 }

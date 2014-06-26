@@ -64,7 +64,7 @@ public class BPath {
         return null;
     }
 
-    public boolean isEqualToComponent(String [] components){
+    public boolean isEqualToComponent(String...components){
         return this.getObjectIdentifier().equals(concatStrings(components));
     }
 
@@ -81,9 +81,10 @@ public class BPath {
     }
 
     public BPath addPathComponent(String component, String uid){
+        if (DEBUG) Log.v(TAG, "addPathComponent, Component: " + component + ", UID: " + uid);
         keys.add(component);
 
-        if (uid == null && uid.replace(" ", "").length() == 0){
+        if (uid == null || uid.replace(" ", "").length() == 0){
             uid = null;
         }
 
@@ -97,14 +98,16 @@ public class BPath {
 
         for (String key : keys)
         {
+            path = path.append(key + "/");
+            if (DEBUG)  Log.v(TAG, "Key: " + key);
             String uid = tokens.get(key);
             if (uid != null)
-                path = path.append("/" + uid);
+                path = path.append(uid + "/");
             else
                 break;
         }
 
-        if (DEBUG) Log.i(TAG, "getPath, Result: " + path.toString().substring(0, path.length() -1));
+        if (DEBUG) Log.i(TAG, "getPath, Result: " + path.toString());
 
         // Remove the trailing slash
         return path.toString().substring(0, path.length() -1);

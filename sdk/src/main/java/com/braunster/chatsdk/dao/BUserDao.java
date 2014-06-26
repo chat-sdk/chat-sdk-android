@@ -25,16 +25,17 @@ public class BUserDao extends AbstractDao<BUser, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property Authentication_id = new Property(2, String.class, "authentication_id", false, "AUTHENTICATION_ID");
-        public final static Property FacebookID = new Property(3, String.class, "facebookID", false, "FACEBOOK_ID");
-        public final static Property Dirty = new Property(4, Boolean.class, "dirty", false, "DIRTY");
-        public final static Property Name = new Property(5, String.class, "name", false, "NAME");
-        public final static Property LastOnline = new Property(6, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
-        public final static Property LastUpdated = new Property(7, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
-        public final static Property Online = new Property(8, Boolean.class, "Online", false, "ONLINE");
-        public final static Property FontSize = new Property(9, Integer.class, "fontSize", false, "FONT_SIZE");
-        public final static Property FontName = new Property(10, String.class, "fontName", false, "FONT_NAME");
-        public final static Property TextColor = new Property(11, String.class, "textColor", false, "TEXT_COLOR");
+        public final static Property AuthenticationId = new Property(2, String.class, "authenticationId", false, "AUTHENTICATION_ID");
+        public final static Property AuthenticationType = new Property(3, Integer.class, "AuthenticationType", false, "AUTHENTICATION_TYPE");
+        public final static Property MessageColor = new Property(4, String.class, "messageColor", false, "MESSAGE_COLOR");
+        public final static Property Dirty = new Property(5, Boolean.class, "dirty", false, "DIRTY");
+        public final static Property Name = new Property(6, String.class, "name", false, "NAME");
+        public final static Property LastOnline = new Property(7, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
+        public final static Property LastUpdated = new Property(8, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
+        public final static Property Online = new Property(9, Boolean.class, "Online", false, "ONLINE");
+        public final static Property FontSize = new Property(10, Integer.class, "fontSize", false, "FONT_SIZE");
+        public final static Property FontName = new Property(11, String.class, "fontName", false, "FONT_NAME");
+        public final static Property TextColor = new Property(12, String.class, "textColor", false, "TEXT_COLOR");
     };
 
     private DaoSession daoSession;
@@ -55,16 +56,17 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         db.execSQL("CREATE TABLE " + constraint + "'BUSER' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ENTITY_ID' TEXT," + // 1: entityID
-                "'AUTHENTICATION_ID' TEXT," + // 2: authentication_id
-                "'FACEBOOK_ID' TEXT," + // 3: facebookID
-                "'DIRTY' INTEGER," + // 4: dirty
-                "'NAME' TEXT," + // 5: name
-                "'LAST_ONLINE' INTEGER," + // 6: lastOnline
-                "'LAST_UPDATED' INTEGER," + // 7: lastUpdated
-                "'ONLINE' INTEGER," + // 8: Online
-                "'FONT_SIZE' INTEGER," + // 9: fontSize
-                "'FONT_NAME' TEXT," + // 10: fontName
-                "'TEXT_COLOR' TEXT);"); // 11: textColor
+                "'AUTHENTICATION_ID' TEXT," + // 2: authenticationId
+                "'AUTHENTICATION_TYPE' INTEGER," + // 3: AuthenticationType
+                "'MESSAGE_COLOR' TEXT," + // 4: messageColor
+                "'DIRTY' INTEGER," + // 5: dirty
+                "'NAME' TEXT," + // 6: name
+                "'LAST_ONLINE' INTEGER," + // 7: lastOnline
+                "'LAST_UPDATED' INTEGER," + // 8: lastUpdated
+                "'ONLINE' INTEGER," + // 9: Online
+                "'FONT_SIZE' INTEGER," + // 10: fontSize
+                "'FONT_NAME' TEXT," + // 11: fontName
+                "'TEXT_COLOR' TEXT);"); // 12: textColor
     }
 
     /** Drops the underlying database table. */
@@ -88,54 +90,59 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindString(2, entityID);
         }
  
-        String authentication_id = entity.getAuthentication_id();
-        if (authentication_id != null) {
-            stmt.bindString(3, authentication_id);
+        String authenticationId = entity.getAuthenticationId();
+        if (authenticationId != null) {
+            stmt.bindString(3, authenticationId);
         }
  
-        String facebookID = entity.getFacebookID();
-        if (facebookID != null) {
-            stmt.bindString(4, facebookID);
+        Integer AuthenticationType = entity.getAuthenticationType();
+        if (AuthenticationType != null) {
+            stmt.bindLong(4, AuthenticationType);
+        }
+ 
+        String messageColor = entity.getMessageColor();
+        if (messageColor != null) {
+            stmt.bindString(5, messageColor);
         }
  
         Boolean dirty = entity.getDirty();
         if (dirty != null) {
-            stmt.bindLong(5, dirty ? 1l: 0l);
+            stmt.bindLong(6, dirty ? 1l: 0l);
         }
  
         String name = entity.getName();
         if (name != null) {
-            stmt.bindString(6, name);
+            stmt.bindString(7, name);
         }
  
         java.util.Date lastOnline = entity.getLastOnline();
         if (lastOnline != null) {
-            stmt.bindLong(7, lastOnline.getTime());
+            stmt.bindLong(8, lastOnline.getTime());
         }
  
         java.util.Date lastUpdated = entity.getLastUpdated();
         if (lastUpdated != null) {
-            stmt.bindLong(8, lastUpdated.getTime());
+            stmt.bindLong(9, lastUpdated.getTime());
         }
  
         Boolean Online = entity.getOnline();
         if (Online != null) {
-            stmt.bindLong(9, Online ? 1l: 0l);
+            stmt.bindLong(10, Online ? 1l: 0l);
         }
  
         Integer fontSize = entity.getFontSize();
         if (fontSize != null) {
-            stmt.bindLong(10, fontSize);
+            stmt.bindLong(11, fontSize);
         }
  
         String fontName = entity.getFontName();
         if (fontName != null) {
-            stmt.bindString(11, fontName);
+            stmt.bindString(12, fontName);
         }
  
         String textColor = entity.getTextColor();
         if (textColor != null) {
-            stmt.bindString(12, textColor);
+            stmt.bindString(13, textColor);
         }
     }
 
@@ -157,16 +164,17 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         BUser entity = new BUser( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authentication_id
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // facebookID
-            cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // dirty
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // name
-            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)), // lastOnline
-            cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // lastUpdated
-            cursor.isNull(offset + 8) ? null : cursor.getShort(offset + 8) != 0, // Online
-            cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9), // fontSize
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // fontName
-            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11) // textColor
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authenticationId
+            cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // AuthenticationType
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // messageColor
+            cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0, // dirty
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // name
+            cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // lastOnline
+            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // lastUpdated
+            cursor.isNull(offset + 9) ? null : cursor.getShort(offset + 9) != 0, // Online
+            cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10), // fontSize
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // fontName
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12) // textColor
         );
         return entity;
     }
@@ -176,16 +184,17 @@ public class BUserDao extends AbstractDao<BUser, Long> {
     public void readEntity(Cursor cursor, BUser entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setAuthentication_id(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setFacebookID(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setDirty(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
-        entity.setName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setLastOnline(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
-        entity.setLastUpdated(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
-        entity.setOnline(cursor.isNull(offset + 8) ? null : cursor.getShort(offset + 8) != 0);
-        entity.setFontSize(cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9));
-        entity.setFontName(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setTextColor(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setAuthenticationId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setAuthenticationType(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
+        entity.setMessageColor(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setDirty(cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0);
+        entity.setName(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setLastOnline(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
+        entity.setLastUpdated(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
+        entity.setOnline(cursor.isNull(offset + 9) ? null : cursor.getShort(offset + 9) != 0);
+        entity.setFontSize(cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10));
+        entity.setFontName(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setTextColor(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
      }
     
     /** @inheritdoc */

@@ -2,7 +2,9 @@ package com.braunster.chatsdk.network;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
@@ -25,10 +27,12 @@ import java.util.List;
 /**
  * Created by itzik on 6/8/2014.
  */
-public class BNetworkManager implements ActivityListener {
+public class BNetworkManager {
 
     private static final String TAG = BNetworkManager.class.getSimpleName();
     private static final boolean DEBUG = true;
+
+    public static SharedPreferences preferences;
 
     private static BNetworkManager instance;
 
@@ -40,216 +44,24 @@ public class BNetworkManager implements ActivityListener {
 
     public static void init(Context ctx){
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
         VolleyUtills.init(ctx);
         DaoCore.init(ctx);
     }
 
-    public static BNetworkManager getInstance(){
-//        if (DEBUG) Log.v(TAG, "getInstance");
+    public static BNetworkManager sharedManager(){
+//        if (DEBUG) Log.v(TAG, "sharedManager");
         if (instance == null) {
             instance = new BNetworkManager();
         }
         return instance;
     }
 
-    /* Added set network adapter*/
-    public void syncWithProgress(CompletionListener completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.syncWithProgress(completionListener);
-        else if (DEBUG) Log.e(TAG, "Network adapter is null");
-    }
-
-    public void getFriendsListWithListener(CompletionListenerWithData completionListenerWithData) {
-        if (networkAdapter != null)
-            networkAdapter.getFriendsListWithListener(completionListenerWithData);
-        else if (DEBUG) Log.e(TAG, "Network adapter is null");
-    }
-
-    public BUser currentUser() {
-        if (networkAdapter != null)
-            return networkAdapter.currentUser();
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            return null;
-        }
-    }
-
-    public void createThreadWithUsers(List<BUser> users, CompletionListenerWithData<Long> completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.createThreadWithUsers(users, completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-    }
-
-    public void createThreadWithUsers(CompletionListenerWithData<Long>  completionListener, BUser...users) {
-        if (networkAdapter != null)
-            networkAdapter.createThreadWithUsers(Arrays.asList(users), completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-    }
-
-    public void createPublicThreadWithName(String name, CompletionListener completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.createPublicThreadWithName(name, completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-    }
-
-    public void setLastOnline(Date lastOnline) {
-        if (networkAdapter != null)
-            networkAdapter.setLastOnline(lastOnline);
-        else if (DEBUG) Log.e(TAG, "Network adapter is null");
-    }
-
-    public void deleteThreadWithEntityID(String entityId, final CompletionListener completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.deleteThreadWithEntityID(entityId, new CompletionListener() {
-                @Override
-                public void onDone() {
-                    // TODO save the database locally.
-                    completionListener.onDone();
-                }
-
-                @Override
-                public void onDoneWithError() {
-                    completionListener.onDoneWithError();
-                }
-            });
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-
-    }
-
-    public ArrayList<BThread> threadsWithType(BThread.Type type) {
-        if (networkAdapter != null)
-            return networkAdapter.threadsWithType(type);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            return null;
-        }
-    }
-
-    public String serverURL() {
-        if (networkAdapter != null)
-            return networkAdapter.serverURL();
-        return ""; // Or should i return null, Will see in the future.
-    }
-
-    public void sendMessageWithText(String text, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
-        if (DEBUG) Log.v(TAG, "sendMessageWithText");
-        if (networkAdapter != null)
-            networkAdapter.sendMessageWithText(text, threadEntityId, completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-     }
-
-    public void sendMessageWithImage(File image, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.sendMessageWithImage(image, threadEntityId, completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-    }
-
-    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, CompletionListenerWithData<BMessage> completionListener) {
-        if (networkAdapter != null)
-            networkAdapter.sendMessageWithLocation(base64File, location, threadEntityId, completionListener);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            completionListener.onDoneWithError();
-        }
-    }
-
-    public void save() {
-        if (networkAdapter != null)
-            networkAdapter.save();
-    }
-
-    // TODO add order veriable for the data.
-    public List<BMessage> getMessagesForThreadForEntityID(long id) {
-        if (networkAdapter != null)
-            return networkAdapter.getMessagesForThreadForEntityID(id);
-        else
-        {
-            if (DEBUG) Log.e(TAG, "Network adapter is null");
-            return null;
-        }
-    }
-
-    @Override
-    public void onThreadAdded(BThread thread) {
-        for (ActivityListener l : listeners)
-            l.onThreadAdded(thread);
-    }
-
-    @Override
-    public void onMessageAdded(BMessage message) {
-        for (ActivityListener l : listeners)
-            l.onMessageAdded(message);
-    }
-
-    public void setNetworkAdapter(AbstractNetworkAdapter adapter) {
-        networkAdapter = adapter;
-        networkAdapter.setActivityListener(this);
-    }
-
-    public ActivityListener addActivityListener(ActivityListener activityListener){
-        if (!listeners.contains(activityListener))
-            listeners.add(activityListener);
-
-        return activityListener;
-    }
-
-    public void removeActivityListener(ActivityListener activityListener){
-        listeners.remove(activityListener);
+    public void setNetworkAdapter(AbstractNetworkAdapter networkAdapter) {
+        this.networkAdapter = networkAdapter;
     }
 
     public AbstractNetworkAdapter getNetworkAdapter() {
         return networkAdapter;
     }
-
-    public void dispatchMessageAdded(BMessage message){
-        for (ActivityListener a : listeners)
-            a.onMessageAdded(message);
-    }
-
-    public void dispatchThreadAdded(BThread thread){
-        for (ActivityListener a : listeners)
-            a.onThreadAdded(thread);
-    }
-    /* ASK -(void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    if (_networkAdapter) {
-        if ([_networkAdapter respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
-            [_networkAdapter application:application didReceiveRemoteNotification:userInfo];
-        }
-    }
-}
-
--(void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    if (_networkAdapter) {
-        if ([_networkAdapter respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]) {
-            [_networkAdapter application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-        }
-    }
-}*/
 }

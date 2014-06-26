@@ -21,9 +21,11 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.firebase.simplelogin.SimpleLogin;
 
 import org.json.JSONObject;
 
@@ -187,6 +189,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onDoneWithError() {
                 if (DEBUG) Log.e(TAG, "onDoneWithError");
+                // Facebook session is closed so we need to disconnect from firebase.
+                BNetworkManager.sharedManager().getNetworkAdapter().logout();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }

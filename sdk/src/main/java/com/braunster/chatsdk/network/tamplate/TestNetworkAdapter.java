@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.network.tamplate;
 
 import android.util.Log;
@@ -18,9 +19,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+*/
 /**
  * Created by itzik on 6/16/2014.
- */
+ *//*
+
 public class TestNetworkAdapter extends AbstractNetworkAdapter {
 
     public static final String TAG = TestNetworkAdapter.class.getSimpleName();
@@ -49,10 +52,12 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     // ASK if needed
     public  void getContactListWithListener(CompletionListenerWithData<List<BLinkedContact>> completionListenerWithData){
         // So we dont create the friends again.
-        /*
+        */
+/*
           * ASK if the owner is the user that added the contact or that owner is a llink to the contact profile.
           * ASK Do each user has one Linked contact that has in it a list of all the users that are his friends?.
-            */
+            *//*
+
 
         // Get the user contacts.
         List<BLinkedContact> linkedContacts = DaoCore.fetchEntitiesWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, currentUser().getEntityID());
@@ -88,7 +93,9 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public void sendMessage(BMessage message, CompletionListenerWithData<BMessage> completionListener) {
         if (DEBUG) Log.v(TAG, "sendMessage");
-        /* DO server stuff with the message*/
+        */
+/* DO server stuff with the message*//*
+
         // Generate id for the message, The id will come from the server.
         message.setEntityId(DaoCore.generateEntity());
         completionListener.onDone(message);
@@ -134,8 +141,8 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
 
             for (BThread t : firUserThreads)
                 if (t.getUsers().size() == 2)
-                    if (t.getUsers().get(0).getBUser().getId().equals(sec.getId())
-                            || t.getUsers().get(1).getBUser().getId().equals(sec.getId()))
+                    if (t.getUsers().get(0).getId().equals(sec.getId())
+                            || t.getUsers().get(1).getId().equals(sec.getId()))
                     {
                         completionListener.onDone(t.getId());
                         return;
@@ -144,8 +151,8 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
             for (BThread t : secUserThread)
                 if (t.getUsers().size() == 2)
                 {
-                    if (t.getUsers().get(0).getBUser().getEntityID().equals(one.getEntityID())
-                            || t.getUsers().get(1).getBUser().getEntityID().equals(one.getEntityID()))
+                    if (t.getUsers().get(0).getEntityID().equals(one.getEntityID())
+                            || t.getUsers().get(1).getEntityID().equals(one.getEntityID()))
                     {
                         completionListener.onDone(t.getId());
                         return;
@@ -199,3 +206,4 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
         return null;
     }
 }
+*/

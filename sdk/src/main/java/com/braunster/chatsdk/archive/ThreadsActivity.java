@@ -44,7 +44,7 @@ public class ThreadsActivity extends ActionBarActivity {
     }
 
     private void initList(){
-        List<BThread> threads = BNetworkManager.getInstance().threadsWithType(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + threads.size());
 

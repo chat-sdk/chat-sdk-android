@@ -7,7 +7,11 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import android.graphics.Color;
+import android.util.Log;
+
 import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.greendao.generator.EntityProperties;
@@ -53,6 +57,8 @@ public class BMessage extends Entity<BMessage>  {
         bText, bImage, bLocation
     }
 
+    public static final String TAG = BMessage.class.getSimpleName();
+    public static final boolean DEBUG = true;
     public String color = null;
     public String fontName = null;
     public String textColor = null;
@@ -284,7 +290,12 @@ public class BMessage extends Entity<BMessage>  {
     // TODO get PAth
     @Override
     public BPath getPath() {
-        return null;
+        if (getBThreadOwner() == null)
+        {
+            if (DEBUG) Log.e(TAG, "Owner Thread is null");
+            return null;
+        }
+        return getBThreadOwner().getPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
     }
 
     @Override
@@ -294,7 +305,8 @@ public class BMessage extends Entity<BMessage>  {
 
     @Override
     public void updateFromMap(Map<String, Object> map) {
-        if (map.containsKey(EntityProperties.Text) && !map.get(EntityProperties.Text).equals(""))
+        // TODO maybe chagne all tags to the firebase paths..
+        if (map.containsKey(BDefines.Keys.BPayload) && !map.get(EntityProperties.Text).equals(""))
             this.text = (String) map.get(EntityProperties.Text);
 
         if (map.containsKey(EntityProperties.Type) && !map.get(EntityProperties.Type).equals(""))
@@ -303,8 +315,8 @@ public class BMessage extends Entity<BMessage>  {
         if (map.containsKey(EntityProperties.Date) && !map.get(EntityProperties.Date).equals(""))
             this.date = (Date) map.get(EntityProperties.Date);
 
-        if (map.containsKey(EntityProperties.Color) && !map.get(EntityProperties.Color).equals(""))
-            this.color = (String) map.get(EntityProperties.Color);
+        if (map.containsKey(EntityProperties.MessageColor) && !map.get(EntityProperties.MessageColor).equals(""))
+            this.color = (String) map.get(EntityProperties.MessageColor);
 
         if (map.containsKey(EntityProperties.TextColor) && !map.get(EntityProperties.TextColor).equals(""))
             this.textColor = (String) map.get(EntityProperties.TextColor);
@@ -323,14 +335,10 @@ public class BMessage extends Entity<BMessage>  {
     public Map<String, Object> asMap() {
         Map<String , Object> map = new HashMap<String, Object>();
 
-        map.put(EntityProperties.Text, text);
-        map.put(EntityProperties.Type, type);
-        map.put(EntityProperties.Date, date);
-        map.put(EntityProperties.BUser_FirebaseID, entityID);
-        map.put(EntityProperties.Color, color);
-        map.put(EntityProperties.TextColor, textColor);
-        map.put(EntityProperties.FontName, fontName);
-        map.put(EntityProperties.FontSize, fontSize);
+        map.put(BDefines.Keys.BPayload, text);
+        map.put(BDefines.Keys.BType, type);
+        map.put(BDefines.Keys.BDate, date.getTime());
+        map.put(BDefines.Keys.BUserFirebaseId, getBUserSender().getEntityID());
 
         return map;
     }
@@ -375,7 +383,7 @@ public class BMessage extends Entity<BMessage>  {
     }*/
 
     public boolean isMine(){
-        return getBUserSender().equals(BNetworkManager.getInstance().currentUser());
+        return getBUserSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
     }
 
     // TODO all color and picture methods.

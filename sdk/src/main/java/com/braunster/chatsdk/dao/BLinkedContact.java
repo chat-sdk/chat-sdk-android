@@ -19,7 +19,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
 
     private Long id;
     private String entityID;
-    private String authentication_id;
+    private String authenticationId;
     private Long Owner;
 
     /** Used to resolve relations */
@@ -42,10 +42,10 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
         this.id = id;
     }
 
-    public BLinkedContact(Long id, String entityID, String authentication_id, Long Owner) {
+    public BLinkedContact(Long id, String entityID, String authenticationId, Long Owner) {
         this.id = id;
         this.entityID = entityID;
-        this.authentication_id = authentication_id;
+        this.authenticationId = authenticationId;
         this.Owner = Owner;
     }
 
@@ -71,12 +71,12 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
         this.entityID = entityID;
     }
 
-    public String getAuthentication_id() {
-        return authentication_id;
+    public String getAuthenticationId() {
+        return authenticationId;
     }
 
-    public void setAuthentication_id(String authentication_id) {
-        this.authentication_id = authentication_id;
+    public void setAuthenticationId(String authenticationId) {
+        this.authenticationId = authenticationId;
     }
 
     public Long getOwner() {

@@ -3,6 +3,7 @@ package com.braunster.chatsdk.dao.entity_interface;
 import com.braunster.chatsdk.network.firebase.BPath;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,8 +32,13 @@ public interface Entity<T> {
 
     public Date lastUpdated();
 
+    public void setLastUpdated(Date date);
+
     public void setEntityId(String entityID);
 
     public String getEntityID();
 
+    public <E extends com.braunster.chatsdk.dao.core.Entity> List<E> getChildren();
+
+    public String mapPath();
 }

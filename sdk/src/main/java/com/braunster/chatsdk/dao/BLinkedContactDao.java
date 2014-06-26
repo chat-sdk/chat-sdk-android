@@ -30,13 +30,13 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property Authentication_id = new Property(2, String.class, "authentication_id", false, "AUTHENTICATION_ID");
+        public final static Property AuthenticationId = new Property(2, String.class, "authenticationId", false, "AUTHENTICATION_ID");
         public final static Property Owner = new Property(3, Long.class, "Owner", false, "OWNER");
     };
 
     private DaoSession daoSession;
 
-    private Query<BLinkedContact> bUser_BLinkedContactQuery;
+    private Query<BLinkedContact> bUser_BLinkedContactsQuery;
 
     public BLinkedContactDao(DaoConfig config) {
         super(config);
@@ -53,7 +53,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         db.execSQL("CREATE TABLE " + constraint + "'BLINKED_CONTACT' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ENTITY_ID' TEXT," + // 1: entityID
-                "'AUTHENTICATION_ID' TEXT," + // 2: authentication_id
+                "'AUTHENTICATION_ID' TEXT," + // 2: authenticationId
                 "'OWNER' INTEGER);"); // 3: Owner
     }
 
@@ -78,9 +78,9 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
             stmt.bindString(2, entityID);
         }
  
-        String authentication_id = entity.getAuthentication_id();
-        if (authentication_id != null) {
-            stmt.bindString(3, authentication_id);
+        String authenticationId = entity.getAuthenticationId();
+        if (authenticationId != null) {
+            stmt.bindString(3, authenticationId);
         }
  
         Long Owner = entity.getOwner();
@@ -107,7 +107,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         BLinkedContact entity = new BLinkedContact( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authentication_id
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authenticationId
             cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // Owner
         );
         return entity;
@@ -118,7 +118,7 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
     public void readEntity(Cursor cursor, BLinkedContact entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setAuthentication_id(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setAuthenticationId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setOwner(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
      }
     
@@ -145,16 +145,16 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkedContact" to-many relationship of BUser. */
-    public List<BLinkedContact> _queryBUser_BLinkedContact(Long Owner) {
+    /** Internal query to resolve the "BLinkedContacts" to-many relationship of BUser. */
+    public List<BLinkedContact> _queryBUser_BLinkedContacts(Long Owner) {
         synchronized (this) {
-            if (bUser_BLinkedContactQuery == null) {
+            if (bUser_BLinkedContactsQuery == null) {
                 QueryBuilder<BLinkedContact> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.Owner.eq(null));
-                bUser_BLinkedContactQuery = queryBuilder.build();
+                bUser_BLinkedContactsQuery = queryBuilder.build();
             }
         }
-        Query<BLinkedContact> query = bUser_BLinkedContactQuery.forCurrentThread();
+        Query<BLinkedContact> query = bUser_BLinkedContactsQuery.forCurrentThread();
         query.setParameter(0, Owner);
         return query.list();
     }

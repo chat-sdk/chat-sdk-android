@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.activities;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -62,46 +61,46 @@ public class PickFriendsActivity extends ActionBarActivity {
     }
 
     private void initList(){
-        List<BUser> users ;
-        BNetworkManager.getInstance().getFriendsListWithListener(new CompletionListenerWithData<List<BUser>>() {
-            @Override
-            public void onDone(List<BUser> u) {
-                if (DEBUG) Log.d(TAG, "Contacts, Amount: " + u.size());
+//
+//        BNetworkManager.sharedManager().getNetworkAdapter().getFriendsListWithListener(new CompletionListenerWithData<List<BUser>>() {
+//            @Override
+//            public void onDone(List<BUser> u) {
+//                if (DEBUG) Log.d(TAG, "Contacts, Amount: " + u.size());
+//
+//                progressBar.setVisibility(View.GONE);
+//                listContacts.setVisibility(View.VISIBLE);
+//
+//                listAdapter = new UsersListAdapter(PickFriendsActivity.this, u);
+//                listContacts.setAdapter(listAdapter);
+//            }
+//
+//            @Override
+//            public void onDoneWithError() {
+//
+//            }
+//        });
 
-                progressBar.setVisibility(View.GONE);
-                listContacts.setVisibility(View.VISIBLE);
-
-                listAdapter = new UsersListAdapter(PickFriendsActivity.this, u);
-                listContacts.setAdapter(listAdapter);
-            }
-
-            @Override
-            public void onDoneWithError() {
-
-            }
-        });
-
-        listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityID());
-
-                BNetworkManager.getInstance().createThreadWithUsers(new CompletionListenerWithData<Long>() {
-                    @Override
-                    public void onDone(Long id) {
-                        Intent intent = new Intent(PickFriendsActivity.this, ChatActivity.class);
-                        intent.putExtra(ChatActivity.THREAD_ID, id);
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onDoneWithError() {
-                        Toast.makeText(PickFriendsActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
-                    }
-                }, listAdapter.getItem(position), BNetworkManager.getInstance().currentUser());
-            }
-        });
+//        listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+//                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getName()
+//                        + ", ID: " + listAdapter.getItem(position).getEntityID());
+//
+//                BNetworkManager.sharedManager().createThreadWithUsers(new CompletionListenerWithData<Long>() {
+//                    @Override
+//                    public void onDone(Long id) {
+//                        Intent intent = new Intent(PickFriendsActivity.this, ChatActivity.class);
+//                        intent.putExtra(ChatActivity.THREAD_ID, id);
+//                        startActivity(intent);
+//                    }
+//
+//                    @Override
+//                    public void onDoneWithError() {
+//                        Toast.makeText(PickFriendsActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+//                    }
+//                }, listAdapter.getItem(position));
+//            }
+//        });
     }
 
     @Override

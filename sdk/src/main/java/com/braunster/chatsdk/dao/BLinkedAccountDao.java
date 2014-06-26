@@ -19,7 +19,7 @@ import com.braunster.chatsdk.dao.BLinkedAccount;
 /** 
  * DAO for table BLINKED_ACCOUNT.
 */
-public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
+public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, Long> {
 
     public static final String TABLENAME = "BLINKED_ACCOUNT";
 
@@ -28,14 +28,15 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property EntityID = new Property(0, String.class, "entityID", true, "ENTITY_ID");
-        public final static Property Authentication_id = new Property(1, String.class, "authentication_id", false, "AUTHENTICATION_ID");
-        public final static Property User = new Property(2, Long.class, "user", false, "USER");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property Token = new Property(1, String.class, "Token", false, "TOKEN");
+        public final static Property Type = new Property(2, Integer.class, "type", false, "TYPE");
+        public final static Property User = new Property(3, Long.class, "user", false, "USER");
     };
 
     private DaoSession daoSession;
 
-    private Query<BLinkedAccount> bUser_BLinkedAccountQuery;
+    private Query<BLinkedAccount> bUser_BLinkedAccountsQuery;
 
     public BLinkedAccountDao(DaoConfig config) {
         super(config);
@@ -50,9 +51,10 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BLINKED_ACCOUNT' (" + //
-                "'ENTITY_ID' TEXT PRIMARY KEY NOT NULL ," + // 0: entityID
-                "'AUTHENTICATION_ID' TEXT," + // 1: authentication_id
-                "'USER' INTEGER);"); // 2: user
+                "'_id' INTEGER PRIMARY KEY ," + // 0: id
+                "'TOKEN' TEXT," + // 1: Token
+                "'TYPE' INTEGER," + // 2: type
+                "'USER' INTEGER);"); // 3: user
     }
 
     /** Drops the underlying database table. */
@@ -66,19 +68,24 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     protected void bindValues(SQLiteStatement stmt, BLinkedAccount entity) {
         stmt.clearBindings();
  
-        String entityID = entity.getEntityID();
-        if (entityID != null) {
-            stmt.bindString(1, entityID);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
  
-        String authentication_id = entity.getAuthentication_id();
-        if (authentication_id != null) {
-            stmt.bindString(2, authentication_id);
+        String Token = entity.getToken();
+        if (Token != null) {
+            stmt.bindString(2, Token);
+        }
+ 
+        Integer type = entity.getType();
+        if (type != null) {
+            stmt.bindLong(3, type);
         }
  
         Long user = entity.getUser();
         if (user != null) {
-            stmt.bindLong(3, user);
+            stmt.bindLong(4, user);
         }
     }
 
@@ -90,17 +97,18 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
 
     /** @inheritdoc */
     @Override
-    public String readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     /** @inheritdoc */
     @Override
     public BLinkedAccount readEntity(Cursor cursor, int offset) {
         BLinkedAccount entity = new BLinkedAccount( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // entityID
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // authentication_id
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // user
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // Token
+            cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // type
+            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // user
         );
         return entity;
     }
@@ -108,22 +116,24 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, BLinkedAccount entity, int offset) {
-        entity.setEntityID(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setAuthentication_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setUser(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setToken(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setType(cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2));
+        entity.setUser(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
      }
     
     /** @inheritdoc */
     @Override
-    protected String updateKeyAfterInsert(BLinkedAccount entity, long rowId) {
-        return entity.getEntityID();
+    protected Long updateKeyAfterInsert(BLinkedAccount entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     /** @inheritdoc */
     @Override
-    public String getKey(BLinkedAccount entity) {
+    public Long getKey(BLinkedAccount entity) {
         if(entity != null) {
-            return entity.getEntityID();
+            return entity.getId();
         } else {
             return null;
         }
@@ -135,16 +145,16 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, String> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkedAccount" to-many relationship of BUser. */
-    public List<BLinkedAccount> _queryBUser_BLinkedAccount(Long user) {
+    /** Internal query to resolve the "BLinkedAccounts" to-many relationship of BUser. */
+    public List<BLinkedAccount> _queryBUser_BLinkedAccounts(Long user) {
         synchronized (this) {
-            if (bUser_BLinkedAccountQuery == null) {
+            if (bUser_BLinkedAccountsQuery == null) {
                 QueryBuilder<BLinkedAccount> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.User.eq(null));
-                bUser_BLinkedAccountQuery = queryBuilder.build();
+                bUser_BLinkedAccountsQuery = queryBuilder.build();
             }
         }
-        Query<BLinkedAccount> query = bUser_BLinkedAccountQuery.forCurrentThread();
+        Query<BLinkedAccount> query = bUser_BLinkedAccountsQuery.forCurrentThread();
         query.setParameter(0, user);
         return query.list();
     }

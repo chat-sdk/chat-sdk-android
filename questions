@@ -1,5 +1,5 @@
 //ASK do i need to authinticate against firebase once in a while?
 //ASK for drawavle resources for the app (TextBubules, Buttons, Add icon for action bar, Default icons for user, thread etc...).
 //ASK do FirbasePath extends Firebase.
-//ASK why do we need firbase path addPathComponent is it like Firbase.child("tag");
 //ASK there is s differance in BFacebookManager class in the iOS code. In the firbase folder the completion line (74) is out of the else function and in the facebook folder it in the else function
+//ASK about the BlinkedContact.

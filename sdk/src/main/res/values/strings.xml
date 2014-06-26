@@ -2,12 +2,15 @@
 <resources>
 
     <string name="app_name">ChatSDK</string>
+    <string name="chat_sdk_version_name">0.2</string>
+    <string name="chat_sdk_version">Version:</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_add_chat">Add Chat</string>
     <string name="facebook_id">247787328762280</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="anonymous_login">Login</string>
     <string name="register">Register</string>
     <string name="alert_exit">"Are you sure you want to exit?</string>
     <string name="exit">Exit</string>

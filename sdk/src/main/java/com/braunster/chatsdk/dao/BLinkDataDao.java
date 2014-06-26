@@ -35,8 +35,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
 
     private DaoSession daoSession;
 
-    private Query<BLinkData> bThread_UsersQuery;
-    private Query<BLinkData> bUser_ThreadsQuery;
+    private Query<BLinkData> bThread_BLinkDataQuery;
+    private Query<BLinkData> bUser_BLinkDataQuery;
 
     public BLinkDataDao(DaoConfig config) {
         super(config);
@@ -137,30 +137,30 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "users" to-many relationship of BThread. */
-    public List<BLinkData> _queryBThread_Users(Long ThreadID) {
+    /** Internal query to resolve the "BLinkData" to-many relationship of BThread. */
+    public List<BLinkData> _queryBThread_BLinkData(Long ThreadID) {
         synchronized (this) {
-            if (bThread_UsersQuery == null) {
+            if (bThread_BLinkDataQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.ThreadID.eq(null));
-                bThread_UsersQuery = queryBuilder.build();
+                bThread_BLinkDataQuery = queryBuilder.build();
             }
         }
-        Query<BLinkData> query = bThread_UsersQuery.forCurrentThread();
+        Query<BLinkData> query = bThread_BLinkDataQuery.forCurrentThread();
         query.setParameter(0, ThreadID);
         return query.list();
     }
 
-    /** Internal query to resolve the "threads" to-many relationship of BUser. */
-    public List<BLinkData> _queryBUser_Threads(Long UserID) {
+    /** Internal query to resolve the "BLinkData" to-many relationship of BUser. */
+    public List<BLinkData> _queryBUser_BLinkData(Long UserID) {
         synchronized (this) {
-            if (bUser_ThreadsQuery == null) {
+            if (bUser_BLinkDataQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.UserID.eq(null));
-                bUser_ThreadsQuery = queryBuilder.build();
+                bUser_BLinkDataQuery = queryBuilder.build();
             }
         }
-        Query<BLinkData> query = bUser_ThreadsQuery.forCurrentThread();
+        Query<BLinkData> query = bUser_BLinkDataQuery.forCurrentThread();
         query.setParameter(0, UserID);
         return query.list();
     }

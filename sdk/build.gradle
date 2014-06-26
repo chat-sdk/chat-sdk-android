@@ -6,7 +6,7 @@ android {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion 19
         versionCode 1
-        versionName '1.0'
+        versionName '0.2'
     }
     buildTypes {
         release {
@@ -34,9 +34,9 @@ dependencies {
     // Firebase
     compile files('libs/firebase-client-jvm-LATEST.jar')
     compile files('libs/firebase-simple-login-LATEST.jar')
-    // Parse
-    compile files('libs/Parse-1.5.0.jar')
-    // Greendao library for using the database. -
     // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
     compile ('de.greenrobot:greendao:1.3.0'){ exclude group: 'com.google.android', module: 'support-v4'}
+    // String Utils - Helping to keep the code clean without checking for null and empty strings all the time.
+    compile 'org.apache.commons:commons-lang3:3.3.+'
+
 }
