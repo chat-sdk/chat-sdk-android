@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive.ImageLoading;
 
 import android.graphics.Bitmap;
@@ -81,4 +82,4 @@ public class MemoryCache {
             return 0;
         return bitmap.getRowBytes() * bitmap.getHeight();
     }
-}
+}*/

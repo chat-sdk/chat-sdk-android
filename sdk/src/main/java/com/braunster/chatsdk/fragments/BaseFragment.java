@@ -46,7 +46,7 @@ public class BaseFragment extends Fragment implements BaseFragmentInterface {
 
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
         loadData();
     }
 
@@ -62,7 +62,7 @@ public class BaseFragment extends Fragment implements BaseFragmentInterface {
 }
 
 interface BaseFragmentInterface{
-    public void onRefresh();
+    public void refresh();
 
     public void loadData();
 

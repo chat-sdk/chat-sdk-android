@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(33,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(35,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -77,8 +77,8 @@ public class Generator {
         metaData.addStringProperty(EntityProperties.EntityID);
         metaData.addStringProperty(EntityProperties.AuthenticationID);
         metaData.addBooleanProperty(EntityProperties.Dirty);
-        metaData.addIntProperty(EntityProperties.Type).notNull();
-        metaData.addStringProperty(EntityProperties.Key).notNull();
+        metaData.addIntProperty(EntityProperties.Type);
+        metaData.addStringProperty(EntityProperties.Key);
         metaData.addStringProperty(EntityProperties.Value);
     }
 
@@ -103,12 +103,12 @@ public class Generator {
         message = schema.addEntity(EntityProperties.BMessage);
         message.addIdProperty();
         message.addStringProperty(EntityProperties.EntityID);
-        message.addDateProperty(EntityProperties.Date).notNull();
+        message.addDateProperty(EntityProperties.Date);
         message.addBooleanProperty(EntityProperties.Dirty);
         message.addStringProperty(EntityProperties.Resource);
         message.addStringProperty(EntityProperties.ResourcePath);
-        message.addStringProperty(EntityProperties.Text).notNull();
-        message.addIntProperty(EntityProperties.Type).notNull();
+        message.addStringProperty(EntityProperties.Text);
+        message.addIntProperty(EntityProperties.Type);
     }
     //endregion
 

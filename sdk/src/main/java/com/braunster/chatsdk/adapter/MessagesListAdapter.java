@@ -79,7 +79,7 @@ public class MessagesListAdapter extends BaseAdapter{
         if (listData == null)
             listData = new ArrayList<BMessage>();
 
-        this.listData = listData;
+        this.listData = (List<BMessage>) listData;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
     }
 
@@ -188,7 +188,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public void setListData(List<BMessage> listData) {
-        this.listData = listData;
+        this.listData = (List<BMessage>)  listData;
         notifyDataSetChanged();
     }
 

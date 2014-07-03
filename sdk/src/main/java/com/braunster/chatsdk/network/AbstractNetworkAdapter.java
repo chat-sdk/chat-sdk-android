@@ -2,7 +2,6 @@ package com.braunster.chatsdk.network;
 
 
 import android.content.SharedPreferences;
-import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 
@@ -18,14 +17,10 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
-import com.facebook.android.Facebook;
-import com.firebase.client.FirebaseError;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
+import com.braunster.chatsdk.object.BError;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.twitter.Twitter;
 
 import org.apache.commons.io.FileUtils;
 
@@ -42,20 +37,20 @@ import static com.braunster.chatsdk.dao.BMessage.Type.bLocation;
 import static com.braunster.chatsdk.dao.BMessage.Type.bText;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
 import static com.braunster.chatsdk.network.BDefines.Prefs.AuthenticationID;
-import static com.braunster.chatsdk.network.BDefines.Prefs.CurrentUserLoginInfo;
 
 /**
  * Created by braunster on 23/06/14.
  */
 public abstract class AbstractNetworkAdapter {
 
+    //Note maybe catch the error if occur in the send message of some kind and try to fix them here before returning the error to the caller.
     private static final String TAG = AbstractNetworkAdapter.class.getSimpleName();
     private static final boolean DEBUG = true;
 
     private boolean authenticated = false;
 
-    public boolean accountTypeEnabled(int type){
-        switch (type){
+    public boolean accountTypeEnabled(int type) {
+        switch (type) {
             case Anonymous:
                 return BDefines.AnonymuosLoginEnabled;
 
@@ -72,16 +67,41 @@ public abstract class AbstractNetworkAdapter {
             case Twitter:
                 return !BDefines.TwitterApiKey.equals("");
 
-            default: return false;
+            default:
+                return false;
         }
     }
 
-    /** Preparing a text message,
+    // Note done!
+    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener);
+
+    /**
+     * Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,
+     * Or it can contain FirebaseError if after the auth something failed.
+     * The return type of the listener must be Object and need to be cast.
+     */
+    public abstract void checkUserAuthenticatedWithCallback(CompletionListenerWithDataAndError<BUser, Object> listener);
+
+    public abstract void pushUserWithCallback(CompletionListener listener);
+
+    public abstract void logout();
+
+    //TODO make an object that obtain the error message. need to see some errors before it.
+    public abstract void getUserFacebookFriendsToAppWithComplition(CompletionListenerWithData<List<BUser>> listener);
+
+    public abstract void getUserFacebookFriendsWithCallback(CompletionListenerWithData listener);
+
+    public abstract BUser currentUser();
+/*######################################################################################################*/
+    /*Messages*/
+    /**
+     * Preparing a text message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
      * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
-     * When done or when an error occurred the calling method will be notified.*/
-    public void sendMessageWithText(String text, long threadEntityId, final CompletionListenerWithData<BMessage> listener){
+     * When done or when an error occurred the calling method will be notified.
+     */
+    public void sendMessageWithText(String text, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
         if (DEBUG) Log.v(TAG, "sendMessageWithText");
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
@@ -102,21 +122,24 @@ public abstract class AbstractNetworkAdapter {
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 DaoCore.deleteEntity(bMessage);
-                listener.onDoneWithError();
+                listener.onDoneWithError(error);
             }
         });
     }
 
-    /** Preparing an image message,
+    /**
+     * Preparing an image message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
      * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
      * When done or when an error occurred the calling method will be notified.
-     * @param image is a file that contain the image. For now the file will be decoded to a Base64 image representation.
-     * @param threadEntityId the id of the thread that the message is sent to.*/
-    public void sendMessageWithImage(File image, long threadEntityId, final CompletionListenerWithData<BMessage> listener){
+     *
+     * @param image          is a file that contain the image. For now the file will be decoded to a Base64 image representation.
+     * @param threadEntityId the id of the thread that the message is sent to.
+     */
+    public void sendMessageWithImage(File image, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
 
         // http://stackoverflow.com/questions/13119306/base64-image-encoding-using-java
@@ -132,7 +155,7 @@ public abstract class AbstractNetworkAdapter {
         } catch (IOException e) {
             e.printStackTrace();
             if (DEBUG) Log.e(TAG, "Error encoding file");
-            listener.onDoneWithError();
+            listener.onDoneWithError(BError.getExceptionError(e, "Unable to encode file"));
             return;
         }
 
@@ -147,9 +170,9 @@ public abstract class AbstractNetworkAdapter {
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 DaoCore.deleteEntity(message);
-                listener.onDoneWithError();
+                listener.onDoneWithError(error);
             }
         });
 
@@ -157,15 +180,18 @@ public abstract class AbstractNetworkAdapter {
     }
 
     /*"http://developer.android.com/guide/topics/location/strategies.html"*/
-    /** Preparing a location message,
+    /**
+     * Preparing a location message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
      * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
      * When done or when an error occurred the calling method will be notified.
-     * @param base64File is a String representation of a bitmap that contain the image of the location wanted.
-     * @param location is the Latitude and Longitude of the picked location.
-     * @param threadEntityId the id of the thread that the message is sent to.*/
-    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener){
+     *
+     * @param base64File     is a String representation of a bitmap that contain the image of the location wanted.
+     * @param location       is the Latitude and Longitude of the picked location.
+     * @param threadEntityId the id of the thread that the message is sent to.
+     */
+    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
@@ -181,143 +207,160 @@ public abstract class AbstractNetworkAdapter {
         sendMessage(message, new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage bMessage) {
-                if (DEBUG) Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
+                if (DEBUG)
+                    Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
                 DaoCore.updateEntity(bMessage);
                 listener.onDone(bMessage);
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 DaoCore.deleteEntity(message);
-                listener.onDoneWithError();
+                listener.onDoneWithError(error);
             }
         });
     }
 
+    // TODO need to support progress feedback for dialog.
+    public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener);
 
-    // Abstracts Methods
-    // Note done!
-    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener);
-
-    /** Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,
-     * Or it can contain FirebaseError if after the auth something failed.
-     * The return type of the listener must be Object and need to be cast.*/
-    public abstract void checkUserAuthenticatedWithCallback(CompletionListenerWithDataAndError<BUser, Object> listener);
-
-    public abstract void pushUserWithCallback(CompletionListener listener);
-
-    public abstract void logout();
-
+    public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener);
+/*######################################################################################################*/
+    /*Index*/
     public abstract void usersForIndex(String index, RepetitiveCompletionListener<BUser> listener);
 
     public abstract void removeUserFromIndex(BUser user, String index, CompletionListener listener);
 
     public abstract void addUserToIndex(BUser user, String index, CompletionListener listener);
 
-    //TODO make an object that obtain the error message. need to see some errors before it.
-    public abstract void getUserFacebookFriendsToAppWithComplition(CompletionListenerWithData<List<BUser>> listener);
-
-    public abstract BUser currentUser();
-
-    // TODO need to support progress feedback for dialog.
-    public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener );
-
-    /** Create thread for given users.
-     *  When the thread is added to the server the "onMainFinished" will be invoked,
-     *  If an error occurred the error object would not be null.
-     *  For each user that was succesfully added the "onItem" method will be called,
-     *  For any item adding failure the "onItemFailed will be called.
-     *  If the main task will fail the error object in the "onMainFinished" method will be called.*/
+/*######################################################################################################*/
+    /*Thread*/
+    /**
+     * Create thread for given users.
+     * When the thread is added to the server the "onMainFinished" will be invoked,
+     * If an error occurred the error object would not be null.
+     * For each user that was succesfully added the "onItem" method will be called,
+     * For any item adding failure the "onItemFailed will be called.
+     * If the main task will fail the error object in the "onMainFinished" method will be called.
+     */
     public abstract void createThreadWithUsers(String name, List<BUser> users, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener);
 
-    public void createThreadWithUsers(String name, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener, BUser...users){
+    public void createThreadWithUsers(String name, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener, BUser... users) {
         createThreadWithUsers(name, Arrays.asList(users), listener);
     }
 
     public abstract void createPublicThreadWithName(String name, CompletionListenerWithDataAndError<BThread, Object> listener);
 
-    //Note done!
-    /** Add given users list to the given thread.
-    * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was succesfully added.
-    * In the "onItemFailed" you can get all users that the system could not add to the server.
-    * When all users are added the system will call the "onDone" method.*/
-    public abstract void addUsersToThread(BThread thread, List<BUser> users, RepetitiveCompletionListenerWithError<BUser, Object> listener);
-
-    /** Add given users list to the given thread.
-     * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
-     * In the "onItemFailed" you can get all users that the system could not add to the server.
-     * When all users are added the system will call the "onDone" method.*/
-    public void addUsersToThread(BThread thread, final RepetitiveCompletionListenerWithError<BUser, Object> listener, BUser...users) {
-        addUsersToThread(thread, Arrays.asList(users), listener);
-    }
-
-    public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener);
-
-    public abstract void setLastOnline(Date date);
-
     public abstract void deleteThreadWithEntityID(String entityID, CompletionListener listener);
 
-    public List<BThread> threadsWithType(int threadType){
-        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType);
+    public List<BThread> threadsWithType(int threadType) {
+
+        // Get the thread list ordered desc by the last message added date.
+        List<BThread> threadsFromDB = DaoCore.fetchEntitiesWithPropertiesAndOrder(BThread.class,
+                BThreadDao.Properties.LastMessageAdded, DaoCore.ORDER_DESC, BThreadDao.Properties.Type, threadType);
+
+        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size());
         List<BThread> threads = new ArrayList<BThread>();
 
-        if (currentUser() == null)
-        {
+        if (currentUser() == null) {
             if (DEBUG) Log.e(TAG, "threadsWithType, Current user is null");
             return null;
         }
 
-        for (BThread thread : DaoCore.<BThread>fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType))
-        {
-            if (thread.getMessages().size() > 0
-                    || (thread.getCreator().equals(currentUser()) && thread.getUsers().contains(currentUser()))
-                    || thread.getType() == BThread.Type.Public )
+        for (BThread thread : threadsFromDB) {
+            if (thread.getType() == BThread.Type.Public)
             {
                 threads.add(thread);
+                continue;
             }
+
+            if (thread.getCreator() != null )
+            {
+                if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()));
+                {
+                    Log.d(TAG, "Current user is the creator.");
+                    threads.add(thread);
+                    continue;
+                }
+            }
+
+            if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+                threads.add(thread);
             else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
         }
-
-        // TODO order thread by last message id.
 
         return threads;
     }
 
     public abstract void deleteThread(BThread thread, CompletionListener listener);
 
+    /**
+     * Add given users list to the given thread.
+     * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was succesfully added.
+     * In the "onItemFailed" you can get all users that the system could not add to the server.
+     * When all users are added the system will call the "onDone" method.
+     */
+    public abstract void addUsersToThread(BThread thread, List<BUser> users, RepetitiveCompletionListenerWithError<BUser, Object> listener);
+
+    /**
+     * Add given users list to the given thread.
+     * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
+     * In the "onItemFailed" you can get all users that the system could not add to the server.
+     * When all users are added the system will call the "onDone" method.
+     */
+    public void addUsersToThread(BThread thread, final RepetitiveCompletionListenerWithError<BUser, Object> listener, BUser... users) {
+        addUsersToThread(thread, Arrays.asList(users), listener);
+    }
+
+/*######################################################################################################*/
+    /*Getter And Setters*/
+    public abstract void setLastOnline(Date date);
+
     public abstract String getServerURL();
 
-    // Getter And Setters
-    /** Indicator that the current user in the adapter is authenticated.*/
+    /**
+     * Indicator that the current user in the adapter is authenticated.
+     */
     public boolean isAuthenticated() {
         return authenticated;
     }
 
-    /** Set the current status of the adapter to not authenticated.
-     * The status can be retrieved by calling "isAuthenticated".*/
+    /**
+     * Set the current status of the adapter to not authenticated.
+     * The status can be retrieved by calling "isAuthenticated".
+     */
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
     }
 
-    public List<BLinkedContact> getContacs(){
+    public List<BLinkedContact> getContacs() {
         return currentUser().getBLinkedContacts();
     }
 
     // TODO add order veriable for the data. - Change method to DaoCore.fetchEntitiesWithPropertiesAndOrder()
-    /** Get all messages for given thread id ordered Ascending/Descending*/
-    public List<BMessage> getMessagesForThreadForEntityID(Long id){
+
+    /**
+     * Get all messages for given thread id ordered Ascending/Descending
+     */
+    public List<BMessage> getMessagesForThreadForEntityID(Long id) {
         /* Get the messages by pre defined order*/
+        //TODO add option to order the messages.
         return DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, id);
     }
 
-    /** @return the save auth id saved in the preference manager.
-     * The preference manager is initialized when the BNetworkManager.Init(context) is called.*/
-    public String getCurrentUserAuthenticationId(){
+    /**
+     * @return the save auth id saved in the preference manager.
+     * The preference manager is initialized when the BNetworkManager.Init(context) is called.
+     */
+    public String getCurrentUserAuthenticationId() {
         return BNetworkManager.preferences.getString(AuthenticationID, "");
     }
 
-    /** Currently supporting only string and integers. Long and other values can be added later on.*/
-    public void setLoginInfo(Map<String , Object> values){
+    /**
+     * Currently supporting only string and integers. Long and other values can be added later on.
+     */
+    public void setLoginInfo(Map<String, Object> values) {
 
         SharedPreferences.Editor keyValuesEditor = BNetworkManager.preferences.edit();
 
@@ -333,10 +376,11 @@ public abstract class AbstractNetworkAdapter {
     }
 
     //http://stackoverflow.com/questions/8151523/how-to-store-and-retrieve-key-value-kind-of-data-using-saved-preferences-andro
-    public Map<String, ?> getLoginInfo(){
+    public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();
     }
 
+/*######################################################################################################*/
     //TODO implement later on.
     /*// These are standard methods to register for push notifications
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {

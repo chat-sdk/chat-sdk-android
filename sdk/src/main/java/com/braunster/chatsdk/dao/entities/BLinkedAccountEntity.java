@@ -1,8 +1,6 @@
 package com.braunster.chatsdk.dao.entities;
 
 import com.braunster.chatsdk.dao.BLinkedAccount;
-import com.braunster.chatsdk.dao.BMetadata;
-import com.braunster.chatsdk.dao.core.Entity;
 
 /**
  * Created by braunster on 25/06/14.

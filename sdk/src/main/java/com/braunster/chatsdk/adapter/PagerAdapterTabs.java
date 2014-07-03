@@ -20,6 +20,8 @@ public class PagerAdapterTabs extends FragmentPagerAdapter {
 
     private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ProfileFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ConversationsFragment.newInstance()};
 
+    public static final int Profile = 0, ChatRooms = 1, Contacts = 2, Conversations = 3;
+
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
     }

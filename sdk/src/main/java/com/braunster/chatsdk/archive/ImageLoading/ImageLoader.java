@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive.ImageLoading;
 
 import android.app.Activity;
@@ -176,4 +177,4 @@ public class ImageLoader {
         fileCache.clear();
     }
 
-}
+}*/

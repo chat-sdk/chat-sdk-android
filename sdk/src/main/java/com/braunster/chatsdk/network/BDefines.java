@@ -29,6 +29,11 @@ public class BDefines {
     // Twitter
     public static final String TwitterApiKey = "";
 
+    // Vibration Duration in Millis
+    public static final int VIBRATION_DURATION = 300;
+
+    public static final int MAX_MESSAGES_TO_PULL = 30;
+
     // Static values for prefs.
     // Prefs
     public static final class Prefs{
@@ -43,9 +48,13 @@ public class BDefines {
     }
 
     public static class Keys{
+        /*Metadata*/
         public static final String BEmail = "email";
         public static final String Bkey = "key";
         public static final String BValue = "value";
+        public static final String BPhone = "phone";
+        public static final String BPicture = "picture";
+
         public static final String BAuthenticationID = "authentication-id";
         public static final String BLastMessageAdded = "last-message-added";
         public static final String BFirebaseId = "firebase-id";
@@ -65,9 +74,19 @@ public class BDefines {
         public static final String BPictureExists = "picture-exists";
         public static final String BPayload = "payload";
         public static final String BType = "type";
+        public static final String BOnline = "online";
         public static final String BDate = "date";
         public static final String BLastUpdated = "last-updated";
         public static final String BLastOnline = "last-online";
+
+    }
+
+    public static final class Time{
+        public static final float BMinutes = 60.0f;
+        public static final float BHours = 60.0f * BMinutes;
+        public static final float BDays = 24.0f * BHours;
+        public static final float BMonths = 30.0f * BDays;
+        public static final float BYears = 12.0f * BMonths;
     }
 
 }

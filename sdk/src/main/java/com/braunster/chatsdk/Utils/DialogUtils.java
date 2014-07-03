@@ -34,6 +34,8 @@ import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.BError;
 import com.facebook.android.Facebook;
 import com.facebook.android.Util;
 import com.facebook.model.GraphUser;
@@ -178,9 +180,10 @@ public class DialogUtils {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             final View view = inflater.inflate(R.layout.chat_sdk_fb_friends_list_dialog, null);
 
+
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-            BFacebookManager.getUserFriendList(new CompletionListenerWithData<List<GraphUser>>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().getUserFacebookFriendsWithCallback(new CompletionListenerWithData<List<GraphUser>>() {
                 @Override
                 public void onDone(List<GraphUser> graphUsers) {
                     if (DEBUG) Log.v(TAG, "onDone");
@@ -188,11 +191,11 @@ public class DialogUtils {
                     // The adapter duplicate pictures.
 //                    FBFriendsListAdapter adapter = new FBFriendsListAdapter(getActivity(), graphUsers);
                     FBFriendsListVolleyAdapter adapter = new FBFriendsListVolleyAdapter(getActivity(), graphUsers);
-                            ((ListView) view.findViewById(R.id.chat_sdk_listview_friends_list)).setAdapter(adapter);
+                    ((ListView) view.findViewById(R.id.chat_sdk_listview_friends_list)).setAdapter(adapter);
                 }
 
                 @Override
-                public void onDoneWithError() {
+                public void onDoneWithError(BError error) {
                     if (DEBUG) Log.e(TAG, "cant find friends.");
                     Toast.makeText(getActivity(), "Cant find friends...", Toast.LENGTH_SHORT).show();
                 }

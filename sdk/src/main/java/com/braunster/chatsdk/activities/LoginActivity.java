@@ -1,11 +1,18 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
@@ -40,6 +47,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private Button btnLogin, btnReg, btnAnon;
     private EditText etName, etPass;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +69,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     }
 
     private void initViews(){
-
         fbLoginButton = (LoginButton) findViewById(R.id.authButton);
         fbLoginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
             @Override
@@ -92,7 +99,17 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
         btnAnon.setOnClickListener(this);
+        fbLoginButton.setOnClickListener(this);
 
+        etPass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE){
+                    btnLogin.callOnClick();
+                }
+                return false;
+            }
+        });
         uiHelper.onResume();
     }
 
@@ -112,6 +129,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onDestroy() {
         super.onDestroy();
         uiHelper.onDestroy();
+
     }
 
     private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -145,6 +163,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     }
 
     private void afterLogin(){
+        dismissProgDialog();
+
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
     }
@@ -168,6 +188,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             if (!checkFields())
                 return;
+
+            showProgDialog("Connecting...");
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Password, etName.getText().toString(), etPass.getText().toString());
@@ -205,6 +227,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 }
             });
         }
+        else if (i == R.id.authButton){
+            showProgDialog("Connecting");
+        }
     }
 
     private boolean checkFields(){
@@ -222,4 +247,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         return true;
     }
+
+
 }

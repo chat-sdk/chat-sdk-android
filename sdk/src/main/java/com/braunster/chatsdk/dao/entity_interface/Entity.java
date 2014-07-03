@@ -34,11 +34,13 @@ public interface Entity<T> {
 
     public void setLastUpdated(Date date);
 
-    public void setEntityId(String entityID);
+    void setEntityID(String entityID);
 
     public String getEntityID();
 
-    public <E extends com.braunster.chatsdk.dao.core.Entity> List<E> getChildren();
+    public <E extends com.braunster.chatsdk.dao.entities.Entity> List<E> getChildren();
 
     public String mapPath();
+
+    public Long getId();
 }

@@ -2,23 +2,21 @@ package com.braunster.chatsdk.network;
 
 import android.util.Log;
 
-import com.braunster.chatsdk.BuildConfig;
-import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.dao.entities.BLinkedAccountEntity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
+import com.braunster.chatsdk.listeners.UserAddedToThreadListener;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -33,13 +31,11 @@ import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.braunster.chatsdk.network.BDefines.*;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
@@ -188,18 +184,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                         //ASK should i update the entity found? or the one that i already had(Which doens't make to much sense i know).
                         // ASK if should i check for null?
 
-                        if(buser == null)
-                        {
-                            if (DEBUG) Log.e(TAG, "User from select entity is null");
-                        }
-                        else
-                        {
-                            if (DEBUG) Log.d(TAG, "User from select entity is initialized.");
-                        }
-
                         updateUserFromFUser(buser, fuser);
 
-                        DaoCore.updateEntity(buser);
+//                        DaoCore.updateEntity(buser);
 
                         listener.onDone(buser);
                     }
@@ -218,19 +205,25 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         String name;
         String email;
         BLinkedAccount linkedAccount;
-
+        if (DEBUG) Log.i("FATAL", "FATAL");
         switch (fireUser.getProvider())
         {
             case FACEBOOK:
                 // Setting the name.
-                name = (String) thirdPartyData.get(BFacebookManager.DISPLAY_NAME);
+                name =(String) thirdPartyData.get(BFacebookManager.DISPLAY_NAME);
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
+                {
+                    if (DEBUG) Log.i("FATAL", "adding new meta name");
                     user.setMetaName(name);
+                }
 
                 // Setting the email.//TODO get email
-                email = (String) thirdPartyData.get(BFacebookManager.DISPLAY_NAME);
+                email = "Email Adress";
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
+                {
+                    if (DEBUG) Log.i(TAG, "adding new meta email");
                     user.setMetaEmail(email);
+                }
 
                 linkedAccount = user.getAccountWithType(BLinkedAccount.Type.FACEBOOK);
                 if (linkedAccount == null)
@@ -315,6 +308,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         DaoCore.updateEntity(user);
 
         pushUserWithCallback(new CompletionListener() {
+
             @Override
             public void onDone() {
                 if (DEBUG) Log.i(TAG, "User pushed After update from FUser, EntityID: " + currentUser().getEntityID());
@@ -325,8 +319,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 // And add a listener so when the user log off from firebase he will be set as disconnected.
                 userOnlineRef.setValue(true);
                 userOnlineRef.onDisconnect().setValue(false);
-
-                //ASK why saving nothing is changed locally?
 
                 BFirebaseInterface.observerUser(currentUser());
 
@@ -416,11 +408,24 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 */
     }
 
+
+/*######################################################################################################*/
+    /* Indexing
+    * To allow searching we're going to implement a simple index. Strings can be registered and
+    * associated with users i.e. if there's a user called John Smith we could make a new index
+    * like this:
+    *
+    * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
+    *
+    * This will allow us to find the user*/
+
     @Override //Note Done!
     public void usersForIndex(String index, final RepetitiveCompletionListener<BUser> listener) {
         mapForIndex(index, new MapForIndex() {
             @Override
             public void Completed(Firebase ref, String index, Map<String, Object> values) {
+                if (DEBUG) Log.d(TAG, "usersForIndex, Completed");
+
                 if (ref == null && values == null)
                 {
                     if (DEBUG) Log.e(TAG, "Error occurred while fetching the map for the index.");
@@ -431,13 +436,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 List<String> keys = new ArrayList<String>();
 
                 // So we dont have to call the db for each key.
-                String currentUserEntityID= currentUser().getEntityID();
+                String currentUserEntityID = currentUser().getEntityID();
 
                 // Adding all keys to the list, Except the current user key.
                 for (String key : values.keySet())
                     if (!key.equals(currentUserEntityID))
                         keys.add(key);
 
+                if (keys.size() == 0)
+                    if (DEBUG) Log.e(TAG, "Keys size is zero");
 
                 /* Note this methods(Getting the user and selecting entities) is separated here not like in the iOS version.
                 // Note because i am afraid the call back return to fast from selectEnity and a bad result will happen.*/
@@ -481,23 +488,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         });
     }
 
-
-/*######################################################################################################*/
-    /* Indexing
-    * To allow searching we're going to implement a simple index. Strings can be registered and
-    * associated with users i.e. if there's a user called John Smith we could make a new index
-    * like this:
-    *
-    * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
-    *
-    * This will allow us to find the user*/
     /**This method get the map values of data stored at a particular index*/ //Note Done!
     private void mapForIndex(String index, final MapForIndex mapForIndex){
+        Log.v(TAG, "mapForIndex, Index: " + index);
         FirebasePaths indexRef = FirebasePaths.indexRef();
 
         // Remove spaces from string and make it lower case
         index = index.replace(" ", "");
         index.toLowerCase();
+
+        if (DEBUG) Log.d(TAG, "index after fix: " + index);
 
         Query query = indexRef.startAt(index).endAt(index);
 
@@ -508,6 +508,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             public void onDataChange(DataSnapshot snapshot) {
                 if(snapshot != null && snapshot.getValue() != null && snapshot.hasChildren())
                 {
+                    Log.v(TAG, "mapForIndex, onDataChanged, Has children.");
                     // Check to see if this user is already registered
 
                     for (DataSnapshot child : snapshot.getChildren())
@@ -517,7 +518,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                         {
                             // Return the index location and the value at the index
                             mapForIndex.Completed(child.getRef(), finalIndex, (Map<String, Object>) child.getValue());
-                        }
+                        } else if (DEBUG) Log.d(TAG, "apForIndex, onDataChanged, Value is null");
                         break;
                         // ASK why break here after the first child? is it because we can do snapshot.get(0)?
                     }
@@ -538,28 +539,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 mapForIndex.Completed(null, finalIndex, null);
             }
         });
-            /*
-
-                // This kind of query will always return a list of children
-                // there should only be one! This is the index location
-
-                for (FDataSnapshot * child in snapshot.children) {
-
-                    // The child will contain a dictionary of users i.e. [user ID] => name => [user name]
-
-                    // Check to see if this user is already registered
-                    if (child.value && ![child.value isEqual: [NSNull null]]) {
-
-                        NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithDictionary:child.value];
-
-                        // Return the index location and the value at hte index
-                        completion(child.ref, index, dict);
-
-                    }
-                    break;
-                }
-            }
-    }*/
     }
 
     /** Interface to return values from the <b>mapForIndex</b> method.*///Note Done!
@@ -569,6 +548,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override// Note done!
     public void removeUserFromIndex(final BUser user, String index, final CompletionListener listener) {
+        if (index == null)
+        {
+            Log.d(TAG, "removeUserFromIndex, Index is null");
+
+            //Note for now we will return onDone because the reason index is null is that we first remove index before adding it.so it might be the first time.
+            listener.onDone();
+            return;
+        }
+
         mapForIndex(index, new MapForIndex() {
             @Override
             public void Completed(Firebase ref, String index, Map<String, Object> values) {
@@ -598,7 +586,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override //Note Done!
-    public void addUserToIndex(final BUser user, String index, CompletionListener listener) {
+    public void addUserToIndex(final BUser user, String index, final CompletionListener listener) {
         // We don't want to index null strings!
         index = index.replace(" ", "");
 
@@ -607,6 +595,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             if (DEBUG) Log.e(TAG, "Index is empty");
             if (listener != null)
                 listener.onDoneWithError();
+            return;
         }
 
         mapForIndex(index, new MapForIndex() {
@@ -619,13 +608,30 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 }
 
                 //ASK not sure what is going on with this method below.
-                /*dict[user.entityID] = @{b_Value: index_};
+                Map<String, Object> map = ((Map<String, Object>) values.get(user.getEntityID()));
 
-                [ref setValue:dict andPriority:index_ withCompletionBlock:^(NSError * error, Firebase * firebase) {
-                    if (completion != Nil) {
-                        completion(error);
+                // Map for index could not find older data so we create a new one.
+                if (map == null)
+                {
+                    map = new HashMap<String, Object>();
+                    Map<String, Object> nestedMap = new HashMap<String, Object>();
+                    nestedMap.put(Keys.BValue, index);
+                    map.put(user.getEntityID(), nestedMap);
+                }
+                else map.put(Keys.BValue, index);
+
+                ref.setValue(map, index, new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError error, Firebase firebase) {
+                        if (listener == null)
+                            return;
+
+                        if (error!=null)
+                            listener.onDoneWithError();
+                        else listener.onDone();
                     }
-                }];*/
+                });
+
             }
         });
     }
@@ -660,10 +666,18 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }*/
     }
 
+    @Override
+    public void getUserFacebookFriendsWithCallback(CompletionListenerWithData listener) {
+        BFacebookManager.getUserFriendList(listener);
+    }
+
     @Override//Note Done!
     public BUser currentUser() {
         if (getCurrentUserAuthenticationId() != null)
+        {
+            UserAddedToThreadListener.setCurrentUserEntityID(getCurrentUserAuthenticationId());
             return DaoCore.fetchOrCreateUserWithAuthinticationID(getCurrentUserAuthenticationId());
+        }
 
         return null;
     }
@@ -732,9 +746,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 }
 
                 @Override
-                public void onItemError(Object o, Object o2) {
+                public void onItemError(Object o, Object error) {
                     if(listener != null)
-                        listener.onDoneWithError();
+                        listener.onDoneWithError((com.braunster.chatsdk.object.BError) error);
                 }
             });
         }
@@ -759,13 +773,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // If we're assigning users then the thread is always going to be private
         thread.setType(BThread.Type.Private);
 
+        // Save the thread to the database.
+        DaoCore.createEntity(thread);
+
         BFirebaseInterface.pushEntity(thread, new RepetitiveCompletionListenerWithError<BThread, Object>() {
             @Override
             public boolean onItem(BThread bThread) {
                 // Thread is added successfully
 
                 // Save the thread to the local db.
-                DaoCore.createEntity(thread);
+                DaoCore.updateEntity(thread);
 
                 // Report back that the thread is added.
                 listener.onMainFinised(thread, null);
@@ -783,6 +800,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             @Override
             public void onItemError(BThread bThread, Object error) {
                 if (DEBUG) Log.e(TAG, "Error while pushing threda.");
+                // Delete the thread if failed to push
+                DaoCore.deleteEntity(thread);
+
                 // return null instead of the thread because the listener expect BUser item as a return value.
                 listener.onItemError(null , error);
             }
@@ -813,7 +833,22 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 if (DEBUG) Log.d(TAG, "public thread is pushed and saved.");
 
-                listener.onDone(thread);
+                // Add the thread to the list of public threads
+                FirebasePaths publicThreadRef = FirebasePaths.publicThreadsRef().appendPathComponent(thread.getEntityID());
+                publicThreadRef.setValue("null", new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError error, Firebase firebase) {
+                        if (error == null)
+                            listener.onDone(thread);
+                        else
+                        {
+                            if (DEBUG) Log.e(TAG, "Unable to add thread to public thread ref.");
+                            DaoCore.deleteEntity(thread);
+                            listener.onDoneWithError(thread, error);
+                        }
+                    }
+                });
+
                 return false;
             }
 
@@ -824,7 +859,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
             @Override
             public void onItemError(BThread bThread, FirebaseError error) {
-                if (DEBUG) Log.e(TAG, "Failed to push public thread.");
+                if (DEBUG) Log.e(TAG, "Failed to push thread to ref.");
                 DaoCore.deleteEntity(bThread);
                 listener.onDoneWithError(thread, error);
             }
@@ -906,11 +941,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     //Note done!
     /** adds a thread to the user */
     private void addUserToThread(final BThread thread, final BUser user, final RepetitiveCompletionListenerWithError<BUser, Object> listener){
-
+        if (DEBUG) Log.d(TAG, "addUserToThread");
         // Get the user's reference
         FirebasePaths userThreadsRef = FirebasePaths.userRef(user.getEntityID());
         if (DEBUG) Log.d(TAG, "addUserToThread, userThreadsRef: " + userThreadsRef.toString());
         userThreadsRef = userThreadsRef.appendPathComponent(thread.getPath().getPath());
+
         if (DEBUG) Log.d(TAG, "addUserToThread, userThreadsRef: " + userThreadsRef.toString());
 
         // Write a null value to this location
@@ -926,8 +962,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     threadRef = threadRef.appendPathComponent(user.getPath().getPath());
                     if (DEBUG) Log.d(TAG, "addUserToThread, threadRef: " + threadRef.toString());
 
+                    if (DEBUG) Log.e(TAG, "#########################NAME#####" + user.getMetaName());
                     Map<String , Object> values = new HashMap<String, Object>();
-                    values.put(Keys.BName, user.getName());
+                    values.put(Keys.BName, user.getMetaName());
                     threadRef.setValue(values, new Firebase.CompletionListener() {
                         @Override
                         public void onComplete(FirebaseError error, Firebase firebase) {
@@ -935,7 +972,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                             {
                                 listener.onItem(user);
 //                                listener.onDone();
-                                //Note this done caued double message sending because its affect the repetitive listner which should call done when entities are all added.
+                                //Note this done caused double message sending because its affect the repetitive listner which should call done when entities are all added.
                             }
                             else listener.onItemError(user, error);
                         }
@@ -962,19 +999,19 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         BUser user = currentUser();
 
         FirebasePaths threadRef = FirebasePaths.firebaseRef();
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
         threadRef = threadRef.appendPathComponent(thread.getPath().getPath());
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
 
         FirebasePaths messageRef = FirebasePaths.firebaseRef();
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
         messageRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
 
         FirebasePaths threadUsersRef = FirebasePaths.firebaseRef();
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
         threadUsersRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BUsersPath);
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
 
         /* TODO remove all data listeners form the reference.
            TODO All assign listeners need to be saved in this class so we vould unregister them here.
@@ -982,9 +1019,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         [threadUsersRef removeAllObservers];*/
 
         FirebasePaths userThreadRef = FirebasePaths.firebaseRef();
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
         userThreadRef = userThreadRef.appendPathComponent(user.getPath().getPath()).appendPathComponent(thread.getPath().getPath());
-        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
+//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
         userThreadRef.removeValue(new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError error, Firebase firebase) {

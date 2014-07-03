@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">ChatSDK</string>
-    <string name="chat_sdk_version_name">0.2</string>
+    <string name="chat_sdk_version_name">0.2.1</string>
     <string name="chat_sdk_version">Version:</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_add_chat">Add Chat</string>
@@ -16,4 +16,5 @@
     <string name="exit">Exit</string>
     <string name="stay">Stay</string>
     <string name="action_settings">action_setting</string>
+    <string name="search">Search</string>
 </resources>

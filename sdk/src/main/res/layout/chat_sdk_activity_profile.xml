@@ -42,6 +42,7 @@
             android:inputType="textPersonName"
             android:hint="Name"
             android:ems="10"
+            android:imeOptions="actionDone"
             android:id="@+id/chat_sdk_et_name"
             android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal" />
@@ -53,6 +54,7 @@
             android:ems="10"
             android:layout_marginTop="10dp"
             android:id="@+id/chat_sdk_et_phone_number"
+            android:imeOptions="actionDone"
             android:layout_gravity="center_horizontal"
             android:hint="Phone Number" />
 
@@ -62,6 +64,7 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:layout_marginTop="10dp"
+            android:imeOptions="actionDone"
             android:id="@+id/chat_sdk_et_mail"
             android:layout_gravity="center_horizontal"
             android:hint="Email" />

@@ -9,6 +9,7 @@ import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
@@ -170,19 +171,24 @@ public class BFacebookManager {
                         catch (Exception e)
                         {
                             e.printStackTrace();
-                            listenerWithData.onDoneWithError();
+                            listenerWithData.onDoneWithError(new BError(BError.Code.EXCEPTION, e));
                         }
 
                     }
                 }
             }).executeAsync();
-        } else listenerWithData.onDoneWithError();
+        } else listenerWithData.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
     }
 
     /*
     * No need for access token in SDK V3
     * Get the friend list from facebook that is using the app.*/
     public static void getUserFriendList(final CompletionListenerWithData completionListener){
+        if (Session.getActiveSession().getState().isClosed())
+        {
+            completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
+            return;
+        }
         Request req = Request.newMyFriendsRequest(Session.getActiveSession(), new Request.GraphUserListCallback() {
             @Override
             public void onCompleted(List<GraphUser> users, Response response) {
@@ -213,7 +219,7 @@ public class BFacebookManager {
                             FacebookRequestError error = response.getError();
                             if (error != null) {
                                 Log.e(TAG, error.toString());
-                                completionListenerWithData.onDoneWithError();
+                                completionListenerWithData.onDoneWithError(new BError(BError.Code.TAGGED, "Error while fetching invitable friends.", error));
                             } else if (session == Session.getActiveSession()) {
                                 if (response != null) {
                                     // Get the result
@@ -243,7 +249,7 @@ public class BFacebookManager {
         else
         {
             if (DEBUG) Log.d(TAG, "Session is closed");
-            completionListenerWithData.onDoneWithError();
+            completionListenerWithData.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
         }
 
     }

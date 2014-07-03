@@ -1,5 +1,6 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.ProgressDialog;
 import android.support.v7.app.ActionBarActivity;
 
 import com.braunster.chatsdk.dao.BUser;
@@ -12,6 +13,8 @@ import com.braunster.chatsdk.network.BNetworkManager;
  * Created by braunster on 18/06/14.
  */
 public class BaseActivity extends ActionBarActivity{
+
+    private ProgressDialog progressDialog;
 
   /*  public void setNetworkAdapterAndSync(CompletionListener completionListener){
         //region TestAdapter
@@ -65,5 +68,21 @@ public class BaseActivity extends ActionBarActivity{
 
     public void authenticate(CompletionListenerWithDataAndError<BUser, Object> listener){
         BNetworkManager.sharedManager().getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
+    }
+
+    protected void showProgDialog(String message){
+        if (progressDialog == null)
+            progressDialog = new ProgressDialog(this);
+
+        if (!progressDialog.isShowing())
+        {
+            progressDialog.setMessage("Connecting...");
+            progressDialog.show();
+        }
+    }
+
+    protected void dismissProgDialog(){
+        if (progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 }

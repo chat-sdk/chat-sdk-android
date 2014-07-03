@@ -1,21 +1,26 @@
 package com.braunster.chatsdk.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
@@ -27,9 +32,12 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
-import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.events.MessageEventListener;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.BError;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
@@ -37,7 +45,7 @@ import java.io.File;
 /**
  * Created by itzik on 6/8/2014.
  */
-public class ChatActivity extends BaseActivity implements View.OnClickListener{
+public class ChatActivity extends BaseActivity implements View.OnClickListener, TextView.OnEditorActionListener{
 
     // TODO listen to new  incoming  messages
     // TODO add popup for message options.
@@ -53,6 +61,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     public static final int PICK_LOCATION = 102;
 
     public static final String THREAD_ID = "Thread_ID";
+    public static final String MessageListenerTAG = TAG + "MessageTAG";
 
     private Button btnSend;
     private ImageButton btnOptions;
@@ -111,28 +120,53 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onPause() {
         super.onPause();
-     /*   BNetworkManager.sharedManager().removeActivityListener(activityListener);*/
+        EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-       /* activityListener = BNetworkManager.sharedManager().getNetworkAdapter().addActivityListener(new ActivityListener() {
-            @Override
-            public void onThreadAdded(BThread thread) {
 
-            }
-
+        listMessages.post(new Runnable() {
             @Override
-            public void onMessageAdded(BMessage message) {
-                if (!message.getSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) && message.getOwnerThread().equals(thread.getEntityID()))
-                    messagesListAdapter.addRow(message);
+            public void run() {
+                listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
             }
-        });*/
+        });
+
+        // Removing the last listener just to be sure we wont receive duplicates notifications.
+        EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
+        EventManager.getInstance().addMessageEvent(new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()){
+            @Override
+            public boolean onMessageReceived(BMessage message) {
+
+
+                // Check that the message is relevant to the current thread.
+                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId())
+                    return false;
+                // Make sure the message that incoming is not the user message.
+                if (message.getBUserSender().getEntityID().equals(
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
+                    return false;
+
+                messagesListAdapter.addRow(message);
+                // We check to see that this message is really a new one and not loaded from the server.
+                if (System.currentTimeMillis() - message.getDate().getTime() < 1000*60)
+                {
+                    Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+                    // Vibrate for 500 milliseconds
+                    v.vibrate(BDefines.VIBRATION_DURATION);
+                }
+
+                return false;
+            }
+        });
 
         btnSend.setOnClickListener(this);
 
         btnOptions.setOnClickListener(this);
+
+        etMessage.setOnEditorActionListener(this);
     }
 
     @Override
@@ -175,7 +209,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                             }
 
                             @Override
-                            public void onDoneWithError() {
+                            public void onDoneWithError(BError error) {
                                 Toast.makeText(ChatActivity.this, "Image could not been sent.", Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -219,7 +253,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                             }
 
                             @Override
-                            public void onDoneWithError() {
+                            public void onDoneWithError(BError error) {
                                 Toast.makeText(ChatActivity.this, "Location could not been sent.", Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -301,7 +335,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 Toast.makeText(ChatActivity.this, "Message did not sent.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -359,5 +393,17 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             startActivityForResult(intent, PICK_LOCATION);
             dismissOption();
         }
+    }
+
+    private void startListeningToMessages(){
+
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEND)
+            sendLogic();
+
+        return false;
     }
 }

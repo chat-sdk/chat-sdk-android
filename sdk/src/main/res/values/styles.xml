@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Base.AppCompat.Light">
+    <style name="ChatSDKTheme" parent="Theme.Base.AppCompat.Light">
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
         <item name="android:windowBackground">@android:color/white</item>
     </style>

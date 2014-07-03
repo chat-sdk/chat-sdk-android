@@ -8,6 +8,7 @@ import android.widget.EditText;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
 
@@ -46,21 +47,10 @@ public class ProfileActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
 
             }
         });
-
-       BFacebookManager.getUserFriendList(new CompletionListenerWithData<List<GraphUser>>() {
-           @Override
-           public void onDone(List<GraphUser> users) {
-           }
-
-           @Override
-           public void onDoneWithError() {
-
-           }
-       });
     }
 
     private void initActionBar(){

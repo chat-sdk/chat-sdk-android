@@ -1,5 +1,8 @@
 package com.braunster.chatsdk.dao;
 
+import android.util.Log;
+import android.view.View;
+
 import java.util.List;
 import com.braunster.chatsdk.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
@@ -8,16 +11,18 @@ import de.greenrobot.dao.DaoException;
 
 // KEEP INCLUDES - put your custom includes here
 import java.util.List;
-import java.util.Date;
 import java.util.Map;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import java.util.HashMap;
-import java.util.List;
-import com.braunster.chatsdk.dao.core.Entity;
+
+import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
 // KEEP INCLUDES END
@@ -54,6 +59,10 @@ public class BThread extends Entity<BThread>  {
         public static final int Public = 1;
         // TODO check if in the right order.
     }
+
+    public static final String TAG = BThread.class.getSimpleName();
+    public static final boolean DEBUG = true;
+
     // KEEP FIELDS END
 
     public BThread() {
@@ -248,21 +257,45 @@ public class BThread extends Entity<BThread>  {
 
     // KEEP METHODS - put your custom methods here
     @Override
-    public void updateFrom(BThread bThread) {
-
-    }
-
-    @Override
     public BPath getPath() {
         return new BPath().addPathComponent(BFirebaseDefines.Path.BThreadPath, getEntityID());}
 
     @Override
     public Entity.Type getEntityType() {
-        return null;
+        return com.braunster.chatsdk.dao.entity_interface.Entity.Type.bEntityTypeThread;
     }
 
     @Override
     public void updateFromMap(Map<String, Object> map) {
+        if (DEBUG) Log.d(TAG, "Update from map.");
+
+        if (map == null) return;
+
+        if (map.containsKey(BDefines.Keys.BCreationDate))
+        {
+            Long data = (Long) map.get(BDefines.Keys.BCreationDate);
+            if (data != null && data > 0)
+                creationDate = new Date(/*Double.valueOf(data).longValue()*/ data);
+        }
+
+        long type;
+        if (map.containsKey(BDefines.Keys.BType))
+        {
+            type = (Long) map.get(BDefines.Keys.BType);
+            this.type = (int) type;
+            if (DEBUG) Log.d(TAG, "Setting type to: " + this.type);
+        }
+
+        if (map.containsKey(BDefines.Keys.BName) && !map.get(BDefines.Keys.BName).equals(""))
+            name = (String) map.get(BDefines.Keys.BName);
+
+        Long lastMessageAdded = (Long) map.get(BDefines.Keys.BLastMessageAdded);
+        if (lastMessageAdded != null && lastMessageAdded > 0)
+        {
+            Date date = new Date(lastMessageAdded);
+            if (LastMessageAdded == null || date.getTime() > LastMessageAdded.getTime())
+                LastMessageAdded = date;
+        }
 
     }
 
@@ -285,18 +318,8 @@ public class BThread extends Entity<BThread>  {
     }
 
     @Override
-    public String mapPath() {
-        return "details";
-    }
-
-    @Override
     public Object getPriority() {
         return null;
-    }
-
-    @Override
-    public void setEntityId(String entityID) {
-        this.entityID = entityID;
     }
 
     public void setMessages(List<BMessage> messages) {
@@ -304,11 +327,64 @@ public class BThread extends Entity<BThread>  {
     }
 
     public List<BUser> getUsers(){
-        List<BUser> list  = new ArrayList<BUser>();
+        /* Getting the users list by getBLinkData can be out of date so we get the data from the database*/
+
+        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.ThreadID, getId());
+
+        if (DEBUG) Log.d(TAG, "BThread, getUsers, Amount: " + (list == null ? "nulll" : list.size()));
+
+        List<BUser> users  = new ArrayList<BUser>();
 
         for (BLinkData data : getBLinkData())
             if (data.getBUser() != null)
-                list.add(data.getBUser());
+                users.add(data.getBUser());
+
+        return users;
+    }
+
+    public String displayName(){
+        if (type == null)
+            return name;
+
+        if (type == Type.Private){
+            String name = "";
+
+            for (BUser user : getUsers()){
+                // Due to the data printing when the app run on debug this sometime is null.
+                if (BNetworkManager.sharedManager().getNetworkAdapter() == null)
+                    break;
+
+                if (!user.equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser()))
+                    name += (!name.equals("")?", " : "") + user.getMetaName();
+            }
+
+//       ASK     if (name.length() > 2)
+//                return name.substring(0, name.length() -2);
+        }
+        if (type == Type.Public)
+            return name;
+
+        return "No name available...";
+    }
+
+    //ASK do we save last message added value in the db or we just calc it by the message date.
+    public Date lastMessageAdded(){
+        // ASK what to do when there is no creation date like when i get a public thread.
+        Date date = creationDate;
+
+        if (getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+            date = getMessagesWithOrder(DaoCore.ORDER_DESC).get(0).getDate();
+
+        if (date == null)
+            date = new Date();//FIXME remove this thing
+
+        return date;
+    }
+
+    /** Fetch messages list from the db for current thread, Messages will be order Desc/Asc on demand.*/
+    public List<BMessage> getMessagesWithOrder(int order){
+        List<BMessage> list = DaoCore.fetchEntitiesWithPropertiesAndOrder(BMessage.class,
+                BMessageDao.Properties.Date, order, BMessageDao.Properties.OwnerThread, getId());
 
         return list;
     }

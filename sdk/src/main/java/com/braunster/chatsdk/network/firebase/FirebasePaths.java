@@ -55,6 +55,11 @@ public class FirebasePaths extends Firebase{
     public static FirebasePaths threadRef(String firebaseId){
         return threadRef().appendPathComponent(firebaseId);
     }
+
+    public static FirebasePaths publicThreadsRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);
+    }
+
     /** @return The public threads ref .*/
     public Firebase publicThreadRef(){
         return appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);

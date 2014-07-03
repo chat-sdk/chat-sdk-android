@@ -13,7 +13,6 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import static com.braunster.chatsdk.dao.BMessage.Type.values;
 public class ThreadsListAdapter extends BaseAdapter {
 
     private static final String TAG = ThreadsListAdapter.class.getSimpleName();
+    public static final boolean DEBUG = true;
 
     private Activity mActivity;
 
@@ -110,22 +110,23 @@ public class ThreadsListAdapter extends BaseAdapter {
         {
             if (thread.getType() == BThread.Type.Private)
             {
-                if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
+                thread.setName(thread.displayName());
+                /*if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
                     thread.setName(thread.getUsers().get(1).getName());
-                else thread.setName(thread.getUsers().get(0).getName());
+                else thread.setName(thread.getUsers().get(0).getName());*/
             }
             else
                 thread.setName("Chat Room");
         }
 
         if (holder == null)
-            Log.e(TAG, "Holder is null");
+            if (DEBUG) Log.e(TAG, "Holder is null");
 
         if (holder.txtName == null)
-            Log.e(TAG, "textview name is null");
+            if (DEBUG) Log.e(TAG, "textview name is null");
 
         holder.txtName.setText(thread.getName());
-        holder.txtLastMsg.setText(listData.get(position).getName());
+//        holder.txtLastMsg.setText(listData.get(position).getName());
 
         messageLogic(holder, position);
 
@@ -156,20 +157,27 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
 
     private void messageLogic(ViewHolder holder, int position){
-        BMessage message;
-        // If no message create dummy message.
-        if (thread.getMessages().size() == 0)
-        {
-            message = new BMessage();
-            message.setText("No Messages...");
-            message.setType(bText.ordinal());
-        }
-        else message = thread.getMessages().get(0);
+        if (DEBUG) Log.v(TAG, "messageLogic");
 
+        BMessage message;
+
+        // If no message create dummy message.
+        if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() == 0)
+        {
+            if (DEBUG) Log.d(TAG, "No messages");
+//            message = new BMessage();
+//            message.setText("No Messages...");
+//            message.setType(bText.ordinal());
+            holder.txtLastMsg.setText("No Messages...");
+            return;
+        }
+        else message = thread.getMessagesWithOrder(DaoCore.ORDER_DESC).get(0);
+
+        if (DEBUG) Log.d(TAG, "Message text: " + message.getText());
 
         if (message.getId() == null)
         {
-            Log.e(TAG, "Message has no entity");
+            Log.e(TAG, "Message has no id");
             Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
                     + (message.getText() == null ? "No Text" : message.getText()));
 

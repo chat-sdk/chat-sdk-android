@@ -9,7 +9,7 @@ import de.greenrobot.dao.DaoException;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
@@ -28,14 +28,12 @@ public class BMessage extends Entity<BMessage>  {
 
     private Long id;
     private String entityID;
-    /** Not-null value. */
     private java.util.Date date;
     private Boolean dirty;
     private String resources;
     private String resourcesPath;
-    /** Not-null value. */
     private String text;
-    private int type;
+    private Integer type;
     private Long OwnerThread;
     private Long Sender;
 
@@ -72,7 +70,7 @@ public class BMessage extends Entity<BMessage>  {
         this.id = id;
     }
 
-    public BMessage(Long id, String entityID, java.util.Date date, Boolean dirty, String resources, String resourcesPath, String text, int type, Long OwnerThread, Long Sender) {
+    public BMessage(Long id, String entityID, java.util.Date date, Boolean dirty, String resources, String resourcesPath, String text, Integer type, Long OwnerThread, Long Sender) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -107,12 +105,10 @@ public class BMessage extends Entity<BMessage>  {
         this.entityID = entityID;
     }
 
-    /** Not-null value. */
     public java.util.Date getDate() {
         return date;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setDate(java.util.Date date) {
         this.date = date;
     }
@@ -141,21 +137,19 @@ public class BMessage extends Entity<BMessage>  {
         this.resourcesPath = resourcesPath;
     }
 
-    /** Not-null value. */
     public String getText() {
         return text;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setText(String text) {
         this.text = text;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
@@ -351,11 +345,6 @@ public class BMessage extends Entity<BMessage>  {
     @Override
     public Date lastUpdated() {
         return null;
-    }
-
-    @Override
-    public void setEntityId(String entityID) {
-        this.entityID = entityID;
     }
 
     public boolean isSameDayAsMessage(BMessage message){

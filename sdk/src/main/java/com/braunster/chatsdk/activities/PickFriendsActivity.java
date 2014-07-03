@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class PickFriendsActivity extends ActionBarActivity {
     private UsersListAdapter listAdapter;
     private ProgressBar progressBar;
     private Button btnGetFBFriends;
+    private EditText etSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class PickFriendsActivity extends ActionBarActivity {
         listContacts = (ListView) findViewById(R.id.list_contacts);
         progressBar = (ProgressBar) findViewById(R.id.prg_bar);
         btnGetFBFriends = (Button) findViewById(R.id.btn_invite_from_fb);
+        etSearch = (EditText) findViewById(R.id.et_search);
         initList();
     }
 
@@ -111,6 +114,15 @@ public class PickFriendsActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        etSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PickFriendsActivity.this, SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
         btnGetFBFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

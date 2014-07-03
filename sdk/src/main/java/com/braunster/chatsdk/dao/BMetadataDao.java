@@ -32,7 +32,7 @@ public class BMetadataDao extends AbstractDao<BMetadata, Long> {
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
         public final static Property AuthenticationId = new Property(2, String.class, "authenticationId", false, "AUTHENTICATION_ID");
         public final static Property Dirty = new Property(3, Boolean.class, "dirty", false, "DIRTY");
-        public final static Property Type = new Property(4, int.class, "type", false, "TYPE");
+        public final static Property Type = new Property(4, Integer.class, "type", false, "TYPE");
         public final static Property Key = new Property(5, String.class, "Key", false, "KEY");
         public final static Property Value = new Property(6, String.class, "Value", false, "VALUE");
         public final static Property OwnerID = new Property(7, Long.class, "OwnerID", false, "OWNER_ID");
@@ -59,8 +59,8 @@ public class BMetadataDao extends AbstractDao<BMetadata, Long> {
                 "'ENTITY_ID' TEXT," + // 1: entityID
                 "'AUTHENTICATION_ID' TEXT," + // 2: authenticationId
                 "'DIRTY' INTEGER," + // 3: dirty
-                "'TYPE' INTEGER NOT NULL ," + // 4: type
-                "'KEY' TEXT NOT NULL ," + // 5: Key
+                "'TYPE' INTEGER," + // 4: type
+                "'KEY' TEXT," + // 5: Key
                 "'VALUE' TEXT," + // 6: Value
                 "'OWNER_ID' INTEGER);"); // 7: OwnerID
     }
@@ -95,8 +95,16 @@ public class BMetadataDao extends AbstractDao<BMetadata, Long> {
         if (dirty != null) {
             stmt.bindLong(4, dirty ? 1l: 0l);
         }
-        stmt.bindLong(5, entity.getType());
-        stmt.bindString(6, entity.getKey());
+ 
+        Integer type = entity.getType();
+        if (type != null) {
+            stmt.bindLong(5, type);
+        }
+ 
+        String Key = entity.getKey();
+        if (Key != null) {
+            stmt.bindString(6, Key);
+        }
  
         String Value = entity.getValue();
         if (Value != null) {
@@ -129,8 +137,8 @@ public class BMetadataDao extends AbstractDao<BMetadata, Long> {
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // authenticationId
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // dirty
-            cursor.getInt(offset + 4), // type
-            cursor.getString(offset + 5), // Key
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // type
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // Key
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // Value
             cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7) // OwnerID
         );
@@ -144,8 +152,8 @@ public class BMetadataDao extends AbstractDao<BMetadata, Long> {
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setAuthenticationId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setDirty(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
-        entity.setType(cursor.getInt(offset + 4));
-        entity.setKey(cursor.getString(offset + 5));
+        entity.setType(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setKey(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setValue(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setOwnerID(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
      }

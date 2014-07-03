@@ -1,6 +1,6 @@
 package com.braunster.chatsdk.dao;
 
-import java.util.List;
+
 import com.braunster.chatsdk.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
 
@@ -11,17 +11,29 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+import com.braunster.chatsdk.Utils.Utils;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.core.Entity;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
+import com.braunster.chatsdk.object.BError;
 import com.braunster.greendao.generator.EntityProperties;
+import com.facebook.android.Util;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BUSER.
@@ -397,33 +409,33 @@ public class BUser extends BUserEntity  {
 
     @Override //Note Done!
     public void updateFromMap(Map<String, Object> map) {
-        if (map.containsKey(EntityProperties.AuthenticationID) && !map.get(EntityProperties.AuthenticationID).equals(""))
-            this.authenticationId = (String) map.get(EntityProperties.AuthenticationID);
+        if (map.containsKey(BDefines.Keys.BAuthenticationID) && !map.get(BDefines.Keys.BAuthenticationID).equals(""))
+            this.authenticationId = (String) map.get(BDefines.Keys.BAuthenticationID);
 
-        if (map.containsKey(EntityProperties.Online) && !map.get(EntityProperties.Online).equals(""))
-            this.Online = (Boolean) map.get(EntityProperties.Online);
+        if (map.containsKey(BDefines.Keys.BOnline) && !map.get(BDefines.Keys.BOnline).equals(""))
+            this.Online = (Boolean) map.get(BDefines.Keys.BOnline);
 
-        if (map.containsKey(EntityProperties.MessageColor) && !map.get(EntityProperties.MessageColor).equals("")) {
-            this.messageColor = (String) map.get(EntityProperties.MessageColor);
+        if (map.containsKey(BDefines.Keys.BColor) && !map.get(BDefines.Keys.BColor).equals("")) {
+            this.messageColor = (String) map.get(BDefines.Keys.BColor);
         }
 
-        if (map.containsKey(EntityProperties.TextColor) && !map.get(EntityProperties.TextColor).equals("")) {
-            this.textColor = (String) map.get(EntityProperties.TextColor);
+        if (map.containsKey(BDefines.Keys.BTextColor) && !map.get(BDefines.Keys.BTextColor).equals("")) {
+            this.textColor = (String) map.get(BDefines.Keys.BTextColor);
         }
 
-        if (map.containsKey(EntityProperties.FontName) && !map.get(EntityProperties.FontName).equals(""))
-            this.fontName = (String) map.get(EntityProperties.FontName);
+        if (map.containsKey(BDefines.Keys.BFontName) && !map.get(BDefines.Keys.BFontName).equals(""))
+            this.fontName = (String) map.get(BDefines.Keys.BFontName);
 
-        if (map.containsKey(EntityProperties.FontSize) && !map.get(EntityProperties.FontSize).equals(""))
-            this.fontSize = (Integer) map.get(EntityProperties.FontSize);
+        if (map.containsKey(BDefines.Keys.BFontSize) && !map.get(BDefines.Keys.BFontSize).equals(""))
+            this.fontSize = ((Long) map.get(BDefines.Keys.BFontSize)).intValue();
 
-        if (map.containsKey(EntityProperties.LastOnline))
+        if (map.containsKey(BDefines.Keys.BLastOnline))
         {
-            long lastOn = ((Date)map.get(EntityProperties.LastOnline)).getTime();
+            long lastOn = (Long) map.get(BDefines.Keys.BLastOnline);
 
             // Only update the last online value if it's greater than the local value
-            if (lastOn > lastOnline.getTime())
-                this.lastOnline = (Date) map.get(EntityProperties.LastOnline);
+            if (lastOnline == null || lastOn > lastOnline.getTime())
+                this.lastOnline = new Date(lastOn);
         }
 
         lastUpdated = new Date();
@@ -456,10 +468,6 @@ public class BUser extends BUserEntity  {
         return lastUpdated;
     }
 
-    @Override
-    public void setEntityId(String entityID) {
-        this.entityID = entityID;
-    }
     //Note Done!
     public String[] getCacheIDs(){
         return new String[]{entityID != null ? entityID : "", authenticationId != null ? authenticationId : ""};
@@ -467,21 +475,33 @@ public class BUser extends BUserEntity  {
 
     @Override //Note Done!
     public List<BThread> getThreads(){
-        List<BThread> list = new ArrayList<BThread>();
-        for (BLinkData data : getBLinkData())
+        /* Getting the thread list by getBLinkData can be out of date so we get the data from the database*/
+
+        List<BThread> threads = new ArrayList<BThread>();
+        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.UserID, getId());
+
+        if (DEBUG) Log.d(TAG, "BUser, getThreads, Amount: " + (list==null?"null":list.size()) );
+
+        for (BLinkData data : list)
         {
             if (data.getBThread() != null)
-                list.add(data.getBThread());
+                threads.add(data.getBThread());
         }
 
-        return list;
+        return threads;
     }
 
     @Override//Note Done!
     public List<BUser> getContacts() {
+        /* Getting the contact list by getBLinkedContacts can be out of date so we get the data from the database*/
         List<BUser> contacts = new ArrayList<BUser>();
 
-        for (BLinkedContact contact : getBLinkedContacts())
+        List<BLinkedContact> list =  DaoCore.fetchEntitiesWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.Owner, getId());
+
+        if (DEBUG) Log.d(TAG, "BUser, getContacts, Amount: " + (list==null?"nulll":list.size()) );
+
+
+        for (BLinkedContact contact : list)
         {
             BUser user = null;
 
@@ -502,14 +522,15 @@ public class BUser extends BUserEntity  {
 
     @Override //Note done!
     public void addContact(BUser user) {
-
+        if (DEBUG) Log.v(TAG, "Adding a contact, Contacts Amount: " + getContacts().size() + ". Name: " + user.getMetaName());
         if (user.equals(this))
             return;
 
         boolean isAdded = false;
-        for (BLinkedContact contact : getBLinkedContacts())
+        for (BUser contact : getContacts())
         {
-            if (contact.getEntityID().equals(user.getEntityID()) || contact.getAuthenticationId().equals(user.getAuthenticationId()))
+            if ( contact.getEntityID() != null && contact.getEntityID().equals(user.getEntityID() )
+                    || ( contact.getAuthenticationId() != null && contact.getAuthenticationId().equals(user.getAuthenticationId())) )
             {
                 isAdded = true;
                 break;
@@ -527,9 +548,45 @@ public class BUser extends BUserEntity  {
         }
     }
 
+    // Note Done!
+    /** Get a link account of the user by type.
+     * @return BLinkedAccount if found
+     * @return null if no account found.*/
+    public BLinkedAccount getAccountWithType(int type){
+        for (BLinkedAccount account : getBLinkedAccounts())
+        {
+            if (account.getType() == type)
+                return account;
+        }
+        return null;
+    }
+
+
+    /*##################################################*/
     @Override//TODO
     public void addMetaDataObject(BMetadata metadata) {
+        if (StringUtils.isEmpty(metadata.getKey()))
+            Log.d(TAG, "Metadata Key is empty");
 
+        if (metadata.getType() == BMetadataEntity.Type.NONE)
+            Log.d(TAG, "Metadata has no type");
+
+        BMetadata m = getMetadataForKey(metadata.getKey(), metadata.getType());
+        if (m == null)
+        {
+            m = metadata;
+
+            // Setting the metadat owner just ot be sure it will be binded to this user.
+            m.setOwnerID(getId());
+        }
+        else m.setValue(metadata.getValue());
+
+        if (!getChildren().contains(m)){
+            Log.d(TAG, "adding the metadata.");
+
+            // Updating the data.
+            DaoCore.updateEntity(metadata);
+        }
     }
 
     @Override//TODO
@@ -542,9 +599,19 @@ public class BUser extends BUserEntity  {
 
     }
 
+    @Override
+    public void setMetaPicture(String base64) {
+
+    }
+
+    @Override
+    public void setMetaPicture(File image) {
+        setMetadataImage(BDefines.Keys.BPicture, image);
+    }
+
     @Override//TODO
     public Bitmap getMetaPicture() {
-        return null;
+        return metaImageForKey(BDefines.Keys.BPicture);
     }
 
     @Override//Note Done!
@@ -568,28 +635,38 @@ public class BUser extends BUserEntity  {
     }
 
     //Note Done!
-    private BMetadata fetchOrCreateMetadataForKey(String key, int type){
+    public BMetadata fetchOrCreateMetadataForKey(String key, int type){
+        if (DEBUG) Log.v(TAG, "fetchOrCreateMetadataForKey, Key: " + key);
         BMetadata metadata = getMetadataForKey(key, type);
 
         if (metadata != null)
         {
+            if (DEBUG) Log.d(TAG, "Metadata Exist");
             return metadata;
         }
 
+        if (DEBUG) Log.d(TAG, "Creating new metadata.");
         metadata = new BMetadata();
         metadata.setKey(key);
         metadata.setType(type);
         metadata.setOwnerID(getId());
+
         DaoCore.createEntity(metadata);
 
         return metadata;
     }
     //Note Done!
     public BMetadata getMetadataForKey(String key, int type){
-        for (BMetadata data : getMetadata())
+        if (DEBUG) Log.v(TAG, "getMetadataForKey, Key: " + key);
+        // The getMetadata can be out of date.
+        List<BMetadata> meta = getChildren();
+        for (BMetadata data :meta)
         {
             if (data.getKey().equals(key) && data.getType() == type)
+            {
+                if (DEBUG) Log.d(TAG, "Found the metadata");
                 return data;
+            }
         }
         return null;
     }
@@ -601,27 +678,49 @@ public class BUser extends BUserEntity  {
     public BMetadata setMetadataString(String key, String value){
         BMetadata meta = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.STRING);
         meta.setValue(value);
-        meta.setOwner(this);
+
+        DaoCore.updateEntity(meta);
+
         return meta;
     }
 
-    // Note Done!
-    /** Get a link account of the user by type.
-     * @return BLinkedAccount if found
-     * @return null if no account found.*/
-    public BLinkedAccount getAccountWithType(int type){
-        for (BLinkedAccount account : getBLinkedAccounts())
-        {
-            if (account.getType() == type)
-                return account;
+    public BMetadata setMetadataImage( String key, File image) {
+        BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
+
+        try {
+            String data = Base64.encodeToString(FileUtils.readFileToByteArray(image), Base64.DEFAULT);
+            metadata.setValue(data);
+
+            DaoCore.updateEntity(metadata);
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (DEBUG) Log.e(TAG, "Error encoding file");
         }
-        return null;
+
+        return metadata;
     }
 
-    @Override
-    public <E extends Entity> List<E> getChildren() {
-        return (List<E>) getMetadata();
+    public Bitmap metaImageForKey(String key){
+        String value = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE).getValue();
+
+        Bitmap bitmap = null;
+
+        if (value != null)
+            bitmap = Utils.decodeFrom64(value.getBytes());
+
+        return bitmap;
     }
+    /*##################################################*/
+
+    @Override
+    public <T extends Entity> List<T> getChildren() {
+        List<BMetadata> list =  DaoCore.fetchEntitiesWithProperty(BMetadata.class, BMetadataDao.Properties.OwnerID, getId());
+
+        if (DEBUG) Log.d(TAG, "BUser, GetChildren, Amount: " + (list==null?"nulll":list.size()) );
+
+        return (List<T>) list;
+    }
+
     //ASK what is this.
     /*#define bUserPrefix @"user"
             #define bThumbnailSize CGSizeMake(72, 72)
@@ -650,22 +749,7 @@ public class BUser extends BUserEntity  {
         }
         return Nil;
     }*/
-/*
-    -(NSData *) metaDataForKey: (NSString *) key {
-        return [self fetchOrCreatemetaDataForKey:key type:bPropertyTypeData].dataValue;
-    }
 
-    -(BMetaData *) setMetaData: (NSData *) value forKey: (NSString *) key {
-        return [[self fetchOrCreatemetaDataForKey:key type:bPropertyTypeData] setData:value];
-    }
-
-    -(UIImage *) metaImageForKey: (NSString *) key {
-        return [self fetchOrCreatemetaDataForKey:key type:bPropertyTypeImage].imageValue;
-    }
-
-    -(BMetaData *) setMetaImage: (UIImage *) value forKey: (NSString *) key {
-        return [[self fetchOrCreatemetaDataForKey:key type:bPropertyTypeImage] setImage: value];
-    }*/
 
    /* // Make sure that any meta data that's added is valid
     -(void) addMetaDataObject:(BMetaData *)value {

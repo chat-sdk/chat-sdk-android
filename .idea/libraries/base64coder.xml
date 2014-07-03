@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="base64coder">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/libs/base64coder.jar!/" />
+      <root url="jar://$PROJECT_DIR$/sdk/libs/base64coder.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

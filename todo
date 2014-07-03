@@ -1,0 +1,5 @@
+# support the dirty option for entities.
+# listen to user detail changes.
+# listen to incoming messages.
+# check the amount of updates that the system does from server and inside the local database.
+#

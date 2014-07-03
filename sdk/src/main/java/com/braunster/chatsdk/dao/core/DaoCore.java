@@ -15,6 +15,7 @@ import com.braunster.chatsdk.dao.BUserDao;
 import com.braunster.chatsdk.dao.DaoMaster;
 import com.braunster.chatsdk.dao.DaoSession;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
+import com.braunster.chatsdk.dao.entities.Entity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -82,8 +83,11 @@ public class DaoCore {
 //        clearTestData();
 //        createTestData();
 //        getTestData2();
+//        printUsersData(daoSession.loadAll(BUser.class));
+    }
+
+    public static void printUsersData(){
         printUsersData(daoSession.loadAll(BUser.class));
-//        Log.d(TAG, daoSession.loadAll(Entity.class).size() + " ssss");
     }
 
     public static void clearTestData(){
@@ -93,6 +97,7 @@ public class DaoCore {
         daoSession.getBMetadataDao().deleteAll();
         daoSession.getBLinkedAccountDao().deleteAll();
         daoSession.getBLinkedContactDao().deleteAll();
+        daoSession.getBLinkDataDao().deleteAll();
     }
 
     public static void createTestData(){
@@ -163,7 +168,7 @@ public class DaoCore {
 
 
             BUser user = new BUser();
-            user.setEntityId(DaoCore.generateEntity());
+            user.setEntityID(DaoCore.generateEntity());
             user.setName("Bob");
             user.hasApp = true;
             user.setOnline(true);
@@ -171,7 +176,7 @@ public class DaoCore {
             user.pictureURL = "http://www.thedrinksbusiness.com/wordpress/wp-content/uploads/2012/05/Brad.jpg";
 
             BUser user1 = new BUser();
-            user1.setEntityId(DaoCore.generateEntity());
+            user1.setEntityID(DaoCore.generateEntity());
             user1.setName("Giorgio");
             user1.hasApp = true;
             user1.setOnline(false);
@@ -179,7 +184,7 @@ public class DaoCore {
             user1.pictureURL = "http://www.insidespanishfootball.com/wp-content/uploads/2013/07/Cheillini-300x203.jpg";
 
             BUser user2 = new BUser();
-            user2.setEntityId(DaoCore.generateEntity());
+            user2.setEntityID(DaoCore.generateEntity());
             user2.setName("Claudio");
             user2.setOnline(false);
             user2.hasApp = true;
@@ -187,7 +192,7 @@ public class DaoCore {
             user2.pictureURL = "http://www.affashionate.com/wp-content/uploads/2013/04/Claudio-Marchisio-season-2012-2013-claudio-marchisio-32347274-741-1024.jpg";
 
             BUser user3 = new BUser();
-            user3.setEntityId(DaoCore.generateEntity());
+            user3.setEntityID(DaoCore.generateEntity());
             user3.setName("John");
             user3.hasApp = true;
             user3.setOnline(true);
@@ -200,22 +205,22 @@ public class DaoCore {
             DaoCore.createEntity(user3);
 
             BLinkedContact linkedContact = new BLinkedContact();
-            linkedContact.setEntityId(userDan.getEntityID());
+            linkedContact.setEntityID(userDan.getEntityID());
             linkedContact.setOwner(user.getId());
             DaoCore.createEntity(linkedContact);
 
             BLinkedContact linkedContact1 = new BLinkedContact();
-            linkedContact1.setEntityId(userDan.getEntityID());
+            linkedContact1.setEntityID(userDan.getEntityID());
             linkedContact1.setOwner(user1.getId());
             DaoCore.createEntity(linkedContact1);
 
             BLinkedContact linkedContact2 = new BLinkedContact();
-            linkedContact2.setEntityId(userDan.getEntityID());
+            linkedContact2.setEntityID(userDan.getEntityID());
             linkedContact2.setOwner(user2.getId());
             DaoCore.createEntity(linkedContact2);
 
             BLinkedContact linkedContact3 = new BLinkedContact();
-            linkedContact3.setEntityId(userDan.getEntityID());
+            linkedContact3.setEntityID(userDan.getEntityID());
             linkedContact3.setOwner(user3.getId());
             DaoCore.createEntity(linkedContact3);
 
@@ -236,14 +241,14 @@ public class DaoCore {
 
                 //region LinkData
                 linkData = new BLinkData();
-                linkData.setEntityId(generateEntity());
+                linkData.setEntityID(generateEntity());
                 linkData.setThreadID(thread.getId());
                 linkData.setUserID(userDan.getId());
 
                 createEntity(linkData);
 
                 linkData = new BLinkData();
-                linkData.setEntityId(generateEntity());
+                linkData.setEntityID(generateEntity());
                 linkData.setThreadID(thread.getId());
                 linkData.setUserID(userAlex.getId());
 
@@ -300,26 +305,28 @@ public class DaoCore {
                 Log.d(TAG, "user is null");
             else
             {
-                Log.i(TAG, "User");
-                Log.i(TAG, "entity id: " + u.getEntityID());
-                Log.i(TAG, "auth id: " + u.getAuthenticationId());
-                Log.i(TAG, "name: " + u.getName());
+                Log.i(TAG, "--------------------User--------------------");
+                printEntity(u);
+
+                Log.i(TAG, "Contacts Amount: " + u.getContacts().size());
+                for (BUser c : u.getContacts())
+                    printEntity(c);
+
                 Log.i(TAG, "Metadata Size: " + u.getMetadata().size());
-                Log.i(TAG, "Messages Amount: " + u.getMessages().size());
                 for (BMetadata m : u.getMetadata())
                 {
-                    Log.i(TAG, "Metadata of " + m.getOwner().getName() + " key: " + m.getKey() + ", Value: " + m.getValue());
+                    printEntity(m);
                 }
-                Log.d(TAG, "ThreadsCreated Size: "  + u.getThreadsCreated().size());
+                Log.i(TAG, "Threads Size: "  + u.getThreads().size());
 
-                for (BThread t : u.getThreadsCreated())
+                for (BThread t : u.getThreads())
                 {
-                    Log.d(TAG, "Thread, Name: " + t.getName() + ", Type: " + t.getType() + ", Messages Amount: " + t.getMessages().size());
+                    printEntity(t);
 
                     for (BMessage m : t.getMessages())
-                        Log.i(TAG, "Message, Sender: " + m.getBUserSender().getName() + ", Text: " + m.getText());
+                        printEntity(m);
                 }
-
+                Log.i(TAG, "Messages Amount: " + u.getMessages().size());
             }
         }
     }
@@ -335,10 +342,6 @@ public class DaoCore {
         return new BigInteger(130, new Random()).toString(32);
     }
     //endregion
-
-  /*  public static BUser fetchEntityWithFacebookID(Class c, String facebookID){
-        return fetchEntityWithProperty(c, BUserDao.Properties.FacebookID, facebookID);
-    }*/
 
     /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
     public static <T extends Entity<T>> T fetchEntityWithEntityID(Class c, Object entityID){
@@ -404,18 +407,57 @@ public class DaoCore {
                     break;
             }
 
+
         return qb.list();
     }
 
+    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimt(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
+
+        if (values == null || properties == null)
+            throw new NullPointerException("You must have at least one value and one property");
+
+        if (values.length != properties.length)
+            throw new IllegalArgumentException("Values size should match properties size");
+
+        QueryBuilder qb = daoSession.queryBuilder(c);
+        qb.where(properties[0].eq(values[0]));
+
+        if (values.length > 1)
+            for (int i = 0 ; i < values.length ; i++)
+                qb.where(properties[i].eq(values[i]));
+
+        if (whereOrder != null && order != -1)
+            switch (order)
+            {
+                case ORDER_ASC:
+                    qb.orderAsc(whereOrder);
+                    break;
+
+                case ORDER_DESC:
+                    qb.orderDesc(whereOrder);
+                    break;
+            }
+
+        if (limit != -1)
+            qb.limit(limit);
+
+        return qb.listLazy();
+    }
+
     public static BUser fetchOrCreateUserWithEntityAndAutID(String entityId, String authenticationID){
-        if(DEBUG) Log.v(TAG, "fetchOrCreateUserWithEntityAndFacebookID, AuthID: " + authenticationID + ", EntityID: " + entityId);
+        if(DEBUG) Log.v(TAG, "fetchOrCreateUserWithEntityAndAutID, AuthID: " + authenticationID + ", EntityID: " + entityId);
 
         List<BUser> users = new ArrayList<BUser>();
 
         if (entityId != null && authenticationID != null && !entityId.equals("") && !authenticationID.equals("")){
-            users  = fetchEntitiesWithProperties(BUser.class,
-                    new Property[]{BUserDao.Properties.EntityID, BUserDao.Properties.AuthenticationId},
-                    entityId, authenticationID);
+//            users  = fetchEntitiesWithProperties(BUser.class,
+//                    new Property[]{BUserDao.Properties.EntityID, BUserDao.Properties.AuthenticationId},
+//                    entityId, authenticationID);
+
+            // Try fetching with auth id if can't try with entityID.
+            users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.AuthenticationId, authenticationID);
+            if ( users == null || users.size() == 0)
+                users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.EntityID, entityId);
         }
         else
         {
@@ -433,7 +475,7 @@ public class DaoCore {
 
         BUser user = null;
 
-        if (DEBUG) Log.d(TAG, "fetchOrCreateUserWithEntityAndFacebookID, UsersAmount: " + (users != null ? users.size() : "No User Found."));
+        if (DEBUG) Log.d(TAG, "fetchOrCreateUserWithEntityAndAutID, UsersAmount: " + (users != null ? users.size() : "No User Found."));
 
         if (users == null || users.size() == 0)
         {
@@ -443,6 +485,13 @@ public class DaoCore {
             user.setAuthenticationId(authenticationID);
             createEntity(user);
             return user;
+        }
+        // updating the entity with the given authId and EntityId
+        else
+        {
+            users.get(0).setEntityID(entityId);
+            users.get(0).setAuthenticationId(authenticationID);
+            updateEntity(users.get(0));
         }
 
         // It's possible that we could get multiple user records some registered
@@ -468,13 +517,16 @@ public class DaoCore {
 
     public static <T extends Entity> T fetchOrCreateEntityWithEntityID(Class c, String entityId){
         if (DEBUG) Log.v(TAG, "fetchOrCreateEntityWithEntityID, EntityID: " + entityId);
+
         Entity entity = fetchEntityWithEntityID(c, entityId);
 
         if (entity == null)
         {
             entity = getEntityForClass(c);
 
-            entity.setEntityId(entityId);
+            entity.setEntityID(entityId);
+
+            createEntity(entity);
         }
 
         return (T) entity;
@@ -527,16 +579,9 @@ public class DaoCore {
         return null;
     }
 
+    /* Update, Create and Delete*/
     public static  <T extends Entity> T createEntity(T entity){
-//        Log.v(TAG, "createEntity");
-
-        // Generate an id for the object if needed
-//        if (entity.getEntityID() == null || entity.getEntityID().equals(""))
-//        {
-//            Log.d(TAG, "Creating id for entity.");
-//            entity.setEntityId(generateEntity());
-//            // FIXME entity id is not saved to the object
-//        }
+        Log.v(TAG, "createEntity");
 
         if (entity == null)
         {
@@ -544,59 +589,82 @@ public class DaoCore {
             return null;
         }
 
-        if(DEBUG)
-        {
-            Log.i(TAG, "Entity Report:");
-
-            // Print user details.
-            if (entity.getClass().equals(BUser.class))
-            {
-                Log.i(TAG, "Auth ID: " + ((BUser) entity).getAuthenticationId());
-                Log.i(TAG, "Name: " + ((BUser) entity).getName());
-                Log.i(TAG, "FontName: " + ((BUser) entity).getFontName());
-                Log.i(TAG, "FontSize: " + ((BUser) entity).getFontSize());
-                Log.i(TAG, "MessageColor: " + ((BUser) entity).getMessageColor());
-                Log.i(TAG, "TextColor: " + ((BUser) entity).getTextColor());
-            }
-
-            // Print general details.
-            Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
-            Log.i(TAG, "Entity Class:" + entity.getClass());
-        }
+        if(DEBUG) printEntity(entity);
 
         daoSession.insert(entity);
 
         return entity;
     }
 
-    public static void deleteEntity(Entity entity){
+    public static <T extends Entity> T deleteEntity(T entity){
+        Log.v(TAG, "deleteEntity");
+
+        if(DEBUG) printEntity(entity);
+
         daoSession.delete(entity);
+
+        return entity;
     }
 
-    public static void updateEntity(Entity entity){
+    public static <T extends Entity> T updateEntity(T entity){
+        Log.v(TAG, "updateEntity");
 
-        if(DEBUG)
-        {
-            Log.v(TAG, "updateEntity");
-            Log.i(TAG, "Entity Report:");
+        printEntity(entity);
+
+        daoSession.update(entity);
+
+        return entity;
+    }
+
+    /* Helpers */
+    public static void printEntity(Entity entity){
+        Log.v(TAG, "printEntity");
+
+        Log.i(TAG, "id:" + entity.getId());
+        Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
+        Log.i(TAG, "Entity Class:" + entity.getClass());
+
+        try {
             // Print user details.
             if (entity.getClass().equals(BUser.class))
             {
                 Log.i(TAG, "Auth ID: " + ((BUser) entity).getAuthenticationId());
-                Log.i(TAG, "Name: " + ((BUser) entity).getName());
+                Log.i(TAG, "Name: " + ((BUser) entity).getMetaName());
+                Log.i(TAG, "Online: " + ((BUser) entity).getOnline());
                 Log.i(TAG, "FontName: " + ((BUser) entity).getFontName());
                 Log.i(TAG, "FontSize: " + ((BUser) entity).getFontSize());
                 Log.i(TAG, "MessageColor: " + ((BUser) entity).getMessageColor());
                 Log.i(TAG, "TextColor: " + ((BUser) entity).getTextColor());
             }
-
-            Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
-            Log.i(TAG, "Entity Class:" + entity.getClass());
+            else if (entity.getClass().equals(BMetadata.class))
+            {
+                Log.i(TAG, "Owner ID: " + ((BMetadata) entity).getOwnerID());
+                Log.i(TAG, "Key: " + ((BMetadata) entity).getKey());
+                Log.i(TAG, "Value: " + ((BMetadata) entity).getValue());
+                Log.i(TAG, "Type: " + ((BMetadata) entity).getType());
+            }
+            else if (entity.getClass().equals(BThread.class))
+            {
+                Log.i(TAG, "Name: " + ((BThread) entity).getName());
+                Log.i(TAG, "Display Name: " + ((BThread) entity).displayName());
+                Log.i(TAG, "Creation Date: " + ((BThread)entity).getCreationDate().getTime());
+                Log.i(TAG, "Type: " + ( ((BThread) entity).getType() == 1 ? "Public" : "Private"));
+                Log.i(TAG, "Messages Amount: " + ((BThread) entity).getMessages().size());
+            }
+            else if (entity.getClass().equals(BMessage.class))
+            {
+                Log.i(TAG, "Text: " + ((BMessage) entity).getText());
+                Log.i(TAG, "Thread id: " + ((BMessage) entity).getOwnerThread());
+                Log.i(TAG, "Sender id: " + ((BMessage) entity).getSender());
+                Log.i(TAG, "Thread Entity Id: " + ((BMessage) entity).getBThreadOwner().getEntityID());
+                Log.i(TAG, "Sender Entity Id: " + ((BMessage) entity).getBUserSender().getEntityID());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
         }
-        daoSession.update(entity);
     }
 
-    /* Helpers */
     public static void connectUserAndThread(BUser user, BThread thread){
         BLinkData linkData = new BLinkData();
         linkData.setThreadID(thread.getId());
@@ -664,26 +732,5 @@ public class DaoCore {
         }
 
         return null;
-    }*/
-
-    public static void printEntity(Entity entity){
-        Log.v(TAG, "printEntity");
-        // Print user details.
-        if (entity.getClass().equals(BUser.class))
-        {
-            Log.i(TAG, "Auth ID: " + ((BUser) entity).getAuthenticationId());
-            Log.i(TAG, "Name: " + ((BUser) entity).getName());
-            Log.i(TAG, "FontName: " + ((BUser) entity).getFontName());
-            Log.i(TAG, "FontSize: " + ((BUser) entity).getFontSize());
-            Log.i(TAG, "MessageColor: " + ((BUser) entity).getMessageColor());
-            Log.i(TAG, "TextColor: " + ((BUser) entity).getTextColor());
-        }
-
-        Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
-        Log.i(TAG, "Entity Class:" + entity.getClass());
-    }
-    // TODO see if needed to check for bad values that return from the query and might wont get cast well.
-/*    private void throwValidationError(){
-
     }*/
 }

@@ -2,23 +2,13 @@ package com.braunster.chatsdk.dao.entities;
 
 import android.graphics.Bitmap;
 
-import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.Entity;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BPath;
-import com.braunster.greendao.generator.EntityProperties;
 import com.firebase.simplelogin.enums.Provider;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by braunster on 25/06/14.
@@ -69,6 +59,10 @@ public abstract class BUserEntity extends Entity<BUser> {
     public abstract Bitmap getThumnail();
 
     public abstract void setMetaPicture(Bitmap bitmap);
+
+    public abstract void setMetaPicture(String base64);
+
+    public abstract void setMetaPicture(File image);
 
     public abstract Bitmap getMetaPicture();
 

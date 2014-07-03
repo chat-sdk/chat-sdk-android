@@ -128,7 +128,6 @@ public class ThreadsFragment extends BaseFragment {
                 @Override
                 public void onFinished(final String s) {
                     if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
-                    // TODO add new thread to the database and server.
                     BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, Object>() {
                         @Override
                         public void onDone(BThread bThread) {

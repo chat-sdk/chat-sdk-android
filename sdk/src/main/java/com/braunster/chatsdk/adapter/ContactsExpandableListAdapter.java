@@ -14,7 +14,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.archive.ImageLoading.ImageLoader;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 
@@ -33,7 +32,6 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
     private TextView txtContactName;
     private TextView txtHeader;
     private CircleImageView imgPicture;
-    private ImageLoader imageLoader;
     private LayoutInflater inflater;
     private BUser user;
 
@@ -43,7 +41,6 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
         inflater = (LayoutInflater) this._context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        imageLoader=new ImageLoader(context);
     }
 
     @Override
@@ -62,7 +59,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         user = getChild(groupPosition, childPosition);
-        final String childText = user.getName();
+        final String childText = user.getMetaName();
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.chat_sdk_row_contact, null);
@@ -78,7 +75,11 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         user.pictureExist = true;
         // TODO delete this only for testing the contact icon
 
-        if (user.pictureExist)
+        if (user.getMetaPicture() != null)
+        {
+            imgPicture.setImageBitmap(user.getMetaPicture());
+        }
+        else if (user.pictureExist)
         {
 //            imgPicture.setImageResource(0);
 //            imageLoader.DisplayImage(user.pictureURL, imgPicture);

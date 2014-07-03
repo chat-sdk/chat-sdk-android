@@ -1,106 +1,119 @@
-<?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:orientation="vertical"
     android:background="@android:color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingTop="40dp"
     android:paddingLeft="40dp"
+    android:id="@+id/content"
     android:paddingRight="40dp"
     xmlns:tools = "http://schemas.android.com/tools"
     tools:context="com.braunster.chatsdk.activities.LoginActivity">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/icn_user_x_2"
-        app:border_width="2dp"
-        android:id="@+id/app_icon"
-        android:layout_alignParentTop="true"
-        app:border_color="@android:color/black" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:ems="10"
-        android:id="@+id/chat_sdk_et_mail"
-        android:layout_below="@+id/app_icon"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:gravity="center"
-        android:hint="@string/email" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/chat_sdk_et_password"
-        android:layout_below="@+id/chat_sdk_et_mail"
-        android:layout_alignLeft="@+id/chat_sdk_et_mail"
-        android:layout_alignStart="@+id/chat_sdk_et_mail"
-        android:hint="@string/password"
-        android:gravity="center"/>
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/chat_sdk_et_password"
-        android:layout_marginTop="10dp"
-        android:id="@+id/linear_buttons"
-        android:layout_centerHorizontal="true">
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        >
 
-        <Button
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/icn_user_x_2"
+            app:border_width="2dp"
+            android:id="@+id/app_icon"
+            android:layout_alignParentTop="true"
+            app:border_color="@android:color/black" />
+
+        <!--android:text="t@g.com"-->
+
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login"
-            android:id="@+id/chat_sdk_btn_login"
-            android:layout_weight="1"/>
+            android:inputType="textEmailAddress"
+            android:ems="10"
+            android:nextFocusDown="@+id/chat_sdk_et_password"
+            android:id="@+id/chat_sdk_et_mail"
+            android:layout_below="@+id/app_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:hint="@string/email" />
 
-        <Button
+        <!--android:text="1"-->
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/register"
-            android:id="@+id/chat_sdk_btn_register"
-            android:layout_weight="1"/>
+            android:inputType="textPassword"
+            android:ems="10"
+
+            android:id="@+id/chat_sdk_et_password"
+            android:layout_below="@+id/chat_sdk_et_mail"
+            android:layout_alignLeft="@+id/chat_sdk_et_mail"
+            android:layout_alignStart="@+id/chat_sdk_et_mail"
+            android:hint="@string/password"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/chat_sdk_et_password"
+            android:layout_marginTop="10dp"
+            android:id="@+id/linear_buttons"
+            android:layout_centerHorizontal="true">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/login"
+                android:id="@+id/chat_sdk_btn_login"
+                android:layout_weight="1"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/register"
+                android:id="@+id/chat_sdk_btn_register"
+                android:layout_weight="1"/>
         </LinearLayout>
 
-    <com.facebook.widget.LoginButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:id="@+id/authButton"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/linear_buttons"/>
+        <com.facebook.widget.LoginButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:id="@+id/authButton"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/linear_buttons"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/anonymous_login"
-        android:id="@+id/chat_sdk_btn_anon_login"
-        android:layout_below="@id/authButton"
-        android:layout_marginTop="10dp"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/anonymous_login"
+            android:id="@+id/chat_sdk_btn_anon_login"
+            android:layout_below="@id/authButton"
+            android:layout_marginTop="10dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/chat_sdk_txt_version"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="3dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/chat_sdk_btn_anon_login"
-        android:text="@string/chat_sdk_version"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat_sdk_txt_version"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="3dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/chat_sdk_btn_anon_login"
+            android:text="@string/chat_sdk_version"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/chat_sdk_version_name"
-        android:layout_toRightOf="@+id/chat_sdk_txt_version"
-        android:layout_alignTop="@+id/chat_sdk_txt_version"
-        android:text="@string/chat_sdk_version_name"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat_sdk_version_name"
+            android:layout_toRightOf="@+id/chat_sdk_txt_version"
+            android:layout_alignTop="@+id/chat_sdk_txt_version"
+            android:text="@string/chat_sdk_version_name"/>
 
-</RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

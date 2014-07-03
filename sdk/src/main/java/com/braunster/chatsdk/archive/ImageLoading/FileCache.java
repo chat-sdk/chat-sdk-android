@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive.ImageLoading;
 
 import android.content.Context;
@@ -37,3 +38,4 @@ public class FileCache {
     }
 
 }
+*/
