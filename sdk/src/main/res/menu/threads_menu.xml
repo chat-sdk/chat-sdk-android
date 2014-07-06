@@ -3,8 +3,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.braunster.chatsdk.fragments.ThreadsFragment">
-    <item android:id="@+id/action_add_chat_room"
+    <item android:id="@+id/action_chat_sdk_add"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="10" />
+
+    <item android:id="@+id/action_chat_sdk_show"
+        android:title="@string/action_add_chat"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="11" />
 </menu>

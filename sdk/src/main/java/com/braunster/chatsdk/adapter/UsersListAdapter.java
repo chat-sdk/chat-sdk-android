@@ -2,6 +2,8 @@ package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,8 @@ import com.braunster.chatsdk.dao.BUser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -30,7 +34,10 @@ public class UsersListAdapter extends BaseAdapter {
     //View
     private View row;
 
-    private TextView textView;
+    class ViewHolder {
+         CircleImageView profilePicture;
+         TextView textView;
+    }
 
     public UsersListAdapter(Activity activity){
         mActivity = activity;
@@ -38,6 +45,7 @@ public class UsersListAdapter extends BaseAdapter {
 
     public UsersListAdapter(Activity activity, List<BUser> listData){
         mActivity = activity;
+        Log.d(TAG, "Contacts: " + listData.size());
         this.listData = listData;
     }
 
@@ -61,20 +69,24 @@ public class UsersListAdapter extends BaseAdapter {
 
         row = view;
 
-
+        ViewHolder holder;
         if ( row == null)
         {
             row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_contact, null);
-
+            holder = new ViewHolder();
+            holder.textView = (TextView) row.findViewById(R.id.txt_name);
+            holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
+            row.setTag(holder);
         }
+        else holder = (ViewHolder) row.getTag();
 
-        textView = (TextView) row.findViewById(R.id.txt_name);
+        holder.textView.setText(listData.get(position).getMetaName());
 
-        if (textColor != -1)
-            textView.setTextColor(textColor);
-
-        textView.setText(listData.get(position).getMetaName());
-
+        Bitmap bitmap = listData.get(position).getMetaPicture();
+        if (bitmap != null)
+        {
+            holder.profilePicture.setImageBitmap(bitmap);
+        }
         return row;
     }
 

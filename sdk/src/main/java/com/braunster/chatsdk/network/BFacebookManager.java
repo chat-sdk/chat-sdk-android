@@ -4,11 +4,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
@@ -18,10 +17,8 @@ import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.firebase.client.Firebase;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
-import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,9 +26,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.braunster.chatsdk.network.BDefines.*;
-import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
-import static com.braunster.chatsdk.network.BDefines.Prefs.*;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
+import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
 
 /*
  * Created by itzik on 6/8/2014.
@@ -60,6 +56,7 @@ public class BFacebookManager {
     }
 
     public static void loginWithFacebook(final CompletionListener completionListener) {
+        if (DEBUG) Log.v(TAG, "loginWithFacebook");
         /*simpleLogin.loginWithFacebook(facebookAppID, userFacebookAccessToken, new SimpleLoginAuthenticatedHandler() {
             @Override
             public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
@@ -184,7 +181,7 @@ public class BFacebookManager {
     * No need for access token in SDK V3
     * Get the friend list from facebook that is using the app.*/
     public static void getUserFriendList(final CompletionListenerWithData completionListener){
-        if (Session.getActiveSession().getState().isClosed())
+        if (!Session.getActiveSession().getState().isOpened())
         {
             completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
             return;

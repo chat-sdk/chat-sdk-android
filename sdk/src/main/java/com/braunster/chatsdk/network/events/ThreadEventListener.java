@@ -1,6 +1,5 @@
-package com.braunster.chatsdk.events;
+package com.braunster.chatsdk.network.events;
 
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.interfaces.AppEvents;
 
 public abstract class ThreadEventListener extends Event implements AppEvents{
@@ -9,5 +8,10 @@ public abstract class ThreadEventListener extends Event implements AppEvents{
     }
 
     @Override
-    public abstract boolean onThreadAdded(String threadId);
+    public abstract boolean onThreadDetailsChanged(String threadId);
+
+    @Override
+    public boolean onUserAddedToThread(String threadId, String userId) {
+        return false;
+    }
 }

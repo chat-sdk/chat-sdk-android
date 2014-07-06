@@ -1,17 +1,12 @@
-package com.braunster.chatsdk.listeners;
+package com.braunster.chatsdk.network.listeners;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.events.FirebaseGeneralEvent;
+import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.braunster.chatsdk.network.firebase.EventManager;
 import com.firebase.client.DataSnapshot;
-import com.firebase.client.FirebaseError;
-
 
 
 /**

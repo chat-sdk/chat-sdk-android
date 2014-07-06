@@ -101,6 +101,8 @@ public class SearchActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Adding the picked user as a contact to the current user.
                 BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(adapter.getItem(position));
+                createAndOpenThreadWithUsers(adapter.getItem(position).getMetaName(),
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), adapter.getItem(position));
             }
         });
     }

@@ -1,13 +1,12 @@
-package com.braunster.chatsdk.listeners;
+package com.braunster.chatsdk.network.listeners;
 
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.events.FirebaseGeneralEvent;
+import com.braunster.chatsdk.interfaces.AppEvents;
+import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.braunster.chatsdk.network.firebase.EventManager;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 
@@ -36,13 +35,11 @@ public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
             public void run() {
                 BFirebaseInterface.objectFromSnapshot(dataSnapshot);
                 Message message = new Message();
-                message.what = 2;
+                message.what = AppEvents.THREAD_DETAILS_CHANGED;
                 message.obj = threadID;
                 handler.sendMessage(message);
             }
         }).start();
-
-//        EventManager.getInstance().onThreadAdded(thread);
     }
 
     @Override

@@ -177,7 +177,7 @@ public class TestNetworkAdapter extends AbstractNetworkAdapter {
             DaoCore.createEntity(linkData);
         }
 
-        activityListener.onThreadAdded(thread);
+        activityListener.onThreadDetailsChanged(thread);
         completionListener.onDone(thread.getId());
     }
 

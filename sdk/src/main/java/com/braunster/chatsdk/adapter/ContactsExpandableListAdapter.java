@@ -6,6 +6,7 @@ package com.braunster.chatsdk.adapter;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 
 import java.util.HashMap;
@@ -70,23 +70,24 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
         txtContactName.setText(childText);
 
-        // TODO delete this only for testing the contact icon
+/*        // TODO delete this only for testing the contact icon
         user.pictureURL = "http://www.wandake.com/blog/wp-content/uploads/2011/07/bender-289x300.jpg";
         user.pictureExist = true;
-        // TODO delete this only for testing the contact icon
+        // TODO delete this only for testing the contact icon*/
 
-        if (user.getMetaPicture() != null)
+        Bitmap bitmap = user.getMetaPicture();
+        if (bitmap != null)
         {
-            imgPicture.setImageBitmap(user.getMetaPicture());
+            imgPicture.setImageBitmap(bitmap);
         }
-        else if (user.pictureExist)
+/*        else if (user.pictureExist)
         {
 //            imgPicture.setImageResource(0);
 //            imageLoader.DisplayImage(user.pictureURL, imgPicture);
             VolleyUtills.getImageLoader().get(user.pictureURL,
                                 VolleyUtills.getImageLoader().getImageListener(imgPicture,
                                         R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
-        }
+        }*/
         else
         {
             imgPicture.setImageResource(R.drawable.icn_user_x_2);

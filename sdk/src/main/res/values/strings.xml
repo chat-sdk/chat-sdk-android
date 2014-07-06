@@ -2,19 +2,25 @@
 <resources>
 
     <string name="app_name">ChatSDK</string>
-    <string name="chat_sdk_version_name">0.2.1</string>
+
+    <!-- Login Activity-->
+    <string name="chat_sdk_version_name">0.2.4</string>
     <string name="chat_sdk_version">Version:</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_add_chat">Add Chat</string>
-    <string name="facebook_id">247787328762280</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="anonymous_login">Anonymous Login</string>
+
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="login">Login</string>
-    <string name="anonymous_login">Login</string>
-    <string name="register">Register</string>
+    <string name="logout">Logout</string>
+    <string name="facebook_id">247787328762280</string>
+    <string name="search">Search</string>
+
+    <!-- Exit Dialog-->
     <string name="alert_exit">"Are you sure you want to exit?</string>
     <string name="exit">Exit</string>
     <string name="stay">Stay</string>
+
     <string name="action_settings">action_setting</string>
-    <string name="search">Search</string>
+    <string name="action_add_chat">Add Chat</string>
 </resources>

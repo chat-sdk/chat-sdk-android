@@ -20,6 +20,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.view.ChatBubbleImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class MessagesListAdapter extends BaseAdapter{
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm");
 
     private ImageView image;
+    private ChatBubbleImageView chatBubbleImageView;
 
     private Button btnViewLocation;
 
@@ -138,12 +140,16 @@ public class MessagesListAdapter extends BaseAdapter{
 
             case TYPE_IMAGE:
                 if (message.getSender() == userID)
+                {
                     row = inflater.inflate(R.layout.chat_sdk_row_image_user, null);
+                    image = getImageViewfromRow(row, message.getText());                }
                 else
+                {
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
+                    image = getImageViewfromRow(row, message.getText());
+                }
 
                 // TODO save image to cache or to app directory
-                image = getImageViewfromRow(row, message.getText());
                 break;
 
             case TYPE_LOCATION:
@@ -206,6 +212,15 @@ public class MessagesListAdapter extends BaseAdapter{
         ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
         image.setTag(base64Data);
         image.setImageBitmap(Utils.decodeFrom64(base64Data.getBytes()));
+        image.setOnClickListener(new locationClickListener());
+
+        return image;
+    }
+
+    private ChatBubbleImageView getBubleImageViewfromRow(View row, String base64Data){
+        ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+        image.setTag(base64Data);
+        image.setData(base64Data);
         image.setOnClickListener(new locationClickListener());
 
         return image;

@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.events;
+package com.braunster.chatsdk.network.events;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;

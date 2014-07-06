@@ -1,7 +1,6 @@
-package com.braunster.chatsdk.events;
+package com.braunster.chatsdk.network.events;
 
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.AppEvents;
 
@@ -41,10 +40,12 @@ public class Event implements AppEvents{
     }
 
     @Override
-    public boolean onThreadAdded(String threadId) {
+    public boolean onThreadDetailsChanged(String threadId) {
         return false;
     }
 
-
-
+    @Override
+    public boolean onUserAddedToThread(String threadId, String userId) {
+        return false;
+    }
 }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.ThreadsSorter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,12 @@ import java.util.Map;
 import static com.braunster.chatsdk.dao.BMessage.Type.bImage;
 import static com.braunster.chatsdk.dao.BMessage.Type.bLocation;
 import static com.braunster.chatsdk.dao.BMessage.Type.bText;
-import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Google;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Register;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Prefs.AuthenticationID;
 
 /**
@@ -256,10 +263,15 @@ public abstract class AbstractNetworkAdapter {
     public List<BThread> threadsWithType(int threadType) {
 
         // Get the thread list ordered desc by the last message added date.
-        List<BThread> threadsFromDB = DaoCore.fetchEntitiesWithPropertiesAndOrder(BThread.class,
+        List<BThread> threadsFromDB;
+
+        if (threadType == BThread.Type.Private)
+            threadsFromDB = currentUser().getThreads();
+        else threadsFromDB = DaoCore.fetchEntitiesWithPropertyAndOrder(BThread.class,
                 BThreadDao.Properties.LastMessageAdded, DaoCore.ORDER_DESC, BThreadDao.Properties.Type, threadType);
 
-        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size());
+        Collections.sort(threadsFromDB, new ThreadsSorter());
+
         List<BThread> threads = new ArrayList<BThread>();
 
         if (currentUser() == null) {
@@ -267,28 +279,41 @@ public abstract class AbstractNetworkAdapter {
             return null;
         }
 
-        for (BThread thread : threadsFromDB) {
-            if (thread.getType() == BThread.Type.Public)
-            {
-                threads.add(thread);
-                continue;
-            }
-
-            if (thread.getCreator() != null )
-            {
-                if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()));
-                {
-                    Log.d(TAG, "Current user is the creator.");
+        if (threadType == BThread.Type.Public)
+        {
+            for (BThread thread : threadsFromDB)
+                if (thread.getType() == BThread.Type.Public)
                     threads.add(thread);
+        }
+        else {
+            for (BThread thread : threadsFromDB) {
+                if (thread.getType() == null)
+                {
+                    if (DEBUG) Log.e(TAG, "Thread has no type, Thread ID: " + thread.getEntityID());
                     continue;
                 }
-            }
+                // Skipping public threads.
+                if (thread.getType().intValue() == BThread.Type.Public)
+                    continue;
 
-            if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
-                threads.add(thread);
-            else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
+                if (thread.getCreator() != null )
+                {
+                    if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                    if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()));
+                    {
+                        Log.d(TAG, "Current user is the creator.");
+                        threads.add(thread);
+                        continue;
+                    }
+                }
+
+                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+                    threads.add(thread);
+                else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
+            }
         }
+
+        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size());
 
         return threads;
     }
@@ -338,8 +363,6 @@ public abstract class AbstractNetworkAdapter {
         return currentUser().getBLinkedContacts();
     }
 
-    // TODO add order veriable for the data. - Change method to DaoCore.fetchEntitiesWithPropertiesAndOrder()
-
     /**
      * Get all messages for given thread id ordered Ascending/Descending
      */
@@ -379,6 +402,8 @@ public abstract class AbstractNetworkAdapter {
     public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();
     }
+
+
 
 /*######################################################################################################*/
     //TODO implement later on.

@@ -3,16 +3,16 @@ package com.braunster.chatsdk.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethod;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
-import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.activities.LoginActivity;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -37,7 +37,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ProfileFragment extends BaseFragment implements TextView.OnEditorActionListener{
+public class ProfileFragment extends BaseFragment implements TextView.OnEditorActionListener, View.OnClickListener{
 
     private static final int PHOTO_PICKER_ID = 100;
 
@@ -45,11 +45,13 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private static boolean DEBUG = true;
 
     private EditText etName, etMail, etPhone;
+    private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false;
+
 //    private ProfilePictureView profilePictureView;
     private CircleImageView profileCircleImageView;
 
     private BUser user;
-
+    private Integer loginType;
     public static ProfileFragment newInstance() {
         ProfileFragment f = new ProfileFragment();
         Bundle b = new Bundle();
@@ -64,14 +66,15 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        if (DEBUG) Log.d(TAG, "onCreateView");
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
 
         this.user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
         initViews();
 
-        Integer loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
+        loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
 
         switch (loginType)
         {
@@ -80,10 +83,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 break;
 
             case BDefines.BAccountType.Password:
-                hideFacebookButton();
+                notFacebookLogin();
                 // Use facebook profile picture only if has no other picture saved.
                 setProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
-
                 break;
 
             case BDefines.BAccountType.Twitter:
@@ -108,10 +110,15 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     @Override
     public void onResume() {
+        if (DEBUG) Log.d(TAG, "onResume");
         super.onResume();
         etName.setOnEditorActionListener(this);
         etPhone.setOnEditorActionListener(this);
         etMail.setOnEditorActionListener(this);
+
+        etName.setOnClickListener(this);
+        etPhone.setOnClickListener(this);
+        etMail.setOnClickListener(this);
 
         profileCircleImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -131,6 +138,18 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                         "Complete action using"), PHOTO_PICKER_ID);
             }
         });
+
+        // Add logout button click logic if not connected using facebook or twitter.
+        if (loginType != BDefines.BAccountType.Facebook && loginType != BDefines.BAccountType.Twitter)
+            mainView.findViewById(R.id.chat_sdk_logout_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Logout and return to the login activity.
+                    BNetworkManager.sharedManager().getNetworkAdapter().logout();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
     }
 
     @Override
@@ -175,9 +194,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().setMetaPicture(image);
-                        setProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
+                        setProfilePic(BitmapFactory.decodeFile(image.getPath()));
                         BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
-
                     }
                     else if (DEBUG) Log.e(TAG, "Image is null");
 
@@ -233,8 +251,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         etMail.setText(user.getMetaEmail());
     }
 
-    private void hideFacebookButton(){
-        mainView.findViewById(R.id.authButton).setVisibility(View.GONE);
+    private void notFacebookLogin(){
+        mainView.findViewById(R.id.chat_sdk_facebook_button).setVisibility(View.GONE);
+        mainView.findViewById(R.id.chat_sdk_logout_button).setVisibility(View.VISIBLE);
     }
 
     private void setProfilePic(Bitmap bitmap){
@@ -250,58 +269,95 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         *  After it is deleted we update the metadata locally and then push the user back to the server.*/
         if (actionId == EditorInfo.IME_ACTION_DONE)
         {
-            // The current user.
-            final BUser bUser =BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
-
             if (v.getId() == R.id.chat_sdk_et_name){
-                BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(bUser, bUser.getMetaName(), new CompletionListener() {
-                    @Override
-                    public void onDone() {
-                        bUser.setMetaName(v.getText().toString());
-                        BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(bUser, bUser.getMetaName(),null);
-                        BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
-                    }
-
-                    @Override
-                    public void onDoneWithError() {
-                        Toast.makeText(getActivity(), "Cant set name.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                isNameTouched = true;
+                updateIndexAndMetadata();
             }
             else if (v.getId() == R.id.chat_sdk_et_mail){
-                BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(bUser, bUser.getMetaEmail(), new CompletionListener() {
-                    @Override
-                    public void onDone() {
-                        bUser.setMetaEmail(v.getText().toString());
-                        BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(bUser, bUser.getMetaEmail(),null);
-                        BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
-                    }
-
-                    @Override
-                    public void onDoneWithError() {
-                        Toast.makeText(getActivity(), "Cant set name.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                isEmailTouched = true;
+                updateIndexAndMetadata();
             }
             else if (v.getId() == R.id.chat_sdk_et_phone_number){
-                BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(bUser, bUser.metaStringForKey(BDefines.Keys.BPhone), new CompletionListener() {
-                    @Override
-                    public void onDone() {
-                        bUser.setMetadataString(BDefines.Keys.BPhone, v.getText().toString());
-                        BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(bUser, bUser.metaStringForKey(BDefines.Keys.BPhone),null);
-                        BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
-                    }
-
-                    @Override
-                    public void onDoneWithError() {
-                        Toast.makeText(getActivity(), "Cant set name.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                isPhoneTouched = true;
+                updateIndexAndMetadata();
             }
         }
 
         return false;
     }
 
+    @Override
+    public void onClick(View v) {
+        Log.e(TAG, "onClick");
+        if (v.getId() == R.id.chat_sdk_et_name)
+            isNameTouched = true;
+        else if (v.getId() == R.id.chat_sdk_et_mail)
+            isEmailTouched = true;
+        else if (v.getId() == R.id.chat_sdk_et_phone_number)
+            isPhoneTouched = true;
+    }
 
+    public void updateIndexAndMetadata(){
+        // The current user.
+        final BUser bUser =BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+
+        boolean toUpdate = isEmailTouched || isPhoneTouched || isNameTouched;
+
+        if (isPhoneTouched)
+        {
+            String phone = etPhone.getText().toString();
+            String curPhone = bUser.metaStringForKey(BDefines.Keys.BPhone);
+
+            if (!phone.equals(curPhone))
+            {
+                bUser.setMetadataString(BDefines.Keys.BPhone, phone);
+                indexUser(user, curPhone, phone);
+            }
+
+            isPhoneTouched = false;
+        }
+
+        if (isNameTouched)
+        {
+            String name = etName.getText().toString();
+            String curName = bUser.getMetaName();
+            if (!name.equals(curName))
+            {
+                bUser.setMetaName(name);
+                indexUser(user, curName, name);
+            }
+
+            isNameTouched = false;
+        }
+
+        if (isEmailTouched)
+        {
+            String email = etMail.getText().toString();
+            String curEmail = bUser.getMetaEmail();
+            if (!email.equals(curEmail))
+            {
+                bUser.setMetaEmail(email);
+                indexUser(user, curEmail, email);
+            }
+
+            isEmailTouched = false;
+        }
+
+        // Update the user entity.
+        if (toUpdate) BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
+    }
+
+    private void indexUser(final BUser user, final String oldIndex, final String newIndex){
+        BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(user, oldIndex, new CompletionListener() {
+            @Override
+            public void onDone() {
+                BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(user, newIndex,null);
+            }
+
+            @Override
+            public void onDoneWithError() {
+                Toast.makeText(getActivity(), "Cant set index.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }

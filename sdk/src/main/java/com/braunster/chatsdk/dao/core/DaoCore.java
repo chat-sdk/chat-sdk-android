@@ -14,7 +14,6 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.BUserDao;
 import com.braunster.chatsdk.dao.DaoMaster;
 import com.braunster.chatsdk.dao.DaoSession;
-import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
 
 import java.lang.reflect.Constructor;
@@ -56,6 +55,7 @@ public class DaoCore {
     public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
 
     public static void init(Context ctx) {
+        if (DEBUG) Log.i(TAG, "Initialized");
         dbName = DB_NAME;
         context = ctx;
         openDB();
@@ -80,9 +80,7 @@ public class DaoCore {
 
     //region Test
     private static void test(){
-//        clearTestData();
-//        createTestData();
-//        getTestData2();
+        clearTestData();
 //        printUsersData(daoSession.loadAll(BUser.class));
     }
 
@@ -366,8 +364,7 @@ public class DaoCore {
 
     /** Fetch a list of entities for a given property and value.*/
     public static <T extends Entity<T>> List<T> fetchEntitiesWithProperty(Class c, Property property, Object value){
-        if (DEBUG) Log.v(TAG, "fetchEntitiesWithProperty");
-        return fetchEntitiesWithPropertiesAndOrder(c, null, -1, property, value);
+        return fetchEntitiesWithPropertyAndOrder(c, null, -1, property, value);
     }
 
     /** Fetch a list of entities for a given properties and values.*/
@@ -376,8 +373,8 @@ public class DaoCore {
     }
 
     /** Fetch a list of entities for a given property and value. Entities are arrange by given order.*/
-    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrder(Class c, Property whereOrder, int order, Property property, Object value){
-        return fetchEntitiesWithPropertiesAndOrder(c, whereOrder, order, new Property[]{property}, new Object[]{value});
+    public static <T extends Entity<T>> List<T> fetchEntitiesWithPropertyAndOrder(Class c, Property whereOrder, int order, Property property, Object value){
+        return fetchEntitiesWithPropertiesAndOrder(c, whereOrder, order, new Property[]{property}, value);
     }
 
     public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrder(Class c, Property whereOrder, int order, Property properties[], Object... values){
@@ -411,7 +408,7 @@ public class DaoCore {
         return qb.list();
     }
 
-    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimt(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -589,9 +586,9 @@ public class DaoCore {
             return null;
         }
 
-        if(DEBUG) printEntity(entity);
-
         daoSession.insert(entity);
+
+        if(DEBUG) printEntity(entity);
 
         return entity;
     }
@@ -666,6 +663,7 @@ public class DaoCore {
     }
 
     public static void connectUserAndThread(BUser user, BThread thread){
+        Log.v(TAG, "connectUserAndThread, User ID: " + user.getId() + ", Name: " + user.getMetaName() + ", Thread ID: " + thread.getId());
         BLinkData linkData = new BLinkData();
         linkData.setThreadID(thread.getId());
         linkData.setUserID(user.getId());

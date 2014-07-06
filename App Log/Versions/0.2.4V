@@ -1,0 +1,30 @@
+##########################
+        V: 0.2.4
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+
+##########################
+        BUG FIX
+--------------------------
+# User is not set to offline after logout.
+
+##########################
+        BUG REPORT
+--------------------------
+
+-----------NEW------------
+# catching details change with onClick not always working.
+
+-----------OLD------------
+# Some time images cause the db to break.
+# When adding  a public thread the user details change and we load and refresh all users.
+# Messages listener does not get removed by the event manager.
+# Cancel login to facebook option.
+
+##########################
+          ISSUE
+--------------------------
+# Cash images from thread and contacts so decoding from Base64 wont be slow.

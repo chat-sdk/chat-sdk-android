@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.activities.PickFriendsActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
@@ -51,9 +50,12 @@ public class ConversationsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (DEBUG) Log.d(TAG, "onCreateView");
         mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
 
         initViews();
+
+        loadData();
 
         return mainView;
     }
@@ -73,13 +75,18 @@ public class ConversationsFragment extends BaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
+                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).displayName()
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
+                startChatActivityForID(listAdapter.getItem(position).getId());
+            }
+        });
 
-                Intent intent = new Intent(getActivity(), ChatActivity.class);
-                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getId());
-
-                startActivity(intent);
+        listThreads.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).displayName()
+                        + ", ID: " + listAdapter.getItem(position).getEntityID());
+                return false;
             }
         });
     }
@@ -102,7 +109,7 @@ public class ConversationsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Conversation");
+                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Conversation");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
     }
@@ -113,7 +120,7 @@ public class ConversationsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_add_chat_room)
+        if (id == R.id.action_chat_sdk_add)
         {
             Intent intent = new Intent(getActivity(), PickFriendsActivity.class);
 

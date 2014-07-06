@@ -1,22 +1,17 @@
 package com.braunster.chatsdk.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.hardware.input.InputManager;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethod;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BDefines;
@@ -28,8 +23,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
+import com.firebase.simplelogin.FirebaseSimpleLoginError;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
-import com.firebase.simplelogin.enums.Provider;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -56,7 +51,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         uiHelper.onCreate(savedInstanceState);
 
         initViews();
-
+/*
         // For registering the activity to facebook.
         String sha = Utils.getSHA(this, getPackageName());
         Log.i(TAG, "SHA: " + sha);
@@ -65,11 +60,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                  + "TWITTER: " + Provider.TWITTER.ordinal()
                  + "PASSWORD: " + Provider.PASSWORD.ordinal()
                  + "GOOGLE: " + Provider.GOOGLE.ordinal()
-                 + "ANONYMOUS: " + Provider.ANONYMOUS.ordinal());
+                 + "ANONYMOUS: " + Provider.ANONYMOUS.ordinal());*/
     }
 
     private void initViews(){
-        fbLoginButton = (LoginButton) findViewById(R.id.authButton);
+        fbLoginButton = (LoginButton) findViewById(R.id.chat_sdk_facebook_button);
         fbLoginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
             @Override
             public void onError(FacebookException error) {
@@ -89,11 +84,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         super.onResume();
 
         // Auto check for session state change if session is valid.
-//        Session session = Session.getActiveSession();
 //        if (session != null &&
 //                (session.isOpened() || session.isClosed()) ) {
 //            onSessionStateChange(session, session.getState(), null);
 //        }
+
+        Session session = Session.getActiveSession();
+        if (session != null && session.isOpened())
+            showProgDialog("Connecting...");
 
         /* Registering listeners.*/
         btnLogin.setOnClickListener(this);
@@ -132,36 +130,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     }
 
-    private Session.StatusCallback callback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
-        }
-    };
-
-    private void onSessionStateChange(Session session, SessionState state, Exception exception){
-        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
-            @Override
-            public void onDone() {
-                if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
-                afterLogin();
-            }
-
-            @Override
-            public void onDoneWithError() {
-                if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
-                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(DEBUG) Log.v(TAG, "onActivityResult");
-        uiHelper.onActivityResult(requestCode, resultCode, data);
-    }
-
+    /* Dismiss dialog and open main activity.*/
     private void afterLogin(){
         dismissProgDialog();
 
@@ -201,7 +170,51 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                 @Override
                 public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                    Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+                    if (o instanceof FirebaseSimpleLoginError)
+                    {
+                        String toastMessage = "";
+                        FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
+                        switch (error.getCode())
+                        {
+                            case EmailTaken:
+                                toastMessage = "Email is taken.";
+                                break;
+
+                            case InvalidEmail:
+                                toastMessage = "Invalid Email.";
+                                break;
+
+                            case InvalidPassword:
+                                toastMessage = "Invalid Password";
+                                break;
+
+                            case AccountNotFound:
+                                toastMessage = "Account not found.";
+                                break;
+
+                            case AccessNotGranted:
+                                toastMessage = "Access not granted.";
+                                break;
+
+                            case OperationFailed:
+                                toastMessage = "Operation Failed";
+                                break;
+
+                            case UserDoesNotExist:
+                                toastMessage = "User does not exist";
+                                break;
+
+                            case PermissionDenied:
+                                toastMessage = "Premission denied";
+                                break;
+
+                            default: toastMessage = "An Error Occurred.";
+                        }
+                        Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                    else Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+
+                    dismissProgDialog();
                 }
             });
         }
@@ -212,6 +225,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         {
             if (!checkFields())
                 return;
+            showProgDialog("Registering...");
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Register, etName.getText().toString(), etPass.getText().toString());
@@ -223,13 +237,38 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                 @Override
                 public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                    Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+
+                    if (o instanceof FirebaseSimpleLoginError)
+                    {
+                        String toastMessage = "";
+                        FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
+                        switch (error.getCode())
+                        {
+                            case EmailTaken:
+                                toastMessage = "Email is taken.";
+                                break;
+
+                            case InvalidEmail:
+                                toastMessage = "Invalid Email.";
+                                break;
+
+                            case InvalidPassword:
+                                toastMessage = "Invalid Password";
+                                break;
+
+                            default: toastMessage = "An Error Occurred.";
+                        }
+                        Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                    else Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
+
+                    dismissProgDialog();
                 }
             });
         }
-        else if (i == R.id.authButton){
-            showProgDialog("Connecting");
-        }
+//        else if (i == R.id.authButton){
+//            showProgDialog("Connecting");
+//        }
     }
 
     private boolean checkFields(){
@@ -248,5 +287,34 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         return true;
     }
 
+    // Facebook Login stuff.
+    private Session.StatusCallback callback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
 
+    private void onSessionStateChange(Session session, SessionState state, Exception exception){
+        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
+            @Override
+            public void onDone() {
+                if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
+                afterLogin();
+            }
+
+            @Override
+            public void onDoneWithError() {
+                if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
+                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(DEBUG) Log.v(TAG, "onActivityResult");
+        uiHelper.onActivityResult(requestCode, resultCode, data);
+    }
 }

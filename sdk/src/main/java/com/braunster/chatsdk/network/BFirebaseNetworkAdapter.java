@@ -13,10 +13,8 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
-import com.braunster.chatsdk.listeners.UserAddedToThreadListener;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -35,10 +33,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import static com.braunster.chatsdk.network.BDefines.*;
-import static com.braunster.chatsdk.network.BDefines.BAccountType.*;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Register;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
+import static com.braunster.chatsdk.network.BDefines.Keys;
+import static com.braunster.chatsdk.network.BDefines.Prefs;
 
 /**
  * Created by braunster on 23/06/14.
@@ -206,6 +208,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         String email;
         BLinkedAccount linkedAccount;
         if (DEBUG) Log.i("FATAL", "FATAL");
+
+        user.setOnline(true);
+
         switch (fireUser.getProvider())
         {
             case FACEBOOK:
@@ -320,7 +325,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 userOnlineRef.setValue(true);
                 userOnlineRef.onDisconnect().setValue(false);
 
-                BFirebaseInterface.observerUser(currentUser());
+                BFirebaseInterface.getInstance().observerUser(currentUser());
 
                 //TODO subscribe to push notifications.
             }
@@ -388,21 +393,23 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override //Note Done!
     public void logout() {
 
+        /* No need to logout from facebook due to the fact that the logout from facebook event will trigger this event.
+        *  The logout from fb is taking care of by the fb login button.*/
         setAuthenticated(false);
 
         // Stop listening to user related alerts. (added message or thread.)
-        BFirebaseInterface.removeAllObservers();
+        BFirebaseInterface.getInstance().removeAllObservers();
 
         // Obtaining the simple login object from the ref.
         SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef());
 
         // TODO check why the online flag does not change after logout.
         // Login out
+        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(currentUser().getEntityID());
+        userOnlineRef.setValue(false);
         simpleLogin.logout();
- /*      TODO
-        // Also log out of Facebook
-        //[[BFacebookManager sharedManager] logout];
-
+ /*
+TODO
         // Post a notification
         [[NSNotificationCenter defaultCenter] postNotificationName:bLogoutNotification object:Nil];
 */
@@ -675,7 +682,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     public BUser currentUser() {
         if (getCurrentUserAuthenticationId() != null)
         {
-            UserAddedToThreadListener.setCurrentUserEntityID(getCurrentUserAuthenticationId());
             return DaoCore.fetchOrCreateUserWithAuthinticationID(getCurrentUserAuthenticationId());
         }
 
@@ -766,6 +772,25 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         BUser currentUser = currentUser();
 
+        // Checking to see if this users already has a private thread.
+        if (users.size() == 2)
+        {
+            Log.d(TAG, "Checking if allready has a thread.");
+            List<BUser> threadusers;
+            for (BThread t : currentUser.getThreads())
+            {
+                threadusers = t.getUsers();
+                if (threadusers.size() == 2)
+                    if (threadusers.get(0).getEntityID().equals(users.get(0).getEntityID()) ||
+                            threadusers.get(1).getEntityID().equals(users.get(0).getEntityID()))
+                    {
+                        listener.onMainFinised(t, null);
+                        listener.onDone();
+                        return;
+                    }
+            }
+        }
+
         final BThread thread = new BThread();
         thread.setCreationDate(new Date());
         thread.setCreator(currentUser);
@@ -786,6 +811,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 // Report back that the thread is added.
                 listener.onMainFinised(thread, null);
+
+                //ASK if this is good.
+                // Adding the thread to the current user ref.
+
+
 
                 // Add users, For each added user the listener passed here will get a call.
                 addUsersToThread(thread, users, listener);
@@ -905,7 +935,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         for (BUser user : users){
             // Add the user to the thread
-            if (!user.getThreads().contains(thread))
+            if (!user.hasThread(thread))
             {
                 DaoCore.connectUserAndThread(user, thread);
             }
@@ -962,9 +992,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     threadRef = threadRef.appendPathComponent(user.getPath().getPath());
                     if (DEBUG) Log.d(TAG, "addUserToThread, threadRef: " + threadRef.toString());
 
-                    if (DEBUG) Log.e(TAG, "#########################NAME#####" + user.getMetaName());
+                    if (DEBUG) Log.e(TAG, "#########################NAME#####" + user.getMetaName() + " , ID " + user.getEntityID());
                     Map<String , Object> values = new HashMap<String, Object>();
-                    values.put(Keys.BName, user.getMetaName());
+
+                    // If metaname is null the data wont be saved so we have to do so.
+                    values.put(Keys.BName, (user.getMetaName()== null ?"no_name":user.getMetaName()) ) ;
                     threadRef.setValue(values, new Firebase.CompletionListener() {
                         @Override
                         public void onComplete(FirebaseError error, Firebase firebase) {

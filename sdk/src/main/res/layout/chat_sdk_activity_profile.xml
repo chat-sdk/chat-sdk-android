@@ -9,9 +9,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:id="@+id/authButton"
+        android:id="@+id/chat_sdk_facebook_button"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_logout_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/logout"
+        android:visibility="gone"
+        android:layout_marginTop="10dp"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,16 +47,29 @@
             android:id="@+id/chat_sdk_circle_ing_profile_pic"
             app:border_color="@android:color/black" />
 
-        <EditText
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="Name"
-            android:ems="10"
-            android:imeOptions="actionDone"
-            android:id="@+id/chat_sdk_et_name"
-            android:layout_marginTop="20dp"
-            android:layout_gravity="center_horizontal" />
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/icn_name"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:hint="Name"
+                android:ems="10"
+                android:imeOptions="actionDone"
+                android:id="@+id/chat_sdk_et_name"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center_horizontal" />
+
+        </LinearLayout>
 
         <EditText
             android:layout_width="match_parent"

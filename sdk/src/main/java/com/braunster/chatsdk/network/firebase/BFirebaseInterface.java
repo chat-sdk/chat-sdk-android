@@ -6,15 +6,16 @@ import com.braunster.chatsdk.Utils.MsgSorter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
-import com.braunster.chatsdk.listeners.MessageListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.listeners.MessageListener;
 import com.braunster.chatsdk.object.BError;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -43,6 +44,20 @@ public class BFirebaseInterface {
 
     private static final String TAG = BFirebaseInterface.class.getSimpleName();
     private static boolean DEBUG = true;
+
+    private static BFirebaseInterface instance;
+    private FirebasePaths userRef, publicThreadsRef;
+
+    public static BFirebaseInterface getInstance() {
+        if (instance == null)
+            instance = new BFirebaseInterface();
+
+        return instance;
+    }
+
+    private BFirebaseInterface(){
+
+    }
 
     //region Old push Entity
    /* public void pushEntity(final Entity entity, final CompletionListenerWithData completionListener){
@@ -383,54 +398,67 @@ public class BFirebaseInterface {
 
 
     /* Note Done! - Need to be tested not sure how the child add is acting.*/
-    public static void observerUser(BUser user){
+    public void observerUser(BUser user){
         if (DEBUG) Log.e(TAG, "#####################################OBSERVERUSER################################" + user.getEntityID());
-        ChildEventListener event = new ChildEventListener() {
-            int delay = 1000;
 
-            @Override
-            public void onChildAdded(final DataSnapshot snapshot, String s) {
-                if (DEBUG) Log.i(TAG, "Thread is added.");
+        EventManager.setCurrentUserEntityID(user.getEntityID());
 
-                BPath path = BPath.pathWithPath(snapshot.getRef().toString());
-                String threadFirebaseID = path.idForIndex(1);
+        userRef = FirebasePaths.userRef(user.getEntityID());
+        userRef.appendPathComponent(BFirebaseDefines.Path.BThreadPath).addChildEventListener(userEventListener);
 
-                if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
-                {
-                    BThread thread = (BThread) objectFromSnapshot(snapshot);
-                    EventManager.getInstance().handleThread(thread);
-                }
-            }
-
-            //region Not used.
-            @Override
-            public void onChildChanged(DataSnapshot snapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot snapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError error) {
-
-            }
-            //endregion
-        };
-
-        FirebasePaths userRef = FirebasePaths.userRef(user.getEntityID());
-        userRef.appendPathComponent(BFirebaseDefines.Path.BThreadPath).addChildEventListener(event);
-
-        FirebasePaths publicThreadsRef = FirebasePaths.publicThreadsRef();
-        publicThreadsRef.addChildEventListener(event);
+        publicThreadsRef = FirebasePaths.publicThreadsRef();
+        publicThreadsRef.addChildEventListener(userEventListener);
     }
+
+    private ChildEventListener userEventListener = new ChildEventListener() {
+        int delay = 1000;
+
+        @Override
+        public void onChildAdded(final DataSnapshot snapshot, String s) {
+            if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
+
+            String threadFirebaseID;
+            BPath path = BPath.pathWithPath(snapshot.getRef().toString());
+            if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
+                threadFirebaseID = path.idForIndex(0);
+            else threadFirebaseID = path.idForIndex(1);
+
+            if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
+
+            if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
+            {
+                // Load the thread from firebase only if he is not exist.
+                // There is no reason to load if exist because the event manager will collect all the thread data.
+                if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
+                    objectFromSnapshot(snapshot);
+
+                EventManager.getInstance().handleThread(threadFirebaseID);
+            }
+        }
+
+        //region Not used.
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError error) {
+
+        }
+        //endregion
+    };
+    ;
 
     // TODO
     public static void observeThread(final BThread thread){
@@ -451,7 +479,7 @@ public class BFirebaseInterface {
                 if (DEBUG) Log.i(TAG, "Thread details changed.");
                 objectFromSnapshot(dataSnapshot);
                 //TODO not sure if the added thread returned is needed.
-                EventManager.getInstance().onThreadAdded(thread.getEntityID());
+                EventManager.getInstance().onThreadDetailsChanged(thread.getEntityID());
             }
 
             @Override
@@ -566,7 +594,9 @@ public class BFirebaseInterface {
     }
 
     //TODO remove all the observed thread, Theay need to be saved to a static list.
-    public static void removeAllObservers(){
+    public void removeAllObservers(){
+        userRef.removeEventListener(userEventListener);
+        publicThreadsRef.removeEventListener(userEventListener);
         EventManager.getInstance().removeAllEvents();
     }
 
@@ -687,8 +717,8 @@ public class BFirebaseInterface {
                 metadata.updateFromMap(values);
                 DaoCore.updateEntity(metadata);
 
-                //Adding the metadata saftly to the user, The method will handle duplicates.
-                user.addMetaDataObject(metadata);
+                //Adding the metadata saftly to the user, The method will handle duplicates. Note seems to be unneeded.
+//                user.addMetaDataObject(metadata);
 
                 Log.e(TAG, "User metadata " + user.getChildren().size());
                 return metadata;
@@ -769,6 +799,7 @@ public class BFirebaseInterface {
 
     /* Get methods for the "objectFromSnapshot" Method.*/
     private static BUser getUser(DataSnapshot snapshot, String userFirebaseID){
+        if (DEBUG) Log.v(TAG, "getUser");
         Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
         // We need this in case we found the user first using the authID (so we don't know the Firebase ID)
         String authID = (String) values.get(BDefines.Keys.BAuthenticationID);
@@ -798,6 +829,7 @@ public class BFirebaseInterface {
     }
 
     private static BUser getUserForThread(DataSnapshot snapshot, String userFirebaseID, String threadFirebaseID){
+        if (DEBUG) Log.v(TAG, "getUserForThread");
         Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
@@ -816,28 +848,10 @@ public class BFirebaseInterface {
         BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
         thread.setEntityID(threadFirebaseID);
 
-        if (!thread.getUsers().contains(user)){
+        if (!thread.hasUser(user)){
             if (DEBUG) Log.d(TAG, "Thread doesn't contain user");
             DaoCore.connectUserAndThread(user, thread);
         }
-
-        // check if the thread and user is already connected. Pretty sure that the dual check is not needed.
-        /*boolean containsThread = false, containsUser = false;
-        for (BLinkData linkData : user.getThreads())
-        {
-            if (linkData.getBThread().equals(thread))
-                containsThread = true;
-        }
-
-        for (BLinkData linkData : thread.getUsers())
-        {
-            if (linkData.getBUser().equals(user))
-                containsUser = true;
-        }
-
-        if (!containsThread  && !containsUser)
-            DaoCore.connectUserAndThread(user, thread);*/
-
         return user;
     }
 
@@ -858,57 +872,38 @@ public class BFirebaseInterface {
 
 //       Note we are already listening to all childs added from thread
 // objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BUsersPath));
-
         return thread;
     }
 
     private static BThread getThreadForUser(DataSnapshot snapshot, String threadFirebaseID, String userFirebaeID){
-
-        String value = (String) snapshot.getValue();
-
+        if (DEBUG) Log.v(TAG, "getThreadForUser");
         BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
         thread.setEntityID(threadFirebaseID);
+        thread.setType(3);// FIXME no type cause fails.
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaeID);
         user.setEntityID(userFirebaeID);
 
         // If the user and the thread does not have a bond with each other bind them.
-        if (!user.getThreads().contains(thread))
+        if (!user.hasThread(thread))
         {
             if (DEBUG) Log.d(TAG, "User doesn't contain thread.");
             DaoCore.connectUserAndThread(user, thread);
         }
 
         thread.setLastUpdated(new Date());
-
-        // check if the thread and user is already connected. Pretty sure that the dual check is not needed.
-        /*boolean containsThread = false, containsUser = false;
-        for (BLinkData linkData : user.getThreads())
-        {
-            if (linkData.getBThread().equals(thread))
-                containsThread = true;
-        }
-
-        if ()
-
-        for (BLinkData linkData : thread.getUsers())
-        {
-            if (linkData.getBUser().equals(user))
-                containsUser = true;
-        }*/
-
-        /*if (!containsThread  && !containsUser)
-            DaoCore.connectUserAndThread(user, thread);
-*/
         return thread;
     }
 
     private static BMessage getMessage(DataSnapshot snapshot, String messageFirebaseID, String threadFirebaseID) {
-        Log.e(TAG, "#############################################################333");
+        if (DEBUG) Log.v(TAG, "getMessage");
         Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
 
         BMessage message = DaoCore.fetchOrCreateEntityWithEntityID(BMessage.class, messageFirebaseID);
         message.setEntityID(messageFirebaseID);
+
+        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
+        thread.setEntityID(threadFirebaseID);
 
         String payload = (String) values.get(com.braunster.chatsdk.network.BDefines.Keys.BPayload);
         if (StringUtils.isNotEmpty(payload))
@@ -932,7 +927,10 @@ public class BFirebaseInterface {
 
         String userFirebaseID = (String) values.get(BDefines.Keys.BUserFirebaseId);
         if (StringUtils.isNotEmpty(userFirebaseID))
-            message.setBUserSender(DaoCore.<BUser>fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID));
+        {
+            BUser sender = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+            message.setBUserSender(sender);
+        }
 
         String color = (String) values.get(BDefines.Keys.BColor);
         if (StringUtils.isNotEmpty(color))
@@ -951,9 +949,6 @@ public class BFirebaseInterface {
             message.fontSize = fontSize;
 
         message.setLastUpdated(new Date());
-
-        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
-        thread.setEntityID(threadFirebaseID);
 
         // Mark the thead as having unread messages if this message
         // doesn't already exist on the thread

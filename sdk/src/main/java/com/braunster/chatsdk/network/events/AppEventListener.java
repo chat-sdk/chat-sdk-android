@@ -1,9 +1,7 @@
-package com.braunster.chatsdk.events;
+package com.braunster.chatsdk.network.events;
 
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.AppEvents;
 
 public class AppEventListener extends Event{
 
@@ -17,7 +15,7 @@ public class AppEventListener extends Event{
     }
 
     @Override
-    public boolean onThreadAdded(String threadId) {
+    public boolean onThreadDetailsChanged(String threadId) {
         return false;
     }
 

@@ -59,12 +59,12 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/list_contacts"
-        android:visibility="gone"></ListView>
+        android:visibility="visible"/>
 
-    <ProgressBar
+<!--    <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:id="@+id/prg_bar"
-        android:layout_margin="50dp"/>
+        android:layout_margin="50dp"/>-->
 </LinearLayout>

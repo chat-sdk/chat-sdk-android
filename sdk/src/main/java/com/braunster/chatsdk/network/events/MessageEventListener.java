@@ -1,7 +1,6 @@
-package com.braunster.chatsdk.events;
+package com.braunster.chatsdk.network.events;
 
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.interfaces.AppEvents;
 
 public abstract class MessageEventListener extends Event {
 

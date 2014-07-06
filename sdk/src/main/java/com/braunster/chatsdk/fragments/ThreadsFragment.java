@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -16,9 +15,7 @@ import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
-import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
-import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.ActivityListener;
@@ -56,8 +53,10 @@ public class ThreadsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        if (DEBUG) Log.d(TAG, "onCreateView");
         init(inflater);
+
+        loadData();
 
         return mainView;
     }
@@ -83,11 +82,7 @@ public class ThreadsFragment extends BaseFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
-
-                Intent intent = new Intent(getActivity(), ChatActivity.class);
-                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getId());
-
-                startActivity(intent);
+                startChatActivityForID(listAdapter.getItem(position).getId());
             }
         });
     }
@@ -109,7 +104,7 @@ public class ThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Public chat Room");
+                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Public chat Room");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
     }
@@ -119,7 +114,7 @@ public class ThreadsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_add_chat_room)
+        if (id == R.id.action_chat_sdk_add)
         {
             FragmentManager fm = getActivity().getSupportFragmentManager();
             DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
@@ -178,7 +173,7 @@ public class ThreadsFragment extends BaseFragment {
 
         /*activityListener = BNetworkManager.sharedManager().getNetworkAdapter().addActivityListener(new ActivityListener() {
             @Override
-            public void onThreadAdded(BThread thread) {
+            public void onThreadDetailsChanged(BThread thread) {
                 if (DEBUG) Log.d(TAG, "Thread is added");
                 listAdapter.addRow(thread);
             }

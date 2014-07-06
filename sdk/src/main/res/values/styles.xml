@@ -1,6 +1,4 @@
-<resources
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
     <style name="ChatSDKTheme" parent="Theme.Base.AppCompat.Light">
@@ -8,6 +6,7 @@
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
+    <!--Action bar style-->
     <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@android:color/holo_blue_dark</item>
         <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
@@ -17,6 +16,7 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <!-- TextView Style-->
     <style name="TextViewStyle">
         <item name="android:textSize">20dp</item>
         <item name="android:padding">2dp</item>
@@ -27,6 +27,14 @@
         <item name="android:padding">2dp</item>
     </style>
 
+    <!--Login Activity Button style-->
+    <style name="LoginButtonsStyle">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <!--Circle image view style-->
     <style name="CircleIconStyle">
         <item name="android:layout_width">48dp</item>
         <item name="android:layout_height">48dp</item>

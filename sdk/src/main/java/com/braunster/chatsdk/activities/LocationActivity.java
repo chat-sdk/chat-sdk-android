@@ -95,6 +95,12 @@ public class LocationActivity extends FragmentActivity
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                 .getMap();
 
+        if (map == null)
+        {
+            reportError("Map is null");
+            return;
+        }
+
         // Add find my location button
         map.setMyLocationEnabled(true);
 

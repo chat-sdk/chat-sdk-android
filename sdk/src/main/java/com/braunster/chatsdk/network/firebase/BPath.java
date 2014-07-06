@@ -13,7 +13,7 @@ import java.util.Map;
 public class BPath {
 
     private static final String TAG = BPath.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private Map<String, String> tokens = new HashMap<String, String>();
     private ArrayList<String> keys = new ArrayList<String>();

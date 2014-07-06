@@ -106,18 +106,18 @@ public class ThreadsListAdapter extends BaseAdapter {
 
         // Check if thread has a name,
         // For private and one on one threads with no name we will put the other user name.
-        if (thread.getName() == null || thread.getName().equals(""))
+        /*if (thread.getName() == null || thread.getName().equals(""))
         {
             if (thread.getType() == BThread.Type.Private)
             {
                 thread.setName(thread.displayName());
-                /*if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
+                *//*if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
                     thread.setName(thread.getUsers().get(1).getName());
-                else thread.setName(thread.getUsers().get(0).getName());*/
+                else thread.setName(thread.getUsers().get(0).getName());*//*
             }
             else
                 thread.setName("Chat Room");
-        }
+        }*/
 
         if (holder == null)
             if (DEBUG) Log.e(TAG, "Holder is null");
@@ -125,7 +125,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         if (holder.txtName == null)
             if (DEBUG) Log.e(TAG, "textview name is null");
 
-        holder.txtName.setText(thread.getName());
+        holder.txtName.setText(thread.displayName());
 //        holder.txtLastMsg.setText(listData.get(position).getName());
 
         messageLogic(holder, position);
@@ -161,8 +161,10 @@ public class ThreadsListAdapter extends BaseAdapter {
 
         BMessage message;
 
+        List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
+
         // If no message create dummy message.
-        if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() == 0)
+        if ( messages.size() == 0)
         {
             if (DEBUG) Log.d(TAG, "No messages");
 //            message = new BMessage();
@@ -171,7 +173,7 @@ public class ThreadsListAdapter extends BaseAdapter {
             holder.txtLastMsg.setText("No Messages...");
             return;
         }
-        else message = thread.getMessagesWithOrder(DaoCore.ORDER_DESC).get(0);
+        else message = messages.get(0);
 
         if (DEBUG) Log.d(TAG, "Message text: " + message.getText());
 

@@ -31,11 +31,11 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.interfaces.ActivityListener;
+import com.braunster.chatsdk.fragments.ContactsFragment;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.events.MessageEventListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.events.MessageEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
 import com.google.android.gms.maps.model.LatLng;
@@ -47,11 +47,8 @@ import java.io.File;
  */
 public class ChatActivity extends BaseActivity implements View.OnClickListener, TextView.OnEditorActionListener{
 
-    // TODO listen to new  incoming  messages
-    // TODO add popup for message options.
-    // TODO add location message.
-    // TODO auto scroll to bottom.
     // TODO add button to add users to action bar.
+    // TODO implement bubbles UI
 
     private static final String TAG = ChatActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -68,7 +65,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private EditText etMessage;
     private ListView listMessages;
     private MessagesListAdapter messagesListAdapter;
-    private ActivityListener activityListener;
     private BThread thread;
     private PopupWindow optionPopup;
 
@@ -81,7 +77,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             return;
 
         initViews();
-        initActionBar(thread.getName() == null || thread.getName().equals("") ? "Chat" : thread.getName());
+        initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
     }
 
     private void initActionBar(String username){
@@ -265,16 +261,40 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_add_chat_room, 10, "Add Chat");
+                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add contact to chat.");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(android.R.drawable.ic_menu_add);
+
+        MenuItem itemThreadUsers =
+                menu.add(Menu.NONE, R.id.action_chat_sdk_show, 10, "Show thread users.");
+        itemThreadUsers.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        itemThreadUsers.setIcon(android.R.drawable.ic_menu_info_details);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        /* Cant use switch in the library*/
+        int id = item.getItemId();
+
+        // ASK what the add button do in this class
+        if (id == R.id.action_chat_sdk_add)
+        {
+            ContactsFragment contacts = ContactsFragment.newDialogInstance(
+                    ContactsFragment.MODE_LOAD_CONTACS, "Contacts:");
+
+            contacts.show(getSupportFragmentManager(), "Contacts");
+        }
+        else if (id == R.id.action_chat_sdk_show)
+        {
+            ContactsFragment contacts = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
+//        contacts.getDialog().setTitle("Contacts");
+
+            contacts.show(getSupportFragmentManager(), "Users");
+        }
+
         return super.onOptionsItemSelected(item);
-        // ASK what add button do in this class
     }
 
     private boolean getThread(Bundle savedInstanceBundle){
@@ -393,10 +413,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             startActivityForResult(intent, PICK_LOCATION);
             dismissOption();
         }
-    }
-
-    private void startListeningToMessages(){
-
     }
 
     @Override
