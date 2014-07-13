@@ -12,6 +12,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.braunster.chatsdk.activities.ChatActivity;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.parse.PushUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.MissingResourceException;
 
 /**
@@ -81,6 +87,20 @@ public class NotificationUtils {
 
         // Builds the notification and issues it.
         mNotifyMgr.notify(id, notification);
+    }
+
+    public static void createMessageNotification(Context context, BMessage message){
+        Intent resultIntent = new Intent(context, ChatActivity.class);
+        resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
+
+        String msgContent = message.getType() == BMessage.Type.bText.ordinal() ? message.getText() : message.getType() == BMessage.Type.bImage.ordinal() ? "Image" : "Location";
+
+        String title = !StringUtils.isEmpty(
+                message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ";
+
+        Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
+
+        createAlertNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent, data);
     }
 
     /** Create an ongoing notification that can terminate the connection or play/stop the sound directly from the notification drawer.*/

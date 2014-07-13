@@ -18,16 +18,20 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
+import com.braunster.chatsdk.network.listeners.AuthListener;
+import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookException;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.firebase.simplelogin.User;
+import com.firebase.simplelogin.enums.Error;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -41,7 +45,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private LoginButton fbLoginButton;
     private Button btnLogin, btnReg, btnAnon;
     private EditText etName, etPass;
-
+    private CircleImageView appIconImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,21 +82,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
         etName = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
+
+        appIconImage = (CircleImageView) findViewById(R.id.app_icon);
+
+        appIconImage.post(new Runnable() {
+            @Override
+            public void run() {
+//                Log.d(TAG, "Height: " + appIconImage.getHeight() + ", Width: " + appIconImage.getWidth());
+//                Bitmap bitmap = ((BitmapDrawable) appIconImage.getDrawable()).getBitmap();
+//                bitmap = scaleImage( bitmap, Math.min(appIconImage.getWidth(), appIconImage.getHeight()) );
+//                appIconImage.setImageBitmap(bitmap);
+                appIconImage.setVisibility(View.VISIBLE);
+            }
+        });
     }
-    @Override
-    protected void onResume() {
-        super.onResume();
 
-        // Auto check for session state change if session is valid.
-//        if (session != null &&
-//                (session.isOpened() || session.isClosed()) ) {
-//            onSessionStateChange(session, session.getState(), null);
-//        }
-
-        Session session = Session.getActiveSession();
-        if (session != null && session.isOpened())
-            showProgDialog("Connecting...");
-
+    private void initListeners(){
         /* Registering listeners.*/
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
@@ -108,6 +113,41 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 return false;
             }
         });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+       showProgDialog("Checking auth...");
+       authenticate(
+                new AuthListener() {
+                    @Override
+                    public void onCheckDone(boolean isAuthenticated) {
+                        if (isAuthenticated)
+                        {
+                            showOrUpdateProgDialog("Authenticating...");
+                            if (DEBUG) Log.d(TAG, "Auth");
+                        } else {
+                            dismissProgDialog();
+                            if  (DEBUG) Log.d(TAG, "NO Auth");
+                        }
+                    }
+
+                    @Override
+                    public void onLoginDone() {
+                        if (DEBUG) Log.d(TAG, "Login Done");
+                        afterLogin();
+                    }
+
+                    @Override
+                    public void onLoginFailed(BError error) {
+                        dismissProgDialog();
+                        Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        initListeners();
+
         uiHelper.onResume();
     }
 
@@ -132,10 +172,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     /* Dismiss dialog and open main activity.*/
     private void afterLogin(){
-        dismissProgDialog();
+        // Giving the system extra time to load.
+        findViewById(R.id.content).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismissProgDialog();
 
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        }, 5000);
     }
 
     /* Exit Stuff*/
@@ -162,19 +208,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Password, etName.getText().toString(), etPass.getText().toString());
-            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
                 @Override
-                public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+                public void onDone(User firebaseSimpleLoginUser) {
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                    if (o instanceof FirebaseSimpleLoginError)
+                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
+                    if (o instanceof Error)
                     {
                         String toastMessage = "";
-                        FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
-                        switch (error.getCode())
+                        Error error = ((Error) o);
+                        switch (error)
                         {
                             case EmailTaken:
                                 toastMessage = "Email is taken.";
@@ -229,20 +275,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Register, etName.getText().toString(), etPass.getText().toString());
-            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
                 @Override
-                public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+                public void onDone(User firebaseSimpleLoginUser) {
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
+                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
 
-                    if (o instanceof FirebaseSimpleLoginError)
+                    if (o instanceof Error)
                     {
                         String toastMessage = "";
-                        FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
-                        switch (error.getCode())
+                        com.firebase.simplelogin.enums.Error error = ((Error) o);
+                        switch (error)
                         {
                             case EmailTaken:
                                 toastMessage = "Email is taken.";

@@ -80,7 +80,7 @@ public class DaoCore {
 
     //region Test
     private static void test(){
-        clearTestData();
+//        clearTestData();
 //        printUsersData(daoSession.loadAll(BUser.class));
     }
 

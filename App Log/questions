@@ -1,3 +1,0 @@
-//ASK do i need to authinticate against firebase once in a while?
-// ASk after changing metadata locally do i nedd to push it to the server? because after i load the app again the metadata is overridden by the metafrom the server on the objectfromsnapshot.
-// ASK how to limit the calls to the server.

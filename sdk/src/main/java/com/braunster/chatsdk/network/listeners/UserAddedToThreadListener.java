@@ -48,56 +48,47 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
 
     @Override
     public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-//                try {
-//                    Thread.sleep(100);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                if (DEBUG) Log.d(TAG, "Datasnapshot cildren: " + dataSnapshot.getChildren());
-                BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
-                final String userFirebaseID = path.idForIndex(1);
+        if (DEBUG) Log.v(TAG, "User Added to thread.");
 
-                if (DEBUG) Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.currentUserId);
-                if (userFirebaseID.equals(EventManager.currentUserId)) {
-                    return;
-                }
+        if (isAlive())
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
+                    final String userFirebaseID = path.idForIndex(1);
 
-                BUser bUser;
-                // If the user already has  listening to this user we can fetch it from the db because he is up to date.
-//                if (usersIds.contains(userFirebaseID))
-                    bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
-//                else
-////                    // For each user we'd then need to add them to the database
-//                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
-
-                BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
-                if (thread.getType() != BThread.Type.Public)
-                {
-                    // Users that are members of threads are shown in contacts
-                    BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
-                }
-
-                // Attaching the user to the thread if needed.
-                if (!thread.hasUser(bUser))
-                    DaoCore.connectUserAndThread(bUser, thread);
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (DEBUG) Log.v(TAG, "User Added to thread.");
-                        Message message = new Message();
-                        message.what = AppEvents.USER_ADDED_TO_THREAD;
-                        Bundle data = new Bundle();
-                        data.putString(EventManager.THREAD_ID, threadID);
-                        data.putString(EventManager.USER_ID, userFirebaseID);
-                        message.setData(data);
-                        handler.sendMessage(message);
+                    if (DEBUG) Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.getCurrentUserId());
+                    if (userFirebaseID.equals(EventManager.getCurrentUserId())) {
+                        return;
                     }
-                }).start();
-            }
-        }).start();
+
+                    BUser bUser;
+                    // If the user already has  listening to this user we can fetch it from the db because he is up to date.
+    //                if (usersIds.contains(userFirebaseID))
+                        bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+    //                else
+    ////                    // For each user we'd then need to add them to the database
+    //                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
+
+                    BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
+                    if (thread.getType() != BThread.Type.Public)
+                    {
+                        // Users that are members of threads are shown in contacts
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
+                    }
+
+                    // Attaching the user to the thread if needed.
+                    if (!thread.hasUser(bUser))
+                        DaoCore.connectUserAndThread(bUser, thread);
+
+                    Message message = new Message();
+                    message.what = AppEvents.USER_ADDED_TO_THREAD;
+                    Bundle data = new Bundle();
+                    data.putString(EventManager.THREAD_ID, threadID);
+                    data.putString(EventManager.USER_ID, userFirebaseID);
+                    message.setData(data);
+                    handler.sendMessage(message);
+                }
+            }).start();
     }
 }

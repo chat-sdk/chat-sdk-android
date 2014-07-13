@@ -17,8 +17,8 @@ import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.firebase.client.Firebase;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
+import com.firebase.simplelogin.User;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -79,9 +79,9 @@ public class BFacebookManager {
 
         BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
                 FirebasePaths.getMap(new String[]{ACCESS_TOKEN, LoginTypeKey}, userFacebookAccessToken, Facebook),
-                    new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+                    new CompletionListenerWithDataAndError<User, Object>() {
             @Override
-            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+            public void onDone(User firebaseSimpleLoginUser) {
                 if (DEBUG) Log.i(TAG, "Logged to firebase");
                 // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
                 userFacebookID = firebaseSimpleLoginUser.getUserId();
@@ -89,7 +89,7 @@ public class BFacebookManager {
             }
 
             @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
+            public void onDoneWithError(User fuser, Object o) {
                 if (DEBUG) Log.e(TAG, "Log to firebase failed");
                 completionListener.onDone();
             }

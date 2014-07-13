@@ -65,7 +65,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.chat_sdk_row_contact, null);
         }
 
-        txtContactName = (TextView) convertView.findViewById(R.id.txt_name);
+        txtContactName = (TextView) convertView.findViewById(R.id.chat_sdk_txt);
         imgPicture = (CircleImageView) convertView.findViewById(R.id.img_profile_picture);
 
         txtContactName.setText(childText);

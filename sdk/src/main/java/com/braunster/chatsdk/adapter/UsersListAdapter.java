@@ -74,7 +74,7 @@ public class UsersListAdapter extends BaseAdapter {
         {
             row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_contact, null);
             holder = new ViewHolder();
-            holder.textView = (TextView) row.findViewById(R.id.txt_name);
+            holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
             holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
             row.setTag(holder);
         }

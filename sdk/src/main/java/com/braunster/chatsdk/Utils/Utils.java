@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.braunster.chatsdk.dao.core.DaoCore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -86,11 +87,18 @@ public class Utils {
 
     public static Bitmap loadBitmapFromFile(String photoPath){
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
         return bitmap;
     }
 
+    public static String BitmapToString(Bitmap bitmap){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
 
     public static class FileSaver{
 

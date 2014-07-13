@@ -1,7 +1,5 @@
 package com.braunster.chatsdk.interfaces;
 
-import com.braunster.chatsdk.object.BError;
-
 /**
  * Created by itzik on 6/9/2014.
  * DATA - the data that we want to get when the task is done.

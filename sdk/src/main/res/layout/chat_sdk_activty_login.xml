@@ -21,7 +21,9 @@
             android:layout_centerHorizontal="true"
             android:src="@drawable/icn_user_x_2"
             android:id="@+id/app_icon"
+            android:visibility="invisible"
             android:layout_alignParentTop="true"
+            android:layout_above="@id/chat_sdk_et_mail"
             style="@style/CircleIconStyle"/>
 
         <!--android:text="t@g.com"-->

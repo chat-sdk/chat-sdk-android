@@ -3,9 +3,10 @@ package com.braunster.chatsdk.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -17,41 +18,60 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.activities.LoginActivity;
+import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ProfileFragment extends BaseFragment implements TextView.OnEditorActionListener, View.OnClickListener{
+public class ProfileFragment extends BaseFragment implements TextView.OnEditorActionListener{
 
     private static final int PHOTO_PICKER_ID = 100;
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
     private static boolean DEBUG = true;
 
+    private static final String S_I_F_NAME = "saved_name_flag";
+    private static final String S_I_F_PHONE = "saved_phones_flag";
+    private static final String S_I_F_EMAIL = "saved_email_flag";
+    private static final String S_I_F_PROFILE = "saved_profile_flag";
+
+    private static final String S_I_D_NAME = "saved_name_data";
+    private static final String S_I_D_PHONE = "saved_phones_data";
+    private static final String S_I_D_EMAIL = "saved_email_data";
+
     private EditText etName, etMail, etPhone;
-    private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false;
+    private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false, isProfilePicChanged;
 
 //    private ProfilePictureView profilePictureView;
     private CircleImageView profileCircleImageView;
 
-    private BUser user;
     private Integer loginType;
+
     public static ProfileFragment newInstance() {
         ProfileFragment f = new ProfileFragment();
         Bundle b = new Bundle();
@@ -66,35 +86,29 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         if (DEBUG) Log.d(TAG, "onCreateView");
+
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
-
-        this.user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
         initViews();
 
         loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
 
-        switch (loginType)
+        if (savedInstanceState == null)
         {
-            case BDefines.BAccountType.Facebook:
-                getDetailsFromFacebook();
-                break;
-
-            case BDefines.BAccountType.Password:
-                notFacebookLogin();
-                // Use facebook profile picture only if has no other picture saved.
-                setProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
-                break;
-
-            case BDefines.BAccountType.Twitter:
-                break;
-
+            loadData();
         }
+        else
+        {
+            isEmailTouched = savedInstanceState.getBoolean(S_I_F_EMAIL);
+            isNameTouched = savedInstanceState.getBoolean(S_I_F_NAME);
+            isPhoneTouched = savedInstanceState.getBoolean(S_I_F_PHONE);
+            isProfilePicChanged = savedInstanceState.getBoolean(S_I_F_PROFILE);
 
-        setDetails();
-
+            setDetails(loginType, savedInstanceState);
+        }
 
         return mainView;
     }
@@ -109,17 +123,76 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         if (DEBUG) Log.d(TAG, "onResume");
         super.onResume();
+
+        //region Listening to text changes.
         etName.setOnEditorActionListener(this);
         etPhone.setOnEditorActionListener(this);
         etMail.setOnEditorActionListener(this);
 
-        etName.setOnClickListener(this);
-        etPhone.setOnClickListener(this);
-        etMail.setOnClickListener(this);
+        etMail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+//                Log.e(TAG, "onClick");
+//                if (v.getId() == R.id.chat_sdk_et_name)
+//                    isNameTouched = true;
+//                else if (v.getId() == R.id.chat_sdk_et_mail)
+//                    isEmailTouched = true;
+//                else if (v.getId() == R.id.chat_sdk_et_phone_number)
+//                    isPhoneTouched = true;
+                isEmailTouched = true;
+            }
+        });
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                isNameTouched = true;
+            }
+        });
+        etPhone.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                isPhoneTouched = true;
+            }
+        });
+        //endregion
+
+        // Long click will open the gallery so the user can change is picture.
         profileCircleImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -153,8 +226,22 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void loadData() {
+        super.loadData();
+        setDetails((Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(S_I_F_NAME, isNameTouched);
+        outState.putBoolean(S_I_F_EMAIL, isEmailTouched);
+        outState.putBoolean(S_I_F_PHONE, isPhoneTouched);
+        outState.putBoolean(S_I_F_PROFILE, isProfilePicChanged);
+
+        outState.putString(S_I_D_NAME, etName.getText().toString());
+        outState.putString(S_I_D_EMAIL, etMail.getText().toString());
+        outState.putString(S_I_D_PHONE, etPhone.getText().toString());
     }
 
     @Override
@@ -193,9 +280,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().setMetaPicture(image);
-                        setProfilePic(BitmapFactory.decodeFile(image.getPath()));
-                        BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
+                        saveProfilePicToParse(image.getPath());
                     }
                     else if (DEBUG) Log.e(TAG, "Image is null");
 
@@ -214,20 +299,153 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     /*############################################*/
     /* UI*/
-    private void getDetailsFromFacebook(){
-        // Use facebook profile picture only if has no other picture saved.
-        Bitmap bitmap = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture();
 
-        if (bitmap != null)
-            setProfilePic(bitmap);
+
+    /** Fetching the user details from the user's metadata.*/
+    private void setDetails(int loginType){
+        if (etName == null)
+        {
+            initViews();
+        }
+
+        BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+        etName.setText(user.getMetaName());
+        etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
+        etMail.setText(user.getMetaEmail());
+
+        setProfilePic(loginType);
+    }
+
+    private void setDetails(int loginType, Bundle bundle){
+        etName.setText(bundle.getString(S_I_D_NAME));
+        etPhone.setText(bundle.getString(S_I_D_PHONE));
+        etMail.setText(bundle.getString(S_I_D_EMAIL));
+
+        setProfilePic(loginType);
+    }
+
+    private void setProfilePic(int loginType){
+        switch (loginType)
+        {
+            case BDefines.BAccountType.Facebook:
+                getProfileFromFacebook();
+                break;
+
+            case BDefines.BAccountType.Password:
+                notFacebookLogin();
+                // Use facebook profile picture only if has no other picture saved.
+//                setProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
+                setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL));
+                break;
+
+            case BDefines.BAccountType.Twitter:
+                break;
+        }
+    }
+
+    private void setProfilePicFromURL(String url){
+        // Set default.
+        if (url == null)
+        {
+            profileCircleImageView.setImageResource(R.drawable.icn_user_x_2);
+            return;
+        }
+
+        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (response.getBitmap() != null) {
+                    // load image into imageview
+                    final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+
+                    // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
+                    if (size == 0)
+                    {
+                        profileCircleImageView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+                                profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
+                            }
+                        });
+                    } else profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
+                }
+            }
+
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Image Load Error: " + error.getMessage());
+            }
+        });
+    }
+
+    private void saveProfilePicToParse(String path) {
+        //  Loading the bitmap
+        final Bitmap b = Utils.loadBitmapFromFile(path);
+
+        // Converting file to a JPEG and then to byte array.
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        b.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+
+        profileCircleImageView.setVisibility(View.VISIBLE);
+
+        // Saving the image to parse.
+        final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+        final ParseFile parseFile = new ParseFile(currentUser.getEntityID().replace("-","") + ".jpeg", byteArray);
+
+        int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+
+        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
+        if (size == 0)
+        {
+            profileCircleImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+                    profileCircleImageView.setImageBitmap(scaleImage(b, size));
+                }
+            });
+        } else profileCircleImageView.setImageBitmap(scaleImage(b, size));
+
+        // When save is done save the image url in the user metadata.
+        parseFile.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null)
+                {
+                    if (DEBUG) Log.e(TAG, "Parse Exception while saving profile pic: " + parseFile.getName() + " --- " + e.getMessage());
+                    return;
+                }
+
+                isProfilePicChanged = true;
+                currentUser.setMetadataString(BDefines.Keys.BPictureURL, parseFile.getUrl());
+
+                updateProfileIfNeeded();
+            }
+        });
+    }
+
+    private void notFacebookLogin(){
+        mainView.findViewById(R.id.chat_sdk_facebook_button).setVisibility(View.GONE);
+        mainView.findViewById(R.id.chat_sdk_logout_button).setVisibility(View.VISIBLE);
+    }
+
+    private void getProfileFromFacebook(){
+        // Use facebook profile picture only if has no other picture saved.
+        String imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+
+        if (imageUrl != null)
+            setProfilePicFromURL(imageUrl);
         else
             BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
                 @Override
                 public void onDone(GraphUser graphUser) {
                     Log.d(TAG, "Name: " + graphUser.getName());
-    //                etName.setText(graphUser.getName());
-    //                etMail.setText((String) graphUser.getProperty("email"));
-    //                //                profilePictureView.setProfileId(graphUser.getId());
+                    //                etName.setText(graphUser.getName());
+                    //                etMail.setText((String) graphUser.getProperty("email"));
+                    //                //                profilePictureView.setProfileId(graphUser.getId());
 
                     profileCircleImageView.setImageResource(0);
                     VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
@@ -242,26 +460,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 }
             });
     }
-
-    /** Fetching the user details from the user's metadata.*/
-    private void setDetails(){
-        BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
-        etName.setText(user.getMetaName());
-        etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
-        etMail.setText(user.getMetaEmail());
-    }
-
-    private void notFacebookLogin(){
-        mainView.findViewById(R.id.chat_sdk_facebook_button).setVisibility(View.GONE);
-        mainView.findViewById(R.id.chat_sdk_logout_button).setVisibility(View.VISIBLE);
-    }
-
-    private void setProfilePic(Bitmap bitmap){
-        if (bitmap != null)
-            profileCircleImageView.setImageBitmap(bitmap);
-    }
     /*############################################*/
-
     @Override
     public boolean onEditorAction(final TextView v, int actionId, KeyEvent event) {
         /* Logic:
@@ -271,37 +470,34 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         {
             if (v.getId() == R.id.chat_sdk_et_name){
                 isNameTouched = true;
-                updateIndexAndMetadata();
             }
             else if (v.getId() == R.id.chat_sdk_et_mail){
                 isEmailTouched = true;
-                updateIndexAndMetadata();
             }
             else if (v.getId() == R.id.chat_sdk_et_phone_number){
                 isPhoneTouched = true;
-                updateIndexAndMetadata();
             }
         }
+
+        updateProfileIfNeeded();
 
         return false;
     }
 
-    @Override
-    public void onClick(View v) {
-        Log.e(TAG, "onClick");
-        if (v.getId() == R.id.chat_sdk_et_name)
-            isNameTouched = true;
-        else if (v.getId() == R.id.chat_sdk_et_mail)
-            isEmailTouched = true;
-        else if (v.getId() == R.id.chat_sdk_et_phone_number)
-            isPhoneTouched = true;
-    }
+    public void updateProfileIfNeeded(){
+        boolean toUpdate = isEmailTouched || isPhoneTouched || isNameTouched || isProfilePicChanged;
 
-    public void updateIndexAndMetadata(){
+        Log.v(TAG, "updateProfileIfNeeded, toUpdate: " + toUpdate);
+
+        Log.v(TAG, "updateProfileIfNeeded " + (isEmailTouched?",Email ":"") + (isNameTouched?",Name ":"") + (isPhoneTouched?",Phone ":"") + (isProfilePicChanged?",Pic Changed":""));
+
+//        if (!toUpdate)
+//            return;
+
+        List<BMetadata> metadataToPush = new ArrayList<BMetadata>();
+
         // The current user.
         final BUser bUser =BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
-
-        boolean toUpdate = isEmailTouched || isPhoneTouched || isNameTouched;
 
         if (isPhoneTouched)
         {
@@ -311,7 +507,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             if (!phone.equals(curPhone))
             {
                 bUser.setMetadataString(BDefines.Keys.BPhone, phone);
-                indexUser(user, curPhone, phone);
+                metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPhone, BMetadata.Type.STRING));
+                indexUser(bUser, curPhone, phone);
             }
 
             isPhoneTouched = false;
@@ -324,7 +521,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             if (!name.equals(curName))
             {
                 bUser.setMetaName(name);
-                indexUser(user, curName, name);
+                metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BName, BMetadata.Type.STRING));
+                indexUser(bUser, curName, name);
             }
 
             isNameTouched = false;
@@ -337,14 +535,23 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             if (!email.equals(curEmail))
             {
                 bUser.setMetaEmail(email);
-                indexUser(user, curEmail, email);
+                metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BEmail, BMetadata.Type.STRING));
+                indexUser(bUser, curEmail, email);
             }
 
             isEmailTouched = false;
         }
 
-        // Update the user entity.
-        if (toUpdate) BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
+        if (isProfilePicChanged)
+        {
+//            metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPicture, BMetadata.Type.IMAGE));
+            metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING));
+            isProfilePicChanged = false;
+        }
+
+        // Push the changed metadata.
+        for (BMetadata metadata : metadataToPush)
+            BFirebaseInterface.pushEntity(metadata, null);
     }
 
     private void indexUser(final BUser user, final String oldIndex, final String newIndex){
@@ -361,3 +568,53 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         });
     }
 }
+
+
+
+/*    private void setProfilePic(final Bitmap bitmap){
+        if (bitmap != null)
+        {
+            profileCircleImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    profileCircleImageView.setVisibility(View.INVISIBLE);
+                    int size = mainView.findViewById(R.id.frame_profile_image_container).getHeight();
+
+                    setScaledPicToView(bitmap, size, profileCircleImageView);
+
+                    profileCircleImageView.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }*/
+
+    /*    private void setProfilePic(final String path){
+            profileCircleImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    isProfilePicChanged = true;
+
+                    int size = mainView.findViewById(R.id.frame_profile_image_container).getHeight();
+
+                    Bitmap b = setScaledPicToView(path, size, profileCircleImageView);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    b.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+                    profileCircleImageView.setVisibility(View.VISIBLE);
+
+                    final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                    final ParseFile parseFile = new ParseFile(currentUser.getEntityID().replace("-","") + ".jpeg", byteArray);
+
+                    parseFile.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null)
+                                if (DEBUG) Log.e(TAG, "Parse Exception while saving profile pic: " + parseFile.getName() + " --- " + e.getMessage());
+                            currentUser.setMetadataString(BDefines.Keys.BPictureURL, parseFile.getUrl());
+                        }
+                    });
+
+    //                currentUser.setMetaPicture(((BitmapDrawable) profileCircleImageView.getDrawable()).getBitmap());
+                }
+            });
+        }*/

@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.Utils;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,7 +17,6 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -33,14 +31,9 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
-import com.facebook.android.Facebook;
-import com.facebook.android.Util;
 import com.facebook.model.GraphUser;
-
-import org.apache.commons.io.FileUtils;
 
 import java.util.List;
 

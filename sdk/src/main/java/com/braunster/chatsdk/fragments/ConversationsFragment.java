@@ -1,8 +1,10 @@
 package com.braunster.chatsdk.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -84,9 +86,14 @@ public class ConversationsFragment extends BaseFragment {
         listThreads.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).displayName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityID());
-                return false;
+                if (DEBUG)
+                    Log.i(TAG, "Thread Long Selected: " + listAdapter.getItem(position).displayName()
+                            + ", ID: " + listAdapter.getItem(position).getEntityID());
+
+                showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                        getResources().getString(R.string.cancel), null, new DeleteThread(listAdapter.getItem(position).getEntityID()));
+
+                return true;
             }
         });
     }
@@ -104,6 +111,45 @@ public class ConversationsFragment extends BaseFragment {
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
+
+    @Override
+    public void loadDataOnBackground() {
+        super.loadDataOnBackground();
+        if (DEBUG) Log.v(TAG, "loadDataOnBackground");
+
+        if (mainView == null)
+            return;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
+
+                if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+
+                Message message = new Message();
+                message.what = 1;
+                message.obj = threads;
+
+                handler.sendMessage(message);
+            }
+        }).start();
+
+    }
+
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what)
+            {
+                case 1:
+                    listAdapter.setListData((List<BThread>) msg.obj);
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -144,22 +190,5 @@ public class ConversationsFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PickFriendsActivity.PICK_FRIENDS_FOR_CONVERSATION)
-        {
-            if (resultCode == Activity.RESULT_OK)
-            {
-
-            }
-            else if (resultCode == Activity.RESULT_CANCELED)
-            {
-
-            }
-        }
     }
 }

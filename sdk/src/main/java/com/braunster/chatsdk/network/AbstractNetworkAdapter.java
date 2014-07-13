@@ -19,9 +19,12 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
+import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.braunster.chatsdk.parse.ParseUtils;
+import com.firebase.simplelogin.User;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseException;
 
 import org.apache.commons.io.FileUtils;
 
@@ -62,17 +65,17 @@ public abstract class AbstractNetworkAdapter {
                 return BDefines.AnonymuosLoginEnabled;
 
             case Facebook:
-                return !BDefines.FacebookAppId.equals("");
+                return !BDefines.APIs.FacebookAppId.equals("");
 
             case Google:
-                return !BDefines.GoogleAppId.equals("");
+                return !BDefines.APIs.GoogleAppId.equals("");
 
             case Password:
             case Register:
                 return true;
 
             case Twitter:
-                return !BDefines.TwitterApiKey.equals("");
+                return !BDefines.APIs.TwitterApiKey.equals("");
 
             default:
                 return false;
@@ -80,14 +83,14 @@ public abstract class AbstractNetworkAdapter {
     }
 
     // Note done!
-    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener);
+    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<User, Object> listener);
 
     /**
      * Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,
      * Or it can contain FirebaseError if after the auth something failed.
      * The return type of the listener must be Object and need to be cast.
      */
-    public abstract void checkUserAuthenticatedWithCallback(CompletionListenerWithDataAndError<BUser, Object> listener);
+    public abstract void checkUserAuthenticatedWithCallback(AuthListener listener);
 
     public abstract void pushUserWithCallback(CompletionListener listener);
 
@@ -182,8 +185,56 @@ public abstract class AbstractNetworkAdapter {
                 listener.onDoneWithError(error);
             }
         });
+    }
 
+    /**
+     * Preparing an image message,
+     * This is only the build part of the send from here the message will passed to "sendMessage" Method.
+     * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
+     * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
+     * When done or when an error occurred the calling method will be notified.
+     *
+     * @param image          is a file that contain the image. For now the file will be decoded to a Base64 image representation.
+     * @param threadEntityId the id of the thread that the message is sent to.
+     */
+    public void sendMessageWithImage(String filePath, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
+        /* Prepare the message object for sending, after ready send it using send message abstract method.*/
 
+        // http://stackoverflow.com/questions/13119306/base64-image-encoding-using-java
+
+        final BMessage message = new BMessage();
+        message.setOwnerThread(threadEntityId);
+        message.setType(bImage.ordinal());
+        message.setDate(new Date());
+        message.setBUserSender(currentUser());
+
+        ParseUtils.saveImageFileToParse(filePath, new ParseUtils.SaveCompletedListener() {
+            @Override
+            public void onSaved(ParseException excepion, String url) {
+                if (excepion == null)
+                {
+                    message.setText(url);
+                    DaoCore.createEntity(message);
+
+                    sendMessage(message, new CompletionListenerWithData<BMessage>() {
+                        @Override
+                        public void onDone(BMessage bMessage) {
+                            if (DEBUG)
+                                Log.v(TAG, "sendMessageWithImage, onDone. Message ID: " + bMessage.getEntityID());
+                            DaoCore.updateEntity(bMessage);
+                            listener.onDone(bMessage);
+                        }
+
+                        @Override
+                        public void onDoneWithError(BError error) {
+                            DaoCore.deleteEntity(message);
+                            listener.onDoneWithError(error);
+                        }
+                    });
+                }
+                else listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, excepion));
+            }
+        });
     }
 
     /*"http://developer.android.com/guide/topics/location/strategies.html"*/
@@ -395,7 +446,7 @@ public abstract class AbstractNetworkAdapter {
             else Log.e(TAG, "Cant add this --> " + values.get(s) + " to the prefs");
         }
 
-        keyValuesEditor.commit();
+        keyValuesEditor.apply();
     }
 
     //http://stackoverflow.com/questions/8151523/how-to-store-and-retrieve-key-value-kind-of-data-using-saved-preferences-andro

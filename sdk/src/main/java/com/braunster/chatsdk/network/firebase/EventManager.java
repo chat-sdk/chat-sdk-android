@@ -7,10 +7,12 @@ import android.util.Log;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
@@ -23,9 +25,10 @@ import com.braunster.chatsdk.network.listeners.UserAddedToThreadListener;
 import com.braunster.chatsdk.network.listeners.UserDetailsChangeListener;
 import com.braunster.chatsdk.object.FirebaseEventCombo;
 import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,7 +67,6 @@ public class EventManager implements AppEvents {
 
     public Map<String, FirebaseEventCombo> listenerAndRefs = new HashMap<String, FirebaseEventCombo>();
 
-    public static String currentUserId = "";
     public static EventManager getInstance(){
         if (instance == null)
             instance = new EventManager();
@@ -147,7 +149,7 @@ public class EventManager implements AppEvents {
             if (!me.getEntityId().equals(""))
                 if (message.getBThreadOwner() != null && message.getBThreadOwner().getEntityID() != null)
                     if (!message.getBThreadOwner().getEntityID().equals(me.getEntityId()))
-                        return false;
+                        continue;
 
             me.onMessageReceived(message);
         }
@@ -176,8 +178,21 @@ public class EventManager implements AppEvents {
         return false;
     }
 
+    @Override
+    public boolean onThreadIsAdded(String threadId) {
+        for (Event ae : eventsList)
+            ae.onThreadIsAdded(threadId);
+
+        return false;
+    }
+
+    /*##########################################################################################*/
+    /*------Assigning app events. ------*/
+
     public void addEventIfNotExist(Event event){
-         if (isTagExist(event.getTag()))
+        if (DEBUG) Log.v(TAG, "addEventIfNotExist, Tag: " + event.getTag());
+
+         if (isEventTagExist(event.getTag()))
              return;
 
         if (event instanceof ThreadEventListener)
@@ -190,6 +205,8 @@ public class EventManager implements AppEvents {
             userEventList.add((UserEventListener) event);
 
         else eventsList.add(event);
+
+        if (DEBUG) Log.d(TAG, "addEventIfNotExist, Added.");
     }
 
     public void addAppEvent(AppEventListener appEvents){
@@ -212,6 +229,7 @@ public class EventManager implements AppEvents {
         tags.add(userEvent.getTag());
     }
 
+    /** Removes an app event by tag.*/
     public boolean removeEventByTag(String tag){
 
         if (DEBUG) Log.v(TAG, "removeEventByTag, Tag: " + tag);
@@ -250,49 +268,31 @@ public class EventManager implements AppEvents {
         return false;
     }
 
-    public void removeAllEvents(){
-        Set<String> Keys = listenerAndRefs.keySet();
+    /** Check if there is a AppEvent listener with the currnt tag, Could be AppEvent or one of his child(MessageEventListener, ThreadEventListener, UserEventListener).
+     * @return true if found.*/
+    public boolean isEventTagExist(String tag){
+        for (Event ae : eventsList)
+            if (ae.getTag().equals(tag))
+                return true;
 
-        FirebaseEventCombo combo;
+        for (MessageEventListener me : messageEventList)
+            if (me.getTag().equals(tag))
+                return true;
 
-        Firebase ref;
-        for (String key : Keys)
-        {
-            if (DEBUG) Log.d(TAG, "Removing listener, Key: " + key);
+        for (ThreadEventListener te : threadEventList)
+            if (te.getTag().equals(tag))
+                return true;
 
-            combo = listenerAndRefs.get(key);
-            Log.e(TAG, "Path: " + combo.getRef());
-            ref = new Firebase(combo.getRef());
-            if (combo.getListener().getType() == FirebaseGeneralEvent.ChildEvent)
-            {
-                if (DEBUG) Log.d(TAG, "Removing ChildEvent");
-                ref.removeEventListener((ChildEventListener) combo.getListener());
-            }
-            else if (combo.getListener().getType() == FirebaseGeneralEvent.ValueEvent)
-            {
-                if (DEBUG) Log.d(TAG, "Removing ValueEvent.");
-                ref.removeEventListener((ValueEventListener) combo.getListener());
-            }
-        }
+        for (UserEventListener ue : userEventList)
+            if (ue.getTag().equals(tag))
+                return true;
 
-        clearLists();
+        return false;
     }
 
-    private void clearLists(){
-        listenerAndRefs.clear();
-
-        eventsList.clear();
-        userEventList.clear();
-        messageEventList.clear();
-        threadEventList.clear();
-
-        tags.clear();
-        threadsIds.clear();
-        usersIds.clear();
-        handledMessagesThreadsID.clear();
-        handledAddedUsersToThreadIDs.clear();
-    }
-
+    /*##########################################################################################*/
+    /*------Assigning listeners to Firebase refs. ------*/
+    /**Set listener to thread details change.*/
     private void handleThreadDetails(final String threadId, FirebasePaths threadRef){
         // Add an observer to the thread details so we get
         // updated when the thread details change
@@ -303,6 +303,7 @@ public class EventManager implements AppEvents {
         detailsRef.addValueEventListener(combo.getListener());
     }
 
+    /** Set listener to users that are added to thread.*/
     private void handleUsersAddedToThread(final String threadId){
         // Check if handled.
         if (handledAddedUsersToThreadIDs.contains(threadId))
@@ -321,15 +322,16 @@ public class EventManager implements AppEvents {
         threadUsers.addChildEventListener(combo.getListener());
     }
 
+    /** Handle user details change.*/
     private void handleUsersDetailsChange(String userID){
-        if (userID.equals(currentUserId))
+        if (userID.equals(getCurrentUserId()))
             return;
 
         if (usersIds.contains(userID))
             return;
 
         usersIds.add(userID);
-
+        // FIXME single event
         final FirebasePaths userRef = FirebasePaths.userRef(userID);
 
         UserDetailsChangeListener userDetailsChangeListener = new UserDetailsChangeListener(userID, handler);
@@ -339,6 +341,7 @@ public class EventManager implements AppEvents {
         userRef.addValueEventListener(combo.getListener());
     }
 
+    /** Handle incoming messages for thread.*/
     private void handleMessages(String threadId){
         // Check if handled.
         if (handledMessagesThreadsID.contains(threadId))
@@ -380,6 +383,8 @@ public class EventManager implements AppEvents {
         messagesQuery.addChildEventListener(combo.getListener());
     }
 
+    /** Hnadle the thread by given id, If thread is not handled already a listener
+     * to thread details change will be assigned. After details received the messages and added users listeners will be assign.*/
     public void handleThread(final String threadID){
 
         if (threadID == null)
@@ -406,56 +411,170 @@ public class EventManager implements AppEvents {
         else if (DEBUG) Log.e(TAG, "Thread is already handled..");
     }
 
-    public boolean isTagExist(String tag){
-        for (Event ae : eventsList)
-            if (ae.getTag().equals(tag))
-                return true;
+    public void observeUser(BUser user){
+        FirebasePaths.userRef(user.getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .addChildEventListener(threadAddedListener);
 
-        for (MessageEventListener me : messageEventList)
-            if (me.getTag().equals(tag))
-                return true;
-
-        for (ThreadEventListener te : threadEventList)
-            if (te.getTag().equals(tag))
-                return true;
-
-        for (UserEventListener ue : userEventList)
-            if (ue.getTag().equals(tag))
-                return true;
-
-        return false;
+        FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
     }
 
+    private ChildEventListener threadAddedListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(final DataSnapshot snapshot, String s) {
+            if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
+
+            String threadFirebaseID;
+            BPath path = BPath.pathWithPath(snapshot.getRef().toString());
+            if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
+                threadFirebaseID = path.idForIndex(0);
+            else threadFirebaseID = path.idForIndex(1);
+
+            if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
+
+            if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
+            {
+                // Load the thread from firebase only if he is not exist.
+                // There is no reason to load if exist because the event manager will collect all the thread data.
+                if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
+                    BFirebaseInterface.objectFromSnapshot(snapshot);
+
+                handleThread(threadFirebaseID);
+
+                onThreadIsAdded(threadFirebaseID);
+            }
+        }
+
+        //region Not used.
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError error) {
+
+        }
+        //endregion
+    };
+
+    /** Check to see if the given thread id is already handled by this class.
+     * @return true if handled.*/
     public boolean isListeningToThread(String entityID){
         return threadsIds.contains(entityID);
     }
 
+    /** Remove listeners from thread id. The listener's are The thread details, messages and added users.*/
+    public void stopListeningToThread(String threadID){
+        if (DEBUG) Log.v(TAG, "stopListeningToThread, ThreadID: "  + threadID);
+
+        if (listenerAndRefs.containsKey(threadID))
+            listenerAndRefs.get(threadID).breakCombo();
+
+        if (listenerAndRefs.containsKey(MSG_PREFIX + threadID))
+            listenerAndRefs.get(MSG_PREFIX  + threadID).breakCombo();
+
+        if (listenerAndRefs.containsKey(USER_PREFIX + threadID))
+            listenerAndRefs.get(USER_PREFIX  + threadID).breakCombo();
+
+        // Removing the combo's from the Map.
+        listenerAndRefs.remove(threadID);
+        listenerAndRefs.remove(MSG_PREFIX  + threadID);
+        listenerAndRefs.remove(USER_PREFIX  + threadID);
+    }
+
+    /** Get a combo object for given index, ref and listener.
+     *  The combo is used to keep the firebase ref path and their listeners so we can remove the listener when needed.*/
     private FirebaseEventCombo getCombo(String index, String ref, FirebaseGeneralEvent listener){
         FirebaseEventCombo combo = FirebaseEventCombo.getNewInstance(listener, ref);
         saveCombo(index, combo);
         return combo;
     }
 
+    /** Save the combo to the combo map.*/
     private void saveCombo(String index, FirebaseEventCombo combo){
         listenerAndRefs.put(index, combo);
     }
 
-    public static void setCurrentUserEntityID(String currentUserEntityID) {
-        currentUserId = currentUserEntityID;
+    /*##########################################################################################*/
+    /*------Clearing all the data from class. ------*/
+
+    /** Remove all firebase listeners and all app events listeners. After removing all class list will be cleared.*/
+    public void removeAll(){
+        Set<String> Keys = listenerAndRefs.keySet();
+
+        FirebaseEventCombo combo;
+
+        Firebase ref;
+        for (String key : Keys)
+        {
+            if (DEBUG) Log.d(TAG, "Removing listener, Key: " + key);
+
+            combo = listenerAndRefs.get(key);
+            combo.breakCombo();
+//            Log.e(TAG, "Path: " + combo.getRef());
+//            ref = new Firebase(combo.getRef());
+//            if (combo.getListener().getType() == FirebaseGeneralEvent.ChildEvent)
+//            {
+//                if (DEBUG) Log.d(TAG, "Removing ChildEvent");
+//                ref.removeEventListener((ChildEventListener) combo.getListener());
+//            }
+//            else if (combo.getListener().getType() == FirebaseGeneralEvent.ValueEvent)
+//            {
+//                if (DEBUG) Log.d(TAG, "Removing ValueEvent.");
+//                ref.removeEventListener((ValueEventListener) combo.getListener());
+//            }
+        }
+
+        clearLists();
     }
 
+    /** Clearing all the lists.*/
+    private void clearLists(){
+        listenerAndRefs.clear();
+
+        eventsList.clear();
+        userEventList.clear();
+        messageEventList.clear();
+        threadEventList.clear();
+
+        tags.clear();
+        threadsIds.clear();
+        usersIds.clear();
+        handledMessagesThreadsID.clear();
+        handledAddedUsersToThreadIDs.clear();
+    }
+
+    /*##########################################################################################*/
+
+    /** get the current user entity so we know not to listen to his details and so on.*/
+    public static String getCurrentUserId() {
+        return BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID();
+    }
+
+    /** Print save data of this class. Id's List and listener and refs. Used for debugging.*/
     public void printDataReport(){
         for (String s : threadsIds)
             Log.i(TAG, "Listening to thread ID: "  + s);
 
         for (String u: usersIds)
-            Log.i(TAG, "Listening to user ID: "  + u);
+            Log.i(TAG, "handled users details, user ID: "  + u);
 
         for (Event e : messageEventList)
             Log.i(TAG, "Msg Event, Tag: " + e.getTag());
 
         for (String s : handledAddedUsersToThreadIDs)
-            Log.i(TAG, "handled users details, Thread ID: " + s);
+            Log.i(TAG, "handled added users, Thread ID: " + s);
 
         for (String s : handledMessagesThreadsID)
             Log.i(TAG, "handled messages, Thread ID: " + s);

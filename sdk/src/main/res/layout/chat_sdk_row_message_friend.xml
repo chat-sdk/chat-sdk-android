@@ -9,10 +9,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Name"
+        android:text="Messahe texx"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:id="@+id/txt_content"
+        android:padding="12dp"
+        android:background="@drawable/bubble_left_2"
         style="@style/TextViewStyle"/>
 
 

@@ -19,20 +19,28 @@ public class BDefines {
     public static final boolean AnonymuosLoginEnabled = true;
     public static final String InitialsForAnonymuos = "AN";
 
-    /* Change this id's to your app id's!*/
-    // Facebook
-    public static final String FacebookAppId = "247787328762280";
 
-    // Google
-    public static final String GoogleAppId = "";
-
-    // Twitter
-    public static final String TwitterApiKey = "";
 
     // Vibration Duration in Millis
     public static final int VIBRATION_DURATION = 300;
 
     public static final int MAX_MESSAGES_TO_PULL = 30;
+
+    public static final class APIs{
+        /* Change this id's to your app id's!*/
+        // Facebook
+        public static final String FacebookAppId = "247787328762280";
+
+        // Google
+        public static final String GoogleAppId = "";
+
+        // Twitter
+        public static final String TwitterApiKey = "";
+
+        // Parse
+        public static final String ParseAppId = "oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d";
+        public static final String ParseClientKey = "A1lZKXHQWKUQogcfCCIFBg1cPbJ0dtekh2ghV6He";
+    }
 
     // Static values for prefs.
     // Prefs
@@ -54,6 +62,7 @@ public class BDefines {
         public static final String BValue = "value";
         public static final String BPhone = "phone";
         public static final String BPicture = "picture";
+        public static final String BPictureURL = "pictureURL";
 
         public static final String BAuthenticationID = "authentication-id";
         public static final String BLastMessageAdded = "last-message-added";
@@ -68,10 +77,6 @@ public class BDefines {
         public static final String BName = "name";
         public static final String BNull = "null";
         public static final String BCreationDate = "creation-date";
-        public static final String BFacebookID = "facebook-id";
-        public static final String BNekStatus = "nek-status";
-        public static final String BPictureURL = "picture-url";
-        public static final String BPictureExists = "picture-exists";
         public static final String BPayload = "payload";
         public static final String BType = "type";
         public static final String BOnline = "online";

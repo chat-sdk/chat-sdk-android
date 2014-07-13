@@ -93,7 +93,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         {
             holder = new ViewHolder();
             row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_threads, null);
-            holder.txtName = (TextView) row.findViewById(R.id.txt_name);
+            holder.txtName = (TextView) row.findViewById(R.id.chat_sdk_txt);
             holder.txtLastMsg = (TextView) row.findViewById(R.id.txt_last_message);
             holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
             holder.imgIcon = (CircleImageView) row.findViewById(R.id.img_thread_image);

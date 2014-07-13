@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
-import com.braunster.chatsdk.adapter.UsersListAdapter;
+import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.facebook.model.GraphUser;
@@ -32,7 +32,7 @@ public class PickFriendsActivity extends BaseActivity {
     private static boolean DEBUG = true;
 
     private ListView listContacts;
-    private UsersListAdapter listAdapter;
+    private UsersWithStatusListAdapter listAdapter;
 //    private ProgressBar progressBar;
     private Button btnGetFBFriends;
     private EditText etSearch;
@@ -62,17 +62,17 @@ public class PickFriendsActivity extends BaseActivity {
 
     private void initList(){
         List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
-        listAdapter = new UsersListAdapter(PickFriendsActivity.this, list);
+        listAdapter = new UsersWithStatusListAdapter(PickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false));
         listContacts.setAdapter(listAdapter);
 
         listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getName()
+                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getText()
                         + ", ID: " + listAdapter.getItem(position).getEntityID());
 
-                createAndOpenThreadWithUsers(listAdapter.getItem(position).getMetaName(),
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), listAdapter.getItem(position));
+                createAndOpenThreadWithUsers(listAdapter.getItem(position).getText(),
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), listAdapter.getItem(position).asBUser());
             }
         });
     }

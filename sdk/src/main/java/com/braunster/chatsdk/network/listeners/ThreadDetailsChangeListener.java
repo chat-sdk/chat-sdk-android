@@ -30,16 +30,17 @@ public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
     @Override
     public void onDataChange(final DataSnapshot dataSnapshot) {
         if (DEBUG) Log.i(TAG, "Thread details changed.");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                BFirebaseInterface.objectFromSnapshot(dataSnapshot);
-                Message message = new Message();
-                message.what = AppEvents.THREAD_DETAILS_CHANGED;
-                message.obj = threadID;
-                handler.sendMessage(message);
-            }
-        }).start();
+        if (isAlive())
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BFirebaseInterface.objectFromSnapshot(dataSnapshot);
+                    Message message = new Message();
+                    message.what = AppEvents.THREAD_DETAILS_CHANGED;
+                    message.obj = threadID;
+                    handler.sendMessage(message);
+                     }
+            }).start();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.braunster.chatsdk.network.firebase;
 
 import android.util.Log;
 
-import com.braunster.chatsdk.Utils.MsgSorter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
@@ -15,7 +14,6 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.listeners.MessageListener;
 import com.braunster.chatsdk.object.BError;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -28,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +43,6 @@ public class BFirebaseInterface {
     private static boolean DEBUG = true;
 
     private static BFirebaseInterface instance;
-    private FirebasePaths userRef, publicThreadsRef;
 
     public static BFirebaseInterface getInstance() {
         if (instance == null)
@@ -58,78 +54,6 @@ public class BFirebaseInterface {
     private BFirebaseInterface(){
 
     }
-
-    //region Old push Entity
-   /* public void pushEntity(final Entity entity, final CompletionListenerWithData completionListener){
-
-        if (entity == null)
-        {
-            Log.e(TAG, "Entity is null");
-            return;
-        }
-
-        selectEntity(entity, new CompletionListenerWithData<Entity>() {
-            @Override
-            public void onDone(Entity e) {
-
-                if (e != null) {
-                    entity.updateFrom(e);
-                }
-
-                FirebasePaths ref = FirebasePaths.firebaseRef();
-                if (DEBUG) Log.d(TAG, "SelectEntity, RefPath: " + ref.toString());
-                ref = ref.appendPathComponent(entity.getPath().getPath());
-                if (DEBUG) Log.d(TAG, "SelectEntity, RefPath: " + ref.toString());
-
-                String priority = "";
-
-                Ask if think this is needed in android or just check for null,
-                if ([entity respondsToSelector:@selector(getPriority)]) {
-                    priority = entity.getPriority;
-                }
-
-
-                // If the entity has id that means its already added to the database and only need to be updated.
-                if (entity.getEntityID() != null && entity.getEntityID().length() > 0)
-                {
-                    ref.updateChildren(entity.asMap(), new Firebase.CompletionListener() {
-                        @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                            if (firebaseError == null)
-                                completionListener.onDone(entity);
-                            else
-                            {
-                                if (DEBUG) Log.e(TAG, "Error while updating entity children");
-                                completionListener.onDoneWithError();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    if (DEBUG) Log.d(TAG, "Selected Entity is null, Creating Entity...");
-                    // Pushing a new child to the list.
-                    Firebase listRef = ref.push();
-                    // Set the entity id to the new child added name.
-                    entity.setEntityId(listRef.getName());
-//                    listRef.setPriority(entity.getPriority());
-                    listRef.setValue(entity.asMap(), entity.getPriority(), new Firebase.CompletionListener() {
-                        @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                            if (DEBUG) Log.d(TAG, "Entity is pushed.");
-                            completionListener.onDone(entity);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onDoneWithError() {
-
-            }
-        });
-    }*/
-    //endregion
 
     public static void pushEntity(final Entity entity, final RepetitiveCompletionListenerWithError listener){
         // We're going to be pushing an entity which may have sub entities
@@ -183,15 +107,19 @@ public class BFirebaseInterface {
         @Override
         public void onDone(Entity entity) {
             pushesAmount--;
-            stop = listener.onItem(entity);
 
-            if (pushesAmount <= 0)
-                listener.onDone();
+            if (listener != null)
+                stop = listener.onItem(entity);
+
+            if (listener != null)
+                if (pushesAmount <= 0)
+                    listener.onDone();
         }
 
         @Override
         public void onDoneWithError(Entity entity, BError error) {
-            listener.onItemError(entity, error);
+            if (listener != null)
+                listener.onItemError(entity, error);
         }
 
         public boolean isStoped() {
@@ -396,23 +324,17 @@ public class BFirebaseInterface {
         }
     }
 
-
-    /* Note Done! - Need to be tested not sure how the child add is acting.*/
     public void observerUser(BUser user){
-        if (DEBUG) Log.e(TAG, "#####################################OBSERVERUSER################################" + user.getEntityID());
+        if (DEBUG) Log.e(TAG, "#####################################OBSERVERUSER: " + user.getEntityID() + "################################");
 
-        EventManager.setCurrentUserEntityID(user.getEntityID());
+        FirebasePaths.userRef(user.getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .addChildEventListener(userEventListener);
 
-        userRef = FirebasePaths.userRef(user.getEntityID());
-        userRef.appendPathComponent(BFirebaseDefines.Path.BThreadPath).addChildEventListener(userEventListener);
-
-        publicThreadsRef = FirebasePaths.publicThreadsRef();
-        publicThreadsRef.addChildEventListener(userEventListener);
+        FirebasePaths.publicThreadsRef().addChildEventListener(userEventListener);
     }
 
     private ChildEventListener userEventListener = new ChildEventListener() {
-        int delay = 1000;
-
         @Override
         public void onChildAdded(final DataSnapshot snapshot, String s) {
             if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
@@ -458,146 +380,15 @@ public class BFirebaseInterface {
         }
         //endregion
     };
-    ;
 
-    // TODO
-    public static void observeThread(final BThread thread){
-        if (DEBUG) Log.v(TAG, "observeThread, ThreadID: " + thread.getEntityID());
-
-        if (thread == null)
-        {
-            if (DEBUG) Log.e(TAG, "observeThread, Thread is null");
-            return;
-        }
-        FirebasePaths threadRef = FirebasePaths.threadRef(thread.getEntityID());
-
-        // Add an observer to the thread details so we get
-        // updated when the thread details change
-        threadRef.appendPathComponent(BFirebaseDefines.Path.BDetailsPath).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (DEBUG) Log.i(TAG, "Thread details changed.");
-                objectFromSnapshot(dataSnapshot);
-                //TODO not sure if the added thread returned is needed.
-                EventManager.getInstance().onThreadDetailsChanged(thread.getEntityID());
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        // Also listen to the thread users
-        // This will allow us to update the users in the database
-        Firebase threadUsers = FirebasePaths.threadRef(thread.getEntityID()).child(BFirebaseDefines.Path.BUsersPath);
-        threadUsers.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(final DataSnapshot snapshot, String s) {
-                // For each user we'd then need to add them to the database
-                BUser bUser = (BUser) objectFromSnapshot(snapshot);
-
-                if (thread.getType() != null && thread.getType() != BThread.Type.Public)
-                {
-                    // Users that are members of threads are shown in contacts
-                    BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
-                }
-
-                // If this isn't the current user //TODO check if dosen't have listener allready.
-                if (!bUser.equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser()))
-                {
-                    // We use this variable so that we don't add multiple listeners to one
-                    // user object - this would happen otherwise because one user
-                    // could be in multiple threads
-//                    bUser.listenerAdded = YES;
-                    // ASK is this saved in the db or its a veriable of user.
-
-                    // Monitor the user to see if it changes in the future
-                    FirebasePaths userRef = FirebasePaths.userRef(bUser.getEntityID());
-
-                    userRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            BUser user = (BUser) objectFromSnapshot(dataSnapshot);
-                            EventManager.getInstance().onUserDetailsChange(user);
-                        }
-
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-
-                        }
-                    });
-                }
-            }
-
-            //region Not used
-            @Override
-            public void onChildChanged(DataSnapshot snapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot snapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError error) {
-
-            }
-            //endregion
-        });
-
-        // We want to listen for new messages added so we listen to thread/messages
-        FirebasePaths messagesRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
-
-        // We check to see that the thread does not have any listener already.
-        if (!MessageListener.isListeningToThread(thread.getEntityID()))
-        {
-            MessageListener.addThread(thread.getEntityID());
-
-            // TODO check that it is working
-            List<BMessage> messages = thread.getMessages();
-            if (messages.size() > 0)
-            {
-                Log.i(TAG, "Before - FirstMessageText: " + messages.get(0).getText());
-                Collections.sort(messages, new MsgSorter());
-                Log.i(TAG, "After - FirstMessageText: " + messages.get(0).getText());
-            } else if (DEBUG) Log.d(TAG, "Thread has no messages on db.");
-
-            Date startDate = null;
-            final Query query = messagesRef;
-
-            // If the message exists we only listen for newer messages
-            if (messages.size() > 0)
-                startDate = messages.get(0).getDate();//TODO check the zero is the last
-            else
-            {
-                startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
-            /*startDate = [thread.lastMessageAdded dateByAddingTimeInterval:-bDays * 7];
-            // TODO: Remove this
-            startDate = [[NSDate date] dateByAddingTimeInterval:-bHours];*/
-            }
-
-            /*TODO  [query removeAllObservers];*/
-
-            query.startAt(startDate.getTime());
-
-            query.addChildEventListener(MessageListener.getInstance());
-        }
-        else if (DEBUG) Log.e(TAG, "Thread already has message listener.");
-    }
-
-    //TODO remove all the observed thread, Theay need to be saved to a static list.
     public void removeAllObservers(){
-        userRef.removeEventListener(userEventListener);
-        publicThreadsRef.removeEventListener(userEventListener);
-        EventManager.getInstance().removeAllEvents();
+        FirebasePaths.userRef(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .removeEventListener(userEventListener);
+
+        FirebasePaths.publicThreadsRef().removeEventListener(userEventListener);
+
+        EventManager.getInstance().removeAll();
     }
 
     //TODO
@@ -966,3 +757,150 @@ public class BFirebaseInterface {
         return message;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*   // TODO
+    public static void observeThread(final BThread thread){
+        if (DEBUG) Log.v(TAG, "observeThread, ThreadID: " + thread.getEntityID());
+
+        if (thread == null)
+        {
+            if (DEBUG) Log.e(TAG, "observeThread, Thread is null");
+            return;
+        }
+        FirebasePaths threadRef = FirebasePaths.threadRef(thread.getEntityID());
+
+        // Add an observer to the thread details so we get
+        // updated when the thread details change
+        threadRef.appendPathComponent(BFirebaseDefines.Path.BDetailsPath).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (DEBUG) Log.i(TAG, "Thread details changed.");
+                objectFromSnapshot(dataSnapshot);
+                //TODO not sure if the added thread returned is needed.
+                EventManager.getInstance().onThreadDetailsChanged(thread.getEntityID());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        // Also listen to the thread users
+        // This will allow us to update the users in the database
+        Firebase threadUsers = FirebasePaths.threadRef(thread.getEntityID()).child(BFirebaseDefines.Path.BUsersPath);
+        threadUsers.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(final DataSnapshot snapshot, String s) {
+                // For each user we'd then need to add them to the database
+                BUser bUser = (BUser) objectFromSnapshot(snapshot);
+
+                if (thread.getType() != null && thread.getType() != BThread.Type.Public)
+                {
+                    // Users that are members of threads are shown in contacts
+                    BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
+                }
+
+                // If this isn't the current user //TODO check if dosen't have listener allready.
+                if (!bUser.equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser()))
+                {
+                    // We use this variable so that we don't add multiple listeners to one
+                    // user object - this would happen otherwise because one user
+                    // could be in multiple threads
+//                    bUser.listenerAdded = YES;
+                    // ASK is this saved in the db or its a veriable of user.
+
+                    // Monitor the user to see if it changes in the future
+                    FirebasePaths userRef = FirebasePaths.userRef(bUser.getEntityID());
+
+                    userRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            BUser user = (BUser) objectFromSnapshot(dataSnapshot);
+                            EventManager.getInstance().onUserDetailsChange(user);
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            //region Not used
+            @Override
+            public void onChildChanged(DataSnapshot snapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot snapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError error) {
+
+            }
+            //endregion
+        });
+
+        // We want to listen for new messages added so we listen to thread/messages
+        FirebasePaths messagesRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+
+        // We check to see that the thread does not have any listener already.
+        if (!MessageListener.isListeningToThread(thread.getEntityID()))
+        {
+            MessageListener.addThread(thread.getEntityID());
+
+            // TODO check that it is working
+            List<BMessage> messages = thread.getMessages();
+            if (messages.size() > 0)
+            {
+                Log.i(TAG, "Before - FirstMessageText: " + messages.get(0).getText());
+                Collections.sort(messages, new MsgSorter());
+                Log.i(TAG, "After - FirstMessageText: " + messages.get(0).getText());
+            } else if (DEBUG) Log.d(TAG, "Thread has no messages on db.");
+
+            Date startDate = null;
+            final Query query = messagesRef;
+
+            // If the message exists we only listen for newer messages
+            if (messages.size() > 0)
+                startDate = messages.get(0).getDate();//TODO check the zero is the last
+            else
+            {
+                startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
+            *//*startDate = [thread.lastMessageAdded dateByAddingTimeInterval:-bDays * 7];
+            // TODO: Remove this
+            startDate = [[NSDate date] dateByAddingTimeInterval:-bHours];*//*
+            }
+
+            *//*TODO  [query removeAllObservers];*//*
+
+            query.startAt(startDate.getTime());
+
+            query.addChildEventListener(MessageListener.getInstance());
+        }
+        else if (DEBUG) Log.e(TAG, "Thread already has message listener.");
+    }
+*/

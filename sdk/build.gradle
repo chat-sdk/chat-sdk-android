@@ -6,7 +6,7 @@ android {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion 19
         versionCode 1
-        versionName '0.2'
+        versionName '0.2.4'
     }
     buildTypes {
         release {
@@ -31,12 +31,16 @@ dependencies {
     compile project(':generator')
     // Page Adapter for the application desing.
     compile project(':PagerSlidingTabStrip')
-    // Firebase
-    compile files('libs/firebase-client-jvm-LATEST.jar')
-    compile files('libs/firebase-simple-login-LATEST.jar')
     // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
     compile ('de.greenrobot:greendao:1.3.0'){ exclude group: 'com.google.android', module: 'support-v4'}
     // String Utils - Helping to keep the code clean without checking for null and empty strings all the time.
     compile 'org.apache.commons:commons-lang3:3.3.+'
+//    // Picasso a library for images loading and size fixing.
+////    compile 'com.squareup.picasso:picasso:2.3.+'
+
+    // Firebase
+    compile 'com.firebase:firebase-client:1.0.15'
+    compile 'com.firebase:firebase-simple-login:1.3.0'
+
 
 }

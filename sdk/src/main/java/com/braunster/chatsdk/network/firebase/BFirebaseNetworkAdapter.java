@@ -1,7 +1,9 @@
-package com.braunster.chatsdk.network;
+package com.braunster.chatsdk.network.firebase;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -13,18 +15,24 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
+import com.braunster.chatsdk.network.AbstractNetworkAdapter;
+import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.network.listeners.AuthListener;
+import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.parse.PushUtils;
+import com.facebook.Session;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
 import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
+import com.firebase.simplelogin.User;
+import com.firebase.simplelogin.enums.Error;
+import com.firebase.simplelogin.enums.Provider;
+import com.parse.PushService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,6 +57,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     private static final String TAG = BFirebaseNetworkAdapter.class.getSimpleName();
     private static boolean DEBUG = true;
+
+    private Context context;
+
+    public BFirebaseNetworkAdapter(Context context){
+        this.context = context;
+    }
 
     // NOTE Not implemented yet. Will be in the future.
 /*    -(void) loginWithFacebookWithCompletion: (void(^)(NSError * error, FAUser * user)) completion {
@@ -97,16 +111,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override // Note done!
-    public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener) {
+    public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<User, Object> listener) {
 
         Firebase ref = FirebasePaths.firebaseRef();
-        SimpleLogin simpleLogin = new SimpleLogin(ref);
+        SimpleLogin simpleLogin = new SimpleLogin(ref, context);
 
         SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
             @Override
-            public void authenticated(FirebaseSimpleLoginError firebaseSimpleLoginError, final FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                if (firebaseSimpleLoginError != null || firebaseSimpleLoginUser == null)
-                    listener.onDoneWithError(firebaseSimpleLoginUser, firebaseSimpleLoginError);
+            public void authenticated(Error error, final User firebaseSimpleLoginUser) {
+                if (error != null || firebaseSimpleLoginUser == null)
+                    listener.onDoneWithError(firebaseSimpleLoginUser, error);
                 else handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
                     @Override
                     public void onDone(BUser user) {
@@ -126,12 +140,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             case Facebook:
                 // TODO add premission if using this system of connecting, More reasnoble approach is to user the FBManager.
                 //Note we have to obtain the access token first so i will change this to work with the FBManager.
-                simpleLogin.loginWithFacebook(com.braunster.chatsdk.network.BDefines.FacebookAppId, (String) details.get(BFacebookManager.ACCESS_TOKEN), handler);
+                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(BFacebookManager.ACCESS_TOKEN), handler);
                 break;
 
             case Twitter:
                 // TODO get twitter app id and etc.
-                simpleLogin.loginWithTwitter(com.braunster.chatsdk.network.BDefines.TwitterApiKey, "", 0L, handler);
+                simpleLogin.loginWithTwitter(com.braunster.chatsdk.network.BDefines.APIs.TwitterApiKey, "", 0L, handler);
                 break;
 
             case Password:
@@ -154,11 +168,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     //Note Done!
-    public void handleFAUser(final FirebaseSimpleLoginUser fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
+    public void handleFAUser(final User fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
         if (fuser == null)
         {
             // If the user isn't authenticated they'll need to login
-            listener.onDoneWithError(null, null);
+            listener.onDoneWithError(null, new BError(BError.Code.SESSION_CLOSED));
             return;
         }
 
@@ -195,14 +209,14 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                     @Override
                     public void onDoneWithError(BUser bUser, FirebaseError error) {
-                        listener.onDoneWithError(bUser, error);
+                        listener.onDoneWithError(bUser, new BError(BError.Code.FIREBASE_ERROR, error));
                     }
                 });
     }
 
     //Note Done!
     /**Copy some details from the FAUser like name etc...*/
-    public void updateUserFromFUser(final BUser user, FirebaseSimpleLoginUser fireUser){
+    public void updateUserFromFUser(final BUser user, User fireUser){
         Map <String, Object> thirdPartyData = fireUser.getThirdPartyUserData();
         String name;
         String email;
@@ -325,9 +339,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 userOnlineRef.setValue(true);
                 userOnlineRef.onDisconnect().setValue(false);
 
+                updateLastOnline();
+
                 BFirebaseInterface.getInstance().observerUser(currentUser());
 
-                //TODO subscribe to push notifications.
+                // FIXME change the replace fix.
+                subscribeToPushChannel(currentUser().getPushChannel());
             }
 
             @Override
@@ -342,7 +359,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public void pushUserWithCallback(final CompletionListener listener) {
         // Update the user in the server.
-        BFirebaseInterface.pushEntity(currentUser(), new RepetitiveCompletionListenerWithError() {
+        BUser user = currentUser();
+        BFirebaseInterface.pushEntity(user, new RepetitiveCompletionListenerWithError() {
             @Override
             public boolean onItem(Object o) {
                 return false;
@@ -363,31 +381,63 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override //Note Done!
-    public void checkUserAuthenticatedWithCallback(final CompletionListenerWithDataAndError<BUser, Object> listener) {
+    public void checkUserAuthenticatedWithCallback(final AuthListener listener) {
+        if (DEBUG) Log.v(TAG, "checkUserAuthenticatedWithCallback, " + getLoginInfo().get(Prefs.AccountTypeKey));
 
-        //    if ([lastLoginInfo[bAccountTypeKey] intValue] == bAccountTypeFacebook) {
-//        [[BFacebookManager sharedManager] authenticateWithCompletion:^(NSError * error, BOOL success) {
-//            if (success) {
-//                BUser * user = [[BCoreDataManager sharedManager] fetchOrCreateUserWithEntityID:bUserEntity withAuthenticationID:lastLoginInfo[bAuthenticationIDKey]];
-//                completion(Nil, user);
-//            }
-//            else {
-//                completion(error, Nil);
-//            }
-//        }];
-//    }
-//    // Otherwise use Firebase's simple login
-//    else {
-
-        SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef());
-        simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
-            @Override
-            public void authenticated(FirebaseSimpleLoginError firebaseSimpleLoginError, FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                if (firebaseSimpleLoginError != null || firebaseSimpleLoginUser == null)
-                    listener.onDoneWithError(null, firebaseSimpleLoginError);
-                else handleFAUser(firebaseSimpleLoginUser, listener);
+        if ((Integer) getLoginInfo().get(Prefs.AccountTypeKey) == Provider.FACEBOOK.ordinal())
+        {
+            Session session = Session.getActiveSession();
+            if (session != null && session.isOpened())
+            {
+                if (DEBUG) Log.d(TAG, "FB Session is open");
+                listener.onCheckDone(true);
             }
-        });
+            else {
+                if (DEBUG) Log.d(TAG, "FB Session is closed");
+                listener.onCheckDone(false);
+            }
+        }
+        else
+        {
+            Firebase ref = FirebasePaths.firebaseRef();
+            final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
+            simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
+                @Override
+                public void authenticated(Error error, User firebaseSimpleLoginUser) {
+                    if (error != null || firebaseSimpleLoginUser == null)
+                    {
+                        listener.onCheckDone(false);
+                        if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
+                        if (error != null)
+                        {
+                            if (DEBUG) Log.d(TAG, error.name());
+                        }
+                        else if (DEBUG) Log.d(TAG, "No Error");
+
+                        if (firebaseSimpleLoginUser != null)
+                        {
+                            if (DEBUG) Log.d(TAG, "fire base user is not null");
+                        }
+                        else if (DEBUG) Log.d(TAG, "firebase user is null");
+                    }
+                    else {
+                        if (DEBUG) Log.d(TAG, "Firebase SimpleLogin, Authenticated");
+                        listener.onCheckDone(true);
+                        handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
+                            @Override
+                            public void onDone(BUser user) {
+                                listener.onLoginDone();
+                            }
+
+                            @Override
+                            public void onDoneWithError(BUser user, Object o) {
+                                listener.onLoginFailed((BError) o);
+                            }
+                        });
+                    }
+                }
+            });
+        }
     }
 
     @Override //Note Done!
@@ -401,7 +451,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         BFirebaseInterface.getInstance().removeAllObservers();
 
         // Obtaining the simple login object from the ref.
-        SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef());
+        SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef(), context);
 
         // TODO check why the online flag does not change after logout.
         // Login out
@@ -414,10 +464,8 @@ TODO
         [[NSNotificationCenter defaultCenter] postNotificationName:bLogoutNotification object:Nil];
 */
     }
-
-
 /*######################################################################################################*/
-    /* Indexing
+    /** Indexing
     * To allow searching we're going to implement a simple index. Strings can be registered and
     * associated with users i.e. if there's a user called John Smith we could make a new index
     * like this:
@@ -502,7 +550,7 @@ TODO
 
         // Remove spaces from string and make it lower case
         index = index.replace(" ", "");
-        index.toLowerCase();
+        index = index.toLowerCase();
 
         if (DEBUG) Log.d(TAG, "index after fix: " + index);
 
@@ -525,7 +573,7 @@ TODO
                         {
                             // Return the index location and the value at the index
                             mapForIndex.Completed(child.getRef(), finalIndex, (Map<String, Object>) child.getValue());
-                        } else if (DEBUG) Log.d(TAG, "apForIndex, onDataChanged, Value is null");
+                        } else if (DEBUG) Log.e(TAG, "apForIndex, onDataChanged, Value is null");
                         break;
                         // ASK why break here after the first child? is it because we can do snapshot.get(0)?
                     }
@@ -596,6 +644,7 @@ TODO
     public void addUserToIndex(final BUser user, String index, final CompletionListener listener) {
         // We don't want to index null strings!
         index = index.replace(" ", "");
+        index = index.toLowerCase();
 
         if (StringUtils.isEmpty(index))
         {
@@ -614,20 +663,23 @@ TODO
                     return;
                 }
 
-                //ASK not sure what is going on with this method below.
+                // Getting the user index by his entity id.
                 Map<String, Object> map = ((Map<String, Object>) values.get(user.getEntityID()));
 
                 // Map for index could not find older data so we create a new one.
                 if (map == null)
                 {
+                    // Creating the new index
                     map = new HashMap<String, Object>();
-                    Map<String, Object> nestedMap = new HashMap<String, Object>();
-                    nestedMap.put(Keys.BValue, index);
-                    map.put(user.getEntityID(), nestedMap);
+                    map.put(Keys.BValue, index);
                 }
+                // Updating the index.
                 else map.put(Keys.BValue, index);
 
-                ref.setValue(map, index, new Firebase.CompletionListener() {
+                // Adding the new data to the index.
+                values.put(user.getEntityID(), map);
+
+                ref.setValue(values, index, new Firebase.CompletionListener() {
                     @Override
                     public void onComplete(FirebaseError error, Firebase firebase) {
                         if (listener == null)
@@ -684,7 +736,7 @@ TODO
         {
             return DaoCore.fetchOrCreateUserWithAuthinticationID(getCurrentUserAuthenticationId());
         }
-
+        if (DEBUG) Log.e(TAG, "Current user is null");
         return null;
     }
 
@@ -693,7 +745,7 @@ TODO
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her @see BFirebaseNetworkAdapter#PushMessageWithComplition.*/
       @Override //Note done!
-    public void sendMessage(final BMessage message, final CompletionListenerWithData<BMessage> listener) {
+    public void sendMessage(final BMessage message, final CompletionListenerWithData<BMessage> listener){
           if (DEBUG) Log.v(TAG, "sendMessage");
         if (message.getBThreadOwner() != null)
         {
@@ -719,7 +771,15 @@ TODO
                     }
                 }, currentUser());
             }
-            else new PushMessageWithComplition(message, listener);
+            else
+            {
+                BUser currentUSer = currentUser();
+                // Adding all the threads participants as contacts.
+                for (BUser user : message.getBThreadOwner().getUsers())
+                    currentUSer.addContact(user);
+
+                new PushMessageWithComplition(message, listener);
+            }
         } else if (DEBUG) Log.e(TAG, "Message doesn't have an owner thread.");
     }
 
@@ -739,6 +799,8 @@ TODO
                     if (DEBUG) Log.d(TAG, "PushMessageWithComplition, RefPath: " + threadRef.toString());
 
                     threadRef.updateChildren(FirebasePaths.getMap( new String[]{Keys.BLastMessageAdded},  System.currentTimeMillis()));
+
+                    pushForMessage(message);
 
                     if(listener != null)
                         listener.onDone(message);
@@ -777,17 +839,23 @@ TODO
         {
             Log.d(TAG, "Checking if allready has a thread.");
             List<BUser> threadusers;
+
+            BUser userToCheck;
+            if (users.get(0).getEntityID().equals(currentUser.getEntityID()))
+                userToCheck = users.get(1);
+            else userToCheck = users.get(0);
+
             for (BThread t : currentUser.getThreads())
             {
                 threadusers = t.getUsers();
-                if (threadusers.size() == 2)
-                    if (threadusers.get(0).getEntityID().equals(users.get(0).getEntityID()) ||
-                            threadusers.get(1).getEntityID().equals(users.get(0).getEntityID()))
-                    {
+                if (threadusers.size() == 2) {
+                    if (threadusers.get(0).getEntityID().equals(userToCheck.getEntityID()) ||
+                            threadusers.get(1).getEntityID().equals(userToCheck.getEntityID())) {
                         listener.onMainFinised(t, null);
                         listener.onDone();
                         return;
                     }
+                }
             }
         }
 
@@ -800,6 +868,8 @@ TODO
 
         // Save the thread to the database.
         DaoCore.createEntity(thread);
+
+        updateLastOnline();
 
         BFirebaseInterface.pushEntity(thread, new RepetitiveCompletionListenerWithError<BThread, Object>() {
             @Override
@@ -814,7 +884,6 @@ TODO
 
                 //ASK if this is good.
                 // Adding the thread to the current user ref.
-
 
 
                 // Add users, For each added user the listener passed here will get a call.
@@ -834,11 +903,9 @@ TODO
                 DaoCore.deleteEntity(thread);
 
                 // return null instead of the thread because the listener expect BUser item as a return value.
-                listener.onItemError(null , error);
+                listener.onItemError(null, error);
             }
         });
-
-        updateLastOnline();
     }
 
     @Override //Note done!
@@ -1024,42 +1091,35 @@ TODO
     }
 
     @Override //Note done!
-    public void deleteThreadWithEntityID(String entityID, CompletionListener completionListener) {
+    public void deleteThreadWithEntityID(final String entityID, final CompletionListener completionListener) {
 
         final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
 
         BUser user = currentUser();
 
-        FirebasePaths threadRef = FirebasePaths.firebaseRef();
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
-        threadRef = threadRef.appendPathComponent(thread.getPath().getPath());
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, threadRef: " + threadRef.toString());
+        // Stop listening to thread events, Details change, User added and incoming mesages.
+        EventManager.getInstance().stopListeningToThread(entityID);
 
-        FirebasePaths messageRef = FirebasePaths.firebaseRef();
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
-        messageRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + messageRef.toString());
-
-        FirebasePaths threadUsersRef = FirebasePaths.firebaseRef();
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
-        threadUsersRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BUsersPath);
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
-
-        /* TODO remove all data listeners form the reference.
-           TODO All assign listeners need to be saved in this class so we vould unregister them here.
-        [messagesRef removeAllObservers];
-        [threadUsersRef removeAllObservers];*/
-
+        // Removing the thread from the currnt user thread ref.
         FirebasePaths userThreadRef = FirebasePaths.firebaseRef();
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
         userThreadRef = userThreadRef.appendPathComponent(user.getPath().getPath()).appendPathComponent(thread.getPath().getPath());
-//        if (DEBUG) Log.d(TAG, "deleteThreadWithEntityID, messageRef: " + threadUsersRef.toString());
         userThreadRef.removeValue(new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError error, Firebase firebase) {
                 // Delete the thread if no error occurred when deleting from firebase.
                 if (error == null)
+                {
+                    if (DEBUG) Log.d(TAG, "Deleting thread from db.");
                     DaoCore.deleteEntity(thread);
+                    if (DEBUG)
+                    {
+                        BThread deletedThread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
+                        if (deletedThread == null)
+                            Log.d(TAG, "Thread deleted successfully.");
+                        else Log.d(TAG, "Thread isn't deleted.");
+                    }
+                    completionListener.onDone();
+                } else completionListener.onDoneWithError();
             }
         });
 
@@ -1078,7 +1138,11 @@ TODO
 
     @Override // Note done
     public void setLastOnline(Date lastOnline) {
-        this.currentUser().setLastOnline(lastOnline);
+        BUser currentUser  = currentUser();
+        currentUser.setLastOnline(lastOnline);
+        DaoCore.updateEntity(currentUser);
+
+        FirebasePaths.userRef(currentUser.getEntityID()).appendPathComponent(Keys.BLastOnline).setValue(lastOnline.getTime());
         // TODO push entity back to the firebase server.
     }
 
@@ -1087,6 +1151,58 @@ TODO
         setLastOnline(new Date());
     }
 
+    private void pushForMessage(BMessage message){
+        if (DEBUG) Log.v(TAG, "pushForMessage");
+        BUser currentUser = currentUser();
+
+        if (message.getBThreadOwner().getType() == BThread.Type.Private)
+        {
+            for (BUser user : message.getBThreadOwner().getUsers())
+                if (!user.equals(currentUser))
+                    if (!user.getOnline())
+                    {
+                        if (DEBUG) Log.d(TAG, "Pushing message.");
+                        pushToUsers(message, user);
+                    }
+        }
+    }
+
+    private void pushToUsers(BMessage message, BUser... users){
+        if (DEBUG) Log.v(TAG, "pushToUsers");
+
+        if (!pushEnabled())
+            return;
+
+        // We're identifying each user using push channels. This means that
+        // when a user signs up, they register with parse on a particular
+        // channel. In this case user_[user id] this means that we can
+        // send a push to a specific user if we know their user id.
+        List<String> channels = new ArrayList<String>();
+        for (BUser user : users)
+            channels.add(user.getPushChannel());
+
+        String text = message.getText();
+
+        if (message.getType() == BMessage.Type.bLocation.ordinal())
+            text = "Location Message";
+        else if (message.getType() == BMessage.Type.bImage.ordinal())
+            text = "Picture Message";
+        text = message.getBUserSender().getMetaName() + " " + text;
+
+        // FIXME this is not right need to do it like in the iOS.
+        PushUtils.sendMessage(text, channels);
+    }
+
+    private void subscribeToPushChannel(String channel){
+        if (!pushEnabled())
+            return;
+
+        PushService.subscribe(context, channel, MainActivity.class);
+    }
+
+    private boolean pushEnabled(){
+        return StringUtils.isNotEmpty(BDefines.APIs.ParseAppId) && StringUtils.isNotEmpty(BDefines.APIs.ParseClientKey);
+    }
     /*
     * #pragma Push Notifications
 

@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(35,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(36,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 

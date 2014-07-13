@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.dao;
 
-
 import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
@@ -65,6 +64,8 @@ public class BUser extends BUserEntity  {
     // KEEP FIELDS - put your custom fields here
     private static final String TAG = BUser.class.getSimpleName();
     private static final boolean DEBUG = true;
+
+    private static final String USER_PREFIX = "user";
     // KEEP FIELDS END
 
     public BUser() {
@@ -591,7 +592,7 @@ public class BUser extends BUserEntity  {
 
     @Override//TODO
     public void setMetaPicture(Bitmap bitmap) {
-
+        setMetadataImage(BDefines.Keys.BPicture, bitmap);
     }
 
     @Override
@@ -604,9 +605,19 @@ public class BUser extends BUserEntity  {
         setMetadataImage(BDefines.Keys.BPicture, image);
     }
 
+    @Override
+    public void setMetaPictureUrl(String imageUrl) {
+        setMetadataString(BDefines.Keys.BPictureURL, imageUrl);
+    }
+
     @Override//TODO
     public Bitmap getMetaPicture() {
         return metaImageForKey(BDefines.Keys.BPicture);
+    }
+
+    @Override//TODO
+    public String getMetaPictureUrl() {
+        return metaStringForKey(BDefines.Keys.BPictureURL);
     }
 
     @Override//Note Done!
@@ -680,11 +691,14 @@ public class BUser extends BUserEntity  {
     }
 
     public BMetadata setMetadataImage( String key, File image) {
+       if (DEBUG) Log.v(TAG, "setMetaImage, FilePath: " + image.getPath());
+
         BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
 
         try {
             String data = Base64.encodeToString(FileUtils.readFileToByteArray(image), Base64.DEFAULT);
             metadata.setValue(data);
+            if (DEBUG) Log.v(TAG, "setMetaImage, Base64 Data Length: " + data.length());
 
             DaoCore.updateEntity(metadata);
         } catch (IOException e) {
@@ -695,7 +709,22 @@ public class BUser extends BUserEntity  {
         return metadata;
     }
 
+    public BMetadata setMetadataImage( String key, Bitmap image) {
+        if (DEBUG) Log.v(TAG, "setMetaImage, Bitmap Size: " + image.getByteCount());
+
+        BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
+
+        String data = Utils.BitmapToString(image);
+        metadata.setValue(data);
+        if (DEBUG) Log.v(TAG, "setMetaImage, Base64 Data Length: " + data.length());
+
+        DaoCore.updateEntity(metadata);
+
+        return metadata;
+    }
+
     public Bitmap metaImageForKey(String key){
+
         String value = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE).getValue();
 
         Bitmap bitmap = null;
@@ -725,6 +754,10 @@ public class BUser extends BUserEntity  {
         }
 
         return false;
+    }
+
+    public String getPushChannel(){
+        return USER_PREFIX + entityID;
     }
     //ASK what is this.
     /*#define bUserPrefix @"user"

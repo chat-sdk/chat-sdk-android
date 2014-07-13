@@ -1,7 +1,5 @@
 package com.braunster.chatsdk.object;
 
-import android.os.Message;
-
 import com.firebase.client.FirebaseError;
 
 /**
@@ -71,6 +69,7 @@ public class BError {
         public static final int EXCEPTION = 12; // When an exception occurred that cause the error.
         public static final int NO_PATH = 13; // When an entity does not have valid path to push to.
         public static final int FIREBASE_ERROR = 14; // When a firebase error occurs the tag will contain the error object.
+        public static final int PARSE_EXCEPTION = 15; // When a parse exception occurs the tag will contain the exception object.
     }
 
     public static final class Message{

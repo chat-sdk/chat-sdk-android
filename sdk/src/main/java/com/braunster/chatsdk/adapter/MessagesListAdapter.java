@@ -146,7 +146,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 else
                 {
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
-                    image = getImageViewfromRow(row, message.getText());
+                    image = getBubleImageViewfromRow(row, message.getText());
                 }
 
                 // TODO save image to cache or to app directory
@@ -218,8 +218,23 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     private ChatBubbleImageView getBubleImageViewfromRow(View row, String base64Data){
-        ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+        final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
         image.setTag(base64Data);
+     /*   VolleyUtills.getImageLoader().get(base64Data, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (response.getBitmap() != null) {
+                    // load image into imageview
+                    image.setImageBitmap(response.getBitmap());
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Image Load Error: " + error.getMessage());
+            }
+        },image.getWidth(), image.getWidth());*/
+        image.loadFromUrl(base64Data);
         image.setData(base64Data);
         image.setOnClickListener(new locationClickListener());
 

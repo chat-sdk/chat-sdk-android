@@ -25,9 +25,12 @@ import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.parse.PushUtils;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -47,117 +50,45 @@ public class MainActivity extends BaseActivity {
     private Menu menu;
 
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
+    private static final String PAGE_ADAPTER_POS = "page_adapter_pos";
+
+    private int pageAdapterPos = -1;
+
     private UiLifecycleHelper uiHelper;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (DEBUG) Log.v(TAG, "onCreate");
         setContentView(R.layout.chat_sdk_activity_view_pager);
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
-    /*    if (savedInstanceState == null)
-        {
-            showProgDialog("...");
-            findViewById(R.id.content).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    dismissProgDialog();
-                }
-            }, 8000);
-        }*/
+
         firstTimeInApp();
         initViews();
+
+        if (savedInstanceState != null)
+        {
+            if (DEBUG) Log.v(TAG, "Saved Instance is not null, "  + savedInstanceState.getInt(PAGE_ADAPTER_POS));
+            pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (DEBUG) Log.v(TAG, "onPause");
         uiHelper.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (DEBUG) Log.v(TAG, "onResume");
         uiHelper.onResume();
 
-        EventManager.getInstance().addEventIfNotExist(new AppEventListener("MainActivity") {
-            private final int threadInterval = 0;
-            private final int messageInterval = 2000;
-            private long lastThreadDetailUpdate = 0;
-            private long lastIcomingMessagelUpdate = 0;
-
-            @Override
-            public boolean onThreadDetailsChanged(String threadId) {
-                super.onThreadDetailsChanged(threadId);
-
-                if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
-
-                if (System.currentTimeMillis() - lastThreadDetailUpdate > threadInterval)
-                {
-                    lastThreadDetailUpdate = System.currentTimeMillis();
-                } else
-                {
-                    if (DEBUG) Log.d(TAG, "Ignoring update.");
-                    return false;
-                }
-
-                BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
-                if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
-                DaoCore.printEntity(thread);
-                if (thread.getType() == BThread.Type.Private)
-                    adapter.getItem(PagerAdapterTabs.Conversations).refresh();
-                else adapter.getItem(PagerAdapterTabs.ChatRooms).refresh();
-
-                return false;
-            }
-
-            @Override
-            public boolean onUserAddedToThread(String threadId, String userId) {
-                if (DEBUG) Log.v(TAG, "onUserAddedToThread");
-
-                BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
-                if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
-                DaoCore.printEntity(thread);
-                return false;
-            }
-
-            @Override
-            public boolean onUserDetailsChange(BUser user) {
-                if (DEBUG) Log.v(TAG, "onUserDetailsChange");
-                adapter.getItem(PagerAdapterTabs.Contacts).refresh();
-                adapter.getItem(PagerAdapterTabs.Conversations).refresh();
-                return false;
-            }
-
-            @Override
-            public boolean onMessageReceived(BMessage message) {
-                if (DEBUG) Log.v(TAG, "onMessageReceived");
-
-                if (System.currentTimeMillis() - lastIcomingMessagelUpdate > messageInterval)
-                {
-                    lastIcomingMessagelUpdate = System.currentTimeMillis();
-                } else return false;
-
-                // Make sure the message that incoming is not the user message.
-                if (message.getBUserSender().getEntityID().equals(
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()))
-                    return false;
-
-                // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
-                if (!EventManager.getInstance().isTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-                    String msgContent = message.getType() == BMessage.Type.bText.ordinal() ? message.getText() : message.getType() == BMessage.Type.bImage.ordinal() ? "Image" : "Location";
-
-                    Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
-                    resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
-                    NotificationUtils.createAlertNotification(MainActivity.this, 2000, resultIntent,
-                            NotificationUtils.getDataBundle(message.getBUserSender().getMetaName() != null ? message.getBUserSender().getMetaName() : " ", "New message from " + message.getBUserSender().getMetaName(), msgContent));
-                }
-
-                adapter.getItem(PagerAdapterTabs.Contacts).refresh();
-                return false;
-            }
-        });
+        EventManager.getInstance().addEventIfNotExist(appEventListener);
 
         //region Trying to obtain invitable friends. NEED GAME PREMISSIONS!
 /*        BFacebookManager.getInvitableFriendsList(new CompletionListenerWithData() {
@@ -180,9 +111,101 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (adapter != null)
+        {
+            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+            adapter.getItem(PagerAdapterTabs.Profile).refresh();
+        }
+    }
+
+    private AppEventListener appEventListener = new AppEventListener("MainActivity") {
+        private final int threadInterval = 0;
+        private final int messageInterval = 2000;
+        private long lastThreadDetailUpdate = 0;
+        private long lastIcomingMessagelUpdate = 0;
+
+        @Override
+        public boolean onThreadDetailsChanged(String threadId) {
+            super.onThreadDetailsChanged(threadId);
+
+            if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
+
+            if (System.currentTimeMillis() - lastThreadDetailUpdate > threadInterval)
+            {
+                lastThreadDetailUpdate = System.currentTimeMillis();
+            } else
+            {
+                if (DEBUG) Log.d(TAG, "Ignoring update.");
+                return false;
+            }
+
+            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
+            if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
+            DaoCore.printEntity(thread);
+            if (thread.getType() == BThread.Type.Private)
+                adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+            else adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+
+            return false;
+        }
+
+        @Override
+        public boolean onUserAddedToThread(String threadId, String userId) {
+            if (DEBUG) Log.v(TAG, "onUserAddedToThread");
+
+//            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
+//            if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
+//            DaoCore.printEntity(thread);
+            return false;
+        }
+
+        @Override
+        public boolean onUserDetailsChange(BUser user) {
+            if (DEBUG) Log.v(TAG, "onUserDetailsChange");
+            adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
+            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+            return false;
+        }
+
+        @Override
+        public boolean onMessageReceived(BMessage message) {
+            if (DEBUG) Log.v(TAG, "onMessageReceived");
+
+            // Only notify for private threads.
+            if (message.getBThreadOwner().getType() == BThread.Type.Public)
+                return true;
+
+            if (System.currentTimeMillis() - lastIcomingMessagelUpdate > messageInterval)
+            {
+                lastIcomingMessagelUpdate = System.currentTimeMillis();
+            } else return false;
+
+            // Make sure the message that incoming is not the user message.
+            if (message.getBUserSender().getEntityID().equals(
+                    BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()))
+                return false;
+
+            // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
+            if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
+                String msgContent = message.getType() == BMessage.Type.bText.ordinal() ? message.getText() : message.getType() == BMessage.Type.bImage.ordinal() ? "Image" : "Location";
+
+                Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
+                resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
+                NotificationUtils.createAlertNotification(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
+                        NotificationUtils.getDataBundle(!StringUtils.isEmpty(message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ", "New message from " + message.getBUserSender().getMetaName(), msgContent));
+            }
+
+//            adapter.getItem(PagerAdapterTabs.Contacts).refresh();
+            return false;
+        }
+    };
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("", true);
+        outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
         uiHelper.onSaveInstanceState(outState);
     }
 
@@ -194,6 +217,7 @@ public class MainActivity extends BaseActivity {
 
     private void initViews(){
         pager = (ViewPager) findViewById(R.id.pager);
+
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 
         adapter = new PagerAdapterTabs(getSupportFragmentManager());
@@ -206,6 +230,8 @@ public class MainActivity extends BaseActivity {
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             private int lastPage = 0;
+            private int refreshContactsInterval = 4000;
+            private long lastContactsRefresh = 0;
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -218,7 +244,19 @@ public class MainActivity extends BaseActivity {
 //                adapter.getItem(position).refresh();
                 // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
                 if (lastPage == 0)
-                    ((ProfileFragment) adapter.getItem(0)).updateIndexAndMetadata();
+                    ((ProfileFragment) adapter.getItem(0)).updateProfileIfNeeded();
+
+
+                if (position == PagerAdapterTabs.Contacts)
+                {
+                    if (System.currentTimeMillis() - lastContactsRefresh > refreshContactsInterval)
+                    {
+                        adapter.getItem(position).refreshOnBackground();
+                        lastContactsRefresh = System.currentTimeMillis();
+                    }
+                }
+
+                pageAdapterPos = position;
 
                 lastPage = position;
             }
@@ -243,7 +281,7 @@ public class MainActivity extends BaseActivity {
         if (item.getItemId() == R.id.android_settings) {
 //            DaoCore.printUsersData();
             EventManager.getInstance().printDataReport();
-//            EventManager.getInstance().removeAllEvents();
+//            EventManager.getInstance().removeAll();
             return true;
         }
         return super.onOptionsItemSelected(item);

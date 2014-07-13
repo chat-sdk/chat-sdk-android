@@ -1,6 +1,9 @@
 package com.braunster.chatsdk.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -97,8 +100,49 @@ public class ThreadsFragment extends BaseFragment {
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
 
         listAdapter.setListData(threads);
+
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
+
+    @Override
+    public void loadDataOnBackground() {
+        super.loadDataOnBackground();
+
+        if (DEBUG) Log.v(TAG, "loadDataOnBackground");
+
+        if (mainView == null)
+            return;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
+
+                if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+
+                Message message = new Message();
+                message.what = 1;
+                message.obj = threads;
+
+                handler.sendMessage(message);
+            }
+        }).start();
+
+    }
+
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what)
+            {
+                case 1:
+                    listAdapter.setListData((List<BThread>) msg.obj);
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -170,18 +214,6 @@ public class ThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        /*activityListener = BNetworkManager.sharedManager().getNetworkAdapter().addActivityListener(new ActivityListener() {
-            @Override
-            public void onThreadDetailsChanged(BThread thread) {
-                if (DEBUG) Log.d(TAG, "Thread is added");
-                listAdapter.addRow(thread);
-            }
-
-            @Override
-            public void onMessageAdded(BMessage message) {
-            }
-        });*/
     }
 
     @Override

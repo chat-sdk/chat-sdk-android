@@ -30,17 +30,18 @@ public class UserDetailsChangeListener extends FirebaseGeneralEvent {
 
     @Override
     public void onDataChange(final DataSnapshot snapshot) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (DEBUG) Log.v(TAG, "User Details has changed.");
-                BUser user = (BUser) BFirebaseInterface.objectFromSnapshot(snapshot);
-                Message message = new Message();
-                message.what = AppEvents.USER_DETAILS_CHANGED;
-                message.obj = user;
-                handler.sendMessage(message);
-            }
-        }).start();
+        if (DEBUG) Log.v(TAG, "User Details has changed.");
+        if (isAlive())
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BUser user = (BUser) BFirebaseInterface.objectFromSnapshot(snapshot);
+                    Message message = new Message();
+                    message.what = AppEvents.USER_DETAILS_CHANGED;
+                    message.obj = user;
+                    handler.sendMessage(message);
+                }
+            }).start();
 
 //        EventManager.getInstance().onThreadDetailsChanged(thread);
     }

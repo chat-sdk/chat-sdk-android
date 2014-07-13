@@ -4,6 +4,7 @@
 
     <uses-sdk android:minSdkVersion="integer"/>
 
+
     <application
 
         android:allowBackup="true"
@@ -23,7 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
 
     </application>
 

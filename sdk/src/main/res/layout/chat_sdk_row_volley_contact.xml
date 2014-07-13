@@ -19,6 +19,6 @@
         android:text="Contact Name"
 
         style="@style/TextViewStyle"
-        android:id="@+id/txt_name"
+        android:id="@+id/chat_sdk_txt"
         android:layout_gravity="center" />
 </LinearLayout>

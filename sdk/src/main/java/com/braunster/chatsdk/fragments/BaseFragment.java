@@ -1,25 +1,38 @@
 package com.braunster.chatsdk.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.braunster.chatsdk.Utils.DecodeUtils;
 import com.braunster.chatsdk.activities.ChatActivity;
+import com.braunster.chatsdk.dao.BLinkedContact;
+import com.braunster.chatsdk.dao.BLinkedContactDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
+
+import java.util.concurrent.Callable;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public class BaseFragment extends DialogFragment implements BaseFragmentInterface {
+public abstract class BaseFragment extends DialogFragment implements BaseFragmentInterface {
 
+    // TODO refresh on background method.
     private static final String TAG = BaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
 
@@ -45,23 +58,22 @@ public class BaseFragment extends DialogFragment implements BaseFragmentInterfac
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-
-    @Override
     public void refresh() {
         loadData();
     }
 
     @Override
     public void loadData() {
+
+    }
+
+    @Override
+    public void refreshOnBackground() {
+        loadDataOnBackground();
+    }
+
+    @Override
+    public void loadDataOnBackground() {
 
     }
 
@@ -117,12 +129,146 @@ public class BaseFragment extends DialogFragment implements BaseFragmentInterfac
             }
         }, users);
     }
+
+    void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        // set title if not null
+        if (title != null && !title.equals(""))
+            alertDialogBuilder.setTitle(title);
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton(p, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (pos != null)
+                            try {
+                                pos.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(n, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        if (neg != null)
+                            try {
+                                neg.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
+
+    class DeleteThread implements Callable{
+
+        private String threadID;
+        public DeleteThread(String threadID){
+            this.threadID = threadID;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            BNetworkManager.sharedManager().getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
+                @Override
+                public void onDone() {
+                    Toast.makeText(getActivity(), "Thread is deleted.", Toast.LENGTH_SHORT).show();
+                    loadData();
+                }
+
+                @Override
+                public void onDoneWithError() {
+                    Toast.makeText(getActivity(), "Unable to delete thread.", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return null;
+        }
+    }
+
+    class DeleteContact implements Callable{
+
+        private String userID;
+
+        public DeleteContact(String userID){
+            this.userID = userID;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            BLinkedContact linkedContact = DaoCore.fetchEntityWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, userID);
+            DaoCore.deleteEntity(linkedContact);
+            loadData();
+            return null;
+        }
+    }
+
+    Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
+        // Get current dimensions
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // Determine how much to scale: the dimension requiring less scaling is
+        // closer to the its side. This way the image always stays inside your
+        // bounding box AND either x/y axis touches it.
+        float xScale = ((float) boundBoxInDp) / width;
+        float yScale = ((float) boundBoxInDp) / height;
+        float scale = (xScale <= yScale) ? xScale : yScale;
+
+        // Create a matrix for the scaling and add the scaling data
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        // Create a new bitmap and convert it to a format understood by the ImageView
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+
+        return bitmap;
+    }
+
+
+    Bitmap setScaledPicToView(final String path, final int size, final ImageView imageView){
+        imageView.setImageBitmap(null);
+
+        // Reducing the size of the bitmap.
+        Bitmap bitmap = DecodeUtils.decodeSampledBitmapFromFile(path, size, size);
+        // Scaling to the needed size
+        bitmap = scaleImage(bitmap, size);
+
+        imageView.setImageBitmap(bitmap);
+
+        return bitmap;
+    }
+
+    void setScaledPicToView(final Bitmap bitmap, final int size, final ImageView imageView){
+        if (bitmap != null)
+        {
+            imageView.setImageBitmap(null);
+            imageView.setImageBitmap(scaleImage(bitmap, size));
+        }
+    }
 }
 
 interface BaseFragmentInterface{
     public void refresh();
 
+    public void refreshOnBackground();
+
     public void loadData();
+
+    public void loadDataOnBackground();
 
     public void initViews();
 }

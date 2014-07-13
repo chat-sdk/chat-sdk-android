@@ -15,6 +15,8 @@ public interface AppEvents {
 
     public boolean onUserDetailsChange(BUser user);
     public boolean onMessageReceived(BMessage message);
+
+    public boolean onThreadIsAdded(String threadId);
     public boolean onThreadDetailsChanged(String threadId);
     public boolean onUserAddedToThread(String threadId, String userId);
 }

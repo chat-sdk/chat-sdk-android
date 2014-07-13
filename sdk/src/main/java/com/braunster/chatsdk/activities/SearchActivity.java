@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.adapter.UsersListAdapter;
+import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -27,7 +27,8 @@ public class SearchActivity extends BaseActivity {
     private Button btnSearch;
     private EditText etInput;
     private ListView listResults;
-    private UsersListAdapter adapter;
+    private UsersWithStatusListAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +42,10 @@ public class SearchActivity extends BaseActivity {
         btnSearch = (Button) findViewById(R.id.chat_sdk_btn_search);
         etInput = (EditText) findViewById(R.id.chat_sdk_et_search_input);
         listResults = (ListView) findViewById(R.id.chat_sdk_list_search_results);
-        adapter = new UsersListAdapter(this);
+        adapter = new UsersWithStatusListAdapter(this);
         listResults.setAdapter(adapter);
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -76,7 +78,7 @@ public class SearchActivity extends BaseActivity {
                         if (DEBUG) Log.d(TAG, "User found name: " + item.getMetaName());
                         usersFoundCount++;
                         dialog.setMessage("Fetching...Found: " + usersFoundCount);
-                        adapter.addRow(item);
+                        adapter.addRow(UsersWithStatusListAdapter.UserListItem.fromBUser(item));
                         return false;
                     }
 
@@ -100,9 +102,9 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Adding the picked user as a contact to the current user.
-                BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(adapter.getItem(position));
-                createAndOpenThreadWithUsers(adapter.getItem(position).getMetaName(),
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), adapter.getItem(position));
+                BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(adapter.getItem(position).asBUser());
+                createAndOpenThreadWithUsers(adapter.getItem(position).getText(),
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), adapter.getItem(position).asBUser());
             }
         });
     }

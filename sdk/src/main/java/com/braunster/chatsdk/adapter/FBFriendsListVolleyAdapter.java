@@ -18,8 +18,6 @@ import com.facebook.model.GraphUser;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 /**
  * Created by itzik on 6/16/2014.
  */
@@ -78,7 +76,7 @@ public class FBFriendsListVolleyAdapter extends BaseAdapter {
         {
             row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_volley_contact, null);
             holder = new ViewHolder();
-            holder.textView = (TextView) row.findViewById(R.id.txt_name);
+            holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
             holder.circleNetworkImageView = (RoundedCornerNetworkImageView) row.findViewById(R.id.img_profile_picture);
             row.setTag(holder);
         }

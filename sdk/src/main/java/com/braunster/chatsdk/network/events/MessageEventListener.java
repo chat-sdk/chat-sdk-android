@@ -9,5 +9,4 @@ public abstract class MessageEventListener extends Event {
     }
 
     public abstract boolean onMessageReceived(BMessage message);
-
 }

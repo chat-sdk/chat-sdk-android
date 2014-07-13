@@ -12,8 +12,6 @@ import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
 
-import java.util.List;
-
 /**
  * Created by itzik on 6/9/2014.
  */

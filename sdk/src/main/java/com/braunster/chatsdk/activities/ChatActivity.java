@@ -68,15 +68,22 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private BThread thread;
     private PopupWindow optionPopup;
 
+    private boolean fromNotification = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (DEBUG) Log.v(TAG, "onCreate");
         setContentView(R.layout.chat_sdk_activity_chat);
 
         if ( !getThread(savedInstanceState) )
             return;
 
         initViews();
+
+        initListView();
+
         initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
     }
 
@@ -84,6 +91,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
             ab.setTitle(username);
+//            ab.setIcon(new BitmapDrawable(thread.getUsers().get(0).getMetaPicture()));
         }
     }
 
@@ -91,7 +99,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         btnSend = (Button) findViewById(R.id.chat_sdk_btn_chat_send_message);
         btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
         etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
-        initListView();
     }
 
     private void initListView(){
@@ -101,11 +108,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
         listMessages.setAdapter(messagesListAdapter);
 
-        if (thread == null)
-            Log.e(TAG, "Thread is null");
-        messagesListAdapter.setListData(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId()));
+        loadMessages();
     }
 
+    private void loadMessages(){
+        if (thread == null)
+        {
+            Log.e(TAG, "Thread is null");
+            return;
+        }
+
+        messagesListAdapter.setListData(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId()));
+    }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -120,15 +134,30 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (DEBUG) Log.v(TAG, "onNewIntent");
+
+        if ( !getThread(intent.getExtras()) )
+            return;
+
+        initListView();
+
+        initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-
+        if (DEBUG) Log.v(TAG, "onResume");
         listMessages.post(new Runnable() {
             @Override
             public void run() {
                 listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
             }
         });
+
+        loadMessages();
 
         // Removing the last listener just to be sure we wont receive duplicates notifications.
         EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
@@ -197,7 +226,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
+                       /* BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
@@ -207,6 +236,19 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                             @Override
                             public void onDoneWithError(BError error) {
                                 Toast.makeText(ChatActivity.this, "Image could not been sent.", Toast.LENGTH_SHORT).show();
+                            }
+                        });*/
+
+                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+                            @Override
+                            public void onDone(BMessage bMessage) {
+                                if (DEBUG) Log.v(TAG, "Image is sent");
+                                messagesListAdapter.addRow(bMessage);
+                            }
+
+                            @Override
+                            public void onDoneWithError(BError error) {
+                                Toast.makeText(ChatActivity.this, "Image could not been sent. " + error.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -281,17 +323,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         // ASK what the add button do in this class
         if (id == R.id.action_chat_sdk_add)
         {
-            ContactsFragment contacts = ContactsFragment.newDialogInstance(
-                    ContactsFragment.MODE_LOAD_CONTACS, "Contacts:");
-
-            contacts.show(getSupportFragmentManager(), "Contacts");
+            ContactsFragment contactsFragment = ContactsFragment.newDialogInstance(ContactsFragment.MODE_LOAD_CONTACS, "Contacts:");
+            contactsFragment.show(getSupportFragmentManager(), "Contacts");
         }
         else if (id == R.id.action_chat_sdk_show)
         {
-            ContactsFragment contacts = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
-//        contacts.getDialog().setTitle("Contacts");
-
-            contacts.show(getSupportFragmentManager(), "Users");
+            ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
+            contactsFragment.show(getSupportFragmentManager(), "Contacts");
         }
 
         return super.onOptionsItemSelected(item);
@@ -336,6 +374,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
 
         return true;
+    }
+
+    private void openIntent(Intent intent){
+
     }
 
     private void sendLogic(){
@@ -421,5 +463,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             sendLogic();
 
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        startActivity(intent);
     }
 }
