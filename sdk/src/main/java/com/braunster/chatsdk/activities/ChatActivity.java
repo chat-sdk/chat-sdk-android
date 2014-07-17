@@ -68,9 +68,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private BThread thread;
     private PopupWindow optionPopup;
 
-    private boolean fromNotification = false;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +115,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             return;
         }
 
-        messagesListAdapter.setListData(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId()));
+        messagesListAdapter.setListData(
+                messagesListAdapter.makeList(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId())));
     }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -226,20 +224,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                       /* BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image, thread.getId(), new CompletionListenerWithData<BMessage>() {
-                            @Override
-                            public void onDone(BMessage bMessage) {
-                                if (DEBUG) Log.v(TAG, "Image is sent");
-                                messagesListAdapter.addRow(bMessage);
-                            }
 
-                            @Override
-                            public void onDoneWithError(BError error) {
-                                Toast.makeText(ChatActivity.this, "Image could not been sent.", Toast.LENGTH_SHORT).show();
-                            }
-                        });*/
-
-                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
+                                image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
@@ -281,7 +268,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             {
                 if (DEBUG) Log.d(TAG, "Result OK");
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
-                BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(data.getExtras().getString(LocationActivity.BASE_64_FILE, null),
+                BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(data.getExtras().getString(LocationActivity.SNAP_SHOT_PATH, null),
                                         new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),
                                         thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
@@ -297,6 +284,40 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         });
             }
         }
+        else if (requestCode == CAPTURE_IMAGE)
+        {
+            if (DEBUG) Log.d(TAG, "Capture image return");
+            if (resultCode == Activity.RESULT_OK) {
+                if (DEBUG) Log.d(TAG, "Result OK");
+
+                Uri uri = (Uri) data.getData();
+                File image = null;
+                try
+                {
+                    image = Utils.getFile(this, uri);
+                }
+                catch (NullPointerException e){
+                    if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
+                    Toast.makeText(ChatActivity.this, "Unable to fetch image", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
+                        image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+                            @Override
+                            public void onDone(BMessage bMessage) {
+                                if (DEBUG) Log.v(TAG, "Image is sent");
+                                messagesListAdapter.addRow(bMessage);
+                            }
+
+                            @Override
+                            public void onDoneWithError(BError error) {
+                                Toast.makeText(ChatActivity.this, "Image could not been sent. " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                );
+            }
+        }
 
     }
 
@@ -305,7 +326,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add contact to chat.");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(android.R.drawable.ic_menu_add);
+        item.setIcon(R.drawable.ic_plus);
 
         MenuItem itemThreadUsers =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_show, 10, "Show thread users.");
@@ -323,7 +344,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         // ASK what the add button do in this class
         if (id == R.id.action_chat_sdk_add)
         {
-            ContactsFragment contactsFragment = ContactsFragment.newDialogInstance(ContactsFragment.MODE_LOAD_CONTACS, "Contacts:");
+            ContactsFragment contactsFragment = ContactsFragment.newDialogInstance(
+                                                                                    ContactsFragment.MODE_LOAD_CONTACTS,
+                                                                                    ContactsFragment.CLICK_MODE_ADD_USER_TO_THREAD,
+                                                                                    "Contacts:",
+                                                                                    thread.getEntityID());
             contactsFragment.show(getSupportFragmentManager(), "Contacts");
         }
         else if (id == R.id.action_chat_sdk_show)
@@ -374,10 +399,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
 
         return true;
-    }
-
-    private void openIntent(Intent intent){
-
     }
 
     private void sendLogic(){
@@ -432,6 +453,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             showOptionPopup();
         }
         else  if (id == R.id.chat_sdk_btn_choose_picture) {
+            dismissOption();
+
             // TODO allow multiple pick of photos.
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -442,18 +465,27 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             startActivityForResult(Intent.createChooser(intent,
                     "Complete action using"), PHOTO_PICKER_ID);
 
-            dismissOption();
+
         }
         else  if (id == R.id.chat_sdk_btn_take_picture) {
+            if (!Utils.SystemChecks.checkCameraHardware(this))
+            {
+                Toast.makeText(this, "This device does not have a camera.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            dismissOption();
+
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME).getAbsolutePath());
 
             // start the image capture Intent
             startActivityForResult(intent, CAPTURE_IMAGE);
         }
         else  if (id == R.id.chat_sdk_btn_location) {
+            dismissOption();
             Intent intent = new Intent(ChatActivity.this, LocationActivity.class);
             startActivityForResult(intent, PICK_LOCATION);
-            dismissOption();
         }
     }
 

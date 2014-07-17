@@ -1,5 +1,7 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
+
 android {
+
     compileSdkVersion 19
     buildToolsVersion '19.1.0'
     defaultConfig {
@@ -8,15 +10,24 @@ android {
         versionCode 1
         versionName '0.2.4'
     }
+
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
     productFlavors {
     }
+
 }
+
+
+repositories {
+
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //Google Play Services - For Google Maps
@@ -29,18 +40,17 @@ dependencies {
     compile project(':facebook')
     // Greendao generator. Generate the database object and structure.
     compile project(':generator')
-    // Page Adapter for the application desing.
+    // Page Adapter for the application design.
     compile project(':PagerSlidingTabStrip')
     // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
     compile ('de.greenrobot:greendao:1.3.0'){ exclude group: 'com.google.android', module: 'support-v4'}
     // String Utils - Helping to keep the code clean without checking for null and empty strings all the time.
     compile 'org.apache.commons:commons-lang3:3.3.+'
-//    // Picasso a library for images loading and size fixing.
-////    compile 'com.squareup.picasso:picasso:2.3.+'
+
+    // BugSense - For bug and crash tracking
+    compile ('com.bugsense.trace:bugsense:3.5') { exclude  module: 'base64coder'}
 
     // Firebase
     compile 'com.firebase:firebase-client:1.0.15'
     compile 'com.firebase:firebase-simple-login:1.3.0'
-
-
 }

@@ -35,6 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
+
 
 public class MainActivity extends BaseActivity {
 
@@ -121,32 +124,37 @@ public class MainActivity extends BaseActivity {
     }
 
     private AppEventListener appEventListener = new AppEventListener("MainActivity") {
-        private final int threadInterval = 0;
-        private final int messageInterval = 2000;
-        private long lastThreadDetailUpdate = 0;
-        private long lastIcomingMessagelUpdate = 0;
+        private final int uiUpdateDelay = 3000;
+        private UIUpdater uiUpdaterDetailsChanged, uiUpdaterThreadDetailsChanged, uiUpdaterMessages;
 
         @Override
-        public boolean onThreadDetailsChanged(String threadId) {
+        public boolean onThreadDetailsChanged(final String threadId) {
             super.onThreadDetailsChanged(threadId);
 
             if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
 
-            if (System.currentTimeMillis() - lastThreadDetailUpdate > threadInterval)
-            {
-                lastThreadDetailUpdate = System.currentTimeMillis();
-            } else
-            {
-                if (DEBUG) Log.d(TAG, "Ignoring update.");
-                return false;
-            }
+            if (uiUpdaterThreadDetailsChanged != null)
+                uiUpdaterThreadDetailsChanged.setKilled(true);
 
-            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
-            if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
-            DaoCore.printEntity(thread);
-            if (thread.getType() == BThread.Type.Private)
-                adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
-            else adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+            findViewById(R.id.content).removeCallbacks(uiUpdaterThreadDetailsChanged);
+
+            uiUpdaterThreadDetailsChanged = new UIUpdater(){
+
+                @Override
+                public void run() {
+                    if (!isKilled())
+                    {
+                        BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
+                        if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
+                        DaoCore.printEntity(thread);
+                        if (thread.getType() == BThread.Type.Private)
+                            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+                        else adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+                    }
+                }
+            };
+
+            findViewById(R.id.content).postDelayed(uiUpdaterThreadDetailsChanged, uiUpdateDelay);
 
             return false;
         }
@@ -164,43 +172,84 @@ public class MainActivity extends BaseActivity {
         @Override
         public boolean onUserDetailsChange(BUser user) {
             if (DEBUG) Log.v(TAG, "onUserDetailsChange");
-            adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
-            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+
+            if (uiUpdaterDetailsChanged != null)
+                uiUpdaterDetailsChanged.setKilled(true);
+
+            findViewById(R.id.content).removeCallbacks(uiUpdaterDetailsChanged);
+
+            uiUpdaterDetailsChanged = new UIUpdater(){
+
+                @Override
+                public void run() {
+                    if (!isKilled())
+                    {
+                        adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
+                        adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+                    }
+                }
+            };
+
+            findViewById(R.id.content).postDelayed(uiUpdaterDetailsChanged, uiUpdateDelay);
+
             return false;
         }
 
         @Override
-        public boolean onMessageReceived(BMessage message) {
+        public boolean onMessageReceived(final BMessage message) {
             if (DEBUG) Log.v(TAG, "onMessageReceived");
 
             // Only notify for private threads.
             if (message.getBThreadOwner().getType() == BThread.Type.Public)
                 return true;
 
-            if (System.currentTimeMillis() - lastIcomingMessagelUpdate > messageInterval)
-            {
-                lastIcomingMessagelUpdate = System.currentTimeMillis();
-            } else return false;
-
             // Make sure the message that incoming is not the user message.
             if (message.getBUserSender().getEntityID().equals(
                     BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()))
                 return false;
 
-            // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
-            if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-                String msgContent = message.getType() == BMessage.Type.bText.ordinal() ? message.getText() : message.getType() == BMessage.Type.bImage.ordinal() ? "Image" : "Location";
+            if (uiUpdaterMessages != null)
+                uiUpdaterMessages.setKilled(true);
 
-                Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
-                resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
-                NotificationUtils.createAlertNotification(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
-                        NotificationUtils.getDataBundle(!StringUtils.isEmpty(message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ", "New message from " + message.getBUserSender().getMetaName(), msgContent));
-            }
+            findViewById(R.id.content).removeCallbacks(uiUpdaterMessages);
 
-//            adapter.getItem(PagerAdapterTabs.Contacts).refresh();
+            uiUpdaterMessages = new UIUpdater(){
+
+                @Override
+                public void run() {
+                    if (!isKilled())
+                    {
+                        // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
+                        if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
+                            String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
+
+                            Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
+                            resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
+                            NotificationUtils.createAlertNotification(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
+                                    NotificationUtils.getDataBundle(!StringUtils.isEmpty(message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ", "New message from " + message.getBUserSender().getMetaName(), msgContent));
+                        }
+                    }
+                }
+            };
+
+            findViewById(R.id.content).postDelayed(uiUpdaterMessages, uiUpdateDelay);
+
             return false;
         }
     };
+
+    abstract class UIUpdater implements Runnable{
+
+        private boolean killed = false;
+
+        public void setKilled(boolean killed) {
+            this.killed = killed;
+        }
+
+        public boolean isKilled() {
+            return killed;
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -226,7 +275,7 @@ public class MainActivity extends BaseActivity {
 
         tabs.setViewPager(pager);
 
-        pager.setOffscreenPageLimit(3);
+//        pager.setOffscreenPageLimit(3);
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             private int lastPage = 0;
@@ -247,14 +296,14 @@ public class MainActivity extends BaseActivity {
                     ((ProfileFragment) adapter.getItem(0)).updateProfileIfNeeded();
 
 
-                if (position == PagerAdapterTabs.Contacts)
+             /*   if (position == PagerAdapterTabs.Contacts)
                 {
                     if (System.currentTimeMillis() - lastContactsRefresh > refreshContactsInterval)
                     {
                         adapter.getItem(position).refreshOnBackground();
                         lastContactsRefresh = System.currentTimeMillis();
                     }
-                }
+                }*/
 
                 pageAdapterPos = position;
 
@@ -325,6 +374,7 @@ public class MainActivity extends BaseActivity {
                 // Facebook session is closed so we need to disconnect from firebase.
                 BNetworkManager.sharedManager().getNetworkAdapter().logout();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
                 startActivity(intent);
             }
         });

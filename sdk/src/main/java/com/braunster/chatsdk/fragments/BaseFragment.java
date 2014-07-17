@@ -11,10 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.braunster.chatsdk.Utils.DecodeUtils;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BLinkedContactDao;
@@ -83,6 +81,8 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
     void startChatActivityForID(long id){
+        if (getActivity() == null);
+            Log.e(TAG, "Activitu is nyll!!!!!!");
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.THREAD_ID, id);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -90,6 +90,10 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
     void createAndOpenThreadWithUsers(String name, BUser...users){
+        createAndOpenThreadWithUsers(name, null, users);
+    }
+
+    void createAndOpenThreadWithUsers(String name, final DoneListener doneListener, BUser...users){
         BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
 
             BThread thread = null;
@@ -120,6 +124,8 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
                 if (thread != null)
                 {
                     startChatActivityForID(thread.getId());
+                    if (doneListener != null)
+                        doneListener.onDone();
                 }
             }
 
@@ -187,7 +193,7 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
                 @Override
                 public void onDone() {
                     Toast.makeText(getActivity(), "Thread is deleted.", Toast.LENGTH_SHORT).show();
-                    loadData();
+                    refreshOnBackground();
                 }
 
                 @Override
@@ -217,6 +223,9 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
     Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
+        if (boundBoxInDp == 0)
+            return null;
+
         // Get current dimensions
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
@@ -239,6 +248,26 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
 
+    interface DoneListener{
+        public void onDone();
+    }
+}
+
+interface BaseFragmentInterface{
+    public void refresh();
+
+    public void refreshOnBackground();
+
+    public void loadData();
+
+    public void loadDataOnBackground();
+
+    public void initViews();
+}
+
+/*
+
+
     Bitmap setScaledPicToView(final String path, final int size, final ImageView imageView){
         imageView.setImageBitmap(null);
 
@@ -258,17 +287,4 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
             imageView.setImageBitmap(null);
             imageView.setImageBitmap(scaleImage(bitmap, size));
         }
-    }
-}
-
-interface BaseFragmentInterface{
-    public void refresh();
-
-    public void refreshOnBackground();
-
-    public void loadData();
-
-    public void loadDataOnBackground();
-
-    public void initViews();
-}
+    }*/

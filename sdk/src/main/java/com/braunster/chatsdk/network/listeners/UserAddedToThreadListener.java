@@ -58,28 +58,30 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
                     final String userFirebaseID = path.idForIndex(1);
 
                     if (DEBUG) Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.getCurrentUserId());
-                    if (userFirebaseID.equals(EventManager.getCurrentUserId())) {
-                        return;
-                    }
+                    BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
 
                     BUser bUser;
                     // If the user already has  listening to this user we can fetch it from the db because he is up to date.
     //                if (usersIds.contains(userFirebaseID))
-                        bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+                    bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
     //                else
     ////                    // For each user we'd then need to add them to the database
     //                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
 
-                    BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
+                    // Attaching the user to the thread if needed.
+                    if (!thread.hasUser(bUser))
+                        DaoCore.connectUserAndThread(bUser, thread);
+
+                    // Dont notify the system for the current user added.
+                    if (userFirebaseID.equals(EventManager.getCurrentUserId())) {
+                        return;
+                    }
+
                     if (thread.getType() != BThread.Type.Public)
                     {
                         // Users that are members of threads are shown in contacts
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
                     }
-
-                    // Attaching the user to the thread if needed.
-                    if (!thread.hasUser(bUser))
-                        DaoCore.connectUserAndThread(bUser, thread);
 
                     Message message = new Message();
                     message.what = AppEvents.USER_ADDED_TO_THREAD;

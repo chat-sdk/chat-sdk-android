@@ -1,5 +1,7 @@
 package com.braunster.chatsdk.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,16 +16,17 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.activities.SearchActivity;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -36,30 +39,33 @@ public class ContactsFragment extends BaseFragment {
     private static final String TAG = ContactsFragment.class.getSimpleName();
     private static boolean DEBUG = true;
 
-    public static final int MODE_LOAD_CONTACS = 1991;
+    /** Loading all the current user contacts.*/
+    public static final int MODE_LOAD_CONTACTS = 1991;
+    /** Loading all users for given thread id mode*/
     public static final int MODE_LOAD_THREAD_USERS = 1992;
-    public static final String MODE = "Mode";
+    /** When a user clicked he will be added to the current thread.*/
+    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 1993;
+
+    public static final String LOADING_MODE = "Loading_Mode";
+    public static final String CLICK_MODE = "Click_Mode";
+
     public static final String IS_DIALOG = "is_dialog";
 
-    private BUser user;
     private UsersWithStatusListAdapter adapter;
     private ListView listView;
-    private ArrayList<String> listDataHeader;
-    private HashMap<String, List<BUser>> listDataChild;
 
-    private final List<BUser> onlineContacts = new ArrayList<BUser>();
-    private final List<BUser> offlineContacts = new ArrayList<BUser>();
     private List<BUser> sourceUsers = null;
     private String title = "";
-    private int mode;
+    private int loadingMode, clickMode;
     private String extraData ="";
 
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
     private boolean isDialog = false;
 
+    /* Initializers.*/
     public static ContactsFragment newInstance() {
         ContactsFragment f = new ContactsFragment();
-        f.setMode(MODE_LOAD_CONTACS);
+        f.setLoadingMode(MODE_LOAD_CONTACTS);
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
@@ -70,7 +76,7 @@ public class ContactsFragment extends BaseFragment {
         f.setDialog();
         f.setTitle(title);
         f.setExtraData(extraData);
-        f.setMode(mode);
+        f.setLoadingMode(mode);
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
@@ -79,7 +85,7 @@ public class ContactsFragment extends BaseFragment {
     public static ContactsFragment newThreadUsersDialogInstance(String threadID, String title) {
         ContactsFragment f = new ContactsFragment();
         f.setTitle(title);
-        f.setMode(MODE_LOAD_THREAD_USERS);
+        f.setLoadingMode(MODE_LOAD_THREAD_USERS);
         f.setDialog();
         f.setExtraData(threadID);
         Bundle b = new Bundle();
@@ -87,15 +93,19 @@ public class ContactsFragment extends BaseFragment {
         return f;
     }
 
-    public static ContactsFragment newDialogInstance(int mode, String title) {
+    public static ContactsFragment newDialogInstance(int loadingMode, int clickMode, String title, String extraData) {
         ContactsFragment f = new ContactsFragment();
         f.setDialog();
-        f.setMode(mode);
+        f.setLoadingMode(loadingMode);
+        f.setExtraData(extraData);
+        f.setClickMode(clickMode);
         f.setTitle(title);
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
     }
+
+
 
     private void setDialog(){
         isDialog = true;
@@ -105,12 +115,16 @@ public class ContactsFragment extends BaseFragment {
         this.title = title;
     }
 
-    private void setMode(int mode){
-        this.mode = mode;
+    private void setLoadingMode(int loadingMode){
+        this.loadingMode = loadingMode;
     }
 
     private void setExtraData(String extraData){
         this.extraData = extraData;
+    }
+
+    public void setClickMode(int clickMode) {
+        this.clickMode = clickMode;
     }
 
     @Override
@@ -119,7 +133,8 @@ public class ContactsFragment extends BaseFragment {
 
         if (savedInstanceState != null)
         {
-            mode = savedInstanceState.getInt(MODE);
+            loadingMode = savedInstanceState.getInt(LOADING_MODE);
+            clickMode = savedInstanceState.getInt(CLICK_MODE);
             isDialog = savedInstanceState.getBoolean(IS_DIALOG);
         }
 
@@ -127,9 +142,6 @@ public class ContactsFragment extends BaseFragment {
             setHasOptionsMenu(true);
             setRetainInstance(true);
         }
-
-
-
     }
 
     @Override
@@ -145,11 +157,9 @@ public class ContactsFragment extends BaseFragment {
 
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
-        this.user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
-
         initViews();
 
-        loadData();
+        loadDataOnBackground();
 
         return mainView;
     }
@@ -157,13 +167,13 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(MODE, mode);
+        outState.putInt(LOADING_MODE, loadingMode);
         outState.putBoolean(IS_DIALOG, isDialog);
     }
 
     @Override
     public void initViews(){
-        listView = (ListView) mainView.findViewById(R.id.list_contacts);
+        listView = (ListView) mainView.findViewById(R.id.chat_sdk_list_contacts);
     }
 
     @Override
@@ -172,7 +182,7 @@ public class ContactsFragment extends BaseFragment {
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Chat");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(android.R.drawable.ic_menu_add);
+        item.setIcon(R.drawable.ic_plus);
     }
 
     @Override
@@ -181,12 +191,13 @@ public class ContactsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        // ASK what the add button do in this class
+        // Each user that will be found in the search activity will be automatically added as a contact.
         if (id == R.id.action_chat_sdk_add)
         {
-//            Intent intent = new Intent(getActivity(), PickFriendsActivity.class);
-//
-//            startActivity(intent);
+            Intent intent = new Intent();
+
+            intent.setAction(SearchActivity.ACTION_ADD_WHEN_FOUND);
+            startActivityForResult(intent, SearchActivity.GET_CONTACTS_ADDED_REQUEST);
             return true;
         }
 
@@ -201,9 +212,9 @@ public class ContactsFragment extends BaseFragment {
             return;
 
         // If this is not a dialog we will load the contacts of the user.
-        switch (mode)
+        switch (loadingMode)
         {
-            case MODE_LOAD_CONTACS:
+            case MODE_LOAD_CONTACTS:
                 sourceUsers = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
                 break;
 
@@ -280,7 +291,6 @@ public class ContactsFragment extends BaseFragment {
         else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
     }
 
-
     @Override
     public void loadDataOnBackground(){
         if (DEBUG) Log.v(TAG, "loadDataOnBackground");
@@ -300,10 +310,16 @@ public class ContactsFragment extends BaseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // If this is not a dialog we will load the contacts of the user.
-                switch (mode)
+                if (getActivity() == null)
                 {
-                    case MODE_LOAD_CONTACS:
+                    Log.e(TAG, "ACTIVITY IS NULL");
+                    return;
+                }
+
+                // If this is not a dialog we will load the contacts of the user.
+                switch (loadingMode)
+                {
+                    case MODE_LOAD_CONTACTS:
                         if (DEBUG) Log.d(TAG, "Mode - Contacts");
                         sourceUsers = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
                         break;
@@ -316,7 +332,7 @@ public class ContactsFragment extends BaseFragment {
                 }
 
                 if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
-                    adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true));
+                    adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true, true));
                 }
 
                 handler.sendEmptyMessage(1);
@@ -324,7 +340,7 @@ public class ContactsFragment extends BaseFragment {
         }).start();
     }
 
-    Handler handler = new Handler(Looper.getMainLooper()){
+    private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -342,9 +358,52 @@ public class ContactsFragment extends BaseFragment {
                             if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
                                 return;
 
-                            BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
+                            final BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
 
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                            switch (clickMode)
+                            {
+                                case CLICK_MODE_ADD_USER_TO_THREAD:
+                                    BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
+                                    BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                                        @Override
+                                        public boolean onItem(BUser user) {
+                                            Toast.makeText(getActivity(), "User added to thread, Name: "  + clickedUser.getMetaName(), Toast.LENGTH_SHORT).show();
+                                            if (isDialog)
+                                                getDialog().dismiss();
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public void onDone() {
+
+                                        }
+
+                                        @Override
+                                        public void onItemError(BUser user, Object o) {
+
+                                        }
+                                    }, clickedUser);
+                                    break;
+
+                                default:
+                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new DoneListener() {
+                                        @Override
+                                        public void onDone() {
+                                            // This listener is used only because that if we dismiss the dialog before the thread creation has been done
+                                            // The contact dialog could not open the new chat activity because getActivity() will be null.
+                                            if (isDialog)
+                                                getDialog().dismiss();
+                                        }
+                                    }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                            }
+
+                                 /* for (int i = 0; i < 20; i++)
+                            {
+                                UserDetailsChangeListener userDetailsChangeListener = new UserDetailsChangeListener(clickedUser.getEntityID(), handler);
+                                FirebasePaths.userRef(clickedUser.getEntityID()).addValueEventListener(userDetailsChangeListener);
+                            }*/
+
+
                         }
                     });
 
@@ -354,9 +413,8 @@ public class ContactsFragment extends BaseFragment {
                             if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
                                 return true;
 
-//                    showAlertDialog("", getResources().getString(R.string.alert_delete_contact), getResources().getString(R.string.delete),
+//                            showAlertDialog("", getResources().getString(R.string.alert_delete_contact), getResources().getString(R.string.delete),
 //                            getResources().getString(R.string.cancel), null, new DeleteContact(adapter.getItem(position).getEntityID()));
-
                             return true;
                         }
                     });
@@ -375,6 +433,17 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SearchActivity.GET_CONTACTS_ADDED_REQUEST)
+            if (resultCode == Activity.RESULT_OK)
+            {
+                loadDataOnBackground();
+            }
     }
 
     @Override

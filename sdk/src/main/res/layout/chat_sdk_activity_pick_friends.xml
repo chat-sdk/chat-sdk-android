@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,20 +9,23 @@
         android:layout_height="wrap_content"
         android:text="SEARCH"
         android:textSize="20dp"
+        android:layout_alignParentTop="true"
         android:padding="10dp"
         android:id="@+id/textView" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/et_search"
+        android:id="@+id/chat_sdk_et_search"
         android:hint="search"
+        android:layout_below="@id/textView"
         android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Invite More Friends"
+        android:visibility="gone"
         android:textSize="20dp"
         android:padding="10dp"
         android:id="@+id/textView1" />
@@ -30,13 +33,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="FB"
-            android:id="@+id/btn_invite_from_fb"/>
+            android:id="@+id/chat_sdk_btn_invite_from_fb"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -50,21 +54,24 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Contacts"
+        android:text="CONTACTS"
         android:textSize="20dp"
+        android:layout_below="@id/chat_sdk_et_search"
         android:padding="10dp"
         android:id="@+id/textView3" />
 
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list_contacts"
+        android:id="@+id/chat_sdk_list_contacts"
+        android:layout_below="@id/textView3"
+        android:layout_above="@+id/chat_sdk_btn_start_chat"
         android:visibility="visible"/>
 
-<!--    <ProgressBar
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:id="@+id/prg_bar"
-        android:layout_margin="50dp"/>-->
-</LinearLayout>
+        android:id="@+id/chat_sdk_btn_start_chat"
+        android:layout_alignParentBottom="true"
+        android:text="Start Chat"/>
+</RelativeLayout>

@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,11 +21,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.commons.io.FileUtils;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by braunster on 19/06/14.
@@ -66,12 +64,14 @@ public class LocationActivity extends FragmentActivity
     private LocationClient locationClient;
     private Button btnSendLocation;
     private LatLng requestedLocation;
+    private Marker selectedLocation;
 
     public static final String SHOW_LOCATION = "show_location";
     public static final String LANITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String SNAP_SHOT_PATH = "snap_shot_path";
     public static final String BASE_64_FILE = "base_64_file";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +121,25 @@ public class LocationActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-        // TODO change to save file to cache not to the public dir of pictures.
+
+        if (map == null)
+            return;
+
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+
+                if (selectedLocation != null)
+                {
+                    selectedLocation.remove();
+                    selectedLocation = null;
+                }
+
+                // TODO show the adress of that position http://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+                selectedLocation = map.addMarker(new MarkerOptions().position(latLng).title("Selected Location"));
+            }
+        });
+
         btnSendLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,7 +148,7 @@ public class LocationActivity extends FragmentActivity
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            File savedFile = Utils.FileSaver.saveImage(LocationActivity.this, bitmapLocation, null);
+                            File savedFile = Utils.FileSaver.saveLocationImage(LocationActivity.this, bitmapLocation, null);
                             if ( savedFile == null)
                                 reportError(ERROR_SAVING_IMAGE);
                             else
@@ -156,16 +174,26 @@ public class LocationActivity extends FragmentActivity
     private void reportSuccess(File file){
         // Reporting to the caller activity of the location picked and the snapshot image taken file location.
         Intent intent = new Intent();
-        intent.putExtra(LANITUDE, map.getMyLocation().getLatitude());
-        intent.putExtra(LONGITUDE, map.getMyLocation().getLongitude());
+
+        // If no marker has been added send the user current location.
+        if (selectedLocation == null) {
+            intent.putExtra(LANITUDE, map.getMyLocation().getLatitude());
+            intent.putExtra(LONGITUDE, map.getMyLocation().getLongitude());
+        }
+        else
+        {
+            intent.putExtra(LANITUDE, selectedLocation.getPosition().latitude);
+            intent.putExtra(LONGITUDE, selectedLocation.getPosition().longitude);
+        }
+
         intent.putExtra(SNAP_SHOT_PATH, file.getPath());
 
-        try {
+    /*    try {
             String base = Base64.encodeToString(FileUtils.readFileToByteArray(file), Base64.DEFAULT);
             intent.putExtra(BASE_64_FILE, base);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         setResult(RESULT_OK, intent);
         finish();

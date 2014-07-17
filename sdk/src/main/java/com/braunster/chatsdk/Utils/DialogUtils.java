@@ -224,12 +224,14 @@ public class DialogUtils {
         popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
         popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
 
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+
         // TODO fix popup size to wrap view size.
         optionPopup.setContentView(popupView);
         optionPopup.setBackgroundDrawable(new BitmapDrawable());
         optionPopup.setOutsideTouchable(true);
-        optionPopup.setWidth(500);
-        optionPopup.setHeight(400);
+        optionPopup.setWidth(popupView.getMeasuredWidth());
+        optionPopup.setHeight(popupView.getMeasuredHeight());
         return optionPopup;
     }
 

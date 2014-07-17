@@ -610,10 +610,10 @@ public class BUser extends BUserEntity  {
         setMetadataString(BDefines.Keys.BPictureURL, imageUrl);
     }
 
-    @Override//TODO
+/*    @Override//TODO
     public Bitmap getMetaPicture() {
         return metaImageForKey(BDefines.Keys.BPicture);
-    }
+    }*/
 
     @Override//TODO
     public String getMetaPictureUrl() {
@@ -757,7 +757,7 @@ public class BUser extends BUserEntity  {
     }
 
     public String getPushChannel(){
-        return USER_PREFIX + entityID;
+        return USER_PREFIX + (entityID.replace("-",""));
     }
     //ASK what is this.
     /*#define bUserPrefix @"user"

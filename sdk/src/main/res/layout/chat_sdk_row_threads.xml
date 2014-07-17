@@ -21,6 +21,7 @@
         style="@style/TextViewStyle"
         android:id="@+id/chat_sdk_txt"
         android:layout_toRightOf="@id/img_thread_image"
+        android:layout_toLeftOf="@+id/txt_last_message_date"
         android:layout_alignParentTop="true"/>
 
     <TextView
@@ -40,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="last message"
+        android:text="time"
         style="@style/TextViewStyleSmall"
         android:layout_marginRight="5dp"
         android:id="@+id/txt_last_message_date"

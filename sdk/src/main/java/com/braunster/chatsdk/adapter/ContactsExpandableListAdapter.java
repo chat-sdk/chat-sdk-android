@@ -6,7 +6,6 @@ package com.braunster.chatsdk.adapter;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,12 +73,12 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
         user.pictureURL = "http://www.wandake.com/blog/wp-content/uploads/2011/07/bender-289x300.jpg";
         user.pictureExist = true;
         // TODO delete this only for testing the contact icon*/
-
+/*FIXME need to work with url
         Bitmap bitmap = user.getMetaPicture();
         if (bitmap != null)
         {
             imgPicture.setImageBitmap(bitmap);
-        }
+        }*/
 /*        else if (user.pictureExist)
         {
 //            imgPicture.setImageResource(0);
@@ -88,11 +87,11 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
                                 VolleyUtills.getImageLoader().getImageListener(imgPicture,
                                         R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
         }*/
-        else
+       /* else
         {
             imgPicture.setImageResource(R.drawable.icn_user_x_2);
         }
-
+*/
         return convertView;
     }
 

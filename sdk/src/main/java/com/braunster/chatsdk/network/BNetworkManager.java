@@ -21,6 +21,8 @@ public class BNetworkManager {
     private static final String TAG = BNetworkManager.class.getSimpleName();
     private static final boolean DEBUG = true;
 
+    public static final boolean ENABLE_BUGSENSE = false;
+
     public static SharedPreferences preferences;
 
     private static BNetworkManager instance;

@@ -4,10 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Utils;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.SaveCallback;
@@ -31,7 +28,6 @@ public class ParseUtils {
         byte[] byteArray = stream.toByteArray();
 
         // Saving the image to parse.
-        final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
         final ParseFile parseFile = new ParseFile(DaoCore.generateEntity() + ".jpeg", byteArray);
 
         // When save is done save the image url in the user metadata.
@@ -45,13 +41,12 @@ public class ParseUtils {
                     return;
                 }
 
-                currentUser.setMetadataString(BDefines.Keys.BPictureURL, parseFile.getUrl());
                 listener.onSaved(null, parseFile.getUrl());
             }
         });
     }
 
     public interface SaveCompletedListener{
-        public void onSaved(ParseException excepion, String url);
+        public void onSaved(ParseException exception, String url);
     }
 }

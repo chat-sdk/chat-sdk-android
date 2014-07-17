@@ -9,6 +9,6 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list_contacts"/>
+        android:id="@+id/chat_sdk_list_contacts"/>
 
 </LinearLayout>

@@ -3,20 +3,44 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    style="@style/RowStyle"
     android:id="@+id/layout_friend">
 
-    <TextView
+    <de.hdodenhof.circleimageview.CircleImageView
+        style="@style/CircleIconStyle"
+        android:id="@+id/img_user_image"
+        android:layout_centerVertical="true"
+        android:src="@drawable/icn_user_x_2"
+        android:layout_margin="5dp"
+        android:layout_alignParentLeft="true"/>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Messahe texx"
-        android:layout_alignParentLeft="true"
+        android:id="@+id/content"
+        android:layout_toLeftOf="@id/txt_time"
+        android:layout_toRightOf="@+id/img_user_image"
         android:layout_centerVertical="true"
-        android:id="@+id/txt_content"
-        android:padding="12dp"
-        android:background="@drawable/bubble_left_2"
-        style="@style/TextViewStyle"/>
+        android:orientation="horizontal">
 
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Messahe texx"
+                android:layout_centerVertical="true"
+                android:id="@+id/txt_content"
+                android:padding="12dp"
+                android:layout_marginLeft="7dp"
+                style="@style/TextViewStyle"/>
+            </FrameLayout>
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,7 +49,6 @@
         android:text="Time"
         android:id="@+id/txt_time"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        style="@style/TextViewStyleSmall"
-        android:layout_below="@+id/txt_content"/>
+        android:layout_centerVertical="true"
+        style="@style/TextViewStyleSmall"/>
 </RelativeLayout>

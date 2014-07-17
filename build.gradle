@@ -12,5 +12,10 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+
+        // The BugSense maven repo.
+        maven {
+            url "http://www.bugsense.com/gradle/"
+        }
     }
 }

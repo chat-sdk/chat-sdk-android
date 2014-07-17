@@ -32,9 +32,12 @@ public class VolleyUtills {
 
         int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
                 .getMemoryClass();
-        // Use 1/8th of the available memory for this memory cache.
-        int cacheSize = 1024 * 1024 * memClass / 8;
+        // Use 1/6th of the available memory for this memory cache.
+        int cacheSize = 1024 * 1024 * memClass / 6;
+        mRequestQueue.start();
+
         mImageLoader = new ImageLoader(mRequestQueue, new BitmapCache(cacheSize));
+
     }
 
 
@@ -69,14 +72,18 @@ public class VolleyUtills {
 
 
         @Override
-        protected int sizeOf(String key, Bitmap value) {
-            return value.getRowBytes() * value.getHeight();
+        protected int sizeOf(String key, Bitmap bitmap) {
+            int size = bitmap.getByteCount() / 1024;
+            return size;
         }
 
+        public boolean contains(String key){
+            return get(key) != null;
+        }
 
         @Override
-        public Bitmap getBitmap(String url) {
-            return get(url);
+        public Bitmap getBitmap(String key) {
+            return get(key);
         }
 
 
@@ -85,5 +92,4 @@ public class VolleyUtills {
             put(url, bitmap);
         }
     }
-
 }

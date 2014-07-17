@@ -6,6 +6,7 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseNetworkAdapter;
+import com.bugsense.trace.BugSenseHandler;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
@@ -20,6 +21,13 @@ public class AppObj extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //Bug Sense
+        if (BNetworkManager.ENABLE_BUGSENSE) {
+            BugSenseHandler.initAndStartSession(getApplicationContext(), BDefines.APIs.BugSenseKey);
+            BugSenseHandler.addCrashExtraData("Version", getResources().getString(R.string.chat_sdk_version));
+        }
+
         // Android chat SDK init!
         BNetworkManager.init(getApplicationContext());
         BFacebookManager.init("247787328762280", getApplicationContext());

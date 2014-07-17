@@ -10,10 +10,6 @@ import com.parse.ParseQuery;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 
 /**
@@ -87,23 +83,5 @@ public class PushUtils {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void pushImageToParse(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-
-                    URL url = new URL("sss");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 }

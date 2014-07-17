@@ -41,6 +41,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 
+    /** Passed to the activity in the intent extras, Indicates that the activity was called after the user press the logout button,
+     * That means the activity wont try to authenticate in inResume. */
+    public static final String FLAG_LOGGED_OUT = "LoggedOut";
+
     private UiLifecycleHelper uiHelper;
     private LoginButton fbLoginButton;
     private Button btnLogin, btnReg, btnAnon;
@@ -118,33 +122,35 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onResume() {
         super.onResume();
 
-       showProgDialog("Checking auth...");
-       authenticate(
-                new AuthListener() {
-                    @Override
-                    public void onCheckDone(boolean isAuthenticated) {
-                        if (isAuthenticated)
-                        {
-                            showOrUpdateProgDialog("Authenticating...");
-                            if (DEBUG) Log.d(TAG, "Auth");
-                        } else {
+        if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
+            showProgDialog("Checking auth...");
+            authenticate(
+                    new AuthListener() {
+                        @Override
+                        public void onCheckDone(boolean isAuthenticated) {
+                            if (isAuthenticated) {
+                                showOrUpdateProgDialog("Authenticating...");
+                                if (DEBUG) Log.d(TAG, "Auth");
+                            } else {
+                                dismissProgDialog();
+                                if (DEBUG) Log.d(TAG, "NO Auth");
+                            }
+                        }
+
+                        @Override
+                        public void onLoginDone() {
+                            if (DEBUG) Log.d(TAG, "Login Done");
+                            afterLogin();
+                        }
+
+                        @Override
+                        public void onLoginFailed(BError error) {
                             dismissProgDialog();
-                            if  (DEBUG) Log.d(TAG, "NO Auth");
+                            Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
-
-                    @Override
-                    public void onLoginDone() {
-                        if (DEBUG) Log.d(TAG, "Login Done");
-                        afterLogin();
-                    }
-
-                    @Override
-                    public void onLoginFailed(BError error) {
-                        dismissProgDialog();
-                        Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            );
+        }
 
         initListeners();
 
@@ -172,16 +178,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     /* Dismiss dialog and open main activity.*/
     private void afterLogin(){
-        // Giving the system extra time to load.
-        findViewById(R.id.content).postDelayed(new Runnable() {
-            @Override
-            public void run() {
+//        // Giving the system extra time to load.
+//        findViewById(R.id.content).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
                 dismissProgDialog();
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
-            }
-        }, 5000);
+//            }
+//        }, 10000);
     }
 
     /* Exit Stuff*/

@@ -67,6 +67,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private EditText etName, etMail, etPhone;
     private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false, isProfilePicChanged;
 
+    private Bundle savedState;
 //    private ProfilePictureView profilePictureView;
     private CircleImageView profileCircleImageView;
 
@@ -82,6 +83,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        savedState = savedInstanceState;
     }
 
     @Override
@@ -90,9 +92,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         if (DEBUG) Log.d(TAG, "onCreateView");
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
 
-        initViews();
+        initViews(inflater);
 
         loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
 
@@ -113,12 +114,13 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         return mainView;
     }
 
-    @Override
-    public void initViews(){
+    public void initViews(LayoutInflater inflater){
+        if (inflater != null)
+            mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
+
         etName = (EditText) mainView.findViewById(R.id.chat_sdk_et_name);
         etMail = (EditText) mainView.findViewById(R.id.chat_sdk_et_mail);
         etPhone = (EditText) mainView.findViewById(R.id.chat_sdk_et_phone_number);
-//        profilePictureView = (ProfilePictureView) mainView.findViewById(R.id.profile_pic);
         profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
     }
 
@@ -220,6 +222,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     // Logout and return to the login activity.
                     BNetworkManager.sharedManager().getNetworkAdapter().logout();
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
                     startActivity(intent);
                 }
             });
@@ -234,6 +237,24 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        //http://stackoverflow.com/a/15314508/2568492
+        if (mainView == null)
+        {
+            if (savedState == null)
+                return;
+
+            outState.putBoolean(S_I_F_NAME, savedState.getBoolean(S_I_F_NAME));
+            outState.putBoolean(S_I_F_EMAIL, savedState.getBoolean(S_I_F_EMAIL));
+            outState.putBoolean(S_I_F_PHONE, savedState.getBoolean(S_I_F_PHONE));
+            outState.putBoolean(S_I_F_PROFILE, savedState.getBoolean(S_I_F_PROFILE));
+
+            outState.putString(S_I_D_NAME, S_I_D_NAME);
+            outState.putString(S_I_D_EMAIL, S_I_D_EMAIL);
+            outState.putString(S_I_D_PHONE, S_I_D_PHONE);
+
+            return;
+        }
+
         outState.putBoolean(S_I_F_NAME, isNameTouched);
         outState.putBoolean(S_I_F_EMAIL, isEmailTouched);
         outState.putBoolean(S_I_F_PHONE, isPhoneTouched);
@@ -303,9 +324,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     /** Fetching the user details from the user's metadata.*/
     private void setDetails(int loginType){
-        if (etName == null)
+        if (mainView == null || getActivity() == null)
         {
-            initViews();
+            return;
         }
 
         BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();

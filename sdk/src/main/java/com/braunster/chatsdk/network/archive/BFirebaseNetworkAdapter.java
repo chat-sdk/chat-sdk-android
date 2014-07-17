@@ -165,7 +165,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
-    // FIXME type
+    //
     @Override
     public ArrayList<BThread> threadsWithType(BThread.Type type) {
         return null;

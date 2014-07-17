@@ -15,6 +15,7 @@
         <activity
             android:name="com.braunster.chatsdk.activities.LoginActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan"
             >
             <meta-data android:name="com.facebook.sdk.ApplicationId"   android:value="@string/facebook_id"/>

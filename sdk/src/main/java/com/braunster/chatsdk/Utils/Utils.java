@@ -102,16 +102,17 @@ public class Utils {
 
     public static class FileSaver{
 
-        public static final String filePath = Environment.getExternalStorageDirectory()
-                + "/AndroidChatSdk/" ;
-
+        public static final String IMAGE_DIR_NAME = "AndroidChatSDK";
         public static final String appDireName = "AndroidChatSDK";
-        public static final String imageDirName = "AndroidChatSDK";
+
+        public static final String filePath = Environment.getExternalStorageDirectory()
+                + File.separator + appDireName + File.separator ;
+
         public static final String IMG_FILE_ENDING = ".jpg";
 
         public static File saveImage(Context context, Bitmap image, String name){
             if (name == null) name = DaoCore.generateEntity();
-            File file =  saveFile(getAlbumStorageDir(imageDirName).getAbsolutePath(),
+            File file =  saveFile(getAlbumStorageDir(IMAGE_DIR_NAME).getAbsolutePath(),
                    name, IMG_FILE_ENDING, image, true);
 
             if (file != null)
@@ -128,24 +129,13 @@ public class Utils {
             return file;
         }
 
-        public static File saveImage(Context context, Bitmap image, String name, String compiledPath){
-            if (name == null) name = DaoCore.generateEntity();
-            if(DEBUG) Log.d(TAG, getAlbumStorageDir(imageDirName).getAbsolutePath());
-            compiledPath = getAlbumStorageDir(imageDirName).getAbsolutePath()  + File.separator + name + IMG_FILE_ENDING;
-            if(DEBUG) Log.d(TAG, "FilePAthCompiled: " + compiledPath);
-            return  saveImage(context, image, name);
-        }
-/*
-        public static boolean saveLocationImage(Bitmap image, String name){
-            if (name == null) name = DaoCore.generateEntity();
-            return  saveFile(appDireName,name, IMG_FILE_ENDING, image, false);
-        }
+        public static File saveLocationImage(Context context, Bitmap image, String name){
+            if (!createDirIfNotExists(context))
+                return null;
 
-        public static boolean saveLocationImage(Bitmap image, String name, String filePathCompiled){
             if (name == null) name = DaoCore.generateEntity();
-            filePathCompiled = appDireName + name + IMG_FILE_ENDING;
-            return  saveFile(appDireName, name, IMG_FILE_ENDING, image, false);
-        }*/
+            return saveFile(context, name, IMG_FILE_ENDING, image, false);
+        }
 
         private static File saveFile(String path,String name, String type, Bitmap image, boolean external){
 
@@ -158,22 +148,80 @@ public class Utils {
                 }
             }
             // TODO check for internal dir
-//            else if (!createDirIfNotExists(path))
-//                return false;
+//            else if (!createDirIfNotExists(path, name))
+//                return null;
 
             OutputStream stream = null;
             try {
                 // Save the file to the internal/external directory.jpg"
                 // Path == null writing to the internal else to the path specified.
-                stream = new FileOutputStream(path + File.separator + name + type);
+                String filePath = File.separator+ path + File.separator + name + type;
+                if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
+                File file = new File("/data" + filePath);
+                if (file.createNewFile())
+                {
+                    stream = new FileOutputStream(file);
                     /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
-                image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
-                stream.flush();
-                stream.close();
-                return new File(path + File.separator + name + type);
+                    image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+                    stream.flush();
+                    stream.close();
+                    return file;
+                }
+                return null;
+
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
                 if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        private static File saveFile(Context context,String name, String type, Bitmap image, boolean external){
+
+            if (external)
+            {
+                if (!isExternalStorageWritable())
+                {
+                    if (Utils.DEBUG) Log.d(Utils.TAG, "No External storage.");
+                    return null;
+                }
+            }
+            // TODO check for internal dir
+//            else if (!createDirIfNotExists(path, name))
+//                return null;
+
+            OutputStream stream = null;
+            try {
+                // Save the file to the internal/external directory.jpg"
+                // Path == null writing to the internal else to the path specified.
+                File internalDir = getInternalDir(context);
+
+                if (internalDir == null) {
+                    return null;
+                }
+
+                String filePath = internalDir.getPath();
+                if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
+
+                File file = new File(internalDir.getPath() + File.separator + name);
+                if (file.createNewFile())
+                {
+                    stream = new FileOutputStream(file);
+                    /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
+                    image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+                    stream.flush();
+                    stream.close();
+                    return file;
+                }
+                return null;
+
+            } catch (FileNotFoundException e) {
+                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
+                e.printStackTrace();
                 return null;
             } catch (IOException e) {
                 if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
@@ -220,10 +268,11 @@ public class Utils {
             return file;
         }
 
-        public static boolean createDirIfNotExists(Context context, String path, String name) {
+        public static boolean createDirIfNotExists(String path, String name) {
+            if (DEBUG) Log.v(TAG, "createDirIfNotExists, Path: " + path + ", Name: " + name);
             boolean ret = true;
 
-            File file = new File(path, name);
+            File file = new File(path);
             if (!file.exists()) {
                 if (!file.mkdirs()) {
                     Log.e(Utils.TAG, "Problem creating Image folder");
@@ -232,6 +281,45 @@ public class Utils {
             }
 
             return ret;
+        }
+
+        public static boolean createDirIfNotExists(Context context) {
+            if (DEBUG) Log.v(TAG, "createDirIfNotExists");
+            boolean ret = true;
+            File mydir = context.getDir(appDireName, Context.MODE_PRIVATE);
+
+            if (!mydir.exists()) {
+                Log.e(Utils.TAG, "Problem creating Image folder");
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        private static File getInternalDir(Context context){
+            File mydir = context.getDir(appDireName, Context.MODE_PRIVATE);
+
+            if (!mydir.exists()) {
+                Log.e(Utils.TAG, "Problem creating Image folder");
+                return null;
+            }
+
+            return mydir;
+        }
+
+    }
+
+    public static class SystemChecks{
+        /** Check if this device has a camera
+         * @return <b>true</b> if the device has a camera.*/
+        public static boolean checkCameraHardware(Context context) {
+            if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+                // this device has a camera
+                return true;
+            } else {
+                // no camera on this device
+                return false;
+            }
         }
     }
 }

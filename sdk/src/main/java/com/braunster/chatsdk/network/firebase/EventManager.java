@@ -324,15 +324,25 @@ public class EventManager implements AppEvents {
 
     /** Handle user details change.*/
     private void handleUsersDetailsChange(String userID){
+        if (DEBUG) Log.v(TAG, "handleUsersDetailsChange, Entered. " + userID);
+
         if (userID.equals(getCurrentUserId()))
+        {
+            if (DEBUG) Log.v(TAG, "handleUsersDetailsChange, Current User." + userID);
             return;
+        }
 
         if (usersIds.contains(userID))
+        {
+            if (DEBUG) Log.v(TAG, "handleUsersDetailsChange, Listening." + userID);
             return;
+        }
 
         usersIds.add(userID);
-        // FIXME single event
+
         final FirebasePaths userRef = FirebasePaths.userRef(userID);
+
+        if (DEBUG) Log.v(TAG, "handleUsersDetailsChange, User Ref." + userRef.getRef().toString());
 
         UserDetailsChangeListener userDetailsChangeListener = new UserDetailsChangeListener(userID, handler);
 
@@ -515,25 +525,12 @@ public class EventManager implements AppEvents {
 
         FirebaseEventCombo combo;
 
-        Firebase ref;
         for (String key : Keys)
         {
             if (DEBUG) Log.d(TAG, "Removing listener, Key: " + key);
 
             combo = listenerAndRefs.get(key);
             combo.breakCombo();
-//            Log.e(TAG, "Path: " + combo.getRef());
-//            ref = new Firebase(combo.getRef());
-//            if (combo.getListener().getType() == FirebaseGeneralEvent.ChildEvent)
-//            {
-//                if (DEBUG) Log.d(TAG, "Removing ChildEvent");
-//                ref.removeEventListener((ChildEventListener) combo.getListener());
-//            }
-//            else if (combo.getListener().getType() == FirebaseGeneralEvent.ValueEvent)
-//            {
-//                if (DEBUG) Log.d(TAG, "Removing ValueEvent.");
-//                ref.removeEventListener((ValueEventListener) combo.getListener());
-//            }
         }
 
         clearLists();

@@ -37,9 +37,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.braunster.chatsdk.dao.BMessage.Type.bImage;
-import static com.braunster.chatsdk.dao.BMessage.Type.bLocation;
-import static com.braunster.chatsdk.dao.BMessage.Type.bText;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Google;
@@ -117,7 +117,7 @@ public abstract class AbstractNetworkAdapter {
         final BMessage message = new BMessage();
         message.setText(text);
         message.setOwnerThread(threadEntityId);
-        message.setType(bText.ordinal());
+        message.setType(TEXT);
         message.setDate(new Date());
         message.setBUserSender(currentUser());
         final BMessage bMessage = DaoCore.createEntity(message);
@@ -156,7 +156,7 @@ public abstract class AbstractNetworkAdapter {
 
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
-        message.setType(bImage.ordinal());
+        message.setType(IMAGE);
         message.setDate(new Date());
         message.setBUserSender(currentUser());
 
@@ -194,7 +194,7 @@ public abstract class AbstractNetworkAdapter {
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
      * When done or when an error occurred the calling method will be notified.
      *
-     * @param image          is a file that contain the image. For now the file will be decoded to a Base64 image representation.
+     * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param threadEntityId the id of the thread that the message is sent to.
      */
     public void sendMessageWithImage(String filePath, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
@@ -204,7 +204,7 @@ public abstract class AbstractNetworkAdapter {
 
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
-        message.setType(bImage.ordinal());
+        message.setType(IMAGE);
         message.setDate(new Date());
         message.setBUserSender(currentUser());
 
@@ -238,46 +238,57 @@ public abstract class AbstractNetworkAdapter {
     }
 
     /*"http://developer.android.com/guide/topics/location/strategies.html"*/
-    /**
+     /**
      * Preparing a location message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
      * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
      * When done or when an error occurred the calling method will be notified.
      *
-     * @param base64File     is a String representation of a bitmap that contain the image of the location wanted.
+     * @param filePath     is a String representation of a bitmap that contain the image of the location wanted.
      * @param location       is the Latitude and Longitude of the picked location.
      * @param threadEntityId the id of the thread that the message is sent to.
      */
-    public void sendMessageWithLocation(String base64File, LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
+    public void sendMessageWithLocation(String filePath, final LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
-        message.setType(bLocation.ordinal());
+        message.setType(LOCATION);
         message.setDate(new Date());
         message.setBUserSender(currentUser());
 
         // Add the LatLng data to the message and the base64 picture of the message if has any.
-        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) + (base64File != null ? "&" + base64File : ""));
+        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) );
 
-        DaoCore.createEntity(message);
-
-        sendMessage(message, new CompletionListenerWithData<BMessage>() {
+        ParseUtils.saveImageFileToParse(filePath, new ParseUtils.SaveCompletedListener() {
             @Override
-            public void onDone(BMessage bMessage) {
-                if (DEBUG)
-                    Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
-                DaoCore.updateEntity(bMessage);
-                listener.onDone(bMessage);
-            }
+            public void onSaved(ParseException excepion, String url) {
+                if (excepion == null)
+                {
+                    message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) + "&" + url);
+                    DaoCore.createEntity(message);
 
-            @Override
-            public void onDoneWithError(BError error) {
-                DaoCore.deleteEntity(message);
-                listener.onDoneWithError(error);
+                    sendMessage(message, new CompletionListenerWithData<BMessage>() {
+                        @Override
+                        public void onDone(BMessage bMessage) {
+                            if (DEBUG)
+                                Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
+                            DaoCore.updateEntity(bMessage);
+                            listener.onDone(bMessage);
+                        }
+
+                        @Override
+                        public void onDoneWithError(BError error) {
+                            DaoCore.deleteEntity(message);
+                            listener.onDoneWithError(error);
+                        }
+                    });
+                }
+                else listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, excepion));
             }
         });
     }
+
 
     // TODO need to support progress feedback for dialog.
     public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener);
@@ -338,19 +349,24 @@ public abstract class AbstractNetworkAdapter {
         }
         else {
             for (BThread thread : threadsFromDB) {
+                if (DEBUG) Log.i(TAG, "threadsWithType, ThreadID: " + thread.getId());
+
                 if (thread.getType() == null)
                 {
                     if (DEBUG) Log.e(TAG, "Thread has no type, Thread ID: " + thread.getEntityID());
                     continue;
                 }
                 // Skipping public threads.
-                if (thread.getType().intValue() == BThread.Type.Public)
+                if (thread.getType() == BThread.Type.Public)
+                {
+                    if (DEBUG) Log.e(TAG, "Thread is public, Thread ID: " + thread.getEntityID());
                     continue;
+                }
 
                 if (thread.getCreator() != null )
                 {
                     if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                    if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()));
+                    if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()))
                     {
                         Log.d(TAG, "Current user is the creator.");
                         threads.add(thread);
@@ -364,7 +380,7 @@ public abstract class AbstractNetworkAdapter {
             }
         }
 
-        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size());
+        if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
 
         return threads;
     }

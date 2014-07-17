@@ -102,8 +102,7 @@ public abstract class AbstractNetworkAdapter {
         if (DEBUG) Log.d(TAG, "Thread, Amount: " + list.size() );
         for (BThread th : list)
         {
-            // FIXME: Thread messages is not up do date for some reason...
-            // FIXME: Calling messages separately for each thread.
+
             th.setMessages(getMessagesForThreadForEntityID(th.getId()));
 //            if (DEBUG) Log.d(TAG, "Messages from method: " + getMessagesForThreadForEntityID(th.getEntityID()).size());
             if (DEBUG) Log.d(TAG, "Messages, Amount: " + th.getMessages().size() );
@@ -117,7 +116,7 @@ public abstract class AbstractNetworkAdapter {
             }
         }
 
-        // TODO sort thread so the one with newest message will be on top.
+
         // http://stackoverflow.com/questions/18895915/how-to-sort-an-array-of-objects-in-java
         // http://stackoverflow.com/questions/12449766/java-sorting-sort-an-array-of-objects-by-property-object-not-allowed-to-use-co
 

@@ -3,13 +3,14 @@ package com.braunster.chatsdk.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -30,6 +31,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UsersWithStatusListAdapter extends BaseAdapter {
 
     private static final String TAG = UsersWithStatusListAdapter.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
     private Activity mActivity;
 
@@ -38,24 +40,46 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
-    private SparseBooleanArray selectedUsersIds = new SparseBooleanArray();
+    private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
     //View
     private View row;
+    private boolean isMultiSelect = false;
 
     class ViewHolder {
          CircleImageView profilePicture;
          TextView textView;
+         CheckBox checkBox;
     }
 
     public UsersWithStatusListAdapter(Activity activity){
         mActivity = activity;
+
+        listData = new ArrayList<UserListItem>();
+
+        isMultiSelect = false;
     }
 
     public UsersWithStatusListAdapter(Activity activity, List<UserListItem> listData){
         mActivity = activity;
-        Log.d(TAG, "Contacts: " + listData.size());
+
+        if (listData == null)
+            listData = new ArrayList<UserListItem>();
+
         this.listData = listData;
+
+        isMultiSelect = false;
+    }
+
+    public UsersWithStatusListAdapter(Activity activity, List<UserListItem> listData, boolean multiSelect){
+        mActivity = activity;
+
+        if (listData == null)
+            listData = new ArrayList<UserListItem>();
+
+        this.listData = listData;
+
+        this.isMultiSelect = multiSelect;
     }
 
     @Override
@@ -130,17 +154,30 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             }
         }
 
-        if (selectedUsersIds.get(position))
-            row.setBackgroundColor(Color.BLUE);
-        else row.setBackgroundColor(Color.WHITE);
+//        if (selectedUsersPositions.get(position))
+//            row.setBackgroundColor(Color.BLUE);
+//        else row.setBackgroundColor(Color.WHITE);
 
         return row;
     }
 
-    private View rowForType(ViewHolder holder, int position){
+    private View rowForType(ViewHolder holder, final int position){
         View row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(listData.get(position).getResourceID(), null);
 
         holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
+
+        if (isMultiSelect)
+        {
+            holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
+            holder.checkBox.setVisibility(View.VISIBLE);
+            holder.checkBox.setChecked(selectedUsersPositions.get(position));
+            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    selectView(position, isChecked);
+                }
+            });
+        }
 
         if (getItemViewType(position) == TYPE_USER)
             holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
@@ -157,13 +194,26 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addRows(List<UserListItem> users){
+
+        listData.addAll(users);
+
+        notifyDataSetChanged();
+    }
+
     public void setListData(List<UserListItem> listData) {
         this.listData = listData;
         notifyDataSetChanged();
     }
 
+    public List<UserListItem> getListData() {
+        return listData;
+    }
+
+    /** Clear the list.*/
     public void clear(){
         listData.clear();
+        clearSelection();
         notifyDataSetChanged();
     }
 
@@ -237,63 +287,112 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         }
     }
 
-    public static List<UserListItem> makeList(List<BUser> users, boolean withHeaders){
+    /** Make aUserListItem list from BUser list.
+     * @param withHeaders If true list will have headers for online and offline users.
+     * @return a list with all the user item for the adapter.*/
+    public static  List<UserListItem> makeList(List<BUser> users, boolean withHeaders){
+        return makeList(users, withHeaders, false);
+    }
 
+    /** Make aUserListItem list from BUser list.
+     * @param withHeaders If true list will have headers for online and offline users.
+     * @param  deleteDuplicates If true any duplicate entity(share same entity id) will be skipped.
+     * @return a list with all tge user item for the adapter.*/
+    public static List<UserListItem> makeList(List<BUser> users, boolean withHeaders, boolean deleteDuplicates){
+//        if (DEBUG) Log.v(TAG, "makeList" + (withHeaders?", With Headers" : "" )+ (deleteDuplicates? ", Delete duplicates." :".") );
         if (users == null)
             return new ArrayList<UserListItem>();
 
         List<UserListItem> listData = new ArrayList<UserListItem>();
-
-        if (!withHeaders)
-        {
-            for (BUser user : users){
-                listData.add(UserListItem.fromBUser(user));
-            }
-            return listData;
-        }
+        List<String> entitiesID = new ArrayList<String>();
 
         List<UserListItem> onlineUsers = new ArrayList<UserListItem>();
         List<UserListItem> offlineUsers = new ArrayList<UserListItem>();
 
         for (BUser user : users){
-            if (user.getOnline() != null && user.getOnline()) {
-                onlineUsers.add(UserListItem.fromBUser(user));
+            if (deleteDuplicates)
+            {
+//                if (DEBUG) Log.d(TAG, "EntityID: " + user.getEntityID());
+                if (entitiesID.contains(user.getEntityID()))
+                {
+//                    if (DEBUG) Log.d(TAG, "EntityExist");
+                    continue;
+                }
             }
-            else offlineUsers.add(UserListItem.fromBUser(user));
+
+            entitiesID.add(user.getEntityID());
+
+            if (withHeaders)
+            {
+                if (user.getOnline() != null && user.getOnline()) {
+                    onlineUsers.add(UserListItem.fromBUser(user));
+                }
+                else offlineUsers.add(UserListItem.fromBUser(user));
+            }
+            else
+            {
+                listData.add(UserListItem.fromBUser(user));
+            }
         }
 
-        listData.add(UserListItem.getHeader("Online"));
-        listData.addAll(onlineUsers);
-        listData.add(UserListItem.getHeader("Offline"));
-        listData.addAll(offlineUsers);
+        if (withHeaders) {
+            listData.add(UserListItem.getHeader("Online"));
+            listData.addAll(onlineUsers);
+            listData.add(UserListItem.getHeader("Offline"));
+            listData.addAll(offlineUsers);
+        }
+
+//        if (DEBUG && deleteDuplicates)
+//            for (String s : entitiesID)
+//                Log.d(TAG, "Report EntityID: " + s);
 
         return listData;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*############################################*/
     public void toggleSelection(int position){
-        selectView(position, !selectedUsersIds.get(position));
+        selectView(position, !selectedUsersPositions.get(position));
     }
 
     public void selectView(int position, boolean value){
         if (value)
-            selectedUsersIds.put(position, value);
+            selectedUsersPositions.put(position, value);
         else
-            selectedUsersIds.delete(position);
+            selectedUsersPositions.delete(position);
 
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
-    public SparseBooleanArray getSelectedUsersIds() {
-        return selectedUsersIds;
+    public SparseBooleanArray getSelectedUsersPositions() {
+        return selectedUsersPositions;
     }
 
     public int getSelectedCount(){
-        return selectedUsersIds.size();
+        return selectedUsersPositions.size();
     }
 
     public void clearSelection(){
-        selectedUsersIds = new SparseBooleanArray();
+        selectedUsersPositions = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 }

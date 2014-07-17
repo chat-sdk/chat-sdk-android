@@ -20,6 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.MissingResourceException;
 
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
+
 /**
  * Created by braunster on 01/07/14.
  */
@@ -93,7 +96,7 @@ public class NotificationUtils {
         Intent resultIntent = new Intent(context, ChatActivity.class);
         resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
 
-        String msgContent = message.getType() == BMessage.Type.bText.ordinal() ? message.getText() : message.getType() == BMessage.Type.bImage.ordinal() ? "Image" : "Location";
+        String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
 
         String title = !StringUtils.isEmpty(
                 message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ";

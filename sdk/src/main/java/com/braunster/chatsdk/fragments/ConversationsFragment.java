@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.activities.PickFriendsActivity;
@@ -35,6 +36,7 @@ public class ConversationsFragment extends BaseFragment {
     private static boolean DEBUG = true;
     private ListView listThreads;
     private ThreadsListAdapter listAdapter;
+    private ProgressBar progressBar;
     private BUser user;
 
     public static ConversationsFragment newInstance() {
@@ -57,7 +59,7 @@ public class ConversationsFragment extends BaseFragment {
 
         initViews();
 
-        loadData();
+        loadDataOnBackground();
 
         return mainView;
     }
@@ -65,7 +67,7 @@ public class ConversationsFragment extends BaseFragment {
     @Override
     public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
-
+        progressBar = (ProgressBar) mainView.findViewById(R.id.progress_bar);
         initList();
     }
 
@@ -77,8 +79,8 @@ public class ConversationsFragment extends BaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).displayName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityID());
+                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
+                        + ", ID: " + listAdapter.getItem(position).getEntityId() );
                 startChatActivityForID(listAdapter.getItem(position).getId());
             }
         });
@@ -87,11 +89,11 @@ public class ConversationsFragment extends BaseFragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (DEBUG)
-                    Log.i(TAG, "Thread Long Selected: " + listAdapter.getItem(position).displayName()
-                            + ", ID: " + listAdapter.getItem(position).getEntityID());
+                    Log.i(TAG, "Thread Long Selected: " + listAdapter.getItem(position).getName()
+                            + ", ID: " + listAdapter.getItem(position).getEntityId());
 
                 showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                        getResources().getString(R.string.cancel), null, new DeleteThread(listAdapter.getItem(position).getEntityID()));
+                        getResources().getString(R.string.cancel), null, new DeleteThread(listAdapter.getItem(position).getEntityId()));
 
                 return true;
             }
@@ -107,7 +109,7 @@ public class ConversationsFragment extends BaseFragment {
 
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
-        listAdapter.setListData(threads);
+        listAdapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
@@ -120,6 +122,11 @@ public class ConversationsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
+        if (listAdapter != null && listAdapter.getListData().size() == 0) {
+            listThreads.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -129,7 +136,7 @@ public class ConversationsFragment extends BaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = threads;
+                message.obj = ThreadsListAdapter.ThreadListItem.makeList(threads);
 
                 handler.sendMessage(message);
             }
@@ -145,7 +152,9 @@ public class ConversationsFragment extends BaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    listAdapter.setListData((List<BThread>) msg.obj);
+                    listAdapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    progressBar.setVisibility(View.GONE);
+                    listThreads.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -157,7 +166,7 @@ public class ConversationsFragment extends BaseFragment {
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Conversation");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(android.R.drawable.ic_menu_add);
+        item.setIcon(R.drawable.ic_plus);
     }
 
     @Override

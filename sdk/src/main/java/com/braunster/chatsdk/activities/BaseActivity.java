@@ -28,6 +28,7 @@ public class BaseActivity extends ActionBarActivity{
         BNetworkManager.sharedManager().getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
     }
 
+    /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
     void createAndOpenThreadWithUsers(String name, BUser...users){
         BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
 

@@ -9,6 +9,7 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -18,9 +19,11 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.PushUtils;
+import com.bugsense.trace.BugSenseHandler;
 import com.facebook.Session;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -42,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
@@ -290,22 +295,17 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }*/
 
         // Message Color.
-        if (StringUtils.isEmpty(user.getMessageColor()))
+        if (StringUtils.isEmpty(user.getMessageColor()) /*FIxME*/|| user.getMessageColor().equals("Red"))
         {
             if (StringUtils.isNotEmpty(BFirebaseDefines.Defaults.MessageColor))
                 user.setMessageColor(BFirebaseDefines.Defaults.MessageColor);
-            /*else {
-                user.messageColor = [BMessage colorToString:[BMessage randomColor]];
-            }*/
-            // TODO else get random color from BMessage class.
+            else user.setMessageColor( BMessageEntity.colorToString( BMessageEntity.randomColor() ) );
         }
 
 
         // Text Color.
         if (StringUtils.isEmpty(user.getTextColor()))
-        {
-            //TODO get random color from BMessage class.
-        }
+            user.setTextColor(BFirebaseDefines.Defaults.MessageTextColor);
 
         // Font name.
         if (StringUtils.isEmpty(user.getFontName()))
@@ -330,9 +330,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
             @Override
             public void onDone() {
-                if (DEBUG) Log.i(TAG, "User pushed After update from FUser, EntityID: " + currentUser().getEntityID());
+                BUser currentUser = currentUser();
 
-                FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(currentUser().getEntityID());
+                if (DEBUG) Log.i(TAG, "User pushed After update from FUser, EntityID: " + currentUser.getEntityID());
+
+                FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(currentUser.getEntityID());
 
                 // Set the current state of the user as online.
                 // And add a listener so when the user log off from firebase he will be set as disconnected.
@@ -341,10 +343,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 updateLastOnline();
 
-                BFirebaseInterface.getInstance().observerUser(currentUser());
+                BFirebaseInterface.getInstance().observerUser(currentUser);
 
-                // FIXME change the replace fix.
-                subscribeToPushChannel(currentUser().getPushChannel());
+                // Subscribe to Parse push channel.
+                subscribeToPushChannel(currentUser.getPushChannel());
+
+                // Adding the user identifier to the bugsense so we could track problems by user id.
+                if (BNetworkManager.ENABLE_BUGSENSE)
+                    BugSenseHandler.setUserIdentifier(currentUser.getEntityID());
+
             }
 
             @Override
@@ -969,6 +976,12 @@ TODO
      * When all users are added the system will call the "onDone" method.*/
     @Override //Note done!
     public void addUsersToThread(final BThread thread, final List<BUser> users, final RepetitiveCompletionListenerWithError<BUser, Object> listener) {
+        if (thread == null)
+        {
+            if (DEBUG) Log.e(TAG,"addUsersToThread, Thread is null" );
+            return;
+        }
+
         final List<BUser> usersToGo = new ArrayList<BUser>(users);
 
         final RepetitiveCompletionListenerWithError repetitiveCompletionListener = new RepetitiveCompletionListenerWithError<BUser, FirebaseError>() {
@@ -1159,7 +1172,7 @@ TODO
         {
             for (BUser user : message.getBThreadOwner().getUsers())
                 if (!user.equals(currentUser))
-                    if (!user.getOnline())
+                    if (user.getOnline() == null || !user.getOnline())
                     {
                         if (DEBUG) Log.d(TAG, "Pushing message.");
                         pushToUsers(message, user);
@@ -1183,9 +1196,9 @@ TODO
 
         String text = message.getText();
 
-        if (message.getType() == BMessage.Type.bLocation.ordinal())
+        if (message.getType() == LOCATION)
             text = "Location Message";
-        else if (message.getType() == BMessage.Type.bImage.ordinal())
+        else if (message.getType() == IMAGE)
             text = "Picture Message";
         text = message.getBUserSender().getMetaName() + " " + text;
 

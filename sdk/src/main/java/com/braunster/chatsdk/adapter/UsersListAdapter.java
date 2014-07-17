@@ -2,7 +2,6 @@ package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,11 +81,12 @@ public class UsersListAdapter extends BaseAdapter {
 
         holder.textView.setText(listData.get(position).getMetaName());
 
+        /*FIXME work with url
         Bitmap bitmap = listData.get(position).getMetaPicture();
         if (bitmap != null)
         {
             holder.profilePicture.setImageBitmap(bitmap);
-        }
+        }*/
         return row;
     }
 

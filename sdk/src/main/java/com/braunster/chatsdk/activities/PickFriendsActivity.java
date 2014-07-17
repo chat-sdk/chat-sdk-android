@@ -4,20 +4,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.facebook.model.GraphUser;
 
 import java.util.List;
 
@@ -33,8 +28,7 @@ public class PickFriendsActivity extends BaseActivity {
 
     private ListView listContacts;
     private UsersWithStatusListAdapter listAdapter;
-//    private ProgressBar progressBar;
-    private Button btnGetFBFriends;
+    private Button btnGetFBFriends, btnStartChat;
     private EditText etSearch;
 
     @Override
@@ -53,19 +47,38 @@ public class PickFriendsActivity extends BaseActivity {
     }
 
     private void initViews() {
-        listContacts = (ListView) findViewById(R.id.list_contacts);
-//        progressBar = (ProgressBar) findViewById(R.id.prg_bar);
-        btnGetFBFriends = (Button) findViewById(R.id.btn_invite_from_fb);
-        etSearch = (EditText) findViewById(R.id.et_search);
+        listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
+        btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
+        etSearch = (EditText) findViewById(R.id.chat_sdk_et_search);
+        btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_start_chat);
         initList();
     }
 
     private void initList(){
-        List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
-        listAdapter = new UsersWithStatusListAdapter(PickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false));
+        final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
+        listAdapter = new UsersWithStatusListAdapter(PickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false, true), true);
         listContacts.setAdapter(listAdapter);
 
-        listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        btnStartChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BUser[] users = new BUser[listAdapter.getSelectedCount() + 1];
+
+                for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++)
+                {
+                    int pos = -1;
+                    if (listAdapter.getSelectedUsersPositions().valueAt(i))
+                        pos = listAdapter.getSelectedUsersPositions().keyAt(i);
+
+                    users[i] = listAdapter.getListData().get(pos).asBUser();
+                }
+
+                users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+
+                createAndOpenThreadWithUsers("", users);
+            }
+        });
+      /*  listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getText()
@@ -74,7 +87,7 @@ public class PickFriendsActivity extends BaseActivity {
                 createAndOpenThreadWithUsers(listAdapter.getItem(position).getText(),
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), listAdapter.getItem(position).asBUser());
             }
-        });
+        });*/
     }
 
     @Override
@@ -94,7 +107,7 @@ public class PickFriendsActivity extends BaseActivity {
             }
         });
 
-        String idPrefix = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().substring(0, 2);
+/*        String idPrefix = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().substring(0, 2);
         Log.d(TAG, "Prefix: " + idPrefix);
         if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().substring(0, 2).equals("fb"))
             btnGetFBFriends.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +124,6 @@ public class PickFriendsActivity extends BaseActivity {
                     dialog.show(fm, "FB_Friends_List");
                 }
             });
-        else Toast.makeText(this, "You need to login from facebook to use this feature.", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(this, "You need to login from facebook to use this feature.", Toast.LENGTH_SHORT).show();*/
     }
 }

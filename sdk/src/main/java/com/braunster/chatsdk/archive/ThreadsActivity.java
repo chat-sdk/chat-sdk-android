@@ -48,17 +48,17 @@ public class ThreadsActivity extends ActionBarActivity {
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + threads.size());
 
-        listAdapter = new ThreadsListAdapter(this, threads);
+        listAdapter = new ThreadsListAdapter(this, ThreadsListAdapter.ThreadListItem.makeList(threads));
         listThreads.setAdapter(listAdapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityID());
+                        + ", ID: " + listAdapter.getItem(position).getEntityId());
 
                 Intent intent = new Intent(ThreadsActivity.this, ChatActivity.class);
-                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getEntityID());
+                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getEntityId());
 
                 startActivity(intent);
             }

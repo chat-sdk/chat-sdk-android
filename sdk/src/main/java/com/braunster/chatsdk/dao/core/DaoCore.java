@@ -27,6 +27,8 @@ import java.util.Random;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.query.QueryBuilder;
 
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
+
 
 /**
  * Manage all creation, deletion and updating Entities.
@@ -260,7 +262,7 @@ public class DaoCore {
                     message.setOwnerThread(thread.getId());
                     message.setText(generateEntity());
                     message.setDate(new Date(System.currentTimeMillis()));
-                    message.setType(BMessage.Type.bText.ordinal());
+                    message.setType(TEXT);
                     message.setSender(j % 2 == 0 ? userDan.getId() : userAlex.getId());
                     createEntity(message);
                 }
@@ -523,7 +525,7 @@ public class DaoCore {
 
             entity.setEntityID(entityId);
 
-            createEntity(entity);
+            entity = createEntity(entity);
         }
 
         return (T) entity;

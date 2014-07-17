@@ -662,7 +662,7 @@ public class BFirebaseInterface {
 //        objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BMessagesPath));
 
 //       Note we are already listening to all childs added from thread
-// objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BUsersPath));
+//        objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BUsersPath));
         return thread;
     }
 

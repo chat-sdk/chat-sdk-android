@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    style="@style/RowStyle"
     android:gravity="left">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        style="@style/CircleIconStyle"
+        android:id="@+id/img_user_image"
+        android:layout_centerVertical="true"
+        android:src="@drawable/icn_user_x_2"
+        android:layout_margin="5dp"
+        android:layout_alignParentLeft="true"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/img_user_image"
+        android:id="@id/linear"
         android:orientation="vertical">
+
         <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Time"
-        style="@style/TextViewStyleSmall"
-        android:id="@+id/txt_time"
-        android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Time"
+            style="@style/TextViewStyleSmall"
+            android:id="@+id/txt_time"
+            android:padding="5dp"
             android:layout_weight="1"
-        android:gravity="center" />
+            android:gravity="center" />
 
         <Button
             android:layout_width="wrap_content"
@@ -30,6 +43,8 @@
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/linear"
         android:id="@+id/chat_sdk_image"/>
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
-</LinearLayout>
+</RelativeLayout>

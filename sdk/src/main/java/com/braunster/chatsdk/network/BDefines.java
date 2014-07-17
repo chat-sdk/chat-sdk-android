@@ -40,6 +40,8 @@ public class BDefines {
         // Parse
         public static final String ParseAppId = "oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d";
         public static final String ParseClientKey = "A1lZKXHQWKUQogcfCCIFBg1cPbJ0dtekh2ghV6He";
+
+        public static final String BugSenseKey = "a83a219d";
     }
 
     // Static values for prefs.

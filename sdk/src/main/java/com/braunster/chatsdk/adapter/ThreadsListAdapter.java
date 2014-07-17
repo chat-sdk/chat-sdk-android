@@ -16,13 +16,13 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.braunster.chatsdk.dao.BMessage.Type.bText;
-import static com.braunster.chatsdk.dao.BMessage.Type.values;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -34,44 +34,36 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     private Activity mActivity;
 
-    private List<BThread> listData = new ArrayList<BThread>();
+    private List<ThreadListItem> listData = new ArrayList<ThreadListItem>();
 
-    private BMessage.Type[] types;
-
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm dd/MM/yy");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm dd/MM/yy");
 
     //View
     private View row;
 
-    private BThread thread;
+    private ThreadListItem thread;
 
     public ThreadsListAdapter(Activity activity){
         mActivity = activity;
-
-        init();
     }
 
-    public ThreadsListAdapter(Activity activity, List<BThread> listData){
+    public ThreadsListAdapter(Activity activity, List<ThreadListItem> listData){
         mActivity = activity;
 
         // Prevent crash due to null pointer. When a thread will be found it could be added using AddRow or setListData.
         if (listData == null)
-            listData = new ArrayList<BThread>();
+            listData = new ArrayList<ThreadListItem>();
 
         this.listData = listData;
-        init();
     }
 
-    private void init(){
-        types = values();
-    }
     @Override
     public int getCount() {
         return listData != null ? listData.size() : 0;
     }
 
     @Override
-    public BThread getItem(int i) {
+    public ThreadListItem getItem(int i) {
         return listData.get(i);
     }
 
@@ -103,34 +95,19 @@ public class ThreadsListAdapter extends BaseAdapter {
         else
             holder = (ViewHolder) row.getTag();
 
+//        if (holder == null)
+//            if (DEBUG) Log.e(TAG, "Holder is null");
+//
+//        if (holder.txtName == null)
+//            if (DEBUG) Log.e(TAG, "textview name is null");
 
-        // Check if thread has a name,
-        // For private and one on one threads with no name we will put the other user name.
-        /*if (thread.getName() == null || thread.getName().equals(""))
-        {
-            if (thread.getType() == BThread.Type.Private)
-            {
-                thread.setName(thread.displayName());
-                *//*if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId() == thread.getUsers().get(0).getId())
-                    thread.setName(thread.getUsers().get(1).getName());
-                else thread.setName(thread.getUsers().get(0).getName());*//*
-            }
-            else
-                thread.setName("Chat Room");
-        }*/
+        holder.txtName.setText(thread.getName());
+        holder.txtDate.setText(thread.getLastMessageDate());
+        holder.txtLastMsg.setText(thread.getLastMessageText());
 
-        if (holder == null)
-            if (DEBUG) Log.e(TAG, "Holder is null");
+//        messageLogic(holder, position);
 
-        if (holder.txtName == null)
-            if (DEBUG) Log.e(TAG, "textview name is null");
-
-        holder.txtName.setText(thread.displayName());
-//        holder.txtLastMsg.setText(listData.get(position).getName());
-
-        messageLogic(holder, position);
-
-        if (listData.get(position).getUsers().size() > 2)
+        if (listData.get(position).getUsersAmount() > 2)
             holder.imgIcon.setImageResource(R.drawable.icn_user_x_2);
         else
             holder.imgIcon.setImageResource(R.drawable.icn_group_x_2);
@@ -144,74 +121,193 @@ public class ThreadsListAdapter extends BaseAdapter {
         CircleImageView imgIcon;
     }
 
-    public void addRow(BThread thread){
+    public void addRow(ThreadListItem thread){
 
         listData.add(thread);
 
         notifyDataSetChanged();
     }
 
-    public void setListData(List<BThread> listData) {
+    public void addRow(BThread thread){
+        addRow(ThreadListItem.fromBThread(thread));
+    }
+
+    public void setListData(List<ThreadListItem> listData) {
         this.listData = listData;
         notifyDataSetChanged();
     }
 
-    private void messageLogic(ViewHolder holder, int position){
-        if (DEBUG) Log.v(TAG, "messageLogic");
+    public List<ThreadListItem> getListData() {
+        return listData;
+    }
 
-        BMessage message;
+    /*private void messageLogic(ViewHolder holder, int position){
+            if (DEBUG) Log.v(TAG, "messageLogic");
 
-        List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
+            BMessage message;
 
-        // If no message create dummy message.
-        if ( messages.size() == 0)
-        {
-            if (DEBUG) Log.d(TAG, "No messages");
+            List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
+
+            // If no message create dummy message.
+            if ( messages.size() == 0)
+            {
+                if (DEBUG) Log.d(TAG, "No messages");
+    //            message = new BMessage();
+    //            message.setText("No Messages...");
+    //            message.setType(bText.ordinal());
+                holder.txtLastMsg.setText("No Messages...");
+                return;
+            }
+            else message = messages.get(0);
+
+            if (DEBUG) Log.d(TAG, "Message text: " + message.getText());
+
+            if (message.getId() == null)
+            {
+                Log.e(TAG, "Message has no id");
+                Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
+                        + (message.getText() == null ? "No Text" : message.getText()));
+
+                // Replace the problematic message with this dummy.
+                message.setText("Defected Message");
+                message.setEntityID(DaoCore.generateEntity());
+                message.setType(bText.ordinal());
+                message.setDate(new Date());
+            }
+
+            switch (types[message.getType()])
+            {
+                case bText:
+                    // TODO cut string if needed.
+                    //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
+                    holder.txtLastMsg.setText(message.getText());
+                    break;
+
+                case bImage:
+                    holder.txtLastMsg.setText("Image message");
+                    break;
+
+                case bLocation:
+                    holder.txtLastMsg.setText("Location message");
+                    break;
+            }
+
+            // Check if not dummy message.
+            if (message.getDate() != null)
+                holder.txtDate.setText(String.valueOf(simpleDateFormat.format(message.getDate())));
+            else
+                holder.txtDate.setText(String.valueOf(simpleDateFormat.format(new Date(System.currentTimeMillis()))));
+
+        }
+    */
+    public static class ThreadListItem{
+        private String entityId, name, lastMessageDate, imageUrl, lastMessageText;
+        private int usersAmount = 0;
+        private long id;
+
+        ThreadListItem(long id, String entityId, String name, String lastMessageDate, String imageUrl, String lastMessageText, int usersAmount) {
+            this.name = name;
+            this.id = id;
+            this.entityId = entityId;
+            this.usersAmount = usersAmount;
+            this.lastMessageDate = lastMessageDate;
+            this.imageUrl = imageUrl;
+            this.lastMessageText = lastMessageText;
+        }
+
+        public static ThreadListItem fromBThread(BThread thread){
+            String[] data = getLastMessageTextAndDate(thread);
+            return new ThreadListItem(thread.getId(), thread.getEntityID(), thread.displayName(), data[1], "", data[0], thread.getUsers().size());
+        }
+
+        public static List<ThreadListItem> makeList(List<BThread> threads){
+            List<ThreadListItem > list = new ArrayList<ThreadListItem>();
+
+            for (BThread thread : threads)
+                list.add(fromBThread(thread));
+
+            return list;
+        }
+
+        private static String[] getLastMessageTextAndDate(BThread thread){
+            String[] data = new String[2];
+            List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
+
+            // If no message create dummy message.
+            if ( messages.size() == 0)
+            {
+                if (DEBUG) Log.d(TAG, "No messages");
 //            message = new BMessage();
 //            message.setText("No Messages...");
 //            message.setType(bText.ordinal());
-            holder.txtLastMsg.setText("No Messages...");
-            return;
+                data[0] = "No Message";
+                data[1] = "";
+                return data;
+            }
+
+            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
+
+ /*           if (message.getId() == null)
+            {
+                Log.e(TAG, "Message has no id");
+                Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
+                        + (message.getText() == null ? "No Text" : message.getText()));
+
+                // Replace the problematic message with this dummy.
+                message.setText("Defected Message");
+                message.setEntityID(DaoCore.generateEntity());
+                message.setType(bText.ordinal());
+                message.setDate(new Date());
+            }*/
+
+            switch (messages.get(0).getType())
+            {
+                case TEXT:
+                    // TODO cut string if needed.
+                    //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
+                    data[0] = messages.get(0).getText();
+                    break;
+
+                case IMAGE:
+                    data[0] = "Image message";
+                    break;
+
+                case LOCATION:
+                    data[0] = "Location message";
+                    break;
+            }
+
+            data[1] = simpleDateFormat.format(messages.get(0).getDate());
+
+            return data;
         }
-        else message = messages.get(0);
 
-        if (DEBUG) Log.d(TAG, "Message text: " + message.getText());
-
-        if (message.getId() == null)
-        {
-            Log.e(TAG, "Message has no id");
-            Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
-                    + (message.getText() == null ? "No Text" : message.getText()));
-
-            // Replace the problematic message with this dummy.
-            message.setText("Defected Message");
-            message.setEntityID(DaoCore.generateEntity());
-            message.setType(bText.ordinal());
-            message.setDate(new Date());
+        public String getName() {
+            return name;
         }
 
-        switch (types[message.getType()])
-        {
-            case bText:
-                // TODO cut string if needed.
-                //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
-                holder.txtLastMsg.setText(message.getText());
-                break;
-
-            case bImage:
-                holder.txtLastMsg.setText("Image message");
-                break;
-
-            case bLocation:
-                holder.txtLastMsg.setText("Location message");
-                break;
+        public String getLastMessageDate() {
+            return lastMessageDate;
         }
 
-        // Check if not dummy message.
-        if (message.getDate() != null)
-            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(message.getDate())));
-        else
-            holder.txtDate.setText(String.valueOf(simpleDateFormat.format(new Date(System.currentTimeMillis()))));
+        public String getImageUrl() {
+            return imageUrl;
+        }
 
+        public String getLastMessageText() {
+            return lastMessageText;
+        }
+
+        public int getUsersAmount() {
+            return usersAmount;
+        }
+
+        public String getEntityId() {
+            return entityId;
+        }
+
+        public long getId() {
+            return id;
+        }
     }
 }

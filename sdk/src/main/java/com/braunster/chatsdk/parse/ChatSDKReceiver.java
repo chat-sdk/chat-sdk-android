@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.activities.LoginActivity;
+import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +35,13 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
 
             if (DEBUG) Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
+
+            /*FIXME this line make sure user will only recieve push if he is the current logged user*/
+            if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
+                BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                if (user != null && !channel.equals(user.getPushChannel()))
+                    return;
+            }
 
             Iterator itr = json.keys();
             while (itr.hasNext()) {
