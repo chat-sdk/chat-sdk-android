@@ -44,7 +44,7 @@
 
     <!--Row Margins-->
     <style name="RowStyle">
-        <item name="android:padding">10dp</item>
+        <item name="android:padding">7dp</item>
 
     </style>
 

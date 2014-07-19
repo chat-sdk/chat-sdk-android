@@ -148,13 +148,14 @@ public class LocationActivity extends FragmentActivity
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            File savedFile = Utils.FileSaver.saveLocationImage(LocationActivity.this, bitmapLocation, null);
+                            File savedFile = Utils.LocationImageHandler.saveLocationImage(LocationActivity.this, bitmapLocation, null);
                             if ( savedFile == null)
                                 reportError(ERROR_SAVING_IMAGE);
                             else
                                 reportSuccess(savedFile);
 
                         } catch (Exception e) {
+                            e.printStackTrace();
                             reportError(ERROR_SNAPSHOT);
                         }
                     }

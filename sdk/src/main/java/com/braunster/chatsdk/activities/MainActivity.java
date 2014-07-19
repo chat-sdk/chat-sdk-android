@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BFacebookManager;
@@ -91,7 +93,47 @@ public class MainActivity extends BaseActivity {
         if (DEBUG) Log.v(TAG, "onResume");
         uiHelper.onResume();
 
+        EventManager.getInstance().removeEventByTag(appEventListener.getTag());
         EventManager.getInstance().addEventIfNotExist(appEventListener);
+
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            private int lastPage = 0;
+            private int refreshContactsInterval = 4000;
+            private long lastContactsRefresh = 0;
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                if (DEBUG) Log.v(TAG, "onPageScrolled");
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (DEBUG) Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
+//                adapter.getItem(position).refresh();
+                // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
+                if (lastPage == 0)
+//                    ((ProfileFragment) adapter.getItem(0)).updateProfileIfNeeded();
+                    ((ProfileFragment) getFragment(0)).updateProfileIfNeeded();
+
+             /*   if (position == PagerAdapterTabs.Contacts)
+                {
+                    if (System.currentTimeMillis() - lastContactsRefresh > refreshContactsInterval)
+                    {
+                        adapter.getItem(position).refreshOnBackground();
+                        lastContactsRefresh = System.currentTimeMillis();
+                    }
+                }*/
+
+                pageAdapterPos = position;
+
+                lastPage = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+//                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
+            }
+        });
 
         //region Trying to obtain invitable friends. NEED GAME PREMISSIONS!
 /*        BFacebookManager.getInvitableFriendsList(new CompletionListenerWithData() {
@@ -118,8 +160,16 @@ public class MainActivity extends BaseActivity {
         super.onNewIntent(intent);
         if (adapter != null)
         {
-            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
-            adapter.getItem(PagerAdapterTabs.Profile).refresh();
+            BaseFragment pro = getFragment(0), conv = getFragment(3);
+
+            if (conv!=null)
+                conv.loadDataOnBackground();
+
+            if (pro != null)
+                pro.refresh();
+
+//            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+//            adapter.getItem(PagerAdapterTabs.Profile).refresh();
         }
     }
 
@@ -136,7 +186,7 @@ public class MainActivity extends BaseActivity {
             if (uiUpdaterThreadDetailsChanged != null)
                 uiUpdaterThreadDetailsChanged.setKilled(true);
 
-            findViewById(R.id.content).removeCallbacks(uiUpdaterThreadDetailsChanged);
+            handler.removeCallbacks(uiUpdaterThreadDetailsChanged);
 
             uiUpdaterThreadDetailsChanged = new UIUpdater(){
 
@@ -147,14 +197,22 @@ public class MainActivity extends BaseActivity {
                         BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
                         if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
                         DaoCore.printEntity(thread);
+
+                        BaseFragment fragment;
                         if (thread.getType() == BThread.Type.Private)
-                            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
-                        else adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+                            fragment = getFragment(3);
+//                            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+                        else
+                            fragment = getFragment(1);
+//                            adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+
+                        if (fragment != null)
+                            fragment.loadDataOnBackground();
                     }
                 }
             };
 
-            findViewById(R.id.content).postDelayed(uiUpdaterThreadDetailsChanged, uiUpdateDelay);
+            handler.postDelayed(uiUpdaterThreadDetailsChanged, uiUpdateDelay);
 
             return false;
         }
@@ -176,21 +234,31 @@ public class MainActivity extends BaseActivity {
             if (uiUpdaterDetailsChanged != null)
                 uiUpdaterDetailsChanged.setKilled(true);
 
-            findViewById(R.id.content).removeCallbacks(uiUpdaterDetailsChanged);
+            handler.removeCallbacks(uiUpdaterDetailsChanged);
 
             uiUpdaterDetailsChanged = new UIUpdater(){
-
                 @Override
                 public void run() {
+                    if (DEBUG) Log.d(TAG, "Run");
                     if (!isKilled())
                     {
-                        adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
-                        adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+                        if (DEBUG) Log.d(TAG, "Not killed");
+                        BaseFragment contacs, conv;
+                        contacs = getFragment(2);
+                        conv = getFragment(3);
+
+                        if (contacs!=null)
+                            contacs.loadDataOnBackground();
+
+                        if (conv!= null)
+                            conv.loadDataOnBackground();
+//                        adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
+//                        adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
                     }
                 }
             };
 
-            findViewById(R.id.content).postDelayed(uiUpdaterDetailsChanged, uiUpdateDelay);
+            handler.postDelayed(uiUpdaterDetailsChanged, uiUpdateDelay);
 
             return false;
         }
@@ -211,7 +279,7 @@ public class MainActivity extends BaseActivity {
             if (uiUpdaterMessages != null)
                 uiUpdaterMessages.setKilled(true);
 
-            findViewById(R.id.content).removeCallbacks(uiUpdaterMessages);
+            handler.removeCallbacks(uiUpdaterMessages);
 
             uiUpdaterMessages = new UIUpdater(){
 
@@ -232,7 +300,7 @@ public class MainActivity extends BaseActivity {
                 }
             };
 
-            findViewById(R.id.content).postDelayed(uiUpdaterMessages, uiUpdateDelay);
+            handler.postDelayed(uiUpdaterMessages, uiUpdateDelay);
 
             return false;
         }
@@ -250,6 +318,8 @@ public class MainActivity extends BaseActivity {
             return killed;
         }
     }
+
+    Handler handler = new Handler();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -275,46 +345,7 @@ public class MainActivity extends BaseActivity {
 
         tabs.setViewPager(pager);
 
-//        pager.setOffscreenPageLimit(3);
-
-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            private int lastPage = 0;
-            private int refreshContactsInterval = 4000;
-            private long lastContactsRefresh = 0;
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                if (DEBUG) Log.v(TAG, "onPageScrolled");
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (DEBUG) Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
-//                adapter.getItem(position).refresh();
-                // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
-                if (lastPage == 0)
-                    ((ProfileFragment) adapter.getItem(0)).updateProfileIfNeeded();
-
-
-             /*   if (position == PagerAdapterTabs.Contacts)
-                {
-                    if (System.currentTimeMillis() - lastContactsRefresh > refreshContactsInterval)
-                    {
-                        adapter.getItem(position).refreshOnBackground();
-                        lastContactsRefresh = System.currentTimeMillis();
-                    }
-                }*/
-
-                pageAdapterPos = position;
-
-                lastPage = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-//                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
-            }
-        });
+        pager.setOffscreenPageLimit(1);
     }
 
     @Override
@@ -448,5 +479,13 @@ public class MainActivity extends BaseActivity {
             startActivity(intent);
             return null;
         }
+    }
+
+
+    /** After screen orientation chage the getItem from the fragment page adapter is no null but it is not visible to the user
+     *  so we have to use this workaround so when we call any method on the wanted fragment the fragment will respond.
+     *  http://stackoverflow.com/a/7393477/2568492*/
+    private BaseFragment getFragment(int index){
+        return ((BaseFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + index));
     }
 }

@@ -82,6 +82,9 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         this.isMultiSelect = multiSelect;
     }
 
+
+
+
     @Override
     public int getCount() {
         return listData.size();
@@ -107,29 +110,37 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         row = view;
 
         final ViewHolder holder;
+        final UserListItem userItem = listData.get(position);
 
         // If the row is null or the View inside the row is not good for the current item.
-        if (row == null || listData.get(position).getResourceID() != row.getId())
+        if (row == null || userItem.getResourceID() != row.getId())
         {
             holder  = new ViewHolder();
             row =  rowForType(holder, position);
         }
         else holder = (ViewHolder) row.getTag();
 
-        holder.textView.setText(listData.get(position).getText());
+        holder.textView.setText(userItem.getText());
 
         if (getItemViewType(position) == TYPE_USER)
         {
-            if (listData.get(position).fromURL)
+           if (userItem.fromURL)
             {
-                int size = row.getHeight();
-                if (listData.get(position).pictureURL != null)
-                    VolleyUtills.getImageLoader().get(listData.get(position).pictureURL, new ImageLoader.ImageListener() {
+                int size = holder.profilePicture.getHeight();
+//                final String path = userItem.getThumbnail(mActivity);
+
+                if (userItem.pictureThumbnailURL != null )
+                    VolleyUtills.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             if (response.getBitmap() != null) {
+
+                                if (DEBUG) Log.i(TAG, "Loading profile picture from url");
+
                                 // load image into imageview
                                 holder.profilePicture.setImageBitmap(response.getBitmap());
+
+//                                userItem.saveThumbnail(mActivity, response.getBitmap());
                             }
                         }
 
@@ -142,6 +153,8 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             }
             else
             {
+                if (DEBUG) Log.i(TAG, "Loading profile picture from the db");
+
                 Bitmap bitmap = listData.get(position).getPicture();
                 if (bitmap != null)
                 {
@@ -187,6 +200,9 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return row;
     }
 
+
+
+
     public void addRow(UserListItem user){
 
         listData.add(user);
@@ -217,11 +233,16 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+
+
+
     public static class UserListItem{
         String entityID;
         String text;
         Bitmap picture;
         String pictureURL;
+        String pictureThumbnailURL;
+
 
         private boolean fromURL = false;
 
@@ -235,9 +256,10 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             this.entityID = entityID;
         }
 
-        UserListItem(int resourceID, String entityID, String text, String pictureURL, int type) {
+        UserListItem(int resourceID, String entityID, String text,String pictureThumbnailURL, String pictureURL, int type) {
             this.text = text;
             this.pictureURL = pictureURL;
+            this.pictureThumbnailURL = pictureThumbnailURL;
             this.resourceID  = resourceID;
             this.type = type;
             this.entityID = entityID;
@@ -251,7 +273,12 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         }
 
         public static UserListItem fromBUser(BUser user){
-            return new UserListItem(R.layout.chat_sdk_row_contact, user.getEntityID(), user.getMetaName(), user.getMetaPictureUrl(), TYPE_USER);
+            return new UserListItem(R.layout.chat_sdk_row_contact,
+                    user.getEntityID(),
+                    user.getMetaName(),
+                    user.getThumbnailPictureURL(),
+                    user.getMetaPictureUrl(),
+                    TYPE_USER);
         }
 
         public static UserListItem getHeader(String text){
@@ -285,6 +312,23 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         public BUser asBUser(){
             return DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
         }
+
+/*        public boolean hasThumbnail(Context context){
+            File file = Utils.ThumbnailsHandler.getThumbnail(context, entityID);
+            return file != null && file.exists();
+        }
+
+        public String getThumbnail(Context context){
+            File file = Utils.ThumbnailsHandler.getThumbnail(context, entityID);
+            if (file != null && file.exists())
+                return file.getAbsolutePath();
+
+            return null;
+        }
+
+        public void saveThumbnail(Context context, Bitmap bitmap){
+            Utils.ThumbnailsHandler.saveImageThumbnail(context, bitmap, entityID);
+        }*/
     }
 
     /** Make aUserListItem list from BUser list.

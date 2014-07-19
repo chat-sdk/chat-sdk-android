@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
-import com.braunster.chatsdk.Utils.Utils;
+import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
@@ -559,6 +559,7 @@ public class BUser extends BUserEntity  {
 
 
     /*##################################################*/
+    /*Metadata Fetching*/
     @Override//TODO
     public void addMetaDataObject(BMetadata metadata) {
         if (StringUtils.isEmpty(metadata.getKey()))
@@ -610,14 +611,14 @@ public class BUser extends BUserEntity  {
         setMetadataString(BDefines.Keys.BPictureURL, imageUrl);
     }
 
-/*    @Override//TODO
-    public Bitmap getMetaPicture() {
-        return metaImageForKey(BDefines.Keys.BPicture);
-    }*/
-
     @Override//TODO
     public String getMetaPictureUrl() {
         return metaStringForKey(BDefines.Keys.BPictureURL);
+    }
+
+    @Override
+    public String getThumbnailPictureURL() {
+        return metaStringForKey(BDefines.Keys.BPictureURLThumbnail);
     }
 
     @Override//Note Done!
@@ -714,7 +715,7 @@ public class BUser extends BUserEntity  {
 
         BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
 
-        String data = Utils.BitmapToString(image);
+        String data = ImageUtils.BitmapToString(image);
         metadata.setValue(data);
         if (DEBUG) Log.v(TAG, "setMetaImage, Base64 Data Length: " + data.length());
 
@@ -730,7 +731,7 @@ public class BUser extends BUserEntity  {
         Bitmap bitmap = null;
 
         if (value != null)
-            bitmap = Utils.decodeFrom64(value.getBytes());
+            bitmap = ImageUtils.decodeFrom64(value.getBytes());
 
         return bitmap;
     }

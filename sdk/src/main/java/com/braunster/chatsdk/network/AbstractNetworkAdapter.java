@@ -208,12 +208,12 @@ public abstract class AbstractNetworkAdapter {
         message.setDate(new Date());
         message.setBUserSender(currentUser());
 
-        ParseUtils.saveImageFileToParse(filePath, new ParseUtils.SaveCompletedListener() {
+        ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException excepion, String url) {
-                if (excepion == null)
-                {
-                    message.setText(url);
+            public void onSaved(ParseException exception, String... url) {
+                if (exception == null) {
+                    message.setText(url[0] + BDefines.DIVIDER + url[1]);
+
                     DaoCore.createEntity(message);
 
                     sendMessage(message, new CompletionListenerWithData<BMessage>() {
@@ -221,7 +221,7 @@ public abstract class AbstractNetworkAdapter {
                         public void onDone(BMessage bMessage) {
                             if (DEBUG)
                                 Log.v(TAG, "sendMessageWithImage, onDone. Message ID: " + bMessage.getEntityID());
-                            DaoCore.updateEntity(bMessage);
+                            bMessage = DaoCore.updateEntity(bMessage);
                             listener.onDone(bMessage);
                         }
 
@@ -232,7 +232,10 @@ public abstract class AbstractNetworkAdapter {
                         }
                     });
                 }
-                else listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, excepion));
+                else {
+                    DaoCore.deleteEntity(message);
+                    listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
+                }
             }
         });
     }
@@ -257,23 +260,22 @@ public abstract class AbstractNetworkAdapter {
         message.setDate(new Date());
         message.setBUserSender(currentUser());
 
-        // Add the LatLng data to the message and the base64 picture of the message if has any.
-        message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) );
 
-        ParseUtils.saveImageFileToParse(filePath, new ParseUtils.SaveCompletedListener() {
+        ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException excepion, String url) {
-                if (excepion == null)
-                {
-                    message.setText(String.valueOf(location.latitude) + "&" + String.valueOf(location.longitude) + "&" + url);
+            public void onSaved(ParseException exception, String... url) {
+                if (exception == null) {
+                    // Add the LatLng data to the message and the image url and thumbnail url
+                    message.setText(String.valueOf(location.latitude) + BDefines.DIVIDER  + String.valueOf(location.longitude) + BDefines.DIVIDER  + url[0] + BDefines.DIVIDER + url[1]);
+
                     DaoCore.createEntity(message);
 
                     sendMessage(message, new CompletionListenerWithData<BMessage>() {
                         @Override
                         public void onDone(BMessage bMessage) {
                             if (DEBUG)
-                                Log.v(TAG, "sendMessageWithLocation, onDone. Message ID: " + bMessage.getEntityID());
-                            DaoCore.updateEntity(bMessage);
+                                Log.v(TAG, "sendMessageWithImage, onDone. Message ID: " + bMessage.getEntityID());
+                            bMessage = DaoCore.updateEntity(bMessage);
                             listener.onDone(bMessage);
                         }
 
@@ -284,7 +286,10 @@ public abstract class AbstractNetworkAdapter {
                         }
                     });
                 }
-                else listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, excepion));
+                else {
+                    DaoCore.deleteEntity(message);
+                    listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
+                }
             }
         });
     }
@@ -329,10 +334,7 @@ public abstract class AbstractNetworkAdapter {
 
         if (threadType == BThread.Type.Private)
             threadsFromDB = currentUser().getThreads();
-        else threadsFromDB = DaoCore.fetchEntitiesWithPropertyAndOrder(BThread.class,
-                BThreadDao.Properties.LastMessageAdded, DaoCore.ORDER_DESC, BThreadDao.Properties.Type, threadType);
-
-        Collections.sort(threadsFromDB, new ThreadsSorter());
+        else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
 
         List<BThread> threads = new ArrayList<BThread>();
 
@@ -381,6 +383,8 @@ public abstract class AbstractNetworkAdapter {
         }
 
         if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
+
+        Collections.sort(threads, new ThreadsSorter());
 
         return threads;
     }

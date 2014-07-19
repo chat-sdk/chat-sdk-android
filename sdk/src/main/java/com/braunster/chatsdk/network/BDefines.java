@@ -19,7 +19,7 @@ public class BDefines {
     public static final boolean AnonymuosLoginEnabled = true;
     public static final String InitialsForAnonymuos = "AN";
 
-
+    public static final String DIVIDER = ",";
 
     // Vibration Duration in Millis
     public static final int VIBRATION_DURATION = 300;
@@ -65,6 +65,7 @@ public class BDefines {
         public static final String BPhone = "phone";
         public static final String BPicture = "picture";
         public static final String BPictureURL = "pictureURL";
+        public static final String BPictureURLThumbnail = "pictureURLThumbnail";
 
         public static final String BAuthenticationID = "authentication-id";
         public static final String BLastMessageAdded = "last-message-added";
@@ -96,4 +97,12 @@ public class BDefines {
         public static final float BYears = 12.0f * BMonths;
     }
 
+    public static final class ImageProperties{
+        public static final int MAX_BYTE_SIZE = 1500;
+
+        public static final int MAX_WIDTH_IN_PX = 1920;
+        public static final int MAX_HEIGHT_IN_PX = 2560;
+
+        public static final int MAX_IMAGE_THUMBNAIL_SIZE = 600;
+    }
 }

@@ -606,6 +606,8 @@ public class BFirebaseInterface {
 
         user.updateFromMap(values);
 
+        // Updating the user in the database.
+        user = DaoCore.updateEntity(user);
        /* Note to much is going on on start up this is a fix.// We only want to check the threads if this is the current user
         if (user.equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser()))
         {

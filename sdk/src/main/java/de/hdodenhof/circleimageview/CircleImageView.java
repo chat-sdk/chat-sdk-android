@@ -3,6 +3,7 @@ package de.hdodenhof.circleimageview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +14,8 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -136,6 +139,7 @@ public class CircleImageView extends ImageView {
     @Override
     public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
+
         mBitmap = bm;
         setup();
     }
@@ -143,6 +147,7 @@ public class CircleImageView extends ImageView {
     @Override
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
+
         mBitmap = getBitmapFromDrawable(drawable);
         setup();
     }
@@ -234,5 +239,30 @@ public class CircleImageView extends ImageView {
 
         mBitmapShader.setLocalMatrix(mShaderMatrix);
     }
+
+
+
+
+
+
+    public void loadFromFile(final String path){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Bitmap bitmap = BitmapFactory.decodeFile(path);
+                Message message = new Message();
+                message.obj = bitmap;
+                handler.sendMessage(message);
+            }
+        }).start();
+    }
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            setImageBitmap((Bitmap) msg.obj);
+        }
+    };
 
 }

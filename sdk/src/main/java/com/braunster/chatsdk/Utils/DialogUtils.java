@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -268,7 +269,7 @@ public class DialogUtils {
                 progressBar.setVisibility(View.GONE);
                 imageView.setVisibility(View.VISIBLE);
                 imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                imageView.setImageBitmap(Utils.decodeFrom64(data.getBytes()));
+                imageView.setImageBitmap(ImageUtils.decodeFrom64(data.getBytes()));
                 break;
 
             case LOAD_FROM_URL:
@@ -276,13 +277,28 @@ public class DialogUtils {
                 if (data != null && !data.equals(""))
                     VolleyUtills.getImageLoader().get(data, new ImageLoader.ImageListener() {
                         @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            if (isImmediate || response.getBitmap() != null)
+                        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                            if (response.getBitmap() != null)
                             {
-                                progressBar.setVisibility(View.GONE);
-                                imageView.setVisibility(View.VISIBLE);
-                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
                                 imageView.setImageBitmap(response.getBitmap());
+                                if (DEBUG) Log.i(TAG, "response");
+                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        imageView.setVisibility(View.VISIBLE);
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
                             }
                         }
 
@@ -297,7 +313,7 @@ public class DialogUtils {
 
             case LOAD_FROM_PATH:
                 progressBar.setVisibility(View.GONE);
-                Utils.loadBitmapFromFile(data);
+                ImageUtils.loadBitmapFromFile(data);
                 break;
         }
 

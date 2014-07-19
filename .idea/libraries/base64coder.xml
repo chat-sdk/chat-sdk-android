@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="base64coder">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/sdk/libs/base64coder.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

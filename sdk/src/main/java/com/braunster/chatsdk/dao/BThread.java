@@ -9,6 +9,7 @@ package com.braunster.chatsdk.dao;
 import android.util.Log;
 
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -26,7 +27,7 @@ import de.greenrobot.dao.DaoException;
 /**
  * Entity mapped to table BTHREAD.
  */
-public class BThread extends Entity<BThread>  {
+public class BThread extends BThreadEntity {
 
     private Long id;
     private String entityID;
@@ -51,11 +52,7 @@ public class BThread extends Entity<BThread>  {
     private List<BLinkData> BLinkData;
 
     // KEEP FIELDS - put your custom fields here
-    public static class Type{
-        public static final int Private = 0;
-        public static final int Public = 1;
-        // TODO check if in the right order.
-    }
+
 
     public static final String TAG = BThread.class.getSimpleName();
     public static final boolean DEBUG = true;

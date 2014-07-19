@@ -44,6 +44,30 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
         return FRAGMENTS[position];
     }
 
+/*    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        super.instantiateItem(container, position);
+        BaseFragment fragment = null;
+        Log.e("AAAA", "POS:  " + position);
+        switch (position)
+        {
+            case 0:
+                fragment = ProfileFragment.newInstance();
+                break;
+            case 1:
+                fragment = ThreadsFragment.newInstance();
+                break;
+            case 2:
+                fragment = ContactsFragment.newInstance();
+                break;
+            case 3:
+                fragment = ConversationsFragment.newInstance();
+        }
+
+        FRAGMENTS[position] = fragment;
+        return fragment;
+    }*/
+
     @Override
     public int getPageIconResId(int position) {
         return ICONS[position];

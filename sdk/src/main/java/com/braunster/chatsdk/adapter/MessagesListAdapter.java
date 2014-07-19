@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,15 +24,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
-import com.braunster.chatsdk.Utils.Utils;
+import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.entities.BMessageEntity;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.view.ChatBubbleImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,30 +53,17 @@ public class MessagesListAdapter extends BaseAdapter{
     private static final int TYPE_IMAGE = 1;
     private static final int TYPE_LOCATION = 2;
 
+    private TextView txtContent;
+
     private Activity mActivity;
 
     private List<MessageListItem> listData = new ArrayList<MessageListItem>();
 
-    //View
-    private View row;
-
-    private TextView txtContent, txtTime;
-
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm");
-
-    private CircleImageView profilePicImage;
-    private ChatBubbleImageView image;
-
-    private Button btnViewLocation;
-
-    private Date date;
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
     private long userID = 0;
-    private String userEntityID = "";
 
     private LayoutInflater inflater;
-
-    private MessageListItem message;
 
     int type = -1;
 
@@ -124,12 +111,17 @@ public class MessagesListAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-
+//View
+        View row;
+        CircleImageView profilePicImage;
+        TextView txtTime;
         row = view;
+        ChatBubbleImageView image;
 
         type = getItemViewType(position);
 
-        message = listData.get(position);
+        final MessageListItem message = listData.get(position);
+
 
         switch (type)
         {
@@ -146,17 +138,16 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 txtContent = (TextView) row.findViewById(R.id.txt_content);
 
-                txtContent.setText(message.text == null ? "ERROR" : listData.get(position).text);
+                txtContent.setVisibility(View.INVISIBLE);
 
-                // Setting the text color to the user text color.
-                if (message.textColor != null)
-                    txtContent.setTextColor(Color.parseColor(message.textColor));
+                txtContent.setText(message.text == null ? "ERROR" : message.text);
 
                 // setting the bubble color to the user message color.
-                txtContent.post(new Runnable() {
+                final TextView textView  = txtContent;
+                textView.post(new Runnable() {
                     @Override
                     public void run() {
-                        txtContent = getTextBubble(txtContent);
+                        getTextBubble(textView, message);
                     }
                 });
 
@@ -176,11 +167,11 @@ public class MessagesListAdapter extends BaseAdapter{
                 {
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
                 }
-                /*FIXME*/
+         /*       *//*FIXME*//*
                 if (message.text.length() > 200)
-                    return row;
+                    return row;*/
 
-                image = getBubleImageViewfromRow(row, message.text);
+                image = getBubleImageViewfromRow(row, message);
                 image.setTag(message.text);
                 image.setOnClickListener(new showImageDialogClickListener());
                 break;
@@ -192,7 +183,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 else
                     row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
 
-                image = getBubleImageViewfromRow(row, message.text.split("&")[2]);
+                image = getBubleImageViewfromRow(row, message);
 //
 //                // Save the message text to the image tag so it could be found on the onClick.
                 image.setTag(message.text);
@@ -262,14 +253,18 @@ public class MessagesListAdapter extends BaseAdapter{
     private ImageView getImageViewfromRow(View row, String base64Data){
         ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
         image.setTag(base64Data);
-        image.setImageBitmap(Utils.decodeFrom64(base64Data.getBytes()));
+        image.setImageBitmap(ImageUtils.decodeFrom64(base64Data.getBytes()));
         image.setOnClickListener(new showImageDialogClickListener());
 
         return image;
     }
 
     @SuppressLint("NewApi")
-    private TextView getTextBubble(TextView txtContent){
+    private TextView getTextBubble(TextView txtContent, MessageListItem message){
+        // Setting the text color to the user text color.
+        if (message.textColor != null)
+            txtContent.setTextColor(Color.parseColor(message.textColor));
+
         // setting the bubble color to the user message color.
 //        txtContent.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, txtContent.getWidth(), txtContent.getHeight(), mActivity);
@@ -287,31 +282,62 @@ public class MessagesListAdapter extends BaseAdapter{
             ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
         }
 
+        txtContent.setVisibility(View.VISIBLE);
+
         return txtContent;
     }
     /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
-    private ChatBubbleImageView getBubleImageViewfromRow(final View row, String url){
+    private ChatBubbleImageView getBubleImageViewfromRow(final View row,final MessageListItem message){
+
+        /*FIXME due to old data in firebase this is needed.*/
+        String url = "";
+        String [] urls = message.text.split(BDefines.DIVIDER);
+        if (message.type == BMessageEntity.Type.IMAGE)
+        {
+            if (urls.length > 1)
+                url = urls[1];
+            else url = urls[0];
+        }
+        else if (message.type == BMessageEntity.Type.LOCATION)
+        {
+            if (urls.length == 1)
+                urls = message.text.split("&");
+
+            if (urls.length > 2)
+                url = urls[3];
+            else url = urls[2];
+        }
+
+        final String finalUrl = url;
 
         row.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
         final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
-        image.setVisibility(View.GONE);
+        image.setVisibility(View.INVISIBLE);
 
-        /*FIXME due to old data in firebase this is needed.*/
-        if (message.color != null && !message.color.equals("Red"))
-            image.loadFromUrl(url, message.color, new ChatBubbleImageView.LoadDone() {
-                @Override
-                public void onDone() {
-                    row.findViewById(R.id.progress_bar).setVisibility(View.GONE);
-                    image.setVisibility(View.VISIBLE);
-                }
-            });
-        else image.loadFromUrl(url, BMessage.randomColor(), new ChatBubbleImageView.LoadDone() {
+        if (DEBUG) Log.d(TAG, "Final URl: " + finalUrl);
+
+        row.findViewById(R.id.progress_bar).post(new Runnable() {
             @Override
-            public void onDone() {
-                row.findViewById(R.id.progress_bar).setVisibility(View.GONE);
-                image.setVisibility(View.VISIBLE);
+            public void run() {
+                    /*FIXME due to old data in firebase this is needed.*/
+                if (message.color != null && !message.color.equals("Red"))
+                    image.loadFromUrl(finalUrl, message.color, row.findViewById(R.id.progress_bar).getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
+                        @Override
+                        public void onDone() {
+                            row.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                            image.setVisibility(View.VISIBLE);
+                        }
+                    });
+                else image.loadFromUrl(finalUrl, BMessage.randomColor(), row.findViewById(R.id.progress_bar).getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
+                    @Override
+                    public void onDone() {
+                        row.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                        image.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
+
 
         return image;
     }
@@ -324,7 +350,12 @@ public class MessagesListAdapter extends BaseAdapter{
             // Show the location image.
             if (v.getTag() != null)
             {
-                DialogUtils.getImageDialog(mActivity, (String) v.getTag(), DialogUtils.LoadTypes.LOAD_FROM_URL).
+                        /*FIXME due to old data in firebase this is needed.*/
+                String url;
+                String [] urls = ((String) v.getTag()).split(BDefines.DIVIDER);
+                url = urls[0];
+
+                DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
 //                  showAsDropDown(v);
                             showAtLocation(v, Gravity.CENTER, 0, 0);
             }
@@ -336,7 +367,7 @@ public class MessagesListAdapter extends BaseAdapter{
     public class openGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            String[] loc = ((String)v.getTag()).split("&");
+            String[] loc = ((String)v.getTag()).split(BDefines.DIVIDER);
             openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
         }
         private void openLocationInGoogleMaps(Double latitude, Double longitude){

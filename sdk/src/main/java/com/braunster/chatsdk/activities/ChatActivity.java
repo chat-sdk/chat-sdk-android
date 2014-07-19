@@ -3,6 +3,7 @@ package com.braunster.chatsdk.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,9 +25,12 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.Utils;
+import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -41,6 +46,8 @@ import com.braunster.chatsdk.object.BError;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -87,8 +94,39 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private void initActionBar(String username){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
-            ab.setTitle(username);
-//            ab.setIcon(new BitmapDrawable(thread.getUsers().get(0).getMetaPicture()));
+            ab.setDisplayShowHomeEnabled(false);
+            ab.setDisplayShowTitleEnabled(false);
+            ab.setDisplayShowCustomEnabled(true);
+//            ab.setTitle(username);
+
+            /*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*/
+
+            // Inflate the custom view
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View header = inflater.inflate( R.layout.chat_sdk_actionbar_circle_imageview, null );
+
+            TextView txtName = (TextView) header.findViewById(R.id.chat_sdk_name);
+
+            txtName.setText(thread.displayName());
+
+            final CircleImageView circleImageView = (CircleImageView) header.findViewById(R.id.image);
+
+            VolleyUtills.getImageLoader().get(thread.threadImageUrl(), new ImageLoader.ImageListener() {
+                @Override
+                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    if (response.getBitmap() != null)
+                        circleImageView.setImageBitmap(response.getBitmap());
+                }
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+
+            ab.setCustomView(header);
+
+
         }
     }
 
@@ -148,12 +186,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     protected void onResume() {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume");
-        listMessages.post(new Runnable() {
-            @Override
-            public void run() {
-                listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
-            }
-        });
+//        listMessages.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
+//            }
+//        });
+        if ( !getThread(null) )
+            return;
 
         loadMessages();
 
@@ -295,6 +335,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 try
                 {
                     image = Utils.getFile(this, uri);
+                    if (image != null)
+                        // Tell the media scanner about the new file so that it is
+                        // immediately available to the user.
+                        MediaScannerConnection.scanFile(this, new String[]{image.toString()}, null,
+                                new MediaScannerConnection.OnScanCompletedListener() {
+                                    public void onScanCompleted(String path, Uri uri) {
+                                        if (DEBUG) Log.i(TAG, "Scanned " + path + ":");
+                                        if (DEBUG) Log.i(TAG, "-> uri=" + uri);
+                                    }
+                                }
+                        );
+
                 }
                 catch (NullPointerException e){
                     if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
@@ -503,4 +555,17 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 //        Intent intent = new Intent(this, MainActivity.class);
 //        startActivity(intent);
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        switch (keyCode)
+        {
+            case KeyEvent.KEYCODE_MENU:
+                showOptionPopup();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

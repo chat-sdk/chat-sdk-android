@@ -29,6 +29,7 @@ import com.firebase.simplelogin.User;
 import com.firebase.simplelogin.enums.Error;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -222,56 +223,29 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                 @Override
                 public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
-                    if (o instanceof Error)
-                    {
-                        String toastMessage = "";
-                        Error error = ((Error) o);
-                        switch (error)
-                        {
-                            case EmailTaken:
-                                toastMessage = "Email is taken.";
-                                break;
-
-                            case InvalidEmail:
-                                toastMessage = "Invalid Email.";
-                                break;
-
-                            case InvalidPassword:
-                                toastMessage = "Invalid Password";
-                                break;
-
-                            case AccountNotFound:
-                                toastMessage = "Account not found.";
-                                break;
-
-                            case AccessNotGranted:
-                                toastMessage = "Access not granted.";
-                                break;
-
-                            case OperationFailed:
-                                toastMessage = "Operation Failed";
-                                break;
-
-                            case UserDoesNotExist:
-                                toastMessage = "User does not exist";
-                                break;
-
-                            case PermissionDenied:
-                                toastMessage = "Premission denied";
-                                break;
-
-                            default: toastMessage = "An Error Occurred.";
-                        }
-                        Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                    else Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+                   toastErrorMessage(o, true);
 
                     dismissProgDialog();
                 }
             });
         }
         else if (i == R.id.chat_sdk_btn_anon_login) {
+            showProgDialog("Connecting...");
 
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
+                @Override
+                public void onDone(User firebaseSimpleLoginUser) {
+                    afterLogin();
+                }
+
+                @Override
+                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
+                    toastErrorMessage(o, false);
+                    dismissProgDialog();
+                }
+            });
         }
         else if (i == R.id.chat_sdk_btn_register)
         {
@@ -289,31 +263,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                 @Override
                 public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
-
-                    if (o instanceof Error)
-                    {
-                        String toastMessage = "";
-                        com.firebase.simplelogin.enums.Error error = ((Error) o);
-                        switch (error)
-                        {
-                            case EmailTaken:
-                                toastMessage = "Email is taken.";
-                                break;
-
-                            case InvalidEmail:
-                                toastMessage = "Invalid Email.";
-                                break;
-
-                            case InvalidPassword:
-                                toastMessage = "Invalid Password";
-                                break;
-
-                            default: toastMessage = "An Error Occurred.";
-                        }
-                        Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                    else Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
-
+                    toastErrorMessage(o, false);
                     dismissProgDialog();
                 }
             });
@@ -323,6 +273,52 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 //        }
     }
 
+    private void toastErrorMessage(Object o, boolean login){
+        if (o instanceof Error)
+        {
+            String toastMessage = "";
+            Error error = ((Error) o);
+            switch (error)
+            {
+                case EmailTaken:
+                    toastMessage = "Email is taken.";
+                    break;
+
+                case InvalidEmail:
+                    toastMessage = "Invalid Email.";
+                    break;
+
+                case InvalidPassword:
+                    toastMessage = "Invalid Password";
+                    break;
+
+                case AccountNotFound:
+                    toastMessage = "Account not found.";
+                    break;
+
+                case AccessNotGranted:
+                    toastMessage = "Access not granted.";
+                    break;
+
+                case OperationFailed:
+                    toastMessage = "Operation Failed";
+                    break;
+
+                case UserDoesNotExist:
+                    toastMessage = "User does not exist";
+                    break;
+
+                case PermissionDenied:
+                    toastMessage = "Premission denied";
+                    break;
+
+                default: toastMessage = "An Error Occurred.";
+            }
+            Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+        }
+        else if (login) Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
+    }
     private boolean checkFields(){
         if (etName.getText().toString().isEmpty())
         {

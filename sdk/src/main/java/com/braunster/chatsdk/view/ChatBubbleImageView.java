@@ -5,13 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.NinePatchDrawable;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 
 /**
@@ -31,8 +33,12 @@ public class ChatBubbleImageView extends ImageView {
     public static final boolean DEBUG = true;
 
     private String data;
-    private Bitmap buble, image;
+    private Bitmap bubble, image;
     private LoadDone loadDone;
+
+    private float pointSize = 6f * getResources().getDisplayMetrics().density;
+    private int pad = 40;
+    private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
 
     public ChatBubbleImageView(Context context, String data) {
         super(context);
@@ -42,13 +48,13 @@ public class ChatBubbleImageView extends ImageView {
     public ChatBubbleImageView(Context context) {
         super(context);
 
-//        buble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
+//        bubble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
     }
 
     public ChatBubbleImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-//        buble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
+//        bubble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
 
 //        setBackgroundResource(R.drawable.bubble_left_2);
     }
@@ -65,7 +71,7 @@ public class ChatBubbleImageView extends ImageView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-//        buble =  get_ninepatch(R.drawable.bubble_left_2, getMeasuredWidth(), getMeasuredHeight(), getContext());
+//        bubble =  get_ninepatch(R.drawable.bubble_left_2, getMeasuredWidth(), getMeasuredHeight(), getContext());
     }
 
     @Override
@@ -74,41 +80,13 @@ public class ChatBubbleImageView extends ImageView {
 
         if (image == null)
             return;
-//        int cx = (mWidth - myBitmap.getWidth()) / 2;
-//        int cy = (mHeight - myBitmap.getHeight()) / 2;
-        canvas.drawBitmap(buble,0, 0 , null);
+
+        canvas.drawBitmap(bubble,0, 0 , null);
 
         if (image != null)
         {
             canvas.drawBitmap(image, pad/2 +  pointSize, pad/2 , null);
         }
-
-
-//        Bitmap image = Utils.decodeFrom64(data.getBytes());
-//        Bitmap buble = getChatBubleBitmapForImage();
-//
-//        image = Bitmap.createScaledBitmap(image, getWidth() /2, getHeight()/2, true);
-//
-//        canvas.drawBitmap(buble,0,0, null);
-//        canvas.drawBitmap(image,buble.getWidth() /4, buble.getHeight()/4 , null);
-
-//        if (!isInEditMode())
-//            canvas.drawBitmap(buble, 0, 0, null);
-/*
-        String text = "Some nice piece of text.";
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawPaint(paint);
-//        float width = paint.measureText("Some Text");
-        Rect bounds = new Rect();
-        paint.getTextBounds(text,0, text.length(), bounds);
-        buble = Bitmap.createScaledBitmap(buble, bounds.width() + 50 , bounds.height() + 50, true);
-
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(20);
-
-        canvas.drawText("Some Text", 50, 50, paint);*/
     }
 
     public void setData(String data) {
@@ -117,42 +95,57 @@ public class ChatBubbleImageView extends ImageView {
 
     public void setImage(Bitmap image) {
         this.image = image;
-        invalidate();
     }
 
-    public void loadFromUrl(String url, LoadDone loadDone){
-       loadFromUrl(url, Color.parseColor("#F20D08"), loadDone);
+    public void setBubble(Bitmap bubble) {
+        this.bubble = bubble;
     }
 
-    public void loadFromUrl(String url, String color, LoadDone loadDone){
-        loadFromUrl(url, Color.parseColor(color), loadDone);
+    public void loadFromUrl(String url, int maxWidth, LoadDone loadDone){
+       loadFromUrl(url, Color.parseColor("#F20D08"), maxWidth, loadDone);
     }
 
-    public void loadFromUrl(String url, final int color, final LoadDone loadDone){
+    public void loadFromUrl(String url, String color, int maxWidth, LoadDone loadDone){
+        loadFromUrl(url, Color.parseColor(color), maxWidth, loadDone);
+    }
+
+    public void loadFromUrl(String url, final int color,final int maxWidth, final LoadDone loadDone){
         VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
             @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
 
                 if (response.getBitmap() != null) {
-                    // load image into imageview
-                    Bitmap bitmap = response.getBitmap();
 
-                    bitmap = scaleImage(bitmap, 300);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // load image into imageview
+                            Log.e(TAG, "MAX WIDTH: " + maxWidth  + " After sizeing: " + (maxWidth - pad - pointSize) );
 
-                    buble = get_ninepatch(R.drawable.bubble_left_2, (int) (bitmap.getWidth() + pad + pointSize), (int) (bitmap.getHeight() + pad), getContext());
+                            final int width = (int) (maxWidth - pad - pointSize);
 
-                    buble = replaceIntervalColor(buble, 40, 75, 130, 140, 190, 210, color);
+                            Bitmap img = response.getBitmap();
+                            Bitmap bubble;
 
-                    ViewGroup.LayoutParams params = getLayoutParams();
-                    params.width = buble.getWidth();
-                    params.height = buble.getHeight();
-                    // existing height is ok as is, no need to edit it
-                    setLayoutParams(params);
+                            img = ImageUtils.scaleImage(img, width);
 
-                    bitmap = getRoundedCornerBitmap(bitmap, roundRadius);
-                    setImage(bitmap);
+                            bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + pad + pointSize), (int) (img.getHeight() + pad), getContext());
 
-                    loadDone.onDone();
+                            bubble = replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
+
+                            setBubble(bubble);
+
+                            img = getRoundedCornerBitmap(img, roundRadius);
+
+                            setImage(img);
+
+                            Message message = new Message();
+                            message.arg1 = bubble.getWidth();
+                            message.arg2 = bubble.getHeight();
+                            message.obj = loadDone;
+                            handler.sendMessage(message);
+                        }
+                    }).start();
                 }
             }
 
@@ -163,41 +156,27 @@ public class ChatBubbleImageView extends ImageView {
         });
     }
 
-    private float pointSize = 6f * getResources().getDisplayMetrics().density;
-    private int pad = 40;
-    private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
 
+            ViewGroup.LayoutParams params = getLayoutParams();
+            params.width = msg.arg1;
+            params.height = msg.arg2;
+            // existing height is ok as is, no need to edit it
+            setLayoutParams(params);
 
+            ((LoadDone) msg.obj).onDone();
 
-    private Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
-        // Get current dimensions
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        // Determine how much to scale: the dimension requiring less scaling is
-        // closer to the its side. This way the image always stays inside your
-        // bounding box AND either x/y axis touches it.
-        float xScale = ((float) boundBoxInDp) / width;
-        float yScale = ((float) boundBoxInDp) / height;
-        float scale = (xScale <= yScale) ? xScale : yScale;
-
-        // Create a matrix for the scaling and add the scaling data
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-
-        // Create a new bitmap and convert it to a format understood by the ImageView
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-
-        return bitmap;
-    }
+            invalidate();
+        }
+    };
 
     public static Bitmap get_ninepatch(int id,int x, int y, Context context){
         // id is a resource id for a valid ninepatch
 
-        if (x == 0 || y == 0)
-        {
-            x = 100; y = 100;
-        }
+
         Bitmap bitmap = BitmapFactory.decodeResource(
                 context.getResources(), id);
 
@@ -212,8 +191,6 @@ public class ChatBubbleImageView extends ImageView {
 
         return output_bitmap;
     }
-
-
 
     public static Bitmap setBubbleColor(Bitmap buble, int color){
         if (DEBUG) Log.v(TAG, "setBubbleColor, color: " + color);
