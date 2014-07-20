@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.activities.SearchActivity;
@@ -158,6 +157,7 @@ public class ContactsFragment extends BaseFragment {
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
         initViews();
+        initToast();
 
         loadDataOnBackground();
 
@@ -367,7 +367,7 @@ public class ContactsFragment extends BaseFragment {
                                     BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
                                         @Override
                                         public boolean onItem(BUser user) {
-                                            Toast.makeText(getActivity(), "User added to thread, Name: "  + clickedUser.getMetaName(), Toast.LENGTH_SHORT).show();
+                                            showToast("User added to thread, Name: "  + clickedUser.getMetaName());
                                             if (isDialog)
                                                 getDialog().dismiss();
                                             return false;

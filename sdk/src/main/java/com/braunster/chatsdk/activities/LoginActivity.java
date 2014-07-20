@@ -9,7 +9,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -60,6 +59,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         uiHelper.onCreate(savedInstanceState);
 
         initViews();
+        initToast();
 /*
         // For registering the activity to facebook.
         String sha = Utils.getSHA(this, getPackageName());
@@ -147,7 +147,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         @Override
                         public void onLoginFailed(BError error) {
                             dismissProgDialog();
-                            Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
+
+//                            Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
+                            showToast("Auth Failed.");
                         }
                     }
             );
@@ -314,21 +316,33 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                 default: toastMessage = "An Error Occurred.";
             }
-            Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+            showToast(toastMessage);
+//            Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
         }
-        else if (login) Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
-        else Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
+        else if (login)
+        {
+//            Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
+            showToast("Failed connect to Firebase.");
+        }
+        else {
+//            Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
+            showToast( "Failed registering to Firebase.");
+        }
     }
+
     private boolean checkFields(){
         if (etName.getText().toString().isEmpty())
         {
-            Toast.makeText(LoginActivity.this, "Please enter username/email." , Toast.LENGTH_SHORT).show();
+
+//            Toast.makeText(LoginActivity.this, "Please enter username/email." , Toast.LENGTH_SHORT).show();
+            showToast("Please enter username/email.");
             return false;
         }
 
         if (etPass.getText().toString().isEmpty())
         {
-            Toast.makeText(LoginActivity.this, "Please enter password." , Toast.LENGTH_SHORT).show();
+//            Toast.makeText(LoginActivity.this, "Please enter password." , Toast.LENGTH_SHORT).show();
+            showToast( "Please enter password.");
             return false;
         }
 
@@ -354,7 +368,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             @Override
             public void onDoneWithError() {
                 if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
-                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
+                showToast("Failed connect to facebook.");
             }
         });
     }

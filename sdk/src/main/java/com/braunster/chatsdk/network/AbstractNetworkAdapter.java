@@ -102,6 +102,12 @@ public abstract class AbstractNetworkAdapter {
     public abstract void getUserFacebookFriendsWithCallback(CompletionListenerWithData listener);
 
     public abstract BUser currentUser();
+
+    /*NOTE this was added due to the android system can kill the app while the app is in the background.
+    *       After the app is killed the online status will be false,
+    *       The app will check this status when resumed and if false the app will re-auth the user in the background.*/
+    /** @return  the value of the user online status in firebase, i.e "firebase_path/user_entity_id/online" */
+    public abstract void isOnline(final CompletionListenerWithData<Boolean> listener);
 /*######################################################################################################*/
     /*Messages*/
     /**

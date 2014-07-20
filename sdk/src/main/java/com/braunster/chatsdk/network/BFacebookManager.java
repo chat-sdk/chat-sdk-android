@@ -96,12 +96,6 @@ public class BFacebookManager {
         });
     }
 
-    public static void logoutFromFacebook() {
-        if (simpleLogin != null)
-            simpleLogin.logout();
-        else if (DEBUG) Log.e(TAG, "Trying to logout but simple login is null");
-    }
-
     /** Re authenticate after session state changed.*/
     public static void onSessionStateChange(Session session, SessionState state, Exception exception,final  CompletionListener completionListener) {
         if (DEBUG) Log.i(TAG, "Session changed state");
@@ -114,6 +108,7 @@ public class BFacebookManager {
 
             // We will need this session later to make request.
             userFacebookAccessToken = Session.getActiveSession().getAccessToken();
+
             loginWithFacebook(new CompletionListener() {
                 @Override
                 public void onDone() {

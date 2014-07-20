@@ -208,6 +208,7 @@ public class LocationActivity extends FragmentActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 
         //Register to location change if not null.

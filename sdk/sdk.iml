@@ -81,6 +81,7 @@
     <orderEntry type="library" exported="" name="firebase-simple-login-1.3.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-4.4.52" level="project" />
+    <orderEntry type="library" exported="" name="supertoasts-1.3.4" level="project" />
     <orderEntry type="library" exported="" name="greendao-1.3.0" level="project" />
     <orderEntry type="library" exported="" name="freemarker-2.3.19" level="project" />
     <orderEntry type="module" module-name="generator" exported="" />

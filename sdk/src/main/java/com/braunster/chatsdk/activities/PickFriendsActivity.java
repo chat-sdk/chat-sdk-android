@@ -37,6 +37,7 @@ public class PickFriendsActivity extends BaseActivity {
         setContentView(R.layout.chat_sdk_activity_pick_friends);
         initActionBar();
         initViews();
+        initToast();
     }
 
     private void initActionBar(){

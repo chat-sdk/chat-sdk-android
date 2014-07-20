@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
@@ -88,7 +87,7 @@ public class SearchActivity extends BaseActivity {
             public void onClick(View v) {
                 if (etInput.getText().toString().isEmpty())
                 {
-                    Toast.makeText(SearchActivity.this, "Please enter some text for the search.", Toast.LENGTH_SHORT).show();
+                    showToast("Please enter some text for the search.");
                     return;
                 }
 
@@ -123,10 +122,10 @@ public class SearchActivity extends BaseActivity {
                     public void onDone() {
                         dialog.dismiss();
 
-
                         if (usersFoundCount == 0)
-                            Toast.makeText(SearchActivity.this, "No match found.", Toast.LENGTH_SHORT).show();
-
+                        {
+                            showToast("No match found.");
+                        }
                         if (action.equals(ACTION_ADD_WHEN_FOUND))
                         {
 

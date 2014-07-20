@@ -78,13 +78,19 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (DEBUG) Log.v(TAG, "onCreate");
+
+        enableCheckOnlineOnResumed(true);
+
         setContentView(R.layout.chat_sdk_activity_chat);
 
         if ( !getThread(savedInstanceState) )
             return;
 
         initViews();
+
+        initToast();
 
         initListView();
 

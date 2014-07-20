@@ -115,8 +115,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
-    @Override // Note done!
+    @Override
     public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<User, Object> listener) {
+        if (DEBUG) Log.v(TAG, "authenticateWithMap, KeyType: " + details.get(Prefs.LoginTypeKey));
 
         Firebase ref = FirebasePaths.firebaseRef();
         SimpleLogin simpleLogin = new SimpleLogin(ref, context);
@@ -172,8 +173,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
-    //Note Done!
+
     public void handleFAUser(final User fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
+        if (DEBUG) Log.v(TAG, "handleFAUser");
+
         if (fuser == null)
         {
             // If the user isn't authenticated they'll need to login
@@ -202,12 +205,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 new CompletionListenerWithDataAndError<BUser, FirebaseError>() {
                     @Override
                     public void onDone(BUser buser) {
-                        //ASK should i update the entity found? or the one that i already had(Which doens't make to much sense i know).
-                        // ASK if should i check for null?
 
                         updateUserFromFUser(buser, fuser);
-
-//                        DaoCore.updateEntity(buser);
 
                         listener.onDone(buser);
                     }
@@ -219,14 +218,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 });
     }
 
-    //Note Done!
+
     /**Copy some details from the FAUser like name etc...*/
     public void updateUserFromFUser(final BUser user, User fireUser){
+        if (DEBUG) Log.v(TAG, "updateUserFromFUser");
+
         Map <String, Object> thirdPartyData = fireUser.getThirdPartyUserData();
         String name;
         String email;
         BLinkedAccount linkedAccount;
-        if (DEBUG) Log.i("FATAL", "FATAL");
 
         user.setOnline(true);
 
@@ -362,7 +362,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         });
     }
 
-    @Override //Note Done!
+    @Override
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public void pushUserWithCallback(final CompletionListener listener) {
         // Update the user in the server.
@@ -387,7 +387,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         });
     }
 
-    @Override //Note Done!
+    @Override
     public void checkUserAuthenticatedWithCallback(final AuthListener listener) {
         if (DEBUG) Log.v(TAG, "checkUserAuthenticatedWithCallback, " + getLoginInfo().get(Prefs.AccountTypeKey));
 
@@ -447,7 +447,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }
     }
 
-    @Override //Note Done!
+    @Override
     public void logout() {
 
         /* No need to logout from facebook due to the fact that the logout from facebook event will trigger this event.
@@ -481,7 +481,7 @@ TODO
     *
     * This will allow us to find the user*/
 
-    @Override //Note Done!
+    @Override
     public void usersForIndex(String index, final RepetitiveCompletionListener<BUser> listener) {
         mapForIndex(index, new MapForIndex() {
             @Override
@@ -550,7 +550,7 @@ TODO
         });
     }
 
-    /**This method get the map values of data stored at a particular index*/ //Note Done!
+    /**This method get the map values of data stored at a particular index*/
     private void mapForIndex(String index, final MapForIndex mapForIndex){
         Log.v(TAG, "mapForIndex, Index: " + index);
         FirebasePaths indexRef = FirebasePaths.indexRef();
@@ -603,12 +603,12 @@ TODO
         });
     }
 
-    /** Interface to return values from the <b>mapForIndex</b> method.*///Note Done!
+    /** Interface to return values from the <b>mapForIndex</b> method.*/
     public interface MapForIndex{
         public void Completed(Firebase ref, String index, Map<String, Object> values);
     }
 
-    @Override// Note done!
+    @Override
     public void removeUserFromIndex(final BUser user, String index, final CompletionListener listener) {
         if (index == null)
         {
@@ -647,7 +647,7 @@ TODO
         });
     }
 
-    @Override //Note Done!
+    @Override
     public void addUserToIndex(final BUser user, String index, final CompletionListener listener) {
         // We don't want to index null strings!
         index = index.replace(" ", "");
@@ -737,7 +737,7 @@ TODO
         BFacebookManager.getUserFriendList(listener);
     }
 
-    @Override//Note Done!
+    @Override
     public BUser currentUser() {
         if (getCurrentUserAuthenticationId() != null)
         {
@@ -747,6 +747,25 @@ TODO
         return null;
     }
 
+    public void isOnline(final CompletionListenerWithData<Boolean> listener){
+        if (currentUser() == null)
+        {
+            listener.onDoneWithError(BError.getError(BError.Code.NULL, "Current user is null"));
+            return;
+        }
+
+        FirebasePaths.userOnlineRef(currentUser().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                listener.onDone((Boolean) snapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                listener.onDoneWithError(BError.getFirebaseError(firebaseError));
+            }
+        });
+    }
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
@@ -790,7 +809,7 @@ TODO
         } else if (DEBUG) Log.e(TAG, "Message doesn't have an owner thread.");
     }
 
-    /** Push the message to the firebase server and update the thread. */ //Note Done!
+    /** Push the message to the firebase server and update the thread. */
     private class PushMessageWithComplition{
 
         public PushMessageWithComplition(final BMessage message, final CompletionListenerWithData<BMessage> listener){
@@ -836,7 +855,7 @@ TODO
          *  For each user that was successfully added the "onItem" method will be called,
          *  For any item adding failure the "onItemFailed will be called.
          *   If the main task will fail the error object in the "onMainFinished" method will be called."*/
-    @Override //Note done!
+    @Override
     public void createThreadWithUsers(String name, final List<BUser> users, final RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener) {
 
         BUser currentUser = currentUser();
@@ -915,7 +934,7 @@ TODO
         });
     }
 
-    @Override //Note done!
+    @Override
     public void createPublicThreadWithName(String name, final CompletionListenerWithDataAndError<BThread, Object> listener) {
         // Crating the new thread.
         // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
@@ -974,7 +993,7 @@ TODO
      * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.*/
-    @Override //Note done!
+    @Override
     public void addUsersToThread(final BThread thread, final List<BUser> users, final RepetitiveCompletionListenerWithError<BUser, Object> listener) {
         if (thread == null)
         {
@@ -1048,7 +1067,6 @@ TODO
         }
     }
 
-    //Note done!
     /** adds a thread to the user */
     private void addUserToThread(final BThread thread, final BUser user, final RepetitiveCompletionListenerWithError<BUser, Object> listener){
         if (DEBUG) Log.d(TAG, "addUserToThread");
@@ -1098,12 +1116,12 @@ TODO
         });
     }
 
-    @Override // Note done!
+    @Override
     public void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener) {
         BFirebaseInterface.loadMoreMessagesForThread(thread, BFirebaseDefines.NumberOfMessagesPerBatch, listener);
     }
 
-    @Override //Note done!
+    @Override
     public void deleteThreadWithEntityID(final String entityID, final CompletionListener completionListener) {
 
         final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
@@ -1144,12 +1162,12 @@ TODO
 
     }
 
-    @Override //Note done!
+    @Override
     public String getServerURL() {
         return FirebasePaths.FIREBASE_PATH;
     }
 
-    @Override // Note done
+    @Override
     public void setLastOnline(Date lastOnline) {
         BUser currentUser  = currentUser();
         currentUser.setLastOnline(lastOnline);
@@ -1159,7 +1177,6 @@ TODO
         // TODO push entity back to the firebase server.
     }
 
-    //Note done!
     private void updateLastOnline(){
         setLastOnline(new Date());
     }
@@ -1251,68 +1268,5 @@ TODO
     [currentInstallation saveInBackground];
 }
 
-+(BOOL) pushEnabled {
-    return bParseAppKey.length && bParseClientKey.length;
-}
-
--(void) subscribeToPushChannel: (NSString *) channel {
-    if (![BFirebaseNetworkAdapter pushEnabled]) {
-        return;
-    }
-    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-    [currentInstallation addUniqueObject:channel forKey:@"channels"];
-    [currentInstallation saveInBackground];
-}
-
-// Check when recipients was last online
-// Don't use push notifications for public threads because
-// they could have hundreds of users and we don't want to be spammed
-// with push notifications
--(void) pushForMessage: (BMessage *) message {
-    if (message.thread.type.intValue == bThreadTypePrivate) {
-        for (BUser * user in message.thread.users) {
-            if (![user isEqual:self.currentUser]) {
-                if(!user.online.boolValue) {
-                    NSLog(@"Sending push to: %@", user.name);
-                    [self pushToUsers:@[user] withMessage:message];
-                }
-            }
-        }
-    }
-}
-
--(void) pushToUsers: (NSArray *) users withMessage: (BMessage *) message {
-    if (![BFirebaseNetworkAdapter pushEnabled]) {
-        return;
-    }
-
-    // We're identifying each user using push channels. This means that
-    // when a user signs up, they register with parse on a particular
-    // channel. In this case user_[user id] this means that we can
-    // send a push to a specific user if we know their user id.
-    NSMutableArray * userChannels = [NSMutableArray new];
-    for (BUser * user in users) {
-        if(![user isEqual:self.currentUser])
-            [userChannels addObject:user.pushChannel];
-    }
-
-    // Format the message that we're going to push
-    NSString * text = message.text;
-
-    if (message.type.intValue == bMessageTypeLocation) {
-        text = @"Location message!";
-    }
-    if (message.type.intValue == bMessageTypeImage) {
-        text = @"Picture message!";
-    }
-    text = [NSString stringWithFormat:@"%@: %@", message.user.name, text];
-
-    // Send the push message to the users specified
-    PFPush * push = [[PFPush alloc] init];
-    [push setChannels:userChannels];
-    [push setData:@{@"alert":text,
-                    @"badge":@"Increment"}];
-    [push sendPushInBackground];
-}
 */
 }

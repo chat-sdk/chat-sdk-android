@@ -17,3 +17,9 @@
 
 # After a user delete a thread he wont get any more messages from this thread,
   So if the other user want to message him again he would have to delete his and start a new one. Is this OK or im doing it wrong?
+
+# We need to work on making our resources the same, i.e longitude and latitude values, Color Values and Date Values.
+
+# What is your app twitter client id and all relevant data so i could add the twitter log in.
+
+# What is the max length in characters for a message?

@@ -5,19 +5,22 @@
 ##########################
         NEW FEATURES
 --------------------------
-
+# User profile pic in chat activity will be shown only for first message if the user send more then one in a row.
+# added new ToastStyle.
 ##########################
         BUG FIX
 --------------------------
+# EventManager stop listening to events after app in the background for a long time.
 
 ##########################
         BUG REPORT
 --------------------------
 -----------NEW------------
+# Sometimes a double auth process is going on due to the checkAuthOnResumed in the base activity
+# Need to Handle push notification for a message that already recieved.
 -----------OLD------------
 # User details are not indexed until the metadata is changed i the profile fragment.
 # Some old messages create notification when entering the app. and when opening the app after a push has been received.
-# When adding  a public thread the user details change and we load and refresh all users.
 # Cancel login to facebook after login process already started option.
 
 ##########################
@@ -33,7 +36,6 @@
           TODO
 --------------------------
 # How to change the message details(color, textColor, textSize etc...
-# Don't refresh all threads for each added message if thread is already exist on the list just update that thread.
 # Add a dialog or something like that when sending a message so the user will know that its processed and sent.
   Currently the user has a delay until he see the message in the chat.
 # Save taken pictures in the app public image folder, Currently saved to the camera folder..

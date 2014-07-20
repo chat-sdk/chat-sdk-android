@@ -22,15 +22,10 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
-import com.braunster.chatsdk.interfaces.CompletionListener;
-import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.parse.PushUtils;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,19 +54,18 @@ public class MainActivity extends BaseActivity {
 
     private int pageAdapterPos = -1;
 
-    private UiLifecycleHelper uiHelper;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        enableFacebookIntegration(true);
         super.onCreate(savedInstanceState);
         if (DEBUG) Log.v(TAG, "onCreate");
         setContentView(R.layout.chat_sdk_activity_view_pager);
-        uiHelper = new UiLifecycleHelper(this, callback);
-        uiHelper.onCreate(savedInstanceState);
 
         firstTimeInApp();
         initViews();
+        initToast();
+
+        enableCheckOnlineOnResumed(true);
 
         if (savedInstanceState != null)
         {
@@ -84,14 +78,13 @@ public class MainActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         if (DEBUG) Log.v(TAG, "onPause");
-        uiHelper.onPause();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume");
-        uiHelper.onResume();
 
         EventManager.getInstance().removeEventByTag(appEventListener.getTag());
         EventManager.getInstance().addEventIfNotExist(appEventListener);
@@ -325,13 +318,6 @@ public class MainActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
-        uiHelper.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        uiHelper.onDestroy();
     }
 
     private void initViews(){
@@ -385,14 +371,14 @@ public class MainActivity extends BaseActivity {
     }
 
     /*Facebook Stuff*/
-    private Session.StatusCallback callback = new Session.StatusCallback() {
+/*    private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
             onSessionStateChange(session, state, exception);
         }
-    };
+    };*/
 
-    private void onSessionStateChange(Session session, final SessionState state, Exception exception){
+/*    private void onSessionStateChange(Session session, final SessionState state, Exception exception){
         BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
             @Override
             public void onDone() {
@@ -409,14 +395,14 @@ public class MainActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
-    }
+    }*/
 
-    @Override
+/*    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(DEBUG) Log.v(TAG, "onActivityResult");
         uiHelper.onActivityResult(requestCode, resultCode, data);
-    }
+    }*/
 
     /* Exit Stuff*/
     @Override

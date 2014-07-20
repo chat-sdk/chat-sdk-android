@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -22,6 +23,8 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.github.johnpersano.supertoasts.SuperActivityToast;
+import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.concurrent.Callable;
 
@@ -33,6 +36,8 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     // TODO refresh on background method.
     private static final String TAG = BaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
+
+    SuperActivityToast superActivityToast;
 
     View mainView;
 
@@ -78,6 +83,21 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     @Override
     public void initViews() {
 
+    }
+
+
+    void initToast(){
+        superActivityToast = new SuperActivityToast(getActivity());
+        superActivityToast.setDuration(SuperToast.Duration.MEDIUM);
+        superActivityToast.setBackground(SuperToast.Background.BLUE);
+        superActivityToast.setTextColor(Color.WHITE);
+        superActivityToast.setAnimations(SuperToast.Animations.FLYIN);
+        superActivityToast.setTouchToDismiss(true);
+    }
+
+    void showToast(String text){
+        superActivityToast.setText(text);
+        superActivityToast.show();
     }
 
     void startChatActivityForID(long id){

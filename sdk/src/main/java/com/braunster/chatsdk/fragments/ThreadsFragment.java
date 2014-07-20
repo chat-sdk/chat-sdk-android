@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
@@ -60,6 +59,7 @@ public class ThreadsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (DEBUG) Log.d(TAG, "onCreateView");
         init(inflater);
+        initToast();
 
         loadDataOnBackground();
 
@@ -198,12 +198,12 @@ public class ThreadsFragment extends BaseFragment {
                             }, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
 
                             listAdapter.addRow(bThread);
-                            Toast.makeText(getActivity(), "Public thread " + s + " is created.", Toast.LENGTH_SHORT).show();
+                            showToast("Public thread " + s + " is created.");
                         }
 
                         @Override
                         public void onDoneWithError(BThread bThread, Object o) {
-                            Toast.makeText(getActivity(), "Failed to create public thread " + s + ".", Toast.LENGTH_SHORT).show();
+                            showToast("Failed to create public thread " + s + ".");
                         }
                     });
                 }

@@ -16,7 +16,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -94,6 +93,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         initViews(inflater);
+        initToast();
 
         loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
 
@@ -314,7 +314,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     }
                     catch (NullPointerException e){
                         if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                        Toast.makeText(getActivity(), "Unable to fetch image", Toast.LENGTH_SHORT).show();
+                        showToast("Unable to fetch image");
                         return;
                     }
 
@@ -497,7 +497,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                 @Override
                 public void onDoneWithError(BError error) {
-                    Toast.makeText(getActivity(), "Unable to fetch user details from fb", Toast.LENGTH_SHORT).show();
+                    showToast("Unable to fetch user details from fb");
                 }
             });
     }
@@ -605,7 +605,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
             @Override
             public void onDoneWithError() {
-                Toast.makeText(getActivity(), "Cant set index.", Toast.LENGTH_SHORT).show();
+                showToast("Cant set index.");
             }
         });
     }

@@ -196,7 +196,9 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Load profile picture.
         profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
-        loadProfilePic(profilePicImage, message.profilePicUrl);
+        if (position == 0 || message.sender != listData.get(position-1).sender) {
+            loadProfilePic(profilePicImage, message.profilePicUrl);
+        } else profilePicImage.setVisibility(View.INVISIBLE);
 
         // Add click event to image if message is picture or location.
         // Set the time of the sending.
