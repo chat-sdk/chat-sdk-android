@@ -4,7 +4,7 @@
     <string name="app_name">ChatSDK</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk_version_name">0.2.6</string>
+    <string name="chat_sdk_version_name">0.2.7</string>
     <string name="chat_sdk_version">Version:</string>
     <string name="register">Register</string>
     <string name="login">Login</string>

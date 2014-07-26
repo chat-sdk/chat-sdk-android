@@ -7,7 +7,9 @@ import android.util.Log;
 
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.activities.LoginActivity;
+import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.json.JSONException;
@@ -49,9 +51,19 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                 Log.d(TAG, "..." + key + " => " + json.getString(key));
             }
 
+            String entityID = json.getString(PushUtils.MESSAGE_ENTITY_ID);
+            BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, entityID);
+
+            if (message != null)
+            {
+                Log.d(TAG, "Message already exist");
+                return;
+            }
+
             Intent resultIntent = new Intent(context, LoginActivity.class);
 
-            NotificationUtils.createAlertNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
+            /*FIXME need a tag for push*/
+            NotificationUtils.createAlertNotification(context, null, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle("Message", "You got new message", json.getString(PushUtils.CONTENT)));
 
         } catch (JSONException e) {

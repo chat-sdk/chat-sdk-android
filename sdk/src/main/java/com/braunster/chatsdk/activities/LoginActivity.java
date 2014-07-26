@@ -188,6 +188,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 dismissProgDialog();
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra(BaseActivity.FROM_LOGIN, true);
                 startActivity(intent);
 //            }
 //        }, 10000);

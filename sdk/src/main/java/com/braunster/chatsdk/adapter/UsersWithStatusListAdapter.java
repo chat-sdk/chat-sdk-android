@@ -40,6 +40,8 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
+    private static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE";
+
     private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
     //View
@@ -380,9 +382,9 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         }
 
         if (withHeaders) {
-            listData.add(UserListItem.getHeader("Online"));
+            listData.add(UserListItem.getHeader(H_ONLINE));
             listData.addAll(onlineUsers);
-            listData.add(UserListItem.getHeader("Offline"));
+            listData.add(UserListItem.getHeader(H_OFFLINE));
             listData.addAll(offlineUsers);
         }
 
@@ -392,6 +394,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 
         return listData;
     }
+
 
 
 

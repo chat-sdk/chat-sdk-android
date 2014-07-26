@@ -37,8 +37,8 @@
 
 
     <application android:allowBackup="true"
+        android:largeHeap="true"
         android:label="@string/app_name"
-    android:largeHeap="true"
         android:theme="@style/ChatSDKTheme"
         android:icon="@drawable/ic_launcher">
 

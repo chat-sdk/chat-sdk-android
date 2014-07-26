@@ -215,11 +215,11 @@ public class Utils {
 
     public static class FileSaver{
 
-        public static final String IMAGE_DIR_NAME = "AndroidChatSDKTestImage";
+        public static final String IMAGE_DIR_NAME = "AndroidChatSDK";
         public static final String THUMBNAILS_DIR_NAME = "thumbnails";
         public static final String LOCATION_DIR_NAME = "location_snapshots";
 
-        public static final String appDireName = "AndroidChatSDKTTestAppDir";
+        public static final String appDireName = "AndroidChatSDK";
 
         public static final String filePath = Environment.getExternalStorageDirectory()
                 + File.separator + appDireName + File.separator ;

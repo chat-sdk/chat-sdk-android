@@ -91,7 +91,7 @@ public class BError {
                 case Code.NO_PATH:
                     return NoPath;
 
-                default: return "Error";
+                default: return "";
             }
         }
 

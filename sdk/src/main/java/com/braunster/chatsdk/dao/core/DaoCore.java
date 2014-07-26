@@ -60,14 +60,19 @@ public class DaoCore {
         if (DEBUG) Log.i(TAG, "Initialized");
         dbName = DB_NAME;
         context = ctx;
-        openDB();
+
+        if(helper == null)
+            openDB();
+
         test();
     }
 
     public static void init(Context ctx, String databaseName){
         context = ctx;
         dbName = databaseName;
-        openDB();
+
+        if(helper == null)
+            openDB();
     }
 
     private static void openDB(){

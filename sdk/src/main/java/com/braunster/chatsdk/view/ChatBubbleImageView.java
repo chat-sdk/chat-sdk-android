@@ -36,9 +36,15 @@ public class ChatBubbleImageView extends ImageView {
     private Bitmap bubble, image;
     private LoadDone loadDone;
 
+    /** The max size that we would use for the image.*/
+    private final float MAX_WIDTH = 250 * getResources().getDisplayMetrics().density;
+
+    /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
     private float pointSize = 6f * getResources().getDisplayMetrics().density;
+
     private int pad = 40;
     private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
+
 
     public ChatBubbleImageView(Context context, String data) {
         super(context);
@@ -50,6 +56,7 @@ public class ChatBubbleImageView extends ImageView {
 
 //        bubble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
     }
+
 
     public ChatBubbleImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -122,23 +129,37 @@ public class ChatBubbleImageView extends ImageView {
                             // load image into imageview
                             Log.e(TAG, "MAX WIDTH: " + maxWidth  + " After sizeing: " + (maxWidth - pad - pointSize) );
 
-                            final int width = (int) (maxWidth - pad - pointSize);
+                            // Calculating the image width so we could scale it.
+                            // If the wanted width is bigger then MAX_WIDTH we will use MAX_WIDTH not the given width.
+                            final int width;
+                            if (maxWidth > MAX_WIDTH)
+                                width = (int) (MAX_WIDTH - pad - pointSize);
+                            else
+                                width = (int) (maxWidth - pad - pointSize);
 
+                            // The image bitmap from Volley.
                             Bitmap img = response.getBitmap();
                             Bitmap bubble;
 
+                            // scaling the image to the needed width.
                             img = ImageUtils.scaleImage(img, width);
 
+                            // Getting the bubble nine patch image for given size.
                             bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + pad + pointSize), (int) (img.getHeight() + pad), getContext());
 
+                            // Replacing the defualt color of the bubble.
                             bubble = replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
 
+                            // Setting the bubble bitmap. It will be used in onDraw
                             setBubble(bubble);
 
+                            // rounding the corners of the image.
                             img = getRoundedCornerBitmap(img, roundRadius);
 
+                            // Setting the image bitmap. It will be used in onDraw
                             setImage(img);
 
+                            // Notifying the view that we are done.
                             Message message = new Message();
                             message.arg1 = bubble.getWidth();
                             message.arg2 = bubble.getHeight();
@@ -175,8 +196,6 @@ public class ChatBubbleImageView extends ImageView {
 
     public static Bitmap get_ninepatch(int id,int x, int y, Context context){
         // id is a resource id for a valid ninepatch
-
-
         Bitmap bitmap = BitmapFactory.decodeResource(
                 context.getResources(), id);
 

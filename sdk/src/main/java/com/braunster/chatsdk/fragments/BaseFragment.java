@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.dao.BLinkedContact;
@@ -122,7 +121,7 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
             public boolean onMainFinised(BThread bThread, Object o) {
                 if (o != null)
                 {
-                    Toast.makeText(getActivity(), "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                    showToast("Failed to start chat.");
                     return true;
                 }
 
@@ -212,13 +211,13 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
             BNetworkManager.sharedManager().getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
                 @Override
                 public void onDone() {
-                    Toast.makeText(getActivity(), "Thread is deleted.", Toast.LENGTH_SHORT).show();
+                    showToast("Thread is deleted.");
                     refreshOnBackground();
                 }
 
                 @Override
                 public void onDoneWithError() {
-                    Toast.makeText(getActivity(), "Unable to delete thread.", Toast.LENGTH_SHORT).show();
+                    showToast("Unable to delete thread.");
                 }
             });
             return null;

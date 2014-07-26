@@ -3,10 +3,10 @@ package com.braunster.chatsdk.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
@@ -29,6 +29,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
+import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
@@ -43,7 +44,12 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.MessageEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.parse.PushUtils;
+import com.github.johnpersano.supertoasts.SuperToast;
+import com.github.johnpersano.supertoasts.util.OnClickWrapper;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -67,6 +73,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     public static final String THREAD_ID = "Thread_ID";
     public static final String MessageListenerTAG = TAG + "MessageTAG";
 
+    /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
+    public static final String CAPTURED_PHOTO_PATH = "captured_photo_path";
+
     private Button btnSend;
     private ImageButton btnOptions;
     private EditText etMessage;
@@ -75,18 +84,32 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private BThread thread;
     private PopupWindow optionPopup;
 
+    private String capturePhotoPath = "";
+
+    private Bundle data;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        enableCheckOnlineOnResumed(true);
+        setEnableCardToast(true);
+
         super.onCreate(savedInstanceState);
 
         if (DEBUG) Log.v(TAG, "onCreate");
-
-        enableCheckOnlineOnResumed(true);
 
         setContentView(R.layout.chat_sdk_activity_chat);
 
         if ( !getThread(savedInstanceState) )
             return;
+
+        if (savedInstanceState != null)
+        {
+            if (savedInstanceState.containsKey(CAPTURED_PHOTO_PATH))
+            {
+                capturePhotoPath = savedInstanceState.getString(CAPTURED_PHOTO_PATH);
+                savedInstanceState.remove(CAPTURED_PHOTO_PATH);
+            }
+        }
 
         initViews();
 
@@ -167,6 +190,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         super.onSaveInstanceState(outState);
         if (thread != null)
             outState.putLong(THREAD_ID, thread.getId());
+
+        if (StringUtils.isNotEmpty(capturePhotoPath))
+            outState.putString(CAPTURED_PHOTO_PATH, capturePhotoPath);
     }
 
     @Override
@@ -198,27 +224,42 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 //                listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
 //            }
 //        });
-        if ( !getThread(null) )
+        if ( !getThread(data) )
             return;
+
+        OnClickWrapper onClickWrapper = new OnClickWrapper("supercardtoast", new SuperToast.OnClickListener() {
+
+            @Override
+            public void onClick(View view, Parcelable token) {
+
+                /** On click event */
+
+            }
+
+        });
+
+        NotificationUtils.cancelNotification(this, PushUtils.MESSAGE_NOTIFICATION_ID);
 
         loadMessages();
 
-        // Removing the last listener just to be sure we wont receive duplicates notifications.
-        EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
-        EventManager.getInstance().addMessageEvent(new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()){
+        MessageEventListener messageEventListener = new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()) {
             @Override
             public boolean onMessageReceived(BMessage message) {
-
-
                 // Check that the message is relevant to the current thread.
-                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId())
+                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue())
                     return false;
                 // Make sure the message that incoming is not the user message.
+//                if (message.getBUserSender().getEntityID().equals(
+//                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
+//                    return false;
+
+                messagesListAdapter.addRow(message);
+
+                // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                 if (message.getBUserSender().getEntityID().equals(
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
                     return false;
 
-                messagesListAdapter.addRow(message);
                 // We check to see that this message is really a new one and not loaded from the server.
                 if (System.currentTimeMillis() - message.getDate().getTime() < 1000*60)
                 {
@@ -229,7 +270,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
                 return false;
             }
-        });
+        };
+
+        // Removing the last listener just to be sure we wont receive duplicates notifications.
+        EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
+        EventManager.getInstance().addMessageEvent(messageEventListener);
 
         btnSend.setOnClickListener(this);
 
@@ -238,25 +283,31 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         etMessage.setOnEditorActionListener(this);
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (DEBUG) Log.v(TAG, "onActivityResult");
 
-        if (data == null)
+        if (requestCode != CAPTURE_IMAGE && data == null)
         {
             if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
             return;
         }
 
-        if (DEBUG) Log.v(TAG, "onActivityResult");
+        if (resultCode == Activity.RESULT_OK) {
+            showCard("Saving...");
+            updateCard("Saving...", 50);
+        }
 
+        /* Pick photo logic*/
         if (requestCode == PHOTO_PICKER_ID)
         {
             switch (resultCode)
             {
                 case Activity.RESULT_OK:
                     if (DEBUG) Log.d(TAG, "Result OK");
-                    Uri uri = (Uri) data.getData();
+                    Uri uri = data.getData();
                     File image = null;
                     try
                     {
@@ -264,43 +315,46 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     catch (NullPointerException e){
                         if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                        Toast.makeText(ChatActivity.this, "Unable to fetch image", Toast.LENGTH_SHORT).show();
+                        showAlertToast("Unable to fetch image");
+                        dismissCard();
                         return;
                     }
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-
                         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
                                 image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
-                                messagesListAdapter.addRow(bMessage);
+                                updateCard("Sent...", 100);
+                                dismissCard();
+//                                messagesListAdapter.addRow(bMessage);
                             }
 
                             @Override
                             public void onDoneWithError(BError error) {
-                                Toast.makeText(ChatActivity.this, "Image could not been sent. " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                                dismissCard();
+                                showAlertToast("Image could not been sent. " + error.getMessage());
                             }
                         });
                     }
-                    else if (DEBUG) Log.e(TAG, "Image is null");
+                    else {
+                        if (DEBUG) Log.e(TAG, "Image is null");
+                        dismissCard();
+                        showAlertToast("Error when loading the image.");
+                    }
 
                     break;
 
                 case Activity.RESULT_CANCELED:
                     if (DEBUG) Log.d(TAG, "Result Canceled");
                     break;
-
-                default:
-                    if (DEBUG) Log.d(TAG, "Default");
-                    break;
             }
         }
+        /* Pick location logic*/
         else if (requestCode == PICK_LOCATION)
         {
-            if (DEBUG) Log.d(TAG, "Location Pick returned");
 
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (DEBUG) Log.d(TAG, "Result Cancelled");
@@ -308,7 +362,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     return;
 
                 if (data.getExtras().containsKey(LocationActivity.ERROR))
-                    Toast.makeText(this, data.getExtras().getString(LocationActivity.ERROR), Toast.LENGTH_SHORT).show();
+                    showAlertToast(data.getExtras().getString(LocationActivity.ERROR));
             }
             else if (resultCode == Activity.RESULT_OK)
             {
@@ -320,57 +374,52 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
-                                messagesListAdapter.addRow(bMessage);
+                                updateCard("Sent...", 100);
+                                dismissCard();
+//                                messagesListAdapter.addRow(bMessage);
                             }
 
                             @Override
                             public void onDoneWithError(BError error) {
-                                Toast.makeText(ChatActivity.this, "Location could not been sent.", Toast.LENGTH_SHORT).show();
+                                dismissCard();
+                                showAlertToast("Location could not been sent.");
                             }
                         });
             }
         }
+        /* Capture image logic*/
         else if (requestCode == CAPTURE_IMAGE)
         {
             if (DEBUG) Log.d(TAG, "Capture image return");
             if (resultCode == Activity.RESULT_OK) {
                 if (DEBUG) Log.d(TAG, "Result OK");
-
-                Uri uri = (Uri) data.getData();
+/*
                 File image = null;
                 try
                 {
-                    image = Utils.getFile(this, uri);
-                    if (image != null)
-                        // Tell the media scanner about the new file so that it is
-                        // immediately available to the user.
-                        MediaScannerConnection.scanFile(this, new String[]{image.toString()}, null,
-                                new MediaScannerConnection.OnScanCompletedListener() {
-                                    public void onScanCompleted(String path, Uri uri) {
-                                        if (DEBUG) Log.i(TAG, "Scanned " + path + ":");
-                                        if (DEBUG) Log.i(TAG, "-> uri=" + uri);
-                                    }
-                                }
-                        );
-
+                    image = new File(capturePhotoPath);
                 }
                 catch (NullPointerException e){
                     if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                    Toast.makeText(ChatActivity.this, "Unable to fetch image", Toast.LENGTH_SHORT).show();
+                    dismissCard();
+                    showAlertToast("Unable to fetch image");
                     return;
-                }
+                }*/
 
                 BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
-                        image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+                        capturePhotoPath, thread.getId(), new CompletionListenerWithData<BMessage>() {
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
-                                messagesListAdapter.addRow(bMessage);
+                                updateCard("Sent...", 100);
+                                dismissCard();
+//                                messagesListAdapter.addRow(bMessage);
                             }
 
                             @Override
                             public void onDoneWithError(BError error) {
-                                Toast.makeText(ChatActivity.this, "Image could not been sent. " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                                dismissCard();
+                                showAlertToast("Image could not been sent." + error.getMessage());
                             }
                         }
                 );
@@ -418,13 +467,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean getThread(Bundle savedInstanceBundle){
-        Bundle b;
+    private boolean getThread(Bundle data){
 
-        if (savedInstanceBundle != null && savedInstanceBundle.containsKey(THREAD_ID))
+        if (data != null && data.containsKey(THREAD_ID))
         {
             if (DEBUG) Log.d(TAG, "Saved instance bundle is not null");
-            b = savedInstanceBundle;
+            this.data = data;
         }
         else
         {
@@ -442,12 +490,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 return false;
             }
 
-            b = getIntent().getExtras();
+            data = getIntent().getExtras();
         }
 
         thread = DaoCore.fetchEntityWithProperty(BThread.class,
                 BThreadDao.Properties.Id,
-                b.getLong(THREAD_ID));
+                data.getLong(THREAD_ID));
 
         if (thread == null)
         {
@@ -459,7 +507,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return true;
     }
 
-    private void sendLogic(){
+    /** Send text message logic.*/
+    private void sendTextMessage(){
         if (DEBUG) Log.v(TAG, "Send Logic");
 
         if (etMessage.getText().toString().isEmpty())
@@ -472,7 +521,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             @Override
             public void onDone(BMessage message) {
                 if (DEBUG) Log.v(TAG, "Adding message");
-                messagesListAdapter.addRow(message);
+//                messagesListAdapter.addRow(message);
             }
 
             @Override
@@ -484,6 +533,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         etMessage.getText().clear();
     }
 
+    /** Show the message option popup, From here the user can send images and location messages.*/
     private void showOptionPopup(){
         if (optionPopup!= null && optionPopup.isShowing())
         {
@@ -500,12 +550,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             optionPopup.dismiss();
     }
 
+
+    /* Implement listeners.*/
     @Override
     public void onClick(View v) {
         int id= v.getId();
 
         if (id == R.id.chat_sdk_btn_chat_send_message) {
-            sendLogic();
+            sendTextMessage();
         }
         else if (id == R.id.chat_sdk_btn_options){
             showOptionPopup();
@@ -535,7 +587,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             dismissOption();
 
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME).getAbsolutePath());
+
+            File file, dir =Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME);
+            if(dir.exists())
+            {
+
+                file = new File(dir, DaoCore.generateEntity() + ".jpg");
+                capturePhotoPath = file.getPath();
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+            }
 
             // start the image capture Intent
             startActivityForResult(intent, CAPTURE_IMAGE);
@@ -547,21 +607,16 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    /* Send a text message when the done button is pressed on the keyboard.*/
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND)
-            sendLogic();
+            sendTextMessage();
 
         return false;
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-//        Intent intent = new Intent(this, MainActivity.class);
-//        startActivity(intent);
-    }
-
+    /* show the option popup when the menu key is pressed.*/
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 

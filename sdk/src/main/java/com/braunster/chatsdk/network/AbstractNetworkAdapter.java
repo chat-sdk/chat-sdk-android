@@ -239,7 +239,6 @@ public abstract class AbstractNetworkAdapter {
                     });
                 }
                 else {
-                    DaoCore.deleteEntity(message);
                     listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
                 }
             }
@@ -293,7 +292,6 @@ public abstract class AbstractNetworkAdapter {
                     });
                 }
                 else {
-                    DaoCore.deleteEntity(message);
                     listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
                 }
             }

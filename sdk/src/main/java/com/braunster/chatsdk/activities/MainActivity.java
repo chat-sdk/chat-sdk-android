@@ -25,15 +25,9 @@ import com.braunster.chatsdk.fragments.ProfileFragment;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
-import com.braunster.chatsdk.parse.PushUtils;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.concurrent.Callable;
-
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 
 public class MainActivity extends BaseActivity {
@@ -282,12 +276,16 @@ public class MainActivity extends BaseActivity {
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
                         if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-                            String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
+/*
+                            PendingIntent pendingIntent = NotificationUtils.existAlarm(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID);
 
-                            Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
-                            resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
-                            NotificationUtils.createAlertNotification(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
-                                    NotificationUtils.getDataBundle(!StringUtils.isEmpty(message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ", "New message from " + message.getBUserSender().getMetaName(), msgContent));
+                          if (pendingIntent != null)
+                            {
+                                if (DEBUG) Log.e(TAG, "Pending intent exist" + pendingIntent.toString());
+                                pendingIntent.getIntentSender().
+                            }*/
+
+                            NotificationUtils.createMessageNotification(MainActivity.this, message);
                         }
                     }
                 }

@@ -207,10 +207,14 @@ public class ImageUtils {
 
         }
         if (DEBUG) Log.d(TAG, "Actual Width: " + actualWidth + ", Actual Height: " + actualHeight);
+        if (actualHeight <= 0 || actualWidth <= 0)
+            return null;
+
         try {
             scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight,Bitmap.Config.ARGB_8888);
         } catch (OutOfMemoryError exception) {
             exception.printStackTrace();
+            return null;
         }
 
         float ratioX = actualWidth / (float) options.outWidth;

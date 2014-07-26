@@ -36,6 +36,12 @@ public class ParseUtils {
     public static void saveImageFileToParseWithThumbnail(final String path, final int thumbnailSize, MultiSaveCompletedListener listener){
         //  Loading the bitmap
         Bitmap b = ImageUtils.getCompressed(path);
+
+        if (b == null) {
+            listener.onSaved(new ParseException(ParseException.OTHER_CAUSE, "Image is null"));
+            return;
+        }
+
         Bitmap thumbnail = ImageUtils.getCompressed(path, thumbnailSize, thumbnailSize);
 
         if (DEBUG) Log.d(TAG,

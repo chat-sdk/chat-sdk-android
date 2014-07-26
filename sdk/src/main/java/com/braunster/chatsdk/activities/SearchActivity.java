@@ -52,6 +52,9 @@ public class SearchActivity extends BaseActivity {
         setContentView(R.layout.chat_sdk_activity_search);
 
         initViews();
+
+        initToast();
+
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
 

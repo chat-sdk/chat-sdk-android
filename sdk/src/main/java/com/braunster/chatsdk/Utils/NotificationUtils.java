@@ -33,15 +33,16 @@ public class NotificationUtils {
     public static final int NOTIFICATION_ALERT_ID = 1990;
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static final String TITLE = "title";
     public static final String TICKER = "ticker";
     public static final String CONTENT = "content";
+    public static final String NOT_TAG = "tag";
 
     /** Create and alert notification that the connection has lost.*/
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
+    public static void createAlertNotification(Context context, String tag, int id, Intent resultIntent, Bundle data){
         String title, content;
 
         if (DEBUG) Log.i(TAG, "createAlertNotification, ID: " + id);
@@ -88,13 +89,23 @@ public class NotificationUtils {
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(id, notification);
+   /*     // Builds the notification and issues it.
+        if (StringUtils.isNotEmpty(tag))
+        {
+            if (DEBUG) Log.d(TAG, "Notification with tag");
+            mNotifyMgr.notify(data.getString(NOT_TAG), id, notification);
+        }
+        else*/
+            mNotifyMgr.notify(id, notification);
+
+
     }
 
     public static void createMessageNotification(Context context, BMessage message){
-        Intent resultIntent = new Intent(context, ChatActivity.class);
-        resultIntent.putExtra(ChatActivity.THREAD_ID, message.getOwnerThread());
+        if (DEBUG) Log.v(TAG, "createMessageNotification");
+
+        Intent resultIntent = getResultIntent(context);
+        resultIntent.putExtra(ChatActivity.THREAD_ID,  message.getOwnerThread());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
 
@@ -103,7 +114,11 @@ public class NotificationUtils {
 
         Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
 
-        createAlertNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent, data);
+        createAlertNotification(context, message.getBThreadOwner().getEntityID(), PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent, data);
+    }
+
+    private static Intent getResultIntent(Context context){
+        return new Intent(context, ChatActivity.class);
     }
 
     /** Create an ongoing notification that can terminate the connection or play/stop the sound directly from the notification drawer.*/
@@ -175,20 +190,42 @@ public class NotificationUtils {
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.cancel(id);
+
+        // Canceling the pending intent.
+        PendingIntent pendingIntent = NotificationUtils.existAlarm(context, PushUtils.MESSAGE_NOTIFICATION_ID);
+        if (pendingIntent != null)
+        {
+            pendingIntent.cancel();
+            if (DEBUG) Log.e(TAG, "Pending intent exist" + pendingIntent.toString());
+        }
+    }
+
+    public static void cancelNotification(Context context, String tag, int id){
+        NotificationManager mNotifyMgr =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotifyMgr.cancel(tag, id);
+    }
+
+    public static PendingIntent existAlarm(Context context, int id) {
+        Intent intent = getResultIntent(context);
+
+        PendingIntent test = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_NO_CREATE);
+        return test;
     }
 
     public static Bundle getDataBundle(String title, String ticker, String content){
         Bundle data = new Bundle();
 
-        if (title != null)
+        if (StringUtils.isNotEmpty(title))
             data.putString(TITLE, title);
         else throw new MissingResourceException("you must have a title for creating notification.", NotificationUtils.class.getSimpleName(), TITLE);
 
-        if (content != null)
+        if (StringUtils.isNotEmpty(content))
             data.putString(CONTENT, content);
         else throw new MissingResourceException("you must have a content for creating notification.", NotificationUtils.class.getSimpleName(), CONTENT);
 
-        if (ticker != null)
+        if (StringUtils.isNotEmpty(ticker))
             data.putString(TICKER, ticker);
 
         return data;

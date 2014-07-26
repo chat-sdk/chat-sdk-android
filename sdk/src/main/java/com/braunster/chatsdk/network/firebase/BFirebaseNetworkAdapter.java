@@ -10,6 +10,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -45,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
@@ -873,6 +872,10 @@ TODO
 
             for (BThread t : currentUser.getThreads())
             {
+                // Skipping public threads.
+                if (t.getType() == BThreadEntity.Type.Public)
+                    continue;
+
                 threadusers = t.getUsers();
                 if (threadusers.size() == 2) {
                     if (threadusers.get(0).getEntityID().equals(userToCheck.getEntityID()) ||
@@ -1184,7 +1187,7 @@ TODO
     private void pushForMessage(BMessage message){
         if (DEBUG) Log.v(TAG, "pushForMessage");
         BUser currentUser = currentUser();
-
+        List<BUser> users = new ArrayList<BUser>();
         if (message.getBThreadOwner().getType() == BThread.Type.Private)
         {
             for (BUser user : message.getBThreadOwner().getUsers())
@@ -1192,12 +1195,14 @@ TODO
                     if (user.getOnline() == null || !user.getOnline())
                     {
                         if (DEBUG) Log.d(TAG, "Pushing message.");
-                        pushToUsers(message, user);
+                        users.add(user);
                     }
+
+            pushToUsers(message, users);
         }
     }
 
-    private void pushToUsers(BMessage message, BUser... users){
+    private void pushToUsers(BMessage message, List<BUser> users){
         if (DEBUG) Log.v(TAG, "pushToUsers");
 
         if (!pushEnabled())
@@ -1211,16 +1216,8 @@ TODO
         for (BUser user : users)
             channels.add(user.getPushChannel());
 
-        String text = message.getText();
-
-        if (message.getType() == LOCATION)
-            text = "Location Message";
-        else if (message.getType() == IMAGE)
-            text = "Picture Message";
-        text = message.getBUserSender().getMetaName() + " " + text;
-
         // FIXME this is not right need to do it like in the iOS.
-        PushUtils.sendMessage(text, channels);
+        PushUtils.sendMessage(message, channels);
     }
 
     private void subscribeToPushChannel(String channel){

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.firebase.simplelogin.User;
 import com.firebase.simplelogin.enums.Error;
 import com.firebase.simplelogin.enums.Provider;
 import com.github.johnpersano.supertoasts.SuperActivityToast;
+import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.Map;
@@ -39,10 +41,31 @@ public abstract class BaseActivity extends ActionBarActivity{
     private static final String TAG = BaseActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
 
+    public static final String FROM_LOGIN = "From_Login";
+
     UiLifecycleHelper uiHelper;
+
     private ProgressDialog progressDialog;
-    private boolean checkOnlineOnResumed = false, integratedWithFacebook = false;
+
+    /** If true the app will check if the user is online each time the activity is resumed.
+     *  When the app is on the background the Android system can kill the app.
+     *  When the app is killed the firebase api will set the user online status to false.
+     *  Also all the listeners attached to the user, threads, friends etc.. are gone so each time the activity is resumed we will
+     *  check to see if the user is online and if not start the auth process for registering to all events.*/
+    private boolean checkOnlineOnResumed = false;
+
+    /** If true the activity will implement facebook SDK components like sessionChangeState and the facebook UI helper.
+     * This is good for caching a press on the logout button in the main activity or in any activity that will implement the facebook login button.*/
+    private boolean integratedWithFacebook = false;
+
+    /** A flag indicates that the activity in opened from the login activity so we wont do auth check when the activity will get to the onResume state.*/
+    private boolean fromLoginActivity = false;
+
+    private boolean enableCardToast = false;
+
     SuperActivityToast superActivityToast;
+    SuperToast superToast;
+    SuperCardToast superCardToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +75,17 @@ public abstract class BaseActivity extends ActionBarActivity{
             uiHelper = new UiLifecycleHelper(this, callback);
             uiHelper.onCreate(savedInstanceState);
         }
+
+        if (getIntent() != null && getIntent().getExtras() != null)
+        {
+            fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
+            // So we wont encounter this flag again.
+            getIntent().getExtras().remove(FROM_LOGIN);
+        }
+
+        if (enableCardToast)
+            SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
+
     }
 
     @Override
@@ -67,8 +101,10 @@ public abstract class BaseActivity extends ActionBarActivity{
         if (integratedWithFacebook)
             uiHelper.onResume();
 
-        if (checkOnlineOnResumed)
+        if (checkOnlineOnResumed && !fromLoginActivity)
         {
+            fromLoginActivity = false;
+
             if(DEBUG) Log.d(TAG, "Check online on resumed");
             BNetworkManager.sharedManager().getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
                 @Override
@@ -81,7 +117,35 @@ public abstract class BaseActivity extends ActionBarActivity{
                         int loginTypeKey = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
                         if ( loginTypeKey == Provider.FACEBOOK.ordinal()) {
                             if(DEBUG) Log.d(TAG, "FB AUTH");
-                            Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BFacebookManager.ACCESS_TOKEN} , loginTypeKey, Session.getActiveSession().getAccessToken());
+
+                            // If the active session is null we will pull the session from cache.
+                            Session session;
+                            if (Session.getActiveSession() == null)
+                            {
+                                if (DEBUG) Log.e(TAG, "active session is null");
+                                session = Session.openActiveSessionFromCache(BaseActivity.this);
+
+                                /*session = Session.openActiveSession(BaseActivity.this, false, new Session.StatusCallback() {
+                                    @Override
+                                    public void call(Session session, SessionState state, Exception exception) {
+                                        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
+                                            @Override
+                                            public void onDone() {
+
+                                            }
+
+                                            @Override
+                                            public void onDoneWithError() {
+
+                                            }
+                                        });
+                                    }
+                                });
+                                return;*/
+                            }
+                            else session = Session.getActiveSession();
+
+                            Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BFacebookManager.ACCESS_TOKEN} , loginTypeKey, session.getAccessToken());
 
                             BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
                                     data, new CompletionListenerWithDataAndError<User, Object>() {
@@ -149,9 +213,9 @@ public abstract class BaseActivity extends ActionBarActivity{
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (integratedWithFacebook) uiHelper.onSaveInstanceState(outState);
+
+        SuperCardToast.onSaveState(outState);
     }
-
-
 
     void initToast(){
         superActivityToast = new SuperActivityToast(this);
@@ -159,16 +223,67 @@ public abstract class BaseActivity extends ActionBarActivity{
         superActivityToast.setBackground(SuperToast.Background.BLUE);
         superActivityToast.setTextColor(Color.WHITE);
         superActivityToast.setAnimations(SuperToast.Animations.FLYIN);
-        superActivityToast.setTouchToDismiss(true);
+
+        superToast = new SuperToast(this);
+        superToast.setDuration(SuperToast.Duration.MEDIUM);
+        superToast.setBackground(SuperToast.Background.BLUE);
+        superToast.setTextColor(Color.WHITE);
+        superToast.setAnimations(SuperToast.Animations.FLYIN);
+
+        if (enableCardToast)
+        {
+            superCardToast = new SuperCardToast(BaseActivity.this, SuperToast.Type.PROGRESS_HORIZONTAL);
+            superCardToast.setIndeterminate(true);
+            superCardToast.setBackground(SuperToast.Background.WHITE);
+            superCardToast.setTextColor(Color.BLACK);
+            superCardToast.setSwipeToDismiss(true);
+        }
     }
 
     /** Show a SuperToast with the given text. */
     void showToast(String text){
-        superActivityToast.setText(text);
-        superActivityToast.show();
+        superToast.setBackground(SuperToast.Background.BLUE);
+        superToast.setText(text);
+        superToast.show();
     }
 
+    void showAlertToast(String text){
+        superToast.setBackground(SuperToast.Background.RED);
+        superToast.setText(text);
+        superToast.show();
+    }
 
+    void showCard(String text){
+        showCard(text, 0);
+    }
+
+    void showCard(String text, int progress){
+        superCardToast.setProgress(progress);
+        superCardToast.setText(text);
+        superCardToast.show();
+    }
+
+    void updateCard(String text, int progress){
+        if (superCardToast == null)
+            return;
+
+        superCardToast.setText(text);
+        superCardToast.setProgress(progress);
+    }
+
+    void dismissCard(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                superCardToast.dismiss();
+            }
+        }, 1500);
+    }
+
+/*    void showToast(int type, String text){
+        superToast.setText(text);
+        superToast.show();
+    }*/
 
     /** Authenticates the current user.*/
     public void authenticate(AuthListener listener){
@@ -315,5 +430,9 @@ public abstract class BaseActivity extends ActionBarActivity{
 
     public void enableFacebookIntegration(boolean integratedWithFacebook) {
         this.integratedWithFacebook = integratedWithFacebook;
+    }
+
+    public void setEnableCardToast(boolean enableCardToast) {
+        this.enableCardToast = enableCardToast;
     }
 }
