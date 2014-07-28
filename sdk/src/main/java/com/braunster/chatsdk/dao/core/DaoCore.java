@@ -322,7 +322,7 @@ public class DaoCore {
                 {
                     printEntity(m);
                 }
-                Log.i(TAG, "Threads Size: "  + u.getThreads().size());
+      /*          Log.i(TAG, "Threads Size: "  + u.getThreads().size());
 
                 for (BThread t : u.getThreads())
                 {
@@ -331,7 +331,8 @@ public class DaoCore {
                     for (BMessage m : t.getMessages())
                         printEntity(m);
                 }
-                Log.i(TAG, "Messages Amount: " + u.getMessages().size());
+                Log.i(TAG, "Messages Amount: " + u.getMessages().size());*/
+                Log.i(TAG, "--------------------------------------------");
             }
         }
     }

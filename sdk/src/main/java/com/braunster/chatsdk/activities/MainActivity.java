@@ -34,6 +34,8 @@ public class MainActivity extends BaseActivity {
 
     // TODO add option to save up app in external storage. http://developer.android.com/guide/topics/data/install-location.html
     // TODO add option to the exit dialog to not show it again and exit every time the user press the back button.
+    // TODO stack notification like whatsapp and gamil http://developer.android.com/reference/android/app/Notification.InboxStyle.html
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static boolean DEBUG = true;
 
@@ -68,6 +70,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -96,10 +99,9 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 if (DEBUG) Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
-//                adapter.getItem(position).refresh();
+
                 // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
                 if (lastPage == 0)
-//                    ((ProfileFragment) adapter.getItem(0)).updateProfileIfNeeded();
                     ((ProfileFragment) getFragment(0)).updateProfileIfNeeded();
 
              /*   if (position == PagerAdapterTabs.Contacts)
@@ -121,42 +123,21 @@ public class MainActivity extends BaseActivity {
 //                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
             }
         });
-
-        //region Trying to obtain invitable friends. NEED GAME PREMISSIONS!
-/*        BFacebookManager.getInvitableFriendsList(new CompletionListenerWithData() {
-            @Override
-            public void onDone(Object o) {
-                ArrayList<JSONObject> list = (ArrayList<JSONObject>) o;
-                if (list != null)
-                {
-                    if (DEBUG) Log.d(TAG, "invitable friends list size: " + list.size());
-                }
-                else if (DEBUG) Log.e(TAG, "invitable Friends list is null");
-            }
-
-            @Override
-            public void onDoneWithError() {
-
-            }
-        }); */
-        //endregion
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        if (DEBUG) Log.v(TAG, "onNewIntent");
         if (adapter != null)
         {
-            BaseFragment pro = getFragment(0), conv = getFragment(3);
+            BaseFragment pro = getFragment(PagerAdapterTabs.Profile), conv = getFragment(PagerAdapterTabs.Conversations);
 
             if (conv!=null)
-                conv.loadDataOnBackground();
+                conv.refreshOnBackground();
 
             if (pro != null)
                 pro.refresh();
-
-//            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
-//            adapter.getItem(PagerAdapterTabs.Profile).refresh();
         }
     }
 
@@ -187,11 +168,9 @@ public class MainActivity extends BaseActivity {
 
                         BaseFragment fragment;
                         if (thread.getType() == BThread.Type.Private)
-                            fragment = getFragment(3);
-//                            adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
+                            fragment = getFragment(PagerAdapterTabs.Conversations);
                         else
-                            fragment = getFragment(1);
-//                            adapter.getItem(PagerAdapterTabs.ChatRooms).refreshOnBackground();
+                            fragment = getFragment(PagerAdapterTabs.ChatRooms);
 
                         if (fragment != null)
                             fragment.loadDataOnBackground();
@@ -207,10 +186,6 @@ public class MainActivity extends BaseActivity {
         @Override
         public boolean onUserAddedToThread(String threadId, String userId) {
             if (DEBUG) Log.v(TAG, "onUserAddedToThread");
-
-//            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
-//            if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
-//            DaoCore.printEntity(thread);
             return false;
         }
 
@@ -239,8 +214,6 @@ public class MainActivity extends BaseActivity {
 
                         if (conv!= null)
                             conv.loadDataOnBackground();
-//                        adapter.getItem(PagerAdapterTabs.Contacts).refreshOnBackground();
-//                        adapter.getItem(PagerAdapterTabs.Conversations).refreshOnBackground();
                     }
                 }
             };
@@ -343,8 +316,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.android_settings) {
-//            DaoCore.printUsersData();
-            EventManager.getInstance().printDataReport();
+            DaoCore.printUsersData();
+//            EventManager.getInstance().printDataReport();
 //            EventManager.getInstance().removeAll();
             return true;
         }

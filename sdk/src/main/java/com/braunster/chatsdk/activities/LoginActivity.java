@@ -123,37 +123,40 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onResume() {
         super.onResume();
 
-        if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
-            showProgDialog("Checking auth...");
-            authenticate(
-                    new AuthListener() {
-                        @Override
-                        public void onCheckDone(boolean isAuthenticated) {
-                            if (isAuthenticated) {
-                                showOrUpdateProgDialog("Authenticating...");
-                                if (DEBUG) Log.d(TAG, "Auth");
-                            } else {
+        // If there is preferences saved dont check auth ot the info does not contain AccountType.
+        Map<String, ?> loginInfo =BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo();
+        if (loginInfo != null&& loginInfo.containsKey(BDefines.Prefs.AccountTypeKey))
+            if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
+                showProgDialog("Checking auth...");
+                authenticate(
+                        new AuthListener() {
+                            @Override
+                            public void onCheckDone(boolean isAuthenticated) {
+                                if (isAuthenticated) {
+                                    showOrUpdateProgDialog("Authenticating...");
+                                    if (DEBUG) Log.d(TAG, "Auth");
+                                } else {
+                                    dismissProgDialog();
+                                    if (DEBUG) Log.d(TAG, "NO Auth");
+                                }
+                            }
+
+                            @Override
+                            public void onLoginDone() {
+                                if (DEBUG) Log.d(TAG, "Login Done");
+                                afterLogin();
+                            }
+
+                            @Override
+                            public void onLoginFailed(BError error) {
                                 dismissProgDialog();
-                                if (DEBUG) Log.d(TAG, "NO Auth");
+
+                                if (error.code != BError.Code.NO_LOGIN_INFO)
+                                    showToast("Auth Failed.");
                             }
                         }
-
-                        @Override
-                        public void onLoginDone() {
-                            if (DEBUG) Log.d(TAG, "Login Done");
-                            afterLogin();
-                        }
-
-                        @Override
-                        public void onLoginFailed(BError error) {
-                            dismissProgDialog();
-
-//                            Toast.makeText(LoginActivity.this, "Auth Failed.", Toast.LENGTH_SHORT).show();
-                            showToast("Auth Failed.");
-                        }
-                    }
-            );
-        }
+                );
+            }
 
         initListeners();
 

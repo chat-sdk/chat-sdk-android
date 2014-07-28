@@ -3,7 +3,6 @@ package com.braunster.chatsdk.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -21,7 +20,8 @@ public class BNetworkManager {
     private static final String TAG = BNetworkManager.class.getSimpleName();
     private static final boolean DEBUG = true;
 
-    public static final boolean ENABLE_BUGSENSE = false;
+    private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
+    public static final boolean BUGSENSE_ENABLED = true;
 
     public static SharedPreferences preferences;
 
@@ -35,7 +35,8 @@ public class BNetworkManager {
 
     public static void init(Context ctx){
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+        preferences = ctx.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
+
         VolleyUtills.init(ctx);
         DaoCore.init(ctx);
     }

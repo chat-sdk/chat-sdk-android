@@ -42,7 +42,8 @@ public class ChatBubbleImageView extends ImageView {
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
     private float pointSize = 6f * getResources().getDisplayMetrics().density;
 
-    private int pad = 40;
+    private int pad = (int) (20 * getResources().getDisplayMetrics().density);
+
     private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
 
 
@@ -172,7 +173,10 @@ public class ChatBubbleImageView extends ImageView {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+                if (DEBUG){
+                    Log.e(TAG, "Image Load Error: " + error.getMessage());
+                    error.printStackTrace();
+                }
             }
         });
     }

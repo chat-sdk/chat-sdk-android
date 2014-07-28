@@ -23,7 +23,7 @@ public class AppObj extends Application {
         super.onCreate();
 
         //Bug Sense
-        if (BNetworkManager.ENABLE_BUGSENSE) {
+        if (BNetworkManager.BUGSENSE_ENABLED) {
             BugSenseHandler.initAndStartSession(getApplicationContext(), BDefines.APIs.BugSenseKey);
             BugSenseHandler.addCrashExtraData("Version", getResources().getString(R.string.chat_sdk_version));
         }

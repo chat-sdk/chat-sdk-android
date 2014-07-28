@@ -38,6 +38,7 @@ import com.facebook.model.GraphUser;
 import com.parse.ParseException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +94,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         initViews(inflater);
+
         initToast();
 
         loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
@@ -427,6 +429,13 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private void saveProfilePicToParse(String path) {
         //  Loading the bitmap
         final Bitmap b = ImageUtils.loadBitmapFromFile(path);
+
+        if (b == null)
+        {
+            if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid");
+            return;
+        }
+
         int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
         // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
         if (size == 0)
@@ -480,6 +489,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         if (imageUrl != null)
             setProfilePicFromURL(imageUrl);
         else
+        {
+            // If there isnt any picture url saved we will save the fb profile pic to parse and save the url to the user.
             BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
                 @Override
                 public void onDone(GraphUser graphUser) {
@@ -487,19 +498,50 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     //                etName.setText(graphUser.getName());
                     //                etMail.setText((String) graphUser.getProperty("email"));
                     //                //                profilePictureView.setProfileId(graphUser.getId());
-
-                    profileCircleImageView.setImageResource(0);
                     VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
-                            VolleyUtills.getImageLoader().getImageListener(profileCircleImageView,
-                                    R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error)
-                    );
-                }
+                            new ImageLoader.ImageListener() {
+                                @Override
+                                public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                                    if (response.getBitmap() != null) {
+                                        final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+
+                                        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
+                                        if (size == 0) {
+                                            profileCircleImageView.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+                                                    profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
+                                                }
+                                            });
+                                        } else
+                                            profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
+
+                                        // Saving the image to tmp file.
+                                        try {
+                                            File tmp = File.createTempFile("Pic", ".jpg", getActivity().getCacheDir());
+                                            ImageUtils.saveBitmapToFile(tmp, response.getBitmap());
+                                            if (DEBUG) Log.i(TAG, "Temp file path: " + tmp.getPath());
+                                            saveProfilePicToParse(tmp.getPath());
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    showToast("Unable to load user profile pic.");
+                                }
+                            });
+                };
 
                 @Override
                 public void onDoneWithError(BError error) {
                     showToast("Unable to fetch user details from fb");
                 }
             });
+        }
     }
     /*############################################*/
     @Override

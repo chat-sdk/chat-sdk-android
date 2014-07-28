@@ -2,6 +2,7 @@ package com.braunster.chatsdk.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,13 +19,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.activities.SearchActivity;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.BError;
 
 import java.util.List;
 
@@ -42,12 +46,14 @@ public class ContactsFragment extends BaseFragment {
     public static final int MODE_LOAD_CONTACTS = 1991;
     /** Loading all users for given thread id mode*/
     public static final int MODE_LOAD_THREAD_USERS = 1992;
+
     /** When a user clicked he will be added to the current thread.*/
-    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 1993;
+    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
+    /** Used for the share intent, When a user press on a user the attached data from the share intent will be sent to the selected user.*/
+    public static final int CLICK_MODE_SHARE_CONTENT = 2992;
 
     public static final String LOADING_MODE = "Loading_Mode";
     public static final String CLICK_MODE = "Click_Mode";
-
     public static final String IS_DIALOG = "is_dialog";
 
     private UsersWithStatusListAdapter adapter;
@@ -56,7 +62,7 @@ public class ContactsFragment extends BaseFragment {
     private List<BUser> sourceUsers = null;
     private String title = "";
     private int loadingMode, clickMode;
-    private String extraData ="";
+    private Object extraData ="";
 
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
     private boolean isDialog = false;
@@ -65,6 +71,16 @@ public class ContactsFragment extends BaseFragment {
     public static ContactsFragment newInstance() {
         ContactsFragment f = new ContactsFragment();
         f.setLoadingMode(MODE_LOAD_CONTACTS);
+        Bundle b = new Bundle();
+        f.setArguments(b);
+        return f;
+    }
+
+    public static ContactsFragment newInstance(int loadingMode, int clickMode, Object extraData) {
+        ContactsFragment f = new ContactsFragment();
+        f.setLoadingMode(loadingMode);
+        f.setClickMode(clickMode);
+        f.setExtraData(extraData);
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
@@ -92,7 +108,7 @@ public class ContactsFragment extends BaseFragment {
         return f;
     }
 
-    public static ContactsFragment newDialogInstance(int loadingMode, int clickMode, String title, String extraData) {
+    public static ContactsFragment newDialogInstance(int loadingMode, int clickMode, String title, Object extraData) {
         ContactsFragment f = new ContactsFragment();
         f.setDialog();
         f.setLoadingMode(loadingMode);
@@ -118,7 +134,7 @@ public class ContactsFragment extends BaseFragment {
         this.loadingMode = loadingMode;
     }
 
-    private void setExtraData(String extraData){
+    private void setExtraData(Object extraData){
         this.extraData = extraData;
     }
 
@@ -385,14 +401,50 @@ public class ContactsFragment extends BaseFragment {
                                     }, clickedUser);
                                     break;
 
-                                default:
-                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new DoneListener() {
+                                case CLICK_MODE_SHARE_CONTENT:
+                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
                                         @Override
-                                        public void onDone() {
+                                        public void onDone(BThread thread) {
+                                            Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                            intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
+
+                                            // Checking the kind of the instace data
+                                            // Uri is used for images
+                                            if (extraData instanceof Uri)
+                                                intent.putExtra(ChatActivity.SHARED_FILE_URI, ((Uri) extraData));
+                                            // String is for text.
+                                            else if (extraData instanceof  String)
+                                                intent.putExtra(ChatActivity.SHARED_TEXT, ((String) extraData));
+                                            else
+                                            {
+                                                showToast("Problem sharing contact, Unknown share type.");
+                                                return;
+                                            }
+
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                            startActivity(intent);
+                                        }
+
+                                        @Override
+                                        public void onDoneWithError(BError error) {
+
+                                        }
+                                    }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                                    break;
+
+                                default:
+                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
+                                        @Override
+                                        public void onDone(BThread  thread) {
                                             // This listener is used only because that if we dismiss the dialog before the thread creation has been done
                                             // The contact dialog could not open the new chat activity because getActivity() will be null.
                                             if (isDialog)
                                                 getDialog().dismiss();
+                                        }
+
+                                        @Override
+                                        public void onDoneWithError(BError error) {
+
                                         }
                                     }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
                             }

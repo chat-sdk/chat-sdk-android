@@ -70,11 +70,23 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private static final int CAPTURE_IMAGE = 101;
     public static final int PICK_LOCATION = 102;
 
-    public static final String THREAD_ID = "Thread_ID";
+    /** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
+     * It will be removed when activity is paused. or when opend again for new thread.*/
     public static final String MessageListenerTAG = TAG + "MessageTAG";
+
+    /** The key to get the thread long id.*/
+    public static final String THREAD_ID = "Thread_ID";
 
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String CAPTURED_PHOTO_PATH = "captured_photo_path";
+
+    /** The key to get the shared file uri. This is used when the activity is opened to share and image or a file with the chat users.
+     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. */
+    public static final String SHARED_FILE_URI = "share_file_uri";
+
+    /** The key to get shared text, this is used when the activity is open to share text with the chat user.
+     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. */
+    public static final String SHARED_TEXT = "shared_text";
 
     private Button btnSend;
     private ImageButton btnOptions;
@@ -118,6 +130,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         initListView();
 
         initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
+
+//        checkIfWantToShare(getIntent());
     }
 
     private void initActionBar(String username){
@@ -185,6 +199,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         messagesListAdapter.setListData(
                 messagesListAdapter.makeList(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId())));
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -212,6 +227,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         initListView();
 
         initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
+
+        checkIfWantToShare(intent);
     }
 
     @Override
@@ -245,13 +262,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         MessageEventListener messageEventListener = new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()) {
             @Override
             public boolean onMessageReceived(BMessage message) {
+                if (DEBUG) Log.v(TAG, "onMessageReceived, EntityID: " + message.getEntityID());
+
                 // Check that the message is relevant to the current thread.
                 if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue())
                     return false;
-                // Make sure the message that incoming is not the user message.
-//                if (message.getBUserSender().getEntityID().equals(
-//                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
-//                    return false;
 
                 messagesListAdapter.addRow(message);
 
@@ -296,8 +311,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            showCard("Saving...");
-            updateCard("Saving...", 50);
+            showCard("Saving...", 50);
         }
 
         /* Pick photo logic*/
@@ -322,22 +336,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
-                                image.getPath(), thread.getId(), new CompletionListenerWithData<BMessage>() {
-                            @Override
-                            public void onDone(BMessage bMessage) {
-                                if (DEBUG) Log.v(TAG, "Image is sent");
-                                updateCard("Sent...", 100);
-                                dismissCard();
-//                                messagesListAdapter.addRow(bMessage);
-                            }
-
-                            @Override
-                            public void onDoneWithError(BError error) {
-                                dismissCard();
-                                showAlertToast("Image could not been sent. " + error.getMessage());
-                            }
-                        });
+                        sendImageMessage(image.getPath());
                     }
                     else {
                         if (DEBUG) Log.e(TAG, "Image is null");
@@ -393,36 +392,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             if (DEBUG) Log.d(TAG, "Capture image return");
             if (resultCode == Activity.RESULT_OK) {
                 if (DEBUG) Log.d(TAG, "Result OK");
-/*
-                File image = null;
-                try
-                {
-                    image = new File(capturePhotoPath);
-                }
-                catch (NullPointerException e){
-                    if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                    dismissCard();
-                    showAlertToast("Unable to fetch image");
-                    return;
-                }*/
 
-                BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
-                        capturePhotoPath, thread.getId(), new CompletionListenerWithData<BMessage>() {
-                            @Override
-                            public void onDone(BMessage bMessage) {
-                                if (DEBUG) Log.v(TAG, "Image is sent");
-                                updateCard("Sent...", 100);
-                                dismissCard();
-//                                messagesListAdapter.addRow(bMessage);
-                            }
-
-                            @Override
-                            public void onDoneWithError(BError error) {
-                                dismissCard();
-                                showAlertToast("Image could not been sent." + error.getMessage());
-                            }
-                        }
-                );
+                sendImageMessage(capturePhotoPath);
             }
         }
 
@@ -467,6 +438,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onAuthenticated() {
+        super.onAuthenticated();
+        loadMessages();
+    }
+
+
+    /** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*/
     private boolean getThread(Bundle data){
 
         if (data != null && data.containsKey(THREAD_ID))
@@ -509,29 +489,64 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     /** Send text message logic.*/
     private void sendTextMessage(){
-        if (DEBUG) Log.v(TAG, "Send Logic");
+        sendTextMessage(etMessage.getText().toString(), true);
+    }
+    /** Send text message
+     * @param text the text to send.
+     * @param clearEditText if true clear the message edit text.*/
+    private void sendTextMessage(String text, boolean clearEditText){
+        if (DEBUG) Log.v(TAG, "sendTextMessage, Text: " + text + ", Clear: " + String.valueOf(clearEditText));
 
-        if (etMessage.getText().toString().isEmpty())
+        if (StringUtils.isEmpty(text))
         {
-            Toast.makeText(ChatActivity.this, "Cant send empty message!", Toast.LENGTH_SHORT).show();
+           showAlertToast("Cant send empty message!");
             return;
         }
 
-        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(etMessage.getText().toString(), thread.getId(), new CompletionListenerWithData<BMessage>() {
+        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(text, thread.getId(), new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage message) {
-                if (DEBUG) Log.v(TAG, "Adding message");
-//                messagesListAdapter.addRow(message);
+
+                // If the event manager is not listening to the current thread we will add the message to the list from here.
+                // This could happen when the app is authenticating after it was killed by the system.
+                if (!EventManager.getInstance().isListeningToThread(thread.getEntityID()))
+                    messagesListAdapter.addRow(message);
             }
 
             @Override
             public void onDoneWithError(BError error) {
-                Toast.makeText(ChatActivity.this, "Message did not sent.", Toast.LENGTH_SHORT).show();
+              showAlertToast("Error while sending message.");
             }
         });
 
-        etMessage.getText().clear();
+        if (clearEditText)
+            etMessage.getText().clear();
     }
+    /** Send an image message.
+     * @param filePath the path to the image file that need to be sent.*/
+    private void sendImageMessage(String filePath){
+        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
+                filePath, thread.getId(), new CompletionListenerWithData<BMessage>() {
+                    @Override
+                    public void onDone(BMessage message) {
+                        if (DEBUG) Log.v(TAG, "Image is sent");
+                        updateCard("Sent...", 100);
+                        dismissCard();
+
+                        // If the event manager is not listening to the current thread we will add the message to the list from here.
+                        // This could happen when the app is authenticating after it was killed by the system.
+                        if (!EventManager.getInstance().isListeningToThread(thread.getEntityID()))
+                            messagesListAdapter.addRow(message);
+                    }
+
+                    @Override
+                    public void onDoneWithError(BError error) {
+                        dismissCard();
+                        showAlertToast("Image could not been sent. " + error.message);
+                    }
+                });
+    }
+
 
     /** Show the message option popup, From here the user can send images and location messages.*/
     private void showOptionPopup(){
@@ -549,6 +564,35 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (optionPopup != null)
             optionPopup.dismiss();
     }
+
+    /** Check the intent if carries some data that received from another app to share on this chat.*/
+    private void checkIfWantToShare(Intent intent){
+        if (DEBUG) Log.v(TAG, "checkIfWantToShare");
+
+        if (intent.getExtras().containsKey(SHARED_FILE_URI))
+        {
+            showCard("Uploading image...", 50);
+
+            String path = Utils.getRealPathFromURI(this, (Uri) intent.getExtras().get(SHARED_FILE_URI));
+            if (DEBUG) Log.d(TAG, "Path from uri: " + path);
+
+            // removing the key so we wont send again,
+            intent.getExtras().remove(SHARED_FILE_URI);
+
+            sendImageMessage(path);
+        }
+        else if (intent.getExtras().containsKey(SHARED_TEXT))
+        {
+            String text =intent.getExtras().getString(SHARED_TEXT);
+
+            // removing the key so we wont send again,
+            intent.getExtras().remove(SHARED_TEXT);
+
+            sendTextMessage(text, false);
+        }
+    }
+
+
 
 
     /* Implement listeners.*/

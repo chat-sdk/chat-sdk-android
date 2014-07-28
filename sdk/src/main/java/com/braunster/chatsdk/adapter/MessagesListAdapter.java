@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -140,7 +142,12 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 txtContent.setVisibility(View.INVISIBLE);
 
-                txtContent.setText(message.text == null ? "ERROR" : message.text);
+                txtContent.setText( message.text == null ? "ERROR" : message.text);
+
+                txtContent.setMovementMethod(LinkMovementMethod.getInstance());
+
+                // Show links in text view if has any.
+                Linkify.addLinks(txtContent, Linkify.ALL);
 
                 // setting the bubble color to the user message color.
                 final TextView textView  = txtContent;
@@ -209,8 +216,23 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public void addRow(MessageListItem data){
+        if (DEBUG) Log.d(TAG, "AddRow");
+
+        // Bad data.
         if (data == null)
             return;
+
+        // Dont add message that does not have entity id.
+        if (data.entityId == null)
+        {
+            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + data.text);
+            return;
+        }
+
+        // Check for duplicates.
+        for (MessageListItem item : listData)
+            if (item.entityId != null && item.entityId.equals(data.entityId))
+                return;
 
         listData.add(data);
 
@@ -305,9 +327,13 @@ public class MessagesListAdapter extends BaseAdapter{
             if (urls.length == 1)
                 urls = message.text.split("&");
 
-            if (urls.length > 2)
-                url = urls[3];
-            else url = urls[2];
+            try {
+                if (urls.length > 3)
+                    url = urls[3];
+                else url = urls[2];
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         final String finalUrl = url;
@@ -370,6 +396,11 @@ public class MessagesListAdapter extends BaseAdapter{
         @Override
         public void onClick(View v) {
             String[] loc = ((String)v.getTag()).split(BDefines.DIVIDER);
+
+            /*FIXME due to old data*/
+            if (loc.length == 1)
+                loc = ((String)v.getTag()).split("&");
+
             openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
         }
         private void openLocationInGoogleMaps(Double latitude, Double longitude){
@@ -420,9 +451,46 @@ public class MessagesListAdapter extends BaseAdapter{
             List<MessageListItem> list = new ArrayList<MessageListItem>();
 
             for (BMessage message : messages)
-                list.add(fromBMessage(message));
+                if (message.getEntityID() != null)
+                    list.add(fromBMessage(message));
 
             return list;
         }
     }
+
+
 }
+
+
+
+  /*  private String arrangeStringForUrl(String s){
+        // separate input by spaces ( URLs don't have spaces )
+        String [] parts = s.split("\\s+");
+        String urlString = "";
+        String newUrlString = "";
+
+        // Attempt to convert each item into an URL.
+        for( String item : parts )
+            try {
+                URL url = new URL(item);
+
+
+                urlString = item;
+                newUrlString = String.valueOf(Html.fromHtml("<a href=" + url + ">" + "The Link" + "</a> "));
+
+                // If possible then replace with anchor...
+                if (DEBUG) Log.d(TAG, "New url:  " + "<a href=" + url + ">"+ "Link" + "</a> " );
+
+                break;
+
+            } catch (MalformedURLException e) {
+                // If there was an URL that was not it!...
+                System.out.print( item + " " );
+            }
+
+
+        if (!urlString.equals(""))
+            s = s.replace(urlString, newUrlString);
+
+        return s;
+    }*/

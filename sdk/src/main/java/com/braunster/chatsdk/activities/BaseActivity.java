@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * Created by braunster on 18/06/14.
  */
-public abstract class BaseActivity extends ActionBarActivity{
+public class BaseActivity extends ActionBarActivity implements BaseActivityInterface{
 
     private static final String TAG = BaseActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -152,6 +152,7 @@ public abstract class BaseActivity extends ActionBarActivity{
                                         @Override
                                         public void onDone(User firebaseSimpleLoginUser) {
                                             showToast("Auth with fb done");
+                                            onAuthenticated();
                                         }
 
                                         @Override
@@ -176,6 +177,7 @@ public abstract class BaseActivity extends ActionBarActivity{
                                 @Override
                                 public void onLoginDone() {
                                     if (DEBUG) Log.d(TAG, "Authenticated!");
+                                    onAuthenticated();
                                 }
 
                                 @Override
@@ -258,6 +260,9 @@ public abstract class BaseActivity extends ActionBarActivity{
     }
 
     void showCard(String text, int progress){
+        if (superCardToast == null)
+            initToast();
+
         superCardToast.setProgress(progress);
         superCardToast.setText(text);
         superCardToast.show();
@@ -361,8 +366,6 @@ public abstract class BaseActivity extends ActionBarActivity{
         }
     }
 
-
-
     protected void showOrUpdateProgDialog(String message){
         if (progressDialog == null)
             progressDialog = new ProgressDialog(this);
@@ -421,6 +424,9 @@ public abstract class BaseActivity extends ActionBarActivity{
         }
     };
 
+
+
+
     /** When enabled the app will check the user online ref to see if he is not offline each time that the activity is resumed.
      *  This method is good for times that the app is in the background and killed by the android system and we need to listen to all the user details again.
      *  i.e Authenticate again.*/
@@ -435,4 +441,18 @@ public abstract class BaseActivity extends ActionBarActivity{
     public void setEnableCardToast(boolean enableCardToast) {
         this.enableCardToast = enableCardToast;
     }
+
+
+
+
+    @Override
+    public void onAuthenticated() {
+
+    }
+
+}
+
+interface BaseActivityInterface{
+    /** This method is called after the app is resumed and check the online status of the user. */
+    public void onAuthenticated();
 }

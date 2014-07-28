@@ -20,6 +20,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListener;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.github.johnpersano.supertoasts.SuperActivityToast;
@@ -84,7 +85,7 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
     }
 
-
+    /** Init all the toast object.*/
     void initToast(){
         superActivityToast = new SuperActivityToast(getActivity());
         superActivityToast.setDuration(SuperToast.Duration.MEDIUM);
@@ -94,25 +95,31 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
         superActivityToast.setTouchToDismiss(true);
     }
 
+    /** Show a toast.*/
     void showToast(String text){
         superActivityToast.setText(text);
         superActivityToast.show();
     }
 
+    /** Start the chat activity for given thread id.*/
     void startChatActivityForID(long id){
-        if (getActivity() == null);
-            Log.e(TAG, "Activitu is nyll!!!!!!");
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.THREAD_ID, id);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
-    void createAndOpenThreadWithUsers(String name, BUser...users){
-        createAndOpenThreadWithUsers(name, null, users);
-    }
 
-    void createAndOpenThreadWithUsers(String name, final DoneListener doneListener, BUser...users){
+    /** Create or fetch chat for users, Opens the chat when done.*/
+    void createAndOpenThreadWithUsers(String name, BUser...users){
+        createAndOpenThreadWithUsers(name, null, true, users);
+    }
+    /** Create or fetch chat for users, Opens the chat when done.*/
+    void createAndOpenThreadWithUsers(String name, final CompletionListenerWithData doneListener, BUser...users){
+        createAndOpenThreadWithUsers(name, doneListener, true, users);
+    }
+    /** Create or fetch chat for users. Opens the chat if wanted.*/
+    void createAndOpenThreadWithUsers(String name, final CompletionListenerWithData doneListener, final boolean openChatWhenDone, BUser...users){
         BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
 
             BThread thread = null;
@@ -142,9 +149,11 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
                 Log.d(TAG, "On done.");
                 if (thread != null)
                 {
-                    startChatActivityForID(thread.getId());
+                    if (openChatWhenDone)
+                        startChatActivityForID(thread.getId());
+
                     if (doneListener != null)
-                        doneListener.onDone();
+                        doneListener.onDone(thread);
                 }
             }
 
@@ -154,6 +163,8 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
             }
         }, users);
     }
+
+
 
     void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -264,11 +275,6 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
 
         return bitmap;
-    }
-
-
-    interface DoneListener{
-        public void onDone();
     }
 }
 

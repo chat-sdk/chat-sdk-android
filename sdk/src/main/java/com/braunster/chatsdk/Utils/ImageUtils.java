@@ -13,6 +13,8 @@ import android.util.Log;
 import com.braunster.chatsdk.network.BDefines;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -99,6 +101,7 @@ public class ImageUtils {
     }
 
     public static Bitmap loadBitmapFromFile(String photoPath){
+        if (DEBUG) Log.v(TAG, "loadBitmapFromFile, Path: " + photoPath);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
@@ -257,5 +260,20 @@ public class ImageUtils {
         }
 
         return scaledBitmap;
+    }
+
+    public static void saveBitmapToFile(File file, Bitmap bitmap){
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try{
+                if (out != null)
+                    out.close();
+            } catch(Throwable ignore) {}
+        }
     }
 }

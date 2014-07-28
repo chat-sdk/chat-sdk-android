@@ -54,7 +54,7 @@ public class Utils {
         return "Error";
     }
 
-    private static String getRealPathFromURI(Activity activity, Uri uri){
+    public static String getRealPathFromURI(Activity activity, Uri uri){
         String[] proj = { MediaStore.Images.Media.DATA };
         Cursor cursor = activity.getContentResolver()
                 .query(uri, proj, null, null, null);

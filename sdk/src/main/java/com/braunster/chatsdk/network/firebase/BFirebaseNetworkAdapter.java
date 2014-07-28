@@ -68,6 +68,26 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         this.context = context;
     }
 
+
+    //Note this is added so there wont be two auth processes running simultaneously.
+    private enum AuthStatus{
+        IDLE, AUTH_WITH_MAP, HANDLING_F_USER, UPDATING_USER, PUSHING_USER, CHECKING_IF_AUTH
+    }
+
+    private AuthStatus authingStatus = AuthStatus.IDLE;
+
+    public AuthStatus getAuthingStatus() {
+        return authingStatus;
+    }
+
+    public boolean isAuthing(){
+        return authingStatus != AuthStatus.IDLE;
+    }
+
+    private void resetAuth(){
+        authingStatus = AuthStatus.IDLE;
+    }
+
     // NOTE Not implemented yet. Will be in the future.
 /*    -(void) loginWithFacebookWithCompletion: (void(^)(NSError * error, FAUser * user)) completion {
         [[BFacebookManager sharedManager] loginWithCompletion:^(NSError * error) {
@@ -118,6 +138,14 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<User, Object> listener) {
         if (DEBUG) Log.v(TAG, "authenticateWithMap, KeyType: " + details.get(Prefs.LoginTypeKey));
 
+        if (isAuthing())
+        {
+            if (DEBUG) Log.d(TAG, "Already Authing!");
+            return;
+        }
+
+        authingStatus = AuthStatus.AUTH_WITH_MAP;
+
         Firebase ref = FirebasePaths.firebaseRef();
         SimpleLogin simpleLogin = new SimpleLogin(ref, context);
 
@@ -125,7 +153,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             @Override
             public void authenticated(Error error, final User firebaseSimpleLoginUser) {
                 if (error != null || firebaseSimpleLoginUser == null)
+                {
+                    resetAuth();
                     listener.onDoneWithError(firebaseSimpleLoginUser, error);
+                }
                 else handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
                     @Override
                     public void onDone(BUser user) {
@@ -176,8 +207,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     public void handleFAUser(final User fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
         if (DEBUG) Log.v(TAG, "handleFAUser");
 
+        authingStatus = AuthStatus.HANDLING_F_USER;
+
         if (fuser == null)
         {
+            resetAuth();
             // If the user isn't authenticated they'll need to login
             listener.onDoneWithError(null, new BError(BError.Code.SESSION_CLOSED));
             return;
@@ -212,6 +246,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                     @Override
                     public void onDoneWithError(BUser bUser, FirebaseError error) {
+                        resetAuth();
                         listener.onDoneWithError(bUser, new BError(BError.Code.FIREBASE_ERROR, error));
                     }
                 });
@@ -221,6 +256,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     /**Copy some details from the FAUser like name etc...*/
     public void updateUserFromFUser(final BUser user, User fireUser){
         if (DEBUG) Log.v(TAG, "updateUserFromFUser");
+
+        authingStatus = AuthStatus.UPDATING_USER;
 
         Map <String, Object> thirdPartyData = fireUser.getThirdPartyUserData();
         String name;
@@ -348,15 +385,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 subscribeToPushChannel(currentUser.getPushChannel());
 
                 // Adding the user identifier to the bugsense so we could track problems by user id.
-                if (BNetworkManager.ENABLE_BUGSENSE)
+                if (BNetworkManager.BUGSENSE_ENABLED)
                     BugSenseHandler.setUserIdentifier(currentUser.getEntityID());
 
+                resetAuth();
             }
 
             @Override
             public void onDoneWithError() {
                 if (DEBUG) Log.e(TAG, "Failed to push user After update from FUser");
-                //ASK need to do something if an error happend?
             }
         });
     }
@@ -364,6 +401,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public void pushUserWithCallback(final CompletionListener listener) {
+        authingStatus = AuthStatus.PUSHING_USER;
+
         // Update the user in the server.
         BUser user = currentUser();
         BFirebaseInterface.pushEntity(user, new RepetitiveCompletionListenerWithError() {
@@ -382,6 +421,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             public void onItemError(Object o, Object o2) {
                 if (listener != null)
                     listener.onDoneWithError();
+
+                resetAuth();
             }
         });
     }
@@ -390,16 +431,33 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     public void checkUserAuthenticatedWithCallback(final AuthListener listener) {
         if (DEBUG) Log.v(TAG, "checkUserAuthenticatedWithCallback, " + getLoginInfo().get(Prefs.AccountTypeKey));
 
+        if (isAuthing())
+        {
+            if (DEBUG) Log.d(TAG, "Already Authing!");
+            return;
+        }
+
+        authingStatus = AuthStatus.CHECKING_IF_AUTH;
+
+        if (!getLoginInfo().containsKey(Prefs.AccountTypeKey))
+        {
+            resetAuth();
+            listener.onLoginFailed(new BError(BError.Code.NO_LOGIN_INFO));
+            return;
+        }
+
         if ((Integer) getLoginInfo().get(Prefs.AccountTypeKey) == Provider.FACEBOOK.ordinal())
         {
             Session session = Session.getActiveSession();
             if (session != null && session.isOpened())
             {
                 if (DEBUG) Log.d(TAG, "FB Session is open");
+                resetAuth();
                 listener.onCheckDone(true);
             }
             else {
                 if (DEBUG) Log.d(TAG, "FB Session is closed");
+                resetAuth();
                 listener.onCheckDone(false);
             }
         }
@@ -412,6 +470,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 public void authenticated(Error error, User firebaseSimpleLoginUser) {
                     if (error != null || firebaseSimpleLoginUser == null)
                     {
+                        resetAuth();
+
                         listener.onCheckDone(false);
                         if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
                         if (error != null)
@@ -740,7 +800,9 @@ TODO
     public BUser currentUser() {
         if (getCurrentUserAuthenticationId() != null)
         {
-            return DaoCore.fetchOrCreateUserWithAuthinticationID(getCurrentUserAuthenticationId());
+            String authID = getCurrentUserAuthenticationId();
+            if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
+            return DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
         }
         if (DEBUG) Log.e(TAG, "Current user is null");
         return null;

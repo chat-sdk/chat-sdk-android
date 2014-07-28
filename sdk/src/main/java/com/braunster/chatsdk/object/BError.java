@@ -7,9 +7,9 @@ import com.firebase.client.FirebaseError;
  */
 public class BError {
 
-    private Object tag = null;
-    private int code = -1;
-    private String message;
+    public Object tag = null;
+    public int code = -1;
+    public String message;
 
     public BError(int code){
         this.code = code;
@@ -29,21 +29,6 @@ public class BError {
         this.code = code;
         this.message = message;
         this.tag = tag;
-    }
-
-    public Object getTag() {
-        return tag;
-    }
-
-    public void setTag(Object tag) {
-        this.tag = tag;
-    }
-
-    public String getMessage() {
-        if (message == null)
-            message = Message.getMessageForCode(code);
-
-        return message;
     }
 
     /*Static Initializer's*/
@@ -75,7 +60,7 @@ public class BError {
         public static final int FIREBASE_ERROR = 14; // When a firebase error occurs the tag will contain the error object.
         public static final int PARSE_EXCEPTION = 15; // When a parse exception occurs the tag will contain the exception object.
         public static final int NULL = 16; // If something that related to the wanted method was null.
-
+        public static final int NO_LOGIN_INFO = 17; // When there is no available login info to use when login.
     }
 
     public static final class Message{
@@ -88,6 +73,9 @@ public class BError {
                 case Code.FIREBASE_ERROR:
                     return FirebaseError;
 
+                case Code.NO_LOGIN_INFO:
+                    return NoLoginInfo;
+
                 case Code.NO_PATH:
                     return NoPath;
 
@@ -97,6 +85,7 @@ public class BError {
 
         public static final String FirebaseError = "Firebase error occurred";
         public static final String ExcpetionOccurred = "Exception occurred";
+        public static final String NoLoginInfo = "No older login data is save in the preferences.";
         public static final String NoPath = "Entity Path is null";
         public static final String Tagged = "Tagged";
     }

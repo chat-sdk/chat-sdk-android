@@ -2,6 +2,7 @@ package com.braunster.chatsdk.Utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -35,6 +36,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
+import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.List;
 
@@ -305,7 +307,15 @@ public class DialogUtils {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             progressBar.setVisibility(View.GONE);
-                            Toast.makeText(context, "Error while loading", Toast.LENGTH_SHORT).show();
+
+                            SuperToast superToast = new SuperToast(context);
+                            superToast.setDuration(SuperToast.Duration.MEDIUM);
+                            superToast.setBackground(SuperToast.Background.RED);
+                            superToast.setTextColor(Color.WHITE);
+                            superToast.setAnimations(SuperToast.Animations.FLYIN);
+                            superToast.setText("Error while loading");
+                            superToast.show();
+
                             imagePopup.dismiss();
                         }
                     });
