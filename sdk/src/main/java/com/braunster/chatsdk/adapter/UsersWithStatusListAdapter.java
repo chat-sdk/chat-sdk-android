@@ -20,6 +20,8 @@ import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,14 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         listData = new ArrayList<UserListItem>();
 
         isMultiSelect = false;
+    }
+
+    public UsersWithStatusListAdapter(Activity activity, boolean isMultiSelect){
+        mActivity = activity;
+
+        listData = new ArrayList<UserListItem>();
+
+        this.isMultiSelect = isMultiSelect;
     }
 
     public UsersWithStatusListAdapter(Activity activity, List<UserListItem> listData){
@@ -356,6 +366,11 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         List<UserListItem> offlineUsers = new ArrayList<UserListItem>();
 
         for (BUser user : users){
+
+            // Not showing users that has no name.
+            if (StringUtils.isEmpty(user.getMetaName()))
+                continue;
+
             if (deleteDuplicates)
             {
 //                if (DEBUG) Log.d(TAG, "EntityID: " + user.getEntityID());

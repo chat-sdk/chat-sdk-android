@@ -1,8 +1,12 @@
 package com.braunster.chatsdk.activities;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +26,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
@@ -43,18 +48,19 @@ public class MainActivity extends BaseActivity {
     private ViewPager pager;
     private PagerAdapterTabs adapter;
 
-    private Menu menu;
-
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
     private static final String PAGE_ADAPTER_POS = "page_adapter_pos";
+
+    public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
 
     private int pageAdapterPos = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableFacebookIntegration(true);
         super.onCreate(savedInstanceState);
+
         if (DEBUG) Log.v(TAG, "onCreate");
+
         setContentView(R.layout.chat_sdk_activity_view_pager);
 
         firstTimeInApp();
@@ -123,6 +129,9 @@ public class MainActivity extends BaseActivity {
 //                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
             }
         });
+
+        IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
+        registerReceiver(contactsAddedReceiver, intentFilter);
     }
 
     @Override
@@ -143,7 +152,7 @@ public class MainActivity extends BaseActivity {
 
     private AppEventListener appEventListener = new AppEventListener("MainActivity") {
         private final int uiUpdateDelay = 3000;
-        private UIUpdater uiUpdaterDetailsChanged, uiUpdaterThreadDetailsChanged, uiUpdaterMessages;
+        private UIUpdater uiUpdaterDetailsChanged, uiUpdaterThreadDetailsChangedPublic, uiUpdaterThreadDetailsChangedPrivate, uiUpdaterMessages;
 
         @Override
         public boolean onThreadDetailsChanged(final String threadId) {
@@ -151,34 +160,58 @@ public class MainActivity extends BaseActivity {
 
             if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
 
-            if (uiUpdaterThreadDetailsChanged != null)
-                uiUpdaterThreadDetailsChanged.setKilled(true);
+            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
 
-            handler.removeCallbacks(uiUpdaterThreadDetailsChanged);
+            if (thread.getType() == BThread.Type.Private)
+            {
+                if (uiUpdaterThreadDetailsChangedPrivate != null)
+                {
+                    uiUpdaterThreadDetailsChangedPrivate.setKilled(true);
+                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPrivate);
+                }
 
-            uiUpdaterThreadDetailsChanged = new UIUpdater(){
+                uiUpdaterThreadDetailsChangedPrivate = new UIUpdater(){
 
-                @Override
-                public void run() {
-                    if (!isKilled())
-                    {
-                        BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
-                        if (DEBUG) Log.d(TAG, "Type: " + thread.getType());
-                        DaoCore.printEntity(thread);
-
-                        BaseFragment fragment;
-                        if (thread.getType() == BThread.Type.Private)
+                    @Override
+                    public void run() {
+                        if (!isKilled())
+                        {
+                            BaseFragment fragment;
                             fragment = getFragment(PagerAdapterTabs.Conversations);
-                        else
+
+                            if (fragment != null)
+                                fragment.loadDataOnBackground();
+                        }
+                    }
+                };
+                handler.postDelayed(uiUpdaterThreadDetailsChangedPrivate, uiUpdateDelay);
+            }
+            else if (thread.getType() == BThread.Type.Public)
+            {
+                if (uiUpdaterThreadDetailsChangedPublic != null)
+                {
+                    uiUpdaterThreadDetailsChangedPublic.setKilled(true);
+                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPublic);
+                }
+
+                uiUpdaterThreadDetailsChangedPublic = new UIUpdater(){
+
+                    @Override
+                    public void run() {
+                        if (!isKilled())
+                        {
+                            BaseFragment fragment;
                             fragment = getFragment(PagerAdapterTabs.ChatRooms);
 
-                        if (fragment != null)
-                            fragment.loadDataOnBackground();
+                            if (fragment != null)
+                                fragment.loadDataOnBackground();
+                        }
                     }
-                }
-            };
+                };
+                handler.postDelayed(uiUpdaterThreadDetailsChangedPublic, uiUpdateDelay);
+            }
 
-            handler.postDelayed(uiUpdaterThreadDetailsChanged, uiUpdateDelay);
+
 
             return false;
         }
@@ -249,15 +282,6 @@ public class MainActivity extends BaseActivity {
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
                         if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-/*
-                            PendingIntent pendingIntent = NotificationUtils.existAlarm(MainActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID);
-
-                          if (pendingIntent != null)
-                            {
-                                if (DEBUG) Log.e(TAG, "Pending intent exist" + pendingIntent.toString());
-                                pendingIntent.getIntentSender().
-                            }*/
-
                             NotificationUtils.createMessageNotification(MainActivity.this, message);
                         }
                     }
@@ -302,14 +326,13 @@ public class MainActivity extends BaseActivity {
 
         tabs.setViewPager(pager);
 
-        pager.setOffscreenPageLimit(1);
+        pager.setOffscreenPageLimit(3);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_chat_sdk, menu);
-        this.menu = menu;
         return true;
     }
 
@@ -317,11 +340,26 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.android_settings) {
             DaoCore.printUsersData();
-//            EventManager.getInstance().printDataReport();
+            EventManager.getInstance().printDataReport();
 //            EventManager.getInstance().removeAll();
             return true;
         }
+        else   if (item.getItemId() == R.id.contact_developer) {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                    "mailto", BDefines.ContactDeveloper_Email, null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, BDefines.ContactDeveloper_Subject);
+            startActivity(Intent.createChooser(emailIntent, BDefines.ContactDeveloper_DialogTitle));
+
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(contactsAddedReceiver);
     }
 
     private void firstTimeInApp(){
@@ -341,39 +379,19 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    /*Facebook Stuff*/
-/*    private Session.StatusCallback callback = new Session.StatusCallback() {
+    /** Refresh the contacts fragment when a contact added action is received.*/
+    private BroadcastReceiver contactsAddedReceiver = new BroadcastReceiver() {
         @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Action_Contacts_Added))
+            {
+                BaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
+
+                if (contacts != null)
+                    contacts.refreshOnBackground();
+            }
         }
-    };*/
-
-/*    private void onSessionStateChange(Session session, final SessionState state, Exception exception){
-        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
-            @Override
-            public void onDone() {
-                if (DEBUG) Log.i(TAG, "onDone");
-            }
-
-            @Override
-            public void onDoneWithError() {
-                if (DEBUG) Log.e(TAG, "onDoneWithError");
-                // Facebook session is closed so we need to disconnect from firebase.
-                BNetworkManager.sharedManager().getNetworkAdapter().logout();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
-                startActivity(intent);
-            }
-        });
-    }*/
-
-/*    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(DEBUG) Log.v(TAG, "onActivityResult");
-        uiHelper.onActivityResult(requestCode, resultCode, data);
-    }*/
+    };
 
     /* Exit Stuff*/
     @Override

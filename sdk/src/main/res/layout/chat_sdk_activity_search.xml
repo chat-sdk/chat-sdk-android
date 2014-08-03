@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="horizontal"
+        android:id="@+id/chat_sdk_search_linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_gravity="center_horizontal">
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/chat_sdk_et_search_input"
             android:layout_weight="1" />
@@ -27,8 +29,17 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/chat_sdk_search_linear"
+        android:layout_above="@id/chat_sdk_btn_add_contacts"
         android:id="@+id/chat_sdk_list_search_results"
         android:layout_gravity="center_horizontal"
-        android:choiceMode="multipleChoice" />
+        android:scrollbars="none"/>
 
-</LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_contacts"
+        android:id="@+id/chat_sdk_btn_add_contacts"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

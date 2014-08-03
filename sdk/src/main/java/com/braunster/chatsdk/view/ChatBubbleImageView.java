@@ -1,6 +1,7 @@
 package com.braunster.chatsdk.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -27,85 +28,123 @@ import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 /**
  * Created by braunster on 04/07/14.
  */
-public class ChatBubbleImageView extends ImageView {
+public class ChatBubbleImageView extends ImageView /*implements View.OnTouchListener */{
 
     public static final String TAG = ChatBubbleImageView.class.getSimpleName();
     public static final boolean DEBUG = true;
 
-    private String data;
     private Bitmap bubble, image;
-    private LoadDone loadDone;
 
     /** The max size that we would use for the image.*/
-    private final float MAX_WIDTH = 250 * getResources().getDisplayMetrics().density;
+    public final float MAX_WIDTH = 200 * getResources().getDisplayMetrics().density;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
-    private float pointSize = 6f * getResources().getDisplayMetrics().density;
+    private float pointSize = 6.5f * getResources().getDisplayMetrics().density;
 
-    private int pad = (int) (20 * getResources().getDisplayMetrics().density);
+    private int imagePadding = (int) (10 * getResources().getDisplayMetrics().density);
 
     private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
 
+    private boolean pressed = false;
 
-    public ChatBubbleImageView(Context context, String data) {
-        super(context);
-        this.data = data;
-    }
+    public static final int GRAVITY_LEFT = 0;
+    public static final int GRAVITY_RIGHT = 1;
+
+    public static final int BubbleDefaultPressedColor = Color.parseColor("#27ae60");
+    public static final int BubbleDefaultColor = Color.parseColor("#3498db");
+
+    private int bubbleGravity = GRAVITY_LEFT, bubbleColor = 0, pressedColor = BubbleDefaultPressedColor;
 
     public ChatBubbleImageView(Context context) {
         super(context);
-
-//        bubble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
     }
-
 
     public ChatBubbleImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-//        bubble =  BitmapFactory.decodeResource(getContext().getResources(), R.drawable.bubble_left_2);
-
-//        setBackgroundResource(R.drawable.bubble_left_2);
+        getAttrs(attrs);
     }
 
     public ChatBubbleImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
-
-
-//        setBackgroundResource(R.drawable.bubble_left_2);
+        getAttrs(attrs);
+        // Note style not supported.
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    private void getAttrs(AttributeSet attrs){
+        TypedArray a=getContext().obtainStyledAttributes(
+                attrs,
+                R.styleable.ChatBubbleImageView);
 
-//        bubble =  get_ninepatch(R.drawable.bubble_left_2, getMeasuredWidth(), getMeasuredHeight(), getContext());
+        try {
+            // Gravity of the bubble. Left or Right.
+            bubbleGravity = a.getInt(
+                    R.styleable.ChatBubbleImageView_bubble_gravity, GRAVITY_LEFT);
+
+            // Bubble color. The color could be changed when loading the the image url.
+            bubbleColor = a.getColor(R.styleable.ChatBubbleImageView_bubble_color, BubbleDefaultColor);
+
+            // The color of the bubble when pressed.
+            pressedColor = a.getColor(R.styleable.ChatBubbleImageView_bubble_pressed_color, BubbleDefaultPressedColor);
+
+            imagePadding = a.getDimensionPixelSize(R.styleable.ChatBubbleImageView_image_padding, imagePadding);
+        } finally {
+            a.recycle();
+        }
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        if (isInEditMode())
+            return;
+
         if (image == null)
             return;
 
-        canvas.drawBitmap(bubble,0, 0 , null);
+        if (pressed)
+            bubble = setBubbleColor(bubble, pressedColor);
+        else bubble = setBubbleColor(bubble, bubbleColor);
 
-        if (image != null)
+        if (bubbleGravity == GRAVITY_RIGHT)
         {
-            canvas.drawBitmap(image, pad/2 +  pointSize, pad/2 , null);
+            canvas.drawBitmap(bubble, getMeasuredWidth() - bubble.getWidth(), 0 , null);
+            canvas.drawBitmap(image, getMeasuredWidth() - bubble.getWidth() + imagePadding /2 +  pointSize, imagePadding /2 , null);
+        }
+        else
+        {
+            canvas.drawBitmap(bubble,0, 0 , null);
+            canvas.drawBitmap(image, imagePadding /2 +  pointSize, imagePadding /2 , null);
         }
     }
 
-    public void setData(String data) {
-        this.data = data;
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        if (DEBUG) Log.v(TAG, "drawableStateChanged, "
+                + (isPressed()?"Pressed":"Not Pressed")
+                + ", " + (isFocused()?"Focused":"Not Focused")
+                + ", " + (isEnabled()?"Enabled":"Not Enabled")
+                + ".");
+
+        if (!pressed && isPressed())
+        {
+            pressed = true;
+            invalidate();
+        }
+        else if (pressed && !isPressed())
+        {
+            pressed = false;
+            invalidate();
+        }
     }
 
-    public void setImage(Bitmap image) {
+    private void setImage(Bitmap image) {
         this.image = image;
     }
 
-    public void setBubble(Bitmap bubble) {
+    private void setBubble(Bitmap bubble) {
         this.bubble = bubble;
     }
 
@@ -114,7 +153,18 @@ public class ChatBubbleImageView extends ImageView {
     }
 
     public void loadFromUrl(String url, String color, int maxWidth, LoadDone loadDone){
-        loadFromUrl(url, Color.parseColor(color), maxWidth, loadDone);
+        int bubbleColor = -1;
+        try{
+            bubbleColor = Color.parseColor(color);
+        }
+        catch (Exception e){}
+
+        if (bubbleColor == -1)
+        {
+            bubbleColor = Color.parseColor(Float.toHexString(Float.parseFloat(color)));
+        }
+
+        loadFromUrl(url, bubbleColor, maxWidth, loadDone);
     }
 
     public void loadFromUrl(String url, final int color,final int maxWidth, final LoadDone loadDone){
@@ -127,16 +177,21 @@ public class ChatBubbleImageView extends ImageView {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            // load image into imageview
-                            Log.e(TAG, "MAX WIDTH: " + maxWidth  + " After sizeing: " + (maxWidth - pad - pointSize) );
+                            if (DEBUG) Log.d(TAG, "MaxWidth = " + maxWidth + " , MAX_WIDTH = " + MAX_WIDTH);
+
+                            bubbleColor = color;
 
                             // Calculating the image width so we could scale it.
                             // If the wanted width is bigger then MAX_WIDTH we will use MAX_WIDTH not the given width.
                             final int width;
-                            if (maxWidth > MAX_WIDTH)
-                                width = (int) (MAX_WIDTH - pad - pointSize);
-                            else
-                                width = (int) (maxWidth - pad - pointSize);
+                            if (maxWidth > MAX_WIDTH) {
+                                width = (int) (MAX_WIDTH - imagePadding - pointSize);
+                            }
+                            else {
+                                width = (int) (maxWidth - imagePadding - pointSize);
+                            }
+
+                            if (DEBUG) Log.d(TAG, "new image size: " + width);
 
                             // The image bitmap from Volley.
                             Bitmap img = response.getBitmap();
@@ -146,7 +201,10 @@ public class ChatBubbleImageView extends ImageView {
                             img = ImageUtils.scaleImage(img, width);
 
                             // Getting the bubble nine patch image for given size.
-                            bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + pad + pointSize), (int) (img.getHeight() + pad), getContext());
+                            if (bubbleGravity == GRAVITY_LEFT)
+                                bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+                            else
+                                bubble = get_ninepatch(R.drawable.bubble_right_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
 
                             // Replacing the defualt color of the bubble.
                             bubble = replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
@@ -192,6 +250,8 @@ public class ChatBubbleImageView extends ImageView {
             // existing height is ok as is, no need to edit it
             setLayoutParams(params);
 
+//            setOnTouchListener(ChatBubbleImageView.this);
+
             ((LoadDone) msg.obj).onDone();
 
             invalidate();
@@ -215,9 +275,9 @@ public class ChatBubbleImageView extends ImageView {
         return output_bitmap;
     }
 
-    public static Bitmap setBubbleColor(Bitmap buble, int color){
+    public static Bitmap setBubbleColor(Bitmap bubble, int color){
         if (DEBUG) Log.v(TAG, "setBubbleColor, color: " + color);
-        return replaceIntervalColor(buble, 40, 75, 130, 140, 190, 210, color);
+        return replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
     }
 
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float pixels) {
@@ -295,5 +355,29 @@ public class ChatBubbleImageView extends ImageView {
 
     public interface LoadDone{
         public void onDone();
+    }
+
+    public void setBubbleGravity(int bubbleGravity) {
+        this.bubbleGravity = bubbleGravity;
+    }
+
+    public void setImagePadding(int imagePadding) {
+        this.imagePadding = imagePadding;
+    }
+
+    public void setBubbleColor(int bubbleColor) {
+        this.bubbleColor = bubbleColor;
+    }
+
+    public int getBubbleGravity() {
+        return bubbleGravity;
+    }
+
+    public int getBubbleColor() {
+        return bubbleColor;
+    }
+
+    public int getImagePadding() {
+        return imagePadding;
     }
 }

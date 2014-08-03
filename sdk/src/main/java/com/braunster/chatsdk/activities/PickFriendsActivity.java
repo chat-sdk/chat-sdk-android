@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,15 +45,25 @@ public class PickFriendsActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
             ab.setTitle("Pick Friends");
+            ab.setHomeButtonEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home)
+        {
+            onBackPressed();
+        }
+        return true;
     }
 
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
         btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
         etSearch = (EditText) findViewById(R.id.chat_sdk_et_search);
-        btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_start_chat);
-        initList();
+        btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
     }
 
     private void initList(){
@@ -99,6 +110,8 @@ public class PickFriendsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        initList();
 
         etSearch.setOnClickListener(new View.OnClickListener() {
             @Override

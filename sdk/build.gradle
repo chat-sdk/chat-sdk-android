@@ -55,4 +55,8 @@ dependencies {
 
     // Super Toast
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
+
+    // For twitter oath
+//    compile 'org.scribe:scribe:1.3.6'
+//    compile 'org.twitter4j:twitter4j-core:4.0.+'
 }

@@ -17,6 +17,8 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,7 +185,7 @@ public class ThreadsListAdapter extends BaseAdapter {
 
             String url  = thread.threadImageUrl();
 
-            return new ThreadListItem(thread.getId(), thread.getEntityID(), thread.displayName(), data[1], data[0], url, thread.getUsers().size());
+            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(thread.displayName()) ? "No name." : thread.displayName(), data[1], data[0], url, thread.getUsers().size());
         }
 
         public static List<ThreadListItem> makeList(List<BThread> threads){
@@ -194,7 +196,6 @@ public class ThreadsListAdapter extends BaseAdapter {
 
             return list;
         }
-
 
 
         private static String[] getLastMessageTextAndDate(BThread thread){

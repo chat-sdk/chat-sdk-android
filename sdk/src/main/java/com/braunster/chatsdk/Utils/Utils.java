@@ -73,6 +73,13 @@ public class Utils {
         return  new File(Uri.parse(getRealPathFromURI(activity, uri)).getPath());
     }
 
+    public static float hexToFloat(String hex){
+        Long i = Long.parseLong(hex, 16);
+        Float f = Float.intBitsToFloat(i.intValue());
+        if (DEBUG) Log.d(TAG, "Float: " +f);
+        return f;
+    }
+
     static  class ImageSaver{
 
         public static final String IMAGE_DIR_NAME = "AndroidChatSDKTestImage";

@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:id="@+id/list_threads"
+        android:scrollbars="none"
         android:visibility="gone"/>
 
     <ProgressBar

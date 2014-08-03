@@ -12,6 +12,8 @@ import android.util.Log;
 
 import com.braunster.chatsdk.network.BDefines;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -139,6 +141,32 @@ public class ImageUtils {
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
 
         return bitmap;
+    }
+
+    public static int[] calcNewImageSize(int[] imgDimensions, int bounds){
+        int[] dimestions = new int[2];
+
+        // Get current dimensions
+        int width = imgDimensions[0];
+        int height = imgDimensions[1];
+
+        if (DEBUG) Log.v(TAG, "calcNewImageSize, W: " + width + ", H: " + height);
+
+        // Determine how much to scale: the dimension requiring less scaling is
+        // closer to the its side. This way the image always stays inside your
+        // bounding box AND either x/y axis touches it.
+        float xScale = ((float) bounds) / width;
+        float yScale = ((float) bounds) / height;
+        float scale = (xScale <= yScale) ? xScale : yScale;
+
+        if (DEBUG) Log.v(TAG, "calcNewImageSize, Scale: "  + scale);
+
+        dimestions[0] = (int) (width * scale);
+        dimestions[1] = (int) (height * scale);
+
+        if (DEBUG) Log.v(TAG, "calcNewImageSize, After W: " + dimestions[0] + ", H: " + dimestions[1]);
+
+        return dimestions;
     }
 
     public static Bitmap getCompressed(String filePath){
@@ -276,4 +304,29 @@ public class ImageUtils {
             } catch(Throwable ignore) {}
         }
     }
+
+    public static String getDimensionString(Bitmap bitmap){
+        if (bitmap == null)
+            throw  new NullPointerException("Bitmap cannot be null");
+
+        return WIDTH + bitmap.getWidth() +  DIVIDER + HEIGHT + bitmap.getHeight();
+    }
+
+    public static int[] getDimentionsFromString(String dimensions){
+        if (StringUtils.isEmpty(dimensions))
+            throw new IllegalArgumentException("dimensions cannot be empty");
+
+        String[] dimen = dimensions.split(DIVIDER);
+
+        if (dimen.length != 2)
+            throw new IllegalArgumentException("The dimensions string us invalid.");
+
+        // Removing the letters from the String.
+        dimen[0] = dimen[0].substring(1);
+        dimen[1] = dimen[1].substring(1);
+
+        return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
+    }
+
+    public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 }

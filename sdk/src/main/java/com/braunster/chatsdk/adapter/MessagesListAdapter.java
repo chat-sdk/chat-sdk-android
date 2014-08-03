@@ -1,13 +1,10 @@
 package com.braunster.chatsdk.adapter;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -17,22 +14,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.ImageUtils;
+import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.view.ChatBubbleImageView;
+import com.braunster.chatsdk.view.ChatBubbleTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class MessagesListAdapter extends BaseAdapter{
     private static final int TYPE_IMAGE = 1;
     private static final int TYPE_LOCATION = 2;
 
-    private TextView txtContent;
+    private ChatBubbleTextView txtContent;
 
     private Activity mActivity;
 
@@ -67,7 +66,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private LayoutInflater inflater;
 
-    int type = -1;
+    private int type = -1;
 
     public MessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
@@ -131,16 +130,14 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 if (message.sender == userID)
                 {
-                    row = inflater.inflate(R.layout.chat_sdk_row_message_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_user, null);
                 }
                 else
                 {
-                    row = inflater.inflate(R.layout.chat_sdk_row_message_friend, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_friend, null);
                 }
 
-                txtContent = (TextView) row.findViewById(R.id.txt_content);
-
-                txtContent.setVisibility(View.INVISIBLE);
+                txtContent = (ChatBubbleTextView) row.findViewById(R.id.txt_content);
 
                 txtContent.setText( message.text == null ? "ERROR" : message.text);
 
@@ -151,46 +148,55 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 // setting the bubble color to the user message color.
                 final TextView textView  = txtContent;
-                textView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getTextBubble(textView, message);
-                    }
-                });
 
-//                final int widthSpec = View.MeasureSpec.makeMeasureSpec(((View) txtContent.getParent()).getWidth(), View.MeasureSpec.UNSPECIFIED);
-//                final int heightSpec = View.MeasureSpec.makeMeasureSpec(((View) txtContent.getParent()).getHeight(), View.MeasureSpec.UNSPECIFIED);
-//                txtContent.measure(widthSpec, heightSpec);
-//                txtContent = getTextBubble(txtContent);
+                if (message.color != null && !message.color.equals("Red"))
+                {
+                    if (DEBUG) Log.d(TAG, "Color: " + message.color);
+                    int bubbleColor = -1;
+                    try{
+                        bubbleColor = Color.parseColor(message.color);
+                    }
+                    catch (Exception e){}
+
+                    if (bubbleColor == -1)
+                    {
+                        if (DEBUG) Log.d(TAG, "Color As Float: " + Float.parseFloat(message.color));
+                        if (DEBUG) Log.d(TAG, "Color As Hex: " + Float.toHexString(Float.parseFloat(message.color)));
+                        bubbleColor = Color.parseColor(Float.toHexString(Float.parseFloat(message.color)));
+                    }
+
+                    txtContent.setBubbleColor(bubbleColor);
+                }
+                else txtContent.setBubbleColor( BMessage.randomColor() );
 
                 break;
 
             case TYPE_IMAGE:
                 if (message.sender == userID)
                 {
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
                 }
                 else
                 {
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
                 }
          /*       *//*FIXME*//*
                 if (message.text.length() > 200)
                     return row;*/
 
-                image = getBubleImageViewfromRow(row, message);
+                image = getBubbleImageViewFromRow(row, message);
                 image.setTag(message.text);
                 image.setOnClickListener(new showImageDialogClickListener());
                 break;
 
             case TYPE_LOCATION:
                 if (message.sender == userID) {
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_user, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
                 }
                 else
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_friend, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
-                image = getBubleImageViewfromRow(row, message);
+                image = getBubbleImageViewFromRow(row, message);
 //
 //                // Save the message text to the image tag so it could be found on the onClick.
                 image.setTag(message.text);
@@ -203,9 +209,9 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Load profile picture.
         profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
-        if (position == 0 || message.sender != listData.get(position-1).sender) {
+//        if (position == 0 || message.sender != listData.get(position-1).sender) {
             loadProfilePic(profilePicImage, message.profilePicUrl);
-        } else profilePicImage.setVisibility(View.INVISIBLE);
+//        } else profilePicImage.setVisibility(View.INVISIBLE);
 
         // Add click event to image if message is picture or location.
         // Set the time of the sending.
@@ -215,32 +221,35 @@ public class MessagesListAdapter extends BaseAdapter{
         return row;
     }
 
-    public void addRow(MessageListItem data){
+    /** @return true if the item is added to the list.*/
+    public boolean addRow(MessageListItem data){
         if (DEBUG) Log.d(TAG, "AddRow");
 
         // Bad data.
         if (data == null)
-            return;
+            return false;
 
         // Dont add message that does not have entity id.
         if (data.entityId == null)
         {
             if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + data.text);
-            return;
+            return false;
         }
 
         // Check for duplicates.
         for (MessageListItem item : listData)
             if (item.entityId != null && item.entityId.equals(data.entityId))
-                return;
+                return false;
 
         listData.add(data);
 
         notifyDataSetChanged();
+
+        return true;
     }
 
-    public void addRow(BMessage message){
-        addRow(MessageListItem.fromBMessage(message));
+    public boolean addRow(BMessage message){
+        return addRow(MessageListItem.fromBMessage(message));
     }
 
     public void setListData(List<MessageListItem> listData) {
@@ -283,35 +292,13 @@ public class MessagesListAdapter extends BaseAdapter{
         return image;
     }
 
-    @SuppressLint("NewApi")
-    private TextView getTextBubble(TextView txtContent, MessageListItem message){
-        // Setting the text color to the user text color.
-        if (message.textColor != null)
-            txtContent.setTextColor(Color.parseColor(message.textColor));
-
-        // setting the bubble color to the user message color.
-//        txtContent.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, txtContent.getWidth(), txtContent.getHeight(), mActivity);
-        if (bubble == null)
-            Log.e(TAG, "bubble is null");
-                        /*FIXME*/
-        if (message.color != null && !message.color.equals("Red"))
-            bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
-        else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
-
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            ((FrameLayout) txtContent.getParent()).setBackgroundDrawable(new BitmapDrawable(mActivity.getResources(), bubble));
-        } else {
-            ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
-        }
-
-        txtContent.setVisibility(View.VISIBLE);
-
-        return txtContent;
-    }
     /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
-    private ChatBubbleImageView getBubleImageViewfromRow(final View row,final MessageListItem message){
+    private ChatBubbleImageView getBubbleImageViewFromRow(final View row, final MessageListItem message){
+
+        final ProgressBar progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+        final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+        progressBar.setVisibility(View.VISIBLE);
+        image.setVisibility(View.INVISIBLE);
 
         /*FIXME due to old data in firebase this is needed.*/
         String url = "";
@@ -319,7 +306,9 @@ public class MessagesListAdapter extends BaseAdapter{
         if (message.type == BMessageEntity.Type.IMAGE)
         {
             if (urls.length > 1)
+            {
                 url = urls[1];
+            }
             else url = urls[0];
         }
         else if (message.type == BMessageEntity.Type.LOCATION)
@@ -332,37 +321,53 @@ public class MessagesListAdapter extends BaseAdapter{
                     url = urls[3];
                 else url = urls[2];
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
 
+        try {
+            int[] dimensions = ImageUtils.getDimentionsFromString(urls[urls.length - 1]);
+            if (DEBUG) Log.d(TAG, "Img Dimensions, Width: " + dimensions[0] + ", Height: " + dimensions[1]);
+            dimensions = ImageUtils.calcNewImageSize(dimensions, (int) image.MAX_WIDTH);
+            if (DEBUG) Log.d(TAG, "Img Dimensions After Calc, Width: " + dimensions[0] + ", Height: " + dimensions[1]);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) image.getLayoutParams();
+            params.width = dimensions[0];
+            params.height = dimensions[1];
+            image.setLayoutParams(params);
+        } catch (Exception e) {
+//            e.printStackTrace();
+        }
+
         final String finalUrl = url;
-
-        row.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-        final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
-        image.setVisibility(View.INVISIBLE);
-
         if (DEBUG) Log.d(TAG, "Final URl: " + finalUrl);
 
-        row.findViewById(R.id.progress_bar).post(new Runnable() {
+        progressBar.post(new Runnable() {
             @Override
             public void run() {
                     /*FIXME due to old data in firebase this is needed.*/
                 if (message.color != null && !message.color.equals("Red"))
-                    image.loadFromUrl(finalUrl, message.color, row.findViewById(R.id.progress_bar).getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
+                    image.loadFromUrl(finalUrl, message.color, progressBar.getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
                         @Override
                         public void onDone() {
-                            row.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                            progressBar.setVisibility(View.INVISIBLE);
                             image.setVisibility(View.VISIBLE);
                         }
                     });
-                else image.loadFromUrl(finalUrl, BMessage.randomColor(), row.findViewById(R.id.progress_bar).getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
+                else
+                    image.loadFromUrl(finalUrl, BMessage.randomColor(), progressBar.getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
+                        @Override
+                        public void onDone() {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            image.setVisibility(View.VISIBLE);
+                        }
+                    });
+
+              /*  image.post(new Runnable() {
                     @Override
-                    public void onDone() {
-                        row.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-                        image.setVisibility(View.VISIBLE);
+                    public void run() {
+                        if (DEBUG) Log.d(TAG, "Img Dimensions POST, Width: " + image.getWidth() + ", Height: " + image.getHeight());
                     }
-                });
+                });*/
             }
         });
 
@@ -384,10 +389,12 @@ public class MessagesListAdapter extends BaseAdapter{
                 url = urls[0];
 
                 DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
-//                  showAsDropDown(v);
                             showAtLocation(v, Gravity.CENTER, 0, 0);
             }
-            else Toast.makeText(mActivity, "Cant show image.", Toast.LENGTH_SHORT).show();
+            else
+            {
+                ChatSDKToast.toastAlert(mActivity, "Cant show image.");
+            }
         }
     }
 
@@ -405,12 +412,11 @@ public class MessagesListAdapter extends BaseAdapter{
         }
         private void openLocationInGoogleMaps(Double latitude, Double longitude){
             try {
-                String uri = String.format(Locale.ENGLISH, "geo:%f,%f", latitude, longitude);
+                String uri = String.format(Locale.ENGLISH, "geo:%f,%f?q=%f,%f (%s)", latitude, longitude, latitude, longitude, "Mark");
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 mActivity.startActivity(intent);
             } catch (ActivityNotFoundException e) {
-                Toast.makeText(mActivity, "This phone does not have google maps.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+                ChatSDKToast.toastAlert(mActivity, "This phone does not have google maps.");
             }
         }
     }
@@ -457,11 +463,62 @@ public class MessagesListAdapter extends BaseAdapter{
             return list;
         }
     }
-
-
 }
 
 
+/*    @SuppressLint("NewApi")
+    private TextView getTextBubble(TextView txtContent, MessageListItem message){
+        // Setting the text color to the user text color.
+        if (message.textColor != null)
+            txtContent.setTextColor(Color.parseColor(message.textColor));
+
+        // setting the bubble color to the user message color.
+        Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, txtContent.getWidth(), txtContent.getHeight(), mActivity);
+        if (bubble == null)
+            Log.e(TAG, "bubble is null");
+                        *//*FIXME*//*
+        if (message.color != null && !message.color.equals("Red"))
+            bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
+        else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
+
+        int sdk = android.os.Build.VERSION.SDK_INT;
+        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            ((FrameLayout) txtContent.getParent()).setBackgroundDrawable(new BitmapDrawable(mActivity.getResources(), bubble));
+        } else {
+            ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
+        }
+
+        txtContent.setVisibility(View.VISIBLE);
+
+        return txtContent;
+    }
+
+    private TextView getTextBubble(TextView txtContent, MessageListItem message, int width, int height){
+        // Setting the text color to the user text color.
+        if (message.textColor != null)
+            txtContent.setTextColor(Color.parseColor(message.textColor));
+
+        // setting the bubble color to the user message color.
+//        txtContent.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, width, height, mActivity);
+        if (bubble == null)
+            Log.e(TAG, "bubble is null");
+                        *//*FIXME*//*
+        if (message.color != null && !message.color.equals("Red"))
+            bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
+        else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
+
+        int sdk = android.os.Build.VERSION.SDK_INT;
+        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            ((FrameLayout) txtContent.getParent()).setBackgroundDrawable(new BitmapDrawable(mActivity.getResources(), bubble));
+        } else {
+            ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
+        }
+
+        txtContent.setVisibility(View.VISIBLE);
+
+        return txtContent;
+    }*/
 
   /*  private String arrangeStringForUrl(String s){
         // separate input by spaces ( URLs don't have spaces )

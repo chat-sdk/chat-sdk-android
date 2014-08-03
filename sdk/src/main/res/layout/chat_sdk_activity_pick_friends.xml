@@ -65,13 +65,14 @@
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_list_contacts"
         android:layout_below="@id/textView3"
-        android:layout_above="@+id/chat_sdk_btn_start_chat"
+        android:scrollbars="none"
+        android:layout_above="@+id/chat_sdk_btn_add_contacts"
         android:visibility="visible"/>
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/chat_sdk_btn_start_chat"
+        android:id="@+id/chat_sdk_btn_add_contacts"
         android:layout_alignParentBottom="true"
         android:text="Start Chat"/>
 </RelativeLayout>

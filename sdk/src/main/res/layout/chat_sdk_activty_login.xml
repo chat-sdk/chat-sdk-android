@@ -87,7 +87,17 @@
             android:layout_margin="5dp"
             android:id="@+id/chat_sdk_facebook_button"
             android:layout_centerHorizontal="true"
-            android:layout_above="@+id/chat_sdk_btn_anon_login"/>
+            android:layout_above="@+id/chat_sdk_btn_twitter_login"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Twitter"
+            android:id="@+id/chat_sdk_btn_twitter_login"
+            style="@style/LoginButtonsStyle"
+            android:background="@color/abc_search_url_text_normal"
+            android:layout_above="@+id/chat_sdk_btn_anon_login"
+            android:layout_marginTop="10dp"/>
 
         <Button
             android:layout_width="match_parent"

@@ -2,6 +2,7 @@ package com.braunster.chatsdk.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +11,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -34,6 +39,7 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
+import com.facebook.Session;
 import com.facebook.model.GraphUser;
 import com.parse.ParseException;
 
@@ -83,6 +89,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         savedState = savedInstanceState;
     }
 
@@ -131,8 +138,24 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     public void initViews(LayoutInflater inflater){
         if (inflater != null)
             mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
-
         else return;
+
+        // Changing the weight of the view according to orientation.
+        // This will make sure (hopefully) there is enough space to show the views in landscape mode.
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE){
+            if (DEBUG) Log.d(TAG, "Landscape");
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
+            layoutParams.weight = 3;
+            mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
+        }
+        else
+        {
+            if (DEBUG) Log.d(TAG, "Portrait");
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
+            layoutParams.weight = 2;
+            mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
+        }
 
         etName = (EditText) mainView.findViewById(R.id.chat_sdk_et_name);
         etMail = (EditText) mainView.findViewById(R.id.chat_sdk_et_mail);
@@ -232,7 +255,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         });
 
         // Add logout button click logic if not connected using facebook or twitter.
-        if (loginType != BDefines.BAccountType.Facebook && loginType != BDefines.BAccountType.Twitter)
+/*        if (loginType != BDefines.BAccountType.Facebook && loginType != BDefines.BAccountType.Twitter)
             mainView.findViewById(R.id.chat_sdk_logout_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -242,7 +265,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
                     startActivity(intent);
                 }
-            });
+            });*/
     }
 
     @Override
@@ -339,6 +362,29 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        MenuItem item =
+                menu.add(Menu.NONE, R.id.action_chat_sdk_logout, 12, "Logout");
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        item.setIcon(R.drawable.icon_light_exit);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        /* Cant use switch in the library*/
+        int id = item.getItemId();
+
+        if (id == R.id.action_chat_sdk_logout)
+        {
+            logout();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
     /*############################################*/
     /* UI*/
 
@@ -542,6 +588,19 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 }
             });
         }
+    }
+
+    private void logout(){
+        // Logout and return to the login activity.
+
+        if (loginType == BDefines.BAccountType.Facebook)
+            if (Session.getActiveSession() != null)
+                Session.getActiveSession().closeAndClearTokenInformation();
+
+        BNetworkManager.sharedManager().getNetworkAdapter().logout();
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
+        startActivity(intent);
     }
     /*############################################*/
     @Override

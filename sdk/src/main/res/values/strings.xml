@@ -6,6 +6,7 @@
     <!-- Login Activity-->
     <string name="chat_sdk_version_name">0.2.8</string>
     <string name="chat_sdk_version">Version:</string>
+
     <string name="register">Register</string>
     <string name="login">Login</string>
     <string name="anonymous_login">Anonymous Login</string>
@@ -15,6 +16,7 @@
     <string name="logout">Logout</string>
     <string name="facebook_id">247787328762280</string>
     <string name="search">Search</string>
+    <string name="add_contacts">Add Contacts</string>
 
     <!--Delete Contact Dialog-->
     <string name="alert_delete_contact">"Are you sure you want to delete this contact?</string>
@@ -31,5 +33,7 @@
     <string name="stay">Stay</string>
 
     <string name="action_settings">action_setting</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>
 </resources>

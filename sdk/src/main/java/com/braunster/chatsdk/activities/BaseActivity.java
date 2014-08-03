@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -18,6 +19,7 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
@@ -80,8 +82,8 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         {
             fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
             // So we wont encounter this flag again.
-            getIntent().getExtras().remove(FROM_LOGIN);
-        }
+            getIntent().removeExtra(FROM_LOGIN);
+        } else fromLoginActivity = false;
 
         if (enableCardToast)
             SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
@@ -103,8 +105,6 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
         if (checkOnlineOnResumed && !fromLoginActivity)
         {
-            fromLoginActivity = false;
-
             if(DEBUG) Log.d(TAG, "Check online on resumed");
             BNetworkManager.sharedManager().getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
                 @Override
@@ -112,6 +112,11 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                     if (online == null) return;
 
                     if(DEBUG) Log.d(TAG, "Check done, " + online);
+
+                    /* If the event manager is listening to threads that mean we are logged in.*/
+                    if(EventManager.getInstance().threadsIds.size() > 0)
+                        return;
+
                     if (!online)
                     {
                         int loginTypeKey = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
@@ -199,6 +204,8 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                 }
             });
         }
+
+        fromLoginActivity = false;
     }
 
     @Override
@@ -216,6 +223,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         super.onSaveInstanceState(outState);
         if (integratedWithFacebook) uiHelper.onSaveInstanceState(outState);
 
+        outState.putBoolean(FROM_LOGIN, fromLoginActivity);
         SuperCardToast.onSaveState(outState);
     }
 
@@ -234,12 +242,16 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
         if (enableCardToast)
         {
-            superCardToast = new SuperCardToast(BaseActivity.this, SuperToast.Type.PROGRESS_HORIZONTAL);
-            superCardToast.setIndeterminate(true);
-            superCardToast.setBackground(SuperToast.Background.WHITE);
-            superCardToast.setTextColor(Color.BLACK);
-            superCardToast.setSwipeToDismiss(true);
+           initCardToast();
         }
+    }
+
+    private void initCardToast(){
+        superCardToast = new SuperCardToast(BaseActivity.this, SuperToast.Type.PROGRESS_HORIZONTAL);
+        superCardToast.setIndeterminate(true);
+        superCardToast.setBackground(SuperToast.Background.WHITE);
+        superCardToast.setTextColor(Color.BLACK);
+        superCardToast.setSwipeToDismiss(true);
     }
 
     /** Show a SuperToast with the given text. */
@@ -260,12 +272,19 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     }
 
     void showCard(String text, int progress){
-        if (superCardToast == null)
-            initToast();
+//            initCardToast();
+
+        // Making sure the card is on top of all other views.
+        findViewById(R.id.card_container).bringToFront();
+
+        if (superCardToast == null || !superCardToast.isShowing())
+            initCardToast();
 
         superCardToast.setProgress(progress);
         superCardToast.setText(text);
-        superCardToast.show();
+
+        if (!superCardToast.isShowing())
+            superCardToast.show();
     }
 
     void updateCard(String text, int progress){
@@ -277,12 +296,20 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     }
 
     void dismissCard(){
+        dismissCard(0);
+    }
+
+    void dismissCardWithSmallDelay(){
+        dismissCard(1500);
+    }
+
+    void dismissCard(long delay){
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 superCardToast.dismiss();
             }
-        }, 1500);
+        }, delay);
     }
 
 /*    void showToast(int type, String text){

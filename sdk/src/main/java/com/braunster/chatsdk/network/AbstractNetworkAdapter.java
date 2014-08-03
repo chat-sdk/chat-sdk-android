@@ -75,7 +75,7 @@ public abstract class AbstractNetworkAdapter {
                 return true;
 
             case Twitter:
-                return !BDefines.APIs.TwitterApiKey.equals("");
+                return !BDefines.APIs.TwitterConsumerKey.equals("");
 
             default:
                 return false;
@@ -108,6 +108,8 @@ public abstract class AbstractNetworkAdapter {
     *       The app will check this status when resumed and if false the app will re-auth the user in the background.*/
     /** @return  the value of the user online status in firebase, i.e "firebase_path/user_entity_id/online" */
     public abstract void isOnline(final CompletionListenerWithData<Boolean> listener);
+
+
 /*######################################################################################################*/
     /*Messages*/
     /**
@@ -218,7 +220,7 @@ public abstract class AbstractNetworkAdapter {
             @Override
             public void onSaved(ParseException exception, String... url) {
                 if (exception == null) {
-                    message.setText(url[0] + BDefines.DIVIDER + url[1]);
+                    message.setText(url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
 
                     DaoCore.createEntity(message);
 
@@ -271,7 +273,7 @@ public abstract class AbstractNetworkAdapter {
             public void onSaved(ParseException exception, String... url) {
                 if (exception == null) {
                     // Add the LatLng data to the message and the image url and thumbnail url
-                    message.setText(String.valueOf(location.latitude) + BDefines.DIVIDER  + String.valueOf(location.longitude) + BDefines.DIVIDER  + url[0] + BDefines.DIVIDER + url[1]);
+                    message.setText(String.valueOf(location.latitude) + BDefines.DIVIDER  + String.valueOf(location.longitude) + BDefines.DIVIDER  + url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
 
                     DaoCore.createEntity(message);
 
@@ -303,6 +305,8 @@ public abstract class AbstractNetworkAdapter {
     public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener);
 
     public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener);
+
+
 /*######################################################################################################*/
     /*Index*/
     public abstract void usersForIndex(String index, RepetitiveCompletionListener<BUser> listener);
@@ -310,6 +314,7 @@ public abstract class AbstractNetworkAdapter {
     public abstract void removeUserFromIndex(BUser user, String index, CompletionListener listener);
 
     public abstract void addUserToIndex(BUser user, String index, CompletionListener listener);
+
 
 /*######################################################################################################*/
     /*Thread*/

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -27,22 +28,24 @@
         android:gravity="center_horizontal"
         style="@style/TextViewStyleSmall"/>
 
+    <!--android:layout_toRightOf="@id/txt_time"-->
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
     <com.braunster.chatsdk.view.ChatBubbleImageView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_image"
-        android:layout_toRightOf="@id/txt_time"
         android:layout_toLeftOf="@id/img_user_image"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
-        android:visibility="gone"/>
+        app:image_padding="10dp"
+        app:bubble_gravity="right"
+        android:visibility="invisible"/>
 
     <ProgressBar
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/img_user_image"
         android:layout_toRightOf="@id/txt_time"
-        android:layout_height="wrap_content"
         android:id="@id/progress_bar"
         android:layout_centerInParent="true"/>
 <!--    <ImageView

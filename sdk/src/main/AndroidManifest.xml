@@ -52,7 +52,7 @@
 
         <activity android:name=".activities.ChatActivity"
             android:launchMode = "singleTop"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".activities.MainActivity"
             android:launchMode = "singleTask"

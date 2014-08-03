@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
@@ -45,8 +44,6 @@ import com.braunster.chatsdk.network.events.MessageEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.PushUtils;
-import com.github.johnpersano.supertoasts.SuperToast;
-import com.github.johnpersano.supertoasts.util.OnClickWrapper;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +149,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
             txtName.setText(thread.displayName());
 
+            txtName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showToast(((TextView) v).getText().toString());
+                }
+            });
+
             final CircleImageView circleImageView = (CircleImageView) header.findViewById(R.id.image);
 
             VolleyUtills.getImageLoader().get(thread.threadImageUrl(), new ImageLoader.ImageListener() {
@@ -167,9 +171,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 }
             });
 
+            circleImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
+            });
+
             ab.setCustomView(header);
-
-
         }
     }
 
@@ -244,17 +254,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if ( !getThread(data) )
             return;
 
-        OnClickWrapper onClickWrapper = new OnClickWrapper("supercardtoast", new SuperToast.OnClickListener() {
-
-            @Override
-            public void onClick(View view, Parcelable token) {
-
-                /** On click event */
-
-            }
-
-        });
-
         NotificationUtils.cancelNotification(this, PushUtils.MESSAGE_NOTIFICATION_ID);
 
         loadMessages();
@@ -268,7 +267,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue())
                     return false;
 
-                messagesListAdapter.addRow(message);
+                if (!messagesListAdapter.addRow(message))
+                    return false;
 
                 // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                 if (message.getBUserSender().getEntityID().equals(
@@ -297,7 +297,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         etMessage.setOnEditorActionListener(this);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -330,7 +329,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     catch (NullPointerException e){
                         if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
                         showAlertToast("Unable to fetch image");
-                        dismissCard();
+                        dismissCardWithSmallDelay();
                         return;
                     }
 
@@ -340,7 +339,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     else {
                         if (DEBUG) Log.e(TAG, "Image is null");
-                        dismissCard();
+                        dismissCardWithSmallDelay();
                         showAlertToast("Error when loading the image.");
                     }
 
@@ -374,13 +373,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
                                 updateCard("Sent...", 100);
-                                dismissCard();
+                                dismissCardWithSmallDelay();
 //                                messagesListAdapter.addRow(bMessage);
                             }
 
                             @Override
                             public void onDoneWithError(BError error) {
-                                dismissCard();
+                                dismissCardWithSmallDelay();
                                 showAlertToast("Location could not been sent.");
                             }
                         });
@@ -438,10 +437,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public void onAuthenticated() {
         super.onAuthenticated();
+        if (DEBUG) Log.v(TAG, "onAuthenticated");
         loadMessages();
     }
 
@@ -503,13 +502,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             return;
         }
 
+        showCard("Sending...", 50);
+
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(text, thread.getId(), new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage message) {
 
+                updateCard("Sent...", 100);
+                dismissCardWithSmallDelay();
+
                 // If the event manager is not listening to the current thread we will add the message to the list from here.
                 // This could happen when the app is authenticating after it was killed by the system.
-                if (!EventManager.getInstance().isListeningToThread(thread.getEntityID()))
+                if (!EventManager.getInstance().isListeningToIcomingMessages(thread.getEntityID()))
                     messagesListAdapter.addRow(message);
             }
 
@@ -531,17 +535,17 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     public void onDone(BMessage message) {
                         if (DEBUG) Log.v(TAG, "Image is sent");
                         updateCard("Sent...", 100);
-                        dismissCard();
+                        dismissCardWithSmallDelay();
 
                         // If the event manager is not listening to the current thread we will add the message to the list from here.
                         // This could happen when the app is authenticating after it was killed by the system.
-                        if (!EventManager.getInstance().isListeningToThread(thread.getEntityID()))
+                        if (!EventManager.getInstance().isListeningToIcomingMessages(thread.getEntityID()))
                             messagesListAdapter.addRow(message);
                     }
 
                     @Override
                     public void onDoneWithError(BError error) {
-                        dismissCard();
+                        dismissCardWithSmallDelay();
                         showAlertToast("Image could not been sent. " + error.message);
                     }
                 });

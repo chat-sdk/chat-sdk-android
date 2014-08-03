@@ -174,14 +174,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         switch ((Integer)details.get(Prefs.LoginTypeKey))
         {
             case Facebook:
-                // TODO add premission if using this system of connecting, More reasnoble approach is to user the FBManager.
-                //Note we have to obtain the access token first so i will change this to work with the FBManager.
+                if (DEBUG) Log.d(TAG, "authing with fb.");
                 simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(BFacebookManager.ACCESS_TOKEN), handler);
                 break;
 
             case Twitter:
                 // TODO get twitter app id and etc.
-                simpleLogin.loginWithTwitter(com.braunster.chatsdk.network.BDefines.APIs.TwitterApiKey, "", 0L, handler);
+                simpleLogin.loginWithTwitter(BDefines.APIs.TwitterConsumerKey, "", 0L, handler);
                 break;
 
             case Password:

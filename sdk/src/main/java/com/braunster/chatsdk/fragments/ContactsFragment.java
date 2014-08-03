@@ -343,7 +343,12 @@ public class ContactsFragment extends BaseFragment {
                     case MODE_LOAD_THREAD_USERS:
                         if (DEBUG) Log.d(TAG, "Mode - Thread Users");
                         BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
-                        sourceUsers = thread.getUsers();
+
+                        // Remove the current user from the list.
+                        List<BUser> users = thread.getUsers();
+                        users.remove(BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+
+                        sourceUsers = users;
                         break;
                 }
 

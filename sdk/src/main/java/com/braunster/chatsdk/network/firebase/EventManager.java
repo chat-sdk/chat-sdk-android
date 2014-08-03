@@ -373,19 +373,25 @@ public class EventManager implements AppEvents {
         {
             startDate = messages.get(0).getDate();
             if (DEBUG) Log.d(TAG, "Fetching messages, Starting at: " + startDate.getTime() + ", Msg Text: " + messages.get(0).getText());
+
+            // The plus 1 is needed so we wont receive the last message again.
+            messagesQuery = messagesQuery.startAt(startDate.getTime() + 1).limit(BDefines.MAX_MESSAGES_TO_PULL);
         }
         else
         {
             if (DEBUG) Log.d(TAG, "No Messages");
             startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
+
+
+            // The plus 1 is needed so we wont receive the last message again.
+            messagesQuery = messagesQuery.limit(BDefines.MAX_MESSAGES_TO_PULL);
+
             /*startDate = [thread.lastMessageAdded dateByAddingTimeInterval:-bDays * 7];
             // TODO: Remove this
             startDate = [[NSDate date] dateByAddingTimeInterval:-bHours];*/
         }
 
 
-        // The plus 1 is needed so we wont receive the last message again.
-        messagesQuery = messagesQuery.startAt(startDate.getTime() + 1).limit(BDefines.MAX_MESSAGES_TO_PULL);
 
         IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
         FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), messagesQuery.getRef().toString(), incomingMessagesListener);
@@ -482,6 +488,14 @@ public class EventManager implements AppEvents {
      * @return true if handled.*/
     public boolean isListeningToThread(String entityID){
         return threadsIds.contains(entityID);
+    }
+
+    public boolean isListeningToIcomingMessages(String entityID){
+        return handledMessagesThreadsID.contains(entityID);
+    }
+
+    public boolean isListeningToUserDetailsChanged(String entityID){
+        return usersIds.contains(entityID);
     }
 
     /** Remove listeners from thread id. The listener's are The thread details, messages and added users.*/

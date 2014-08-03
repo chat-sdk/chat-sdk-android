@@ -758,6 +758,9 @@ public class BUser extends BUserEntity  {
     }
 
     public String getPushChannel(){
+        if (entityID == null)
+            return "";
+
         return USER_PREFIX + (entityID.replace("-",""));
     }
     //ASK what is this.

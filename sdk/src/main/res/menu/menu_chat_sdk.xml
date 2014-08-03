@@ -2,8 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.braunster.chatsdk.activities.MainActivity">
+
     <item android:id="@+id/android_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
         app:showAsAction="never" />
+
+    <item android:id="@+id/contact_developer"
+        android:title="@string/action_contact_developer"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
+
 </menu>

@@ -26,6 +26,10 @@ public class BDefines {
 
     public static final int MAX_MESSAGES_TO_PULL = 30;
 
+    public static final String ContactDeveloper_Email = "itzik.register@gmail.com";
+    public static final String ContactDeveloper_Subject = "Report: ";
+    public static final String ContactDeveloper_DialogTitle = "Contact Developer";
+
     public static final class APIs{
         /* Change this id's to your app id's!*/
         // Facebook
@@ -35,7 +39,8 @@ public class BDefines {
         public static final String GoogleAppId = "";
 
         // Twitter
-        public static final String TwitterApiKey = "";
+        public static final String TwitterConsumerKey = "nBgJK3BFEdtekszIvpdg1FnsF";
+        public static final String TwitterConsumerSecret = "9kTtJBTQrjKqGnwqX7jzfT7Z8khmwQKQ5T0IcjpM77cJlKKAOr";
 
         // Parse
         public static final String ParseAppId = "oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d";

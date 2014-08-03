@@ -4,8 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -39,7 +39,7 @@ public class SearchActivity extends BaseActivity {
 
     public static final String USER_IDS_LIST = "User_Ids_List";
 
-    private Button btnSearch;
+    private Button btnSearch, btnAddContacts;
     private EditText etInput;
     private ListView listResults;
     private UsersWithStatusListAdapter adapter;
@@ -58,6 +58,8 @@ public class SearchActivity extends BaseActivity {
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
 
+        getActionBar().setHomeButtonEnabled(true);
+
     }
 
     @Override
@@ -69,8 +71,19 @@ public class SearchActivity extends BaseActivity {
 
     private void initViews(){
         btnSearch = (Button) findViewById(R.id.chat_sdk_btn_search);
+        btnAddContacts = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         etInput = (EditText) findViewById(R.id.chat_sdk_et_search_input);
         listResults = (ListView) findViewById(R.id.chat_sdk_list_search_results);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home)
+        {
+            onBackPressed();
+        }
+        return true;
     }
 
     @Override
@@ -82,7 +95,7 @@ public class SearchActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        adapter = new UsersWithStatusListAdapter(this);
+        adapter = new UsersWithStatusListAdapter(this, !action.equals(ACTION_ADD_WHEN_FOUND));
         listResults.setAdapter(adapter);
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +103,7 @@ public class SearchActivity extends BaseActivity {
             public void onClick(View v) {
                 if (etInput.getText().toString().isEmpty())
                 {
-                    showToast("Please enter some text for the search.");
+                    showAlertToast("Please enter some text for the search.");
                     return;
                 }
 
@@ -127,7 +140,7 @@ public class SearchActivity extends BaseActivity {
 
                         if (usersFoundCount == 0)
                         {
-                            showToast("No match found.");
+                            showAlertToast("No match found.");
                         }
                         if (action.equals(ACTION_ADD_WHEN_FOUND))
                         {
@@ -138,7 +151,6 @@ public class SearchActivity extends BaseActivity {
                                 setResult(RESULT_CANCELED, resultIntent);
                                 finish();
                             }
-
 
                             String ids[] = userIds.toArray(new String[userIds.size()]);
                             Bundle extras = new Bundle();
@@ -158,13 +170,44 @@ public class SearchActivity extends BaseActivity {
             }
         });
 
-        listResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+/*        listResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Adding the picked user as a contact to the current user.
                 BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(adapter.getItem(position).asBUser());
                 createAndOpenThreadWithUsers(adapter.getItem(position).getText(),
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), adapter.getItem(position).asBUser());
+            }
+        });*/
+
+        btnAddContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (action.equals(ACTION_ADD_WHEN_FOUND))
+                    return;
+
+                if (adapter.getSelectedCount() == 0)
+                {
+                    showAlertToast("No contacts were selected.");
+                    return;
+                }
+
+                BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                for (int i = 0; i < adapter.getSelectedCount(); i++) {
+                    int pos = -1;
+                    if (adapter.getSelectedUsersPositions().valueAt(i))
+                        pos = adapter.getSelectedUsersPositions().keyAt(i);
+
+                    currentUser.addContact(adapter.getListData().get(pos).asBUser());
+                }
+
+                showToast(adapter.getSelectedCount() + " Users were added as contacts.");
+
+                Intent intent = new Intent(MainActivity.Action_Contacts_Added);
+                sendBroadcast(intent);
+
+                finish();
             }
         });
     }

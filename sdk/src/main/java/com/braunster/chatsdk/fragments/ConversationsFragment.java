@@ -146,12 +146,14 @@ public class ConversationsFragment extends BaseFragment {
 
     Handler handler = new Handler(Looper.getMainLooper()){
         @Override
+
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
             switch (msg.what)
             {
                 case 1:
+                    if (DEBUG) Log.d(TAG, "Updating UI");
                     listAdapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
                     progressBar.setVisibility(View.GONE);
                     listThreads.setVisibility(View.VISIBLE);

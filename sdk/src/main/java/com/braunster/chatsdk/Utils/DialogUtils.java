@@ -2,7 +2,6 @@ package com.braunster.chatsdk.Utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -25,18 +24,17 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
-import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.List;
 
@@ -144,9 +142,7 @@ public class DialogUtils {
             if (EditorInfo.IME_ACTION_DONE == actionId) {
                 if (mEditText.getText().toString().isEmpty())
                 {
-                    Toast t = Toast.makeText(getActivity(), "Please enter chat name", Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.TOP, 0, 0);
-                    t.show();
+                    ChatSDKToast.toastAlert(getActivity(), "Please enter chat name", Gravity.TOP);
                     return true;
                 }
 
@@ -193,7 +189,7 @@ public class DialogUtils {
                 @Override
                 public void onDoneWithError(BError error) {
                     if (DEBUG) Log.e(TAG, "cant find friends.");
-                    Toast.makeText(getActivity(), "Cant find friends...", Toast.LENGTH_SHORT).show();
+                    ChatSDKToast.toastAlert(getActivity(), "Cant find friends...");
                 }
             });
 
@@ -308,13 +304,7 @@ public class DialogUtils {
                         public void onErrorResponse(VolleyError error) {
                             progressBar.setVisibility(View.GONE);
 
-                            SuperToast superToast = new SuperToast(context);
-                            superToast.setDuration(SuperToast.Duration.MEDIUM);
-                            superToast.setBackground(SuperToast.Background.RED);
-                            superToast.setTextColor(Color.WHITE);
-                            superToast.setAnimations(SuperToast.Animations.FLYIN);
-                            superToast.setText("Error while loading");
-                            superToast.show();
+                            ChatSDKToast.toastAlert(context, "Error while loading");
 
                             imagePopup.dismiss();
                         }

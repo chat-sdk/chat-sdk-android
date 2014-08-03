@@ -18,6 +18,8 @@
         android:gravity="center"
         style="@style/TextViewStyle"
         android:text="name"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:textColor="@android:color/white"
         android:id="@+id/chat_sdk_name"/>
 </LinearLayout>

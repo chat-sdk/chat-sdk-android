@@ -321,9 +321,6 @@ public class BMessage extends BMessageEntity {
 
         if (map.containsKey(EntityProperties.FontSize) && !map.get(EntityProperties.FontSize).equals(""))
             this.fontSize = (Integer) map.get(EntityProperties.FontSize);
-
-        // ASK what is the last updated attribute? This attr is not saved in the db.
-//        lastUpdated = new Date();
     }
 
     @Override
@@ -367,18 +364,8 @@ public class BMessage extends BMessageEntity {
                 && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 
-    // ASK if needed.
-   /* -(NSComparisonResult) compare: (BMessage *) message {
-        return [self.date compare:message.date];
-    }*/
-
     public boolean isMine(){
         return getBUserSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
-    }
-
-    // TODO all color and picture methods.
-    public float getTextHeightWithFont(){
-        return 0.0f;
     }
 
     @Override

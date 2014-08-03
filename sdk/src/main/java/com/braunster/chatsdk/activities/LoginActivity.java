@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.TwitterUtils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BDefines;
@@ -47,7 +48,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     private UiLifecycleHelper uiHelper;
     private LoginButton fbLoginButton;
-    private Button btnLogin, btnReg, btnAnon;
+    private Button btnLogin, btnReg, btnAnon, btnTwitter;
     private EditText etName, etPass;
     private CircleImageView appIconImage;
 
@@ -84,6 +85,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
         btnAnon = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
+        btnTwitter = (Button) findViewById(R.id.chat_sdk_btn_twitter_login);
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
         etName = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
@@ -93,10 +95,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         appIconImage.post(new Runnable() {
             @Override
             public void run() {
-//                Log.d(TAG, "Height: " + appIconImage.getHeight() + ", Width: " + appIconImage.getWidth());
-//                Bitmap bitmap = ((BitmapDrawable) appIconImage.getDrawable()).getBitmap();
-//                bitmap = scaleImage( bitmap, Math.min(appIconImage.getWidth(), appIconImage.getHeight()) );
-//                appIconImage.setImageBitmap(bitmap);
                 appIconImage.setVisibility(View.VISIBLE);
             }
         });
@@ -108,6 +106,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         btnReg.setOnClickListener(this);
         btnAnon.setOnClickListener(this);
         fbLoginButton.setOnClickListener(this);
+        btnTwitter.setOnClickListener(this);
 
         etPass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -122,6 +121,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onResume() {
         super.onResume();
+
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
         Map<String, ?> loginInfo =BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo();
@@ -274,9 +274,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 }
             });
         }
-//        else if (i == R.id.authButton){
-//            showProgDialog("Connecting");
-//        }
+        else if (i == R.id.chat_sdk_btn_twitter_login){
+            TwitterUtils.login();
+        }
     }
 
     private void toastErrorMessage(Object o, boolean login){

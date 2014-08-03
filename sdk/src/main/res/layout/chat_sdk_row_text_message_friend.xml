@@ -2,6 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
     android:id="@+id/layout_friend">
@@ -26,9 +27,8 @@
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:orientation="horizontal">
-            <TextView
+   <!--         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -37,7 +37,19 @@
                 android:id="@+id/txt_content"
                 android:padding="12dp"
                 android:layout_marginLeft="7dp"
+                style="@style/TextViewStyle"/>-->
+
+            <com.braunster.chatsdk.view.ChatBubbleTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Message Text"
+                android:layout_centerVertical="true"
+                android:padding="8dp"
+                app:bubble_gravity="left"
+                android:id="@+id/txt_content"
                 style="@style/TextViewStyle"/>
+
             </FrameLayout>
 
     </LinearLayout>

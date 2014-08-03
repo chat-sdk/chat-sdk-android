@@ -18,7 +18,7 @@ public class BFirebaseDefines {
     }
 
     public static final class Defaults{
-        public static final String MessageColor = "#4262EF";
+        public static final String MessageColor = "0.886275";
         public static final String MessageTextColor = "#000000";
         public static final String MessageFontName= "Roboto";
         public static final int MessageFontSize = 25;

@@ -7,14 +7,14 @@ android {
 
         debug {
             //TODO create a key for this SDK and not use my own.
-            storeFile file('/home/braunster/Android/braunserkey')
+            storeFile file('/media/braunster/Workspace/Android/braunserkey')
             keyAlias 'braunsteralias'
             keyPassword 'Itzikbraun1991'
             storePassword 'Itzikbraun1991'
         }
 
         release {
-            storeFile file('/home/braunster/Android/braunserkey')
+            storeFile file('/media/braunster/Workspace/Android/braunserkey')
             keyAlias 'braunsteralias'
             keyPassword 'Itzikbraun1991'
             storePassword 'Itzikbraun1991'

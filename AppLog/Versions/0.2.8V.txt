@@ -1,0 +1,33 @@
+##########################
+        V: 0.2.8
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Share images and links with app is now supported.
+# Improvements in the messages list.
+# Added a toast card so the user will have feedback that is message is on its way to the recipient.
+# The location received is opend in google maps with mark.
+
+##########################
+        BUG FIX
+--------------------------
+# Reload data after auth is done, So we see new messages that was send during the auth and so on.
+# Fix the the ListView problem with the imageBubbleSize causing LisvView to be sketchy.
+# Fix ChatBubbleImage view click show popup when pressed outside the bubble. The reason is that that the bubble is smaller then the size of the view.
+# Null shared prefs cause app to crash when first entering.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# App does double auth when login.
+-----------OLD------------
+# Need to Handle push notification for a message that already received.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+# Threads fragment can show the loading indicator for the all login process need to be fixed.
+
+
+

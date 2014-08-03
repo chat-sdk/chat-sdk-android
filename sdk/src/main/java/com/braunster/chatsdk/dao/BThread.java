@@ -16,6 +16,8 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -357,15 +359,15 @@ public class BThread extends BThreadEntity {
                 if (!user.getId().equals(curUser.getId()))
                 {
                     String n = user.getMetaName();
-                    if (DEBUG) Log.d(TAG, "User name: " + n);
-                    name += (!name.equals("")?", " : "") + n;
+
+                    if (StringUtils.isNotEmpty(n)) {
+                        if (DEBUG) Log.d(TAG, "User name: " + n);
+                        name += (!name.equals("") ? ", " : "") + n;
+                    }
                 }
             }
 
             return name;
-
-//       ASK     if (name.length() > 2)
-//                return name.substring(0, name.length() -2);
         }
         else if (type == Type.Public)
             return name;

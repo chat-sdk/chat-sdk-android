@@ -52,7 +52,9 @@ public class ParseUtils {
         final ParseFile parseFile = new ParseFile(DaoCore.generateEntity() + ".jpeg", getByteArray(b));
         final ParseFile thumbnailFile = new ParseFile(DaoCore.generateEntity() + ".jpeg", getByteArray(thumbnail, 50));
 
-        save(parseFile, thumbnailFile, listener);
+        String imageDimentions = ImageUtils.getDimensionString(b);
+
+        save(parseFile, thumbnailFile, imageDimentions, listener);
     }
 
     public static void saveImageToParse(Bitmap b, int size, final SaveCompletedListener listener){
@@ -85,7 +87,7 @@ public class ParseUtils {
         });
     }
 
-    private static void save(final ParseFile parseFile, final ParseFile thumnailFile, final MultiSaveCompletedListener listener){
+    private static void save(final ParseFile parseFile, final ParseFile thumnailFile, final String imageDimentions, final MultiSaveCompletedListener listener){
         parseFile.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -104,7 +106,7 @@ public class ParseUtils {
                             listener.onSaved(e, "");
                             return;
                         }
-                        else listener.onSaved(null, parseFile.getUrl(), thumnailFile.getUrl());
+                        else listener.onSaved(null, parseFile.getUrl(), thumnailFile.getUrl(), imageDimentions);
                     }
                 });
             }
@@ -127,6 +129,6 @@ public class ParseUtils {
     }
 
     public interface MultiSaveCompletedListener{
-        public void onSaved(ParseException exception, String... url);
+        public void onSaved(ParseException exception, String... data);
     }
 }

@@ -5,10 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent">
 
+    <!--Logout buttons, not used button is now in the action bar.-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         android:id="@+id/chat_sdk_logout_button_container">
 
         <com.facebook.widget.LoginButton
@@ -56,7 +58,7 @@
             android:layout_height="0dp"
             android:orientation="vertical"
             android:id="@+id/linear"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:gravity="center">
 
             <RelativeLayout
@@ -78,7 +80,7 @@
                     android:ems="10"
                     android:imeOptions="actionDone"
                     android:id="@+id/chat_sdk_et_name"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginLeft="5dp"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/chat_sdk_ic_name"
@@ -102,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="phone"
                     android:ems="10"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="5dp"
                     android:id="@+id/chat_sdk_et_phone_number"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/chat_sdk_ic_phone"
@@ -130,7 +132,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/chat_sdk_ic_email"
                     android:ems="10"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="5dp"
                     android:imeOptions="actionDone"
                     android:id="@+id/chat_sdk_et_mail"
                     android:layout_centerVertical="true"
