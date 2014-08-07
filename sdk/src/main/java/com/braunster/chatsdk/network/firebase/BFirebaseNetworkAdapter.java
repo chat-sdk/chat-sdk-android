@@ -4,8 +4,11 @@ import android.content.Context;
 import android.util.Log;
 
 import com.braunster.chatsdk.activities.MainActivity;
+import com.braunster.chatsdk.dao.BLinkData;
+import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -154,18 +157,21 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             public void authenticated(Error error, final User firebaseSimpleLoginUser) {
                 if (error != null || firebaseSimpleLoginUser == null)
                 {
+                    if (DEBUG) Log.e(TAG, "Error login in, Name: " + error.name());
                     resetAuth();
                     listener.onDoneWithError(firebaseSimpleLoginUser, error);
                 }
                 else handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
                     @Override
                     public void onDone(BUser user) {
+                        resetAuth();
                         listener.onDone(firebaseSimpleLoginUser);
                     }
 
                     @Override
                     public void onDoneWithError(BUser bUser, Object o) {
                         listener.onDoneWithError(null, o);
+                        resetAuth();
                     }
                 });
             }
@@ -175,12 +181,18 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         {
             case Facebook:
                 if (DEBUG) Log.d(TAG, "authing with fb.");
-                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(BFacebookManager.ACCESS_TOKEN), handler);
+                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(Keys.Facebook.AccessToken), handler);
                 break;
 
             case Twitter:
                 // TODO get twitter app id and etc.
-                simpleLogin.loginWithTwitter(BDefines.APIs.TwitterConsumerKey, "", 0L, handler);
+                Long userId;
+                if (details.get(Keys.UserId) instanceof Integer)
+                    userId = new Long((Integer) details.get(Keys.UserId));
+                else userId = (Long) details.get(Keys.UserId);
+
+                if (DEBUG) Log.d(TAG, "authing with twitter. id: " + userId);
+                simpleLogin.loginWithTwitter(BDefines.APIs.TwitterAccessToken, BDefines.APIs.TwitterAccessTokenSecret, userId, handler);
                 break;
 
             case Password:
@@ -218,8 +230,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         // Flag that the user has been authenticated
         setAuthenticated(true);
-
-        String token = (String) fuser.getThirdPartyUserData().get("accessToken");
 
         String aid = BUser.safeAuthenticationID(fuser.getUserId(), fuser.getProvider());
 
@@ -269,7 +279,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         {
             case FACEBOOK:
                 // Setting the name.
-                name =(String) thirdPartyData.get(BFacebookManager.DISPLAY_NAME);
+                name =(String) thirdPartyData.get(Keys.Facebook.DisplayName);
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                 {
                     if (DEBUG) Log.i("FATAL", "adding new meta name");
@@ -292,15 +302,19 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     linkedAccount.setUser(user.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(BFacebookManager.ACCESS_TOKEN));
+                linkedAccount.setToken((String) thirdPartyData.get(BDefines.Keys.Facebook.AccessToken));
 
                 break;
 
             case TWITTER:
                 // Setting the name.
-                name = (String) thirdPartyData.get(BFacebookManager.DISPLAY_NAME);
+                name = (String) thirdPartyData.get(Keys.Twitter.DisplayName);
+
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                     user.setMetaName(name);
+
+                TwitterManager.userId = Long.parseLong(fireUser.getUserId());
+                TwitterManager.profileImageUrl = (String) thirdPartyData.get(Keys.Twitter.ImageURL);
 
                 linkedAccount = user.getAccountWithType(BLinkedAccount.Type.TWITTER);
                 if (linkedAccount == null)
@@ -310,7 +324,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     linkedAccount.setUser(user.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(BFacebookManager.ACCESS_TOKEN));
+                linkedAccount.setToken((String) thirdPartyData.get(Keys.Twitter.AccessToken));
 
                 break;
 
@@ -332,21 +346,21 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Message Color.
         if (StringUtils.isEmpty(user.getMessageColor()) /*FIxME*/|| user.getMessageColor().equals("Red"))
         {
-            if (StringUtils.isNotEmpty(BFirebaseDefines.Defaults.MessageColor))
-                user.setMessageColor(BFirebaseDefines.Defaults.MessageColor);
+            if (StringUtils.isNotEmpty(BDefines.Defaults.MessageColor))
+                user.setMessageColor(BDefines.Defaults.MessageColor);
             else user.setMessageColor( BMessageEntity.colorToString( BMessageEntity.randomColor() ) );
         }
 
 
         // Text Color.
         if (StringUtils.isEmpty(user.getTextColor()))
-            user.setTextColor(BFirebaseDefines.Defaults.MessageTextColor);
+            user.setTextColor(BDefines.Defaults.MessageTextColor);
 
         // Font name.
         if (StringUtils.isEmpty(user.getFontName()))
         {
-            if (StringUtils.isNotEmpty(BFirebaseDefines.Defaults.MessageFontName))
-                user.setFontName(BFirebaseDefines.Defaults.MessageFontName);
+            if (StringUtils.isNotEmpty(BDefines.Defaults.MessageFontName))
+                user.setFontName(BDefines.Defaults.MessageFontName);
             /*else {
                 user.messageFontName = bSystemFont;
             }*/
@@ -355,7 +369,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         // Font size.
         if (user.getFontSize() == null || user.getFontSize() == 0){
-            user.setFontSize(BFirebaseDefines.Defaults.MessageFontSize);
+            user.setFontSize(BDefines.Defaults.MessageFontSize);
         }
 
         // Save the data
@@ -386,13 +400,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 // Adding the user identifier to the bugsense so we could track problems by user id.
                 if (BNetworkManager.BUGSENSE_ENABLED)
                     BugSenseHandler.setUserIdentifier(currentUser.getEntityID());
-
-                resetAuth();
             }
 
             @Override
             public void onDoneWithError() {
                 if (DEBUG) Log.e(TAG, "Failed to push user After update from FUser");
+                resetAuth();
             }
         });
     }
@@ -491,11 +504,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                         handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
                             @Override
                             public void onDone(BUser user) {
+                                resetAuth();
                                 listener.onLoginDone();
                             }
 
                             @Override
                             public void onDoneWithError(BUser user, Object o) {
+                                resetAuth();
                                 listener.onLoginFailed((BError) o);
                             }
                         });
@@ -801,9 +816,14 @@ TODO
         {
             String authID = getCurrentUserAuthenticationId();
             if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
-            return DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
+            BUser user = DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
+            if(DEBUG) {
+                if (user == null) Log.e(TAG, "Current user is null");
+                else if (StringUtils.isEmpty(user.getEntityID())) Log.e(TAG, "Current user entity id is null");
+            }
+            return user;
         }
-        if (DEBUG) Log.e(TAG, "Current user is null");
+        if (DEBUG) Log.e(TAG, "getCurrentUserAuthenticationIdr is null");
         return null;
     }
 
@@ -1205,7 +1225,17 @@ TODO
                 if (error == null)
                 {
                     if (DEBUG) Log.d(TAG, "Deleting thread from db.");
+                    List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.ThreadID, thread.getId());
+                    List<BMessage> messages = DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, thread.getId());
+
                     DaoCore.deleteEntity(thread);
+
+                    for (BLinkData d : list)
+                        DaoCore.deleteEntity(d);
+
+                    for (BMessage m : messages)
+                        DaoCore.deleteEntity(m);
+
                     if (DEBUG)
                     {
                         BThread deletedThread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
@@ -1235,10 +1265,12 @@ TODO
     public void setLastOnline(Date lastOnline) {
         BUser currentUser  = currentUser();
         currentUser.setLastOnline(lastOnline);
-        DaoCore.updateEntity(currentUser);
+        currentUser = DaoCore.updateEntity(currentUser);
 
-        FirebasePaths.userRef(currentUser.getEntityID()).appendPathComponent(Keys.BLastOnline).setValue(lastOnline.getTime());
-        // TODO push entity back to the firebase server.
+        pushUserWithCallback(null);
+//        FirebasePaths.userRef(currentUser.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BDetailsPath).appendPathComponent(Keys.BLastOnline).setValue(lastOnline.getTime());
+
+
     }
 
     private void updateLastOnline(){

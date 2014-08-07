@@ -4,13 +4,14 @@
     <string name="app_name">ChatSDK</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk_version_name">0.2.8</string>
+    <string name="chat_sdk_version_name">0.3.0</string>
     <string name="chat_sdk_version">Version:</string>
 
     <string name="register">Register</string>
     <string name="login">Login</string>
     <string name="anonymous_login">Anonymous Login</string>
-
+    <string name="connecting">Connecting&#8230;</string>
+    <string name="loading">Loading&#8230;</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="logout">Logout</string>
@@ -36,4 +37,6 @@
     <string name="action_logout">Logout</string>
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>
+    <string name="done_show_again">Done show again</string>
+    <string name="double_back_press_exit">Use double back button pressed to exit</string>
 </resources>

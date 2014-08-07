@@ -70,6 +70,7 @@ public class LocationActivity extends FragmentActivity
     public static final String LANITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String SNAP_SHOT_PATH = "snap_shot_path";
+    public static final String ZOOM = "zoom";
     public static final String BASE_64_FILE = "base_64_file";
 
 
@@ -78,11 +79,9 @@ public class LocationActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_locaction);
 
-        if (getIntent().getExtras() != null)
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(SHOW_LOCATION))
         {
-            // TODO get location data from intent.
-            if (getIntent().getExtras().containsKey(SHOW_LOCATION))
-                requestedLocation = new LatLng(getIntent().getExtras().getLong(LANITUDE), getIntent().getExtras().getLong(LONGITUDE));
+            requestedLocation = new LatLng(getIntent().getExtras().getLong(LANITUDE), getIntent().getExtras().getLong(LONGITUDE));
         }
         else
         {
@@ -188,13 +187,7 @@ public class LocationActivity extends FragmentActivity
         }
 
         intent.putExtra(SNAP_SHOT_PATH, file.getPath());
-
-    /*    try {
-            String base = Base64.encodeToString(FileUtils.readFileToByteArray(file), Base64.DEFAULT);
-            intent.putExtra(BASE_64_FILE, base);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        intent.putExtra(ZOOM, map.getCameraPosition().zoom);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -209,7 +202,7 @@ public class LocationActivity extends FragmentActivity
     @Override
     public void onConnected(Bundle bundle) {
 
-        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 
         //Register to location change if not null.
         if (mLocationRequest != null)
@@ -230,7 +223,8 @@ public class LocationActivity extends FragmentActivity
 
     private void setLocation(LatLng location){
         map.moveCamera(CameraUpdateFactory.newLatLng(location));
-        //        map.moveCamera(CameraUpdateFactory.zoomBy(map.getMaxZoomLevel()/4));
+
+        map.animateCamera(CameraUpdateFactory.zoomBy(calculateZoomLevel(findViewById(R.id.map).getWidth())));
     }
 
     @Override
@@ -266,7 +260,7 @@ public class LocationActivity extends FragmentActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(LocationActivity.this, "Location Changed", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(LocationActivity.this, "Location Changed", Toast.LENGTH_SHORT).show();
         setLocation(location);
     }
 
@@ -285,6 +279,19 @@ public class LocationActivity extends FragmentActivity
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         // Set the fastest update interval to 1 second
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+    }
+
+    private int calculateZoomLevel(int screenWidth) {
+        double equatorLength = 40075004; // in meters
+        double widthInPixels = screenWidth;
+        double metersPerPixel = equatorLength / 256;
+        int zoomLevel = 1;
+        while ((metersPerPixel * widthInPixels) > 20000) {
+            metersPerPixel /= 2;
+            ++zoomLevel;
+        }
+        if (DEBUG) Log.i(TAG, "zoom level = " + zoomLevel);
+        return zoomLevel;
     }
 
 }

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <attr name="bubble_gravity" format="enum">
         <enum name="left" value="0"/>
         <enum name="right" value="1"/>
     </attr>
+
+    <attr name="bubble_with_click_indicator" format="boolean"/>
 
     <attr name="bubble_color" format="color"/>
 
@@ -14,6 +17,7 @@
 
     <declare-styleable name="ChatBubbleImageView">
         <attr name="bubble_gravity"/>
+        <attr name="bubble_with_click_indicator"/>
         <attr name="bubble_color"/>
 
         <attr name="bubble_pressed_color" format="color"/>

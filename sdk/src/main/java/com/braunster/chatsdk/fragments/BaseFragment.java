@@ -1,5 +1,6 @@
 package com.braunster.chatsdk.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,8 +11,11 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.dao.BLinkedContact;
@@ -80,6 +84,38 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
     }
 
+    public void setupUI(View view) {
+
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+
+            view.setOnTouchListener(new View.OnTouchListener() {
+
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard(getActivity());
+                    return false;
+                }
+
+            });
+        }
+
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+
+                View innerView = ((ViewGroup) view).getChildAt(i);
+
+                setupUI(innerView);
+            }
+        }
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
     @Override
     public void initViews() {
 
@@ -96,7 +132,11 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
     /** Show a toast.*/
-    void showToast(String text){
+    void showToast(String text)
+    {
+        if (superActivityToast == null)
+            return;
+
         superActivityToast.setText(text);
         superActivityToast.show();
     }

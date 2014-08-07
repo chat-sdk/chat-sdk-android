@@ -25,7 +25,7 @@
         android:layout_centerVertical="true"
         android:padding="3dp"
         android:gravity="center_horizontal"
-        style="@style/TextViewStyleSmall"/>
+        style="@style/MessageDateStyle"/>
 
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
     <!--android:layout_toLeftOf="@id/txt_time"-->
@@ -36,6 +36,7 @@
         android:layout_toRightOf="@id/img_user_image"
         app:image_padding="10dp"
         app:bubble_gravity="left"
+        app:bubble_with_click_indicator="false"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
         android:visibility="invisible"/>

@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.TwitterUtils;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BDefines;
@@ -27,12 +26,15 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
 import com.firebase.simplelogin.User;
 import com.firebase.simplelogin.enums.Error;
+import com.parse.signpost.OAuth;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.braunster.chatsdk.Utils.DialogUtils.ChatSDKTwitterLoginDialog;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -71,6 +73,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                  + "PASSWORD: " + Provider.PASSWORD.ordinal()
                  + "GOOGLE: " + Provider.GOOGLE.ordinal()
                  + "ANONYMOUS: " + Provider.ANONYMOUS.ordinal());*/
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if(DEBUG) Log.v(TAG, "onNewIntent");
+
+        if (intent != null && intent.getData() != null)
+        {
+            String verifier = intent.getData().getQueryParameter(OAuth.OAUTH_VERIFIER);
+            if (DEBUG) Log.d(TAG, "Verifier"  + verifier) ;
+        }
     }
 
     private void initViews(){
@@ -275,7 +290,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             });
         }
         else if (i == R.id.chat_sdk_btn_twitter_login){
-            TwitterUtils.login();
+            final ChatSDKTwitterLoginDialog dialog = ChatSDKTwitterLoginDialog.getInstance();
+            dialog.setListener(new CompletionListenerWithDataAndError<User, Object>(){
+                @Override
+                public void onDone(User user) {
+                    dialog.dismiss();
+                    afterLogin();
+                }
+
+                @Override
+                public void onDoneWithError(User user, Object error) {
+                    dialog.dismiss();
+                    toastErrorMessage(error, true);
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "TwitterLogin");
         }
     }
 

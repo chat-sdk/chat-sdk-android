@@ -10,5 +10,6 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Header"
         style="@style/TextViewStyle"
-        android:id="@+id/chat_sdk_txt" />
+        android:id="@+id/chat_sdk_txt"
+        android:layout_marginLeft="8dp"/>
 </LinearLayout>

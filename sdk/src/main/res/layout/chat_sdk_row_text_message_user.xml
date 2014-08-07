@@ -53,7 +53,7 @@
         android:id="@+id/txt_time"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        style="@style/TextViewStyleSmall"/>
+        style="@style/MessageDateStyle"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         style="@style/CircleIconStyle"

@@ -17,13 +17,13 @@ import com.braunster.chatsdk.fragments.ThreadsFragment;
  */
 public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
-    private final String[] TITLES = { "Profile", "Chat Rooms", "Contacts", "Conversations"};
+    private final String[] TITLES = {"Conversations", "Chat Rooms", "Contacts", "Profile"};
 
-    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ProfileFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ConversationsFragment.newInstance()};
+    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ConversationsFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ProfileFragment.newInstance()};
 
-    private final int[] ICONS = new int[] {R.drawable.ic_action_user, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_private};
+    private final int[] ICONS = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
 
-    public static final int Profile = 0, ChatRooms = 1, Contacts = 2, Conversations = 3;
+    public static final int Profile = 3, ChatRooms = 1, Contacts = 2, Conversations = 0;
 
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);

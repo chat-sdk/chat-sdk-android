@@ -210,9 +210,8 @@ public class ContactsFragment extends BaseFragment {
         // Each user that will be found in the search activity will be automatically added as a contact.
         if (id == R.id.action_chat_sdk_add)
         {
-            Intent intent = new Intent();
+            Intent intent = new Intent(getActivity(), SearchActivity.class);
 
-            intent.setAction(SearchActivity.ACTION_ADD_WHEN_FOUND);
             startActivityForResult(intent, SearchActivity.GET_CONTACTS_ADDED_REQUEST);
             return true;
         }

@@ -59,6 +59,8 @@ public class ConversationsFragment extends BaseFragment {
 
         initViews();
 
+        initToast();
+
         loadDataOnBackground();
 
         return mainView;

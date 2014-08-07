@@ -33,6 +33,20 @@ public class ParseUtils {
         save(parseFile, listener);
     }
 
+    public static void saveImageToParse(Bitmap b, int size, final SaveCompletedListener listener){
+        b = ImageUtils.scaleImage(b, size);
+
+        if (DEBUG) Log.d(TAG,
+                "Saving bitmap, Size: " + String.valueOf(ImageUtils.byteSizeOf(b))
+                        + "Width: " + b.getWidth() + ", Height: " + b.getHeight() );
+
+        // Saving the image to parse.
+        final ParseFile parseFile = new ParseFile(DaoCore.generateEntity() + ".jpeg", getByteArray(b));
+
+        // Save
+        save(parseFile, listener);
+    }
+
     public static void saveImageFileToParseWithThumbnail(final String path, final int thumbnailSize, MultiSaveCompletedListener listener){
         //  Loading the bitmap
         Bitmap b = ImageUtils.getCompressed(path);
@@ -55,20 +69,6 @@ public class ParseUtils {
         String imageDimentions = ImageUtils.getDimensionString(b);
 
         save(parseFile, thumbnailFile, imageDimentions, listener);
-    }
-
-    public static void saveImageToParse(Bitmap b, int size, final SaveCompletedListener listener){
-        b = ImageUtils.scaleImage(b, size);
-
-        if (DEBUG) Log.d(TAG,
-                "Saving bitmap, Size: " + String.valueOf(ImageUtils.byteSizeOf(b))
-                        + "Width: " + b.getWidth() + ", Height: " + b.getHeight() );
-
-        // Saving the image to parse.
-        final ParseFile parseFile = new ParseFile(DaoCore.generateEntity() + ".jpeg", getByteArray(b));
-
-        // Save
-        save(parseFile, listener);
     }
 
     private static void save(final ParseFile parseFile, final SaveCompletedListener listener){

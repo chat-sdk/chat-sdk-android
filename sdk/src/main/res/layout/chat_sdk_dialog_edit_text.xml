@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/et_enter"
-        android:inputType="text"
+        android:inputType="textCapWords"
         android:imeOptions="actionDone"
         android:layout_margin="10dp"
         android:layout_gravity="center_horizontal" />

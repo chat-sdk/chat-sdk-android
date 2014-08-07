@@ -1,12 +1,20 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
@@ -34,6 +42,7 @@ import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Created by braunster on 18/06/14.
@@ -80,14 +89,30 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
         if (getIntent() != null && getIntent().getExtras() != null)
         {
+            if (DEBUG) Log.d(TAG, "From login");
             fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
             // So we wont encounter this flag again.
             getIntent().removeExtra(FROM_LOGIN);
         } else fromLoginActivity = false;
 
+        if (savedInstanceState != null)
+            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN);
+
         if (enableCardToast)
             SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null && intent.getExtras() != null)
+        {
+            if (DEBUG) Log.d(TAG, "From login");
+            fromLoginActivity = intent.getExtras().getBoolean(FROM_LOGIN, false);
+            // So we wont encounter this flag again.
+            intent.removeExtra(FROM_LOGIN);
+        }
     }
 
     @Override
@@ -100,6 +125,9 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (DEBUG) Log.v(TAG, "onResumed, From login: " + fromLoginActivity +", Check online: " + checkOnlineOnResumed);
+
         if (integratedWithFacebook)
             uiHelper.onResume();
 
@@ -150,7 +178,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                             }
                             else session = Session.getActiveSession();
 
-                            Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BFacebookManager.ACCESS_TOKEN} , loginTypeKey, session.getAccessToken());
+                            Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Keys.Facebook.AccessToken} , loginTypeKey, session.getAccessToken());
 
                             BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
                                     data, new CompletionListenerWithDataAndError<User, Object>() {
@@ -221,10 +249,47 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         if (integratedWithFacebook) uiHelper.onSaveInstanceState(outState);
 
         outState.putBoolean(FROM_LOGIN, fromLoginActivity);
-        SuperCardToast.onSaveState(outState);
+
+        if (enableCardToast)
+            SuperCardToast.onSaveState(outState);
+    }
+
+    /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
+    public void setupUI(View view) {
+
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+
+            view.setOnTouchListener(new View.OnTouchListener() {
+
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard(BaseActivity.this);
+                    return false;
+                }
+
+            });
+        }
+
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+
+                View innerView = ((ViewGroup) view).getChildAt(i);
+
+                setupUI(innerView);
+            }
+        }
+    }
+
+    /** Hide the Soft Keyboard.*/
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     void initToast(){
@@ -415,6 +480,49 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         }
     }
 
+    protected void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title if not null
+        if (title != null && !title.equals(""))
+            alertDialogBuilder.setTitle(title);
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton(p, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (pos != null)
+                            try {
+                                pos.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(n, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        if (neg != null)
+                            try {
+                                neg.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
 
 
     private void onSessionStateChange(Session session, final SessionState state, Exception exception){

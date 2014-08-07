@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dip"
         app:pstsShouldExpand="true"
+        app:pstsIndicatorColor="@android:color/holo_blue_dark"
         android:background="@drawable/background_tab" />
 
     <android.support.v4.view.ViewPager

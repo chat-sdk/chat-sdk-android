@@ -2,11 +2,16 @@ package com.braunster.chatsdk.Utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -18,11 +23,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -32,9 +41,15 @@ import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.firebase.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
+import com.firebase.simplelogin.User;
+
+import org.scribe.model.Token;
+import org.scribe.oauth.OAuthService;
 
 import java.util.List;
 
@@ -170,7 +185,7 @@ public class DialogUtils {
         // TODO add check option for each user and return the list when done.
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            final View view = inflater.inflate(R.layout.chat_sdk_fb_friends_list_dialog, null);
+            final View view = inflater.inflate(R.layout.chat_sdk_dialog_fb_friends_list, null);
 
 
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -214,6 +229,122 @@ public class DialogUtils {
             this.listener = listener;
         }
     }
+
+    public static class ChatSDKTwitterLoginDialog extends DialogFragment {
+
+        private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
+
+        protected EditText etPin;
+        private WebView webView;
+        private OAuthService service;
+        private Token requestToken;
+        private LinearLayout progressBar;
+        private CompletionListenerWithDataAndError<User, Object> listener;
+
+        /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
+        private boolean loginIn = false;
+
+        public static ChatSDKTwitterLoginDialog getInstance(){
+            ChatSDKTwitterLoginDialog dialog = new ChatSDKTwitterLoginDialog();
+            return dialog;
+        }
+
+        // TODO add check option for each user and return the list when done.
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            final View view = inflater.inflate(R.layout.chat_sdk_dialog_twitter_login, null);
+
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int width = size.x;
+            int height = size.y;
+
+            int padding = (int) (20 * getActivity().getResources().getDisplayMetrics().density);
+
+            view.findViewById(R.id.content).setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+
+            webView = (WebView) view.findViewById(R.id.webView);
+            etPin =  ((EditText)view.findViewById(R.id.chat_sdk_et_pin_code));
+            progressBar = (LinearLayout) view.findViewById(R.id.chat_sdk_progressbar);
+
+            webView.setWebViewClient(new WebViewClient(){
+
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+                    if (DEBUG) Log.v(TAG, "shouldOverrideUrlLoading, Url: " + url );
+
+                    if (!url.startsWith("http://androidchatsdktwitter.com/?oauth_token"))
+                        return false;
+
+                    Uri uri = Uri.parse(url);
+                    String ver = uri.getQueryParameter("oauth_verifier");
+
+                    TwitterManager.getVerifierThread(ver, listener).start();
+
+                    ((TextView) progressBar.findViewById(R.id.chat_sdk_progressbar_text)).setText(getActivity().getResources().getString(R.string.connecting));
+                    webView.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    loginIn = true;
+
+                    return true;
+                }
+
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    if (DEBUG) Log.v(TAG, "onPageFinished, Url: " + url );
+
+                    if (loginIn)
+                        return;
+
+                    progressBar.setVisibility(View.INVISIBLE);
+                    webView.setVisibility(View.VISIBLE);
+                }
+            });
+
+           etPin.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+               @Override
+               public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                   if (actionId == EditorInfo.IME_ACTION_DONE) {
+                       if (etPin.getText().toString().isEmpty())
+                           return true;
+
+                       TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
+                   }
+                   return false;
+               }
+           });
+
+            view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
+                }
+            });
+
+            TwitterManager.getAuthorizationURLThread(handler).start();
+
+            return view;
+        }
+
+        Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                webView.loadUrl((String) msg.obj);
+            }
+        };
+
+        public void setListener(CompletionListenerWithDataAndError<User, Object> listener) {
+            this.listener = listener;
+        }
+    }
+
     /** A popup to select the type of message to send, "Text", "Image", "Location".*/
     public static PopupWindow getMenuOptionPopup(Context context, View.OnClickListener listener){
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

@@ -478,6 +478,17 @@ public abstract class AbstractNetworkAdapter {
         keyValuesEditor.apply();
     }
 
+    public void addLoginInfoData(String key, Object value){
+        SharedPreferences.Editor keyValuesEditor = BNetworkManager.preferences.edit();
+        if (value instanceof Integer)
+            keyValuesEditor.putInt(key, (Integer) value);
+        else if (value instanceof String)
+            keyValuesEditor.putString(key, (String) value);
+        else Log.e(TAG, "Cant add this --> " + value+ " to the prefs");
+
+        keyValuesEditor.apply();
+    }
+
     //http://stackoverflow.com/questions/8151523/how-to-store-and-retrieve-key-value-kind-of-data-using-saved-preferences-andro
     public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();

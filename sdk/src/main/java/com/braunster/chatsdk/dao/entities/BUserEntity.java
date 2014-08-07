@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
+import com.braunster.chatsdk.network.firebase.BPath;
 import com.firebase.simplelogin.enums.Provider;
 
 import java.io.File;
@@ -44,6 +46,11 @@ public abstract class BUserEntity extends Entity<BUser> {
         prefix += aid;
 
         return prefix;
+    }
+
+    @Override // Note Done!
+    public BPath getPath() {
+        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
     }
 
     public abstract String[] getCacheIDs();

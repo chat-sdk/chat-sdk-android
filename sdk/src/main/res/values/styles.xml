@@ -27,6 +27,13 @@
         <item name="android:padding">2dp</item>
     </style>
 
+    <style name="MessageDateStyle">
+        <item name="android:textSize">13dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
     <!--Login Activity Button style-->
     <style name="LoginButtonsStyle">
         <item name="android:textColor">@android:color/white</item>

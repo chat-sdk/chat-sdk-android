@@ -35,6 +35,7 @@ import com.braunster.chatsdk.view.ChatBubbleTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -447,7 +448,7 @@ public class MessagesListAdapter extends BaseAdapter{
                                         message.getType(),
                                         user.getId(),
                                         user.getMetaPictureUrl(),
-                                        String.valueOf(simpleDateFormat.format(message.getDate())),
+                                        String.valueOf(getFormat(message).format(message.getDate())),
                                         message.getText(),
                                         user.getMessageColor(),
                                         user.getTextColor());
@@ -461,6 +462,31 @@ public class MessagesListAdapter extends BaseAdapter{
                     list.add(fromBMessage(message));
 
             return list;
+        }
+
+        public static SimpleDateFormat getFormat(BMessage message){
+            Date curTime = new Date();
+            long interval = (curTime.getTime() - message.getDate().getTime()) / 1000L;
+
+            // More then a day ago
+            if (interval > 3600 * 24)
+            {
+                // More then a year
+                if (interval > 3600 * 24 * 365)
+                {
+                    simpleDateFormat.applyPattern("MM/yy");
+                    return simpleDateFormat;
+                }
+                else {
+                    simpleDateFormat.applyPattern("MMM dd");
+                    return simpleDateFormat;
+                }
+            }
+            else
+            {
+                simpleDateFormat.applyPattern("HH:mm");
+                return simpleDateFormat;
+            }
         }
     }
 }

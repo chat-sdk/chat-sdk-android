@@ -37,11 +37,14 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
 import com.parse.ParseException;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +76,6 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false, isProfilePicChanged;
 
     private Bundle savedState;
-//    private ProfilePictureView profilePictureView;
     private CircleImageView profileCircleImageView;
 
     private Integer loginType;
@@ -139,6 +141,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         if (inflater != null)
             mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
         else return;
+
+        setupUI(mainView);
 
         // Changing the weight of the view according to orientation.
         // This will make sure (hopefully) there is enough space to show the views in landscape mode.
@@ -235,11 +239,10 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         //endregion
 
         // Long click will open the gallery so the user can change is picture.
-        profileCircleImageView.setOnLongClickListener(new View.OnLongClickListener() {
+        profileCircleImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 pickIntent();
-                return false;
             }
 
             private void pickIntent(){
@@ -345,7 +348,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                     if (image != null) {
                         if (DEBUG) Log.i(TAG, "Image is not null");
-                        saveProfilePicToParse(image.getPath());
+                        saveProfilePicToParse(image.getPath(), true);
                     }
                     else if (DEBUG) Log.e(TAG, "Image is null");
 
@@ -385,10 +388,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
         return super.onOptionsItemSelected(item);
     }
+
     /*############################################*/
     /* UI*/
-
-
     /** Fetching the user details from the user's metadata.*/
     private void setDetails(int loginType){
         if (mainView == null || getActivity() == null)
@@ -401,7 +403,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
         etMail.setText(user.getMetaEmail());
 
-        setProfilePic(loginType);
+        loadProfilePic(loginType);
     }
 
     private void setDetails(int loginType, Bundle bundle){
@@ -409,10 +411,10 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         etPhone.setText(bundle.getString(S_I_D_PHONE));
         etMail.setText(bundle.getString(S_I_D_EMAIL));
 
-        setProfilePic(loginType);
+        loadProfilePic(loginType);
     }
 
-    private void setProfilePic(int loginType){
+    private void loadProfilePic(int loginType){
         switch (loginType)
         {
             case BDefines.BAccountType.Facebook:
@@ -420,19 +422,38 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 break;
 
             case BDefines.BAccountType.Password:
-                notFacebookLogin();
+//                notFacebookLogin();
                 // Use facebook profile picture only if has no other picture saved.
-//                setProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
+//                loadProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
                 setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL));
                 break;
 
             case BDefines.BAccountType.Anonymous:
                 profileCircleImageView.setImageResource(R.drawable.ic_action_user);
-                notFacebookLogin();
+//                notFacebookLogin();
 
             case BDefines.BAccountType.Twitter:
+                getProfileFromTwitter();
                 break;
         }
+    }
+
+    private void setProfilePic(final Bitmap bitmap){
+        if (DEBUG) Log.v(TAG, "setProfilePic, Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
+        // load image into imageview
+        final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+
+        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
+        if (size == 0)
+        {
+            profileCircleImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+                    profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
+                }
+            });
+        } else profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
     }
 
     private void setProfilePicFromURL(String url){
@@ -447,20 +468,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             @Override
             public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
                 if (response.getBitmap() != null) {
-                    // load image into imageview
-                    final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-
-                    // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
-                    if (size == 0)
-                    {
-                        profileCircleImageView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-                                profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
-                            }
-                        });
-                    } else profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
+                    setProfilePic(response.getBitmap());
                 }
             }
 
@@ -472,33 +480,27 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         });
     }
 
-    private void saveProfilePicToParse(String path) {
+    private void saveProfilePicToParse(String path, boolean setAsPic) {
         //  Loading the bitmap
-        final Bitmap b = ImageUtils.loadBitmapFromFile(path);
-
-        if (b == null)
+        if (setAsPic)
         {
-            if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid");
-            return;
+            final Bitmap b = ImageUtils.loadBitmapFromFile(path);
+
+            if (b == null)
+            {
+                if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid");
+                return;
+            }
+            setProfilePic(b);
         }
 
-        int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
-        if (size == 0)
-        {
-            profileCircleImageView.post(new Runnable() {
-                @Override
-                public void run() {
-                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-                    profileCircleImageView.setImageBitmap(scaleImage(b, size));
-                }
-            });
-        } else profileCircleImageView.setImageBitmap(scaleImage(b, size));
+        saveProfilePicToParse(path);
+    }
 
-        // Saving the image to parse, Also saving a small image.
-        ParseUtils.saveImageFileToParse(path, new ParseUtils.SaveCompletedListener() {
+    private void saveProfilePicToParse(String path){
+        ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException exception, String url) {
+            public void onSaved(ParseException exception, String... data) {
                 if (exception != null)
                 {
                     if (DEBUG) Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
@@ -509,16 +511,10 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
                 isProfilePicChanged = true;
-                currentUser.setMetadataString(BDefines.Keys.BPictureURL, url);
+                currentUser.setMetadataString(BDefines.Keys.BPictureURL, data[0]);
+                currentUser.setMetadataString(BDefines.Keys.BPictureURLThumbnail, data[1]);
 
-                // Saving the thumbnail
-                ParseUtils.saveImageToParse(b, 100, new ParseUtils.SaveCompletedListener() {
-                    @Override
-                    public void onSaved(ParseException exception, String url) {
-                        currentUser.setMetadataString(BDefines.Keys.BPictureURLThumbnail, url);
-                        updateProfileIfNeeded();
-                    }
-                });
+                updateProfileIfNeeded();
             }
         });
     }
@@ -549,29 +545,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                                 @Override
                                 public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
                                     if (response.getBitmap() != null) {
-                                        final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+                                        setProfilePic(response.getBitmap());
 
-                                        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
-                                        if (size == 0) {
-                                            profileCircleImageView.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-                                                    profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
-                                                }
-                                            });
-                                        } else
-                                            profileCircleImageView.setImageBitmap(scaleImage(response.getBitmap(), size));
-
-                                        // Saving the image to tmp file.
-                                        try {
-                                            File tmp = File.createTempFile("Pic", ".jpg", getActivity().getCacheDir());
-                                            ImageUtils.saveBitmapToFile(tmp, response.getBitmap());
-                                            if (DEBUG) Log.i(TAG, "Temp file path: " + tmp.getPath());
-                                            saveProfilePicToParse(tmp.getPath());
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
+                                        createTempFileAndSave(response.getBitmap());
                                     }
                                 }
 
@@ -587,6 +563,55 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                     showToast("Unable to fetch user details from fb");
                 }
             });
+        }
+    }
+
+    private void getProfileFromTwitter(){
+        // Use facebook profile picture only if has no other picture saved.
+        String savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+
+        if (StringUtils.isNotEmpty(savedUrl))
+            setProfilePicFromURL(savedUrl);
+        else {
+            String imageUrl = TwitterManager.profileImageUrl;
+            if (DEBUG) Log.d(TAG, "Image URL: " + imageUrl);
+            if (StringUtils.isNotEmpty(imageUrl))
+            {
+                // The default image suppied by twitter is 48px on 48px image so we want a bigget one.
+                imageUrl = imageUrl.replace("_normal", "");
+                VolleyUtills.getImageLoader().get(imageUrl,
+                        new ImageLoader.ImageListener() {
+                            @Override
+                            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                                if (response.getBitmap() != null) {
+
+                                    setProfilePic(response.getBitmap());
+
+                                    createTempFileAndSave(response.getBitmap());
+                                }
+                            }
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                showToast("Unable to load user profile pic.");
+                            }
+                        }
+                );
+            }
+        }
+    }
+
+    private boolean createTempFileAndSave(Bitmap bitmap){
+        // Saving the image to tmp file.
+        try {
+            File tmp = File.createTempFile("Pic", ".jpg", getActivity().getCacheDir());
+            ImageUtils.saveBitmapToFile(tmp, bitmap);
+            if (DEBUG) Log.i(TAG, "Temp file path: " + tmp.getPath());
+            saveProfilePicToParse(tmp.getPath(), false);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

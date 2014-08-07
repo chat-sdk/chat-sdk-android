@@ -98,11 +98,11 @@ public class BPath {
 
         for (String key : keys)
         {
-            path = path.append(key + "/");
+            path = path.append(key).append("/");
             if (DEBUG)  Log.v(TAG, "Key: " + key);
             String uid = tokens.get(key);
             if (uid != null)
-                path = path.append(uid + "/");
+                path = path.append(uid).append("/");
             else
                 break;
         }

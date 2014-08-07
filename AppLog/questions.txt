@@ -1,15 +1,7 @@
-# Where the user control the message color, text color, font size etc? OR this is the developer features?
 
 # Authenticating with firebase could take a few seconds so what should be the interval between checks.
   Let say the user or the system killed the app and now the user
   got a push message after 10Min should i re-auth ?
-
-# When the user send an image message do you show him a dialog so he would know when the message is uploaded?
-
-# What are you showing to the user while the app is downloading the message image from the server.
-
-# Have you considered inserting the user details(name, font, metadata etc...) to a "folder" like the thread details?
-  Currently when i add a thread to a user the details are changed and the app is loading all his data again. Its not that bad but seems wasteful.
 
 # How do you handle multiple users inside the app with firebase channels?
   Say im am logging with two users on the same device that means that i will now forever receive pushes for those two users.
@@ -19,9 +11,3 @@
   So if the other user want to message him again he would have to delete his and start a new one. Is this OK or im doing it wrong?
 
 # We need to work on making our resources the same, i.e longitude and latitude values, Color Values and Date Values.
-
-# What is your app twitter client id and all relevant data so i could add the twitter log in.
-
-# What is the max length in characters for a message?
-
-# Can anonymous user open a private chat with another user?

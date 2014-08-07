@@ -1,0 +1,31 @@
+##########################
+        V: 0.3.0
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Exit mode is added. The developer can select from the three next modes: None(Exit app when back pressed), Double Back(Need to press twice between interval to exit), Dialog (Shows a dialog when back pressed).
+# Twitter support is added, For login use the ChatSDKTwitterLoginDialog, The dialog is using the TwitterManager Object.
+# Touch to dismiss keyboard
+# new date format in messages list.
+
+##########################
+        BUG FIX
+--------------------------
+
+# App does double auth when login.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+#App thinks its still authing
+# Threads fragment can show the loading indicator for the whole login process need to be fixed.
+-----------OLD------------
+# Need to Handle push notification for a message that already received.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

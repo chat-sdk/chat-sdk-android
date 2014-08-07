@@ -53,6 +53,9 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     public static final int BubbleDefaultPressedColor = Color.parseColor("#27ae60");
     public static final int BubbleDefaultColor = Color.parseColor("#3498db");
 
+
+    private boolean showClickIndication = false;
+
     private int bubbleGravity = GRAVITY_LEFT, bubbleColor = 0, pressedColor = BubbleDefaultPressedColor;
 
     public ChatBubbleImageView(Context context) {
@@ -87,6 +90,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
             pressedColor = a.getColor(R.styleable.ChatBubbleImageView_bubble_pressed_color, BubbleDefaultPressedColor);
 
             imagePadding = a.getDimensionPixelSize(R.styleable.ChatBubbleImageView_image_padding, imagePadding);
+
+            showClickIndication = a.getBoolean(R.styleable.ChatBubbleImageView_bubble_with_click_indicator, false);
         } finally {
             a.recycle();
         }
@@ -122,6 +127,10 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
+
+        if (!showClickIndication)
+            return;
+
         if (DEBUG) Log.v(TAG, "drawableStateChanged, "
                 + (isPressed()?"Pressed":"Not Pressed")
                 + ", " + (isFocused()?"Focused":"Not Focused")

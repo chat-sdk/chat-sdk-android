@@ -62,5 +62,5 @@
         android:id="@+id/txt_time"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        style="@style/TextViewStyleSmall"/>
+        style="@style/MessageDateStyle"/>
 </RelativeLayout>

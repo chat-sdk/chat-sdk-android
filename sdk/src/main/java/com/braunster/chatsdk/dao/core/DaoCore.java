@@ -608,6 +608,8 @@ public class DaoCore {
 
         daoSession.delete(entity);
 
+        daoSession.clear();
+
         return entity;
     }
 

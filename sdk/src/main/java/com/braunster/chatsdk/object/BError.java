@@ -61,6 +61,8 @@ public class BError {
         public static final int PARSE_EXCEPTION = 15; // When a parse exception occurs the tag will contain the exception object.
         public static final int NULL = 16; // If something that related to the wanted method was null.
         public static final int NO_LOGIN_INFO = 17; // When there is no available login info to use when login.
+        public static final int ACCESS_TOKEN_REFUSED = 18;
+        public static final int BAD_RESPONSE = 19;
     }
 
     public static final class Message{

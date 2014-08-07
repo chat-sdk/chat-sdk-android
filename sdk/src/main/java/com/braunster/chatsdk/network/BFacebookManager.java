@@ -39,9 +39,6 @@ public class BFacebookManager {
     private static final String TAG = BFacebookManager.class.getSimpleName();
     private static final boolean DEBUG = true;
 
-    public static final String ACCESS_TOKEN = "accessToken";
-    public static final String DISPLAY_NAME = "displayName";
-
     public static String userFacebookID, userFacebookAccessToken, userFacebookName;
     private static String facebookAppID;
     private static String userThirdPartyUserAccount;
@@ -61,7 +58,7 @@ public class BFacebookManager {
             @Override
             public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
                 if (error == null && user != null) {
-                    String accessToken = (String) user.getThirdPartyUserData().get(ACCESS_TOKEN);
+                    String accessToken = (String) user.getThirdPartyUserData().get(AccessToken);
 
                     setNetworkCredentials(user.getUserId(), (String) user.getThirdPartyUserData().get(DISPLAY_NAME), accessToken);
 
@@ -78,7 +75,7 @@ public class BFacebookManager {
         });*/
 
         BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                FirebasePaths.getMap(new String[]{ACCESS_TOKEN, LoginTypeKey}, userFacebookAccessToken, Facebook),
+                FirebasePaths.getMap(new String[]{BDefines.Keys.Facebook.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
                     new CompletionListenerWithDataAndError<User, Object>() {
             @Override
             public void onDone(User firebaseSimpleLoginUser) {

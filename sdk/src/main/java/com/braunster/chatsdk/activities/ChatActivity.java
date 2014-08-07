@@ -108,6 +108,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         setContentView(R.layout.chat_sdk_activity_chat);
 
+        setupUI(findViewById(R.id.content));
+
         if ( !getThread(savedInstanceState) )
             return;
 
@@ -365,6 +367,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             else if (resultCode == Activity.RESULT_OK)
             {
                 if (DEBUG) Log.d(TAG, "Result OK");
+                if (DEBUG) Log.d(TAG, "Zoom level: " + data.getFloatExtra(LocationActivity.ZOOM, 0.0f));
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
                 BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(data.getExtras().getString(LocationActivity.SNAP_SHOT_PATH, null),
                                         new LatLng(data.getDoubleExtra(LocationActivity.LANITUDE, 0), data.getDoubleExtra(LocationActivity.LONGITUDE, 0)),

@@ -1,9 +1,7 @@
 package com.braunster.chatsdk.activities;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -38,7 +36,6 @@ import java.util.concurrent.Callable;
 public class MainActivity extends BaseActivity {
 
     // TODO add option to save up app in external storage. http://developer.android.com/guide/topics/data/install-location.html
-    // TODO add option to the exit dialog to not show it again and exit every time the user press the back button.
     // TODO stack notification like whatsapp and gamil http://developer.android.com/reference/android/app/Notification.InboxStyle.html
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -54,6 +51,9 @@ public class MainActivity extends BaseActivity {
     public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
 
     private int pageAdapterPos = -1;
+
+    /** For the double back click exit mode.*/
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +108,7 @@ public class MainActivity extends BaseActivity {
 
                 // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
                 if (lastPage == 0)
-                    ((ProfileFragment) getFragment(0)).updateProfileIfNeeded();
+                    ((ProfileFragment) getFragment(PagerAdapterTabs.Profile)).updateProfileIfNeeded();
 
              /*   if (position == PagerAdapterTabs.Contacts)
                 {
@@ -239,8 +239,8 @@ public class MainActivity extends BaseActivity {
                     {
                         if (DEBUG) Log.d(TAG, "Not killed");
                         BaseFragment contacs, conv;
-                        contacs = getFragment(2);
-                        conv = getFragment(3);
+                        contacs = getFragment(PagerAdapterTabs.Contacts);
+                        conv = getFragment(PagerAdapterTabs.Conversations);
 
                         if (contacs!=null)
                             contacs.loadDataOnBackground();
@@ -396,55 +396,48 @@ public class MainActivity extends BaseActivity {
     /* Exit Stuff*/
     @Override
     public void onBackPressed() {
-        // Show alert dialog, Positive response is just dismiss the dialog, Negative will close the app.
-        showAlertDialog("", getResources().getString(R.string.alert_exit), getResources().getString(R.string.exit),
-                getResources().getString(R.string.stay), null, new CloseApp());
+
+        switch (BDefines.Defaults.SDKExitMode)
+        {
+            case BDefines.Exit.EXIT_MODE_DIALOG:
+                // Show alert dialog, Positive response is just dismiss the dialog, Negative will close the app.
+                showAlertDialog("", getResources().getString(R.string.alert_exit), getResources().getString(R.string.exit),
+                        getResources().getString(R.string.stay), null, new CloseApp());
+                break;
+
+            case BDefines.Exit.EXIT_MODE_DOUBLE_BACK:
+                if (doubleBackToExitPressedOnce) {
+                    try {
+                        new CloseApp().call();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        doubleBackToExitPressedOnce = false;
+                    }
+                }, BDefines.Exit.DOUBLE_CLICK_INTERVAL);
+
+                this.doubleBackToExitPressedOnce = true;
+                showAlertToast("Please click back again to exit");
+                break;
+
+            case BDefines.Exit.EXIT_MODE_NONE:
+                try {
+                    new CloseApp().call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+                break;
+        }
     }
 
-    private void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        // set title if not null
-        if (title != null && !title.equals(""))
-            alertDialogBuilder.setTitle(title);
-
-        // set dialog message
-        alertDialogBuilder
-                .setMessage(alert)
-                .setCancelable(false)
-                .setPositiveButton(p, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (pos != null)
-                            try {
-                                pos.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton(n, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
-                        if (neg != null)
-                            try {
-                                neg.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        dialog.cancel();
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-    }
-
+    /** Close the app when called.*/
     class CloseApp implements Callable{
         @Override
         public Object call() throws Exception {
@@ -455,7 +448,6 @@ public class MainActivity extends BaseActivity {
             return null;
         }
     }
-
 
     /** After screen orientation chage the getItem from the fragment page adapter is no null but it is not visible to the user
      *  so we have to use this workaround so when we call any method on the wanted fragment the fragment will respond.

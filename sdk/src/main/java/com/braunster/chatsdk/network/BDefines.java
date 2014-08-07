@@ -30,6 +30,25 @@ public class BDefines {
     public static final String ContactDeveloper_Subject = "Report: ";
     public static final String ContactDeveloper_DialogTitle = "Contact Developer";
 
+
+
+
+    public static final class Defaults{
+        public static final String MessageColor = "#4262EF";
+        public static final String MessageTextColor = "#000000";
+        public static final String MessageFontName= "Roboto";
+        public static final int MessageFontSize = 25;
+        public static final int SDKExitMode = Exit.EXIT_MODE_DOUBLE_BACK;
+    }
+
+    public static final class Exit {
+        public static final int EXIT_MODE_NONE = 1990;
+        public static final int EXIT_MODE_DOUBLE_BACK = 1991;
+        public static final int EXIT_MODE_DIALOG = 1992;
+
+        public static final int DOUBLE_CLICK_INTERVAL = 2000;
+    }
+
     public static final class APIs{
         /* Change this id's to your app id's!*/
         // Facebook
@@ -39,8 +58,10 @@ public class BDefines {
         public static final String GoogleAppId = "";
 
         // Twitter
-        public static final String TwitterConsumerKey = "nBgJK3BFEdtekszIvpdg1FnsF";
-        public static final String TwitterConsumerSecret = "9kTtJBTQrjKqGnwqX7jzfT7Z8khmwQKQ5T0IcjpM77cJlKKAOr";
+        public static final String TwitterConsumerKey = "PppCGHuU1jQWMrUSuCCfumUCB";
+        public static final String TwitterConsumerSecret = "bY5Pc5EXfY1tzUFTwqh0HprRVSJ50sa83nJQIMIxvvlEsFODVY";
+        public static final String TwitterAccessToken = "447438464-UiyStJVNB1uhtvzyzJmmeDs3hZ3yprowdzheWUeg";
+        public static final String TwitterAccessTokenSecret = "fdZbHxMyXl97MKm84VwB9ceuuNbNuuDcx1hyc6qnoB5cN";
 
         // Parse
         public static final String ParseAppId = "oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d";
@@ -49,8 +70,6 @@ public class BDefines {
         public static final String BugSenseKey = "a83a219d";
     }
 
-    // Static values for prefs.
-    // Prefs
     public static final class Prefs{
         public static final String CurrentUserLoginInfo = "Current-User-Login-Info";
         public static final String AuthenticationID = "authentication-id";
@@ -62,7 +81,7 @@ public class BDefines {
         public static final String LoginPasswordKey = "login-password";
     }
 
-    public static class Keys{
+    public static final class Keys{
         /*Metadata*/
         public static final String BEmail = "email";
         public static final String Bkey = "key";
@@ -92,6 +111,19 @@ public class BDefines {
         public static final String BLastUpdated = "last-updated";
         public static final String BLastOnline = "last-online";
 
+        public static final String UserId = "user-id";
+
+        public static final class Twitter{
+            public static final String Name = "name";
+            public static final String ImageURL = "profile_image_url";
+            public static final String AccessToken = "accessToken";
+            public static final String DisplayName = "displayName";
+        }
+
+        public static final class Facebook{
+            public static final String AccessToken = "accessToken";
+            public static final String DisplayName = "displayName";
+        }
     }
 
     public static final class Time{
@@ -109,5 +141,6 @@ public class BDefines {
         public static final int MAX_HEIGHT_IN_PX = 2560;
 
         public static final int MAX_IMAGE_THUMBNAIL_SIZE = 600;
+        public static final int PROFILE_PIC_THUMBNAIL_SIZE = 100;
     }
 }
