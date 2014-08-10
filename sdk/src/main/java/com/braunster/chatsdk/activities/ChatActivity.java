@@ -81,6 +81,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     /** The key to get the thread long id.*/
     public static final String THREAD_ID = "Thread_ID";
+    public static final String THREAD_ENTITY_ID = "Thread_Entity_ID";
+
+    public static final String FROM_PUSH = "from_push";
 
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String CAPTURED_PHOTO_PATH = "captured_photo_path";
@@ -526,12 +529,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
 
     /** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*/
-    private boolean getThread(Bundle data){
+    private boolean getThread(Bundle bundle){
 
-        if (data != null && data.containsKey(THREAD_ID))
+        if (bundle != null && (bundle.containsKey(THREAD_ID) || bundle.containsKey(THREAD_ENTITY_ID)) )
         {
             if (DEBUG) Log.d(TAG, "Saved instance bundle is not null");
-            this.data = data;
+            this.data = bundle;
         }
         else
         {
@@ -542,19 +545,25 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 return false;
             }
 
-            if (getIntent().getExtras().getLong(THREAD_ID, 0) == 0)
-            {
-                if (DEBUG) Log.e(TAG, "Thread id is empty");
-                finish();
-                return false;
-            }
-
-            data = getIntent().getExtras();
+            this.data = getIntent().getExtras();
         }
 
-        thread = DaoCore.fetchEntityWithProperty(BThread.class,
-                BThreadDao.Properties.Id,
-                data.getLong(THREAD_ID));
+        if (this.data.containsKey(THREAD_ID))
+        {
+            thread = DaoCore.fetchEntityWithProperty(BThread.class,
+                    BThreadDao.Properties.Id,
+                    this.data.getLong(THREAD_ID));
+        }
+        else  if (this.data.containsKey(THREAD_ENTITY_ID))
+        {
+            thread = DaoCore.fetchEntityWithProperty(BThread.class,
+                    BThreadDao.Properties.EntityID,
+                    this.data.getString(THREAD_ENTITY_ID));
+        }else{
+            if (DEBUG) Log.e(TAG, "Thread id is empty");
+            finish();
+            return false;
+        }
 
         if (thread == null)
         {
@@ -807,4 +816,17 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (data.containsKey(FROM_PUSH))
+        {
+            if (DEBUG) Log.d(TAG, "onBackPressed, From Push");
+            data.remove(FROM_PUSH);
+
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            return;
+        }
+        super.onBackPressed();
+    }
 }

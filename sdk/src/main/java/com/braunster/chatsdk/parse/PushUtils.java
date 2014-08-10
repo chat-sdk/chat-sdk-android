@@ -27,7 +27,11 @@ public class PushUtils {
     public static final String ALERT = "alert";
     public static final String CONTENT = "text";
     public static final String MESSAGE_ENTITY_ID = "message_entity_id";
-
+    public static final String THREAD_ENTITY_ID = "thread_entity_id";
+    public static final String MESSAGE_DATE ="message_date";
+    public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
+    public static final String MESSAGE_TYPE = "message_type";
+    public static final String MESSAGE_PAYLOAD= "message_payload";
     public static final int MESSAGE_NOTIFICATION_ID = 1000;
 
 /*    public static void sendMessage(String content, String channel){
@@ -65,6 +69,11 @@ public class PushUtils {
             data.put(ACTION, ChatSDKReceiver.MESSAGE_ACTION);
             data.put(CONTENT, text);
             data.put(MESSAGE_ENTITY_ID, message.getEntityID());
+            data.put(THREAD_ENTITY_ID, message.getBThreadOwner().getEntityID());
+            data.put(MESSAGE_DATE, message.getDate().getTime());
+            data.put(MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
+            data.put(MESSAGE_TYPE, message.getType());
+            data.put(MESSAGE_PAYLOAD, message.getText());
         } catch (JSONException e) {
             e.printStackTrace();
         }

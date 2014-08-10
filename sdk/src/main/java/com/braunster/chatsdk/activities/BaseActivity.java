@@ -93,7 +93,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         } else fromLoginActivity = false;
 
         if (savedInstanceState != null)
-            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN);
+            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
 
         if (enableCardToast)
             SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
