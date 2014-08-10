@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
@@ -35,7 +36,7 @@ import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
  */
 public class DaoCore {
     private static final String TAG = DaoCore.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.DaoCore;
     private static final String DB_NAME = "andorid-chatsdk-database";
     private static String dbName;
 
@@ -303,7 +304,10 @@ public class DaoCore {
     }
 
     private static void printUsersData(List<BUser> users){
-        if (DEBUG) Log.v(TAG, "PrintUserData: " + users.size());
+        if (!DEBUG)
+            return;
+
+        Log.v(TAG, "PrintUserData: " + users.size());
         for (BUser u : users)
         {
             if (u == null)
@@ -411,7 +415,6 @@ public class DaoCore {
                     qb.orderDesc(whereOrder);
                     break;
             }
-
 
         return qb.list();
     }
@@ -586,7 +589,7 @@ public class DaoCore {
 
     /* Update, Create and Delete*/
     public static  <T extends Entity> T createEntity(T entity){
-        Log.v(TAG, "createEntity");
+        if (DEBUG) Log.v(TAG, "createEntity");
 
         if (entity == null)
         {
@@ -602,7 +605,7 @@ public class DaoCore {
     }
 
     public static <T extends Entity> T deleteEntity(T entity){
-        Log.v(TAG, "deleteEntity");
+        if (DEBUG) Log.v(TAG, "deleteEntity");
 
         if(DEBUG) printEntity(entity);
 
@@ -614,7 +617,7 @@ public class DaoCore {
     }
 
     public static <T extends Entity> T updateEntity(T entity){
-        Log.v(TAG, "updateEntity");
+        if (DEBUG) Log.v(TAG, "updateEntity");
 
         printEntity(entity);
 
@@ -625,6 +628,9 @@ public class DaoCore {
 
     /* Helpers */
     public static void printEntity(Entity entity){
+        if (!DEBUG)
+            return;
+
         Log.v(TAG, "printEntity");
 
         Log.i(TAG, "id:" + entity.getId());
@@ -673,7 +679,7 @@ public class DaoCore {
     }
 
     public static void connectUserAndThread(BUser user, BThread thread){
-        Log.v(TAG, "connectUserAndThread, User ID: " + user.getId() + ", Name: " + user.getMetaName() + ", Thread ID: " + thread.getId());
+        if (DEBUG) Log.v(TAG, "connectUserAndThread, User ID: " + user.getId() + ", Name: " + user.getMetaName() + ", Thread ID: " + thread.getId());
         BLinkData linkData = new BLinkData();
         linkData.setThreadID(thread.getId());
         linkData.setUserID(user.getId());

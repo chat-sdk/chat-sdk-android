@@ -150,7 +150,7 @@ public class ImageUtils {
         int width = imgDimensions[0];
         int height = imgDimensions[1];
 
-        if (DEBUG) Log.v(TAG, "calcNewImageSize, W: " + width + ", H: " + height);
+        if (DEBUG) Log.v(TAG, "calcNewImageSize, B: " + bounds + ",  W: " + width + ", H: " + height);
 
         // Determine how much to scale: the dimension requiring less scaling is
         // closer to the its side. This way the image always stays inside your

@@ -148,7 +148,7 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
     }
 
     @Override
-    public Type getEntityType() {
+    public Entity.Type getEntityType() {
         return null;
     }
 

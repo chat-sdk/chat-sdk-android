@@ -39,6 +39,10 @@ public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Ent
 
     }
 
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
     @Override
     public Map<String, Object> asMap() {
         return null;
@@ -51,9 +55,13 @@ public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Ent
 
     @Override
     public Date lastUpdated() {
-        return lastUpdated;
+        return null;
     }
 
+    @Override
+    public void setLastUpdated(Date date) {
+
+    }
 
     @Override
     public void setEntityID(String entityID) {
@@ -66,18 +74,8 @@ public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Ent
     }
 
     @Override
-    public void setLastUpdated(Date date) {
-        this.lastUpdated = date;
-    }
-
-    @Override
-    public <T extends Entity> List<T> getChildren() {
+    public <E1 extends Entity> List<E1> getChildren() {
         return null;
-    }
-
-    @Override
-    public String mapPath() {
-        return "";
     }
 
     @Override

@@ -30,16 +30,15 @@
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
     <!--android:layout_toLeftOf="@id/txt_time"-->
     <com.braunster.chatsdk.view.ChatBubbleImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_image"
         android:layout_toRightOf="@id/img_user_image"
-        app:image_padding="10dp"
         app:bubble_gravity="left"
         app:bubble_with_click_indicator="false"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
     <ProgressBar
         android:layout_width="match_parent"

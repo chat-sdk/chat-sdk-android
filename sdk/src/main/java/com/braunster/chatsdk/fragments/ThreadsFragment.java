@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
@@ -36,10 +37,10 @@ public class ThreadsFragment extends BaseFragment {
     //TODO add selection of thread type to see.
 
     private static final String TAG = ThreadsFragment.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.ThreadsFragment;
 
     private ListView listThreads;
-    private ThreadsListAdapter listAdapter;
+    private ThreadsListAdapter adapter;
     private ActivityListener activityListener;
     private ProgressBar progressBar;
 
@@ -61,7 +62,7 @@ public class ThreadsFragment extends BaseFragment {
         init(inflater);
         initToast();
 
-        loadDataOnBackground();
+        loadData();
 
         return mainView;
     }
@@ -79,15 +80,15 @@ public class ThreadsFragment extends BaseFragment {
     }
 
     private void initList(){
-        listAdapter = new ThreadsListAdapter(getActivity());
-        listThreads.setAdapter(listAdapter);
+        adapter = new ThreadsListAdapter(getActivity());
+        listThreads.setAdapter(adapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityId());
-                startChatActivityForID(listAdapter.getItem(position).getId());
+                if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
+                        + ", ID: " + adapter.getItem(position).getEntityId());
+                startChatActivityForID(adapter.getItem(position).getId());
             }
         });
     }
@@ -101,7 +102,7 @@ public class ThreadsFragment extends BaseFragment {
 
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
 
-        listAdapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
+        adapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
@@ -115,8 +116,10 @@ public class ThreadsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        listThreads.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+        if (adapter != null && adapter.getListData().size() == 0) {
+            listThreads.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -142,7 +145,7 @@ public class ThreadsFragment extends BaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    listAdapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
                     progressBar.setVisibility(View.GONE);
                     listThreads.setVisibility(View.VISIBLE);
                     break;
@@ -173,9 +176,11 @@ public class ThreadsFragment extends BaseFragment {
                 @Override
                 public void onFinished(final String s) {
                     if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
+
+                    showProgDialog("Creating thread...");
                     BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, Object>() {
                         @Override
-                        public void onDone(BThread bThread) {
+                        public void onDone(final BThread bThread) {
 
                             // Add the current user to the thread.
                             BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(bThread,
@@ -188,7 +193,9 @@ public class ThreadsFragment extends BaseFragment {
 
                                 @Override
                                 public void onDone() {
-
+                                    dismissProgDialog();
+                                    adapter.addRow(bThread);
+                                    showToast("Public thread " + s + " is created.");
                                 }
 
                                 @Override
@@ -197,8 +204,6 @@ public class ThreadsFragment extends BaseFragment {
                                 }
                             }, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
 
-                            listAdapter.addRow(bThread);
-                            showToast("Public thread " + s + " is created.");
                         }
 
                         @Override

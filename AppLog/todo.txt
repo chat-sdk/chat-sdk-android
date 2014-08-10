@@ -6,15 +6,8 @@
 # support the dirty option for entities.
 # delete contact option
 
-# Twitter integration. twitter consumer key nBgJK3BFEdtekszIvpdg1FnsF
-                       twitter consumer secret 9kTtJBTQrjKqGnwqX7jzfT7Z8khmwQKQ5T0IcjpM77cJlKKAOr
-
 # Change the color value of the app to match the iOS values. Colors are stored like this: 0.886275 0.698039 0.482353 http://stackoverflow.com/questions/1071904/how-to-convert-hex-string-to-float-in-java
 # Change the values of the location to match the iOS values. Location: -122.406417,37.785834,Location,10000.0 i.e. latitude, longitude, caption, map scale in meter.
 
 # After pressing  a notification of a message that is received from push the login activity s open and not the chat.
-# Right bubble is bigger then left bubble.
-
-# Add drag to load messages.
-# add background or border to message options.
 # Make profile pic as user initials if does not have any.

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -35,7 +36,7 @@ public class LocationActivity extends FragmentActivity
         LocationListener {
 
     public static final String TAG = LocationActivity.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.LocationActivity;
 
     public static final String ERROR = "Error";
     public static final String ERROR_SNAPSHOT = "error getting snapshot";

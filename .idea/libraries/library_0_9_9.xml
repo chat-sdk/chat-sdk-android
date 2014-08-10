@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="library-0.9.9">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.github.chrisbanes.actionbarpulltorefresh/library/0.9.9/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.github.chrisbanes.actionbarpulltorefresh/library/0.9.9/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -25,10 +25,12 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.activities.LoginActivity;
+import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -36,8 +38,8 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.braunster.chatsdk.network.firebase.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
 import com.facebook.Session;
@@ -61,7 +63,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private static final int PHOTO_PICKER_ID = 100;
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.ProfileFragment;
 
     private static final String S_I_F_NAME = "saved_name_flag";
     private static final String S_I_F_PHONE = "saved_phones_flag";
@@ -275,6 +277,20 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     public void loadData() {
         super.loadData();
         setDetails((Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+    }
+
+    @Override
+    public void clearData() {
+        super.clearData();
+
+        if (mainView != null)
+        {
+            etName.getText().clear();
+            etMail.getText().clear();
+            etPhone.getText().clear();
+
+            profileCircleImageView.setImageResource(R.drawable.ic_action_user);
+        }
     }
 
     @Override
@@ -621,6 +637,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         if (loginType == BDefines.BAccountType.Facebook)
             if (Session.getActiveSession() != null)
                 Session.getActiveSession().closeAndClearTokenInformation();
+
+        Intent logout = new Intent(MainActivity.Action_Logged_Out);
+        getActivity().sendBroadcast(logout);
 
         BNetworkManager.sharedManager().getNetworkAdapter().logout();
         Intent intent = new Intent(getActivity(), LoginActivity.class);

@@ -38,9 +38,8 @@
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
         app:bubble_with_click_indicator="false"
-        app:image_padding="10dp"
         app:bubble_gravity="right"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
     <ProgressBar
         android:layout_width="match_parent"

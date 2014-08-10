@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -37,7 +38,7 @@ import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
 public class BFacebookManager {
 
     private static final String TAG = BFacebookManager.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.BFacebookManager;
 
     public static String userFacebookID, userFacebookAccessToken, userFacebookName;
     private static String facebookAppID;
@@ -255,13 +256,6 @@ public class BFacebookManager {
     }
 }
 
-//ASK  Authenticate, Login, Logout, getFacebook data: profile pic and friends list. Save credentials for user.
-//
-//
-//    @property (nonatomic, readwrite) ACAccount * userThirdPartyUserAccount; // Seems not relevant to android.
-//
-//    @synthesize networkAdapter;
-//
 
 
 

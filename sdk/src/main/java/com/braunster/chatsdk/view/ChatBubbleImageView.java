@@ -176,10 +176,21 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         loadFromUrl(url, bubbleColor, maxWidth, loadDone);
     }
 
-    public void loadFromUrl(String url, final int color,final int maxWidth, final LoadDone loadDone){
+    public void loadFromUrl(final String url, final int color,final int maxWidth, final LoadDone loadDone){
         VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+
+            boolean firstOnResponse = true;
+
             @Override
             public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Immediate: " + isImmediate);
+
+                if (firstOnResponse){
+                    if (loadDone != null)
+                        loadDone.immediate(response.getBitmap() != null);
+
+                    firstOnResponse = false;
+                }
 
                 if (response.getBitmap() != null) {
 
@@ -192,13 +203,13 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
                             // Calculating the image width so we could scale it.
                             // If the wanted width is bigger then MAX_WIDTH we will use MAX_WIDTH not the given width.
-                            final int width;
-                            if (maxWidth > MAX_WIDTH) {
-                                width = (int) (MAX_WIDTH - imagePadding - pointSize);
-                            }
-                            else {
-                                width = (int) (maxWidth - imagePadding - pointSize);
-                            }
+                            final int width = (int) MAX_WIDTH;
+//                            if (maxWidth > MAX_WIDTH) {
+//                                width = (int) (MAX_WIDTH - imagePadding - pointSize);
+//                            }
+//                            else {
+//                                width = (int) (maxWidth - imagePadding - pointSize);
+//                            }
 
                             if (DEBUG) Log.d(TAG, "new image size: " + width);
 
@@ -214,6 +225,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
                                 bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
                             else
                                 bubble = get_ninepatch(R.drawable.bubble_right_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+
+                            if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Bubble Width: " + bubble.getWidth() + ", Height: " + bubble.getHeight());
 
                             // Replacing the defualt color of the bubble.
                             bubble = replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
@@ -364,6 +377,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     public interface LoadDone{
         public void onDone();
+        public void immediate(boolean immediate);
     }
 
     public void setBubbleGravity(int bubbleGravity) {
@@ -388,5 +402,9 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     public int getImagePadding() {
         return imagePadding;
+    }
+
+    public float getPointSize() {
+        return pointSize;
     }
 }

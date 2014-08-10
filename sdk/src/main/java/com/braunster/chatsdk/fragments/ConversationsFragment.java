@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.PickFriendsActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
@@ -33,9 +34,9 @@ public class ConversationsFragment extends BaseFragment {
     // TODO multiselect of contacts to start chatting with.
 
     private static final String TAG = ConversationsFragment.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.ConversationsFragment;
     private ListView listThreads;
-    private ThreadsListAdapter listAdapter;
+    private ThreadsListAdapter adapter;
     private ProgressBar progressBar;
     private BUser user;
 
@@ -61,7 +62,7 @@ public class ConversationsFragment extends BaseFragment {
 
         initToast();
 
-        loadDataOnBackground();
+        loadData();
 
         return mainView;
     }
@@ -75,15 +76,15 @@ public class ConversationsFragment extends BaseFragment {
 
     private void initList(){
 
-        listAdapter = new ThreadsListAdapter(getActivity());
-        listThreads.setAdapter(listAdapter);
+        adapter = new ThreadsListAdapter(getActivity());
+        listThreads.setAdapter(adapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
-                        + ", ID: " + listAdapter.getItem(position).getEntityId() );
-                startChatActivityForID(listAdapter.getItem(position).getId());
+                if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
+                        + ", ID: " + adapter.getItem(position).getEntityId() );
+                startChatActivityForID(adapter.getItem(position).getId());
             }
         });
 
@@ -91,11 +92,11 @@ public class ConversationsFragment extends BaseFragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (DEBUG)
-                    Log.i(TAG, "Thread Long Selected: " + listAdapter.getItem(position).getName()
-                            + ", ID: " + listAdapter.getItem(position).getEntityId());
+                    Log.i(TAG, "Thread Long Selected: " + adapter.getItem(position).getName()
+                            + ", ID: " + adapter.getItem(position).getEntityId());
 
                 showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                        getResources().getString(R.string.cancel), null, new DeleteThread(listAdapter.getItem(position).getEntityId()));
+                        getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
 
                 return true;
             }
@@ -111,7 +112,7 @@ public class ConversationsFragment extends BaseFragment {
 
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
-        listAdapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
+        adapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
@@ -124,14 +125,16 @@ public class ConversationsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        if (listAdapter != null && listAdapter.getListData().size() == 0) {
-            listThreads.setVisibility(View.GONE);
+        if (!loading && adapter != null && adapter.getListData().size() == 0) {
+            listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                loading = true;
+
                 List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
                 if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
@@ -143,7 +146,17 @@ public class ConversationsFragment extends BaseFragment {
                 handler.sendMessage(message);
             }
         }).start();
+    }
 
+    private boolean loading = false;
+
+    @Override
+    public void clearData() {
+        if (adapter != null)
+        {
+            adapter.getListData().clear();
+            adapter.notifyDataSetChanged();
+        }
     }
 
     Handler handler = new Handler(Looper.getMainLooper()){
@@ -156,8 +169,8 @@ public class ConversationsFragment extends BaseFragment {
             {
                 case 1:
                     if (DEBUG) Log.d(TAG, "Updating UI");
-                    listAdapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
-                    progressBar.setVisibility(View.GONE);
+                    adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    progressBar.setVisibility(View.INVISIBLE);
                     listThreads.setVisibility(View.VISIBLE);
                     break;
             }

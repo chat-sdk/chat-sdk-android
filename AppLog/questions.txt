@@ -11,3 +11,5 @@
   So if the other user want to message him again he would have to delete his and start a new one. Is this OK or im doing it wrong?
 
 # We need to work on making our resources the same, i.e longitude and latitude values, Color Values and Date Values.
+
+# Where to place in the list (Top/Bottom) threads that has no messages but the user is the creator?

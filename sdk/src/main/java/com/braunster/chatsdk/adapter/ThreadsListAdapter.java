@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -35,7 +37,7 @@ import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 public class ThreadsListAdapter extends BaseAdapter {
 
     private static final String TAG = ThreadsListAdapter.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.ThreadsListAdapter;
 
     private Activity mActivity;
 
@@ -107,7 +109,7 @@ public class ThreadsListAdapter extends BaseAdapter {
 //            if (DEBUG) Log.e(TAG, "textview name is null");
 
         holder.txtName.setText(thread.getName());
-        holder.txtDate.setText(thread.getLastMessageDate());
+        holder.txtDate.setText(thread.getLastMessageDateAsString());
         holder.txtLastMsg.setText(thread.getLastMessageText());
 
 //        messageLogic(holder, position);
@@ -146,7 +148,6 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
 
     public void addRow(ThreadListItem thread){
-
         listData.add(thread);
 
         notifyDataSetChanged();
@@ -158,6 +159,7 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     public void setListData(List<ThreadListItem> listData) {
         this.listData = listData;
+
         notifyDataSetChanged();
     }
 
@@ -169,10 +171,12 @@ public class ThreadsListAdapter extends BaseAdapter {
         private String entityId, name, lastMessageDate, imageUrl, lastMessageText;
         private int usersAmount = 0;
         private long id;
+        private Date date;
 
-        ThreadListItem(long id, String entityId, String name, String lastMessageDate, String lastMessageText, String imageUrl, int usersAmount) {
+        ThreadListItem(long id, String entityId, String name, String lastMessageDate, Date date, String lastMessageText, String imageUrl, int usersAmount) {
             this.name = name;
             this.id = id;
+            this.date = date;
             this.entityId = entityId;
             this.usersAmount = usersAmount;
             this.lastMessageDate = lastMessageDate;
@@ -185,7 +189,7 @@ public class ThreadsListAdapter extends BaseAdapter {
 
             String url  = thread.threadImageUrl();
 
-            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(thread.displayName()) ? "No name." : thread.displayName(), data[1], data[0], url, thread.getUsers().size());
+            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(thread.displayName()) ? "No name." : thread.displayName(), data[1], thread.getLastMessageAdded(), data[0], url, thread.getUsers().size());
         }
 
         public static List<ThreadListItem> makeList(List<BThread> threads){
@@ -196,7 +200,6 @@ public class ThreadsListAdapter extends BaseAdapter {
 
             return list;
         }
-
 
         private static String[] getLastMessageTextAndDate(BThread thread){
             String[] data = new String[2];
@@ -242,9 +245,11 @@ public class ThreadsListAdapter extends BaseAdapter {
             return name;
         }
 
-        public String getLastMessageDate() {
+        public String getLastMessageDateAsString() {
             return lastMessageDate;
         }
+
+        public Date getLastMessageDate() { return date;}
 
         public String getImageUrl() {
             return imageUrl;

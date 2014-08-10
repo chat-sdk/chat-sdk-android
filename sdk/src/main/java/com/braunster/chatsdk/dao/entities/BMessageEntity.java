@@ -15,6 +15,10 @@ public abstract class BMessageEntity extends Entity<BMessage> {
         public static final int TEXT = 0, IMAGE = 1, LOCATION = 2;
     }
 
+    public static final class Status{
+        public static final int NULL = 0, SENDING = 1, SENT = 2, SENT_FAILED = 3;
+    }
+
     public abstract String color();
 
     public abstract String textColor();

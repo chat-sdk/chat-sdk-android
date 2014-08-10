@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="library-0.4.0">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.github.castorflex.smoothprogressbar/library/0.4.0/res" />
+      <root url="jar://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.github.castorflex.smoothprogressbar/library/0.4.0/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

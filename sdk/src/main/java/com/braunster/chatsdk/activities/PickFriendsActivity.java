@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -25,7 +26,7 @@ public class PickFriendsActivity extends BaseActivity {
     public static final int PICK_FRIENDS_FOR_CONVERSATION = 3;
 
     private static final String TAG = PickFriendsActivity.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.PickFriendsActivity;
 
     private ListView listContacts;
     private UsersWithStatusListAdapter listAdapter;
@@ -74,6 +75,9 @@ public class PickFriendsActivity extends BaseActivity {
         btnStartChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                showProgDialog("Creating thread...");
+
                 BUser[] users = new BUser[listAdapter.getSelectedCount() + 1];
 
                 for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++)

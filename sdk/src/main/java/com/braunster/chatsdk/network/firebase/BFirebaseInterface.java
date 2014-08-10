@@ -2,6 +2,7 @@ package com.braunster.chatsdk.network.firebase;
 
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
@@ -40,7 +41,7 @@ Created by itzik on 6/8/2014.
 public class BFirebaseInterface {
 
     private static final String TAG = BFirebaseInterface.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.BFirebaseInterface;
 
     private static BFirebaseInterface instance;
 
@@ -392,36 +393,51 @@ public class BFirebaseInterface {
     }
 
     //TODO
-    public static void loadMoreMessagesForThread(BThread thread, int numOfMessages, CompletionListenerWithData<List<BMessage>> listener){
-/*        // Get the earliest message from the database
-        BMessage * earliestMessage = thread.messagesOrderedByDateAsc.firstObject;
-        NSDate * endDate = Nil;
+    public static void loadMoreMessagesForThread(BThread thread, int numOfMessages, final CompletionListenerWithData<BMessage[]> listener){
+        BMessage ealiestMessage = null;
+        final Date messageDate;
+
+        List<BMessage> messagesList = thread.getMessagesWithOrder(DaoCore.ORDER_ASC);
+
+        // Get the earliest message from the database
+        if (messagesList.size() > 0)
+        {
+            ealiestMessage = messagesList.get(0);
+            if (DEBUG) Log.d(TAG, "Newest message, Id: " + ealiestMessage.getEntityID() + ", Payload: " + ealiestMessage.getText());
+        }
 
         // If we have a message in the database then we use the earliest
-        // message's date
-        if (earliestMessage) {
-            endDate = earliestMessage.date;
-        }
+        if (ealiestMessage != null)
+            messageDate = ealiestMessage.getDate();
         // Otherwise we use todays date
-        else {
-            endDate = [NSDate date];
-        }
+        else messageDate = new Date();
 
-        Firebase * messagesRef = [[Firebase threadRef:thread.entityID] appendPathComponent:bMessagesPath];
+        Firebase messageRef = FirebasePaths.threadRef(thread.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
 
         // Get # messages ending at the end date
-        FQuery * query = [messagesRef queryEndingAtPriority:@([endDate timeIntervalSince1970])];
-
         // Limit to # defined in BFirebaseDefines
         // We add one becase we'll also be returning the last message again
-        query = [query queryLimitedToNumberOfChildren:numberOfMessages + 1];
+        Query msgQuery = messageRef.endAt(messageDate.getTime()).limit(numOfMessages + 1);
 
-        [query observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot * snapshot) {
-            NSArray * messages = [self objectForSnapshot:snapshot];
-            if (completion != Nil) {
-                completion(messages);
+        msgQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                Object[] objs = (Object[]) objectFromSnapshot(snapshot);
+
+                BMessage[] messages = new BMessage[objs.length];
+                for (int i = 0 ; i < objs.length; i++)
+                    if (objs[i] instanceof BMessage)
+                        messages[i] = (BMessage) objs[i];
+
+                if (listener != null)
+                    listener.onDone(messages);
             }
-        }];*/
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     public static Object objectFromSnapshot(DataSnapshot dataSnapshot){
@@ -569,7 +585,7 @@ public class BFirebaseInterface {
             {
                 return getMessage(dataSnapshot, messageFirebaseID, threadFirebaseID);
             }
-            else childrenFromSnapshot(dataSnapshot);
+            else return childrenFromSnapshot(dataSnapshot);
         }
         return null;
     }

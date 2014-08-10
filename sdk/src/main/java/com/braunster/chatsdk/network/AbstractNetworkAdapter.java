@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ThreadsSorter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
@@ -13,6 +14,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -55,7 +57,7 @@ public abstract class AbstractNetworkAdapter {
 
     //Note maybe catch the error if occur in the send message of some kind and try to fix them here before returning the error to the caller.
     private static final String TAG = AbstractNetworkAdapter.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.AbstractNetworkAdapter;
 
     private boolean authenticated = false;
 
@@ -143,6 +145,61 @@ public abstract class AbstractNetworkAdapter {
             public void onDoneWithError(BError error) {
                 DaoCore.deleteEntity(bMessage);
                 listener.onDoneWithError(error);
+            }
+        });
+    }
+
+    /**
+     * Preparing a text message,
+     * This is only the build part of the send from here the message will passed to "sendMessage" Method.
+     * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
+     * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
+     * The message will be received before sending in the onMainFinished Callback with a Status that its in the sending process.
+     * When the message is fully sent the status will be changed and the onItem callback will be invoked.
+     * When done or when an error occurred the calling method will be notified.
+     */
+    public void sendMessageWithText(String text, long threadEntityId, final RepetitiveCompletionListenerWithMainTaskAndError<BMessage, BMessage, BError> listener) {
+        if (DEBUG) Log.v(TAG, "sendMessageWithText");
+        /* Prepare the message object for sending, after ready send it using send message abstract method.*/
+        final BMessage message = new BMessage();
+        message.setText(text);
+        message.setOwnerThread(threadEntityId);
+        message.setType(TEXT);
+        message.setDate(new Date());
+        message.setBUserSender(currentUser());
+        message.setStatus(BMessageEntity.Status.SENDING);
+        final BMessage bMessage = DaoCore.createEntity(message);
+
+        if (listener != null)
+            listener.onMainFinised(bMessage, null);
+
+        sendMessage(bMessage, new CompletionListenerWithData<BMessage>() {
+            @Override
+            public void onDone(BMessage bMessage) {
+                if (bMessage == null)
+                {
+                    if (DEBUG) Log.e(TAG, "Message is null");
+                    return;
+                }
+
+                bMessage.setStatus(BMessageEntity.Status.SENT);
+                bMessage = DaoCore.updateEntity(bMessage);
+
+                if (listener != null)
+                {
+                    listener.onItem(bMessage);
+                    listener.onDone();
+                }
+            }
+
+            @Override
+            public void onDoneWithError(BError error) {
+                bMessage.setStatus(BMessageEntity.Status.SENT_FAILED);
+                DaoCore.updateEntity(bMessage);
+
+                if (listener != null) {
+                    listener.onItemError(bMessage, error);
+                }
             }
         });
     }
@@ -247,7 +304,6 @@ public abstract class AbstractNetworkAdapter {
         });
     }
 
-    /*"http://developer.android.com/guide/topics/location/strategies.html"*/
      /**
      * Preparing a location message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
@@ -304,7 +360,7 @@ public abstract class AbstractNetworkAdapter {
     // TODO need to support progress feedback for dialog.
     public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener);
 
-    public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener);
+    public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<BMessage[]> listener);
 
 
 /*######################################################################################################*/
@@ -338,6 +394,13 @@ public abstract class AbstractNetworkAdapter {
 
     public List<BThread> threadsWithType(int threadType) {
 
+        if (currentUser() == null) {
+            if (DEBUG) Log.e(TAG, "threadsWithType, Current user is null");
+            return null;
+        }
+
+        BUser currentUser = currentUser();
+
         // Get the thread list ordered desc by the last message added date.
         List<BThread> threadsFromDB;
 
@@ -347,10 +410,6 @@ public abstract class AbstractNetworkAdapter {
 
         List<BThread> threads = new ArrayList<BThread>();
 
-        if (currentUser() == null) {
-            if (DEBUG) Log.e(TAG, "threadsWithType, Current user is null");
-            return null;
-        }
 
         if (threadType == BThread.Type.Public)
         {
@@ -377,7 +436,7 @@ public abstract class AbstractNetworkAdapter {
                 if (thread.getCreator() != null )
                 {
                     if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                    if (thread.getCreator().equals(currentUser())&& thread.getUsers().contains(currentUser()))
+                    if (thread.getCreator().equals(currentUser)&& thread.getUsers().contains(currentUser))
                     {
                         Log.d(TAG, "Current user is the creator.");
                         threads.add(thread);

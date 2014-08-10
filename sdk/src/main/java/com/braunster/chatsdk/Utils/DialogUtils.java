@@ -43,7 +43,7 @@ import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.firebase.TwitterManager;
+import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
 import com.firebase.simplelogin.User;
@@ -336,7 +336,18 @@ public class DialogUtils {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                webView.loadUrl((String) msg.obj);
+                switch (msg.what)
+                {
+                    case TwitterManager.ERROR:
+                    if (listener != null)
+                        listener.onDoneWithError(null, msg.obj);
+
+                    break;
+
+                    case TwitterManager.SUCCESS:
+                        webView.loadUrl((String) msg.obj);
+                        break;
+                }
             }
         };
 

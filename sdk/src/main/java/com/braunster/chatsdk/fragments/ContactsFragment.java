@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.activities.SearchActivity;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
@@ -40,7 +41,7 @@ public class ContactsFragment extends BaseFragment {
     // TODO show user profile when pressing on contacts
     
     private static final String TAG = ContactsFragment.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.ContactsFragment;
 
     /** Loading all the current user contacts.*/
     public static final int MODE_LOAD_CONTACTS = 1991;
@@ -142,6 +143,8 @@ public class ContactsFragment extends BaseFragment {
         this.clickMode = clickMode;
     }
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,7 +178,7 @@ public class ContactsFragment extends BaseFragment {
         initViews();
         initToast();
 
-        loadDataOnBackground();
+        loadData();
 
         return mainView;
     }
@@ -230,78 +233,26 @@ public class ContactsFragment extends BaseFragment {
         switch (loadingMode)
         {
             case MODE_LOAD_CONTACTS:
+                if (DEBUG) Log.d(TAG, "Mode - Contacts");
                 sourceUsers = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
                 break;
 
             case MODE_LOAD_THREAD_USERS:
+                if (DEBUG) Log.d(TAG, "Mode - Thread Users");
                 BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
-                sourceUsers = thread.getUsers();
+
+                // Remove the current user from the list.
+                List<BUser> users = thread.getUsers();
+                users.remove(BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+
+                sourceUsers = users;
                 break;
         }
 
         if (BNetworkManager.sharedManager().getNetworkAdapter() != null)
         {
-            adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true));
-            listView.setAdapter(adapter);
-
-           listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
-                        return;
-
-                    BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
-
-                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
-                }
-            });
-
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
-                        return true;
-
-//                    showAlertDialog("", getResources().getString(R.string.alert_delete_contact), getResources().getString(R.string.delete),
-//                            getResources().getString(R.string.cancel), null, new DeleteContact(adapter.getItem(position).getEntityID()));
-
-                    return true;
-                }
-            });
-
-            //region Multi select
-/*listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-            listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-                @Override
-                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                    mode.setTitle(adapter.getSelectedCount() + " selected.");
-                    adapter.toggleSelection(position);
-                }
-
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    mode.getMenuInflater().inflate(R.menu.multi_select_menu, menu);
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                    adapter.clearSelection();
-                }
-            });*/
-            //endregion
-
+            adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true, true));
+            setList();
         }
         else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
     }
@@ -325,12 +276,6 @@ public class ContactsFragment extends BaseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (getActivity() == null)
-                {
-                    Log.e(TAG, "ACTIVITY IS NULL");
-                    return;
-                }
-
                 // If this is not a dialog we will load the contacts of the user.
                 switch (loadingMode)
                 {
@@ -360,6 +305,15 @@ public class ContactsFragment extends BaseFragment {
         }).start();
     }
 
+    @Override
+    public void clearData() {
+        if (adapter != null)
+        {
+            adapter.getListData().clear();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
@@ -368,90 +322,95 @@ public class ContactsFragment extends BaseFragment {
             switch (msg.what)
             {
                 case 1:
+                    setList();
+            }
+        }
+    };
 
-                    listView.setAdapter(adapter);
+    private void setList(){
+        listView.setAdapter(adapter);
 
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                            if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
-                                return;
+                if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
+                    return;
 
-                            final BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
+                final BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
 
-                            switch (clickMode)
-                            {
-                                case CLICK_MODE_ADD_USER_TO_THREAD:
-                                    BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
-                                    BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
-                                        @Override
-                                        public boolean onItem(BUser user) {
-                                            showToast("User added to thread, Name: "  + clickedUser.getMetaName());
-                                            if (isDialog)
-                                                getDialog().dismiss();
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public void onDone() {
-
-                                        }
-
-                                        @Override
-                                        public void onItemError(BUser user, Object o) {
-
-                                        }
-                                    }, clickedUser);
-                                    break;
-
-                                case CLICK_MODE_SHARE_CONTENT:
-                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
-                                        @Override
-                                        public void onDone(BThread thread) {
-                                            Intent intent = new Intent(getActivity(), ChatActivity.class);
-                                            intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
-
-                                            // Checking the kind of the instace data
-                                            // Uri is used for images
-                                            if (extraData instanceof Uri)
-                                                intent.putExtra(ChatActivity.SHARED_FILE_URI, ((Uri) extraData));
-                                            // String is for text.
-                                            else if (extraData instanceof  String)
-                                                intent.putExtra(ChatActivity.SHARED_TEXT, ((String) extraData));
-                                            else
-                                            {
-                                                showToast("Problem sharing contact, Unknown share type.");
-                                                return;
-                                            }
-
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                                            startActivity(intent);
-                                        }
-
-                                        @Override
-                                        public void onDoneWithError(BError error) {
-
-                                        }
-                                    }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
-                                    break;
-
-                                default:
-                                    createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
-                                        @Override
-                                        public void onDone(BThread  thread) {
-                                            // This listener is used only because that if we dismiss the dialog before the thread creation has been done
-                                            // The contact dialog could not open the new chat activity because getActivity() will be null.
-                                            if (isDialog)
-                                                getDialog().dismiss();
-                                        }
-
-                                        @Override
-                                        public void onDoneWithError(BError error) {
-
-                                        }
-                                    }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                switch (clickMode)
+                {
+                    case CLICK_MODE_ADD_USER_TO_THREAD:
+                        BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
+                        BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                            @Override
+                            public boolean onItem(BUser user) {
+                                showToast("User added to thread, Name: "  + clickedUser.getMetaName());
+                                if (isDialog)
+                                    getDialog().dismiss();
+                                return false;
                             }
+
+                            @Override
+                            public void onDone() {
+
+                            }
+
+                            @Override
+                            public void onItemError(BUser user, Object o) {
+
+                            }
+                        }, clickedUser);
+                        break;
+
+                    case CLICK_MODE_SHARE_CONTENT:
+                        createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
+                            @Override
+                            public void onDone(BThread thread) {
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
+
+                                // Checking the kind of the instace data
+                                // Uri is used for images
+                                if (extraData instanceof Uri)
+                                    intent.putExtra(ChatActivity.SHARED_FILE_URI, ((Uri) extraData));
+                                    // String is for text.
+                                else if (extraData instanceof  String)
+                                    intent.putExtra(ChatActivity.SHARED_TEXT, ((String) extraData));
+                                else
+                                {
+                                    showToast("Problem sharing contact, Unknown share type.");
+                                    return;
+                                }
+
+                                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onDoneWithError(BError error) {
+
+                            }
+                        }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                        break;
+
+                    default:
+                        createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
+                            @Override
+                            public void onDone(BThread  thread) {
+                                // This listener is used only because that if we dismiss the dialog before the thread creation has been done
+                                // The contact dialog could not open the new chat activity because getActivity() will be null.
+                                if (isDialog)
+                                    getDialog().dismiss();
+                            }
+
+                            @Override
+                            public void onDoneWithError(BError error) {
+
+                            }
+                        }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
+                }
 
                                  /* for (int i = 0; i < 20; i++)
                             {
@@ -460,25 +419,53 @@ public class ContactsFragment extends BaseFragment {
                             }*/
 
 
-                        }
-                    });
+            }
+        });
 
-                    listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                        @Override
-                        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                            if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
-                                return true;
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (adapter.getItem(position).getType() == UsersWithStatusListAdapter.TYPE_HEADER)
+                    return true;
 
 //                            showAlertDialog("", getResources().getString(R.string.alert_delete_contact), getResources().getString(R.string.delete),
 //                            getResources().getString(R.string.cancel), null, new DeleteContact(adapter.getItem(position).getEntityID()));
-                            return true;
-                        }
-                    });
-
-                    break;
+                return true;
             }
-        }
-    };
+        });
+
+        //region Multi select
+/*listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+            listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+                @Override
+                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                    mode.setTitle(adapter.getSelectedCount() + " selected.");
+                    adapter.toggleSelection(position);
+                }
+
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    mode.getMenuInflater().inflate(R.menu.multi_select_menu, menu);
+                    return true;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    return false;
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                    adapter.clearSelection();
+                }
+            });*/
+        //endregion
+    }
 
     @Override
     public void onResume() {

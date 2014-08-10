@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
@@ -39,7 +40,7 @@ public class MainActivity extends BaseActivity {
     // TODO stack notification like whatsapp and gamil http://developer.android.com/reference/android/app/Notification.InboxStyle.html
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.MainActivity;
 
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
@@ -49,6 +50,7 @@ public class MainActivity extends BaseActivity {
     private static final String PAGE_ADAPTER_POS = "page_adapter_pos";
 
     public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
+    public static final String Action_Logged_Out = "com.braunster.androidchatsdk.action.logged_out";
 
     private int pageAdapterPos = -1;
 
@@ -69,7 +71,7 @@ public class MainActivity extends BaseActivity {
 
         enableCheckOnlineOnResumed(true);
 
-        if (savedInstanceState != null)
+        if (!fromLoginActivity && savedInstanceState != null)
         {
             if (DEBUG) Log.v(TAG, "Saved Instance is not null, "  + savedInstanceState.getInt(PAGE_ADAPTER_POS));
             pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
@@ -107,17 +109,8 @@ public class MainActivity extends BaseActivity {
                 if (DEBUG) Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
 
                 // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
-                if (lastPage == 0)
+                if (lastPage == PagerAdapterTabs.Profile)
                     ((ProfileFragment) getFragment(PagerAdapterTabs.Profile)).updateProfileIfNeeded();
-
-             /*   if (position == PagerAdapterTabs.Contacts)
-                {
-                    if (System.currentTimeMillis() - lastContactsRefresh > refreshContactsInterval)
-                    {
-                        adapter.getItem(position).refreshOnBackground();
-                        lastContactsRefresh = System.currentTimeMillis();
-                    }
-                }*/
 
                 pageAdapterPos = position;
 
@@ -132,6 +125,9 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
         registerReceiver(contactsAddedReceiver, intentFilter);
+
+        IntentFilter intentFilter2 = new IntentFilter(Action_Logged_Out);
+        registerReceiver(logoutReceiver, intentFilter2);
     }
 
     @Override
@@ -162,54 +158,7 @@ public class MainActivity extends BaseActivity {
 
             BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
 
-            if (thread.getType() == BThread.Type.Private)
-            {
-                if (uiUpdaterThreadDetailsChangedPrivate != null)
-                {
-                    uiUpdaterThreadDetailsChangedPrivate.setKilled(true);
-                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPrivate);
-                }
-
-                uiUpdaterThreadDetailsChangedPrivate = new UIUpdater(){
-
-                    @Override
-                    public void run() {
-                        if (!isKilled())
-                        {
-                            BaseFragment fragment;
-                            fragment = getFragment(PagerAdapterTabs.Conversations);
-
-                            if (fragment != null)
-                                fragment.loadDataOnBackground();
-                        }
-                    }
-                };
-                handler.postDelayed(uiUpdaterThreadDetailsChangedPrivate, uiUpdateDelay);
-            }
-            else if (thread.getType() == BThread.Type.Public)
-            {
-                if (uiUpdaterThreadDetailsChangedPublic != null)
-                {
-                    uiUpdaterThreadDetailsChangedPublic.setKilled(true);
-                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPublic);
-                }
-
-                uiUpdaterThreadDetailsChangedPublic = new UIUpdater(){
-
-                    @Override
-                    public void run() {
-                        if (!isKilled())
-                        {
-                            BaseFragment fragment;
-                            fragment = getFragment(PagerAdapterTabs.ChatRooms);
-
-                            if (fragment != null)
-                                fragment.loadDataOnBackground();
-                        }
-                    }
-                };
-                handler.postDelayed(uiUpdaterThreadDetailsChangedPublic, uiUpdateDelay);
-            }
+            updateForThread(thread);
 
 
 
@@ -261,8 +210,11 @@ public class MainActivity extends BaseActivity {
             if (DEBUG) Log.v(TAG, "onMessageReceived");
 
             // Only notify for private threads.
-            if (message.getBThreadOwner().getType() == BThread.Type.Public)
+            updateForThread(message.getBThreadOwner());
+
+            if (message.getBThreadOwner().getType() == BThread.Type.Public) {
                 return true;
+            }
 
             // Make sure the message that incoming is not the user message.
             if (message.getBUserSender().getEntityID().equals(
@@ -291,6 +243,57 @@ public class MainActivity extends BaseActivity {
             handler.postDelayed(uiUpdaterMessages, uiUpdateDelay);
 
             return false;
+        }
+
+        private void updateForThread(BThread thread){
+            if (thread.getType() == BThread.Type.Private)
+            {
+                if (uiUpdaterThreadDetailsChangedPrivate != null)
+                {
+                    uiUpdaterThreadDetailsChangedPrivate.setKilled(true);
+                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPrivate);
+                }
+
+                uiUpdaterThreadDetailsChangedPrivate = new UIUpdater(){
+
+                    @Override
+                    public void run() {
+                        if (!isKilled())
+                        {
+                            BaseFragment fragment;
+                            fragment = getFragment(PagerAdapterTabs.Conversations);
+
+                            if (fragment != null)
+                                fragment.loadDataOnBackground();
+                        }
+                    }
+                };
+                handler.postDelayed(uiUpdaterThreadDetailsChangedPrivate, uiUpdateDelay);
+            }
+            else if (thread.getType() == BThread.Type.Public)
+            {
+                if (uiUpdaterThreadDetailsChangedPublic != null)
+                {
+                    uiUpdaterThreadDetailsChangedPublic.setKilled(true);
+                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPublic);
+                }
+
+                uiUpdaterThreadDetailsChangedPublic = new UIUpdater(){
+
+                    @Override
+                    public void run() {
+                        if (!isKilled())
+                        {
+                            BaseFragment fragment;
+                            fragment = getFragment(PagerAdapterTabs.ChatRooms);
+
+                            if (fragment != null)
+                                fragment.loadDataOnBackground();
+                        }
+                    }
+                };
+                handler.postDelayed(uiUpdaterThreadDetailsChangedPublic, uiUpdateDelay);
+            }
         }
     };
 
@@ -360,6 +363,7 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(contactsAddedReceiver);
+        unregisterReceiver(logoutReceiver);
     }
 
     private void firstTimeInApp(){
@@ -389,6 +393,37 @@ public class MainActivity extends BaseActivity {
 
                 if (contacts != null)
                     contacts.refreshOnBackground();
+
+                if (intent.getExtras().containsKey(SearchActivity.USER_IDS_LIST))
+                {
+                    String[] ids = intent.getStringArrayExtra(SearchActivity.USER_IDS_LIST);
+                    for (String id : ids)
+                        EventManager.getInstance().handleUsersDetailsChange(id);
+                }
+            }
+        }
+    };
+
+    /** Clear Fragments data when logged out.*/
+    private BroadcastReceiver logoutReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Action_Logged_Out))
+            {
+                BaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
+
+                if (contacts != null)
+                    contacts.clearData();
+
+                BaseFragment conv = getFragment(PagerAdapterTabs.Conversations);
+
+                if (conv != null)
+                    conv.clearData();
+
+                BaseFragment pro = getFragment(PagerAdapterTabs.Profile);
+
+                if (pro != null)
+                    pro.clearData();
             }
         }
     };

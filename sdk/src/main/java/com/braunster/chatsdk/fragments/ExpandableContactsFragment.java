@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.ContactsExpandableListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -31,7 +32,7 @@ public class ExpandableContactsFragment extends BaseFragment {
     // TODO show user profile when pressing on contacts
     
     private static final String TAG = ExpandableContactsFragment.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.ExpandableContactsFragment;
 
     public static final int MODE_LOAD_CONTACS = 1991;
     public static final int MODE_LOAD_THREAD_USERS = 1992;

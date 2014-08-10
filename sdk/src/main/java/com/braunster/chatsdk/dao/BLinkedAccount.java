@@ -3,7 +3,6 @@ package com.braunster.chatsdk.dao;
 import com.braunster.chatsdk.dao.entities.BLinkedAccountEntity;
 import com.braunster.chatsdk.network.firebase.BPath;
 
-import java.util.Date;
 import java.util.Map;
 
 import de.greenrobot.dao.DaoException;
@@ -158,11 +157,6 @@ public class BLinkedAccount extends BLinkedAccountEntity  {
 
     @Override
     public Object getPriority() {
-        return null;
-    }
-
-    @Override
-    public Date lastUpdated() {
         return null;
     }
     // KEEP METHODS END

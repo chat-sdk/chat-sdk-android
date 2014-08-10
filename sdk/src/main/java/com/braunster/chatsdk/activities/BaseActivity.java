@@ -18,30 +18,27 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
-import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.EventManager;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.firebase.simplelogin.User;
-import com.firebase.simplelogin.enums.Error;
-import com.firebase.simplelogin.enums.Provider;
 import com.github.johnpersano.supertoasts.SuperActivityToast;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -50,7 +47,7 @@ import java.util.concurrent.Callable;
 public class BaseActivity extends ActionBarActivity implements BaseActivityInterface{
 
     private static final String TAG = BaseActivity.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.BaseActivity;
 
     public static final String FROM_LOGIN = "From_Login";
 
@@ -70,7 +67,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     private boolean integratedWithFacebook = false;
 
     /** A flag indicates that the activity in opened from the login activity so we wont do auth check when the activity will get to the onResume state.*/
-    private boolean fromLoginActivity = false;
+    boolean fromLoginActivity = false;
 
     private boolean enableCardToast = false;
 
@@ -147,7 +144,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
                     if (!online)
                     {
-                        int loginTypeKey = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
+/*                        int loginTypeKey = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
                         if ( loginTypeKey == Provider.FACEBOOK.ordinal()) {
                             if(DEBUG) Log.d(TAG, "FB AUTH");
 
@@ -157,24 +154,6 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                             {
                                 if (DEBUG) Log.e(TAG, "active session is null");
                                 session = Session.openActiveSessionFromCache(BaseActivity.this);
-
-                                /*session = Session.openActiveSession(BaseActivity.this, false, new Session.StatusCallback() {
-                                    @Override
-                                    public void call(Session session, SessionState state, Exception exception) {
-                                        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
-                                            @Override
-                                            public void onDone() {
-
-                                            }
-
-                                            @Override
-                                            public void onDoneWithError() {
-
-                                            }
-                                        });
-                                    }
-                                });
-                                return;*/
                             }
                             else session = Session.getActiveSession();
 
@@ -199,12 +178,13 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                                         }
                                     });
                         }
-                        else{
+                        else{*/
                             if(DEBUG) Log.d(TAG, "OTHER AUTH");
                             authenticate(new AuthListener() {
                                 @Override
                                 public void onCheckDone(boolean isAuthenticated) {
-
+                                    if (!isAuthenticated)
+                                        startLoginActivity(true);
                                 }
 
                                 @Override
@@ -219,7 +199,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                                     startLoginActivity(true);
                                 }
                             });
-                        }
+//                        }
 
                     }
 
@@ -259,13 +239,26 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     }
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
-    public void setupUI(View view) {
+    public void setupTouchUIToDismissKeyboard(View view) {
+        setupTouchUIToDismissKeyboard(view, null);
+    }
+
+    public void setupTouchUIToDismissKeyboard(View view, Integer... exceptIDs) {
+        if (DEBUG) Log.v(TAG, "setupTouchUIToDismissKeyboard");
+        List<Integer> ids = new ArrayList<Integer>();
+        if (exceptIDs != null)
+            ids = Arrays.asList(exceptIDs);
 
         //Set up touch listener for non-text box views to hide keyboard.
         if(!(view instanceof EditText)) {
 
-            view.setOnTouchListener(new View.OnTouchListener() {
+            if (!ids.isEmpty() && ids.contains(view.getId()))
+            {
+                if (DEBUG) Log.d(TAG, "Skipping View, ID: " + view.getId());
+                return;
+            }
 
+            view.setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {
                     hideSoftKeyboard(BaseActivity.this);
                     return false;
@@ -281,7 +274,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
                 View innerView = ((ViewGroup) view).getChildAt(i);
 
-                setupUI(innerView);
+                setupTouchUIToDismissKeyboard(innerView, exceptIDs);
             }
         }
     }
@@ -289,6 +282,9 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (inputMethodManager == null)
+            return;
+
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
@@ -377,11 +373,6 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         }, delay);
     }
 
-/*    void showToast(int type, String text){
-        superToast.setText(text);
-        superToast.show();
-    }*/
-
     /** Authenticates the current user.*/
     public void authenticate(AuthListener listener){
         BNetworkManager.sharedManager().getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
@@ -416,6 +407,9 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
             @Override
             public void onDone() {
                 Log.d(TAG, "On done.");
+
+                dismissProgDialog();
+
                 if (thread != null)
                 {
                     Log.d(TAG, "Stating chat for thread.");

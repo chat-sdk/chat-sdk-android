@@ -40,7 +40,5 @@ public interface Entity<T> {
 
     public <E extends com.braunster.chatsdk.dao.entities.Entity> List<E> getChildren();
 
-    public String mapPath();
-
     public Long getId();
 }

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
@@ -35,6 +36,7 @@ import com.braunster.chatsdk.view.ChatBubbleTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +50,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.MessagesListAdapter;
 
     /* Row types */
     private static final int TYPE_TEXT =0;
@@ -124,7 +126,6 @@ public class MessagesListAdapter extends BaseAdapter{
 
         final MessageListItem message = listData.get(position);
 
-
         switch (type)
         {
             case TYPE_TEXT:
@@ -154,7 +155,10 @@ public class MessagesListAdapter extends BaseAdapter{
                 {
                     if (DEBUG) Log.d(TAG, "Color: " + message.color);
                     int bubbleColor = -1;
-                    try{
+                    if (message.status == BMessageEntity.Status.SENDING){
+                        bubbleColor = Color.parseColor("#C3C2C4");
+                    }
+                    else try{
                         bubbleColor = Color.parseColor(message.color);
                     }
                     catch (Exception e){}
@@ -198,10 +202,8 @@ public class MessagesListAdapter extends BaseAdapter{
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
                 image = getBubbleImageViewFromRow(row, message);
-//
 //                // Save the message text to the image tag so it could be found on the onClick.
                 image.setTag(message.text);
-//
 //                // Open google maps on click.
                 image.setOnClickListener(new openGoogleMaps());
 
@@ -239,8 +241,15 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Check for duplicates.
         for (MessageListItem item : listData)
-            if (item.entityId != null && item.entityId.equals(data.entityId))
+        {
+            if (item.entityId != null && item.entityId.equals(data.entityId) || item.id == data.id)
+            {
+                item.status = data.status;
+                notifyDataSetChanged();
                 return false;
+            }
+        }
+
 
         listData.add(data);
 
@@ -298,8 +307,8 @@ public class MessagesListAdapter extends BaseAdapter{
 
         final ProgressBar progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
         final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
-        progressBar.setVisibility(View.VISIBLE);
-        image.setVisibility(View.INVISIBLE);
+
+        int[] dimensions = null;
 
         /*FIXME due to old data in firebase this is needed.*/
         String url = "";
@@ -326,51 +335,67 @@ public class MessagesListAdapter extends BaseAdapter{
             }
         }
 
+        final String finalUrl = url;
+        if (DEBUG) Log.d(TAG, "Final URl: " + finalUrl);
+
         try {
-            int[] dimensions = ImageUtils.getDimentionsFromString(urls[urls.length - 1]);
-            if (DEBUG) Log.d(TAG, "Img Dimensions, Width: " + dimensions[0] + ", Height: " + dimensions[1]);
+            dimensions = ImageUtils.getDimentionsFromString(urls[urls.length - 1]);
+            if (DEBUG) Log.d(TAG, "Img Dimensions, url: " + finalUrl + ", Width: " + dimensions[0] + ", Height: " + dimensions[1]);
             dimensions = ImageUtils.calcNewImageSize(dimensions, (int) image.MAX_WIDTH);
-            if (DEBUG) Log.d(TAG, "Img Dimensions After Calc, Width: " + dimensions[0] + ", Height: " + dimensions[1]);
+            if (DEBUG) Log.d(TAG, "Img Dimensions After Calc, " +  "url: " + finalUrl +",  Width: " + dimensions[0] + ", Height: " + dimensions[1]);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) image.getLayoutParams();
-            params.width = dimensions[0];
-            params.height = dimensions[1];
+            params.width = (int) (dimensions[0] + image.getImagePadding() + image.getPointSize());
+            params.height = dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
         } catch (Exception e) {
 //            e.printStackTrace();
         }
 
-        final String finalUrl = url;
-        if (DEBUG) Log.d(TAG, "Final URl: " + finalUrl);
+        final String color;
+        if (message.status == BMessageEntity.Status.SENDING){
+            color = "#C3C2C4";
+        }
+        else if (message.color != null && !message.color.equals("Red"))
+            color = message.color;
+        else color = Integer.toHexString(BMessage.randomColor());
 
-        progressBar.post(new Runnable() {
+        final ChatBubbleImageView.LoadDone loadDone = new ChatBubbleImageView.LoadDone() {
             @Override
-            public void run() {
-                    /*FIXME due to old data in firebase this is needed.*/
-                if (message.color != null && !message.color.equals("Red"))
-                    image.loadFromUrl(finalUrl, message.color, progressBar.getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
-                        @Override
-                        public void onDone() {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            image.setVisibility(View.VISIBLE);
-                        }
-                    });
-                else
-                    image.loadFromUrl(finalUrl, BMessage.randomColor(), progressBar.getMeasuredWidth(), new ChatBubbleImageView.LoadDone() {
-                        @Override
-                        public void onDone() {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            image.setVisibility(View.VISIBLE);
-                        }
-                    });
-
-              /*  image.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (DEBUG) Log.d(TAG, "Img Dimensions POST, Width: " + image.getWidth() + ", Height: " + image.getHeight());
-                    }
-                });*/
+            public void onDone() {
+                progressBar.setVisibility(View.INVISIBLE);
+                image.setVisibility(View.VISIBLE);
             }
-        });
+
+            @Override
+            public void immediate(boolean immediate) {
+                if (immediate){
+                    progressBar.setVisibility(View.INVISIBLE);
+                    image.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+//                    progressBar.setVisibility(View.VISIBLE);
+//                    image.setVisibility(View.INVISIBLE);
+                }
+            }
+        };
+
+        if (dimensions != null)
+        {
+            image.loadFromUrl(finalUrl, color, dimensions[0], loadDone);
+        }
+        else
+        {
+            progressBar.post(new Runnable() {
+                @Override
+                public void run() {
+                    /*FIXME due to old data in firebase this is needed.*/
+
+                    image.loadFromUrl(finalUrl, color, progressBar.getMeasuredWidth(), loadDone);
+                }
+            });
+
+        }
 
 
         return image;
@@ -428,11 +453,14 @@ public class MessagesListAdapter extends BaseAdapter{
 
     static class MessageListItem{
         private String entityId, profilePicUrl, time, text, color, textColor;
-        private int type;
+        private int type, status;
         private long sender;
+        private long id;
 
-        MessageListItem(String entityId, int type, long senderID, String profilePicUrl, String time, String text, String color, String textColor) {
+        private MessageListItem(long id, String entityId, int type, int status, long senderID, String profilePicUrl, String time, String text, String color, String textColor) {
             this.type = type;
+            this.id = id;
+            this.status = status;
             this.sender = senderID;
             this.entityId = entityId;
             this.profilePicUrl = profilePicUrl;
@@ -444,8 +472,10 @@ public class MessagesListAdapter extends BaseAdapter{
 
         public static MessageListItem fromBMessage(BMessage message){
             BUser user = message.getBUserSender();
-            return new MessageListItem( message.getEntityID(),
+            return new MessageListItem( message.getId(),
+                                        message.getEntityID(),
                                         message.getType(),
+                                        message.getStatusOrNull(),
                                         user.getId(),
                                         user.getMetaPictureUrl(),
                                         String.valueOf(getFormat(message).format(message.getDate())),
@@ -460,6 +490,9 @@ public class MessagesListAdapter extends BaseAdapter{
             for (BMessage message : messages)
                 if (message.getEntityID() != null)
                     list.add(fromBMessage(message));
+
+            // We need to reverse the list so the newest data would be on the top again.
+            Collections.reverse(list);
 
             return list;
         }

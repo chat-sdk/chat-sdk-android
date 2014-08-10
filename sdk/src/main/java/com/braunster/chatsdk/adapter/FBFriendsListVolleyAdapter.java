@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.network.BFacebookManager;
@@ -24,7 +25,7 @@ import java.util.List;
 public class FBFriendsListVolleyAdapter extends BaseAdapter {
 
     private static final String TAG = FBFriendsListVolleyAdapter.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.FBFriendsListVolleyAdapter;
 
     private Activity mActivity;
 

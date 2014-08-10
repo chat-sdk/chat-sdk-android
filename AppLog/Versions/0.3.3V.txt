@@ -1,0 +1,24 @@
+##########################
+        V: 0.3.0
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# Need to Handle push notification for a message that already received.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

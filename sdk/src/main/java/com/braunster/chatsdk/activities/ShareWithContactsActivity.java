@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.fragments.ContactsFragment;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ShareWithContactsActivity extends BaseActivity {
 
     public static final String TAG = ShareWithContactsActivity.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.ShareWithContactsActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

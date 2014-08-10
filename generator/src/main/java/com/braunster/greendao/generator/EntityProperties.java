@@ -50,6 +50,7 @@ public class EntityProperties {
     public static final String TextColor = "textColor";
     public static final String Thread = "thread";
     public static final String User = "user";
+    public static final String Status = "status";
 
     /* Thread */
     public static final String CreationDate = "creationDate";

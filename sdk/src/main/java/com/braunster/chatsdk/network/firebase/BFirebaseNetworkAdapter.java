@@ -3,6 +3,7 @@ package com.braunster.chatsdk.network.firebase;
 import android.content.Context;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
@@ -24,6 +25,7 @@ import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.PushUtils;
@@ -63,7 +65,7 @@ import static com.braunster.chatsdk.network.BDefines.Prefs;
 public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     private static final String TAG = BFirebaseNetworkAdapter.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.BFirebaseNetworkAdapter;
 
     private Context context;
 
@@ -74,7 +76,42 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     //Note this is added so there wont be two auth processes running simultaneously.
     private enum AuthStatus{
-        IDLE, AUTH_WITH_MAP, HANDLING_F_USER, UPDATING_USER, PUSHING_USER, CHECKING_IF_AUTH
+        IDLE {
+            @Override
+            public String toString() {
+                return "Idle";
+            }
+        },
+        AUTH_WITH_MAP{
+            @Override
+            public String toString() {
+                return "Auth with map";
+            }
+        },
+        HANDLING_F_USER{
+            @Override
+            public String toString() {
+                return "Handling F user";
+            }
+        },
+        UPDATING_USER{
+            @Override
+            public String toString() {
+                return "Updating user";
+            }
+        },
+        PUSHING_USER{
+            @Override
+            public String toString() {
+                return "Pushing user";
+            }
+        },
+        CHECKING_IF_AUTH{
+            @Override
+            public String toString() {
+                return "Checking if Authenticated";
+            }
+        }
     }
 
     private AuthStatus authingStatus = AuthStatus.IDLE;
@@ -143,7 +180,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         if (isAuthing())
         {
-            if (DEBUG) Log.d(TAG, "Already Authing!");
+            if (DEBUG) Log.d(TAG, "Already Authing!, Status: " + authingStatus.name());
             return;
         }
 
@@ -375,6 +412,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Save the data
         DaoCore.updateEntity(user);
 
+        authingStatus = AuthStatus.PUSHING_USER;
         pushUserWithCallback(new CompletionListener() {
 
             @Override
@@ -400,6 +438,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 // Adding the user identifier to the bugsense so we could track problems by user id.
                 if (BNetworkManager.BUGSENSE_ENABLED)
                     BugSenseHandler.setUserIdentifier(currentUser.getEntityID());
+
+                resetAuth();
             }
 
             @Override
@@ -413,8 +453,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public void pushUserWithCallback(final CompletionListener listener) {
-        authingStatus = AuthStatus.PUSHING_USER;
-
         // Update the user in the server.
         BUser user = currentUser();
         BFirebaseInterface.pushEntity(user, new RepetitiveCompletionListenerWithError() {
@@ -434,7 +472,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 if (listener != null)
                     listener.onDoneWithError();
 
-                resetAuth();
             }
         });
     }
@@ -445,7 +482,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         if (isAuthing())
         {
-            if (DEBUG) Log.d(TAG, "Already Authing!");
+            if (DEBUG) Log.d(TAG, "Already Authing!, Status: " + authingStatus.name());
             return;
         }
 
@@ -458,14 +495,62 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             return;
         }
 
+        SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
+            @Override
+            public void authenticated(Error error, User firebaseSimpleLoginUser) {
+                if (error != null || firebaseSimpleLoginUser == null)
+                {
+                    resetAuth();
+
+                    listener.onCheckDone(false);
+                    if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
+                    if (error != null)
+                    {
+                        if (DEBUG) Log.d(TAG, error.name());
+                    }
+                    else if (DEBUG) Log.d(TAG, "No Error");
+
+                    if (firebaseSimpleLoginUser != null)
+                    {
+                        if (DEBUG) Log.d(TAG, "fire base user is not null");
+                    }
+                    else if (DEBUG) Log.d(TAG, "firebase user is null");
+                }
+                else {
+                    if (DEBUG) Log.d(TAG, "Firebase SimpleLogin, Authenticated");
+                    listener.onCheckDone(true);
+                    handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
+                        @Override
+                        public void onDone(BUser user) {
+                            resetAuth();
+                            listener.onLoginDone();
+                        }
+
+                        @Override
+                        public void onDoneWithError(BUser user, Object o) {
+                            resetAuth();
+                            listener.onLoginFailed((BError) o);
+                        }
+                    });
+                }
+            }
+        };
+
         if ((Integer) getLoginInfo().get(Prefs.AccountTypeKey) == Provider.FACEBOOK.ordinal())
         {
             Session session = Session.getActiveSession();
+            if (session == null)
+            {
+                if (DEBUG) Log.d(TAG, "Session is null");
+                session = Session.openActiveSessionFromCache(context);
+            }
             if (session != null && session.isOpened())
             {
                 if (DEBUG) Log.d(TAG, "FB Session is open");
-                resetAuth();
-                listener.onCheckDone(true);
+//                listener.onCheckDone(true);
+                Firebase ref = FirebasePaths.firebaseRef();
+                final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
+                simpleLogin.checkAuthStatus(handler);
             }
             else {
                 if (DEBUG) Log.d(TAG, "FB Session is closed");
@@ -477,46 +562,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         {
             Firebase ref = FirebasePaths.firebaseRef();
             final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
-            simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
-                @Override
-                public void authenticated(Error error, User firebaseSimpleLoginUser) {
-                    if (error != null || firebaseSimpleLoginUser == null)
-                    {
-                        resetAuth();
-
-                        listener.onCheckDone(false);
-                        if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
-                        if (error != null)
-                        {
-                            if (DEBUG) Log.d(TAG, error.name());
-                        }
-                        else if (DEBUG) Log.d(TAG, "No Error");
-
-                        if (firebaseSimpleLoginUser != null)
-                        {
-                            if (DEBUG) Log.d(TAG, "fire base user is not null");
-                        }
-                        else if (DEBUG) Log.d(TAG, "firebase user is null");
-                    }
-                    else {
-                        if (DEBUG) Log.d(TAG, "Firebase SimpleLogin, Authenticated");
-                        listener.onCheckDone(true);
-                        handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
-                            @Override
-                            public void onDone(BUser user) {
-                                resetAuth();
-                                listener.onLoginDone();
-                            }
-
-                            @Override
-                            public void onDoneWithError(BUser user, Object o) {
-                                resetAuth();
-                                listener.onLoginFailed((BError) o);
-                            }
-                        });
-                    }
-                }
-            });
+            simpleLogin.checkAuthStatus(handler);
         }
     }
 
@@ -812,20 +858,35 @@ TODO
 
     @Override
     public BUser currentUser() {
+
+        if (currentUser != null && System.currentTimeMillis() - lastCurrentUserCall < currentUserCallInterval)
+        {
+            return currentUser;
+        }
+
         if (getCurrentUserAuthenticationId() != null)
         {
             String authID = getCurrentUserAuthenticationId();
             if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
-            BUser user = DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
+
+            currentUser = DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
+
+            lastCurrentUserCall = System.currentTimeMillis();
+
             if(DEBUG) {
-                if (user == null) Log.e(TAG, "Current user is null");
-                else if (StringUtils.isEmpty(user.getEntityID())) Log.e(TAG, "Current user entity id is null");
+                if (currentUser == null) Log.e(TAG, "Current user is null");
+                else if (StringUtils.isEmpty(currentUser.getEntityID())) Log.e(TAG, "Current user entity id is null");
             }
-            return user;
+
+            return currentUser;
         }
         if (DEBUG) Log.e(TAG, "getCurrentUserAuthenticationIdr is null");
         return null;
     }
+
+    private long lastCurrentUserCall = 0;
+    private final long currentUserCallInterval = 2000;
+    private BUser currentUser = null;
 
     public void isOnline(final CompletionListenerWithData<Boolean> listener){
         if (currentUser() == null)
@@ -1201,7 +1262,7 @@ TODO
     }
 
     @Override
-    public void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<List<BMessage>> listener) {
+    public void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<BMessage[]> listener) {
         BFirebaseInterface.loadMoreMessagesForThread(thread, BFirebaseDefines.NumberOfMessagesPerBatch, listener);
     }
 

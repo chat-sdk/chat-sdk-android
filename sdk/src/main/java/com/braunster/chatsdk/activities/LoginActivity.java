@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BDefines;
@@ -26,7 +27,6 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
 import com.firebase.simplelogin.User;
 import com.firebase.simplelogin.enums.Error;
-import com.parse.signpost.OAuth;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import static com.braunster.chatsdk.Utils.DialogUtils.ChatSDKTwitterLoginDialog;
 public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = Debug.LoginActivity;
 
     /** Passed to the activity in the intent extras, Indicates that the activity was called after the user press the logout button,
      * That means the activity wont try to authenticate in inResume. */
@@ -66,13 +66,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 /*
         // For registering the activity to facebook.
         String sha = Utils.getSHA(this, getPackageName());
-        Log.i(TAG, "SHA: " + sha);
-        Log.e(TAG, "INVALID: " + Provider.INVALID.ordinal()
-                 + "FACEBOOK: " + Provider.FACEBOOK.ordinal()
-                 + "TWITTER: " + Provider.TWITTER.ordinal()
-                 + "PASSWORD: " + Provider.PASSWORD.ordinal()
-                 + "GOOGLE: " + Provider.GOOGLE.ordinal()
-                 + "ANONYMOUS: " + Provider.ANONYMOUS.ordinal());*/
+        Log.i(TAG, "SHA: " + sha);*/
     }
 
     @Override
@@ -80,12 +74,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         super.onNewIntent(intent);
 
         if(DEBUG) Log.v(TAG, "onNewIntent");
-
-        if (intent != null && intent.getData() != null)
-        {
-            String verifier = intent.getData().getQueryParameter(OAuth.OAUTH_VERIFIER);
-            if (DEBUG) Log.d(TAG, "Verifier"  + verifier) ;
-        }
     }
 
     private void initViews(){
@@ -93,7 +81,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         fbLoginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
             @Override
             public void onError(FacebookException error) {
-                Log.e(TAG, "error");
+                showAlertToast("Fb Login button error");
             }
         });
         fbLoginButton.setReadPermissions(Arrays.asList("email", "user_friends"));
@@ -136,11 +124,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onResume() {
         super.onResume();
+        if (DEBUG) Log.d(TAG, "onResume, Session State: " + Session.getActiveSession().getState().name());
 
+        uiHelper.onResume();
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
         Map<String, ?> loginInfo =BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo();
-        if (loginInfo != null&& loginInfo.containsKey(BDefines.Prefs.AccountTypeKey))
+        if (loginInfo != null && loginInfo.containsKey(BDefines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
                 showProgDialog("Checking auth...");
                 authenticate(
@@ -175,7 +165,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         initListeners();
 
-        uiHelper.onResume();
+
     }
 
     @Override
@@ -200,16 +190,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     /* Dismiss dialog and open main activity.*/
     private void afterLogin(){
 //        // Giving the system extra time to load.
-//        findViewById(R.id.content).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
+        findViewById(R.id.content).postDelayed(new Runnable() {
+            @Override
+            public void run() {
                 dismissProgDialog();
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra(BaseActivity.FROM_LOGIN, true);
                 startActivity(intent);
-//            }
-//        }, 10000);
+            }
+        }, 5000);
     }
 
     /* Exit Stuff*/

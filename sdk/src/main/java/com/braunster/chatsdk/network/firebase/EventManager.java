@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
@@ -44,7 +45,7 @@ import java.util.Set;
 public class EventManager implements AppEvents {
 
     private static final String TAG = EventManager.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.EventManager;
 
     public static final String THREAD_ID = "threadID";
     public static final String USER_ID = "userID";
@@ -323,7 +324,7 @@ public class EventManager implements AppEvents {
     }
 
     /** Handle user details change.*/
-    private void handleUsersDetailsChange(String userID){
+    public void handleUsersDetailsChange(String userID){
         if (DEBUG) Log.v(TAG, "handleUsersDetailsChange, Entered. " + userID);
 
         if (userID.equals(getCurrentUserId()))

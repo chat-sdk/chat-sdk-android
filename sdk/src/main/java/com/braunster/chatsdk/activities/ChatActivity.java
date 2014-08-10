@@ -27,7 +27,9 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
+import com.braunster.chatsdk.Utils.MessageSorter;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
@@ -38,6 +40,7 @@ import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ContactsFragment;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.MessageEventListener;
@@ -49,8 +52,13 @@ import com.google.android.gms.maps.model.LatLng;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -61,7 +69,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     // TODO implement bubbles UI
 
     private static final String TAG = ChatActivity.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.ChatActivity;
 
     private static final int PHOTO_PICKER_ID = 100;
     private static final int CAPTURE_IMAGE = 101;
@@ -92,6 +100,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private MessagesListAdapter messagesListAdapter;
     private BThread thread;
     private PopupWindow optionPopup;
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     private String capturePhotoPath = "";
 
@@ -106,9 +115,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         if (DEBUG) Log.v(TAG, "onCreate");
 
-        setContentView(R.layout.chat_sdk_activity_chat);
+        setContentView(R.layout.chat_sdk_activity_chat_pull_to_refresh);
 
-        setupUI(findViewById(R.id.content));
+        setupTouchUIToDismissKeyboard(findViewById(R.id.content), R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
         if ( !getThread(savedInstanceState) )
             return;
@@ -189,6 +198,47 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         btnSend = (Button) findViewById(R.id.chat_sdk_btn_chat_send_message);
         btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
         etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
+
+        mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+
+        // Now setup the PullToRefreshLayout
+        ActionBarPullToRefresh.from(this)
+                // Mark All Children as pullable
+                .allChildrenArePullable()
+                        // Set a OnRefreshListener
+                .listener(new OnRefreshListener() {
+                    @Override
+                    public void onRefreshStarted(View view) {
+                        if (DEBUG) Log.d(TAG, "onRefreshStarted");
+
+                        BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, new CompletionListenerWithData<BMessage[]>() {
+                                    @Override
+                                    public void onDone(BMessage[] messages) {
+                                        if (DEBUG)
+                                            Log.d(TAG, "New messages are loaded, Amount: " + (messages == null ? "No messages" : messages.length));
+
+                                        if (messages.length < 2)
+                                            showToast("There is no new messages to load...");
+                                        else {
+                                            // Saving the position in the list so we could back to it after the update.
+                                            loadMessagesAndRetainPos(messages.length - 2);
+                                        }
+
+                                        mPullToRefreshLayout.setRefreshComplete();
+                                    }
+
+                                    @Override
+                                    public void onDoneWithError(BError error) {
+
+                                    }
+                                }
+                        );
+                    }
+                })
+        // Finally commit the setup to our PullToRefreshLayout
+        .setup(mPullToRefreshLayout);
+
+
     }
 
     private void initListView(){
@@ -201,15 +251,42 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         loadMessages();
     }
 
-    private void loadMessages(){
+    private void loadMessagesAndRetainPos(int newDataSize){
+        int index = listMessages.getFirstVisiblePosition() + newDataSize;
+        View v = listMessages.getChildAt(0);
+        int top = (v == null) ? -1 : v.getTop();
+        loadMessages(index, top);
+    }
+
+    private void loadMessages(final int index, final int top){
         if (thread == null)
         {
             Log.e(TAG, "Thread is null");
             return;
         }
+        if (top != -1 && index != -1)
+            listMessages.setVisibility(View.INVISIBLE);
+
+        List<BMessage> messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId());
+
+        Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
 
         messagesListAdapter.setListData(
-                messagesListAdapter.makeList(BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId())));
+                messagesListAdapter.makeList(messages));
+
+        // restore
+        if (top != -1 && index != -1)
+            listMessages.post(new Runnable() {
+                @Override
+                public void run() {
+                    listMessages.setSelectionFromTop(index, top);
+                    listMessages.setVisibility(View.VISIBLE);
+                }
+            });
+    }
+
+    private void loadMessages(){
+        loadMessages(-1, -1);
     }
 
     @Override
@@ -505,14 +582,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             return;
         }
 
-        showCard("Sending...", 50);
+//        showCard("Sending...", 50);
 
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(text, thread.getId(), new CompletionListenerWithData<BMessage>() {
             @Override
             public void onDone(BMessage message) {
 
-                updateCard("Sent...", 100);
-                dismissCardWithSmallDelay();
+//                updateCard("Status...", 100);
+//                dismissCardWithSmallDelay();
 
                 // If the event manager is not listening to the current thread we will add the message to the list from here.
                 // This could happen when the app is authenticating after it was killed by the system.
@@ -529,6 +606,56 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (clearEditText)
             etMessage.getText().clear();
     }
+
+    /** Send text message logic.*/
+    private void sendTextMessageWithStatus(){
+        sendTextMessageWithStatus(etMessage.getText().toString(), true);
+    }
+
+    /** Send text message
+     * @param text the text to send.
+     * @param clearEditText if true clear the message edit text.*/
+    private void sendTextMessageWithStatus(String text, boolean clearEditText){
+        if (DEBUG) Log.v(TAG, "sendTextMessage, Text: " + text + ", Clear: " + String.valueOf(clearEditText));
+
+        if (StringUtils.isEmpty(text))
+        {
+            showAlertToast("Cant send empty message!");
+            return;
+        }
+
+        BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(text, thread.getId(),new RepetitiveCompletionListenerWithMainTaskAndError<BMessage, BMessage, BError>() {
+            @Override
+            public boolean onMainFinised(BMessage message, BError error) {
+                if (DEBUG) Log.v(TAG, "onMainFinished, Status: " + message.getStatusOrNull());
+                messagesListAdapter.addRow(message);
+                return false;
+            }
+
+            @Override
+            public boolean onItem(BMessage message) {
+                if (DEBUG) Log.v(TAG, "onItem, Status: " + message.getStatusOrNull());
+                    messagesListAdapter.addRow(message);
+                return false;
+            }
+
+            @Override
+            public void onDone() {
+            }
+
+
+            @Override
+            public void onItemError(BMessage message, BError error) {
+                showAlertToast("Error while sending message.");
+                messagesListAdapter.addRow(message);
+                /*FIXME todo handle error by showing indicator on the message in the list.*/
+            }
+        });
+
+        if (clearEditText)
+            etMessage.getText().clear();
+    }
+
     /** Send an image message.
      * @param filePath the path to the image file that need to be sent.*/
     private void sendImageMessage(String filePath){
@@ -537,7 +664,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onDone(BMessage message) {
                         if (DEBUG) Log.v(TAG, "Image is sent");
-                        updateCard("Sent...", 100);
+                        updateCard("Status...", 100);
                         dismissCardWithSmallDelay();
 
                         // If the event manager is not listening to the current thread we will add the message to the list from here.
@@ -595,7 +722,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             // removing the key so we wont send again,
             intent.getExtras().remove(SHARED_TEXT);
 
-            sendTextMessage(text, false);
+            sendTextMessageWithStatus(text, false);
         }
     }
 
@@ -608,7 +735,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         int id= v.getId();
 
         if (id == R.id.chat_sdk_btn_chat_send_message) {
-            sendTextMessage();
+            sendTextMessageWithStatus();
         }
         else if (id == R.id.chat_sdk_btn_options){
             showOptionPopup();
@@ -662,7 +789,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND)
-            sendTextMessage();
+            sendTextMessageWithStatus();
 
         return false;
     }

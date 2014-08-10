@@ -2,6 +2,7 @@ package com.braunster.chatsdk.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,6 +42,8 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     private static final String TAG = BaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
 
+    private ProgressDialog progressDialog;
+
     SuperActivityToast superActivityToast;
 
     View mainView;
@@ -70,17 +73,23 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
     @Override
-    public void loadData() {
-
-    }
-
-    @Override
     public void refreshOnBackground() {
         loadDataOnBackground();
     }
 
     @Override
+    public void loadData() {
+
+    }
+
+    @Override
     public void loadDataOnBackground() {
+
+    }
+
+
+    @Override
+    public void clearData() {
 
     }
 
@@ -149,7 +158,6 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
         startActivity(intent);
     }
 
-
     /** Create or fetch chat for users, Opens the chat when done.*/
     void createAndOpenThreadWithUsers(String name, BUser...users){
         createAndOpenThreadWithUsers(name, null, true, users);
@@ -205,6 +213,40 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     }
 
 
+
+    protected void showProgDialog(String message){
+        if (progressDialog == null)
+            progressDialog = new ProgressDialog(getActivity());
+
+        if (!progressDialog.isShowing())
+        {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(message);
+            progressDialog.show();
+        }
+    }
+
+    protected void showOrUpdateProgDialog(String message){
+        if (progressDialog == null)
+            progressDialog = new ProgressDialog(getActivity());
+
+        if (!progressDialog.isShowing())
+        {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(message);
+            progressDialog.show();
+        } else progressDialog.setMessage(message);
+    }
+
+    protected void dismissProgDialog(){
+        try {
+            if (progressDialog != null && progressDialog.isShowing())
+                progressDialog.dismiss();
+        } catch (Exception e) {
+            // For handling orientation changed.
+            e.printStackTrace();
+        }
+    }
 
     void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -328,6 +370,8 @@ interface BaseFragmentInterface{
     public void loadDataOnBackground();
 
     public void initViews();
+
+    public void clearData();
 }
 
 /*

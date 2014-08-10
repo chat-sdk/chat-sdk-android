@@ -3,6 +3,8 @@ package com.braunster.chatsdk.network.firebase;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.util.Map;
 public class BPath {
 
     private static final String TAG = BPath.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Debug.BPath;
 
     private Map<String, String> tokens = new HashMap<String, String>();
     private ArrayList<String> keys = new ArrayList<String>();

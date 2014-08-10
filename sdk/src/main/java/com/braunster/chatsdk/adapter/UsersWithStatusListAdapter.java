@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -33,7 +34,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UsersWithStatusListAdapter extends BaseAdapter {
 
     private static final String TAG = UsersWithStatusListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
 
     private Activity mActivity;
 
@@ -42,7 +43,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
-    private static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE";
+    private static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
 
     private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
@@ -397,10 +398,26 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         }
 
         if (withHeaders) {
-            listData.add(UserListItem.getHeader(H_ONLINE));
-            listData.addAll(onlineUsers);
-            listData.add(UserListItem.getHeader(H_OFFLINE));
-            listData.addAll(offlineUsers);
+            if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
+            {
+                listData.add(UserListItem.getHeader(H_NO_CONTACTS));
+            }
+            else if (onlineUsers.size() == 0){
+                listData.add(UserListItem.getHeader(H_NO_ONLINE));
+                listData.add(UserListItem.getHeader(H_OFFLINE));
+                listData.addAll(offlineUsers);
+            }
+            else if (offlineUsers.size() == 0){
+                listData.add(UserListItem.getHeader(H_ONLINE));
+                listData.addAll(onlineUsers);
+                listData.add(UserListItem.getHeader(H_NO_OFFLINE));
+            }
+            else {
+                listData.add(UserListItem.getHeader(H_ONLINE));
+                listData.addAll(onlineUsers);
+                listData.add(UserListItem.getHeader(H_OFFLINE));
+                listData.addAll(offlineUsers);
+            }
         }
 
 //        if (DEBUG && deleteDuplicates)

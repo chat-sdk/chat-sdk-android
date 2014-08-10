@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
@@ -63,7 +64,7 @@ public class BUser extends BUserEntity  {
 
     // KEEP FIELDS - put your custom fields here
     private static final String TAG = BUser.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.BUser;
 
     private static final String USER_PREFIX = "user";
     // KEEP FIELDS END
@@ -399,8 +400,8 @@ public class BUser extends BUserEntity  {
     }
 
     @Override //Note done
-    public Type getEntityType() {
-        return Type.bEntityTypeUser;
+    public Entity.Type getEntityType() {
+        return Entity.Type.bEntityTypeUser;
     }
 
     @Override //Note Done!
@@ -459,17 +460,15 @@ public class BUser extends BUserEntity  {
         return this.authenticationId;
     }
 
-    @Override
     public Date lastUpdated() {
         return lastUpdated;
     }
 
-    //Note Done!
     public String[] getCacheIDs(){
         return new String[]{entityID != null ? entityID : "", authenticationId != null ? authenticationId : ""};
     }
 
-    @Override //Note Done!
+    @Override
     public List<BThread> getThreads(){
         /* Getting the thread list by getBLinkData can be out of date so we get the data from the database*/
 
@@ -477,6 +476,8 @@ public class BUser extends BUserEntity  {
         List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.UserID, getId());
 
         if (DEBUG) Log.d(TAG, "BUser, getThreads, Amount: " + (list==null?"null":list.size()) );
+
+        if (list == null) return null;
 
         for (BLinkData data : list)
         {
@@ -487,7 +488,7 @@ public class BUser extends BUserEntity  {
         return threads;
     }
 
-    @Override//Note Done!
+    @Override
     public List<BUser> getContacts() {
         /* Getting the contact list by getBLinkedContacts can be out of date so we get the data from the database*/
         List<BUser> contacts = new ArrayList<BUser>();
@@ -516,7 +517,7 @@ public class BUser extends BUserEntity  {
 
     }
 
-    @Override //Note done!
+    @Override
     public void addContact(BUser user) {
         if (DEBUG) Log.v(TAG, "Adding a contact, Contacts Amount: " + getContacts().size() + ". Name: " + user.getMetaName());
         if (user.equals(this))
@@ -544,7 +545,6 @@ public class BUser extends BUserEntity  {
         }
     }
 
-    // Note Done!
     /** Get a link account of the user by type.
      * @return BLinkedAccount if found
      * @return null if no account found.*/
@@ -560,7 +560,7 @@ public class BUser extends BUserEntity  {
 
     /*##################################################*/
     /*Metadata Fetching*/
-    @Override//TODO
+    @Override
     public void addMetaDataObject(BMetadata metadata) {
         if (StringUtils.isEmpty(metadata.getKey()))
             Log.d(TAG, "Metadata Key is empty");
@@ -591,7 +591,7 @@ public class BUser extends BUserEntity  {
         return null;
     }
 
-    @Override//TODO
+    @Override
     public void setMetaPicture(Bitmap bitmap) {
         setMetadataImage(BDefines.Keys.BPicture, bitmap);
     }
@@ -611,7 +611,7 @@ public class BUser extends BUserEntity  {
         setMetadataString(BDefines.Keys.BPictureURL, imageUrl);
     }
 
-    @Override//TODO
+    @Override
     public String getMetaPictureUrl() {
         return metaStringForKey(BDefines.Keys.BPictureURL);
     }
@@ -621,27 +621,27 @@ public class BUser extends BUserEntity  {
         return metaStringForKey(BDefines.Keys.BPictureURLThumbnail);
     }
 
-    @Override//Note Done!
+    @Override
     public void setMetaName(String name) {
         setMetadataString(BDefines.Keys.BName, name);
     }
 
-    @Override //Note Done!
+    @Override
     public String getMetaName() {
         return metaStringForKey(BDefines.Keys.BName);
     }
 
-    @Override  //Note Done!
+    @Override
     public void setMetaEmail(String email) {
         setMetadataString(BDefines.Keys.BEmail, email);
     }
 
-    @Override  //Note Done!
+    @Override
     public String getMetaEmail() {
         return metaStringForKey(BDefines.Keys.BEmail);
     }
 
-    //Note Done!
+
     public BMetadata fetchOrCreateMetadataForKey(String key, int type){
         if (DEBUG) Log.v(TAG, "fetchOrCreateMetadataForKey, Key: " + key);
         BMetadata metadata = getMetadataForKey(key, type);
@@ -662,7 +662,7 @@ public class BUser extends BUserEntity  {
 
         return metadata;
     }
-    //Note Done!
+
     public BMetadata getMetadataForKey(String key, int type){
         if (DEBUG) Log.v(TAG, "getMetadataForKey, Key: " + key);
         // The getMetadata can be out of date.
@@ -677,11 +677,11 @@ public class BUser extends BUserEntity  {
         }
         return null;
     }
-    //Note Done!
+
     public String metaStringForKey(String key){
         return fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.STRING).getValue();
     }
-    //Note Done!
+
     public BMetadata setMetadataString(String key, String value){
         BMetadata meta = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.STRING);
         meta.setValue(value);
@@ -737,7 +737,6 @@ public class BUser extends BUserEntity  {
     }
     /*##################################################*/
 
-    @Override
     public <T extends Entity> List<T> getChildren() {
         if (DEBUG) Log.v(TAG, "getChildren, id: " + getId());
         List<BMetadata> list =  DaoCore.fetchEntitiesWithProperty(BMetadata.class, BMetadataDao.Properties.OwnerID, getId());

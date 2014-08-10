@@ -1,14 +1,14 @@
-package com.braunster.chatsdk.network.firebase;
+package com.braunster.chatsdk.network;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
 import com.firebase.simplelogin.User;
 
@@ -35,7 +35,7 @@ public class TwitterManager {
 
     private static final String TAG = TwitterManager.class.getSimpleName();
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.TwitterManager;
 
     public static final int ERROR = 10, SUCCESS = 20;
 
@@ -59,7 +59,17 @@ public class TwitterManager {
                 if (service == null)
                     service = createService();
 
-                requestToken = service.getRequestToken();
+                try {
+                    requestToken = service.getRequestToken();
+                }
+                catch (Exception ex){
+                    ex.printStackTrace();
+                    Message message = new Message();
+                    message.what = ERROR;
+                    message.obj = BError.getError(BError.Code.BAD_RESPONSE, "Cant get request token.");
+                    handler.sendMessage(message);
+                    return;
+                }
 
                 if (DEBUG) Log.d(TAG, "Token, " + requestToken.getToken());
 
@@ -67,6 +77,7 @@ public class TwitterManager {
 
                 Message message = new Message();
                 message.obj = authrizationURL;
+                message.what = SUCCESS;
                 handler.sendMessage(message);
             }
         });

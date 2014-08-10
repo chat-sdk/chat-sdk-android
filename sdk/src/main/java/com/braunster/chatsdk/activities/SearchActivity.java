@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
@@ -25,7 +26,7 @@ import java.util.List;
 public class SearchActivity extends BaseActivity {
 
     private static final String TAG = SearchActivity.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.SearchActivity;
 
 
     public static final String MODE = "mode";
@@ -141,6 +142,7 @@ public class SearchActivity extends BaseActivity {
                         if (usersFoundCount == 0)
                         {
                             showAlertToast("No match found.");
+                            return;
                         }
                         if (action.equals(ACTION_ADD_WHEN_FOUND))
                         {
@@ -160,6 +162,7 @@ public class SearchActivity extends BaseActivity {
                             finish();
                         }
 
+                        hideSoftKeyboard(SearchActivity.this);
                     }
 
                     @Override
@@ -194,17 +197,22 @@ public class SearchActivity extends BaseActivity {
                 }
 
                 BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                String[] entitiesIDs = new String[adapter.getSelectedCount()];
+                BUser user;
                 for (int i = 0; i < adapter.getSelectedCount(); i++) {
                     int pos = -1;
                     if (adapter.getSelectedUsersPositions().valueAt(i))
                         pos = adapter.getSelectedUsersPositions().keyAt(i);
 
-                    currentUser.addContact(adapter.getListData().get(pos).asBUser());
+                    user = adapter.getListData().get(pos).asBUser();
+                    currentUser.addContact(user);
+                    entitiesIDs[i] = user.getEntityID();
                 }
 
                 showToast(adapter.getSelectedCount() + " Users were added as contacts.");
 
                 Intent intent = new Intent(MainActivity.Action_Contacts_Added);
+                intent.putExtra(USER_IDS_LIST, entitiesIDs);
                 sendBroadcast(intent);
 
                 finish();
