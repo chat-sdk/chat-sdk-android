@@ -64,14 +64,16 @@
 
         <activity android:name=".activities.ChatActivity"
             android:launchMode = "singleTop"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name=".activities.MainActivity"
             android:launchMode = "singleTask"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".activities.PickFriendsActivity"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name=".activities.LocationActivity"/>
 

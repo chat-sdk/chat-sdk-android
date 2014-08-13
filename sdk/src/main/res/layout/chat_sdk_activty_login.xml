@@ -3,8 +3,7 @@
     android:layout_width="fill_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    android:id="@+id/content"
-
+    android:id="@+id/chat_sdk_root_view"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.braunster.chatsdk.activities.LoginActivity">
 
@@ -15,16 +14,15 @@
         android:layout_margin="20dp"
         >
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:layout_width="160dp"
             android:layout_height="160dp"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/icn_user_x_2"
+            android:src="@drawable/ic_launcher_big"
             android:id="@+id/app_icon"
             android:visibility="invisible"
             android:layout_alignParentTop="true"
-            android:layout_above="@id/chat_sdk_et_mail"
-            style="@style/CircleIconStyle"/>
+            android:layout_above="@id/chat_sdk_et_mail"/>
 
         <!--android:text="t@g.com"-->
         <EditText
@@ -57,7 +55,7 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/chat_sdk_facebook_button"
+            android:layout_above="@+id/chat_sdk_btn_anon_login"
             android:layout_marginTop="10dp"
             android:id="@+id/linear_buttons"
             android:layout_centerHorizontal="true">
@@ -81,24 +79,6 @@
                 android:layout_weight="1"/>
         </LinearLayout>
 
-        <com.facebook.widget.LoginButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:id="@+id/chat_sdk_facebook_button"
-            android:layout_centerHorizontal="true"
-            android:layout_above="@+id/chat_sdk_btn_twitter_login"/>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Twitter"
-            android:id="@+id/chat_sdk_btn_twitter_login"
-            style="@style/LoginButtonsStyle"
-            android:background="@color/abc_search_url_text_normal"
-            android:layout_above="@+id/chat_sdk_btn_anon_login"
-            android:layout_marginTop="10dp"/>
-
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,8 +86,47 @@
             android:id="@+id/chat_sdk_btn_anon_login"
             style="@style/LoginButtonsStyle"
             android:background="@drawable/chat_sdk_login_anonymously_button_selector"
-            android:layout_above="@+id/li_version"
+            android:layout_above="@+id/linear_api_buttons"
             android:layout_marginTop="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/linear_api_buttons"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_above="@+id/li_version">
+
+            <com.facebook.widget.LoginButton
+                xmlns:fb="http://schemas.android.com/apk/res-auto"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:text=""
+                fb:login_text=""
+                fb:logout_text=""
+                android:id="@+id/chat_sdk_facebook_button"
+                android:background="@drawable/ic_facebook"
+                />
+
+            <Button
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/ic_twitter"
+                android:id="@+id/chat_sdk_btn_twitter_login"/>
+
+            <Button
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_google"
+                android:layout_marginLeft="5dp"
+                android:id="@+id/chat_sdk_btn_google_login"/>
+
+        </LinearLayout>
+
+
 
         <LinearLayout
             android:layout_width="wrap_content"

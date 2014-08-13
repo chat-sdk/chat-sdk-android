@@ -47,10 +47,11 @@ public class MainActivity extends BaseActivity {
     private PagerAdapterTabs adapter;
 
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
-    private static final String PAGE_ADAPTER_POS = "page_adapter_pos";
+    public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
 
     public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
     public static final String Action_Logged_Out = "com.braunster.androidchatsdk.action.logged_out";
+    public static final String Action_Refresh_Fragment = "com.braunster.androidchatsdk.action.refresh_fragment";
 
     private int pageAdapterPos = -1;
 
@@ -124,10 +125,10 @@ public class MainActivity extends BaseActivity {
         });
 
         IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
-        registerReceiver(contactsAddedReceiver, intentFilter);
+        intentFilter.addAction(Action_Logged_Out);
+        intentFilter.addAction(Action_Refresh_Fragment);
 
-        IntentFilter intentFilter2 = new IntentFilter(Action_Logged_Out);
-        registerReceiver(logoutReceiver, intentFilter2);
+        registerReceiver(mainReceiver, intentFilter);
     }
 
     @Override
@@ -156,7 +157,7 @@ public class MainActivity extends BaseActivity {
 
             if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
 
-            BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadId);
+            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
 
             updateForThread(thread);
 
@@ -362,8 +363,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(contactsAddedReceiver);
-        unregisterReceiver(logoutReceiver);
+        unregisterReceiver(mainReceiver);
     }
 
     private void firstTimeInApp(){
@@ -383,8 +383,10 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    /** Refresh the contacts fragment when a contact added action is received.*/
-    private BroadcastReceiver contactsAddedReceiver = new BroadcastReceiver() {
+    /** Refresh the contacts fragment when a contact added action is received.
+     *  Clear Fragments data when logged out.
+     *  Refresh Fragment when wanted.*/
+    private BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Action_Contacts_Added))
@@ -401,14 +403,7 @@ public class MainActivity extends BaseActivity {
                         EventManager.getInstance().handleUsersDetailsChange(id);
                 }
             }
-        }
-    };
-
-    /** Clear Fragments data when logged out.*/
-    private BroadcastReceiver logoutReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Action_Logged_Out))
+            else if (intent.getAction().equals(Action_Logged_Out))
             {
                 BaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
 
@@ -424,6 +419,22 @@ public class MainActivity extends BaseActivity {
 
                 if (pro != null)
                     pro.clearData();
+            }
+            else if (intent.getAction().equals(Action_Refresh_Fragment))
+            {
+                if (intent.getExtras() == null)
+                    return;
+
+                if (!intent.getExtras().containsKey(PAGE_ADAPTER_POS))
+                    return;
+
+                int fragment = intent.getExtras().getInt(PAGE_ADAPTER_POS);
+
+                BaseFragment frag = getFragment(fragment);
+
+                if (frag!= null)
+                    frag.refresh();
+
             }
         }
     };

@@ -434,6 +434,9 @@ public class EventManager implements AppEvents {
                 .addChildEventListener(threadAddedListener);
 
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
+
+        for (BUser contact : user.getContacts())
+            handleUsersDetailsChange(contact.getEntityID());
     }
 
     private ChildEventListener threadAddedListener = new ChildEventListener() {
@@ -449,7 +452,7 @@ public class EventManager implements AppEvents {
 
             if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
 
-            if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
+            if (!isListeningToThread(threadFirebaseID))
             {
                 // Load the thread from firebase only if he is not exist.
                 // There is no reason to load if exist because the event manager will collect all the thread data.
@@ -536,6 +539,13 @@ public class EventManager implements AppEvents {
 
     /** Remove all firebase listeners and all app events listeners. After removing all class list will be cleared.*/
     public void removeAll(){
+
+        FirebasePaths.userRef(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .removeEventListener(threadAddedListener);
+
+        FirebasePaths.publicThreadsRef().removeEventListener(threadAddedListener);
+
         Set<String> Keys = listenerAndRefs.keySet();
 
         FirebaseEventCombo combo;

@@ -85,11 +85,11 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 //            imageLoader.DisplayImage(user.pictureURL, imgPicture);
             VolleyUtills.getImageLoader().get(user.pictureURL,
                                 VolleyUtills.getImageLoader().getImageListener(imgPicture,
-                                        R.drawable.icn_user_x_2, android.R.drawable.stat_notify_error));
+                                        R.drawable.ic_user, android.R.drawable.stat_notify_error));
         }*/
        /* else
         {
-            imgPicture.setImageResource(R.drawable.icn_user_x_2);
+            imgPicture.setImageResource(R.drawable.ic_user);
         }
 */
         return convertView;

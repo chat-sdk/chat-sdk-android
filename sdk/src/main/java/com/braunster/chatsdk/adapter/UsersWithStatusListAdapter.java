@@ -162,7 +162,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
                             Log.e(TAG, "Image Load Error: " + error.getMessage());
                         }
                     },size, size);
-                else holder.profilePicture.setImageResource(R.drawable.icn_user_x_2);
+                else holder.profilePicture.setImageResource(R.drawable.ic_profile);
             }
             else
             {
@@ -175,7 +175,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
                 }
                 else
                 {
-                    holder.profilePicture.setImageResource(R.drawable.icn_user_x_2);
+                    holder.profilePicture.setImageResource(R.drawable.ic_profile);
                 }
             }
         }

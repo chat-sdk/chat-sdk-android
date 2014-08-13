@@ -39,11 +39,11 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     public final float MAX_WIDTH = 200 * getResources().getDisplayMetrics().density;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
-    private float pointSize = 6.5f * getResources().getDisplayMetrics().density;
+    private float pointSize = 4.2f * getResources().getDisplayMetrics().density;
 
     private int imagePadding = (int) (10 * getResources().getDisplayMetrics().density);
 
-    private float roundRadius = /*18.5f*/ 12f * getResources().getDisplayMetrics().density;
+    private float roundRadius = /*18.5f*/ 6f * getResources().getDisplayMetrics().density;
 
     private boolean pressed = false;
 
@@ -115,7 +115,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         if (bubbleGravity == GRAVITY_RIGHT)
         {
             canvas.drawBitmap(bubble, getMeasuredWidth() - bubble.getWidth(), 0 , null);
-            canvas.drawBitmap(image, getMeasuredWidth() - bubble.getWidth() + imagePadding /2 +  pointSize, imagePadding /2 , null);
+            canvas.drawBitmap(image, /*getMeasuredWidth() - bubble.getWidth() +*/ imagePadding /2 /*+  pointSize*/, imagePadding /2 , null);
         }
         else
         {
@@ -222,9 +222,9 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
                             // Getting the bubble nine patch image for given size.
                             if (bubbleGravity == GRAVITY_LEFT)
-                                bubble = get_ninepatch(R.drawable.bubble_left_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+                                bubble = get_ninepatch(R.drawable.bubble_left, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
                             else
-                                bubble = get_ninepatch(R.drawable.bubble_right_2, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+                                bubble = get_ninepatch(R.drawable.bubble_right, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
 
                             if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Bubble Width: " + bubble.getWidth() + ", Height: " + bubble.getHeight());
 

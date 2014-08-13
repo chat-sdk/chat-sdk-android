@@ -74,5 +74,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_btn_add_contacts"
         android:layout_alignParentBottom="true"
-        android:text="Start Chat"/>
+        android:text="@string/start_chat"/>
 </RelativeLayout>

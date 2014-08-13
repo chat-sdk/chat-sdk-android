@@ -9,7 +9,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/icn_user_x_2"
+        android:src="@drawable/ic_profile"
         android:id="@+id/img_profile_picture"
         android:padding="5dp"/>
 

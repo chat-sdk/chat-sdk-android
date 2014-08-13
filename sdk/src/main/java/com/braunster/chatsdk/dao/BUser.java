@@ -503,7 +503,7 @@ public class BUser extends BUserEntity  {
             BUser user = null;
 
             if (contact.getEntityID() != null)
-                user = DaoCore.fetchEntityWithEntityID(BUser.class, contact.getEntityID());
+                user = DaoCore.<BUser>fetchEntityWithEntityID(BUser.class, contact.getEntityID());
             else if (contact.getAuthenticationId() != null)
                 user = DaoCore.fetchOrCreateUserWithAuthinticationID(contact.getAuthenticationId());
 

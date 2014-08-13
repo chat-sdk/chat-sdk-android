@@ -1,15 +1,9 @@
 
-# Authenticating with firebase could take a few seconds so what should be the interval between checks.
-  Let say the user or the system killed the app and now the user
-  got a push message after 10Min should i re-auth ?
-
 # How do you handle multiple users inside the app with firebase channels?
   Say im am logging with two users on the same device that means that i will now forever receive pushes for those two users.
   I am guessing that i missed something when cloning your code.
 
 # After a user delete a thread he wont get any more messages from this thread,
   So if the other user want to message him again he would have to delete his and start a new one. Is this OK or im doing it wrong?
-
-# We need to work on making our resources the same, i.e longitude and latitude values, Color Values and Date Values.
 
 # Where to place in the list (Top/Bottom) threads that has no messages but the user is the creator?

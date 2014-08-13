@@ -24,7 +24,61 @@ import java.io.IOException;
  */
 public class ImageUtils {
     public static final String TAG = ImageUtils.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.ImageUtils;
+
+    public static Bitmap getInitialsBitmap(int backGroundColor, int textColor, String initials){
+
+        int size = BDefines.ImageProperties.INITIALS_IMAGE_SIZE;
+        float textSize = BDefines.ImageProperties.INITIALS_TEXT_SIZE;
+
+        int textSpace = size/2;
+        if (DEBUG) Log.i(TAG, "Text Space: " + textSpace);
+
+        // Create bitmap and canvas to draw to
+        Bitmap b = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565);
+        Canvas c= new Canvas(b);
+
+        if (DEBUG) Log.i(TAG, "Canvas W: " + c.getWidth() + ", H: " + c.getHeight());
+
+        // Draw background
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG
+                | Paint.LINEAR_TEXT_FLAG);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(backGroundColor);
+        c.drawPaint(paint);
+
+        // Draw text
+        c.save();
+
+        Bitmap textBitmap = textAsBitmap(initials, textSize, textColor);
+
+        if (DEBUG) Log.i(TAG, "TextBitmap, W: " + textBitmap.getWidth() + ", H: " + textBitmap.getHeight());
+
+        c.drawBitmap(textBitmap, textSpace - textBitmap.getWidth()/2, textSpace - textBitmap.getHeight()/2, null);
+
+        c.restore();
+
+        return b;
+    }
+
+    private static Bitmap textAsBitmap(String text, float textSize, int textColor) {
+
+        Paint paint = new Paint();
+        paint.setTextSize(textSize);
+        paint.setColor(textColor);
+        paint.setTextAlign(Paint.Align.LEFT);
+
+        int width = (int) (paint.measureText(text) + 0.5f); // round
+        float baseline = (int) (-paint.ascent() + 0.5f); // ascent() is negative
+        int height = (int) (baseline + paint.descent() + 0.5f);
+
+        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(image);
+        canvas.drawText(text, 0, baseline, paint);
+
+        return image;
+    }
 
     public static Bitmap decodeSampledBitmapFromFile(String path,
                                                      int reqWidth, int reqHeight) {
@@ -330,3 +384,46 @@ public class ImageUtils {
 
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 }
+
+
+/*
+    public static Bitmap getInitialsBitmap(Context context,int bacgroundColor, int textColor, int bitmapWidth, int bitmapHeight, String initials){
+        if (DEBUG) Log.v(TAG, "getInitialsBitmap, Width: " + bitmapWidth + ", Height: " + bitmapHeight);
+
+        int smallerDim = bitmapHeight > bitmapWidth ? bitmapWidth : bitmapHeight;
+        if (DEBUG) Log.i(TAG, "Smaller DIm: " + smallerDim);
+
+        int textSpace = smallerDim/2;
+        if (DEBUG) Log.i(TAG, "Text Space: " + textSpace);
+
+        // Create bitmap and canvas to draw to
+        Bitmap b = Bitmap.createBitmap(smallerDim, smallerDim, Bitmap.Config.RGB_565);
+        Canvas c= new Canvas(b);
+
+        if (DEBUG) Log.i(TAG, "Canvas W: " + c.getWidth() + ", H: " + c.getHeight());
+
+        // Draw background
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG
+                | Paint.LINEAR_TEXT_FLAG);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(bacgroundColor);
+        c.drawPaint(paint);
+
+        // Draw text
+        c.save();
+
+        Bitmap textBitmap = textAsBitmap(initials, textSpace/2 * context.getResources().getDisplayMetrics().density, textColor);
+
+        // Making sure the image isnt to big.
+        if (textBitmap.getHeight() > smallerDim/2)
+            textBitmap = textAsBitmap(initials, textSpace/4 * context.getResources().getDisplayMetrics().density, textColor);
+
+        if (DEBUG) Log.i(TAG, "TextBitmap, W: " + textBitmap.getWidth() + ", H: " + textBitmap.getHeight());
+
+        c.drawBitmap(textBitmap, smallerDim/2 - textBitmap.getWidth()/2, smallerDim/2 - textBitmap.getHeight()/2, null);
+
+        c.restore();
+
+        return b;
+    }
+*/

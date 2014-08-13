@@ -10,4 +10,5 @@
 
     <color name="chat_sdk_button_anonymous_button_color">#aaaaaa</color>
     <color name="chat_sdk_button_anonymous_button_color_pressed">#888787</color>
+
 </resources>

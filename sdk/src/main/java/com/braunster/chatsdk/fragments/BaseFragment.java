@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -15,9 +14,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
+import com.braunster.chatsdk.Utils.UiUtils;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BLinkedContactDao;
@@ -36,7 +34,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by itzik on 6/17/2014.
  */
-public abstract class BaseFragment extends DialogFragment implements BaseFragmentInterface {
+public abstract class BaseFragment extends DialogFragment implements BaseFragmentInterface{
 
     // TODO refresh on background method.
     private static final String TAG = BaseFragment.class.getSimpleName();
@@ -55,16 +53,12 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-//        mainView = inflater.inflate(resourceID, null);
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        loadData();
-        // TODO handle network call more efficiantly check time intervals and mabey listen to data coming.
     }
 
     @Override
@@ -87,42 +81,30 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
     }
 
-
     @Override
     public void clearData() {
 
     }
 
-    public void setupUI(View view) {
-
-        //Set up touch listener for non-text box views to hide keyboard.
-        if(!(view instanceof EditText)) {
-
-            view.setOnTouchListener(new View.OnTouchListener() {
-
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideSoftKeyboard(getActivity());
-                    return false;
-                }
-
-            });
-        }
-
-        //If a layout container, iterate over children and seed recursion.
-        if (view instanceof ViewGroup) {
-
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-
-                View innerView = ((ViewGroup) view).getChildAt(i);
-
-                setupUI(innerView);
+    /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
+    public void setupTouchUIToDismissKeyboard(View view) {
+        UiUtils.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                UiUtils.hideSoftKeyboard(getActivity());
+                return false;
             }
-        }
+        });
     }
 
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
+        UiUtils.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                UiUtils.hideSoftKeyboard(getActivity());
+                return false;
+            }
+        }, exceptIDs);
     }
 
     @Override
@@ -327,7 +309,7 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
         @Override
         public Object call() throws Exception {
-            BLinkedContact linkedContact = DaoCore.fetchEntityWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, userID);
+            BLinkedContact linkedContact = DaoCore.<BLinkedContact>fetchEntityWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, userID);
             DaoCore.deleteEntity(linkedContact);
             loadData();
             return null;
@@ -373,7 +355,6 @@ interface BaseFragmentInterface{
 
     public void clearData();
 }
-
 /*
 
 

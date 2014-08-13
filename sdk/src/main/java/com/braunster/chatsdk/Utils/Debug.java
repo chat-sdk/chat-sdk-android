@@ -45,4 +45,6 @@ public class Debug {
     public static final boolean ShareWithContactsActivity = false;
 
     /*Utils*/
+    public static final boolean ImageUtils = true;
+    public static final boolean UiUtils = true;
 }

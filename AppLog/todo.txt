@@ -10,4 +10,8 @@
 # Change the values of the location to match the iOS values. Location: -122.406417,37.785834,Location,10000.0 i.e. latitude, longitude, caption, map scale in meter.
 
 # Handle push notification from a new thread or a new user.
-# Make profile pic as user initials if does not have any.
+
+# Check if the check for ADB connection status is working in the AppObj.
+# Catch user close facebook dialog and not show toast indicating that we failed to connect to fb.
+# User does not auto login in the next session after registering to app, The user is not authenticated.
+# select all in the pick friends and search activity

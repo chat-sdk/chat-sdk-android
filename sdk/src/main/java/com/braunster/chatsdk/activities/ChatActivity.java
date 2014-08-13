@@ -74,6 +74,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private static final int PHOTO_PICKER_ID = 100;
     private static final int CAPTURE_IMAGE = 101;
     public static final int PICK_LOCATION = 102;
+    public static final int ADD_USERS = 103;
 
     /** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
      * It will be removed when activity is paused. or when opend again for new thread.*/
@@ -120,7 +121,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         setContentView(R.layout.chat_sdk_activity_chat_pull_to_refresh);
 
-        setupTouchUIToDismissKeyboard(findViewById(R.id.content), R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
+        setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
         if ( !getThread(savedInstanceState) )
             return;
@@ -140,12 +141,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         initListView();
 
-        initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
+        initActionBar();
 
 //        checkIfWantToShare(getIntent());
     }
 
-    private void initActionBar(String username){
+    private void initActionBar(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
             ab.setDisplayShowHomeEnabled(false);
@@ -318,7 +319,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         initListView();
 
-        initActionBar(thread.displayName() == null || thread.displayName().equals("") ? "Chat" : thread.displayName());
+        initActionBar();
 
         checkIfWantToShare(intent);
     }
@@ -385,13 +386,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         super.onActivityResult(requestCode, resultCode, data);
         if (DEBUG) Log.v(TAG, "onActivityResult");
 
-        if (requestCode != CAPTURE_IMAGE && data == null)
+        if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
         {
             if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
             return;
         }
 
-        if (resultCode == Activity.RESULT_OK) {
+        if (requestCode != ADD_USERS && resultCode == Activity.RESULT_OK) {
             showCard("Saving...", 50);
         }
 
@@ -479,6 +480,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             }
         }
 
+        else if (requestCode == ADD_USERS)
+        {
+            if (DEBUG) Log.d(TAG, "ADD_USER_RETURN");
+            if (resultCode == RESULT_OK)
+            {
+                getThread(this.data);
+                initActionBar();
+            }
+   /*         else showAlertToast("Failed to add users.");*/
+
+        }
+
     }
 
     @Override
@@ -504,12 +517,24 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         // ASK what the add button do in this class
         if (id == R.id.action_chat_sdk_add)
         {
+/*
             ContactsFragment contactsFragment = ContactsFragment.newDialogInstance(
                                                                                     ContactsFragment.MODE_LOAD_CONTACTS,
                                                                                     ContactsFragment.CLICK_MODE_ADD_USER_TO_THREAD,
                                                                                     "Contacts:",
                                                                                     thread.getEntityID());
             contactsFragment.show(getSupportFragmentManager(), "Contacts");
+*/
+
+            // Showign the pick firends activity.
+            Intent intent = new Intent(this, PickFriendsActivity.class);
+            intent.putExtra(PickFriendsActivity.MODE, PickFriendsActivity.MODE_ADD_TO_CONVERSATION);
+            intent.putExtra(PickFriendsActivity.THREAD_ID, thread.getId());
+            intent.putExtra(PickFriendsActivity.ANIMATE_EXIT, true);
+
+            startActivityForResult(intent, ADD_USERS);
+
+            overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
         }
         else if (id == R.id.action_chat_sdk_show)
         {
@@ -550,13 +575,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         if (this.data.containsKey(THREAD_ID))
         {
-            thread = DaoCore.fetchEntityWithProperty(BThread.class,
+            thread = DaoCore.<BThread>fetchEntityWithProperty(BThread.class,
                     BThreadDao.Properties.Id,
                     this.data.getLong(THREAD_ID));
         }
         else  if (this.data.containsKey(THREAD_ENTITY_ID))
         {
-            thread = DaoCore.fetchEntityWithProperty(BThread.class,
+            thread = DaoCore.<BThread>fetchEntityWithProperty(BThread.class,
                     BThreadDao.Properties.EntityID,
                     this.data.getString(THREAD_ENTITY_ID));
         }else{
@@ -585,11 +610,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private void sendTextMessage(String text, boolean clearEditText){
         if (DEBUG) Log.v(TAG, "sendTextMessage, Text: " + text + ", Clear: " + String.valueOf(clearEditText));
 
-        if (StringUtils.isEmpty(text))
+        if (StringUtils.isEmpty(text) || StringUtils.isBlank(text))
         {
            showAlertToast("Cant send empty message!");
             return;
         }
+
+        // Clear all white space from message
+        text = text.trim();
 
 //        showCard("Sending...", 50);
 
@@ -627,11 +655,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private void sendTextMessageWithStatus(String text, boolean clearEditText){
         if (DEBUG) Log.v(TAG, "sendTextMessage, Text: " + text + ", Clear: " + String.valueOf(clearEditText));
 
-        if (StringUtils.isEmpty(text))
+        if (StringUtils.isEmpty(text) || StringUtils.isBlank(text))
         {
             showAlertToast("Cant send empty message!");
             return;
         }
+
+        // Clear all white space from message
+        text = text.trim();
 
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithText(text, thread.getId(),new RepetitiveCompletionListenerWithMainTaskAndError<BMessage, BMessage, BError>() {
             @Override

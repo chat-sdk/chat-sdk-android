@@ -3,6 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_sdk_root_view"
     android:layout_height="match_parent">
 
     <!--Logout buttons, not used button is now in the action bar.-->
@@ -46,7 +47,7 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/icn_user_x_2"
+                android:src="@drawable/ic_profile"
                 style="@style/CircleIconStyle"
                 android:id="@+id/chat_sdk_circle_ing_profile_pic"
                 app:border_color="@android:color/black"

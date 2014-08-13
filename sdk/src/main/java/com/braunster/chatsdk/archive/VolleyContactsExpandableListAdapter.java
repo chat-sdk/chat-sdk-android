@@ -82,7 +82,7 @@ public class VolleyContactsExpandableListAdapter extends BaseExpandableListAdapt
         }
         else
         {
-            imgPicture.setImageResource(R.drawable.icn_user_x_2);
+            imgPicture.setImageResource(R.drawable.ic_user);
         }
 
         return convertView;

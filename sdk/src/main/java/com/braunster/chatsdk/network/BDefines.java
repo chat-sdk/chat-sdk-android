@@ -17,7 +17,7 @@ public class BDefines {
     }
 
     public static final boolean AnonymuosLoginEnabled = true;
-    public static final String InitialsForAnonymuos = "AN";
+    public static final String InitialsForAnonymous = "AN";
 
     public static final String DIVIDER = ",";
 
@@ -142,5 +142,8 @@ public class BDefines {
 
         public static final int MAX_IMAGE_THUMBNAIL_SIZE = 600;
         public static final int PROFILE_PIC_THUMBNAIL_SIZE = 100;
+
+        public static final int INITIALS_IMAGE_SIZE = 500;
+        public static final float INITIALS_TEXT_SIZE = 150f;
     }
 }

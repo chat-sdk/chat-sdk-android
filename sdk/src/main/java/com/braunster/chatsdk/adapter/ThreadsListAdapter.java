@@ -135,9 +135,9 @@ public class ThreadsListAdapter extends BaseAdapter {
                 }
             }, size, size);
         else if (listData.get(position).getUsersAmount() > 2)
-            holder.imgIcon.setImageResource(R.drawable.icn_user_x_2);
+            holder.imgIcon.setImageResource(R.drawable.ic_profile);
         else
-            holder.imgIcon.setImageResource(R.drawable.icn_group_x_2);
+            holder.imgIcon.setImageResource(R.drawable.ic_users);
 
         return row;
     }

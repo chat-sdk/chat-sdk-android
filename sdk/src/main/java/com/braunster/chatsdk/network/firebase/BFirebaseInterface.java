@@ -6,7 +6,6 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
@@ -14,9 +13,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -325,74 +322,6 @@ public class BFirebaseInterface {
         }
     }
 
-    public void observerUser(BUser user){
-        if (DEBUG) Log.e(TAG, "#####################################OBSERVERUSER: " + user.getEntityID() + "################################");
-
-        FirebasePaths.userRef(user.getEntityID())
-                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
-                .addChildEventListener(userEventListener);
-
-        FirebasePaths.publicThreadsRef().addChildEventListener(userEventListener);
-    }
-
-    private ChildEventListener userEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(final DataSnapshot snapshot, String s) {
-            if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
-
-            String threadFirebaseID;
-            BPath path = BPath.pathWithPath(snapshot.getRef().toString());
-            if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
-                threadFirebaseID = path.idForIndex(0);
-            else threadFirebaseID = path.idForIndex(1);
-
-            if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
-
-            if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
-            {
-                // Load the thread from firebase only if he is not exist.
-                // There is no reason to load if exist because the event manager will collect all the thread data.
-                if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
-                    objectFromSnapshot(snapshot);
-
-                EventManager.getInstance().handleThread(threadFirebaseID);
-            }
-        }
-
-        //region Not used.
-        @Override
-        public void onChildChanged(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot snapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(FirebaseError error) {
-
-        }
-        //endregion
-    };
-
-    public void removeAllObservers(){
-        FirebasePaths.userRef(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID())
-                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
-                .removeEventListener(userEventListener);
-
-        FirebasePaths.publicThreadsRef().removeEventListener(userEventListener);
-
-        EventManager.getInstance().removeAll();
-    }
-
-    //TODO
     public static void loadMoreMessagesForThread(BThread thread, int numOfMessages, final CompletionListenerWithData<BMessage[]> listener){
         BMessage ealiestMessage = null;
         final Date messageDate;
@@ -604,7 +533,6 @@ public class BFirebaseInterface {
         return children;
     }
 
-    /* Get methods for the "objectFromSnapshot" Method.*/
     private static BUser getUser(DataSnapshot snapshot, String userFirebaseID){
         if (DEBUG) Log.v(TAG, "getUser");
         Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
@@ -783,6 +711,72 @@ public class BFirebaseInterface {
 
 
 
+/*    public void observerUser(BUser user){
+        if (DEBUG) Log.e(TAG, "#####################################OBSERVERUSER: " + user.getEntityID() + "################################");
+
+        FirebasePaths.userRef(user.getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .addChildEventListener(userEventListener);
+
+        FirebasePaths.publicThreadsRef().addChildEventListener(userEventListener);
+    }
+
+    private ChildEventListener userEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(final DataSnapshot snapshot, String s) {
+            if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
+
+            String threadFirebaseID;
+            BPath path = BPath.pathWithPath(snapshot.getRef().toString());
+            if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
+                threadFirebaseID = path.idForIndex(0);
+            else threadFirebaseID = path.idForIndex(1);
+
+            if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
+
+            if (!EventManager.getInstance().isListeningToThread(threadFirebaseID))
+            {
+                // Load the thread from firebase only if he is not exist.
+                // There is no reason to load if exist because the event manager will collect all the thread data.
+                if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
+                    objectFromSnapshot(snapshot);
+
+                EventManager.getInstance().handleThread(threadFirebaseID);
+            }
+        }
+
+        //region Not used.
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError error) {
+
+        }
+        //endregion
+    };
+
+    public void removeAllObservers(){
+        FirebasePaths.userRef(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID())
+                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
+                .removeEventListener(userEventListener);
+
+        FirebasePaths.publicThreadsRef().removeEventListener(userEventListener);
+
+        EventManager.getInstance().removeAll();
+    }*/
 
 
 

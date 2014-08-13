@@ -2,7 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:id="@+id/content"
+    android:id="@+id/chat_sdk_root_view"
     android:layout_height="match_parent">
 
     <FrameLayout
@@ -47,10 +47,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/chat_sdk_et_message_to_send"
             android:hint="Message"
+            android:layout_marginBottom="4dp"
             android:maxLength="140"
             android:inputType="text"
             android:imeOptions="actionSend"
-            android:layout_alignBottom="@+id/chat_sdk_btn_options"
+            android:layout_alignBottom="@+id/chat_sdk_btn_chat_send_message"
             android:layout_toLeftOf="@+id/chat_sdk_btn_chat_send_message"
             android:layout_toRightOf="@+id/chat_sdk_btn_options"/>
 
@@ -65,8 +66,11 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/options_button_x_2"
+            android:src="@drawable/ic_options"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
             android:background="@android:color/transparent"
+            android:layout_alignBottom="@+id/chat_sdk_btn_chat_send_message"
             android:id="@+id/chat_sdk_btn_options"
             android:layout_alignParentLeft="true"/>
 

@@ -6,6 +6,11 @@
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
+    <!-- For the sliding affect to look good in the chat activity and pick friends activity.-->
+    <style name="ChatSDKSlidingTransactionTheme" parent="ChatSDKTheme">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <!--Action bar style-->
     <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@android:color/holo_blue_dark</item>

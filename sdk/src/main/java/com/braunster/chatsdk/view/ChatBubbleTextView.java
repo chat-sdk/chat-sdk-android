@@ -21,7 +21,7 @@ public class ChatBubbleTextView extends TextView {
     public static final boolean DEBUG = true;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
-    private float pointSize = 12f * getResources().getDisplayMetrics().density;
+    private float pointSize = 6f * getResources().getDisplayMetrics().density;
 
     public static final int BubbleDefaultPressedColor = Color.parseColor("#27ae60");
     public static final int BubbleDefaultColor = Color.parseColor("#3498db");
@@ -102,14 +102,23 @@ public class ChatBubbleTextView extends TextView {
         // setting the bubble color to the user message color.
         Bitmap bubble;
         if (bubbleGravity == GRAVITY_LEFT)
-            bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, getMeasuredWidth(), getMeasuredHeight(), getContext());
-        else bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_right_2, getMeasuredWidth(), getMeasuredHeight(), getContext());
+        {
+            bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
+            bubble = ChatBubbleImageView.setBubbleColor(bubble, bubbleColor);
+
+            canvas.drawBitmap(bubble, pointSize, 0, null);
+        }
+        else
+        {
+            bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_right, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
+            bubble = ChatBubbleImageView.setBubbleColor(bubble, bubbleColor);
+
+            canvas.drawBitmap(bubble, 0, 0, null);
+        }
 
         if (DEBUG) Log.d(TAG, "Bubble W: " + bubble.getWidth() + ", Bubble H: " + bubble.getHeight());
 
-        bubble = ChatBubbleImageView.setBubbleColor(bubble, bubbleColor);
 
-        canvas.drawBitmap(bubble, 0, 0, null);
 
         super.onDraw(canvas);
 //        int yPos = (int) ((canvas.getHeight() / 2) - ((getPaint().descent() + getPaint().ascent()) / 2)) ;

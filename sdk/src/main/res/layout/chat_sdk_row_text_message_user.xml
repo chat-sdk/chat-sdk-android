@@ -37,7 +37,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Messahe texx"
                 android:id="@+id/txt_content"
-                android:padding="8dp"
+                android:padding="6dp"
                 app:bubble_gravity="right"
 
                 style="@style/TextViewStyle"/>
@@ -59,7 +59,7 @@
         style="@style/CircleIconStyle"
         android:id="@+id/img_user_image"
         android:layout_centerVertical="true"
-        android:src="@drawable/icn_user_x_2"
+        android:src="@drawable/ic_profile"
         android:layout_margin="5dp"
         android:layout_alignParentRight="true"/>
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package com.braunster.androidchatsdk.app;
 
 import android.app.Application;
+import android.os.Build;
+import android.provider.Settings;
 
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
@@ -23,7 +25,12 @@ public class AppObj extends Application {
         super.onCreate();
 
         //Bug Sense
-        if (BNetworkManager.BUGSENSE_ENABLED) {
+        int adb;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
+            adb = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.ADB_ENABLED, 0);
+        else adb = Settings.Global.getInt(getApplicationContext().getContentResolver(), Settings.Global.ADB_ENABLED, 0);
+
+        if (adb == 0 || BNetworkManager.BUGSENSE_ENABLED) {
             BugSenseHandler.initAndStartSession(getApplicationContext(), BDefines.APIs.BugSenseKey);
             BugSenseHandler.addCrashExtraData("Version", getResources().getString(R.string.chat_sdk_version));
         }

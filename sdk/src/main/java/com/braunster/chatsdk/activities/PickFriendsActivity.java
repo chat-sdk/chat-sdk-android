@@ -1,9 +1,11 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +14,13 @@ import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.List;
@@ -23,7 +30,12 @@ import java.util.List;
  */
 public class PickFriendsActivity extends BaseActivity {
 
-    public static final int PICK_FRIENDS_FOR_CONVERSATION = 3;
+    public static final int MODE_NEW_CONVERSATION = 1991;
+    public static final int MODE_ADD_TO_CONVERSATION = 1992;
+
+    public static final String MODE= "mode";
+    public static final String THREAD_ID = "thread_id";
+    public static final String ANIMATE_EXIT = "animate_exit";
 
     private static final String TAG = PickFriendsActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.PickFriendsActivity;
@@ -33,13 +45,43 @@ public class PickFriendsActivity extends BaseActivity {
     private Button btnGetFBFriends, btnStartChat;
     private EditText etSearch;
 
+    /** Default value - MODE_NEW_CONVERSATION*/
+    private int mode = MODE_NEW_CONVERSATION;
+
+    /** For add to conversation mode.*/
+    private long threadID = -1;
+    /** For add to conversation mode.*/
+    private BThread thread;
+
+    private boolean animateExit = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_pick_friends);
         initActionBar();
-        initViews();
+
+
+        if (savedInstanceState != null)
+        {
+            getDateFromBundle(savedInstanceState);
+        }
+        else
+        {
+            if (getIntent().getExtras() != null)
+            {
+                getDateFromBundle(getIntent().getExtras());
+            }
+        }
+
         initToast();
+        initViews();
+    }
+
+    private void getDateFromBundle(Bundle bundle){
+        mode = bundle.getInt(MODE, mode);
+        threadID = bundle.getLong(THREAD_ID, threadID);
+        animateExit = bundle.getBoolean(ANIMATE_EXIT, animateExit);
     }
 
     private void initActionBar(){
@@ -48,6 +90,15 @@ public class PickFriendsActivity extends BaseActivity {
             ab.setTitle("Pick Friends");
             ab.setHomeButtonEnabled(true);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(THREAD_ID, threadID);
+        outState.putInt(MODE, mode);
+        outState.putBoolean(ANIMATE_EXIT, animateExit);
+
     }
 
     @Override
@@ -65,10 +116,23 @@ public class PickFriendsActivity extends BaseActivity {
         btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
         etSearch = (EditText) findViewById(R.id.chat_sdk_et_search);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
+
+        if (mode == MODE_ADD_TO_CONVERSATION)
+            btnStartChat.setText(getResources().getString(R.string.add_users));
     }
 
     private void initList(){
         final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
+
+        // Removing the users that is already inside the thread.
+        if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
+            thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, threadID);
+            List<BUser> threadUser = thread.getUsers();
+
+            for (BUser u : threadUser)
+                list.remove(u);
+        }
+
         listAdapter = new UsersWithStatusListAdapter(PickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false, true), true);
         listContacts.setAdapter(listAdapter);
 
@@ -76,9 +140,21 @@ public class PickFriendsActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                showProgDialog("Creating thread...");
+                if (DEBUG) Log.d(TAG, "selected count: " + listAdapter.getSelectedCount());
 
-                BUser[] users = new BUser[listAdapter.getSelectedCount() + 1];
+                int addCurrent = 1;
+                if (mode == MODE_ADD_TO_CONVERSATION)
+                {
+                    showProgDialog("Adding users to thread...");
+                    addCurrent = 0;
+                }
+                else if (mode == MODE_NEW_CONVERSATION)
+                {
+                    showProgDialog("Creating thread...");
+                    addCurrent = 1;
+                }
+
+                BUser[] users = new BUser[listAdapter.getSelectedCount() + addCurrent];
 
                 for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++)
                 {
@@ -87,11 +163,51 @@ public class PickFriendsActivity extends BaseActivity {
                         pos = listAdapter.getSelectedUsersPositions().keyAt(i);
 
                     users[i] = listAdapter.getListData().get(pos).asBUser();
+
+                    Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
                 }
 
-                users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                if (mode == MODE_NEW_CONVERSATION)
+                {
+                    users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                    createAndOpenThreadWithUsers("", users);
+                }
+                else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                createAndOpenThreadWithUsers("", users);
+
+                    BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                        @Override
+                        public boolean onItem(BUser user) {
+                            return false;
+                        }
+
+                        @Override
+                        public void onDone() {
+
+                            // Updating the ui.
+                            Intent intent = new Intent(MainActivity.Action_Refresh_Fragment);
+                            if (thread.getType() == BThread.Type.Public)
+                                intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.ChatRooms);
+                            else intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.Conversations);
+                            sendBroadcast(intent);
+
+                            dismissProgDialog();
+
+                            setResult(Activity.RESULT_OK);
+                            finish();
+
+                            if (animateExit)
+                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+                        }
+
+                        @Override
+                        public void onItemError(BUser user, Object o) {
+                            dismissProgDialog();
+                            setResult(Activity.RESULT_CANCELED);
+                            finish();
+                        }
+                    }, users );
+                }
             }
         });
       /*  listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -143,5 +259,12 @@ public class PickFriendsActivity extends BaseActivity {
                 }
             });
         else Toast.makeText(this, "You need to login from facebook to use this feature.", Toast.LENGTH_SHORT).show();*/
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (animateExit)
+            overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
     }
 }

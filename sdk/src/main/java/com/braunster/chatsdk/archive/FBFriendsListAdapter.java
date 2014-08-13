@@ -98,8 +98,8 @@ public class FBFriendsListAdapter extends BaseAdapter {
         VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(user.getId()),
                 VolleyUtills.getImageLoader().getImageListener(
                         holder.circleImageView,
-                        R.drawable.icn_user_x_2,
-                        R.drawable.icn_user_x_2));
+                        R.drawable.ic_user,
+                        R.drawable.ic_user));
 
         return row;
     }

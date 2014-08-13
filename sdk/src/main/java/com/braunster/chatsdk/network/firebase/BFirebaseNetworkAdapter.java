@@ -430,7 +430,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 updateLastOnline();
 
-                BFirebaseInterface.getInstance().observerUser(currentUser);
+                EventManager.getInstance().observeUser(currentUser);
 
                 // Subscribe to Parse push channel.
                 subscribeToPushChannel(currentUser.getPushChannel());
@@ -574,7 +574,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         setAuthenticated(false);
 
         // Stop listening to user related alerts. (added message or thread.)
-        BFirebaseInterface.getInstance().removeAllObservers();
+        EventManager.getInstance().removeAll();
 
         // Obtaining the simple login object from the ref.
         SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef(), context);
@@ -1148,6 +1148,8 @@ TODO
 
         final List<BUser> usersToGo = new ArrayList<BUser>(users);
 
+        if (DEBUG) Log.d(TAG, "Users Amount: " + users.size());
+
         final RepetitiveCompletionListenerWithError repetitiveCompletionListener = new RepetitiveCompletionListenerWithError<BUser, FirebaseError>() {
             @Override
             public boolean onItem(BUser user) {
@@ -1178,6 +1180,12 @@ TODO
         };
 
         for (BUser user : users){
+            if (user == null)
+            {
+                if (DEBUG) Log.e(TAG, "user is null");
+                continue;
+            }
+
             // Add the user to the thread
             if (!user.hasThread(thread))
             {
@@ -1269,7 +1277,7 @@ TODO
     @Override
     public void deleteThreadWithEntityID(final String entityID, final CompletionListener completionListener) {
 
-        final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
+        final BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, entityID);
 
         BUser user = currentUser();
 
@@ -1299,7 +1307,7 @@ TODO
 
                     if (DEBUG)
                     {
-                        BThread deletedThread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
+                        BThread deletedThread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, entityID);
                         if (deletedThread == null)
                             Log.d(TAG, "Thread deleted successfully.");
                         else Log.d(TAG, "Thread isn't deleted.");

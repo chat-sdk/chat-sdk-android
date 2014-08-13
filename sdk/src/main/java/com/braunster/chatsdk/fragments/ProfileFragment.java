@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -144,7 +145,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
         else return;
 
-        setupUI(mainView);
+        setupTouchUIToDismissKeyboard(mainView, R.id.chat_sdk_circle_ing_profile_pic);
 
         // Changing the weight of the view according to orientation.
         // This will make sure (hopefully) there is enough space to show the views in landscape mode.
@@ -438,15 +439,11 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 break;
 
             case BDefines.BAccountType.Password:
-//                notFacebookLogin();
-                // Use facebook profile picture only if has no other picture saved.
-//                loadProfilePic(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPicture());
                 setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL));
                 break;
 
             case BDefines.BAccountType.Anonymous:
-                profileCircleImageView.setImageResource(R.drawable.ic_action_user);
-//                notFacebookLogin();
+                setInitialsProfilePic(BDefines.InitialsForAnonymous);
 
             case BDefines.BAccountType.Twitter:
                 getProfileFromTwitter();
@@ -476,7 +473,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         // Set default.
         if (url == null)
         {
-            profileCircleImageView.setImageResource(R.drawable.icn_user_x_2);
+            setInitialsProfilePic();
             return;
         }
 
@@ -617,6 +614,35 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         }
     }
 
+    private void setInitialsProfilePic(){
+
+        String initials = "";
+
+        String name = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaName();
+        if (DEBUG) Log.v(TAG, "setInitialsProfilePic, Name: " + name);
+
+        if (StringUtils.isEmpty(name))
+            initials = BDefines.InitialsForAnonymous;
+        else
+        {
+            String[] splited = name.split("\\s+");
+            if (splited.length == 1)
+                initials = String.valueOf(name.toUpperCase().charAt(0));
+            else if (splited.length >= 2)
+                initials = String.valueOf(splited[0].toUpperCase().charAt(0)) + String.valueOf(splited[1].toUpperCase().charAt(0));
+            else initials = BDefines.InitialsForAnonymous;
+        }
+
+        setInitialsProfilePic(initials);
+    }
+
+    private void setInitialsProfilePic(final String initials) {
+        if (DEBUG) Log.v(TAG, "setInitialsProfilePic, Initials: " + initials);
+        Bitmap bitmap = ImageUtils.getInitialsBitmap(Color.GRAY, Color.BLACK, initials );
+        setProfilePic(bitmap);
+        createTempFileAndSave(bitmap);
+    }
+
     private boolean createTempFileAndSave(Bitmap bitmap){
         // Saving the image to tmp file.
         try {
@@ -635,8 +661,14 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         // Logout and return to the login activity.
 
         if (loginType == BDefines.BAccountType.Facebook)
+        {
             if (Session.getActiveSession() != null)
+            {
                 Session.getActiveSession().closeAndClearTokenInformation();
+            }
+            else if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
+        }
+
 
         Intent logout = new Intent(MainActivity.Action_Logged_Out);
         getActivity().sendBroadcast(logout);
@@ -710,6 +742,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BName, BMetadata.Type.STRING));
                 indexUser(bUser, curName, name);
             }
+
+            if (StringUtils.isEmpty(bUser.getMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING).getValue()))
+                setInitialsProfilePic();
 
             isNameTouched = false;
         }

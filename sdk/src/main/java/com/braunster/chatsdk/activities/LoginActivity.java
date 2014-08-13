@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
@@ -32,8 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 import static com.braunster.chatsdk.Utils.DialogUtils.ChatSDKTwitterLoginDialog;
 
 /**
@@ -52,7 +51,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private LoginButton fbLoginButton;
     private Button btnLogin, btnReg, btnAnon, btnTwitter;
     private EditText etName, etPass;
-    private CircleImageView appIconImage;
+    private ImageView appIconImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +60,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
 
+        View view = findViewById(R.id.chat_sdk_root_view);
+        if (DEBUG) Log.d(TAG, "View is: " + (view == null ? "null" : "not null"));
+        setupTouchUIToDismissKeyboard(view);
+
         initViews();
         initToast();
+
 /*
         // For registering the activity to facebook.
         String sha = Utils.getSHA(this, getPackageName());
@@ -84,6 +88,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 showAlertToast("Fb Login button error");
             }
         });
+        fbLoginButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+        fbLoginButton.setBackgroundResource(R.drawable.ic_facebook);
         fbLoginButton.setReadPermissions(Arrays.asList("email", "user_friends"));
 
         btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
@@ -93,7 +99,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         etName = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
 
-        appIconImage = (CircleImageView) findViewById(R.id.app_icon);
+        appIconImage = (ImageView) findViewById(R.id.app_icon);
 
         appIconImage.post(new Runnable() {
             @Override
@@ -132,17 +138,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         Map<String, ?> loginInfo =BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo();
         if (loginInfo != null && loginInfo.containsKey(BDefines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
-                showProgDialog("Checking auth...");
+                showProgDialog(getString(R.string.authenticating));
                 authenticate(
                         new AuthListener() {
                             @Override
                             public void onCheckDone(boolean isAuthenticated) {
                                 if (isAuthenticated) {
-                                    showOrUpdateProgDialog("Authenticating...");
-                                    if (DEBUG) Log.d(TAG, "Auth");
+                                    if (DEBUG) Log.d(TAG, "Authenticated");
                                 } else {
                                     dismissProgDialog();
-                                    if (DEBUG) Log.d(TAG, "NO Auth");
+                                    if (DEBUG) Log.d(TAG, "Not Authenticated");
                                 }
                             }
 
@@ -157,15 +162,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                                 dismissProgDialog();
 
                                 if (error.code != BError.Code.NO_LOGIN_INFO)
-                                    showToast("Auth Failed.");
+                                    showToast(getString(R.string.auth_failed));
                             }
                         }
                 );
             }
 
         initListeners();
-
-
     }
 
     @Override
@@ -190,7 +193,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     /* Dismiss dialog and open main activity.*/
     private void afterLogin(){
 //        // Giving the system extra time to load.
-        findViewById(R.id.content).postDelayed(new Runnable() {
+        findViewById(R.id.chat_sdk_root_view).postDelayed(new Runnable() {
             @Override
             public void run() {
                 dismissProgDialog();
@@ -222,7 +225,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             if (!checkFields())
                 return;
 
-            showProgDialog("Connecting...");
+            showProgDialog(getString(R.string.connecting));
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Password, etName.getText().toString(), etPass.getText().toString());
@@ -241,7 +244,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             });
         }
         else if (i == R.id.chat_sdk_btn_anon_login) {
-            showProgDialog("Connecting...");
+            showProgDialog(getString(R.string.connecting));
 
             Map<String, Object> data = new HashMap<String, Object>();
             data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
@@ -262,7 +265,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         {
             if (!checkFields())
                 return;
-            showProgDialog("Registering...");
+            showProgDialog(getString(R.string.registering));
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Register, etName.getText().toString(), etPass.getText().toString());
@@ -285,6 +288,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 @Override
                 public void onDone(User user) {
                     dialog.dismiss();
+                    showProgDialog(getString(R.string.authenticating));
                     afterLogin();
                 }
 
@@ -381,6 +385,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     };
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception){
+        showOrUpdateProgDialog(getString(R.string.authenticating));
         BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
             @Override
             public void onDone() {

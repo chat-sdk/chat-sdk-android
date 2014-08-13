@@ -155,6 +155,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 {
                     if (DEBUG) Log.d(TAG, "Color: " + message.color);
                     int bubbleColor = -1;
+
                     if (message.status == BMessageEntity.Status.SENDING){
                         bubbleColor = Color.parseColor("#C3C2C4");
                     }
@@ -165,9 +166,9 @@ public class MessagesListAdapter extends BaseAdapter{
 
                     if (bubbleColor == -1)
                     {
-                        if (DEBUG) Log.d(TAG, "Color As Float: " + Float.parseFloat(message.color));
-                        if (DEBUG) Log.d(TAG, "Color As Hex: " + Float.toHexString(Float.parseFloat(message.color)));
-                        bubbleColor = Color.parseColor(Float.toHexString(Float.parseFloat(message.color)));
+//                        if (DEBUG) Log.d(TAG, "Color As Float: " + Float.parseFloat(message.color));
+//                        if (DEBUG) Log.d(TAG, "Color As Hex: " + Float.toHexString(Float.parseFloat(message.color)));
+//                        bubbleColor = Color.HSVToColor(new Float[]{Float.parseFloat(message.color), 0.0f, 0.0f})
                     }
 
                     txtContent.setBubbleColor(bubbleColor);
@@ -275,7 +276,7 @@ public class MessagesListAdapter extends BaseAdapter{
     private void loadProfilePic(final CircleImageView circleImageView, String url){
         if (url == null)
         {
-            circleImageView.setImageResource(R.drawable.icn_user_x_2);
+            circleImageView.setImageResource(R.drawable.ic_profile);
             return;
         }
 
