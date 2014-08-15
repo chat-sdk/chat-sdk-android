@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -44,6 +46,7 @@ public class SearchActivity extends BaseActivity {
     private EditText etInput;
     private ListView listResults;
     private UsersWithStatusListAdapter adapter;
+    private CheckBox chSelectAll;
 
     private String action = "";
 
@@ -75,6 +78,7 @@ public class SearchActivity extends BaseActivity {
         btnAddContacts = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         etInput = (EditText) findViewById(R.id.chat_sdk_et_search_input);
         listResults = (ListView) findViewById(R.id.chat_sdk_list_search_results);
+        chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
     }
 
     @Override
@@ -216,6 +220,15 @@ public class SearchActivity extends BaseActivity {
                 sendBroadcast(intent);
 
                 finish();
+            }
+        });
+
+        chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    adapter.selectAll();
+                else adapter.clearSelection();
             }
         });
     }

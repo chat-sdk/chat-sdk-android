@@ -666,7 +666,11 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             {
                 Session.getActiveSession().closeAndClearTokenInformation();
             }
-            else if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
+            else
+            {
+                if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
+                Session.openActiveSessionFromCache(getActivity()).closeAndClearTokenInformation();
+            }
         }
 
 

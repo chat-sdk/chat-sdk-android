@@ -24,6 +24,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.network.BDefines;
 
 /**
  * Created by braunster on 04/07/14.
@@ -50,8 +51,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     public static final int GRAVITY_LEFT = 0;
     public static final int GRAVITY_RIGHT = 1;
 
-    public static final int BubbleDefaultPressedColor = Color.parseColor("#27ae60");
-    public static final int BubbleDefaultColor = Color.parseColor("#3498db");
+    public static final int BubbleDefaultPressedColor = Color.parseColor(BDefines.Defaults.BubbleDefaultColor);
+    public static final int BubbleDefaultColor = Color.parseColor(BDefines.Defaults.BubbleDefaultPressedColor);
 
 
     private boolean showClickIndication = false;
@@ -158,7 +159,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     }
 
     public void loadFromUrl(String url, int maxWidth, LoadDone loadDone){
-       loadFromUrl(url, Color.parseColor("#F20D08"), maxWidth, loadDone);
+       loadFromUrl(url, BubbleDefaultColor, maxWidth, loadDone);
     }
 
     public void loadFromUrl(String url, String color, int maxWidth, LoadDone loadDone){
@@ -167,11 +168,6 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
             bubbleColor = Color.parseColor(color);
         }
         catch (Exception e){}
-
-        if (bubbleColor == -1)
-        {
-            bubbleColor = Color.parseColor(Float.toHexString(Float.parseFloat(color)));
-        }
 
         loadFromUrl(url, bubbleColor, maxWidth, loadDone);
     }

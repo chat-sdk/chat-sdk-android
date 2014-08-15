@@ -440,8 +440,6 @@ public class BFirebaseInterface {
                 {
                     type = ((Long) values.get(BDefines.Keys.BType)).intValue();
                 }
-
-                Log.e(TAG, "User metadata " + user.getChildren().size());
                 // Get the metadata
 //                BMetadata metadata = DaoCore.fetchOrCreateEntityWithEntityID(BMetadata.class, metaFirebaseID);
 
@@ -451,12 +449,10 @@ public class BFirebaseInterface {
                 metadata.setEntityID(metaFirebaseID);
                 metadata.setOwnerID(user.getId());
                 metadata.updateFromMap(values);
-                DaoCore.updateEntity(metadata);
+                metadata = DaoCore.updateEntity(metadata);
 
                 //Adding the metadata saftly to the user, The method will handle duplicates. Note seems to be unneeded.
 //                user.addMetaDataObject(metadata);
-
-                Log.e(TAG, "User metadata " + user.getChildren().size());
                 return metadata;
             } else return childrenFromSnapshot(dataSnapshot);
         }

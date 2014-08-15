@@ -23,6 +23,7 @@ import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class ConversationsFragment extends BaseFragment {
     private ThreadsListAdapter adapter;
     private ProgressBar progressBar;
     private BUser user;
+
+    private UIUpdater uiUpdater;
 
     public static ConversationsFragment newInstance() {
         ConversationsFragment f = new ConversationsFragment();
@@ -62,7 +65,7 @@ public class ConversationsFragment extends BaseFragment {
 
         initToast();
 
-        loadData();
+        loadDataOnBackground();
 
         return mainView;
     }
@@ -125,15 +128,19 @@ public class ConversationsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        if (!loading && adapter != null && adapter.getListData().size() == 0) {
+        if (uiUpdater == null && adapter != null && adapter.getListData().size() == 0) {
             listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        new Thread(new Runnable() {
+        if (uiUpdater != null)
+            uiUpdater.setKilled(true);
+
+        uiUpdater = new UIUpdater() {
             @Override
             public void run() {
-                loading = true;
+                if (isKilled())
+                    return;
 
                 List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
@@ -145,10 +152,10 @@ public class ConversationsFragment extends BaseFragment {
 
                 handler.sendMessage(message);
             }
-        }).start();
-    }
+        };
 
-    private boolean loading = false;
+        new Thread(uiUpdater).start();
+    }
 
     @Override
     public void clearData() {

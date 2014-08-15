@@ -51,22 +51,25 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
         if (DEBUG) Log.v(TAG, "User Added to thread.");
 
         if (isAlive())
-            new Thread(new Runnable() {
+            EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
                     BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
                     final String userFirebaseID = path.idForIndex(1);
 
-                    if (DEBUG) Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.getCurrentUserId());
+                    if (DEBUG)
+                        Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.getCurrentUserId());
                     BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
 
                     BUser bUser;
                     // If the user already has  listening to this user we can fetch it from the db because he is up to date.
-    //                if (usersIds.contains(userFirebaseID))
+                    //                if (usersIds.contains(userFirebaseID))
                     bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
-    //                else
-    ////                    // For each user we'd then need to add them to the database
-    //                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
+                    //                else
+                    ////                    // For each user we'd then need to add them to the database
+                    //                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
 
                     // Attaching the user to the thread if needed.
                     if (!thread.hasUser(bUser))
@@ -77,8 +80,7 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
                         return;
                     }
 
-                    if (thread.getType() != BThread.Type.Public)
-                    {
+                    if (thread.getType() != BThread.Type.Public) {
                         // Users that are members of threads are shown in contacts
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
                     }
@@ -91,6 +93,6 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
                     message.setData(data);
                     handler.sendMessage(message);
                 }
-            }).start();
+            });
     }
 }

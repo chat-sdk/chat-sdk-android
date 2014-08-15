@@ -4,14 +4,8 @@
 --------------------------
 # Add option inside the makeList method inside the UsersAdapter to delete duplicates contacts from the database.
 # support the dirty option for entities.
-# delete contact option
-
-# Change the color value of the app to match the iOS values. Colors are stored like this: 0.886275 0.698039 0.482353 http://stackoverflow.com/questions/1071904/how-to-convert-hex-string-to-float-in-java
+# Check if the check for ADB connection status is working in the AppObj.
 # Change the values of the location to match the iOS values. Location: -122.406417,37.785834,Location,10000.0 i.e. latitude, longitude, caption, map scale in meter.
 
-# Handle push notification from a new thread or a new user.
 
-# Check if the check for ADB connection status is working in the AppObj.
-# Catch user close facebook dialog and not show toast indicating that we failed to connect to fb.
-# User does not auto login in the next session after registering to app, The user is not authenticated.
-# select all in the pick friends and search activity
+

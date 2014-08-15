@@ -178,7 +178,7 @@ public class ContactsFragment extends BaseFragment {
         initViews();
         initToast();
 
-        loadData();
+        loadDataOnBackground();
 
         return mainView;
     }

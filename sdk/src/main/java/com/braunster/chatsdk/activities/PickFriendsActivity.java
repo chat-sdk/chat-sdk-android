@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -44,6 +46,7 @@ public class PickFriendsActivity extends BaseActivity {
     private UsersWithStatusListAdapter listAdapter;
     private Button btnGetFBFriends, btnStartChat;
     private EditText etSearch;
+    private CheckBox chSelectAll;
 
     /** Default value - MODE_NEW_CONVERSATION*/
     private int mode = MODE_NEW_CONVERSATION;
@@ -116,6 +119,7 @@ public class PickFriendsActivity extends BaseActivity {
         btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
         etSearch = (EditText) findViewById(R.id.chat_sdk_et_search);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
+        chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
 
         if (mode == MODE_ADD_TO_CONVERSATION)
             btnStartChat.setText(getResources().getString(R.string.add_users));
@@ -238,6 +242,17 @@ public class PickFriendsActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PickFriendsActivity.this, SearchActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                {
+                    listAdapter.selectAll();
+                }
+                else listAdapter.clearSelection();
             }
         });
 

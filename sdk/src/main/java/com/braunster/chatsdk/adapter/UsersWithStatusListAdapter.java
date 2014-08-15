@@ -470,6 +470,14 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return selectedUsersPositions.size();
     }
 
+    public void selectAll(){
+        for (int i = 0 ; i < listData.size() ; i++){
+            selectView(i, true);
+        }
+
+        notifyDataSetChanged();
+    }
+
     public void clearSelection(){
         selectedUsersPositions = new SparseBooleanArray();
         notifyDataSetChanged();

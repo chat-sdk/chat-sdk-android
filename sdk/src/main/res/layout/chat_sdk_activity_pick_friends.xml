@@ -51,20 +51,38 @@
             android:id="@+id/textView2" />
         </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CONTACTS"
-        android:textSize="20dp"
+        android:orientation="horizontal"
         android:layout_below="@id/chat_sdk_et_search"
-        android:padding="10dp"
-        android:id="@+id/textView3" />
+        android:id="@id/linear">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/contacts_upper_case"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/textView3"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/chat_sdk_chk_select_all"
+            android:paddingRight="8dp"
+            android:text="@string/select_all"/>
+        </RelativeLayout>
+
 
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_list_contacts"
-        android:layout_below="@id/textView3"
+        android:layout_below="@id/linear"
         android:scrollbars="none"
         android:layout_above="@+id/chat_sdk_btn_add_contacts"
         android:visibility="visible"/>

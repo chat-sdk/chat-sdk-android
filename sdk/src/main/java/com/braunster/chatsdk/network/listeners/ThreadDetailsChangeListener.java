@@ -7,6 +7,7 @@ import android.util.Log;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 
@@ -31,16 +32,17 @@ public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
     public void onDataChange(final DataSnapshot dataSnapshot) {
         if (DEBUG) Log.i(TAG, "Thread details changed.");
         if (isAlive())
-            new Thread(new Runnable() {
+            EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                     BFirebaseInterface.objectFromSnapshot(dataSnapshot);
                     Message message = new Message();
                     message.what = AppEvents.THREAD_DETAILS_CHANGED;
                     message.obj = threadID;
                     handler.sendMessage(message);
-                     }
-            }).start();
+                }
+            });
     }
 
     @Override

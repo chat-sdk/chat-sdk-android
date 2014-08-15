@@ -24,7 +24,6 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.Session;
@@ -132,10 +131,6 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
                     if (online == null) return;
 
                     if(DEBUG) Log.d(TAG, "Check done, " + online);
-
-                    /* If the event manager is listening to threads that mean we are logged in.*/
-                    if(EventManager.getInstance().threadsIds.size() > 0)
-                        return;
 
                     if (!online)
                     {

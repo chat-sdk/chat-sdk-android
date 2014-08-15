@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by braunster on 30/06/14.
@@ -109,8 +112,14 @@ public class EventManager implements AppEvents {
     } ;
 
     @Override
-    public boolean onUserAddedToThread(String threadId, String userId) {
-        handleUsersDetailsChange(userId);
+    public boolean onUserAddedToThread(String threadId, final String userId) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                handleUsersDetailsChange(userId);
+            }
+        });
+
         // TODO add option to listen to specific thread and from specific type.
         for (ThreadEventListener te : threadEventList)
             te.onUserAddedToThread(threadId, userId);
@@ -162,12 +171,17 @@ public class EventManager implements AppEvents {
     }
 
     @Override
-    public boolean onThreadDetailsChanged(String threadId) {
-        // Also listen to the thread users
-        // This will allow us to update the users in the database
-        handleUsersAddedToThread(threadId);
-//        Handle incoming messages
-        handleMessages(threadId);
+    public boolean onThreadDetailsChanged(final String threadId) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                // Also listen to the thread users
+                // This will allow us to update the users in the database
+                handleUsersAddedToThread(threadId);
+//               Handle incoming messages
+                handleMessages(threadId);
+            }
+        });
 
         for (Event ae : eventsList)
             ae.onThreadDetailsChanged(threadId);
@@ -392,8 +406,6 @@ public class EventManager implements AppEvents {
             startDate = [[NSDate date] dateByAddingTimeInterval:-bHours];*/
         }
 
-
-
         IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
         FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), messagesQuery.getRef().toString(), incomingMessagesListener);
 
@@ -417,13 +429,19 @@ public class EventManager implements AppEvents {
         {
             threadsIds.add(threadID);
 
-            FirebasePaths threadRef = FirebasePaths.threadRef(threadID);
+            final FirebasePaths threadRef = FirebasePaths.threadRef(threadID);
 
             // Add an observer to the thread details so we get
             // updated when the thread details change
             // When a thread details change a listener for added users is assign to the thread(If not assigned already).
             // For each added user a listener will be assign for his details change.
-            handleThreadDetails(threadID, threadRef);
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    handleThreadDetails(threadID, threadRef);
+                }
+            });
+
         }
         else if (DEBUG) Log.e(TAG, "Thread is already handled..");
     }
@@ -600,6 +618,50 @@ public class EventManager implements AppEvents {
 
         for (String s : handledMessagesThreadsID)
             Log.i(TAG, "handled messages, Thread ID: " + s);
+    }
+
+    private void post(Runnable runnable){
+        handler.postDelayed(runnable, 0);
+    }
+
+    public static class Executor {
+
+        // Sets the amount of time an idle thread waits before terminating
+        private static final int KEEP_ALIVE_TIME = 1;
+        // Sets the Time Unit to seconds
+        private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+
+        private LinkedBlockingQueue<Runnable>  workQueue = new LinkedBlockingQueue<Runnable>();
+        /*
+         * Gets the number of available cores
+         * (not always the same as the maximum number of cores)
+         */
+        private static int NUMBER_OF_CORES =
+                Runtime.getRuntime().availableProcessors();
+
+        private ThreadPoolExecutor threadPool;
+
+        private static Executor instance;
+
+        public static Executor getInstance() {
+            if (instance == null)
+                instance = new Executor();
+            return instance;
+        }
+
+        private Executor(){
+            // Creates a thread pool manager
+            threadPool = new ThreadPoolExecutor(
+                    NUMBER_OF_CORES,       // Initial pool size
+                    NUMBER_OF_CORES,       // Max pool size
+                    KEEP_ALIVE_TIME,
+                    KEEP_ALIVE_TIME_UNIT,
+                    workQueue);
+        }
+
+        public void execute(Runnable runnable){
+            threadPool.execute(runnable);
+        }
     }
 }
 

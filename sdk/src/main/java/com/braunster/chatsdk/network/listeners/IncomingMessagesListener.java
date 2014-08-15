@@ -7,6 +7,7 @@ import android.util.Log;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.firebase.client.DataSnapshot;
 
 
@@ -28,16 +29,16 @@ public class IncomingMessagesListener extends FirebaseGeneralEvent {
     public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
         if (DEBUG) Log.v(TAG, "Message has arrived.");
         if (isAlive())
-            new Thread(new Runnable() {
+            EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                     BMessage bmessage = (BMessage) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
                     Message message = new Message();
                     message.what = 1;
                     message.obj = bmessage;
                     handler.sendMessage(message);
                 }
-            }).start();
-//        EventManager.getInstance().onMessageReceived(message);
+            });
     }
 }

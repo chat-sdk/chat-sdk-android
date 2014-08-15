@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -115,7 +114,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-//View
+
         View row;
         CircleImageView profilePicImage;
         TextView txtTime;
@@ -151,29 +150,8 @@ public class MessagesListAdapter extends BaseAdapter{
                 // setting the bubble color to the user message color.
                 final TextView textView  = txtContent;
 
-                if (message.color != null && !message.color.equals("Red"))
-                {
-                    if (DEBUG) Log.d(TAG, "Color: " + message.color);
-                    int bubbleColor = -1;
-
-                    if (message.status == BMessageEntity.Status.SENDING){
-                        bubbleColor = Color.parseColor("#C3C2C4");
-                    }
-                    else try{
-                        bubbleColor = Color.parseColor(message.color);
-                    }
-                    catch (Exception e){}
-
-                    if (bubbleColor == -1)
-                    {
-//                        if (DEBUG) Log.d(TAG, "Color As Float: " + Float.parseFloat(message.color));
-//                        if (DEBUG) Log.d(TAG, "Color As Hex: " + Float.toHexString(Float.parseFloat(message.color)));
-//                        bubbleColor = Color.HSVToColor(new Float[]{Float.parseFloat(message.color), 0.0f, 0.0f})
-                    }
-
-                    txtContent.setBubbleColor(bubbleColor);
-                }
-                else txtContent.setBubbleColor( BMessage.randomColor() );
+                int bubbleColor = message.color;
+                txtContent.setBubbleColor(bubbleColor);
 
                 break;
 
@@ -186,9 +164,6 @@ public class MessagesListAdapter extends BaseAdapter{
                 {
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
                 }
-         /*       *//*FIXME*//*
-                if (message.text.length() > 200)
-                    return row;*/
 
                 image = getBubbleImageViewFromRow(row, message);
                 image.setTag(message.text);
@@ -203,9 +178,9 @@ public class MessagesListAdapter extends BaseAdapter{
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
                 image = getBubbleImageViewFromRow(row, message);
-//                // Save the message text to the image tag so it could be found on the onClick.
+                // Save the message text to the image tag so it could be found on the onClick.
                 image.setTag(message.text);
-//                // Open google maps on click.
+                // Open google maps on click.
                 image.setOnClickListener(new openGoogleMaps());
 
                 break;
@@ -294,72 +269,29 @@ public class MessagesListAdapter extends BaseAdapter{
         }, circleImageView.getWidth(), circleImageView.getWidth());
     }
 
-    private ImageView getImageViewfromRow(View row, String base64Data){
-        ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
-        image.setTag(base64Data);
-        image.setImageBitmap(ImageUtils.decodeFrom64(base64Data.getBytes()));
-        image.setOnClickListener(new showImageDialogClickListener());
-
-        return image;
-    }
-
     /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
     private ChatBubbleImageView getBubbleImageViewFromRow(final View row, final MessageListItem message){
 
         final ProgressBar progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
         final ChatBubbleImageView image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
 
+
+        // Getting the dimensions of the image so we can calc it final size and prepare room for it in the list view.
         int[] dimensions = null;
-
-        /*FIXME due to old data in firebase this is needed.*/
-        String url = "";
-        String [] urls = message.text.split(BDefines.DIVIDER);
-        if (message.type == BMessageEntity.Type.IMAGE)
-        {
-            if (urls.length > 1)
-            {
-                url = urls[1];
-            }
-            else url = urls[0];
-        }
-        else if (message.type == BMessageEntity.Type.LOCATION)
-        {
-            if (urls.length == 1)
-                urls = message.text.split("&");
-
-            try {
-                if (urls.length > 3)
-                    url = urls[3];
-                else url = urls[2];
-            } catch (Exception e) {
-//                e.printStackTrace();
-            }
-        }
-
-        final String finalUrl = url;
-        if (DEBUG) Log.d(TAG, "Final URl: " + finalUrl);
-
         try {
-            dimensions = ImageUtils.getDimentionsFromString(urls[urls.length - 1]);
-            if (DEBUG) Log.d(TAG, "Img Dimensions, url: " + finalUrl + ", Width: " + dimensions[0] + ", Height: " + dimensions[1]);
-            dimensions = ImageUtils.calcNewImageSize(dimensions, (int) image.MAX_WIDTH);
-            if (DEBUG) Log.d(TAG, "Img Dimensions After Calc, " +  "url: " + finalUrl +",  Width: " + dimensions[0] + ", Height: " + dimensions[1]);
+            dimensions = message.getDimensions((int) image.MAX_WIDTH);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) image.getLayoutParams();
             params.width = (int) (dimensions[0] + image.getImagePadding() + image.getPointSize());
             params.height = dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
         } catch (Exception e) {
-//            e.printStackTrace();
+            //e.printStackTrace();
         }
 
-        final String color;
-        if (message.status == BMessageEntity.Status.SENDING){
-            color = "#C3C2C4";
-        }
-        else if (message.color != null && !message.color.equals("Red"))
-            color = message.color;
-        else color = Integer.toHexString(BMessage.randomColor());
+        // Coloring the message
+        int bubbleColor = message.color;
 
+        // Loading the url.
         final ChatBubbleImageView.LoadDone loadDone = new ChatBubbleImageView.LoadDone() {
             @Override
             public void onDone() {
@@ -380,24 +312,23 @@ public class MessagesListAdapter extends BaseAdapter{
                 }
             }
         };
-
         if (dimensions != null)
         {
-            image.loadFromUrl(finalUrl, color, dimensions[0], loadDone);
+            image.loadFromUrl(message.url, bubbleColor, dimensions[0], loadDone);
         }
         else
         {
+            final int finalColor = bubbleColor;
             progressBar.post(new Runnable() {
                 @Override
                 public void run() {
                     /*FIXME due to old data in firebase this is needed.*/
 
-                    image.loadFromUrl(finalUrl, color, progressBar.getMeasuredWidth(), loadDone);
+                    image.loadFromUrl(message.url, finalColor, progressBar.getMeasuredWidth(), loadDone);
                 }
             });
 
         }
-
 
         return image;
     }
@@ -453,12 +384,16 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     static class MessageListItem{
-        private String entityId, profilePicUrl, time, text, color, textColor;
-        private int type, status;
+        private String entityId, profilePicUrl, time, text, textColor;
+        private int type, status, color;
         private long sender;
         private long id;
+        private int[] dimesions;
+        private String url;
 
-        private MessageListItem(long id, String entityId, int type, int status, long senderID, String profilePicUrl, String time, String text, String color, String textColor) {
+        private MessageListItem(long id, String entityId, int type, int status,
+                                long senderID, String profilePicUrl, String time,
+                                String text, String color, String textColor) {
             this.type = type;
             this.id = id;
             this.status = status;
@@ -467,8 +402,11 @@ public class MessagesListAdapter extends BaseAdapter{
             this.profilePicUrl = profilePicUrl;
             this.time = time;
             this.text = text;
-            this.color = color;
+            this.color = getColor(color);
             this.textColor = textColor;
+
+            if (type == BMessage.Type.IMAGE || type == BMessage.Type.LOCATION)
+                url = getUrl();
         }
 
         public static MessageListItem fromBMessage(BMessage message){
@@ -522,10 +460,93 @@ public class MessagesListAdapter extends BaseAdapter{
                 return simpleDateFormat;
             }
         }
+
+        private int getColorFromDec(String color){
+            String[] split = color.split(" ");
+
+            if (split.length != 4)
+                return BMessage.randomColor();
+
+            int bubbleColor = -1;
+
+            bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
+
+            return bubbleColor;
+        }
+
+        private int getColor(String color){
+            // Coloring the message
+            int bubbleColor = -1;
+            if (status == BMessageEntity.Status.SENDING){
+                bubbleColor = Color.parseColor(BDefines.Defaults.MessageSendingColor);
+            }
+            else if (color != null && !color.equals("Red"))
+            {
+                try{
+                    bubbleColor = Color.parseColor(color);
+                }
+                catch (Exception e){}
+
+                if (bubbleColor == -1)
+                {
+                    bubbleColor = getColorFromDec(color);
+                    if (DEBUG) Log.d(TAG, "Color: " + bubbleColor);
+                }
+            }
+            else bubbleColor = BMessage.randomColor();
+
+            return bubbleColor;
+        }
+
+        public String getUrl(){
+            /*FIXME because of old data we need to do some testing adn extra checking*/
+            String url = "";
+            String [] urls = text.split(BDefines.DIVIDER);
+            if (type == BMessageEntity.Type.IMAGE)
+            {
+                if (urls.length > 1)
+                {
+                    url = urls[1];
+                }
+                else url = urls[0];
+            }
+            else if (type == BMessageEntity.Type.LOCATION)
+            {
+                if (urls.length == 1)
+                    urls = text.split("&");
+
+                try {
+                    if (urls.length > 3)
+                        url = urls[3];
+                    else url = urls[2];
+                } catch (Exception e) {
+//                e.printStackTrace();
+                }
+            }
+
+            return url;
+        }
+
+        public int[] getDimensions(int maxWidth){
+            int [] dimensions;
+            String[] data = text.split(BDefines.DIVIDER);
+            dimensions = ImageUtils.getDimentionsFromString(data[data.length - 1]);
+            dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+
+            return dimensions;
+        }
     }
 }
 
 
+/*    private ImageView getImageViewfromRow(View row, String base64Data){
+        ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
+        image.setTag(base64Data);
+        image.setImageBitmap(ImageUtils.decodeFrom64(base64Data.getBytes()));
+        image.setOnClickListener(new showImageDialogClickListener());
+
+        return image;
+    }*/
 /*    @SuppressLint("NewApi")
     private TextView getTextBubble(TextView txtContent, MessageListItem message){
         // Setting the text color to the user text color.

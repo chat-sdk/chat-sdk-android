@@ -62,4 +62,5 @@ public class UiUtils {
 
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
+
 }

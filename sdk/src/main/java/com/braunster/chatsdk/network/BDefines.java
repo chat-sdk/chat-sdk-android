@@ -31,12 +31,13 @@ public class BDefines {
     public static final String ContactDeveloper_DialogTitle = "Contact Developer";
 
 
-
-
     public static final class Defaults{
         public static final String MessageColor = "#4262EF";
         public static final String MessageTextColor = "#000000";
         public static final String MessageFontName= "Roboto";
+        public static final String MessageSendingColor = "#C3C2C4";
+        public static final String BubbleDefaultColor = "#27ae60";
+        public static final String BubbleDefaultPressedColor = "#3498db";
         public static final int MessageFontSize = 25;
         public static final int SDKExitMode = Exit.EXIT_MODE_DOUBLE_BACK;
     }
@@ -135,7 +136,6 @@ public class BDefines {
     }
 
     public static final class ImageProperties{
-        public static final int MAX_BYTE_SIZE = 1500;
 
         public static final int MAX_WIDTH_IN_PX = 1920;
         public static final int MAX_HEIGHT_IN_PX = 2560;

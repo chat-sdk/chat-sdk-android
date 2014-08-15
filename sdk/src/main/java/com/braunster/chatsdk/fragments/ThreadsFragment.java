@@ -62,7 +62,7 @@ public class ThreadsFragment extends BaseFragment {
         init(inflater);
         initToast();
 
-        loadData();
+        loadDataOnBackground();
 
         return mainView;
     }

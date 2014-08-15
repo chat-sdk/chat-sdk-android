@@ -8,6 +8,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 
@@ -32,16 +33,18 @@ public class UserDetailsChangeListener extends FirebaseGeneralEvent {
     public void onDataChange(final DataSnapshot snapshot) {
         if (DEBUG) Log.v(TAG, "User Details has changed.");
         if (isAlive())
-            new Thread(new Runnable() {
+            EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
                     BUser user = (BUser) BFirebaseInterface.objectFromSnapshot(snapshot);
                     Message message = new Message();
                     message.what = AppEvents.USER_DETAILS_CHANGED;
                     message.obj = user;
                     handler.sendMessage(message);
                 }
-            }).start();
+            });
 
 //        EventManager.getInstance().onThreadDetailsChanged(thread);
     }

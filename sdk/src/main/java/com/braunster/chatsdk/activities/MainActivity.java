@@ -29,6 +29,7 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.UIUpdater;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -157,12 +158,9 @@ public class MainActivity extends BaseActivity {
 
             if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
 
-            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+         /*   BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
 
-            updateForThread(thread);
-
-
-
+            updateForThread(thread);*/
             return false;
         }
 
@@ -297,19 +295,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     };
-
-    abstract class UIUpdater implements Runnable{
-
-        private boolean killed = false;
-
-        public void setKilled(boolean killed) {
-            this.killed = killed;
-        }
-
-        public boolean isKilled() {
-            return killed;
-        }
-    }
 
     Handler handler = new Handler();
 

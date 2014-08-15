@@ -8,6 +8,7 @@ import android.util.Log;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.activities.ChatActivity;
 import com.braunster.chatsdk.activities.LoginActivity;
+import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -23,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
-import java.util.Iterator;
 
 /**
  * Created by braunster on 09/07/14.
@@ -59,19 +59,20 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
             if (DEBUG) Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
 
-            /*FIXME this line make sure user will only recieve push if he is the current logged user*/
+            // If the push is not for the current user we ignore it.
             if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
                 BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
                 if (user != null && !channel.equals(user.getPushChannel()))
                     return;
             }
 
-            Iterator itr = json.keys();
+/*            Iterator itr = json.keys();
             while (itr.hasNext()) {
                 String key = (String) itr.next();
                 Log.d(TAG, "..." + key + " => " + json.getString(key));
-            }
+            }*/
 
+            // Extracting the message data from the push json.
             String entityID = json.getString(PushUtils.MESSAGE_ENTITY_ID);
             final String threadEntityID = json.getString(PushUtils.THREAD_ENTITY_ID);
             final Long dateLong =json.getLong(PushUtils.MESSAGE_DATE);
@@ -99,26 +100,19 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             message.setEntityID(entityID);
 
             BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
-
-            if (sender == null)
-            {
-                if (DEBUG) Log.d(TAG, "Sender is null");
-                return;
-            }
-            message.setBUserSender(sender);
-
             BThread thread =DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
 
-            if (thread == null)
+            boolean check = true;
+            if (sender != null && thread != null)
             {
-                if (DEBUG) Log.d(TAG, "Thread is null");
-                return;
-            }
+                message.setBUserSender(sender);
+                message.setBThreadOwner(thread);
+                message = DaoCore.createEntity(message);
+            } else check = false;
 
-            message.setBThreadOwner(thread);
+            final boolean messageIsValid = check;
 
-            message = DaoCore.createEntity(message);
-
+            // Checking to see if the user is authenticated so we can decide to where we should direct it from the notification.
             Firebase ref = FirebasePaths.firebaseRef();
             final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
             simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
@@ -127,14 +121,23 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                     Intent resultIntent;
                     if (error == null && user != null)
                     {
-                        resultIntent = new Intent(context, ChatActivity.class);
-                        resultIntent.putExtra(ChatActivity.THREAD_ENTITY_ID, threadEntityID);
-                        resultIntent.putExtra(ChatActivity.FROM_PUSH, true);
+                        // If the message is valide(Sender and Thread exist in the db) we should lead the user to the chat.
+                        if (messageIsValid)
+                        {
+                            resultIntent = new Intent(context, ChatActivity.class);
+                            resultIntent.putExtra(ChatActivity.THREAD_ENTITY_ID, threadEntityID);
+                            resultIntent.putExtra(ChatActivity.FROM_PUSH, true);
+                        }
+                        // Open main activity
+                        else resultIntent = new Intent(context, MainActivity.class);
+
                     }
+                    // Id user isn't authenticated we should open login so he could auth himself in.
                     else {
                         resultIntent = new Intent(context, LoginActivity.class);
                     }
 
+                    // Posting the notification.
                     try {
                         NotificationUtils.createAlertNotification(context, null, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
                                 NotificationUtils.getDataBundle("Message", "You got new message", json.getString(PushUtils.CONTENT)));

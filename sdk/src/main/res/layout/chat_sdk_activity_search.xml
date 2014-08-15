@@ -26,10 +26,18 @@
             android:layout_gravity="right" />
     </LinearLayout>
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chat_sdk_search_linear"
+        android:id="@+id/chat_sdk_chk_select_all"
+        android:paddingRight="8dp"
+        android:text="@string/select_all"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/chat_sdk_search_linear"
+        android:layout_below="@id/chat_sdk_chk_select_all"
         android:layout_above="@id/chat_sdk_btn_add_contacts"
         android:id="@+id/chat_sdk_list_search_results"
         android:layout_gravity="center_horizontal"
