@@ -137,10 +137,11 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 
         if (getItemViewType(position) == TYPE_USER)
         {
+
+
            if (userItem.fromURL)
             {
                 int size = holder.profilePicture.getHeight();
-//                final String path = userItem.getThumbnail(mActivity);
 
                 if (userItem.pictureThumbnailURL != null )
                     VolleyUtills.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
@@ -180,10 +181,6 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             }
         }
 
-//        if (selectedUsersPositions.get(position))
-//            row.setBackgroundColor(Color.BLUE);
-//        else row.setBackgroundColor(Color.WHITE);
-
         return row;
     }
 
@@ -213,7 +210,11 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return row;
     }
 
-
+    /** Disabling the header vies from clicks.*/
+    @Override
+    public boolean isEnabled(int position) {
+        return getItemViewType(position) == TYPE_USER;
+    }
 
 
     public void addRow(UserListItem user){

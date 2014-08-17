@@ -158,9 +158,9 @@ public class MainActivity extends BaseActivity {
 
             if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
 
-         /*   BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
 
-            updateForThread(thread);*/
+            updateForThread(thread);
             return false;
         }
 

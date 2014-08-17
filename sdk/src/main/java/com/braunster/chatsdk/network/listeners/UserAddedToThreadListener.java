@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -25,7 +26,7 @@ import java.util.List;
 public class UserAddedToThreadListener extends FirebaseGeneralEvent {
 
     private static final String TAG = UserAddedToThreadListener.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.UserAddedToThreadListener;
 
     private static List<String> usersIds = new ArrayList<String>();
     private String threadID;

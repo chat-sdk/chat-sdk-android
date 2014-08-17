@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.Utils;
+package com.braunster.chatsdk.Utils.sorter;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.core.DaoCore;

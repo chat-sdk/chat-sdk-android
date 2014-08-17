@@ -114,7 +114,7 @@ public class ParseUtils {
     }
 
     private static byte[] getByteArray(Bitmap bitmap){
-        return getByteArray(bitmap, 80);
+        return getByteArray(bitmap, 50);
     }
 
     private static byte[] getByteArray(Bitmap bitmap, int quality){

@@ -107,6 +107,10 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
         }, exceptIDs);
     }
 
+    public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
+        UiUtils.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+    }
+
     @Override
     public void initViews() {
 
@@ -134,6 +138,13 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
 
     /** Start the chat activity for given thread id.*/
     void startChatActivityForID(long id){
+        if (getActivity() == null)
+        {
+            if (DEBUG) showToast("getActivity() is null, Pleas report!");
+            return;
+        }
+
+
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.THREAD_ID, id);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

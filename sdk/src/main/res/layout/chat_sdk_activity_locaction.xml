@@ -15,7 +15,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_btn_send_location"
-        android:text="Send your current location"/>
+        android:text="@string/send_loaction"/>
 
 
 <!--    <ListView

@@ -3,7 +3,6 @@ package com.braunster.chatsdk.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.NinePatchDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -22,6 +20,7 @@ import android.widget.ImageView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.network.BDefines;
@@ -32,7 +31,7 @@ import com.braunster.chatsdk.network.BDefines;
 public class ChatBubbleImageView extends ImageView /*implements View.OnTouchListener */{
 
     public static final String TAG = ChatBubbleImageView.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.ChatBubbleImageView;
 
     private Bitmap bubble, image;
 
@@ -57,7 +56,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     private boolean showClickIndication = false;
 
-    private int bubbleGravity = GRAVITY_LEFT, bubbleColor = 0, pressedColor = BubbleDefaultPressedColor;
+    private int bubbleGravity = GRAVITY_LEFT, bubbleColor = Color.BLACK, pressedColor = BubbleDefaultPressedColor;
 
     public ChatBubbleImageView(Context context) {
         super(context);
@@ -106,23 +105,42 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         if (isInEditMode())
             return;
 
-        if (image == null)
+        if (bubble == null)
+        {
+            Log.e(TAG, "BUBBLE IS NULL");
+            clearCanvas(canvas);
             return;
+        }
 
-        if (pressed)
-            bubble = setBubbleColor(bubble, pressedColor);
-        else bubble = setBubbleColor(bubble, bubbleColor);
+        if (showClickIndication)
+        {
+            if (pressed)
+                bubble = setBubbleColor(bubble, pressedColor);
+            else bubble = setBubbleColor(bubble, bubbleColor);
+        }
 
         if (bubbleGravity == GRAVITY_RIGHT)
         {
             canvas.drawBitmap(bubble, getMeasuredWidth() - bubble.getWidth(), 0 , null);
-            canvas.drawBitmap(image, /*getMeasuredWidth() - bubble.getWidth() +*/ imagePadding /2 /*+  pointSize*/, imagePadding /2 , null);
+
+            if (image == null)
+                return;
+
+            canvas.drawBitmap(image,  imagePadding /2 , imagePadding /2 , null);
         }
         else
         {
             canvas.drawBitmap(bubble,0, 0 , null);
+
+            if (image == null)
+                return;
+
             canvas.drawBitmap(image, imagePadding /2 +  pointSize, imagePadding /2 , null);
         }
+    }
+
+    private void clearCanvas(Canvas canvas){
+        canvas.drawColor(Color.TRANSPARENT);
     }
 
     @Override
@@ -193,19 +211,14 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            if (DEBUG) Log.d(TAG, "MaxWidth = " + maxWidth + " , MAX_WIDTH = " + MAX_WIDTH);
+                            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
+                            if (DEBUG) Log.d(TAG, "MaxWidth = " + maxWidth + " , MAX_WIDTH = " + MAX_WIDTH);
                             bubbleColor = color;
 
                             // Calculating the image width so we could scale it.
                             // If the wanted width is bigger then MAX_WIDTH we will use MAX_WIDTH not the given width.
                             final int width = (int) MAX_WIDTH;
-//                            if (maxWidth > MAX_WIDTH) {
-//                                width = (int) (MAX_WIDTH - imagePadding - pointSize);
-//                            }
-//                            else {
-//                                width = (int) (maxWidth - imagePadding - pointSize);
-//                            }
 
                             if (DEBUG) Log.d(TAG, "new image size: " + width);
 
@@ -218,14 +231,14 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
                             // Getting the bubble nine patch image for given size.
                             if (bubbleGravity == GRAVITY_LEFT)
-                                bubble = get_ninepatch(R.drawable.bubble_left, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+                                bubble = ImageUtils.get_ninepatch(R.drawable.bubble_left, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
                             else
-                                bubble = get_ninepatch(R.drawable.bubble_right, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
+                                bubble = ImageUtils.get_ninepatch(R.drawable.bubble_right, (int) (img.getWidth() + imagePadding + pointSize), (int) (img.getHeight() + imagePadding), getContext());
 
                             if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Bubble Width: " + bubble.getWidth() + ", Height: " + bubble.getHeight());
 
-                            // Replacing the defualt color of the bubble.
-                            bubble = replaceIntervalColor(bubble, 40, 75, 130, 140, 190, 210, color);
+                            if (!showClickIndication)
+                                bubble = setBubbleColor(bubble, bubbleColor);
 
                             // Setting the bubble bitmap. It will be used in onDraw
                             setBubble(bubble);
@@ -257,41 +270,127 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         });
     }
 
+    public void loadFromUrl(final String url, final int color,final int width, final int height, final LoadDone loadDone){
+        bubble = null;
+        image = null;
+
+        final int bubbleWidth = (int) (width + imagePadding + pointSize);
+        final int bubbleHeight = height + imagePadding;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
+                bubbleColor = color;
+
+                // Getting the bubble nine patch image for given size.
+                if (bubbleGravity == GRAVITY_LEFT)
+                    bubble = ImageUtils.get_ninepatch(R.drawable.bubble_left, bubbleWidth,  bubbleHeight, getContext());
+                else
+                    bubble = ImageUtils.get_ninepatch(R.drawable.bubble_right, bubbleWidth, bubbleHeight, getContext());
+
+                if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Bubble Width: " + bubble.getWidth() + ", Height: " + bubble.getHeight());
+
+                if (!showClickIndication)
+                {
+                    Log.e(TAG, "BUBBLE SET COLOR");
+                    bubble = setBubbleColor(bubble, color);
+                }
+
+                // Setting the bubble bitmap. It will be used in onDraw
+                setBubble(bubble);
+
+                handler.sendEmptyMessage(BUBBLE_IS_LOADDED);
+            }
+        }).start();
+
+
+        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+
+            boolean firstOnResponse = true;
+
+            @Override
+            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (DEBUG) Log.v(TAG, "Response,Url: " + url + ", Immediate: " + isImmediate);
+
+                if (firstOnResponse){
+                    if (loadDone != null)
+                        loadDone.immediate(response.getBitmap() != null);
+
+                    firstOnResponse = false;
+                }
+
+                if (response.getBitmap() != null) {
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
+                            // The image bitmap from Volley.
+                            Bitmap img = response.getBitmap();
+
+                            // scaling the image to the needed width.
+                            img = ImageUtils.scaleImage(img, (int) MAX_WIDTH);
+
+                            // rounding the corners of the image.
+                            img = getRoundedCornerBitmap(img, roundRadius);
+
+                            // Setting the image bitmap. It will be used in onDraw
+                            setImage(img);
+
+                            // Notifying the view that we are done.
+                            Message message = new Message();
+                            message.what = IMAGE_IS_LOADED;
+                            message.arg1 = bubbleWidth;
+                            message.arg2 = bubbleHeight;
+                            message.obj = loadDone;
+                            handler.sendMessage(message);
+                        }
+                    }).start();
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (DEBUG){
+                    Log.e(TAG, "Image Load Error: " + error.getMessage());
+                    error.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static final int BUBBLE_IS_LOADDED = 0;
+    public static final int IMAGE_IS_LOADED = 1;
+
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            ViewGroup.LayoutParams params = getLayoutParams();
-            params.width = msg.arg1;
-            params.height = msg.arg2;
-            // existing height is ok as is, no need to edit it
-            setLayoutParams(params);
+            switch (msg.what)
+            {
+                case BUBBLE_IS_LOADDED:
+                    invalidate();
+                    break;
 
-//            setOnTouchListener(ChatBubbleImageView.this);
+                case IMAGE_IS_LOADED:
+                    ViewGroup.LayoutParams params = getLayoutParams();
+                    params.width = msg.arg1;
+                    params.height = msg.arg2;
+                    // existing height is ok as is, no need to edit it
+                    setLayoutParams(params);
 
-            ((LoadDone) msg.obj).onDone();
+                    ((LoadDone) msg.obj).onDone();
 
-            invalidate();
+                    invalidate();
+                    break;
+            }
+
         }
     };
-
-    public static Bitmap get_ninepatch(int id,int x, int y, Context context){
-        // id is a resource id for a valid ninepatch
-        Bitmap bitmap = BitmapFactory.decodeResource(
-                context.getResources(), id);
-
-        byte[] chunk = bitmap.getNinePatchChunk();
-        NinePatchDrawable np_drawable = new NinePatchDrawable(context.getResources(), bitmap,
-                chunk, new Rect(), null);
-        np_drawable.setBounds(0, 0,x, y);
-
-        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output_bitmap);
-        np_drawable.draw(canvas);
-
-        return output_bitmap;
-    }
 
     public static Bitmap setBubbleColor(Bitmap bubble, int color){
         if (DEBUG) Log.v(TAG, "setBubbleColor, color: " + color);

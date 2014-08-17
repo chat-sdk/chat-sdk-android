@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
@@ -17,7 +18,6 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -43,16 +43,20 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+*/
 /**
  * Created by itzik on 6/5/2014.
- */
-public class MessagesListAdapter extends BaseAdapter{
+ *//*
+
+public class MessagesListAdapterBackup extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private static final String TAG = MessagesListAdapterBackup.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
-    /* Row types */
+    */
+/* Row types *//*
+
     private static final int TYPE_TEXT_USER = 0;
     private static final int TYPE_TEXT_FRIEND = 1;
     private static final int TYPE_IMAGE_USER = 2;
@@ -74,7 +78,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private int type = -1;
 
-    public MessagesListAdapter(Activity activity, Long userID){
+    public MessagesListAdapterBackup(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -82,7 +86,7 @@ public class MessagesListAdapter extends BaseAdapter{
         maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
     }
 
-    public MessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
+    public MessagesListAdapterBackup(Activity activity, Long userID, List<MessageListItem> listData){
         mActivity = activity;
 
         this.userID = userID;
@@ -103,7 +107,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     @Override
     public int getItemViewType(int position) {
-        return listData.get(position).rowType;
+        return listData.get(position).type;
     }
 
     @Override
@@ -118,132 +122,91 @@ public class MessagesListAdapter extends BaseAdapter{
 
     @Override
     public long getItemId(int i) {
-        return listData.get(i).id;
+        return 0;
     }
+
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
 
+        CircleImageView profilePicImage;
+        TextView txtTime;
+        ChatBubbleImageView2 image;
+        TextView txtContent;
 
         View row;
         row = view;
-        ViewHolder holder;
+
         type = getItemViewType(position);
 
         final MessageListItem message = listData.get(position);
 
-        if (row == null)
-        {
-            holder = new ViewHolder();
-            switch (type)
-            {
-                case TYPE_TEXT_USER:
-                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_user, null);
-
-                    holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
-
-                    break;
-
-                case TYPE_TEXT_FRIEND:
-
-                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_friend, null);
-
-                    holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
-
-                    break;
-
-                case TYPE_IMAGE_USER:
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-
-                case TYPE_IMAGE_FRIEND:
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-                    break;
-
-                case TYPE_LOCATION_USER:
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-
-                case TYPE_LOCATION_FRIEND:
-                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-            }
-
-            loadDefaults(holder, row);
-
-            row.setTag(holder);
-        }
-        else
-            holder = (ViewHolder) row.getTag();
-
-        if (DEBUG) Log.d(TAG, "Message, Type: " + message.type  + " Row Type: " + type + ", Text: " + message.text);
-
         switch (type)
         {
-            case TYPE_TEXT_USER:
-            case TYPE_TEXT_FRIEND:
+            case TYPE_TEXT:
 
-                holder.txtContent.setText(message.text == null ? "ERROR" : message.text);
+                if (message.sender == userID)
+                {
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_user, null);
+                }
+                else
+                {
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_friend, null);
+                }
 
-                holder.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
+                txtContent = (TextView) row.findViewById(R.id.txt_content);
+
+                txtContent.setText(message.text == null ? "ERROR" : message.text);
+
+                txtContent.setMovementMethod(LinkMovementMethod.getInstance());
 
                 // Show links in text view if has any.
-                Linkify.addLinks(holder.txtContent, Linkify.ALL);
+                Linkify.addLinks(txtContent, Linkify.ALL);
 
-             /*  int bubbleColor = message.getColor();
-                txtContent.setBubbleColor(bubbleColor);*/
+             */
+/*  int bubbleColor = message.getColor();
+                txtContent.setBubbleColor(bubbleColor);*//*
+
 
                 break;
 
-            case TYPE_IMAGE_USER:
-            case TYPE_IMAGE_FRIEND:
+            case TYPE_IMAGE:
+                row = inflateImageRow(message);
 
-                getBubbleImageViewFromRow(holder.image, holder.progressBar, message);
+                image = getBubbleImageViewFromRow(row, message);
 
                 // Show the image in a dialog on click.
-                holder.image.setOnClickListener(new showImageDialogClickListener());
+                image.setOnClickListener(new showImageDialogClickListener());
                 break;
 
-            case TYPE_LOCATION_USER:
-            case TYPE_LOCATION_FRIEND:
+            case TYPE_LOCATION:
+                row = inflateImageRow(message);
 
-                getBubbleImageViewFromRow(holder.image, holder.progressBar,  message);
+                image = getBubbleImageViewFromRow(row, message);
 
                 // Open google maps on click.
-                holder.image.setOnClickListener(new openGoogleMaps());
+                image.setOnClickListener(new openGoogleMaps());
 
                 break;
         }
 
         // Load profile picture.
+        profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
 //        if (position == 0 || message.sender != listData.get(position-1).sender) {
-            loadProfilePic(holder.profilePicImage, message.profilePicUrl);
+            loadProfilePic(profilePicImage, message.profilePicUrl);
 //        } else profilePicImage.setVisibility(View.INVISIBLE);
 
         // Add click event to image if message is picture or location.
         // Set the time of the sending.
-
-        holder.txtTime.setText(message.time);
+        txtTime = (TextView) row.findViewById(R.id.txt_time);
+        txtTime.setText(message.time);
 
         return row;
     }
 
-    /** @return true if the item is added to the list.*/
+    */
+/** @return true if the item is added to the list.*//*
+
     public boolean addRow(MessageListItem data){
         if (DEBUG) Log.d(TAG, "AddRow");
 
@@ -289,13 +252,9 @@ public class MessagesListAdapter extends BaseAdapter{
         return listData;
     }
 
-    private void loadDefaults(ViewHolder holder, View row){
-        // Load profile picture.
-        holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
-        holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
-    }
+    */
+/** Load profile picture for given url and image view.*//*
 
-    /** Load profile picture for given url and image view.*/
     private void loadProfilePic(final CircleImageView circleImageView, String url){
         if (url == null)
         {
@@ -317,11 +276,27 @@ public class MessagesListAdapter extends BaseAdapter{
         }, circleImageView.getWidth(), circleImageView.getWidth());
     }
 
-    /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
-    private ChatBubbleImageView2 getBubbleImageViewFromRow(final ChatBubbleImageView2 image, final ProgressBar progressBar, final MessageListItem message){
+    private View inflateImageRow(MessageListItem message){
+        View row;
+        if (message.sender == userID) {
+            row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
+        }
+        else
+            row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
+
+        return row;
+    }
+
+    */
+/** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. *//*
+
+    private ChatBubbleImageView2 getBubbleImageViewFromRow(final View row, final MessageListItem message){
+
+        final ProgressBar progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+        final ChatBubbleImageView2 image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
+
         // Save the message text to the image tag so it could be found on the onClick.
         image.setTag(message.text);
-        image.setVisibility(View.VISIBLE);
 
         // Coloring the message
         int bubbleColor = message.color;
@@ -332,6 +307,7 @@ public class MessagesListAdapter extends BaseAdapter{
             public void onDone() {
                 if (progressBar.getVisibility() == View.VISIBLE) {
                     progressBar.setVisibility(View.INVISIBLE);
+                    image.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -340,12 +316,14 @@ public class MessagesListAdapter extends BaseAdapter{
                 if (immediate){
                     if (progressBar.getVisibility() == View.VISIBLE) {
                         progressBar.setVisibility(View.INVISIBLE);
+                        image.setVisibility(View.VISIBLE);
                     }
                 }
                 else
                 {
                     if (progressBar.getVisibility() == View.INVISIBLE) {
                         progressBar.setVisibility(View.VISIBLE);
+                        image.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -359,7 +337,7 @@ public class MessagesListAdapter extends BaseAdapter{
             params.height = message.dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
 
-            image.loadFromUrl(message.url, loadDone);
+            image.loadFromUrl(message.url, message.dimensions[0], message.dimensions[1], loadDone);
         }
         else
         {
@@ -367,8 +345,10 @@ public class MessagesListAdapter extends BaseAdapter{
             progressBar.post(new Runnable() {
                 @Override
                 public void run() {
-                    /*FIXME due to old data in firebase this is needed.*/
-                    image.loadFromUrl(message.url, loadDone);
+                    */
+/*FIXME due to old data in firebase this is needed.*//*
+
+                    image.loadFromUrl(message.url, finalColor, progressBar.getMeasuredWidth(), loadDone);
                 }
             });
 
@@ -377,7 +357,9 @@ public class MessagesListAdapter extends BaseAdapter{
         return image;
     }
 
-    /** Click listener for an image view, A dialog that show the image will show for each click.*/
+    */
+/** Click listener for an image view, A dialog that show the image will show for each click.*//*
+
     public class showImageDialogClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -387,12 +369,13 @@ public class MessagesListAdapter extends BaseAdapter{
             // Show the location image.
             if (v.getTag() != null)
             {
-                        /*FIXME due to old data in firebase this is needed.*/
+                        */
+/*FIXME due to old data in firebase this is needed.*//*
+
                 String url;
                 String [] urls = ((String) v.getTag()).split(BDefines.DIVIDER);
                 url = urls[0];
 
-                Toast.makeText(mActivity, "Urls: " + urls.length, Toast.LENGTH_LONG).show();
                 DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
                             showAtLocation(v, Gravity.CENTER, 0, 0);
             }
@@ -405,13 +388,17 @@ public class MessagesListAdapter extends BaseAdapter{
         }
     }
 
-    /** Click listener for the view location button for location messages. The click will open Google Maps for the location.*/
+    */
+/** Click listener for the view location button for location messages. The click will open Google Maps for the location.*//*
+
     public class openGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
             String[] loc = ((String)v.getTag()).split(BDefines.DIVIDER);
 
-            /*FIXME due to old data*/
+            */
+/*FIXME due to old data*//*
+
             if (loc.length == 1)
                 loc = ((String)v.getTag()).split("&");
 
@@ -434,13 +421,13 @@ public class MessagesListAdapter extends BaseAdapter{
 
     static class MessageListItem{
         private String entityId, profilePicUrl, time, text, textColor;
-        private int type, status, color, rowType;
+        private int type, status, color;
         private long sender;
         private long id;
         private int[] dimensions;
         private String url;
 
-        private MessageListItem(long id, String entityId, int type, int rowType, int status,
+        private MessageListItem(long id, String entityId, int type, int status,
                                 long senderID, String profilePicUrl, String time,
                                 String text, String color, String textColor) {
             this.type = type;
@@ -453,20 +440,45 @@ public class MessagesListAdapter extends BaseAdapter{
             this.text = text;
             this.color = setColor(color);
             this.textColor = textColor;
-            this.rowType = rowType;
 
             if (type == BMessage.Type.IMAGE || type == BMessage.Type.LOCATION)
-                url = getUrl(text, type);
+                url = getUrl();
         }
 
 
         public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth){
             BUser user = message.getBUserSender();
 
+            // Setting the row type.
+            int type;
+            switch (message.getType())
+            {
+                case BMessage.Type.TEXT:
+                    if (user.getId().longValue() == userID.longValue())
+                        type = TYPE_TEXT_USER;
+                    else type = TYPE_TEXT_FRIEND;
+
+                    break;
+
+                case BMessage.Type.LOCATION:
+                    if (user.getId().longValue() == userID.longValue())
+                        type = TYPE_LOCATION_USER;
+                    else type = TYPE_LOCATION_FRIEND;
+                    break;
+
+                case BMessage.Type.IMAGE:
+                    if (user.getId().longValue() == userID.longValue())
+                        type = TYPE_IMAGE_USER;
+                    else type = TYPE_IMAGE_FRIEND;
+                    break;
+
+                default:
+                    type = -1;
+            }
+
             MessageListItem msg = new MessageListItem( message.getId(),
                     message.getEntityID(),
-                    message.getType(),
-                    getRowType(message.getType(), user.getId(), userID),
+                    type,
                     message.getStatusOrNull(),
                     user.getId(),
                     user.getThumbnailPictureURL(),
@@ -495,7 +507,7 @@ public class MessagesListAdapter extends BaseAdapter{
             return list;
         }
 
-        private static SimpleDateFormat getFormat(BMessage message){
+        public static SimpleDateFormat getFormat(BMessage message){
             Date curTime = new Date();
             long interval = (curTime.getTime() - message.getDate().getTime()) / 1000L;
 
@@ -533,7 +545,7 @@ public class MessagesListAdapter extends BaseAdapter{
             return bubbleColor;
         }
 
-        private static int setColor(String color){
+        private int setColor(String color){
             // Coloring the message
             int bubbleColor = -1;
             if (color != null && !color.equals("Red"))
@@ -554,40 +566,10 @@ public class MessagesListAdapter extends BaseAdapter{
             return bubbleColor;
         }
 
-        private static int getRowType(int messageType, long senderId, long curUserID){
-            // Setting the row type.
-            int type;
-            switch (messageType)
-            {
-                case BMessage.Type.TEXT:
-                    if (senderId == curUserID)
-                        type = TYPE_TEXT_USER;
-                    else type = TYPE_TEXT_FRIEND;
-                    break;
+        public String getUrl(){
+            */
+/*FIXME because of old data we need to do some testing adn extra checking*//*
 
-                case BMessage.Type.LOCATION:
-                    if (senderId == curUserID)
-                        type = TYPE_LOCATION_USER;
-                    else type = TYPE_LOCATION_FRIEND;
-                    break;
-
-                case BMessage.Type.IMAGE:
-                    if (senderId == curUserID)
-                        type = TYPE_IMAGE_USER;
-                    else type = TYPE_IMAGE_FRIEND;
-                    break;
-
-                default:
-                    type = -1;
-            }
-
-            if (DEBUG) Log.d(TAG, "getRowType, RowType: " + type + ", Msg type: " + messageType + ", SenderID: " + senderId + ", userID: " + curUserID);
-
-            return type;
-        }
-
-        private static String getUrl(String text, int type){
-            /*FIXME because of old data we need to do some testing adn extra checking*/
             String url = "";
             String [] urls = text.split(BDefines.DIVIDER);
             if (type == BMessageEntity.Type.IMAGE)
@@ -615,7 +597,7 @@ public class MessagesListAdapter extends BaseAdapter{
             return url;
         }
 
-        private void setDimension(int maxWidth){
+        public void setDimension(int maxWidth){
             try {
                 String[] data = text.split(BDefines.DIVIDER);
                 dimensions = ImageUtils.getDimentionsFromString(data[data.length - 1]);
@@ -625,7 +607,7 @@ public class MessagesListAdapter extends BaseAdapter{
             }catch (Exception e){}
         }
 
-        private int getColor(){
+        public int getColor(){
             if (status == BMessageEntity.Status.SENDING)
                return Color.parseColor(BDefines.Defaults.MessageSendingColor);
 
@@ -634,15 +616,12 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     class ViewHolder{
-        CircleImageView profilePicImage;
-        TextView txtTime;
-        ChatBubbleImageView2 image;
-        TextView txtContent;
-        ProgressBar progressBar;
+
     }
 }
 
 
+*/
 /*    private ImageView getImageViewfromRow(View row, String base64Data){
         ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
         image.setTag(base64Data);
@@ -650,7 +629,9 @@ public class MessagesListAdapter extends BaseAdapter{
         image.setOnClickListener(new showImageDialogClickListener());
 
         return image;
-    }*/
+    }*//*
+
+*/
 /*    @SuppressLint("NewApi")
     private TextView getTextBubble(TextView txtContent, MessageListItem message){
         // Setting the text color to the user text color.
@@ -661,7 +642,11 @@ public class MessagesListAdapter extends BaseAdapter{
         Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, txtContent.getWidth(), txtContent.getHeight(), mActivity);
         if (bubble == null)
             Log.e(TAG, "bubble is null");
-                        *//*FIXME*//*
+                        *//*
+*/
+/*FIXME*//*
+*/
+/*
         if (message.color != null && !message.color.equals("Red"))
             bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
         else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
@@ -688,7 +673,11 @@ public class MessagesListAdapter extends BaseAdapter{
         Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, width, height, mActivity);
         if (bubble == null)
             Log.e(TAG, "bubble is null");
-                        *//*FIXME*//*
+                        *//*
+*/
+/*FIXME*//*
+*/
+/*
         if (message.color != null && !message.color.equals("Red"))
             bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
         else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
@@ -703,9 +692,11 @@ public class MessagesListAdapter extends BaseAdapter{
         txtContent.setVisibility(View.VISIBLE);
 
         return txtContent;
-    }*/
+    }*//*
 
-  /*  private String arrangeStringForUrl(String s){
+
+  */
+/*  private String arrangeStringForUrl(String s){
         // separate input by spaces ( URLs don't have spaces )
         String [] parts = s.split("\\s+");
         String urlString = "";

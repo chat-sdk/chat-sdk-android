@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
-    android:id="@+id/linear">
+    android:id="@+id/chat_sdk_root_view_image_friend">
 
     <de.hdodenhof.circleimageview.CircleImageView
         style="@style/CircleIconStyle"
@@ -28,9 +28,8 @@
         style="@style/MessageDateStyle"/>
 
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
-    <!--android:layout_toLeftOf="@id/txt_time"-->
-    <com.braunster.chatsdk.view.ChatBubbleImageView
-        android:layout_width="match_parent"
+    <com.braunster.chatsdk.view.ChatBubbleImageView2
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_image"
         android:layout_toRightOf="@id/img_user_image"
@@ -41,12 +40,12 @@
         android:visibility="visible"/>
 
     <ProgressBar
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/img_user_image"
-        android:layout_toLeftOf="@id/txt_time"
-        android:id="@id/progress_bar"
-        android:layout_centerInParent="true"/>
+        android:layout_centerVertical="true"
+        android:layout_alignRight="@id/chat_sdk_image"
+        android:id="@id/progress_bar"/>
 
     <!--<ImageView-->
         <!--android:layout_width="50dp"-->

@@ -137,6 +137,9 @@ public class PickFriendsActivity extends BaseActivity {
                 list.remove(u);
         }
 
+        if (list.size() > 0)
+            chSelectAll.setEnabled(true);
+
         listAdapter = new UsersWithStatusListAdapter(PickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false, true), true);
         listContacts.setAdapter(listAdapter);
 

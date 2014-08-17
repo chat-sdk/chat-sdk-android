@@ -910,7 +910,7 @@ TODO
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
-     *  The uploading to the server part can bee seen her @see BFirebaseNetworkAdapter#PushMessageWithComplition.*/
+     *  The uploading to the server part can bee seen her {@see BFirebaseNetworkAdapter#PushMessageWithComplition}.*/
       @Override //Note done!
     public void sendMessage(final BMessage message, final CompletionListenerWithData<BMessage> listener){
           if (DEBUG) Log.v(TAG, "sendMessage");

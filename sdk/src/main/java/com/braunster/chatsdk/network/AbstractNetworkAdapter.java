@@ -6,7 +6,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ThreadsSorter;
+import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;

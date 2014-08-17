@@ -1,10 +1,13 @@
 package com.braunster.chatsdk.Utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.NinePatchDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.util.Base64;
@@ -348,7 +351,7 @@ public class ImageUtils {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -380,6 +383,23 @@ public class ImageUtils {
         dimen[1] = dimen[1].substring(1);
 
         return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
+    }
+
+    public static Bitmap get_ninepatch(int id,int x, int y, Context context){
+        // id is a resource id for a valid ninepatch
+        Bitmap bitmap = BitmapFactory.decodeResource(
+                context.getResources(), id);
+
+        byte[] chunk = bitmap.getNinePatchChunk();
+        NinePatchDrawable np_drawable = new NinePatchDrawable(context.getResources(), bitmap,
+                chunk, new Rect(), null);
+        np_drawable.setBounds(0, 0,x, y);
+
+        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output_bitmap);
+        np_drawable.draw(canvas);
+
+        return output_bitmap;
     }
 
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";

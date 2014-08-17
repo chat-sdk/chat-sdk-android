@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.Utils;
+package com.braunster.chatsdk.Utils.sorter;
 
 import android.util.Log;
 

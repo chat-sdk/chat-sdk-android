@@ -31,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/chat_sdk_search_linear"
         android:id="@+id/chat_sdk_chk_select_all"
+        android:enabled="false"
         android:paddingRight="8dp"
         android:text="@string/select_all"/>
 

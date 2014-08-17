@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:id="@+id/chat_sdk_root_view"
     android:layout_height="match_parent">
 
-
-
-        <!-- Your content, here we're using a ScrollView -->
-
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:clipChildren="false"
-        android:layout_above="@id/linear">
+        android:layout_weight="1">
 
         <LinearLayout
             android:id="@+id/card_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/holo_blue_dark"
-            android:layout_alignParentTop="true"
             android:orientation="vertical" />
 
         <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
@@ -33,57 +28,56 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/list_chat"
-                android:transcriptMode="alwaysScroll"
+                android:transcriptMode="normal"
                 android:layout_below="@id/card_container"
                 android:layout_above="@+id/linear"
                 android:scrollbars="none"
                 android:divider="@null"
-                android:stackFromBottom="true"
+                android:listSelector="@android:color/transparent"
                 android:descendantFocusability="afterDescendants"
                 android:padding="5dp"/>
         </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
     </FrameLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linear"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/chat_sdk_et_message_to_send"
-            android:hint="Message"
-            android:maxLength="140"
-            android:layout_marginBottom="4dp"
-            android:inputType="text"
-            android:imeOptions="actionSend"
-            android:layout_alignBottom="@+id/chat_sdk_btn_chat_send_message"
-            android:layout_toLeftOf="@+id/chat_sdk_btn_chat_send_message"
-            android:layout_toRightOf="@+id/chat_sdk_btn_options"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_centerVertical="true"
-            android:id="@+id/chat_sdk_btn_chat_send_message"
-            android:layout_alignParentRight="true"/>
+        android:orientation="horizontal"
+        android:id="@+id/linear">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_options"
             android:background="@android:color/transparent"
-            android:layout_alignBottom="@+id/chat_sdk_btn_chat_send_message"
+            android:layout_gravity="bottom"
             android:id="@+id/chat_sdk_btn_options"
-            android:layout_marginBottom="4dp"
             android:layout_marginLeft="4dp"
-            android:layout_alignParentLeft="true"/>
+            android:contentDescription="@string/acces_message_option_button" />
+
+        <FrameLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_gravity="bottom"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/chat_sdk_et_message_to_send"
+                android:hint="Message"
+                android:gravity="bottom"
+                android:isScrollContainer="true"
+                android:inputType="textMultiLine"/>
+            </FrameLayout>
 
 
-    </RelativeLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:layout_gravity="bottom"
+            android:id="@+id/chat_sdk_btn_chat_send_message"/>
+    </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
@@ -17,9 +18,11 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+*/
 /**
  * Created by itzik on 6/16/2014.
- */
+ *//*
+
 public class UsersListAdapter extends BaseAdapter {
 
     private static final String TAG = UsersListAdapter.class.getSimpleName();
@@ -81,12 +84,14 @@ public class UsersListAdapter extends BaseAdapter {
 
         holder.textView.setText(listData.get(position).getMetaName());
 
-        /*FIXME work with url
+        */
+/*FIXME work with url
         Bitmap bitmap = listData.get(position).getMetaPicture();
         if (bitmap != null)
         {
             holder.profilePicture.setImageBitmap(bitmap);
-        }*/
+        }*//*
+
         return row;
     }
 
@@ -110,4 +115,4 @@ public class UsersListAdapter extends BaseAdapter {
         listData.clear();
         notifyDataSetChanged();
     }
-}
+}*/

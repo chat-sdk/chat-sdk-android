@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
@@ -17,7 +18,7 @@ import com.firebase.client.DataSnapshot;
 public class IncomingMessagesListener extends FirebaseGeneralEvent {
 
     private static final String TAG = IncomingMessagesListener.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.IncomingMessagesListener;
     private Handler handler;
 
     public IncomingMessagesListener(Handler handler){

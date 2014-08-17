@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
@@ -17,7 +18,7 @@ import com.firebase.client.FirebaseError;
 public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
 
     private static final String TAG = ThreadDetailsChangeListener.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Debug.ThreadDetailsChangeListener;
 
     private String threadID;
     private Handler handler;

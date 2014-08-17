@@ -146,8 +146,12 @@ public class SearchActivity extends BaseActivity {
                         if (usersFoundCount == 0)
                         {
                             showAlertToast("No match found.");
+                            chSelectAll.setEnabled(false);
                             return;
                         }
+
+                        chSelectAll.setEnabled(true);
+
                         if (action.equals(ACTION_ADD_WHEN_FOUND))
                         {
 

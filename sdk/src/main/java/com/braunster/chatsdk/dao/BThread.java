@@ -3,7 +3,7 @@ package com.braunster.chatsdk.dao;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.MessageSorter;
+import com.braunster.chatsdk.Utils.sorter.MessageSorter;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.Entity;

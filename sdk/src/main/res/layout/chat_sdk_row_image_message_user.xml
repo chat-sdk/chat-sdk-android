@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:gravity="right"
     style="@style/RowStyle"
-    android:id="@+id/linear">
+    android:id="@+id/chat_sdk_root_view_image_user">
 
     <de.hdodenhof.circleimageview.CircleImageView
         style="@style/CircleIconStyle"
@@ -30,7 +30,7 @@
 
     <!--android:layout_toRightOf="@id/txt_time"-->
     <!-- DO not change this ImageView id the id is used in all message layouts!-->
-    <com.braunster.chatsdk.view.ChatBubbleImageView
+    <com.braunster.chatsdk.view.ChatBubbleImageView2
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_image"
@@ -42,17 +42,11 @@
         android:visibility="visible"/>
 
     <ProgressBar
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/chat_sdk_image"
         android:layout_toLeftOf="@id/img_user_image"
-        android:layout_toRightOf="@id/txt_time"
         android:id="@id/progress_bar"
-        android:layout_centerInParent="true"/>
-<!--    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_toLeftOf="@id/img_user_image"
-        android:layout_toRightOf="@id/txt_time"
-        android:id="@+id/chat_sdk_image"/>-->
+        android:layout_centerVertical="true"/>
 
 </RelativeLayout>

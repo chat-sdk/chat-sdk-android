@@ -67,7 +67,7 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
     SuperActivityToast superActivityToast;
     SuperToast superToast;
-    SuperCardToast superCardToast;
+    SuperCardToast superCardToastProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,6 +249,10 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         }, exceptIDs);
     }
 
+    public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
+        UiUtils.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+    }
+
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(Activity activity) {
         UiUtils.hideSoftKeyboard(activity);
@@ -274,11 +278,11 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     }
 
     private void initCardToast(){
-        superCardToast = new SuperCardToast(BaseActivity.this, SuperToast.Type.PROGRESS_HORIZONTAL);
-        superCardToast.setIndeterminate(true);
-        superCardToast.setBackground(SuperToast.Background.WHITE);
-        superCardToast.setTextColor(Color.BLACK);
-        superCardToast.setSwipeToDismiss(true);
+        superCardToastProgress = new SuperCardToast(BaseActivity.this, SuperToast.Type.PROGRESS);
+        superCardToastProgress.setIndeterminate(true);
+        superCardToastProgress.setBackground(SuperToast.Background.WHITE);
+        superCardToastProgress.setTextColor(Color.BLACK);
+        superCardToastProgress.setSwipeToDismiss(true);
     }
 
     /** Show a SuperToast with the given text. */
@@ -294,47 +298,32 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
         superToast.show();
     }
 
-    void showCard(String text){
-        showCard(text, 0);
-    }
+    void showProgressCard(String text){
 
-    void showCard(String text, int progress){
-//            initCardToast();
-
-        // Making sure the card is on top of all other views.
         findViewById(R.id.card_container).bringToFront();
 
-        if (superCardToast == null || !superCardToast.isShowing())
+        if (superCardToastProgress == null || !superCardToastProgress.isShowing())
             initCardToast();
 
-        superCardToast.setProgress(progress);
-        superCardToast.setText(text);
+        superCardToastProgress.setText(text);
 
-        if (!superCardToast.isShowing())
-            superCardToast.show();
+        if (!superCardToastProgress.isShowing())
+            superCardToastProgress.show();
     }
 
-    void updateCard(String text, int progress){
-        if (superCardToast == null)
-            return;
-
-        superCardToast.setText(text);
-        superCardToast.setProgress(progress);
+    void dismissProgressCard(){
+        dismissProgressCard(0);
     }
 
-    void dismissCard(){
-        dismissCard(0);
+    void dismissProgressCardWithSmallDelay(){
+        dismissProgressCard(1500);
     }
 
-    void dismissCardWithSmallDelay(){
-        dismissCard(1500);
-    }
-
-    void dismissCard(long delay){
+    void dismissProgressCard(long delay){
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                superCardToast.dismiss();
+                superCardToastProgress.dismiss();
             }
         }, delay);
     }
@@ -546,7 +535,9 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 }
 
 interface BaseActivityInterface{
-    /** This method is called after the app is resumed and check the online status of the user. */
+    /** This method is called after the activity authenticated the user. When the activity is resumed the activity
+     * checks if the user is authenticated(optional {@link BaseActivity#checkOnlineOnResumed}),
+     * If the user was re - authenticated when it was resumed this method will be called. */
     public void onAuthenticated();
 }
 

@@ -11,6 +11,8 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.ImageUtils;
 
 /**
  * Created by braunster on 29/07/14.
@@ -18,7 +20,7 @@ import com.braunster.chatsdk.R;
 public class ChatBubbleTextView extends TextView {
 
     public static final String TAG = ChatBubbleTextView.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.ChatBubbleTextView;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
     private float pointSize = 6f * getResources().getDisplayMetrics().density;
@@ -103,14 +105,14 @@ public class ChatBubbleTextView extends TextView {
         Bitmap bubble;
         if (bubbleGravity == GRAVITY_LEFT)
         {
-            bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
+            bubble = ImageUtils.get_ninepatch(R.drawable.bubble_left, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
             bubble = ChatBubbleImageView.setBubbleColor(bubble, bubbleColor);
 
             canvas.drawBitmap(bubble, pointSize, 0, null);
         }
         else
         {
-            bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_right, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
+            bubble = ImageUtils.get_ninepatch(R.drawable.bubble_right, (int) (getMeasuredWidth() - pointSize), getMeasuredHeight(), getContext());
             bubble = ChatBubbleImageView.setBubbleColor(bubble, bubbleColor);
 
             canvas.drawBitmap(bubble, 0, 0, null);
@@ -118,35 +120,7 @@ public class ChatBubbleTextView extends TextView {
 
         if (DEBUG) Log.d(TAG, "Bubble W: " + bubble.getWidth() + ", Bubble H: " + bubble.getHeight());
 
-
-
         super.onDraw(canvas);
-//        int yPos = (int) ((canvas.getHeight() / 2) - ((getPaint().descent() + getPaint().ascent()) / 2)) ;
-//
-//        drawText(canvas, getText().toString(), 0 , getText().toString().length(), pointSize, yPos, getPaint());
-
-        /*int index = 0;
-        int lineCount = 0;
-        List<String> lines = new ArrayList<String>();
-
-        while (index < getText().toString().length())
-        {
-            int lastIndex = index;
-            index += new TextPaint().breakText(getText().toString(), index, getText().toString().length(), true, getMeasuredWidth(), null);
-            lines.add(getText().toString().substring(lastIndex, index));
-            lineCount++;
-        }
-        if (lines.size() == 1)
-        {
-            drawText(canvas, lines.get(0), 0 , lines.get(0).length(), pointSize, yPos, getPaint());
-            return;
-        }
-
-        for (String text : lines)
-            drawText(canvas, text, 0 , text.length(), pointSize, yPos, getPaint());
-*/
-
-
     }
 
     @Override

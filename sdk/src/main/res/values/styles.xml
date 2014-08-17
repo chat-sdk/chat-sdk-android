@@ -56,7 +56,6 @@
     <!--Row Margins-->
     <style name="RowStyle">
         <item name="android:padding">7dp</item>
-
     </style>
 
     <!--<item name="android:layout_marginTop">8dp</item>-->

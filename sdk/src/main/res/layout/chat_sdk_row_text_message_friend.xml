@@ -2,10 +2,9 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
-    android:id="@+id/layout_friend">
+    android:id="@+id/chat_sdk_root_view_text_friend">
 
     <de.hdodenhof.circleimageview.CircleImageView
         style="@style/CircleIconStyle"
@@ -23,33 +22,31 @@
         android:layout_toRightOf="@+id/img_user_image"
         android:layout_centerVertical="true"
         android:orientation="horizontal">
-
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-   <!--         <TextView
+            android:orientation="horizontal"
+            android:background="@drawable/bubble_left">
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Messahe texx"
                 android:layout_centerVertical="true"
                 android:id="@+id/txt_content"
-                android:padding="12dp"
-                android:layout_marginLeft="7dp"
-                style="@style/TextViewStyle"/>-->
-
-            <com.braunster.chatsdk.view.ChatBubbleTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:padding="6dp"
-                app:bubble_gravity="left"
-                android:id="@+id/txt_content"
+                android:padding="7dp"
+                android:layout_marginLeft="3dp"
                 style="@style/TextViewStyle"/>
-
             </FrameLayout>
 
+<!--        <com.braunster.chatsdk.view.ChatBubbleTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:padding="6dp"
+            app:bubble_gravity="left"
+            android:id="@+id/txt_content"
+            style="@style/TextViewStyle"/>-->
     </LinearLayout>
 
     <TextView

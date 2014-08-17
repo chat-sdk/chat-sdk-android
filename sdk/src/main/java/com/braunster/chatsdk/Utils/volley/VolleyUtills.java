@@ -1,10 +1,10 @@
 package com.braunster.chatsdk.Utils.volley;
 
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -20,7 +20,7 @@ import com.android.volley.toolbox.Volley;
 public class VolleyUtills {
     private static RequestQueue mRequestQueue;
     private static ImageLoader mImageLoader;
-
+    private static BitmapCache bitmapCache;
 
     private VolleyUtills() {
         // no instances
@@ -30,13 +30,16 @@ public class VolleyUtills {
     public static void init(Context context) {
         mRequestQueue = Volley.newRequestQueue(context);
 
-        int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-                .getMemoryClass();
-        // Use 1/6th of the available memory for this memory cache.
-        int cacheSize = 1024 * 1024 * memClass / 6;
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        int cacheSize = maxMemory / 16 ;
         mRequestQueue.start();
 
-        mImageLoader = new ImageLoader(mRequestQueue, new BitmapCache(cacheSize));
+        Log.d("", "Cache Size: " + cacheSize);
+
+        bitmapCache = new BitmapCache(cacheSize);
+        mImageLoader = new ImageLoader(mRequestQueue, bitmapCache);
 
     }
 
@@ -65,6 +68,10 @@ public class VolleyUtills {
         }
     }
 
+    public static BitmapCache getBitmapCache() {
+        return bitmapCache;
+    }
+
     public static class BitmapCache extends LruCache<String, Bitmap> implements ImageLoader.ImageCache {
         public BitmapCache(int maxSize) {
             super(maxSize);
@@ -90,6 +97,12 @@ public class VolleyUtills {
         @Override
         public void putBitmap(String url, Bitmap bitmap) {
             put(url, bitmap);
+        }
+
+        @Override
+        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+            super.entryRemoved(evicted, key, oldValue, newValue);
+            Log.i("", "Entry removed: "  +key);
         }
     }
 }
