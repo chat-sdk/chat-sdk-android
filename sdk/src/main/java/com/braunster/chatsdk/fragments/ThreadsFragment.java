@@ -22,6 +22,7 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
@@ -135,6 +136,12 @@ public class ThreadsFragment extends BaseFragment {
                 handler.sendMessage(message);
             }
         }).start();
+    }
+
+    @Override
+    public void refreshForEntity(Entity entity) {
+        super.refreshForEntity(entity);
+        adapter.replaceOrAddItem((BThread) entity);
     }
 
     private Handler handler = new Handler(Looper.getMainLooper()){

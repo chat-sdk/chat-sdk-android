@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -223,9 +224,12 @@ public class LocationActivity extends FragmentActivity
     }
 
     private void setLocation(LatLng location){
-        map.moveCamera(CameraUpdateFactory.newLatLng(location));
-
-        map.animateCamera(CameraUpdateFactory.zoomBy(calculateZoomLevel(findViewById(R.id.map).getWidth())));
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(location)      // Sets the center of the map to Mountain View
+                .zoom(13)                   // Sets the zoom
+                .build();
+                            // Creates a CameraPosition from the builder
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
@@ -261,7 +265,6 @@ public class LocationActivity extends FragmentActivity
 
     @Override
     public void onLocationChanged(Location location) {
-//        Toast.makeText(LocationActivity.this, "Location Changed", Toast.LENGTH_SHORT).show();
         setLocation(location);
     }
 

@@ -3,6 +3,7 @@ package com.braunster.chatsdk.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +14,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -163,6 +167,43 @@ public class ThreadsListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public ThreadListItem replaceOrAddItem(BThread thread){
+        boolean replaced = false, exist = false;
+        ThreadListItem item = ThreadListItem.fromBThread(thread);
+
+        for (int i = 0 ; i <listData.size() ; i++)
+        {
+            if (listData.get(i).entityId.equals(thread.getEntityID()))
+            {
+                exist = true;
+                if (ThreadListItem.compare(item, listData.get(i)))
+                {
+                    listData.set(i, item);
+                    replaced = true;
+                }
+                else
+                {
+                    replaced = false;
+                }
+            }
+        }
+
+        if (!exist)
+            listData.add(ThreadListItem.fromBThread(thread));
+
+        if (replaced || !exist) {
+            if (DEBUG) Log.d(TAG, "Notify!, " + (replaced?"Replaced":!exist?"Not Exist":""));
+            sort();
+            notifyDataSetChanged();
+        }
+
+        return item;
+    }
+
+    private void sort(){
+        Collections.sort(listData, new ThreadsItemSorter());
+    }
+
     public List<ThreadListItem> getListData() {
         return listData;
     }
@@ -185,24 +226,68 @@ public class ThreadsListAdapter extends BaseAdapter {
         }
 
         public static ThreadListItem fromBThread(BThread thread){
-            String[] data = getLastMessageTextAndDate(thread);
+            String[] data = new String[2];
 
-            String url  = thread.threadImageUrl();
+            getLastMessageTextAndDate(thread, data);
 
-            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(thread.displayName()) ? "No name." : thread.displayName(), data[1], thread.getLastMessageAdded(), data[0], url, thread.getUsers().size());
+            List<BUser> users = thread.getUsers();
+            String url  = thread.threadImageUrl(users);
+
+            String displayName = thread.displayName(users);
+
+            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(displayName) ? "No name." : displayName, data[1], thread.getLastMessageAdded(), data[0], url, users.size());
         }
 
         public static List<ThreadListItem> makeList(List<BThread> threads){
             List<ThreadListItem > list = new ArrayList<ThreadListItem>();
 
-            for (BThread thread : threads)
-                list.add(fromBThread(thread));
+            TimingLogger logger = new TimingLogger(TAG, "makeList");
 
+            int count= 0;
+            for (BThread thread : threads)
+            {
+                count++;
+                logger.addSplit("fromThread" + count);
+                list.add(fromBThread(thread));
+            }
+
+            logger.dumpToLog();
+            logger.reset(TAG, "makeList");
             return list;
         }
 
-        private static String[] getLastMessageTextAndDate(BThread thread){
-            String[] data = new String[2];
+        public static boolean compare(ThreadListItem newThread , ThreadListItem oldThread){
+
+            if (newThread.getLastMessageDate() == null || oldThread.getLastMessageDate() == null)
+                return true;
+
+            if (newThread.getLastMessageDate().getTime() > oldThread.getLastMessageDate().getTime()) {
+                if (DEBUG) Log.d(TAG, "compare, Date");
+                return true;
+            }
+
+            if (!newThread.name.equals(oldThread.name))
+            {
+                if (DEBUG) Log.d(TAG, "compare, Name");
+                return true;
+            }
+
+            if (newThread.getUsersAmount() != oldThread.getUsersAmount())
+            {
+                if (DEBUG) Log.d(TAG, "compare, Users");
+                return true;
+            }
+
+            if (StringUtils.isEmpty(newThread.imageUrl) && StringUtils.isEmpty(oldThread.imageUrl))
+            {
+                if (DEBUG) Log.d(TAG, "compare false, Empty");
+                return false;
+            }
+
+            return !newThread.imageUrl.equals(oldThread.imageUrl);
+        }
+
+        private static String[] getLastMessageTextAndDate(BThread thread, String[] data){
             List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
             // If no message create dummy message.

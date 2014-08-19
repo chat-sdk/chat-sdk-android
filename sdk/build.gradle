@@ -16,6 +16,11 @@ android {
 //            runProguard false
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 //        }
+        debug {
+            runProguard true
+            proguardFile 'proguard-android.txt'
+            zipAlign true
+        }
     }
 
     productFlavors {
@@ -30,7 +35,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //Google Play Services - For Google Maps
-    compile 'com.google.android.gms:play-services:4.4.+'
+    compile 'com.google.android.gms:play-services:5.0.+'
     // Support Library.
     compile 'com.android.support:appcompat-v7:19.+'
     // Volley - Networking library from google.

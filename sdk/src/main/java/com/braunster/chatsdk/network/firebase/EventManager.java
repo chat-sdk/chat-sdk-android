@@ -31,9 +31,10 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +78,7 @@ public class EventManager implements AppEvents {
 
         return instance;
     }
+    private final EventHandler handler = new EventHandler(this);
 
     private EventManager(){
 
@@ -85,7 +87,14 @@ public class EventManager implements AppEvents {
     /*TODO Events first triggered the the specific event listeners saved in the list's.
     *  If one of those events return true then the event wont trigger any AppEventListener. */
 
-    Handler handler = new Handler(Looper.getMainLooper()){
+    static class EventHandler extends Handler{
+        WeakReference<EventManager> manager;
+
+        public EventHandler(EventManager manager){
+            super(Looper.getMainLooper());
+            this.manager = new WeakReference<EventManager>(manager);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -93,29 +102,38 @@ public class EventManager implements AppEvents {
             switch (msg.what)
             {
                 case AppEvents.USER_DETAILS_CHANGED:
-                    onUserDetailsChange((BUser) msg.obj);
+                    if (notNull())
+                        manager.get().onUserDetailsChange((BUser) msg.obj);
                     break;
 
                 case AppEvents.MESSAGE_RECEIVED:
-                    onMessageReceived((BMessage) msg.obj);
+                    if (notNull())
+                        manager.get().onMessageReceived((BMessage) msg.obj);
                     break;
 
                 case AppEvents.THREAD_DETAILS_CHANGED:
-                    onThreadDetailsChanged((String) msg.obj);
+                    if (notNull())
+                        manager.get().onThreadDetailsChanged((String) msg.obj);
                     break;
 
                 case AppEvents.USER_ADDED_TO_THREAD:
-                    onUserAddedToThread(msg.getData().getString(THREAD_ID), msg.getData().getString(USER_ID));
+                    if (notNull())
+                        manager.get().onUserAddedToThread(msg.getData().getString(THREAD_ID), msg.getData().getString(USER_ID));
                     break;
             }
         }
-    } ;
+
+        private boolean notNull(){
+            return manager.get() != null;
+        }
+    }
 
     @Override
     public boolean onUserAddedToThread(String threadId, final String userId) {
         post(new Runnable() {
             @Override
             public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 handleUsersDetailsChange(userId);
             }
         });
@@ -145,13 +163,11 @@ public class EventManager implements AppEvents {
         for (Event ae : eventsList)
             ae.onUserDetailsChange(user);
 
-
         return false;
     }
 
     @Override
     public boolean onMessageReceived(BMessage message) {
-
         for (MessageEventListener me : messageEventList)
         {
             // We check to see if the listener specified a specific thread that he wants to listen to.
@@ -175,6 +191,7 @@ public class EventManager implements AppEvents {
         post(new Runnable() {
             @Override
             public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 // Also listen to the thread users
                 // This will allow us to update the users in the database
                 handleUsersAddedToThread(threadId);
@@ -381,29 +398,19 @@ public class EventManager implements AppEvents {
 
         List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
-        Date startDate = null;
-
         // If the message exists we only listen for newer messages
         if (messages.size() > 0)
         {
-            startDate = messages.get(0).getDate();
-            if (DEBUG) Log.d(TAG, "Fetching messages, Starting at: " + startDate.getTime() + ", Msg Text: " + messages.get(0).getText());
-
             // The plus 1 is needed so we wont receive the last message again.
-            messagesQuery = messagesQuery.startAt(startDate.getTime() + 1).limit(BDefines.MAX_MESSAGES_TO_PULL);
+            messagesQuery = messagesQuery.startAt(messages.get(0).getDate().getTime() + 1).limit(BDefines.MAX_MESSAGES_TO_PULL);
         }
         else
         {
             if (DEBUG) Log.d(TAG, "No Messages");
-            startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
-
+//            startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
 
             // The plus 1 is needed so we wont receive the last message again.
             messagesQuery = messagesQuery.limit(BDefines.MAX_MESSAGES_TO_PULL);
-
-            /*startDate = [thread.lastMessageAdded dateByAddingTimeInterval:-bDays * 7];
-            // TODO: Remove this
-            startDate = [[NSDate date] dateByAddingTimeInterval:-bHours];*/
         }
 
         IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
@@ -431,56 +438,73 @@ public class EventManager implements AppEvents {
 
             final FirebasePaths threadRef = FirebasePaths.threadRef(threadID);
 
+
             // Add an observer to the thread details so we get
             // updated when the thread details change
             // When a thread details change a listener for added users is assign to the thread(If not assigned already).
             // For each added user a listener will be assign for his details change.
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    handleThreadDetails(threadID, threadRef);
-                }
-            });
-
+            handleThreadDetails(threadID, threadRef);
         }
         else if (DEBUG) Log.e(TAG, "Thread is already handled..");
     }
 
-    public void observeUser(BUser user){
+    public void observeUser(final BUser user){
+
+/*        post(new Runnable() {
+            @Override
+            public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
+            }
+        });*/
+
         FirebasePaths.userRef(user.getEntityID())
                 .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
                 .addChildEventListener(threadAddedListener);
 
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
 
-        for (BUser contact : user.getContacts())
-            handleUsersDetailsChange(contact.getEntityID());
+        post(new Runnable() {
+            @Override
+            public void run() {
+                for (BUser contact : user.getContacts())
+                    handleUsersDetailsChange(contact.getEntityID());
+            }
+        });
+
     }
 
     private ChildEventListener threadAddedListener = new ChildEventListener() {
         @Override
         public void onChildAdded(final DataSnapshot snapshot, String s) {
-            if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (DEBUG) Log.i(TAG, "Thread is added. SnapShot Ref: " + snapshot.getRef().toString());
+                    /*android.os.Process.getThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);*/
 
-            String threadFirebaseID;
-            BPath path = BPath.pathWithPath(snapshot.getRef().toString());
-            if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
-                threadFirebaseID = path.idForIndex(0);
-            else threadFirebaseID = path.idForIndex(1);
+                    String threadFirebaseID;
+                    BPath path = BPath.pathWithPath(snapshot.getRef().toString());
+                    if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
+                        threadFirebaseID = path.idForIndex(0);
+                    else threadFirebaseID = path.idForIndex(1);
 
-            if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
+                    if (DEBUG) Log.i(TAG, "Thread is added, Thread EntityID: " + threadFirebaseID);
 
-            if (!isListeningToThread(threadFirebaseID))
-            {
-                // Load the thread from firebase only if he is not exist.
-                // There is no reason to load if exist because the event manager will collect all the thread data.
-                if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
-                    BFirebaseInterface.objectFromSnapshot(snapshot);
+                    if (!isListeningToThread(threadFirebaseID))
+                    {
+                        // Load the thread from firebase only if he is not exist.
+                        // There is no reason to load if exist because the event manager will collect all the thread data.
+                        if (threadFirebaseID != null && DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.EntityID, threadFirebaseID) == null)
+                            BFirebaseInterface.objectFromSnapshot(snapshot);
 
-                handleThread(threadFirebaseID);
+                        handleThread(threadFirebaseID);
 
-                onThreadIsAdded(threadFirebaseID);
-            }
+                        onThreadIsAdded(threadFirebaseID);
+                    }
+                }
+            });
+
         }
 
         //region Not used.
@@ -568,8 +592,11 @@ public class EventManager implements AppEvents {
 
         FirebaseEventCombo combo;
 
-        for (String key : Keys)
+        Iterator<String> iter = Keys.iterator();
+        String key;
+        while (iter.hasNext())
         {
+            key = iter.next();
             if (DEBUG) Log.d(TAG, "Removing listener, Key: " + key);
 
             combo = listenerAndRefs.get(key);
@@ -621,13 +648,12 @@ public class EventManager implements AppEvents {
     }
 
     private void post(Runnable runnable){
-        handler.postDelayed(runnable, 0);
+        Executor.getInstance().execute(runnable);
     }
 
     public static class Executor {
-
         // Sets the amount of time an idle thread waits before terminating
-        private static final int KEEP_ALIVE_TIME = 1;
+        private static final int KEEP_ALIVE_TIME = 20;
         // Sets the Time Unit to seconds
         private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
@@ -638,6 +664,8 @@ public class EventManager implements AppEvents {
          */
         private static int NUMBER_OF_CORES =
                 Runtime.getRuntime().availableProcessors();
+
+        private static int MAX_THREADS = 15;
 
         private ThreadPoolExecutor threadPool;
 
@@ -653,7 +681,7 @@ public class EventManager implements AppEvents {
             // Creates a thread pool manager
             threadPool = new ThreadPoolExecutor(
                     NUMBER_OF_CORES,       // Initial pool size
-                    NUMBER_OF_CORES,       // Max pool size
+                    MAX_THREADS,       // Max pool size
                     KEEP_ALIVE_TIME,
                     KEEP_ALIVE_TIME_UNIT,
                     workQueue);

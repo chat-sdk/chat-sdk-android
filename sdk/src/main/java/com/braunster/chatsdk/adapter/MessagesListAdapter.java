@@ -17,7 +17,6 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -67,6 +66,7 @@ public class MessagesListAdapter extends BaseAdapter{
     private List<MessageListItem> listData = new ArrayList<MessageListItem>();
 
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+    private List<String> cacheKeys = new ArrayList<String>();
 
     private long userID = 0;
 
@@ -244,32 +244,32 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     /** @return true if the item is added to the list.*/
-    public boolean addRow(MessageListItem data){
+    public boolean addRow(MessageListItem newItem){
         if (DEBUG) Log.d(TAG, "AddRow");
 
         // Bad data.
-        if (data == null)
+        if (newItem == null)
             return false;
 
         // Dont add message that does not have entity id and the status of the message is not sending.
-        if (data.entityId == null && data.status != BMessage.Status.SENDING)
+        if (newItem.entityId == null && newItem.status != BMessage.Status.SENDING)
         {
-            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + data.text);
+            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + newItem.text);
             return false;
         }
 
         // Check for duplicates, And update the message status if its already exist.
         for (MessageListItem item : listData)
         {
-            if (item.entityId != null && item.entityId.equals(data.entityId) || item.id == data.id)
+            if (item.entityId != null && item.entityId.equals(newItem.entityId) || item.id == newItem.id)
             {
-                item.status = data.status;
+                item.status = newItem.status;
                 notifyDataSetChanged();
                 return false;
             }
         }
 
-        listData.add(data);
+        listData.add(newItem);
 
         notifyDataSetChanged();
 
@@ -283,6 +283,15 @@ public class MessagesListAdapter extends BaseAdapter{
     public void setListData(List<MessageListItem> listData) {
         this.listData = listData;
         notifyDataSetChanged();
+    }
+
+    public void clear(){
+        listData.clear();
+        notifyDataSetChanged();
+    }
+
+    public List<String> getCacheKeys() {
+        return cacheKeys;
     }
 
     public List<MessageListItem> getListData() {
@@ -328,6 +337,34 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Loading the url.
         final ChatBubbleImageView2.LoadDone loadDone = new ChatBubbleImageView2.LoadDone() {
+            //region Animation
+/*            private void animate(){
+
+                image.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fade_in_expand));
+                image.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                image.animate();
+            }
+
+            private void cancelAnimation(){
+
+            }*/
+            //endregion
+
             @Override
             public void onDone() {
                 if (progressBar.getVisibility() == View.VISIBLE) {
@@ -359,23 +396,13 @@ public class MessagesListAdapter extends BaseAdapter{
             params.height = message.dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
 
+            cacheKeys.add(VolleyUtills.BitmapCache.getCacheKey(message.url, 0, 0));
             image.loadFromUrl(message.url, loadDone);
-        }
-        else
-        {
-            final int finalColor = bubbleColor;
-            progressBar.post(new Runnable() {
-                @Override
-                public void run() {
-                    /*FIXME due to old data in firebase this is needed.*/
-                    image.loadFromUrl(message.url, loadDone);
-                }
-            });
-
         }
 
         return image;
     }
+
 
     /** Click listener for an image view, A dialog that show the image will show for each click.*/
     public class showImageDialogClickListener implements View.OnClickListener{
@@ -387,12 +414,10 @@ public class MessagesListAdapter extends BaseAdapter{
             // Show the location image.
             if (v.getTag() != null)
             {
-                        /*FIXME due to old data in firebase this is needed.*/
                 String url;
                 String [] urls = ((String) v.getTag()).split(BDefines.DIVIDER);
                 url = urls[0];
 
-                Toast.makeText(mActivity, "Urls: " + urls.length, Toast.LENGTH_LONG).show();
                 DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
                             showAtLocation(v, Gravity.CENTER, 0, 0);
             }
@@ -411,10 +436,6 @@ public class MessagesListAdapter extends BaseAdapter{
         public void onClick(View v) {
             String[] loc = ((String)v.getTag()).split(BDefines.DIVIDER);
 
-            /*FIXME due to old data*/
-            if (loc.length == 1)
-                loc = ((String)v.getTag()).split("&");
-
             openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
         }
         private void openLocationInGoogleMaps(Double latitude, Double longitude){
@@ -432,12 +453,12 @@ public class MessagesListAdapter extends BaseAdapter{
         return MessageListItem.makeList(mActivity, userID, list);
     }
 
-    static class MessageListItem{
+    public static class MessageListItem{
         private String entityId, profilePicUrl, time, text, textColor;
         private int type, status, color, rowType;
         private long sender;
         private long id;
-        private int[] dimensions;
+        private int[] dimensions = null;
         private String url;
 
         private MessageListItem(long id, String entityId, int type, int rowType, int status,
@@ -485,9 +506,18 @@ public class MessagesListAdapter extends BaseAdapter{
 
             int maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
 
+            MessageListItem i;
             for (BMessage message : messages)
                 if (message.getEntityID() != null)
-                    list.add(fromBMessage(message, userID, maxWidth));
+                {
+                    i = fromBMessage(message, userID, maxWidth);
+
+                    /*Fixme Due to old data*/
+                    if (i.type != BMessage.Type.TEXT && i.dimensions == null)
+                        continue;
+
+                    list.add(i);
+                }
 
             // We need to reverse the list so the newest data would be on the top again.
             Collections.reverse(list);
@@ -621,8 +651,11 @@ public class MessagesListAdapter extends BaseAdapter{
                 dimensions = ImageUtils.getDimentionsFromString(data[data.length - 1]);
                 dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
 
+                if (dimensions.length != 2)
+                    dimensions = null;
+
                 if (DEBUG) Log.d(TAG, "dim: " + dimensions[0] + ", " + dimensions[1]);
-            }catch (Exception e){}
+            }catch (Exception e){  dimensions = null;}
         }
 
         private int getColor(){

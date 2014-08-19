@@ -578,8 +578,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         // Obtaining the simple login object from the ref.
         SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef(), context);
-
-        // TODO check why the online flag does not change after logout.
         // Login out
         FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(currentUser().getEntityID());
         userOnlineRef.setValue(false);
@@ -1015,7 +1013,7 @@ TODO
             for (BThread t : currentUser.getThreads())
             {
                 // Skipping public threads.
-                if (t.getType() == BThreadEntity.Type.Public)
+                if (t.getType() == null || t.getType() == BThreadEntity.Type.Public)
                     continue;
 
                 threadusers = t.getUsers();

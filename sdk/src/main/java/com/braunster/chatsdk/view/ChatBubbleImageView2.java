@@ -259,7 +259,7 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
 
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float pixels) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-                .getHeight(), Bitmap.Config.RGB_565);
+                .getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final int color = 0xff424242;

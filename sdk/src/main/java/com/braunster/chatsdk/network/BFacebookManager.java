@@ -144,7 +144,7 @@ public class BFacebookManager {
 
     public static void getUserDetails(final CompletionListenerWithData<GraphUser> listenerWithData){
         if (DEBUG) Log.v(TAG, "getUserDetails, Sessios State: " + Session.getActiveSession().getState().isOpened() + " isAuth: " + isAuthenticated());
-        if (Session.getActiveSession().getState().isOpened() && isAuthenticated())
+        if (Session.getActiveSession().getState().isOpened())
         {
             // Request user data and show the results
             Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback()
@@ -160,8 +160,7 @@ public class BFacebookManager {
                         }
                         catch (Exception e)
                         {
-                            e.printStackTrace();
-                            listenerWithData.onDoneWithError(new BError(BError.Code.EXCEPTION, e));
+                            listenerWithData.onDoneWithError(BError.getExceptionError(e));
                         }
 
                     }

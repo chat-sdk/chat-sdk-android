@@ -57,10 +57,12 @@ public class UiUtils {
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+
         if (inputMethodManager == null)
             return;
 
-        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        if (activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null)
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
 }

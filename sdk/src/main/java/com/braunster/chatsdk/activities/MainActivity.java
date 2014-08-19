@@ -23,12 +23,16 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.io.File;
@@ -80,7 +84,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -93,43 +96,50 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume");
 
-        EventManager.getInstance().removeEventByTag(appEventListener.getTag());
-        EventManager.getInstance().addEventIfNotExist(appEventListener);
-
-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            private int lastPage = 0;
-            private int refreshContactsInterval = 4000;
-            private long lastContactsRefresh = 0;
-
+        ChatSDKThreadPool.getInstance().execute(new Runnable() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            public void run() {
+                EventManager.getInstance().removeEventByTag(appEventListener.getTag());
+                EventManager.getInstance().addEventIfNotExist(appEventListener);
+
+                tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                    private int lastPage = 0;
+                    private int refreshContactsInterval = 4000;
+                    private long lastContactsRefresh = 0;
+
+                    @Override
+                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 //                if (DEBUG) Log.v(TAG, "onPageScrolled");
-            }
+                    }
 
-            @Override
-            public void onPageSelected(int position) {
-                if (DEBUG) Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
+                    @Override
+                    public void onPageSelected(int position) {
+                        if (DEBUG)
+                            Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
 
-                // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
-                if (lastPage == PagerAdapterTabs.Profile)
-                    ((ProfileFragment) getFragment(PagerAdapterTabs.Profile)).updateProfileIfNeeded();
+                        // If the user leaves the profile page check tell the fragment to update index and metadata if needed.
+                        if (lastPage == PagerAdapterTabs.Profile)
+                            ((ProfileFragment) getFragment(PagerAdapterTabs.Profile)).updateProfileIfNeeded();
 
-                pageAdapterPos = position;
+                        pageAdapterPos = position;
 
-                lastPage = position;
-            }
+                        lastPage = position;
+                    }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
 //                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
+                    }
+                });
+
+                IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
+                intentFilter.addAction(Action_Logged_Out);
+                intentFilter.addAction(Action_Refresh_Fragment);
+
+                registerReceiver(mainReceiver, intentFilter);
             }
         });
 
-        IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
-        intentFilter.addAction(Action_Logged_Out);
-        intentFilter.addAction(Action_Refresh_Fragment);
-
-        registerReceiver(mainReceiver, intentFilter);
     }
 
     @Override
@@ -149,8 +159,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private AppEventListener appEventListener = new AppEventListener("MainActivity") {
-        private final int uiUpdateDelay = 3000;
-        private UIUpdater uiUpdaterDetailsChanged, uiUpdaterThreadDetailsChangedPublic, uiUpdaterThreadDetailsChangedPrivate, uiUpdaterMessages;
+        private final int uiUpdateDelay = 1000, messageDelay = 3000;
+        private UIUpdater uiUpdaterDetailsChanged,
+                uiUpdaterThreadDetailsChangedPublic,
+                uiUpdaterThreadDetailsChangedPrivate,
+                uiUpdaterMessages,
+                uiUpdateContact;
 
         @Override
         public boolean onThreadDetailsChanged(final String threadId) {
@@ -160,6 +174,7 @@ public class MainActivity extends BaseActivity {
 
             BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
 
+//            updateThread(thread);
             updateForThread(thread);
             return false;
         }
@@ -167,12 +182,39 @@ public class MainActivity extends BaseActivity {
         @Override
         public boolean onUserAddedToThread(String threadId, String userId) {
             if (DEBUG) Log.v(TAG, "onUserAddedToThread");
+            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+
+            if (thread.getType() != null && thread.getType() != BThreadEntity.Type.Public)
+            {
+
+
+                if (uiUpdateContact != null)
+                    uiUpdateContact.setKilled(true);
+
+                handler.removeCallbacks(uiUpdateContact);
+
+                uiUpdateContact = new UIUpdater(){
+                    @Override
+                    public void run() {
+                        if (DEBUG) Log.d(TAG, "Run");
+                        if (!isKilled())
+                        {
+                            BaseFragment contacs = getFragment(PagerAdapterTabs.Contacts);
+                            if (contacs!=null)
+                                contacs.loadDataOnBackground();
+                        }
+                    }
+                };
+
+                handler.postDelayed(uiUpdateContact, uiUpdateDelay);
+
+            }
             return false;
         }
 
         @Override
         public boolean onUserDetailsChange(BUser user) {
-            if (DEBUG) Log.v(TAG, "onUserDetailsChange");
+            if (DEBUG) Log.v(TAG, "onUserDetailsChange, UserName: " + user.getMetaName());
 
             if (uiUpdaterDetailsChanged != null)
                 uiUpdaterDetailsChanged.setKilled(true);
@@ -208,9 +250,10 @@ public class MainActivity extends BaseActivity {
         public boolean onMessageReceived(final BMessage message) {
             if (DEBUG) Log.v(TAG, "onMessageReceived");
 
-            // Only notify for private threads.
-            updateForThread(message.getBThreadOwner());
+//            updateThread(message.getBThreadOwner());
+              updateForThread(message.getBThreadOwner());
 
+            // Only notify for private threads.
             if (message.getBThreadOwner().getType() == BThread.Type.Public) {
                 return true;
             }
@@ -239,9 +282,27 @@ public class MainActivity extends BaseActivity {
                 }
             };
 
-            handler.postDelayed(uiUpdaterMessages, uiUpdateDelay);
+            handler.postDelayed(uiUpdaterMessages, messageDelay);
 
             return false;
+        }
+
+        private void updateThread(final BThread thread){
+            if (DEBUG) Log.v(TAG, "updateThread, Name: " + thread.displayName());
+
+            BaseFragment fragment = null;
+            if (thread.getType() == BThread.Type.Private)
+            {
+                if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().equals(thread.getCreator()) || thread.getMessages().size() > 0)
+                    fragment = getFragment(PagerAdapterTabs.Conversations);
+            }
+            else if (thread.getType() == BThread.Type.Public)
+            {
+                fragment = getFragment(PagerAdapterTabs.ChatRooms);
+            }
+
+            if (fragment != null)
+                fragment.refreshForEntity(thread);
         }
 
         private void updateForThread(BThread thread){
@@ -296,7 +357,7 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    Handler handler = new Handler();
+    static final Handler handler = new Handler();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -330,6 +391,19 @@ public class MainActivity extends BaseActivity {
         if (item.getItemId() == R.id.android_settings) {
             DaoCore.printUsersData();
             EventManager.getInstance().printDataReport();
+            DaoCore.daoSession.clear();
+
+            BNetworkManager.sharedManager().getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
+                @Override
+                public void onDone(Boolean aBoolean) {
+                    showAlertToast("Online: " + aBoolean);
+                }
+
+                @Override
+                public void onDoneWithError(BError error) {
+
+                }
+            });
 //            EventManager.getInstance().removeAll();
             return true;
         }

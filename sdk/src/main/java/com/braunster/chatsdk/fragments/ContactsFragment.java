@@ -30,6 +30,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
 
 import java.util.List;
 
@@ -273,12 +274,11 @@ public class ContactsFragment extends BaseFragment {
             return;
         }
 
-        new Thread(new Runnable() {
+        ChatSDKThreadPool.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 // If this is not a dialog we will load the contacts of the user.
-                switch (loadingMode)
-                {
+                switch (loadingMode) {
                     case MODE_LOAD_CONTACTS:
                         if (DEBUG) Log.d(TAG, "Mode - Contacts");
                         sourceUsers = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
@@ -302,7 +302,7 @@ public class ContactsFragment extends BaseFragment {
 
                 handler.sendEmptyMessage(1);
             }
-        }).start();
+        });
     }
 
     @Override

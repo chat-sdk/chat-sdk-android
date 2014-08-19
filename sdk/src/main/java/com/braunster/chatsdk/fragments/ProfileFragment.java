@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -80,6 +81,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
     private Bundle savedState;
     private CircleImageView profileCircleImageView;
+    private ProgressBar progressBar;
 
     private Integer loginType;
 
@@ -164,6 +166,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
         }
 
+        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
         etName = (EditText) mainView.findViewById(R.id.chat_sdk_et_name);
         etMail = (EditText) mainView.findViewById(R.id.chat_sdk_et_mail);
         etPhone = (EditText) mainView.findViewById(R.id.chat_sdk_et_phone_number);
@@ -432,6 +435,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     }
 
     private void loadProfilePic(int loginType){
+        profileCircleImageView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         switch (loginType)
         {
             case BDefines.BAccountType.Facebook:
@@ -464,9 +469,16 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 public void run() {
                     int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
                     profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
+                    progressBar.setVisibility(View.GONE);
+                    profileCircleImageView.setVisibility(View.VISIBLE);
                 }
             });
-        } else profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
+        } else
+        {
+            profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
+            progressBar.setVisibility(View.GONE);
+            profileCircleImageView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setProfilePicFromURL(String url){
@@ -488,7 +500,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Image Load Error: " + error.getMessage());
+                if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+                setInitialsProfilePic();
             }
         });
     }
@@ -550,9 +563,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 @Override
                 public void onDone(GraphUser graphUser) {
                     Log.d(TAG, "Name: " + graphUser.getName());
-                    //                etName.setText(graphUser.getName());
-                    //                etMail.setText((String) graphUser.getProperty("email"));
-                    //                //                profilePictureView.setProfileId(graphUser.getId());
+
                     VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
                             new ImageLoader.ImageListener() {
                                 @Override
@@ -566,6 +577,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
+                                    setInitialsProfilePic();
                                     showToast("Unable to load user profile pic.");
                                 }
                             });
@@ -573,7 +585,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                 @Override
                 public void onDoneWithError(BError error) {
-                    showToast("Unable to fetch user details from fb");
+                    setInitialsProfilePic();
+                    showToast("Unable to fetch user details from fb" + (error != null ? error.code == BError.Code.EXCEPTION ? error.message : "" : ""));
                 }
             });
         }
@@ -606,6 +619,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                setInitialsProfilePic();
                                 showToast("Unable to load user profile pic.");
                             }
                         }

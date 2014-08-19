@@ -53,6 +53,12 @@
         <item name="border_color">@android:color/black</item>
     </style>
 
+    <!--Rounded corner image view style-->
+    <style name="RoundedCornerImageViewStyle">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+    </style>
+
     <!--Row Margins-->
     <style name="RowStyle">
         <item name="android:padding">7dp</item>

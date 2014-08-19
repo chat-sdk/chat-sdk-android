@@ -1,7 +1,5 @@
 package com.braunster.chatsdk.Utils.sorter;
 
-import android.util.Log;
-
 import com.braunster.chatsdk.dao.BThread;
 
 import java.util.Comparator;
@@ -24,19 +22,16 @@ public class ThreadsSorter implements Comparator<BThread> {
 
     @Override
     public int compare(BThread t1, BThread t2) {
-        /*FIXME handle nulls*/
         Date x, y;
         if (t1.lastMessageAdded() == null)
         {
             x = new Date();
-            Log.d("SSSS", "ThreadName: " + t1.displayName());
         }
         else x = t1.lastMessageAdded();
 
         if(t2.lastMessageAdded() == null)
         {
             y = new Date();
-            Log.d("SSSS", "ThreadName: " + t2.displayName());
         } else y = t2.lastMessageAdded();
 
             if (order == ORDER_TYPE_ASC)

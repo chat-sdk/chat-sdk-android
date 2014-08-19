@@ -13,6 +13,8 @@ public class FirebasePaths extends Firebase{
     public static final String FIREBASE_PATH = "https://incandescent-fire-3147.firebaseio.com/";
 //    public static final String FIREBASE_PATH = "https://chat-sdk-android-2.firebaseio.com/";
 
+    private StringBuilder builder = new StringBuilder();
+
     private  FirebasePaths firebaseRef;
 
     private FirebasePaths(String url) {
@@ -34,7 +36,8 @@ public class FirebasePaths extends Firebase{
     /** @return Firebase object for the base path of firebase + the component given..*/
     public FirebasePaths appendPathComponent(String component){
         /* Im pretty sure that this is what you wanted*/
-        return fb(this.toString() + "/" + component);
+        builder = new StringBuilder(this.toString()).append("/").append(component);
+        return fb(builder.toString());
     }
 
     /* Users */

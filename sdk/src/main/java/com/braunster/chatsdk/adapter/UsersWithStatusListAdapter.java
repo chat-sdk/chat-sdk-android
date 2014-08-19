@@ -46,7 +46,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     private static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
 
     private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
-
+    private List<UserListItem> online = new ArrayList<UserListItem>(), offline = new ArrayList<UserListItem>();
     //View
     private View row;
     private boolean isMultiSelect = false;
@@ -215,7 +215,6 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     public boolean isEnabled(int position) {
         return getItemViewType(position) == TYPE_USER;
     }
-
 
     public void addRow(UserListItem user){
 

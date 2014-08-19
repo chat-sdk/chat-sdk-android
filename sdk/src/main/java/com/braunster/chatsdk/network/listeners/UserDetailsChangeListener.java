@@ -46,8 +46,6 @@ public class UserDetailsChangeListener extends FirebaseGeneralEvent {
                     handler.sendMessage(message);
                 }
             });
-
-//        EventManager.getInstance().onThreadDetailsChanged(thread);
     }
 
     @Override

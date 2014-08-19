@@ -13,6 +13,7 @@ public class BError {
 
     public BError(int code){
         this.code = code;
+        this.message = Message.getMessageForCode(code);
     }
 
     public BError(int code, String message){
@@ -23,6 +24,7 @@ public class BError {
     public BError(int code, Object tag){
         this.code = code;
         this.tag = tag;
+        this.message = Message.getMessageForCode(code);
     }
 
     public BError(int code, String message, Object tag){
@@ -45,7 +47,7 @@ public class BError {
     }
 
     public static BError getExceptionError(Exception e){
-        return new BError(Code.EXCEPTION, e);
+        return new BError(Code.EXCEPTION, e.getMessage(), e);
     }
 
     public static BError getExceptionError(Exception e, String message){

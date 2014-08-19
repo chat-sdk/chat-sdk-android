@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -343,7 +344,14 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
             public boolean onMainFinised(BThread bThread, Object o) {
                 if (o != null)
                 {
-                    Toast.makeText(BaseActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                    if (checkIfOnMainThread())
+                        Toast.makeText(BaseActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                    else BaseActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(BaseActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     return true;
                 }
 
@@ -365,12 +373,28 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
 
                 dismissProgDialog();
 
-                if (thread != null)
-                {
-                    Log.d(TAG, "Stating chat for thread.");
-                    startChatActivityForID(thread.getId());
-                }
-                else if (DEBUG) Log.e(TAG, "thread added is null");
+                if (thread == null)
+                    if (DEBUG) Log.e(TAG, "thread added is null");
+
+                if (checkIfOnMainThread())
+                    if (thread != null)
+                    {
+                        Log.d(TAG, "Stating chat for thread.");
+                        startChatActivityForID(thread.getId());
+                    }
+                else BaseActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (thread != null)
+                        {
+                            Log.d(TAG, "Stating chat for thread.");
+                            startChatActivityForID(thread.getId());
+                        }
+                    }
+                });
+
+
             }
 
             @Override
@@ -530,6 +554,14 @@ public class BaseActivity extends ActionBarActivity implements BaseActivityInter
     @Override
     public void onAuthenticated() {
 
+    }
+
+    public boolean checkIfOnMainThread() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            return false;
+        }
+
+        return true;
     }
 
 }

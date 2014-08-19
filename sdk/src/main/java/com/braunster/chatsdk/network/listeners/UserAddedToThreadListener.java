@@ -60,17 +60,9 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
                     BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
                     final String userFirebaseID = path.idForIndex(1);
 
-                    if (DEBUG)
-                        Log.e(TAG, "User, " + userFirebaseID + " , CurrentUser " + EventManager.getCurrentUserId());
                     BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
 
-                    BUser bUser;
-                    // If the user already has  listening to this user we can fetch it from the db because he is up to date.
-                    //                if (usersIds.contains(userFirebaseID))
-                    bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
-                    //                else
-                    ////                    // For each user we'd then need to add them to the database
-                    //                    bUser = (BUser) BFirebaseInterface.objectFromSnapshot(dataSnapshot);
+                    BUser bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
 
                     // Attaching the user to the thread if needed.
                     if (!thread.hasUser(bUser))

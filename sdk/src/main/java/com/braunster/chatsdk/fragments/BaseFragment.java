@@ -22,6 +22,7 @@ import com.braunster.chatsdk.dao.BLinkedContactDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
@@ -69,6 +70,11 @@ public abstract class BaseFragment extends DialogFragment implements BaseFragmen
     @Override
     public void refreshOnBackground() {
         loadDataOnBackground();
+    }
+
+    @Override
+    public void refreshForEntity(Entity entity) {
+
     }
 
     @Override
@@ -365,6 +371,8 @@ interface BaseFragmentInterface{
     public void initViews();
 
     public void clearData();
+
+    public void refreshForEntity(Entity entity);
 }
 /*
 

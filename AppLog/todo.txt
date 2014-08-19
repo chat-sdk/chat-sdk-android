@@ -6,11 +6,4 @@
 # support the dirty option for entities.
 # Change the values of the location to match the iOS values. Location: -122.406417,37.785834,Location,10000.0 i.e. latitude, longitude, caption, map scale in meter.
 
-#13 Make sure loaction activity show current location
-
-#27 Profile image slow do update
-
-#20 Change the edit text in pick friends activity to be a button - Need a button resource for the search button.
-#21 getActivity in BaseFragemnt is null.
-#26 Show progress bar when loading profile image from fb or twitter - Waiting for answer on what indication to show
-#18 Photos and location is flashing three times for each message due to datasetchanged. - Fixed with ChatBubbleImageView2
+# Switch view loading to asynctask.

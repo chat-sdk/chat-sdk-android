@@ -104,5 +104,16 @@ public class VolleyUtills {
             super.entryRemoved(evicted, key, oldValue, newValue);
             Log.i("", "Entry removed: "  +key);
         }
+
+        /**
+         * Creates a cache key for use with the L1 cache.
+         * @param url The URL of the request.
+         * @param maxWidth The max-width of the output.
+         * @param maxHeight The max-height of the output.
+         */
+        public static String getCacheKey(String url, int maxWidth, int maxHeight) {
+            return new StringBuilder(url.length() + 12).append("#W").append(maxWidth)
+                    .append("#H").append(maxHeight).append(url).toString();
+        }
     }
 }

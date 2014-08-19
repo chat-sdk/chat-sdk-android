@@ -3,7 +3,6 @@ package com.braunster.androidchatsdk.app;
 import android.app.Application;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
@@ -81,6 +80,6 @@ public class AppObj extends Application {
                 levelName = "memory ui hidden";
                 break;
         }
-        Log.d("App", "onTrimMemory, Level: " + levelName);
+//        Log.d("App", "onTrimMemory, Level: " + levelName);
     }
 }

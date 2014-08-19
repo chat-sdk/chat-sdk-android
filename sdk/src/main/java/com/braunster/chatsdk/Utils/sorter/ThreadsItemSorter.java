@@ -1,10 +1,9 @@
 package com.braunster.chatsdk.Utils.sorter;
 
-import android.util.Log;
-
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 
 import java.util.Comparator;
+import java.util.Date;
 
 /**
  * Created by braunster on 18/06/14.
@@ -13,18 +12,30 @@ public class ThreadsItemSorter implements Comparator<ThreadsListAdapter.ThreadLi
     public static final int ORDER_TYPE_ASC = 0;
     public static final int ORDER_TYPE_DESC = 1;
 
-    @Override
-    public int compare(ThreadsListAdapter.ThreadListItem x, ThreadsListAdapter.ThreadListItem y) {
-        // TODO: Handle null x or y values
-        Log.e("asd", "COMPER");
-        int startComparison = compare(x.getLastMessageDate().getTime(), y.getLastMessageDate().getTime());
-        return startComparison != 0 ? startComparison
-                : compare(x.getLastMessageDate().getTime(), y.getLastMessageDate().getTime());
+    private int order = ORDER_TYPE_DESC;
+
+    public ThreadsItemSorter(){}
+
+    public ThreadsItemSorter(int order) {
+        this.order = order;
     }
 
-    private  int compare(long a, long b) {
-        return a > b ? -1
-                : a > b ? 1
-                : 0;
+    @Override
+    public int compare(ThreadsListAdapter.ThreadListItem t1, ThreadsListAdapter.ThreadListItem t2) {
+        Date x, y;
+        if (t1.getLastMessageDate() == null)
+        {
+            x = new Date();
+        }
+        else x = t1.getLastMessageDate();
+
+        if(t2.getLastMessageDate() == null)
+        {
+            y = new Date();
+        } else y = t2.getLastMessageDate();
+
+        if (order == ORDER_TYPE_ASC)
+            return x.compareTo(y);
+        else return y.compareTo(x);
     }
 }

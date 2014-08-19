@@ -4,6 +4,7 @@ package com.braunster.chatsdk.network;
 import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TimingLogger;
 
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
@@ -399,10 +400,16 @@ public abstract class AbstractNetworkAdapter {
             return null;
         }
 
-        BUser currentUser = currentUser();
+        TimingLogger timingLogger;
+        if (DEBUG)
+            timingLogger = new TimingLogger(TAG, "threadWithType, Type: " + threadType);
+
+        BUser currentUser = currentUser(), threadCreator;
 
         // Get the thread list ordered desc by the last message added date.
         List<BThread> threadsFromDB;
+
+
 
         if (threadType == BThread.Type.Private)
             threadsFromDB = currentUser().getThreads();
@@ -410,6 +417,8 @@ public abstract class AbstractNetworkAdapter {
 
         List<BThread> threads = new ArrayList<BThread>();
 
+        if (DEBUG)
+            timingLogger.addSplit("Loading threads.");
 
         if (threadType == BThread.Type.Public)
         {
@@ -421,38 +430,44 @@ public abstract class AbstractNetworkAdapter {
             for (BThread thread : threadsFromDB) {
                 if (DEBUG) Log.i(TAG, "threadsWithType, ThreadID: " + thread.getId());
 
-                if (thread.getType() == null)
+                if (thread.getType() == null || thread.getType() == BThread.Type.Public)
                 {
-                    if (DEBUG) Log.e(TAG, "Thread has no type, Thread ID: " + thread.getEntityID());
-                    continue;
-                }
-                // Skipping public threads.
-                if (thread.getType() == BThread.Type.Public)
-                {
-                    if (DEBUG) Log.e(TAG, "Thread is public, Thread ID: " + thread.getEntityID());
+                    if (DEBUG) Log.e(TAG, "Thread has no type or is public, Thread ID: " + thread.getEntityID());
                     continue;
                 }
 
-                if (thread.getCreator() != null )
+                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+                {
+                    threads.add(thread);
+                    continue;
+                }
+                else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
+
+                threadCreator = thread.getCreator();
+                if (threadCreator != null )
                 {
                     if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                    if (thread.getCreator().equals(currentUser)&& thread.getUsers().contains(currentUser))
+                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
                     {
-                        Log.d(TAG, "Current user is the creator.");
+                        if (DEBUG) Log.d(TAG, "Current user is the creator.");
                         threads.add(thread);
                         continue;
                     }
                 }
-
-                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
-                    threads.add(thread);
-                else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
             }
         }
 
         if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
 
+        if (DEBUG)
+            timingLogger.addSplit("Filtering threads.");
+
         Collections.sort(threads, new ThreadsSorter());
+        if (DEBUG)
+            timingLogger.addSplit("Ordering threads.");
+
+        if (DEBUG)
+            timingLogger.dumpToLog();
 
         return threads;
     }

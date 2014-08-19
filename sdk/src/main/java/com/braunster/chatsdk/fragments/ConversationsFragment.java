@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +23,9 @@ import com.braunster.chatsdk.activities.PickFriendsActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
@@ -59,6 +62,7 @@ public class ConversationsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (DEBUG) Log.d(TAG, "onCreateView");
+
         mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
 
         initViews();
@@ -120,15 +124,26 @@ public class ConversationsFragment extends BaseFragment {
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
+    TimingLogger timings;
+
     @Override
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
+
+        if (DEBUG) Log.d(TAG, "isLoggable: " + Log.isLoggable(TAG, Log.VERBOSE));
+
+        if (DEBUG) timings = new TimingLogger(TAG, "loadDataOnBackground");
+
         if (DEBUG) Log.v(TAG, "loadDataOnBackground");
 
         if (mainView == null)
+        {
+            if (DEBUG) Log.e(TAG, "Main view is null");
             return;
+        }
 
         if (uiUpdater == null && adapter != null && adapter.getListData().size() == 0) {
+            if (DEBUG) Log.v(TAG, "loadDataOnBackground, hiding list.");
             listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
@@ -140,21 +155,45 @@ public class ConversationsFragment extends BaseFragment {
             @Override
             public void run() {
                 if (isKilled())
+                {
+                    if (DEBUG) Log.v(TAG, "uiUpdater, is killed.");
                     return;
+                }
 
                 List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
-
                 if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+
+                if (DEBUG) timings.addSplit("Loading threads");
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = ThreadsListAdapter.ThreadListItem.makeList(threads);
 
+                List<ThreadsListAdapter.ThreadListItem> list =ThreadsListAdapter.ThreadListItem.makeList(threads);
+                if (DEBUG) {Log.d(TAG, "MakList - Before"); timings.addSplit("Making list.");}
+
+                message.obj = list;
                 handler.sendMessage(message);
+
+                if (DEBUG) timings.addSplit("Sending message to handler.");
+
             }
         };
 
-        new Thread(uiUpdater).start();
+        ChatSDKThreadPool.getInstance().execute(uiUpdater);
+    }
+
+    @Override
+    public void refreshForEntity(Entity entity) {
+        super.refreshForEntity(entity);
+        if (adapter.getCount() == 0)
+            return;;
+
+        adapter.replaceOrAddItem((BThread) entity);
+        if (listThreads.getVisibility() == View.INVISIBLE)
+        {
+            progressBar.setVisibility(View.INVISIBLE);
+            listThreads.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -175,10 +214,12 @@ public class ConversationsFragment extends BaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    if (DEBUG) Log.d(TAG, "Updating UI");
+                    timings.addSplit("Updating UI");
                     adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
                     progressBar.setVisibility(View.INVISIBLE);
                     listThreads.setVisibility(View.VISIBLE);
+                    timings.dumpToLog();
+                    timings.reset(TAG, "loadDataOnBackground");
                     break;
             }
         }

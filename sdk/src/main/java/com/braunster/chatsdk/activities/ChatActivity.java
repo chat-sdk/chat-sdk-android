@@ -16,13 +16,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
+import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
@@ -46,8 +49,10 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.MessageEventListener;
+import com.braunster.chatsdk.network.events.ThreadEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.parse.PushUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -65,7 +70,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 /**
  * Created by itzik on 6/8/2014.
  */
-public class ChatActivity extends BaseActivity implements View.OnClickListener, TextView.OnEditorActionListener{
+public class ChatActivity extends BaseActivity implements View.OnKeyListener, View.OnClickListener, TextView.OnEditorActionListener, AbsListView.OnScrollListener{
 
     // TODO add button to add users to action bar.
     // TODO implement bubbles UI
@@ -81,11 +86,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     /** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
      * It will be removed when activity is paused. or when opend again for new thread.*/
     public static final String MessageListenerTAG = TAG + "MessageTAG";
+    public static final String ThreadListenerTAG = TAG + "threadTAG";
 
     /** The key to get the thread long id.*/
     public static final String THREAD_ID = "Thread_ID";
     public static final String THREAD_ENTITY_ID = "Thread_Entity_ID";
 
+    public static final String LIST_POS = "list_pos";
     public static final String FROM_PUSH = "from_push";
 
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
@@ -99,7 +106,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
      *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. */
     public static final String SHARED_TEXT = "shared_text";
 
-    private Button btnSend;
+    private TextView btnSend;
     private ImageButton btnOptions;
     private EditText etMessage;
     private ListView listMessages;
@@ -107,6 +114,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private BThread thread;
     private PopupWindow optionPopup;
     private PullToRefreshLayout mPullToRefreshLayout;
+    private ProgressBar progressBar;
+    private int listPos = -1;
 
     private String capturePhotoPath = "";
 
@@ -117,33 +126,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableCheckOnlineOnResumed(true);
         setEnableCardToast(true);
-
         super.onCreate(savedInstanceState);
 
         if (DEBUG) Log.v(TAG, "onCreate");
 
-        setContentView(R.layout.chat_sdk_activity_chat_pull_to_refresh);
+        setContentView(R.layout.chat_sdk_activity_chat);
 
-        // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
-        // If list is scrolling we ignoring the touch event.
-        setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                // Using small delay for better accuracy in catching the scrolls.
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!scrolling)
-                            hideSoftKeyboard(ChatActivity.this);
-                    }
-                }, 300);
-
-                return false;
-            }
-        }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
+        enableCheckOnlineOnResumed(true);
 
         if ( !getThread(savedInstanceState) )
             return;
@@ -155,13 +145,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 capturePhotoPath = savedInstanceState.getString(CAPTURED_PHOTO_PATH);
                 savedInstanceState.remove(CAPTURED_PHOTO_PATH);
             }
+
+            listPos = savedInstanceState.getInt(LIST_POS, -1);
+            savedInstanceState.remove(LIST_POS);
         }
 
         initViews();
 
         initToast();
-
-        initListView();
 
         initActionBar();
     }
@@ -172,58 +163,96 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             ab.setDisplayShowHomeEnabled(false);
             ab.setDisplayShowTitleEnabled(false);
             ab.setDisplayShowCustomEnabled(true);
-//            ab.setTitle(username);
 
             /*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*/
 
             // Inflate the custom view
             LayoutInflater inflater = LayoutInflater.from(this);
-            View header = inflater.inflate( R.layout.chat_sdk_actionbar_circle_imageview, null );
+            View header = inflater.inflate( R.layout.chat_sdk_actionbar_chat_activity, null );
 
             TextView txtName = (TextView) header.findViewById(R.id.chat_sdk_name);
 
-            txtName.setText(thread.displayName());
+            boolean changed = false;
 
-            txtName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showToast(((TextView) v).getText().toString());
-                }
-            });
+            String displayName = thread.displayName();
+            if (txtName.getText() == null || !displayName.equals(txtName.getText().toString()))
+            {
+                txtName.setText(thread.displayName());
+                txtName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showToast(((TextView) v).getText().toString());
+                    }
+                });
 
-            final CircleImageView circleImageView = (CircleImageView) header.findViewById(R.id.image);
+                changed = true;
+            }
 
-            VolleyUtills.getImageLoader().get(thread.threadImageUrl(), new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (response.getBitmap() != null)
-                        circleImageView.setImageBitmap(response.getBitmap());
-                }
+            final String imageUrl = thread.threadImageUrl();
 
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (thread.getType() == BThread.Type.Public)
-                        circleImageView.setImageResource(R.drawable.ic_users);
-                    else circleImageView.setImageResource(R.drawable.ic_profile);
-                }
-            });
+            final CircleImageView circleImageView = (CircleImageView) header.findViewById(R.id.chat_sdk_circle_image);
+            final RoundedCornerNetworkImageView roundedCornerImageView = (RoundedCornerNetworkImageView) header.findViewById(R.id.chat_sdk_round_corner_image);
 
-            circleImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                   Intent intent = new Intent(ChatActivity.this, MainActivity.class);
-                   startActivity(intent);
-                }
-            });
+            if (circleImageView.getTag() == null || !imageUrl.equals(circleImageView.getTag()))
+            {
+                final View.OnClickListener onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                };
 
-            ab.setCustomView(header);
+                VolleyUtills.getImageLoader().get(thread.threadImageUrl(), new ImageLoader.ImageListener() {
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null)
+                        {
+                            circleImageView.setTag(imageUrl);
+                            circleImageView.setVisibility(View.INVISIBLE);
+                            roundedCornerImageView.setVisibility(View.INVISIBLE);
+                            circleImageView.setImageBitmap(response.getBitmap());
+                            circleImageView.setVisibility(View.VISIBLE);
+
+                            circleImageView.setOnClickListener(onClickListener);
+                        }
+                    }
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        setRoundCornerDefault();
+                    }
+
+                    private void setRoundCornerDefault(){
+                        circleImageView.setVisibility(View.INVISIBLE);
+                        roundedCornerImageView.setVisibility(View.INVISIBLE);
+
+                        if (thread.getType() == BThread.Type.Public)
+                            roundedCornerImageView.setImageResource(R.drawable.ic_users);
+                        else if (thread.getUsers().size() < 3)
+                            roundedCornerImageView.setImageResource(R.drawable.ic_profile);
+                        else
+                            roundedCornerImageView.setImageResource(R.drawable.ic_users);
+
+                        roundedCornerImageView.setVisibility(View.VISIBLE);
+
+                        roundedCornerImageView.setOnClickListener(onClickListener);
+                    }
+                });
+
+                changed = true;
+            }
+
+            if (changed)
+                ab.setCustomView(header);
         }
     }
 
     private void initViews(){
-        btnSend = (Button) findViewById(R.id.chat_sdk_btn_chat_send_message);
+        btnSend = (TextView) findViewById(R.id.chat_sdk_btn_chat_send_message);
         btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
         etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
+        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
         mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
 
@@ -247,7 +276,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                                             showToast("There is no new messages to load...");
                                         else {
                                             // Saving the position in the list so we could back to it after the update.
-                                            loadMessagesAndRetainPos(messages.length - 2);
+                                            loadMessages(true, true, -2);
                                         }
 
                                         mPullToRefreshLayout.setRefreshComplete();
@@ -264,86 +293,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         // Finally commit the setup to our PullToRefreshLayout
         .setup(mPullToRefreshLayout);
 
-
-    }
-
-    private void initListView(){
         listMessages = (ListView) findViewById(R.id.list_chat);
-        listMessages.setItemsCanFocus(true);
 
         messagesListAdapter = new MessagesListAdapter(ChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
         listMessages.setAdapter(messagesListAdapter);
-
-        // Listen to list view scrolling, Used for deciding whether do dismiss the keyboard or not.
-        listMessages.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if (scrollState == SCROLL_STATE_IDLE)
-                    scrolling = false;
-                else scrolling = true;
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
-        });
-        loadMessages();
-    }
-
-    /** Load message and saving the current position of the listview after the update.*/
-    private void loadMessagesAndRetainPos(int newDataSize){
-        int index = listMessages.getFirstVisiblePosition() + newDataSize;
-        View v = listMessages.getChildAt(0);
-        int top = (v == null) ? -1 : v.getTop();
-        loadMessages(index, top);
-    }
-
-    private void loadMessages(final int index, final int top){
-        if (thread == null)
-        {
-            Log.e(TAG, "Thread is null");
-            return;
-        }
-
-        // Hiding listview until the load is done.
-        if (top != -1 && index != -1)
-            listMessages.setVisibility(View.INVISIBLE);
-
-        // Loading messages
-        List<BMessage> messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId());
-
-        // Sorting the message by date to make sure the list looks ok.
-        Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
-
-        // Setting the new message to the adapter.
-        messagesListAdapter.setListData(
-                messagesListAdapter.makeList(messages));
-
-        // restoring the old position after the load is done.
-        if (top != -1 && index != -1)
-            listMessages.post(new Runnable() {
-                @Override
-                public void run() {
-                    listMessages.setSelectionFromTop(index, top);
-                    listMessages.setVisibility(View.VISIBLE);
-                }
-            });
-        else scrollListToBottom();
-    }
-
-    private void loadMessages(){
-        loadMessages(-1, -1);
-    }
-
-    private void scrollListToBottom() {
-        listMessages.post(new Runnable() {
-            @Override
-            public void run() {
-                // Select the last row so it will scroll into view...
-                listMessages.setSelection(messagesListAdapter.getCount() - 1);
-            }
-        });
     }
 
     @Override
@@ -354,12 +307,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
         if (StringUtils.isNotEmpty(capturePhotoPath))
             outState.putString(CAPTURED_PHOTO_PATH, capturePhotoPath);
+
+        outState.putInt(LIST_POS, listMessages.getFirstVisiblePosition());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
+        EventManager.getInstance().removeEventByTag(ThreadListenerTAG + thread.getId());
+
+        for (String key : messagesListAdapter.getCacheKeys())
+            VolleyUtills.getBitmapCache().remove(key);
     }
 
     @Override
@@ -370,46 +329,67 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if ( !getThread(intent.getExtras()) )
             return;
 
-        initListView();
+        created = true;
+
+        if (messagesListAdapter != null)
+            messagesListAdapter.clear();
 
         initActionBar();
 
         checkIfWantToShare(intent);
     }
 
+    private boolean created = true;
+
     @Override
     protected void onResume() {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume");
-//        listMessages.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                listMessages.smoothScrollToPosition(messagesListAdapter.getCount()-1);
-//            }
-//        });
+
         if ( !getThread(data) )
             return;
 
-        NotificationUtils.cancelNotification(this, PushUtils.MESSAGE_NOTIFICATION_ID);
+        // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
+        // If list is scrolling we ignoring the touch event.
+        setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
 
-        loadMessagesAndRetainPos(0);
+                // Using small delay for better accuracy in catching the scrolls.
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!scrolling)
+                            hideSoftKeyboard(ChatActivity.this);
+                    }
+                }, 300);
 
-        MessageEventListener messageEventListener = new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()) {
+                return false;
+            }
+        }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
+
+        final MessageEventListener messageEventListener = new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()) {
             @Override
             public boolean onMessageReceived(BMessage message) {
                 if (DEBUG) Log.v(TAG, "onMessageReceived, EntityID: " + message.getEntityID());
 
                 // Check that the message is relevant to the current thread.
-                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue())
+                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue()) {
                     return false;
+                }
 
-                if (!messagesListAdapter.addRow(message))
-                    return false;
+                boolean isAdded = messagesListAdapter.addRow(message);
 
                 // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                 if (message.getBUserSender().getEntityID().equals(
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
+                {
+                    if (message.getType() != BMessage.Type.TEXT && isAdded)
+                    {
+                        scrollListTo(-1);
+                    }
                     return false;
+                }
 
                 // We check to see that this message is really a new one and not loaded from the server.
                 if (System.currentTimeMillis() - message.getDate().getTime() < 1000*60)
@@ -423,15 +403,53 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             }
         };
 
-        // Removing the last listener just to be sure we wont receive duplicates notifications.
-        EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
-        EventManager.getInstance().addMessageEvent(messageEventListener);
+        final ThreadEventListener threadEventListener = new ThreadEventListener(ThreadListenerTAG + thread.getId(), thread.getEntityID()) {
+            @Override
+            public boolean onThreadDetailsChanged(String threadId) {
+                return false;
+            }
 
-        btnSend.setOnClickListener(this);
+            @Override
+            public boolean onUserAddedToThread(String threadId, String userId) {
+                if (threadId.equals(thread.getEntityID()))
+                    updateChat();
+                return false;
+            }
+        };
 
-        btnOptions.setOnClickListener(this);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                NotificationUtils.cancelNotification(ChatActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID);
 
-        etMessage.setOnEditorActionListener(this);
+                btnSend.setOnClickListener(ChatActivity.this);
+
+                btnOptions.setOnClickListener(ChatActivity.this);
+
+                etMessage.setOnEditorActionListener(ChatActivity.this);
+                etMessage.setOnKeyListener(ChatActivity.this);
+
+                listMessages.setOnScrollListener(ChatActivity.this);
+
+                // Removing the last listener just to be sure we wont receive duplicates notifications.
+                EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
+                EventManager.getInstance().addMessageEvent(messageEventListener);
+
+                // Removing the last listener just to be sure we wont receive duplicates notifications.
+                EventManager.getInstance().removeEventByTag(ThreadListenerTAG + thread.getId());
+                EventManager.getInstance().addThreadEvent(threadEventListener);
+            }
+        }).start();
+
+
+        if (!created)
+            loadMessagesAndRetainCurrentPos();
+        else
+        {
+            loadMessages(listPos);
+        }
+
+        created = false;
     }
 
     @Override
@@ -537,8 +555,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             if (DEBUG) Log.d(TAG, "ADD_USER_RETURN");
             if (resultCode == RESULT_OK)
             {
-                getThread(this.data);
-                initActionBar();
+                updateChat();
             }
    /*         else showAlertToast("Failed to add users.");*/
 
@@ -553,10 +570,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
 
-        MenuItem itemThreadUsers =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_show, 10, "Show thread users.");
-        itemThreadUsers.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        itemThreadUsers.setIcon(android.R.drawable.ic_menu_info_details);
+        /*Dont show users icon for a private thread with two users or less.*/
+        if (thread.getType() == BThread.Type.Public || thread.getUsers().size() > 2)
+        {
+            MenuItem itemThreadUsers =
+                    menu.add(Menu.NONE, R.id.action_chat_sdk_show, 10, "Show thread users.");
+            itemThreadUsers.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            itemThreadUsers.setIcon(android.R.drawable.ic_menu_info_details);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -601,7 +623,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     public void onAuthenticated() {
         super.onAuthenticated();
         if (DEBUG) Log.v(TAG, "onAuthenticated");
-        loadMessages();
+        loadMessagesAndRetainCurrentPos();
     }
 
     @Override
@@ -657,6 +679,303 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         return true;
     }
 
+    /** Show the message option popup, From here the user can send images and location messages.*/
+    private void showOptionPopup(){
+        if (optionPopup!= null && optionPopup.isShowing())
+        {
+            if (DEBUG) Log.d(TAG, "Tying to show option popup when already showing");
+            return;
+        }
+
+        optionPopup = DialogUtils.getMenuOptionPopup(this, this);
+        optionPopup.showAsDropDown(btnOptions);
+    }
+
+    private void dismissOption(){
+        if (optionPopup != null)
+            optionPopup.dismiss();
+    }
+
+    /** Check the intent if carries some data that received from another app to share on this chat.*/
+    private void checkIfWantToShare(Intent intent){
+        if (DEBUG) Log.v(TAG, "checkIfWantToShare");
+
+        if (intent.getExtras().containsKey(SHARED_FILE_URI))
+        {
+            showProgressCard("Sending...");
+
+            String path = Utils.getRealPathFromURI(this, (Uri) intent.getExtras().get(SHARED_FILE_URI));
+            if (DEBUG) Log.d(TAG, "Path from uri: " + path);
+
+            // removing the key so we wont send again,
+            intent.getExtras().remove(SHARED_FILE_URI);
+
+            sendImageMessage(path);
+        }
+        else if (intent.getExtras().containsKey(SHARED_TEXT))
+        {
+            String text =intent.getExtras().getString(SHARED_TEXT);
+
+            // removing the key so we wont send again,
+            intent.getExtras().remove(SHARED_TEXT);
+
+            sendTextMessageWithStatus(text, false);
+        }
+    }
+
+    /** Update chat current thread using the {@link com.braunster.chatsdk.activities.ChatActivity#data} bundle saved.
+     *  Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
+     *  Finally update the action bar for thread image and name, The update will occur only if needed so free to call.*/
+    private void updateChat(){
+        getThread(this.data);
+        invalidateOptionsMenu();
+        initActionBar();
+    }
+
+    /* Implement listeners.*/
+    @Override
+    public void onClick(View v) {
+        int id= v.getId();
+
+        if (id == R.id.chat_sdk_btn_chat_send_message) {
+            sendTextMessageWithStatus();
+        }
+        else if (id == R.id.chat_sdk_btn_options){
+            showOptionPopup();
+        }
+        else  if (id == R.id.chat_sdk_btn_choose_picture) {
+            dismissOption();
+
+            // TODO allow multiple pick of photos.
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_PICK);
+//                intent.setAction(Intent.ACTION_GET_CONTENT);
+//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(Intent.createChooser(intent,
+                    "Complete action using"), PHOTO_PICKER_ID);
+
+
+        }
+        else  if (id == R.id.chat_sdk_btn_take_picture) {
+            if (!Utils.SystemChecks.checkCameraHardware(this))
+            {
+                Toast.makeText(this, "This device does not have a camera.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            dismissOption();
+
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            File file, dir =Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME);
+            if(dir.exists())
+            {
+
+                file = new File(dir, DaoCore.generateEntity() + ".jpg");
+                capturePhotoPath = file.getPath();
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+            }
+
+            // start the image capture Intent
+            startActivityForResult(intent, CAPTURE_IMAGE);
+        }
+        else  if (id == R.id.chat_sdk_btn_location) {
+            dismissOption();
+            Intent intent = new Intent(ChatActivity.this, LocationActivity.class);
+            startActivityForResult(intent, PICK_LOCATION);
+        }
+    }
+
+    /** Send a text message when the done button is pressed on the keyboard.*/
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEND)
+            sendTextMessageWithStatus();
+
+
+        return false;
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        // if enter is pressed start calculating
+        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+            int editTextLineCount = ((EditText) v).getLineCount();
+            if (editTextLineCount >= getResources().getInteger(R.integer.chat_sdk_max_message_lines))
+                return true;
+        }
+        return false;
+    }
+
+    /** show the option popup when the menu key is pressed.*/
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        switch (keyCode)
+        {
+            case KeyEvent.KEYCODE_MENU:
+                showOptionPopup();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (data.containsKey(FROM_PUSH))
+        {
+            if (DEBUG) Log.d(TAG, "onBackPressed, From Push");
+            data.remove(FROM_PUSH);
+
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        if (scrollState == SCROLL_STATE_IDLE)
+            scrolling = false;
+        else scrolling = true;
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+    }
+
+
+    /*Message Loading and listView animation and scrolling*/
+    /** Load messages from the database and saving the current position of the list.*/
+    private void loadMessagesAndRetainCurrentPos(){
+        loadMessages(true, false, 0);
+    }
+
+    private void loadMessages(final boolean retain, boolean hideListView, final int offsetOrPos){
+        if (thread == null)
+        {
+            Log.e(TAG, "Thread is null");
+            return;
+        }
+
+        if (hideListView)
+        {
+            listMessages.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else progressBar.setVisibility(View.INVISIBLE);
+
+        ChatSDKThreadPool.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+
+                final int oldDataSize = messagesListAdapter.getCount();
+
+                // Loading messages
+                List<BMessage> messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId());
+
+                // Sorting the message by date to make sure the list looks ok.
+                Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
+
+                // Setting the new message to the adapter.
+                final List<MessagesListAdapter.MessageListItem> list = messagesListAdapter.makeList(messages);
+
+                if (list.size() == 0)
+                {
+                    ChatActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            listMessages.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return;
+                }
+
+                ChatActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        messagesListAdapter.setListData(list);
+
+                        // restoring the old position after the load is done.
+                        if (retain)
+                        {
+                            int newDataSize = messagesListAdapter.getCount();
+                            final int index = listMessages.getFirstVisiblePosition() + newDataSize - oldDataSize + offsetOrPos;
+                            View v = listMessages.getChildAt(0);
+                            final int top = (v == null) ? -1 : v.getTop();
+
+                            listMessages.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listMessages.setSelectionFromTop(index, top);
+
+                                    if (listMessages.getVisibility() == View.INVISIBLE)
+                                        animateListView();
+                                }
+                            });
+                        }
+                        else scrollListTo(offsetOrPos);
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    private void loadMessagesAndScrollBottom(){
+        loadMessages(false, true, - 1);
+    }
+
+    private void loadMessages(int scrollingPos){
+        loadMessages(false, true, scrollingPos);
+    }
+
+    private void scrollListTo(final int pos) {
+        listMessages.post(new Runnable() {
+            @Override
+            public void run() {
+                // Select the last row so it will scroll into view...
+                if (pos== -1)
+                    listMessages.setSelection(messagesListAdapter.getCount()-1);
+                else
+                    listMessages.setSelection(pos);
+
+                if (listMessages.getVisibility() == View.INVISIBLE)
+                    animateListView();
+            }
+        });
+    }
+
+    private void animateListView(){
+        if (DEBUG) Log.v(TAG, "animateListView");
+
+        listMessages.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_expand));
+        listMessages.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                listMessages.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        listMessages.getAnimation().start();
+    }
+
+    /*Message Sending*/
     /** Send text message logic.*/
     private void sendTextMessageWithStatus(){
         sendTextMessageWithStatus(etMessage.getText().toString(), true);
@@ -719,7 +1038,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         if (DEBUG) Log.v(TAG, "Image is sent");
                         dismissProgressCardWithSmallDelay();
 
-                        messagesListAdapter.addRow(message);
+                        if(messagesListAdapter.addRow(message))
+                            scrollListTo(-1);
                     }
 
                     @Override
@@ -731,142 +1051,4 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     }
 
 
-    /** Show the message option popup, From here the user can send images and location messages.*/
-    private void showOptionPopup(){
-        if (optionPopup!= null && optionPopup.isShowing())
-        {
-            if (DEBUG) Log.d(TAG, "Tying to show option popup when already showing");
-            return;
-        }
-
-        optionPopup = DialogUtils.getMenuOptionPopup(this, this);
-        optionPopup.showAsDropDown(btnOptions);
-    }
-
-    private void dismissOption(){
-        if (optionPopup != null)
-            optionPopup.dismiss();
-    }
-
-    /** Check the intent if carries some data that received from another app to share on this chat.*/
-    private void checkIfWantToShare(Intent intent){
-        if (DEBUG) Log.v(TAG, "checkIfWantToShare");
-
-        if (intent.getExtras().containsKey(SHARED_FILE_URI))
-        {
-            showProgressCard("Sending...");
-
-            String path = Utils.getRealPathFromURI(this, (Uri) intent.getExtras().get(SHARED_FILE_URI));
-            if (DEBUG) Log.d(TAG, "Path from uri: " + path);
-
-            // removing the key so we wont send again,
-            intent.getExtras().remove(SHARED_FILE_URI);
-
-            sendImageMessage(path);
-        }
-        else if (intent.getExtras().containsKey(SHARED_TEXT))
-        {
-            String text =intent.getExtras().getString(SHARED_TEXT);
-
-            // removing the key so we wont send again,
-            intent.getExtras().remove(SHARED_TEXT);
-
-            sendTextMessageWithStatus(text, false);
-        }
-    }
-
-
-
-
-    /* Implement listeners.*/
-    @Override
-    public void onClick(View v) {
-        int id= v.getId();
-
-        if (id == R.id.chat_sdk_btn_chat_send_message) {
-            sendTextMessageWithStatus();
-        }
-        else if (id == R.id.chat_sdk_btn_options){
-            showOptionPopup();
-        }
-        else  if (id == R.id.chat_sdk_btn_choose_picture) {
-            dismissOption();
-
-            // TODO allow multiple pick of photos.
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_PICK);
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent,
-                    "Complete action using"), PHOTO_PICKER_ID);
-
-
-        }
-        else  if (id == R.id.chat_sdk_btn_take_picture) {
-            if (!Utils.SystemChecks.checkCameraHardware(this))
-            {
-                Toast.makeText(this, "This device does not have a camera.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            dismissOption();
-
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-            File file, dir =Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME);
-            if(dir.exists())
-            {
-
-                file = new File(dir, DaoCore.generateEntity() + ".jpg");
-                capturePhotoPath = file.getPath();
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-            }
-
-            // start the image capture Intent
-            startActivityForResult(intent, CAPTURE_IMAGE);
-        }
-        else  if (id == R.id.chat_sdk_btn_location) {
-            dismissOption();
-            Intent intent = new Intent(ChatActivity.this, LocationActivity.class);
-            startActivityForResult(intent, PICK_LOCATION);
-        }
-    }
-
-    /* Send a text message when the done button is pressed on the keyboard.*/
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEND)
-            sendTextMessageWithStatus();
-
-        return false;
-    }
-
-    /* show the option popup when the menu key is pressed.*/
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        switch (keyCode)
-        {
-            case KeyEvent.KEYCODE_MENU:
-                showOptionPopup();
-                return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (data.containsKey(FROM_PUSH))
-        {
-            if (DEBUG) Log.d(TAG, "onBackPressed, From Push");
-            data.remove(FROM_PUSH);
-
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            return;
-        }
-        super.onBackPressed();
-    }
 }

@@ -11,8 +11,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -45,7 +46,8 @@ public class PickFriendsActivity extends BaseActivity {
     private ListView listContacts;
     private UsersWithStatusListAdapter listAdapter;
     private Button btnGetFBFriends, btnStartChat;
-    private EditText etSearch;
+    private TextView txtSearch;
+    private ImageView imgSearch;
     private CheckBox chSelectAll;
 
     /** Default value - MODE_NEW_CONVERSATION*/
@@ -117,7 +119,8 @@ public class PickFriendsActivity extends BaseActivity {
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
         btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
-        etSearch = (EditText) findViewById(R.id.chat_sdk_et_search);
+        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
+        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
 
@@ -132,9 +135,7 @@ public class PickFriendsActivity extends BaseActivity {
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
             thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, threadID);
             List<BUser> threadUser = thread.getUsers();
-
-            for (BUser u : threadUser)
-                list.remove(u);
+            list.removeAll(threadUser);
         }
 
         if (list.size() > 0)
@@ -161,60 +162,77 @@ public class PickFriendsActivity extends BaseActivity {
                     addCurrent = 1;
                 }
 
-                BUser[] users = new BUser[listAdapter.getSelectedCount() + addCurrent];
+                final BUser[] users = new BUser[listAdapter.getSelectedCount() + addCurrent];
 
-                for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++)
-                {
-                    int pos = -1;
-                    if (listAdapter.getSelectedUsersPositions().valueAt(i))
-                        pos = listAdapter.getSelectedUsersPositions().keyAt(i);
-
-                    users[i] = listAdapter.getListData().get(pos).asBUser();
-
-                    Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
-                }
-
-                if (mode == MODE_NEW_CONVERSATION)
-                {
-                    users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
-                    createAndOpenThreadWithUsers("", users);
-                }
-                else if (mode == MODE_ADD_TO_CONVERSATION){
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
 
-                    BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
-                        @Override
-                        public boolean onItem(BUser user) {
-                            return false;
+                        for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++)
+                        {
+                            int pos = -1;
+                            if (listAdapter.getSelectedUsersPositions().valueAt(i))
+                                pos = listAdapter.getSelectedUsersPositions().keyAt(i);
+
+                            users[i] = listAdapter.getListData().get(pos).asBUser();
+
+                            Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
                         }
 
-                        @Override
-                        public void onDone() {
-
-                            // Updating the ui.
-                            Intent intent = new Intent(MainActivity.Action_Refresh_Fragment);
-                            if (thread.getType() == BThread.Type.Public)
-                                intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.ChatRooms);
-                            else intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.Conversations);
-                            sendBroadcast(intent);
-
-                            dismissProgDialog();
-
-                            setResult(Activity.RESULT_OK);
-                            finish();
-
-                            if (animateExit)
-                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+                        if (mode == MODE_NEW_CONVERSATION)
+                        {
+                            users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                            createAndOpenThreadWithUsers("", users);
                         }
+                        else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                        @Override
-                        public void onItemError(BUser user, Object o) {
-                            dismissProgDialog();
-                            setResult(Activity.RESULT_CANCELED);
-                            finish();
+                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                                @Override
+                                public boolean onItem(BUser user) {
+                                    return false;
+                                }
+
+                                @Override
+                                public void onDone() {
+                                    PickFriendsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dismissProgDialog();
+
+                                            setResult(Activity.RESULT_OK);
+                                            finish();
+
+                                            if (animateExit)
+                                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+
+                                            // Updating the ui.
+                                            if (thread.getType() == BThread.Type.Private)
+                                            {
+                                                Intent intent = new Intent(MainActivity.Action_Refresh_Fragment);
+                                                intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.Conversations);
+                                                sendBroadcast(intent);
+                                            }
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onItemError(BUser user, Object o) {
+                                    PickFriendsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dismissProgDialog();
+                                            setResult(Activity.RESULT_CANCELED);
+                                            finish();
+                                        }
+                                    });
+
+                                }
+                            }, users );
                         }
-                    }, users );
-                }
+                    }
+                }).start();
             }
         });
       /*  listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -240,13 +258,16 @@ public class PickFriendsActivity extends BaseActivity {
 
         initList();
 
-        etSearch.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener searchClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PickFriendsActivity.this, SearchActivity.class);
                 startActivity(intent);
             }
-        });
+        };
+
+        txtSearch.setOnClickListener(searchClickListener);
+        imgSearch.setOnClickListener(searchClickListener);
 
         chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

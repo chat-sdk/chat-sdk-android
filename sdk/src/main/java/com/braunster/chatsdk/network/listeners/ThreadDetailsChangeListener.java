@@ -37,6 +37,7 @@ public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
                 @Override
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
                     BFirebaseInterface.objectFromSnapshot(dataSnapshot);
                     Message message = new Message();
                     message.what = AppEvents.THREAD_DETAILS_CHANGED;
