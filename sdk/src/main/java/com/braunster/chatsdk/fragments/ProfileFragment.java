@@ -76,6 +76,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private static final String S_I_D_PHONE = "saved_phones_data";
     private static final String S_I_D_EMAIL = "saved_email_data";
 
+    private static final String LOGIN_TYPE = "login_type";
+
     private EditText etName, etMail, etPhone;
     private boolean isNameTouched = false, isEmailTouched = false, isPhoneTouched = false, isProfilePicChanged;
 
@@ -316,6 +318,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             outState.putString(S_I_D_NAME, savedState.getString(S_I_D_NAME) );
             outState.putString(S_I_D_EMAIL, savedState.getString(S_I_D_EMAIL));
             outState.putString(S_I_D_PHONE, savedState.getString(S_I_D_PHONE));
+            outState.putInt(LOGIN_TYPE, savedState.getInt(LOGIN_TYPE));
 
             savedState = null;
             return;
@@ -330,6 +333,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         outState.putString(S_I_D_NAME, etName.getText().toString());
         outState.putString(S_I_D_EMAIL, etMail.getText().toString());
         outState.putString(S_I_D_PHONE, etPhone.getText().toString());
+
+        outState.putInt(LOGIN_TYPE, savedState.getInt(LOGIN_TYPE));
     }
 
     @Override
@@ -686,7 +691,6 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 Session.openActiveSessionFromCache(getActivity()).closeAndClearTokenInformation();
             }
         }
-
 
         Intent logout = new Intent(MainActivity.Action_Logged_Out);
         getActivity().sendBroadcast(logout);

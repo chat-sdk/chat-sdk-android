@@ -1,4 +1,6 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.braunster.androidchatsdk.app.MainActivity">
 
     <!-- Base application theme. -->
     <style name="ChatSDKTheme" parent="Theme.Base.AppCompat.Light">
@@ -13,7 +15,7 @@
 
     <!--Action bar style-->
     <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@android:color/holo_blue_dark</item>
+        <item name="android:background">@color/chat_sdk_theme_color</item>
         <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
     </style>
 
@@ -64,8 +66,23 @@
         <item name="android:padding">7dp</item>
     </style>
 
-    <!--<item name="android:layout_marginTop">8dp</item>-->
-    <!--<item name="android:layout_marginBottom">8dp</item>-->
-    <!--<item name="android:layout_marginRight">4dp</item>-->
-    <!--<item name="android:layout_marginLeft">4dp</item>-->
+    <!--View Pager-->
+    <style name="TabSlidingPager" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="pstsShouldExpand">true</item>
+        <item name="pstsIndicatorColor">@color/chat_sdk_theme_color</item>
+        <item name="background">@drawable/background_tab</item>
+    </style>
+
+    <!--Message Option Button Style-->
+    <style name="MessageOptionButtonStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@null</item>
+        <item name="android:textColor">@color/chat_sdk_option_button_text_color_selector</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
 </resources>

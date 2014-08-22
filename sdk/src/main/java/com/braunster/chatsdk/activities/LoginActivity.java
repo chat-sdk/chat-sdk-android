@@ -202,7 +202,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 intent.putExtra(BaseActivity.FROM_LOGIN, true);
                 startActivity(intent);
             }
-        }, 5000);
+        }, 0);
     }
 
     /* Exit Stuff*/

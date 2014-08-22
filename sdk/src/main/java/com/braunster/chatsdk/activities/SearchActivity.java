@@ -4,13 +4,17 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -42,7 +46,8 @@ public class SearchActivity extends BaseActivity {
 
     public static final String USER_IDS_LIST = "User_Ids_List";
 
-    private Button btnSearch, btnAddContacts;
+    private ImageView btnSearch;
+    private Button btnAddContacts;
     private EditText etInput;
     private ListView listResults;
     private UsersWithStatusListAdapter adapter;
@@ -74,7 +79,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     private void initViews(){
-        btnSearch = (Button) findViewById(R.id.chat_sdk_btn_search);
+        btnSearch = (ImageView) findViewById(R.id.chat_sdk_btn_search);
         btnAddContacts = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         etInput = (EditText) findViewById(R.id.chat_sdk_et_search_input);
         listResults = (ListView) findViewById(R.id.chat_sdk_list_search_results);
@@ -102,6 +107,18 @@ public class SearchActivity extends BaseActivity {
 
         adapter = new UsersWithStatusListAdapter(this, !action.equals(ACTION_ADD_WHEN_FOUND));
         listResults.setAdapter(adapter);
+
+        etInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH)
+                {
+                    btnSearch.callOnClick();
+                }
+
+                return false;
+            }
+        });
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -7,3 +7,4 @@
 # Change the values of the location to match the iOS values. Location: -122.406417,37.785834,Location,10000.0 i.e. latitude, longitude, caption, map scale in meter.
 
 # Switch view loading to asynctask.
+# Show "No private threads" when there is no privte thread.

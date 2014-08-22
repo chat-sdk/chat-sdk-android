@@ -7,8 +7,6 @@ android {
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion 19
-        versionCode 1
-        versionName '0.2.8'
     }
 
     buildTypes {

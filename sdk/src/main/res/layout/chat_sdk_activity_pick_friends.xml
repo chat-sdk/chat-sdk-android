@@ -28,7 +28,7 @@
         android:id="@+id/chat_sdk_et_search"
         android:text="@string/search"
         android:textSize="19sp"
-        android:layout_marginLeft="4dp"
+        android:layout_marginLeft="8dp"
         android:layout_toRightOf="@id/chat_sdk_search_image"
         android:layout_below="@id/textView"
         android:gravity="center_vertical"

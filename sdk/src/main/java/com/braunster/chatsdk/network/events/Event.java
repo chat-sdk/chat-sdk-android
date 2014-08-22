@@ -5,10 +5,13 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.AppEvents;
 
 public class Event implements AppEvents{
-    // TODO observe user from this class and add thread is added listener.
+
     private String tag = "";
     private String entityId = "";
 
+    public enum Type{
+
+    }
     public Event(String tag, String entityId) {
         this.tag = tag;
         this.entityId = entityId;

@@ -39,6 +39,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     private Activity mActivity;
 
     private List<UserListItem> listData = new ArrayList<UserListItem>();
+    private List<String> userIDs = new ArrayList<String>();
 
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
@@ -220,6 +221,8 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 
         listData.add(user);
 
+        userIDs.add(user.getEntityID());
+
         notifyDataSetChanged();
     }
 
@@ -231,8 +234,19 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     }
 
     public void setListData(List<UserListItem> listData) {
+        this.listData.clear();
+        userIDs.clear();
+
         this.listData = listData;
+
+        for (UserListItem item : listData)
+            userIDs.add(item.getEntityID());
+
         notifyDataSetChanged();
+    }
+
+    public boolean isItemExist(String entityID){
+        return userIDs.contains(entityID);
     }
 
     public List<UserListItem> getListData() {
@@ -347,7 +361,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     /** Make aUserListItem list from BUser list.
      * @param withHeaders If true list will have headers for online and offline users.
      * @return a list with all the user item for the adapter.*/
-    public static  List<UserListItem> makeList(List<BUser> users, boolean withHeaders){
+    public static List<UserListItem> makeList(List<BUser> users, boolean withHeaders){
         return makeList(users, withHeaders, false);
     }
 

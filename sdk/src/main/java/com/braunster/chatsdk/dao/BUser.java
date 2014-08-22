@@ -407,7 +407,7 @@ public class BUser extends BUserEntity  {
 
     @Override //Note Done!
     public void updateFromMap(Map<String, Object> map) {
-        if (map.containsKey(BDefines.Keys.BAuthenticationID) && !map.get(BDefines.Keys.BAuthenticationID).equals(""))
+        if (map.containsKey(BDefines.Keys.BAuthenticationID) && StringUtils.isNotEmpty((CharSequence) map.get(BDefines.Keys.BAuthenticationID)))
             this.authenticationId = (String) map.get(BDefines.Keys.BAuthenticationID);
 
         if (map.containsKey(BDefines.Keys.BOnline) && !map.get(BDefines.Keys.BOnline).equals(""))
@@ -446,7 +446,7 @@ public class BUser extends BUserEntity  {
         if (lastOnline == null)
             lastOnline = new Date();
 
-        map.put(BDefines.Keys.BAuthenticationID, authenticationId);
+        map.put(BDefines.Keys.BAuthenticationID, (authenticationId == null ? "Huston we have a problem" : authenticationId) );
         map.put(BDefines.Keys.BColor, messageColor);
         map.put(BDefines.Keys.BTextColor, textColor);
         map.put(BDefines.Keys.BFontName, fontName);
@@ -471,6 +471,11 @@ public class BUser extends BUserEntity  {
 
     @Override
     public List<BThread> getThreads(){
+        return getThreads(-1);
+    }
+
+    @Override
+    public List<BThread> getThreads(int type){
         /* Getting the thread list by getBLinkData can be out of date so we get the data from the database*/
 
         List<BThread> threads = new ArrayList<BThread>();
@@ -480,10 +485,20 @@ public class BUser extends BUserEntity  {
 
         if (list == null) return null;
 
+        BThread thread;
+        boolean checkType = (type == BThread.Type.Private || type == BThread.Type.Public);
         for (BLinkData data : list)
         {
-            if (data.getBThread() != null)
-                threads.add(data.getBThread());
+            thread = data.getBThread();
+            if (thread != null)
+            {
+                if (!checkType)
+                {
+                    threads.add(data.getBThread());
+                }
+                else if (thread.getType() != null && type == thread.getType())
+                    threads.add(thread);
+            }
         }
 
         return threads;

@@ -1,6 +1,7 @@
 package com.braunster.chatsdk.object;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ public class ChatSDKThreadPool {
             Runtime.getRuntime().availableProcessors();
 
     private ThreadPoolExecutor threadPool;
+    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
     private static ChatSDKThreadPool instance;
 
@@ -39,9 +41,20 @@ public class ChatSDKThreadPool {
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
                 workQueue);
+
+        scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(NUMBER_OF_CORES);
+
     }
 
     public void execute(Runnable runnable){
         threadPool.execute(runnable);
+    }
+
+    public void scheduleExecute(Runnable runnable, long delay){
+        scheduledThreadPoolExecutor.schedule(runnable, delay, TimeUnit.SECONDS);
+    }
+
+    public boolean removeSchedule(Runnable runnable){
+        return scheduledThreadPoolExecutor.remove(runnable);
     }
 }

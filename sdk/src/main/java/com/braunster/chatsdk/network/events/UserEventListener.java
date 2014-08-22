@@ -8,6 +8,11 @@ public abstract class UserEventListener extends Event implements AppEvents{
         super(tag, userEntityId);
     }
 
+    public UserEventListener(String tag){
+        super(tag, "");
+    }
+
+
     @Override
     public abstract boolean onUserDetailsChange(BUser user);
 }

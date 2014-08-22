@@ -57,6 +57,8 @@ public abstract class BUserEntity extends Entity<BUser> {
 
     public abstract List<BThread> getThreads();
 
+    public abstract List<BThread> getThreads(int type);
+
     public abstract List<BUser> getContacts();
 
     public abstract void addContact(BUser user);

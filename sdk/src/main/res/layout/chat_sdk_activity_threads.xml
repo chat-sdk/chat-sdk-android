@@ -14,7 +14,7 @@
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progress_bar"
+        android:id="@+id/chat_sdk_progress_bar"
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 </RelativeLayout>

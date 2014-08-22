@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    android:shape="rectangle">
+    <item
+        android:bottom="0dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
 
-    <solid android:color="@color/chat_sdk_message_option_background" />
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="rectangle"
+            >
 
-    <stroke
-        android:width="2dip"
-        android:color="@color/dark_gray" />
+            <solid android:color="@color/chat_sdk_message_option_background" />
 
-    <corners android:bottomRightRadius="7dp"
-        android:bottomLeftRadius="7dp"
-        android:topLeftRadius="7dp"
-        android:topRightRadius="7dp"/>
-</shape>
+            <stroke
+                android:width="1dip"
+                android:color="@color/chat_sdk_theme_color" />
+
+            <corners android:radius="7dp"/>
+        </shape>
+
+    </item>
+
+</layer-list>

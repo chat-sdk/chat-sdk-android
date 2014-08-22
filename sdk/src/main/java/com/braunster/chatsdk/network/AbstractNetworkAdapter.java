@@ -7,7 +7,9 @@ import android.util.Log;
 import android.util.TimingLogger;
 
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
+import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
@@ -463,6 +465,80 @@ public abstract class AbstractNetworkAdapter {
             timingLogger.addSplit("Filtering threads.");
 
         Collections.sort(threads, new ThreadsSorter());
+        if (DEBUG)
+            timingLogger.addSplit("Ordering threads.");
+
+        if (DEBUG)
+            timingLogger.dumpToLog();
+
+        return threads;
+    }
+
+    public List<ThreadsListAdapter.ThreadListItem> threadItemsWithType(int threadType) {
+        if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
+        if (currentUser() == null) {
+            if (DEBUG) Log.e(TAG, "threadItemsWithType, Current user is null");
+            return null;
+        }
+
+        TimingLogger timingLogger;
+        if (DEBUG)
+            timingLogger = new TimingLogger(TAG, "threadItemsWithType, Type: " + threadType);
+
+        BUser currentUser = currentUser(), threadCreator;
+
+        // Get the thread list ordered desc by the last message added date.
+        List<BThread> threadsFromDB;
+
+        if (threadType == BThread.Type.Private)
+        {
+            if (DEBUG) Log.v(TAG, "threadItemsWithType, loading private.");
+            threadsFromDB = currentUser().getThreads(BThread.Type.Private);
+        }
+        else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
+
+        List<ThreadsListAdapter.ThreadListItem> threads = new ArrayList<ThreadsListAdapter.ThreadListItem>();
+        if (DEBUG) Log.v(TAG, "threadItemsWithType, size: " + threadsFromDB.size());
+        if (DEBUG)
+            timingLogger.addSplit("Loading threads.");
+
+        if (threadType == BThread.Type.Public)
+        {
+            for (BThread thread : threadsFromDB)
+                if (thread.getType() == BThread.Type.Public)
+                    threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+        }
+        else {
+            for (BThread thread : threadsFromDB) {
+                if (DEBUG) Log.i(TAG, "threadItemsWithType, ThreadID: " + thread.getId());
+
+                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+                {
+                    threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+                    continue;
+                }
+                else if (DEBUG) Log.e(TAG, "threadItemsWithType, Thread has no messages.");
+
+                threadCreator = thread.getCreator();
+                if (threadCreator != null )
+                {
+                    if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                    {
+                        if (DEBUG) Log.d(TAG, "Current user is the creator.");
+                        threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+                        continue;
+                    }
+                }
+            }
+        }
+
+        if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
+
+        if (DEBUG)
+            timingLogger.addSplit("Filtering threads.");
+
+        Collections.sort(threads, new ThreadsItemSorter());
         if (DEBUG)
             timingLogger.addSplit("Ordering threads.");
 

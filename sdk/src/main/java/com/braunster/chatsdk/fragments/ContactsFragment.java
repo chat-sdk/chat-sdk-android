@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -26,11 +27,17 @@ import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
+import com.braunster.chatsdk.object.UIUpdater;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -39,8 +46,6 @@ import java.util.List;
  */
 public class ContactsFragment extends BaseFragment {
 
-    // TODO show user profile when pressing on contacts
-    
     private static final String TAG = ContactsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ContactsFragment;
 
@@ -56,23 +61,28 @@ public class ContactsFragment extends BaseFragment {
 
     public static final String LOADING_MODE = "Loading_Mode";
     public static final String CLICK_MODE = "Click_Mode";
+    public static final String EVENT_TAG = "EventTag";
     public static final String IS_DIALOG = "is_dialog";
 
     private UsersWithStatusListAdapter adapter;
+    private ProgressBar progressBar;
     private ListView listView;
 
     private List<BUser> sourceUsers = null;
     private String title = "";
     private int loadingMode, clickMode;
     private Object extraData ="";
+    private String eventTAG;
+    private UIUpdater uiUpdater;
 
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
     private boolean isDialog = false;
 
     /* Initializers.*/
-    public static ContactsFragment newInstance() {
+    public static ContactsFragment newInstance(String eventTAG) {
         ContactsFragment f = new ContactsFragment();
         f.setLoadingMode(MODE_LOAD_CONTACTS);
+        f.setEventTAG(eventTAG);
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
@@ -99,9 +109,17 @@ public class ContactsFragment extends BaseFragment {
         return f;
     }
 
-    public static ContactsFragment newThreadUsersDialogInstance(String threadID, String title) {
+    /** Creates a new contact dialog.
+     * @param threadID - The id of the thread that his users is the want you want to show.
+     * @param title - The title of the dialog.
+     * @param withUpdates - the dialog will listen to user details changes.*/
+    public static ContactsFragment newThreadUsersDialogInstance(String threadID, String title, boolean withUpdates) {
         ContactsFragment f = new ContactsFragment();
         f.setTitle(title);
+
+        if (withUpdates)
+            f.setEventTAG(DaoCore.generateEntity());
+
         f.setLoadingMode(MODE_LOAD_THREAD_USERS);
         f.setDialog();
         f.setExtraData(threadID);
@@ -123,6 +141,9 @@ public class ContactsFragment extends BaseFragment {
     }
 
 
+    public void setEventTAG(String eventTAG) {
+        this.eventTAG = eventTAG;
+    }
 
     private void setDialog(){
         isDialog = true;
@@ -155,6 +176,7 @@ public class ContactsFragment extends BaseFragment {
             loadingMode = savedInstanceState.getInt(LOADING_MODE);
             clickMode = savedInstanceState.getInt(CLICK_MODE);
             isDialog = savedInstanceState.getBoolean(IS_DIALOG);
+            eventTAG = savedInstanceState.getString(EVENT_TAG);
         }
 
         if (!isDialog) {
@@ -189,11 +211,17 @@ public class ContactsFragment extends BaseFragment {
         super.onSaveInstanceState(outState);
         outState.putInt(LOADING_MODE, loadingMode);
         outState.putBoolean(IS_DIALOG, isDialog);
+        outState.putString(EVENT_TAG, eventTAG);
     }
 
     @Override
     public void initViews(){
         listView = (ListView) mainView.findViewById(R.id.chat_sdk_list_contacts);
+
+        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
+
+        adapter = new UsersWithStatusListAdapter(getActivity());
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -252,7 +280,7 @@ public class ContactsFragment extends BaseFragment {
 
         if (BNetworkManager.sharedManager().getNetworkAdapter() != null)
         {
-            adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true, true));
+            adapter.setListData(UsersWithStatusListAdapter.makeList(sourceUsers, true, true));
             setList();
         }
         else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
@@ -274,9 +302,33 @@ public class ContactsFragment extends BaseFragment {
             return;
         }
 
-        ChatSDKThreadPool.getInstance().execute(new Runnable() {
+        final boolean isFirst;
+        if (uiUpdater != null)
+        {
+            isFirst = false;
+            uiUpdater.setKilled(true);
+            ChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
+        }
+        else
+        {
+            isFirst = true;
+            if (adapter != null && adapter.getListData().size() == 0)
+            {
+                progressBar.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        uiUpdater = new UIUpdater() {
             @Override
             public void run() {
+
+                if (isKilled())
+                {
+                    if (DEBUG) Log.v(TAG, "Killed");
+                    return;
+                }
+
                 // If this is not a dialog we will load the contacts of the user.
                 switch (loadingMode) {
                     case MODE_LOAD_CONTACTS:
@@ -296,17 +348,22 @@ public class ContactsFragment extends BaseFragment {
                         break;
                 }
 
-                if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
-                    adapter = new UsersWithStatusListAdapter(getActivity(), UsersWithStatusListAdapter.makeList(sourceUsers, true, true));
-                }
+                Message message = new Message();
+                message.what = 1;
+                message.obj = UsersWithStatusListAdapter.makeList(sourceUsers, true, true);
 
-                handler.sendEmptyMessage(1);
+                handler.sendMessage(message);
+
+                uiUpdater = null;
             }
-        });
+        };
+
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater, isFirst ? 0 : loadingMode == MODE_LOAD_CONTACTS ?  4 : 0);
     }
 
     @Override
     public void clearData() {
+        if (DEBUG) Log.d(TAG, "ClearData");
         if (adapter != null)
         {
             adapter.getListData().clear();
@@ -322,13 +379,20 @@ public class ContactsFragment extends BaseFragment {
             switch (msg.what)
             {
                 case 1:
+                    adapter.setListData(((List<UsersWithStatusListAdapter.UserListItem>) msg.obj));
+
+                    if (progressBar.getVisibility() == View.VISIBLE)
+                    {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        listView.setVisibility(View.VISIBLE);
+                    }
                     setList();
             }
         }
     };
 
     private void setList(){
-        listView.setAdapter(adapter);
+        if (DEBUG) Log.v(TAG, "Set List, " + ( adapter == null ? "Adapter is null" : adapter.getListData().size()));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -411,14 +475,6 @@ public class ContactsFragment extends BaseFragment {
                             }
                         }, clickedUser, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
                 }
-
-                                 /* for (int i = 0; i < 20; i++)
-                            {
-                                UserDetailsChangeListener userDetailsChangeListener = new UserDetailsChangeListener(clickedUser.getEntityID(), handler);
-                                FirebasePaths.userRef(clickedUser.getEntityID()).addValueEventListener(userDetailsChangeListener);
-                            }*/
-
-
             }
         });
 
@@ -470,7 +526,37 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (DEBUG) Log.v(TAG, "onResume");
+        if (DEBUG) Log.v(TAG, "onResume, TAG: " + eventTAG);
+
+        AppEventListener eventListener = new AppEventListener(eventTAG){
+            @Override
+            public boolean onUserDetailsChange(BUser user) {
+                if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
+                loadDataOnBackground();
+                return false;
+            }
+
+            @Override
+            public boolean onUserAddedToThread(String threadId, String userId) {
+                if (DEBUG) Log.d(TAG, "onUserAddedToThread");
+                if(!adapter.isItemExist(userId))
+                    return false;
+
+                BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+
+                if (thread.getType() != null && thread.getType() != BThreadEntity.Type.Public)
+                {
+                    loadDataOnBackground();
+                }
+
+                return false;
+            }
+        };
+
+        if (StringUtils.isNotEmpty(eventTAG))
+        {
+            EventManager.getInstance().addAppEvent(eventListener);
+        }
     }
 
     @Override
@@ -492,5 +578,6 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        EventManager.getInstance().removeEventByTag(eventTAG);
     }
 }

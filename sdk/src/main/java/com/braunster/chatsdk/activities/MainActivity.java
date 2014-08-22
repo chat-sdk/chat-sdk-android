@@ -21,9 +21,7 @@ import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.fragments.BaseFragment;
 import com.braunster.chatsdk.fragments.ProfileFragment;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -100,7 +98,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void run() {
                 EventManager.getInstance().removeEventByTag(appEventListener.getTag());
-                EventManager.getInstance().addEventIfNotExist(appEventListener);
+                EventManager.getInstance().addAppEvent(appEventListener);
 
                 tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                     private int lastPage = 0;
@@ -167,95 +165,12 @@ public class MainActivity extends BaseActivity {
                 uiUpdateContact;
 
         @Override
-        public boolean onThreadDetailsChanged(final String threadId) {
-            super.onThreadDetailsChanged(threadId);
-
-            if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
-
-            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
-
-//            updateThread(thread);
-            updateForThread(thread);
-            return false;
-        }
-
-        @Override
-        public boolean onUserAddedToThread(String threadId, String userId) {
-            if (DEBUG) Log.v(TAG, "onUserAddedToThread");
-            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
-
-            if (thread.getType() != null && thread.getType() != BThreadEntity.Type.Public)
-            {
-
-
-                if (uiUpdateContact != null)
-                    uiUpdateContact.setKilled(true);
-
-                handler.removeCallbacks(uiUpdateContact);
-
-                uiUpdateContact = new UIUpdater(){
-                    @Override
-                    public void run() {
-                        if (DEBUG) Log.d(TAG, "Run");
-                        if (!isKilled())
-                        {
-                            BaseFragment contacs = getFragment(PagerAdapterTabs.Contacts);
-                            if (contacs!=null)
-                                contacs.loadDataOnBackground();
-                        }
-                    }
-                };
-
-                handler.postDelayed(uiUpdateContact, uiUpdateDelay);
-
-            }
-            return false;
-        }
-
-        @Override
-        public boolean onUserDetailsChange(BUser user) {
-            if (DEBUG) Log.v(TAG, "onUserDetailsChange, UserName: " + user.getMetaName());
-
-            if (uiUpdaterDetailsChanged != null)
-                uiUpdaterDetailsChanged.setKilled(true);
-
-            handler.removeCallbacks(uiUpdaterDetailsChanged);
-
-            uiUpdaterDetailsChanged = new UIUpdater(){
-                @Override
-                public void run() {
-                    if (DEBUG) Log.d(TAG, "Run");
-                    if (!isKilled())
-                    {
-                        if (DEBUG) Log.d(TAG, "Not killed");
-                        BaseFragment contacs, conv;
-                        contacs = getFragment(PagerAdapterTabs.Contacts);
-                        conv = getFragment(PagerAdapterTabs.Conversations);
-
-                        if (contacs!=null)
-                            contacs.loadDataOnBackground();
-
-                        if (conv!= null)
-                            conv.loadDataOnBackground();
-                    }
-                }
-            };
-
-            handler.postDelayed(uiUpdaterDetailsChanged, uiUpdateDelay);
-
-            return false;
-        }
-
-        @Override
         public boolean onMessageReceived(final BMessage message) {
             if (DEBUG) Log.v(TAG, "onMessageReceived");
 
-//            updateThread(message.getBThreadOwner());
-              updateForThread(message.getBThreadOwner());
-
             // Only notify for private threads.
             if (message.getBThreadOwner().getType() == BThread.Type.Public) {
-                return true;
+                return false;
             }
 
             // Make sure the message that incoming is not the user message.
@@ -285,75 +200,6 @@ public class MainActivity extends BaseActivity {
             handler.postDelayed(uiUpdaterMessages, messageDelay);
 
             return false;
-        }
-
-        private void updateThread(final BThread thread){
-            if (DEBUG) Log.v(TAG, "updateThread, Name: " + thread.displayName());
-
-            BaseFragment fragment = null;
-            if (thread.getType() == BThread.Type.Private)
-            {
-                if (BNetworkManager.sharedManager().getNetworkAdapter().currentUser().equals(thread.getCreator()) || thread.getMessages().size() > 0)
-                    fragment = getFragment(PagerAdapterTabs.Conversations);
-            }
-            else if (thread.getType() == BThread.Type.Public)
-            {
-                fragment = getFragment(PagerAdapterTabs.ChatRooms);
-            }
-
-            if (fragment != null)
-                fragment.refreshForEntity(thread);
-        }
-
-        private void updateForThread(BThread thread){
-            if (thread.getType() == BThread.Type.Private)
-            {
-                if (uiUpdaterThreadDetailsChangedPrivate != null)
-                {
-                    uiUpdaterThreadDetailsChangedPrivate.setKilled(true);
-                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPrivate);
-                }
-
-                uiUpdaterThreadDetailsChangedPrivate = new UIUpdater(){
-
-                    @Override
-                    public void run() {
-                        if (!isKilled())
-                        {
-                            BaseFragment fragment;
-                            fragment = getFragment(PagerAdapterTabs.Conversations);
-
-                            if (fragment != null)
-                                fragment.loadDataOnBackground();
-                        }
-                    }
-                };
-                handler.postDelayed(uiUpdaterThreadDetailsChangedPrivate, uiUpdateDelay);
-            }
-            else if (thread.getType() == BThread.Type.Public)
-            {
-                if (uiUpdaterThreadDetailsChangedPublic != null)
-                {
-                    uiUpdaterThreadDetailsChangedPublic.setKilled(true);
-                    handler.removeCallbacks(uiUpdaterThreadDetailsChangedPublic);
-                }
-
-                uiUpdaterThreadDetailsChangedPublic = new UIUpdater(){
-
-                    @Override
-                    public void run() {
-                        if (!isKilled())
-                        {
-                            BaseFragment fragment;
-                            fragment = getFragment(PagerAdapterTabs.ChatRooms);
-
-                            if (fragment != null)
-                                fragment.loadDataOnBackground();
-                        }
-                    }
-                };
-                handler.postDelayed(uiUpdaterThreadDetailsChangedPublic, uiUpdateDelay);
-            }
         }
     };
 
@@ -422,7 +268,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mainReceiver);
+
+        // If the register did not had a chance to register due to ordination change.
+        try{
+            unregisterReceiver(mainReceiver);
+        }catch (IllegalArgumentException e){
+
+        }
     }
 
     private void firstTimeInApp(){

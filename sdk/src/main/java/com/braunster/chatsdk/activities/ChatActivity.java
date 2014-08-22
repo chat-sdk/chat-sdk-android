@@ -386,7 +386,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                 {
                     if (message.getType() != BMessage.Type.TEXT && isAdded)
                     {
-                        scrollListTo(-1);
+                        scrollListTo(-1, true);
                     }
                     return false;
                 }
@@ -612,7 +612,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         }
         else if (id == R.id.action_chat_sdk_show)
         {
-            ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
+            ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:", true);
             contactsFragment.show(getSupportFragmentManager(), "Contacts");
         }
 
@@ -841,6 +841,8 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         if (scrollState == SCROLL_STATE_IDLE)
             scrolling = false;
         else scrolling = true;
+
+        messagesListAdapter.setScrolling(scrolling);
     }
 
     @Override
@@ -855,7 +857,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         loadMessages(true, false, 0);
     }
 
-    private void loadMessages(final boolean retain, boolean hideListView, final int offsetOrPos){
+    private void loadMessages(final boolean retain, final boolean hideListView, final int offsetOrPos){
         if (thread == null)
         {
             Log.e(TAG, "Thread is null");
@@ -919,7 +921,8 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                                 }
                             });
                         }
-                        else scrollListTo(offsetOrPos);
+                        // If list view is visible smooth scroll else dirty.
+                        else scrollListTo(offsetOrPos,  !hideListView);
                     }
                 });
             }
@@ -936,15 +939,20 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         loadMessages(false, true, scrollingPos);
     }
 
-    private void scrollListTo(final int pos) {
+    private void scrollListTo(final int pos, final boolean smooth) {
+
         listMessages.post(new Runnable() {
             @Override
             public void run() {
                 // Select the last row so it will scroll into view...
-                if (pos== -1)
-                    listMessages.setSelection(messagesListAdapter.getCount()-1);
+                int position = pos;
+                if (pos == -1)
+                    position = messagesListAdapter.getCount()-1;
+
+                if (smooth)
+                    listMessages.smoothScrollToPosition(position);
                 else
-                    listMessages.setSelection(pos);
+                    listMessages.setSelection(position);
 
                 if (listMessages.getVisibility() == View.INVISIBLE)
                     animateListView();
@@ -1039,7 +1047,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                         dismissProgressCardWithSmallDelay();
 
                         if(messagesListAdapter.addRow(message))
-                            scrollListTo(-1);
+                            scrollListTo(-1, true);
                     }
 
                     @Override

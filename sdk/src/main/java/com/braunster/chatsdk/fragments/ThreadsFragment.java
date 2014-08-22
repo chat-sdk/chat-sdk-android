@@ -20,13 +20,19 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
+import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
+import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
 
@@ -39,11 +45,13 @@ public class ThreadsFragment extends BaseFragment {
 
     private static final String TAG = ThreadsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ThreadsFragment;
+    public static final String APP_EVENT_TAG= "ChatRoomsFrag";
 
     private ListView listThreads;
     private ThreadsListAdapter adapter;
     private ActivityListener activityListener;
     private ProgressBar progressBar;
+    private UIUpdater uiUpdater;
 
     public static ThreadsFragment newInstance() {
         ThreadsFragment f = new ThreadsFragment();
@@ -76,7 +84,7 @@ public class ThreadsFragment extends BaseFragment {
     @Override
     public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
-        progressBar = (ProgressBar) mainView.findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progress_bar);
         initList();
     }
 
@@ -108,6 +116,7 @@ public class ThreadsFragment extends BaseFragment {
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
+
     @Override
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
@@ -117,25 +126,46 @@ public class ThreadsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        if (adapter != null && adapter.getListData().size() == 0) {
+        final boolean isFirst;
+        if (uiUpdater != null)
+        {
+            isFirst = false;
+            uiUpdater.setKilled(true);
+            ChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
+        }
+        else
+        {
+            isFirst = true;
+        }
+
+        final boolean noItems = adapter != null && adapter.getListData().size() == 0;
+        if (isFirst && noItems) {
             listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        new Thread(new Runnable() {
+        uiUpdater = new UIUpdater() {
             @Override
             public void run() {
-                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
 
-                if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+                if (isKilled())
+                    return;
+
+//                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
+
+//                if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = ThreadsListAdapter.ThreadListItem.makeList(threads);
+                message.obj = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public);
 
                 handler.sendMessage(message);
+
+                uiUpdater = null;
             }
-        }).start();
+        };
+
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater, noItems && isFirst ? 0 : isFirst ? 1 : 4);
     }
 
     @Override
@@ -143,6 +173,23 @@ public class ThreadsFragment extends BaseFragment {
         super.refreshForEntity(entity);
         adapter.replaceOrAddItem((BThread) entity);
     }
+
+    AppEventListener eventListener = new AppEventListener(APP_EVENT_TAG){
+        @Override
+        public boolean onMessageReceived(BMessage message) {
+            if (message.getBThreadOwner().getType() == BThread.Type.Public)
+                loadDataOnBackground();
+            return super.onMessageReceived(message);
+        }
+
+        @Override
+        public boolean onThreadDetailsChanged(String threadId) {
+            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+            if (thread.getType() != null && thread.getType() == BThread.Type.Public)
+                loadDataOnBackground();
+            return super.onThreadDetailsChanged(threadId);
+        }
+    };
 
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -232,6 +279,9 @@ public class ThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        EventManager.getInstance().removeEventByTag(APP_EVENT_TAG);
+        EventManager.getInstance().addAppEvent(eventListener);
     }
 
     @Override

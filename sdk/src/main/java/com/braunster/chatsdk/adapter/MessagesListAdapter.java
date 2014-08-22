@@ -13,6 +13,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -69,6 +71,8 @@ public class MessagesListAdapter extends BaseAdapter{
     private List<String> cacheKeys = new ArrayList<String>();
 
     private long userID = 0;
+
+    private boolean isScrolling = false;
 
     private LayoutInflater inflater;
 
@@ -155,7 +159,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 case TYPE_IMAGE_USER:
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
 
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
 
                     break;
@@ -163,14 +167,14 @@ public class MessagesListAdapter extends BaseAdapter{
                 case TYPE_IMAGE_FRIEND:
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
                     break;
 
                 case TYPE_LOCATION_USER:
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
 
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
 
                     break;
@@ -178,7 +182,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 case TYPE_LOCATION_FRIEND:
                     row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_bar);
+                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
 
                     break;
@@ -232,7 +236,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Load profile picture.
 //        if (position == 0 || message.sender != listData.get(position-1).sender) {
-            loadProfilePic(holder.profilePicImage, message.profilePicUrl);
+            loadProfilePic(holder.profilePicImage, message.profilePicUrl, message.rowType % 2 == 0);
 //        } else profilePicImage.setVisibility(View.INVISIBLE);
 
         // Add click event to image if message is picture or location.
@@ -305,18 +309,57 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     /** Load profile picture for given url and image view.*/
-    private void loadProfilePic(final CircleImageView circleImageView, String url){
+    private void loadProfilePic(final CircleImageView circleImageView, String url, final boolean sender){
+
         if (url == null)
         {
             circleImageView.setImageResource(R.drawable.ic_profile);
             return;
         }
 
+
         VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
             @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (isImmediate && response.getBitmap() == null)
+                {
+                    circleImageView.setImageResource(R.drawable.ic_profile);
+                    return;
+                }
+
                 if (response.getBitmap() != null)
-                    circleImageView.setImageBitmap(response.getBitmap());
+                {
+                    if (!isScrolling)
+                    {
+                        circleImageView.setImageBitmap(response.getBitmap());
+                    }
+                    else
+                    {
+                        if (sender)
+                            circleImageView.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_right));
+                        else
+                            circleImageView.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_left));
+
+                        circleImageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+                                circleImageView.setImageBitmap(response.getBitmap());
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+
+                        circleImageView.getAnimation().start();
+                    }
+                }
             }
 
             @Override
@@ -672,6 +715,10 @@ public class MessagesListAdapter extends BaseAdapter{
         ChatBubbleImageView2 image;
         TextView txtContent;
         ProgressBar progressBar;
+    }
+
+    public void setScrolling(boolean isScrolling) {
+        this.isScrolling = isScrolling;
     }
 }
 

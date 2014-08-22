@@ -2,6 +2,9 @@
 <resources>
     <color name="chat_sdk_shadow">#CC000000</color>
 
+    <color name="chat_sdk_theme_color">@android:color/holo_blue_dark</color>
+    <color name="chat_sdk_theme_background">@android:color/white</color>
+
     <color name="chat_sdk_button_login_button_color">#1c93db</color>
     <color name="chat_sdk_button_login_button_color_pressed">#1874ac</color>
 

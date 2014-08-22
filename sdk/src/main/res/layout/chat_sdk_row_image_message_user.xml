@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/chat_sdk_image"
         android:layout_toLeftOf="@id/img_user_image"
-        android:id="@id/progress_bar"
+        android:id="@id/chat_sdk_progress_bar"
         android:layout_centerVertical="true"/>
 
 </RelativeLayout>

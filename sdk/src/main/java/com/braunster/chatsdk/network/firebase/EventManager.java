@@ -31,13 +31,17 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -60,11 +64,8 @@ public class EventManager implements AppEvents {
     private static final String MSG_PREFIX = "msg_";
     private static final String USER_PREFIX = "user_";
 
-    private List<Event> eventsList = new ArrayList<Event>();
-    private List<UserEventListener> userEventList = new ArrayList<UserEventListener>();
-    private List<MessageEventListener> messageEventList = new ArrayList<MessageEventListener>();
-    private List<ThreadEventListener> threadEventList = new ArrayList<ThreadEventListener>();
-    private List<String> tags = new ArrayList<String>();
+    ConcurrentHashMap<String, Event> events = new ConcurrentHashMap<String, Event>();
+
     public List<String> threadsIds = new ArrayList<String>();
     public List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
     public List<String> handledMessagesThreadsID = new ArrayList<String>();
@@ -81,7 +82,10 @@ public class EventManager implements AppEvents {
     private final EventHandler handler = new EventHandler(this);
 
     private EventManager(){
-
+        threadsIds = Collections.synchronizedList(threadsIds);
+        handledAddedUsersToThreadIDs = Collections.synchronizedList(handledAddedUsersToThreadIDs);;
+        handledMessagesThreadsID = Collections.synchronizedList(handledMessagesThreadsID);
+        usersIds = Collections.synchronizedList(usersIds);
     }
 
     /*TODO Events first triggered the the specific event listeners saved in the list's.
@@ -139,17 +143,18 @@ public class EventManager implements AppEvents {
         });
 
         // TODO add option to listen to specific thread and from specific type.
-        for (ThreadEventListener te : threadEventList)
+        for (Event te : events.values())
+        {
             te.onUserAddedToThread(threadId, userId);
+            te.onUserAddedToThread(threadId, userId);
+        }
 
-        for (Event ae : eventsList)
-            ae.onUserAddedToThread(threadId, userId);
         return false;
     }
 
     @Override
     public boolean onUserDetailsChange(BUser user) {
-        for (UserEventListener ue : userEventList)
+        for (Event ue : events.values())
         {
             // We check to see if the listener specified a specific user that he wants to listen to.
             // If we could find and match the data we ignore it.
@@ -160,15 +165,12 @@ public class EventManager implements AppEvents {
             ue.onUserDetailsChange(user);
         }
 
-        for (Event ae : eventsList)
-            ae.onUserDetailsChange(user);
-
         return false;
     }
 
     @Override
     public boolean onMessageReceived(BMessage message) {
-        for (MessageEventListener me : messageEventList)
+        for (Event me : events.values())
         {
             // We check to see if the listener specified a specific thread that he wants to listen to.
             // If we could find and match the data we ignore it.
@@ -179,9 +181,6 @@ public class EventManager implements AppEvents {
 
             me.onMessageReceived(message);
         }
-
-        for (AppEvents ae : eventsList)
-            ae.onMessageReceived(message);
 
         return false;
     }
@@ -200,19 +199,21 @@ public class EventManager implements AppEvents {
             }
         });
 
-        for (Event ae : eventsList)
+        for (Event ae : events.values())
+        {
+            ae.onThreadDetailsChanged(threadId);
             ae.onThreadDetailsChanged(threadId);
 
+        }
+
         // TODO add option to listen to specific thread and from specific type.
-        for (ThreadEventListener te : threadEventList)
-            te.onThreadDetailsChanged(threadId);
 
         return false;
     }
 
     @Override
     public boolean onThreadIsAdded(String threadId) {
-        for (Event ae : eventsList)
+        for (Event ae : events.values())
             ae.onThreadIsAdded(threadId);
 
         return false;
@@ -224,41 +225,25 @@ public class EventManager implements AppEvents {
     public void addEventIfNotExist(Event event){
         if (DEBUG) Log.v(TAG, "addEventIfNotExist, Tag: " + event.getTag());
 
-         if (isEventTagExist(event.getTag()))
-             return;
-
-        if (event instanceof ThreadEventListener)
-            threadEventList.add((ThreadEventListener) event);
-
-        else if (event instanceof MessageEventListener)
-            messageEventList.add((MessageEventListener) event);
-
-        else if (event instanceof UserEventListener)
-            userEventList.add((UserEventListener) event);
-
-        else eventsList.add(event);
+         events.putIfAbsent(event.getTag(), event);
 
         if (DEBUG) Log.d(TAG, "addEventIfNotExist, Added.");
     }
 
     public void addAppEvent(AppEventListener appEvents){
-        eventsList.add(appEvents);
-        tags.add(appEvents.getTag());
+        events.put(appEvents.getTag(), appEvents);
     }
 
     public void addThreadEvent(ThreadEventListener threadEvent){
-        threadEventList.add(threadEvent);
-        tags.add(threadEvent.getTag());
+        events.put(threadEvent.getTag(), threadEvent);
     }
 
     public void addMessageEvent(MessageEventListener messgaeEvent){
-        messageEventList.add(messgaeEvent);
-        tags.add(messgaeEvent.getTag());
+        events.put(messgaeEvent.getTag(), messgaeEvent);
     }
 
     public void addUserEvent(UserEventListener userEvent){
-        userEventList.add(userEvent);
-        tags.add(userEvent.getTag());
+        events.put(userEvent.getTag(), userEvent);
     }
 
     /** Removes an app event by tag.*/
@@ -266,60 +251,21 @@ public class EventManager implements AppEvents {
 
         if (DEBUG) Log.v(TAG, "removeEventByTag, Tag: " + tag);
 
-        tags.remove(tag);
+        if (StringUtils.isEmpty(tag)){
+            return false;
+        }
 
-        for (Event ae : eventsList)
-            if (ae.getTag().equals(tag))
-            {
-                eventsList.remove(ae);
-                return true;
-            }
+        boolean removed = events.remove(tag) != null;
 
-        for (MessageEventListener me : messageEventList)
-            if (me.getTag().equals(tag))
-            {
-                messageEventList.remove(me);
-                return true;
-            }
+        if (DEBUG && !removed) Log.d(TAG, "Event was not found.");
 
-        for (ThreadEventListener te : threadEventList)
-            if (te.getTag().equals(tag))
-            {
-                threadEventList.remove(te);
-                return true;
-            }
-
-        for (UserEventListener ue : userEventList)
-            if (ue.getTag().equals(tag))
-            {
-                userEventList.remove(ue);
-                return true;
-            }
-
-        if (DEBUG) Log.d(TAG, "Event was not found.");
-        return false;
+        return removed;
     }
 
     /** Check if there is a AppEvent listener with the currnt tag, Could be AppEvent or one of his child(MessageEventListener, ThreadEventListener, UserEventListener).
      * @return true if found.*/
     public boolean isEventTagExist(String tag){
-        for (Event ae : eventsList)
-            if (ae.getTag().equals(tag))
-                return true;
-
-        for (MessageEventListener me : messageEventList)
-            if (me.getTag().equals(tag))
-                return true;
-
-        for (ThreadEventListener te : threadEventList)
-            if (te.getTag().equals(tag))
-                return true;
-
-        for (UserEventListener ue : userEventList)
-            if (ue.getTag().equals(tag))
-                return true;
-
-        return false;
+        return events.containsKey(tag);
     }
 
     /*##########################################################################################*/
@@ -610,12 +556,8 @@ public class EventManager implements AppEvents {
     private void clearLists(){
         listenerAndRefs.clear();
 
-        eventsList.clear();
-        userEventList.clear();
-        messageEventList.clear();
-        threadEventList.clear();
+        events.clear();
 
-        tags.clear();
         threadsIds.clear();
         usersIds.clear();
         handledMessagesThreadsID.clear();
@@ -637,8 +579,8 @@ public class EventManager implements AppEvents {
         for (String u: usersIds)
             Log.i(TAG, "handled users details, user ID: "  + u);
 
-        for (Event e : messageEventList)
-            Log.i(TAG, "Msg Event, Tag: " + e.getTag());
+ /*       for (Event e : messageEventList)
+            Log.i(TAG, "Msg Event, Tag: " + e.getTag());*/
 
         for (String s : handledAddedUsersToThreadIDs)
             Log.i(TAG, "handled added users, Thread ID: " + s);

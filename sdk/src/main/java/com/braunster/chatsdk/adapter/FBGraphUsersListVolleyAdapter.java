@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class FBFriendsListVolleyAdapter extends BaseAdapter {
+public class FBGraphUsersListVolleyAdapter extends BaseAdapter {
 
-    private static final String TAG = FBFriendsListVolleyAdapter.class.getSimpleName();
+    private static final String TAG = FBGraphUsersListVolleyAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.FBFriendsListVolleyAdapter;
 
     private Activity mActivity;
@@ -39,11 +39,11 @@ public class FBFriendsListVolleyAdapter extends BaseAdapter {
          RoundedCornerNetworkImageView circleNetworkImageView;
     }
 
-    public FBFriendsListVolleyAdapter(Activity activity){
+    public FBGraphUsersListVolleyAdapter(Activity activity){
         mActivity = activity;
     }
 
-    public FBFriendsListVolleyAdapter(Activity activity, List<GraphUser> listData){
+    public FBGraphUsersListVolleyAdapter(Activity activity, List<GraphUser> listData){
         mActivity = activity;
         this.listData = listData;
     }

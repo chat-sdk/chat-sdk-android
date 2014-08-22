@@ -19,7 +19,7 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
 
     private final String[] TITLES = {"Conversations", "Chat Rooms", "Contacts", "Profile"};
 
-    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ConversationsFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance(), ProfileFragment.newInstance()};
+    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ConversationsFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance("ConvFragmentPage"), ProfileFragment.newInstance()};
 
     private final int[] ICONS = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
 

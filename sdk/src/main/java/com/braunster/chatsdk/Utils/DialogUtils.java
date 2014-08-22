@@ -39,7 +39,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
-import com.braunster.chatsdk.adapter.FBFriendsListVolleyAdapter;
+import com.braunster.chatsdk.adapter.FBGraphUsersListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -197,7 +197,7 @@ public class DialogUtils {
                     // The regular adapter (i.e not volley) have problem sometime with the loading so ive changed to the volley.
                     // The adapter duplicate pictures.
 //                    FBFriendsListAdapter adapter = new FBFriendsListAdapter(getActivity(), graphUsers);
-                    FBFriendsListVolleyAdapter adapter = new FBFriendsListVolleyAdapter(getActivity(), graphUsers);
+                    FBGraphUsersListVolleyAdapter adapter = new FBGraphUsersListVolleyAdapter(getActivity(), graphUsers);
                     ((ListView) view.findViewById(R.id.chat_sdk_listview_friends_list)).setAdapter(adapter);
                 }
 

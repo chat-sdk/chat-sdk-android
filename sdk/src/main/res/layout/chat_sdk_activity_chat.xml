@@ -54,8 +54,8 @@
         android:id="@+id/linear">
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_options"
             android:background="@android:color/transparent"
             android:layout_gravity="bottom"
@@ -71,7 +71,7 @@
 
             <EditText
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/chat_sdk_et_message_to_send"
                 android:hint="Message"
                 android:gravity="bottom"
@@ -82,8 +82,11 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
+            android:layout_height="48dp"
+            android:text="@string/send"
+            android:textColor="@color/chat_sdk_send_button_text_color_selector"
+            android:gravity="center"
+            android:background="@drawable/chat_sdk_send_button_selector"
             android:padding="10dp"
             android:textSize="18sp"
             android:layout_gravity="bottom"

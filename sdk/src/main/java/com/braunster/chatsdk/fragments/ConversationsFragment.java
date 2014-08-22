@@ -21,10 +21,14 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.PickFriendsActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
+import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
@@ -35,15 +39,16 @@ import java.util.List;
  */
 public class ConversationsFragment extends BaseFragment {
 
-    // TODO multiselect of contacts to start chatting with.
-
     private static final String TAG = ConversationsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ConversationsFragment;
+    public static final String APP_EVENT_TAG= "ConverstaionFragment";
+
     private ListView listThreads;
     private ThreadsListAdapter adapter;
     private ProgressBar progressBar;
     private BUser user;
 
+    private TimingLogger timings;
     private UIUpdater uiUpdater;
 
     public static ConversationsFragment newInstance() {
@@ -77,7 +82,7 @@ public class ConversationsFragment extends BaseFragment {
     @Override
     public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
-        progressBar = (ProgressBar) mainView.findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progress_bar);
         initList();
     }
 
@@ -124,7 +129,6 @@ public class ConversationsFragment extends BaseFragment {
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
-    TimingLogger timings;
 
     @Override
     public void loadDataOnBackground() {
@@ -142,44 +146,61 @@ public class ConversationsFragment extends BaseFragment {
             return;
         }
 
-        if (uiUpdater == null && adapter != null && adapter.getListData().size() == 0) {
+        final boolean isFirst;
+        if (uiUpdater != null)
+        {
+            isFirst = false;
+            uiUpdater.setKilled(true);
+            ChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
+        }
+        else
+        {
+            isFirst = true;
+        }
+
+        final boolean noItems = adapter != null && adapter.getListData().size() == 0;
+
+        if (isFirst && noItems) {
             if (DEBUG) Log.v(TAG, "loadDataOnBackground, hiding list.");
             listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        if (uiUpdater != null)
-            uiUpdater.setKilled(true);
-
         uiUpdater = new UIUpdater() {
             @Override
             public void run() {
-                if (isKilled())
+                if (DEBUG) Log.d(TAG, "Run, " + isFirst + ", " + noItems + ", " + isKilled());
+
+                if (isKilled() && !isFirst)
                 {
                     if (DEBUG) Log.v(TAG, "uiUpdater, is killed.");
                     return;
+
                 }
 
-                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
-                if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+                if (DEBUG) {
+                    timings.addSplit("Loading threads");
+                }
 
-                if (DEBUG) timings.addSplit("Loading threads");
+                List<ThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private);
+
+                if (DEBUG) {
+                    Log.d(TAG, "Thread Loaded");
+                    timings.addSplit("Loading threads");
+                }
+
+                uiUpdater = null;
 
                 Message message = new Message();
-                message.what = 1;
-
-                List<ThreadsListAdapter.ThreadListItem> list =ThreadsListAdapter.ThreadListItem.makeList(threads);
-                if (DEBUG) {Log.d(TAG, "MakList - Before"); timings.addSplit("Making list.");}
-
                 message.obj = list;
+                message.what = 1;
                 handler.sendMessage(message);
 
                 if (DEBUG) timings.addSplit("Sending message to handler.");
-
             }
         };
 
-        ChatSDKThreadPool.getInstance().execute(uiUpdater);
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater, isFirst && noItems ? 0 : isFirst ? 1 : 4);
     }
 
     @Override
@@ -189,9 +210,9 @@ public class ConversationsFragment extends BaseFragment {
             return;;
 
         adapter.replaceOrAddItem((BThread) entity);
-        if (listThreads.getVisibility() == View.INVISIBLE)
+        if (progressBar.getVisibility() == View.VISIBLE)
         {
-            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.GONE);
             listThreads.setVisibility(View.VISIBLE);
         }
     }
@@ -205,19 +226,49 @@ public class ConversationsFragment extends BaseFragment {
         }
     }
 
-    Handler handler = new Handler(Looper.getMainLooper()){
+    AppEventListener eventListener = new AppEventListener(APP_EVENT_TAG){
         @Override
+        public boolean onMessageReceived(BMessage message) {
+            if (DEBUG) Log.v(TAG, "onMessageReceived");
+            if (message.getBThreadOwner().getType() == BThread.Type.Private)
+                loadDataOnBackground();
+            return super.onMessageReceived(message);
+        }
 
+        @Override
+        public boolean onThreadDetailsChanged(String threadId) {
+            if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
+            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+            if (thread.getType() != null && thread.getType() == BThread.Type.Private)
+                loadDataOnBackground();
+            return super.onThreadDetailsChanged(threadId);
+        }
+
+        @Override
+        public boolean onUserDetailsChange(BUser user) {
+            if (DEBUG) Log.v(TAG, "onUserDetailsChange");
+            loadDataOnBackground();
+            return super.onUserDetailsChange(user);
+        }
+    };
+
+    private Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
             switch (msg.what)
             {
                 case 1:
+                    if (DEBUG) Log.d(TAG, "UpdaeUI" + ((List<ThreadsListAdapter.ThreadListItem>) msg.obj).size());
                     timings.addSplit("Updating UI");
                     adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    listThreads.setVisibility(View.VISIBLE);
+                    if (progressBar.getVisibility() == View.VISIBLE)
+                    {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        listThreads.setVisibility(View.VISIBLE);
+                    }
+
                     timings.dumpToLog();
                     timings.reset(TAG, "loadDataOnBackground");
                     break;
@@ -254,6 +305,9 @@ public class ConversationsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        EventManager.getInstance().removeEventByTag(APP_EVENT_TAG);
+        EventManager.getInstance().addAppEvent(eventListener);
     }
 
     @Override

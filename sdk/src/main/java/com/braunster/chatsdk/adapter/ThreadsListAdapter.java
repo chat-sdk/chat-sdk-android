@@ -84,7 +84,7 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
+    public View getView(final int position, View view, ViewGroup viewGroup) {
 
         row = view;
 
@@ -120,12 +120,12 @@ public class ThreadsListAdapter extends BaseAdapter {
 
         //If has image url saved load it.
         int size = holder.imgIcon.getHeight();
+        holder.setDefaultImg(listData.get(position));
         if (!listData.get(position).getImageUrl().equals(""))
             VolleyUtills.getImageLoader().get(listData.get(position).getImageUrl(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
-
                         if (DEBUG) Log.i(TAG, "Loading thread picture from url");
 
                         // load image into imageview
@@ -135,13 +135,9 @@ public class ThreadsListAdapter extends BaseAdapter {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Image Load Error: " + error.getMessage());
+                    if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
                 }
             }, size, size);
-        else if (listData.get(position).getUsersAmount() > 2)
-            holder.imgIcon.setImageResource(R.drawable.ic_profile);
-        else
-            holder.imgIcon.setImageResource(R.drawable.ic_users);
 
         return row;
     }
@@ -149,6 +145,13 @@ public class ThreadsListAdapter extends BaseAdapter {
     private class ViewHolder{
         TextView txtName, txtDate, txtLastMsg;
         CircleImageView imgIcon;
+
+        private void setDefaultImg(ThreadListItem item){
+            if (item.getUsersAmount() > 2)
+                imgIcon.setImageResource(R.drawable.ic_profile);
+            else
+                imgIcon.setImageResource(R.drawable.ic_users);
+        }
     }
 
     public void addRow(ThreadListItem thread){

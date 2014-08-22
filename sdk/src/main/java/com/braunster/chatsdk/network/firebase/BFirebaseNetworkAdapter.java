@@ -319,7 +319,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 name =(String) thirdPartyData.get(Keys.Facebook.DisplayName);
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                 {
-                    if (DEBUG) Log.i("FATAL", "adding new meta name");
                     user.setMetaName(name);
                 }
 
@@ -327,7 +326,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 email = "Email Adress";
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
                 {
-                    if (DEBUG) Log.i(TAG, "adding new meta email");
                     user.setMetaEmail(email);
                 }
 
@@ -373,12 +371,6 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
             default: break;
         }
-
-        // ASK is this draw a bitmap with his name panted?
-        /*// If the user doesn't have an image generate a temporay image
-        if (!user.picture) {
-            user.picture = [JSQMessagesAvatarFactory standardAvatarWithName:user.name];
-        }*/
 
         // Message Color.
         if (StringUtils.isEmpty(user.getMessageColor()) /*FIxME*/|| user.getMessageColor().equals("Red"))
