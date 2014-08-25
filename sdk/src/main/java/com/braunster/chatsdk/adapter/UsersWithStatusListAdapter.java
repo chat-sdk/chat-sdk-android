@@ -148,20 +148,24 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
                     VolleyUtills.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                            if (isImmediate && response.getBitmap() == null)
+                            {
+                                holder.profilePicture.setImageResource(R.drawable.ic_profile);
+                                return;
+                            }
+
                             if (response.getBitmap() != null) {
 
                                 if (DEBUG) Log.i(TAG, "Loading profile picture from url");
-
                                 // load image into imageview
                                 holder.profilePicture.setImageBitmap(response.getBitmap());
-
-//                                userItem.saveThumbnail(mActivity, response.getBitmap());
                             }
                         }
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.e(TAG, "Image Load Error: " + error.getMessage());
+                            if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+                            holder.profilePicture.setImageResource(R.drawable.ic_profile);
                         }
                     },size, size);
                 else holder.profilePicture.setImageResource(R.drawable.ic_profile);

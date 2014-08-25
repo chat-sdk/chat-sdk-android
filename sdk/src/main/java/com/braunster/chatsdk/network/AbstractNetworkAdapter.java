@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
@@ -318,14 +319,13 @@ public abstract class AbstractNetworkAdapter {
      * @param location       is the Latitude and Longitude of the picked location.
      * @param threadEntityId the id of the thread that the message is sent to.
      */
-    public void sendMessageWithLocation(String filePath, final LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
+    public void sendMessageWithLocation(final String filePath, final LatLng location, long threadEntityId, final CompletionListenerWithData<BMessage> listener) {
         /* Prepare the message object for sending, after ready send it using send message abstract method.*/
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
         message.setType(LOCATION);
         message.setDate(new Date());
         message.setBUserSender(currentUser());
-
 
         ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
@@ -355,6 +355,8 @@ public abstract class AbstractNetworkAdapter {
                 else {
                     listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
                 }
+
+                new File(filePath).delete();
             }
         });
     }
@@ -474,6 +476,20 @@ public abstract class AbstractNetworkAdapter {
         return threads;
     }
 
+  /*  DaoSession session = null;
+    try {
+        session = DaoCore.daoMaster.newSession();
+        return session.callInTx(new ThreadsItemsWithTypeCall(threadType));
+    } catch (Exception e) {
+        if (DEBUG) Log.e(TAG, "threadItemsWithType call exception, message: " + e.getMessage());
+        return null;
+    }
+    finally {
+        if (session != null)
+        {
+            session.clear();
+        }
+    }*/
     public List<ThreadsListAdapter.ThreadListItem> threadItemsWithType(int threadType) {
         if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
         if (currentUser() == null) {
@@ -546,6 +562,89 @@ public abstract class AbstractNetworkAdapter {
             timingLogger.dumpToLog();
 
         return threads;
+    }
+
+    private  class ThreadsItemsWithTypeCall implements Callable<List<ThreadsListAdapter.ThreadListItem>>{
+
+        private int threadType;
+
+        @Override
+        public List<ThreadsListAdapter.ThreadListItem> call() throws Exception {
+            if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
+
+            BUser currentUser = currentUser(), threadCreator;
+
+            if (currentUser == null) {
+                if (DEBUG) Log.e(TAG, "threadItemsWithType, Current user is null");
+                return null;
+            }
+
+            TimingLogger timingLogger;
+            if (DEBUG)
+                timingLogger = new TimingLogger(TAG, "threadItemsWithType, Type: " + threadType);
+
+
+
+            // Get the thread list ordered desc by the last message added date.
+            List<BThread> threadsFromDB;
+
+            if (threadType == BThread.Type.Private)
+            {
+                if (DEBUG) Log.v(TAG, "threadItemsWithType, loading private.");
+                threadsFromDB = currentUser.getThreads(BThread.Type.Private);
+            }
+            else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
+
+            List<ThreadsListAdapter.ThreadListItem> threads = new ArrayList<ThreadsListAdapter.ThreadListItem>();
+            if (DEBUG) Log.v(TAG, "threadItemsWithType, size: " + threadsFromDB.size());
+            if (DEBUG)
+                timingLogger.addSplit("Loading threads.");
+
+            if (threadType == BThread.Type.Public)
+            {
+                for (BThread thread : threadsFromDB)
+                    if (thread.getType() == BThread.Type.Public)
+                        threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+            }
+            else {
+                for (BThread thread : threadsFromDB) {
+                    if (DEBUG) Log.i(TAG, "threadItemsWithType, ThreadID: " + thread.getId());
+
+                    if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+                    {
+                        threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+                        continue;
+                    }
+                    else if (DEBUG) Log.e(TAG, "threadItemsWithType, Thread has no messages.");
+
+                    threadCreator = thread.getCreator();
+                    if (threadCreator != null )
+                    {
+                        if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                        {
+                            if (DEBUG) Log.d(TAG, "Current user is the creator.");
+                            threads.add(ThreadsListAdapter.ThreadListItem.fromBThread(thread));
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
+
+            if (DEBUG)
+                timingLogger.addSplit("Filtering threads.");
+
+            Collections.sort(threads, new ThreadsItemSorter());
+            if (DEBUG)
+                timingLogger.addSplit("Ordering threads.");
+
+            if (DEBUG)
+                timingLogger.dumpToLog();
+
+            return threads;
+        }
     }
 
     public abstract void deleteThread(BThread thread, CompletionListener listener);

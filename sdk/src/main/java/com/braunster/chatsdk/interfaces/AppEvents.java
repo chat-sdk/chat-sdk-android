@@ -19,4 +19,6 @@ public interface AppEvents {
     public boolean onThreadIsAdded(String threadId);
     public boolean onThreadDetailsChanged(String threadId);
     public boolean onUserAddedToThread(String threadId, String userId);
+
+
 }

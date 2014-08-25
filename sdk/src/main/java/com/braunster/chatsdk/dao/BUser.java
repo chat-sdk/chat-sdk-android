@@ -524,7 +524,7 @@ public class BUser extends BUserEntity  {
             }
             else if (contact.getAuthenticationId() != null)
             {
-                user = DaoCore.fetchOrCreateUserWithAuthinticationID(contact.getAuthenticationId());
+                user = DaoCore.fetchOrCreateUserWithAuthenticationID(contact.getAuthenticationId());
             }
 
             if (user != null)

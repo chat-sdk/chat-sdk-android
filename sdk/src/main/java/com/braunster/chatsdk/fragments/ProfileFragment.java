@@ -334,7 +334,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         outState.putString(S_I_D_EMAIL, etMail.getText().toString());
         outState.putString(S_I_D_PHONE, etPhone.getText().toString());
 
-        outState.putInt(LOGIN_TYPE, savedState.getInt(LOGIN_TYPE));
+        outState.putInt(LOGIN_TYPE, loginType);
     }
 
     @Override
@@ -727,9 +727,9 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     public void updateProfileIfNeeded(){
         boolean toUpdate = isEmailTouched || isPhoneTouched || isNameTouched || isProfilePicChanged;
 
-        Log.v(TAG, "updateProfileIfNeeded, toUpdate: " + toUpdate);
+        /*if (DEBUG) Log.v(TAG, "updateProfileIfNeeded, toUpdate: " + toUpdate);
 
-        Log.v(TAG, "updateProfileIfNeeded " + (isEmailTouched?",Email ":"") + (isNameTouched?",Name ":"") + (isPhoneTouched?",Phone ":"") + (isProfilePicChanged?",Pic Changed":""));
+        if (DEBUG) Log.v(TAG, "updateProfileIfNeeded " + (isEmailTouched?",Email ":"") + (isNameTouched?",Name ":"") + (isPhoneTouched?",Phone ":"") + (isProfilePicChanged?",Pic Changed":""));*/
 
 //        if (!toUpdate)
 //            return;

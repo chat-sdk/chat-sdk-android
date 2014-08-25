@@ -32,7 +32,7 @@ public class BDefines {
 
 
     public static final class Defaults{
-        public static final String MessageColor = "#4262EF";
+        public static final String MessageColor = "0.635294 0.552941 0.686275 1";
         public static final String MessageTextColor = "#000000";
         public static final String MessageFontName= "Roboto";
         public static final String MessageSendingColor = "#C3C2C4";

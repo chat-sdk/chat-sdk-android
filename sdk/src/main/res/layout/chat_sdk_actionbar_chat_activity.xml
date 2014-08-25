@@ -11,8 +11,7 @@
         android:layout_margin="4dp"
         android:id="@+id/chat_sdk_image_container">
 
-        <com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView
-            style="@style/RoundedCornerImageViewStyle"
+        <ImageView
             android:layout_height="32dp"
             android:layout_width="32dp"
             android:layout_gravity="center_vertical"

@@ -277,7 +277,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         loginInfoMap.put(Prefs.AccountTypeKey, fuser.getProvider().ordinal());
         setLoginInfo(loginInfoMap);
 
-        final BUser user = DaoCore.fetchOrCreateUserWithAuthinticationID(aid);
+        final BUser user = DaoCore.fetchOrCreateUserWithAuthenticationID(aid);
         user.setAuthenticationType(fuser.getProvider().ordinal());
 
         BFirebaseInterface.selectEntity(user,
@@ -859,7 +859,7 @@ TODO
             String authID = getCurrentUserAuthenticationId();
             if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
 
-            currentUser = DaoCore.fetchOrCreateUserWithAuthinticationID(authID);
+            currentUser = DaoCore.fetchOrCreateUserWithAuthenticationID(authID);
 
             lastCurrentUserCall = System.currentTimeMillis();
 

@@ -7,13 +7,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
+import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
 import java.io.File;
@@ -73,21 +75,27 @@ public class Utils {
         return  new File(Uri.parse(getRealPathFromURI(activity, uri)).getPath());
     }
 
-    public static float hexToFloat(String hex){
-        Long i = Long.parseLong(hex, 16);
-        Float f = Float.intBitsToFloat(i.intValue());
-        if (DEBUG) Log.d(TAG, "Float: " +f);
-        return f;
+    public static int getColorFromDec(String color){
+        String[] split = color.split(" ");
+
+        if (split.length != 4)
+            return BMessage.randomColor();
+
+        int bubbleColor = -1;
+
+        bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
+
+        return bubbleColor;
     }
 
-    static  class ImageSaver{
-
-        public static final String IMAGE_DIR_NAME = "AndroidChatSDKTestImage";
+    public static  class ImageSaver{
+        public static final String IMAGE_DIR_NAME = "AndroidChatSDKImage";
         public static final String THUMBNAILS_DIR_NAME = "thumbnails";
         public static final String LOCATION_DIR_NAME = "location_snapshots";
         public static final String MAIN_DIR_NAME = "AndroidChatSDKTTestAppDir";
 
         public static final String IMG_FILE_ENDING = ".jpg";
+        public static final String PNG_FILE_ENDING = ".9.png";
 
         static boolean isExternalStorageWritable() {
             String state = Environment.getExternalStorageState();
@@ -95,19 +103,6 @@ public class Utils {
                 return true;
             }
             return false;
-        }
-
-        public static boolean createAppDirIfNotExists(Context context) {
-            if (DEBUG) Log.v(TAG, "createAppDirIfNotExists");
-            boolean ret = true;
-            File mydir = context.getDir(MAIN_DIR_NAME, Context.MODE_PRIVATE);
-
-            if (!mydir.exists()) {
-                Log.e(Utils.TAG, "Problem creating Image folder");
-                ret = false;
-            }
-
-            return ret;
         }
 
         public static boolean createInternalDirIfNotExists(Context context, String name) {
@@ -134,7 +129,11 @@ public class Utils {
             return mydir;
         }
 
-        static File saveFile(Context context,File dir, String name, String type, Bitmap image, boolean external){
+        static File saveFile(File dir, String name, String type, Bitmap image, boolean external){
+            return saveFile(dir, name, type, image, Bitmap.CompressFormat.JPEG, external);
+        }
+
+        private static File saveFile(File dir, String name, String type, Bitmap image, Bitmap.CompressFormat compressFormat, boolean external){
 
             if (external)
             {
@@ -162,7 +161,7 @@ public class Utils {
                 {
                     stream = new FileOutputStream(file);
                     /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
-                    image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+                    image.compress(compressFormat, 80, stream);
                     stream.flush();
                     stream.close();
                     return file;
@@ -183,191 +182,6 @@ public class Utils {
 
         public static String getPath(Context context, String name){
            return getInternalDir(context, name).getPath();
-        }
-    }
-
-    public static class LocationImageHandler extends ImageSaver{
-        public static File saveLocationImage(Context context, Bitmap image, String name){
-            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(context,getInternalDir(context, LOCATION_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-        }
-
-        public static File getLocationFile(Context context, String fileEntityID){
-            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
-                return null;
-
-            return new File(getInternalDir(context, LOCATION_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
-        }
-    }
-
-    public static class ThumbnailsHandler extends ImageSaver{
-        public static File saveImageThumbnail(Context context, Bitmap image, String name){
-            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(context, getInternalDir(context, THUMBNAILS_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-        }
-
-        public static File getThumbnail(Context context, String fileEntityID){
-            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
-                return null;
-
-            return new File(getInternalDir(context, THUMBNAILS_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
-        }
-    }
-
-    public static class FileSaver{
-
-        public static final String IMAGE_DIR_NAME = "AndroidChatSDK";
-        public static final String THUMBNAILS_DIR_NAME = "thumbnails";
-        public static final String LOCATION_DIR_NAME = "location_snapshots";
-
-        public static final String appDireName = "AndroidChatSDK";
-
-        public static final String filePath = Environment.getExternalStorageDirectory()
-                + File.separator + appDireName + File.separator ;
-
-        public static final String IMG_FILE_ENDING = ".jpg";
-
-        public static File saveImage(Context context, Bitmap image, String name){
-            if (name == null) name = DaoCore.generateEntity();
-            File file =  saveFile(getAlbumStorageDir(IMAGE_DIR_NAME).getAbsolutePath(),
-                   name, IMG_FILE_ENDING, image, true);
-
-            if (file != null)
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(context, new String[] { file.toString() }, null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            public void onScanCompleted(String path, Uri uri) {
-                                if(DEBUG) Log.i(TAG, "Scanned " + path + ":");
-                                if(DEBUG) Log.i(TAG, "-> uri=" + uri);
-                            }
-                        });
-
-            return file;
-        }
-
-        public static File saveLocationImage(Context context, Bitmap image, String name){
-            if (!createAppDirIfNotExists(context))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(context,getInternalDir(context, LOCATION_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-        }
-
-        public static File saveImageThumbnail(Context context, Bitmap image, String name){
-            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(context, getInternalDir(context, THUMBNAILS_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-        }
-
-        private static File saveFile(String path,String name, String type, Bitmap image, boolean external){
-
-            if (external)
-            {
-                if (!isExternalStorageWritable())
-                {
-                    if (Utils.DEBUG) Log.d(Utils.TAG, "No External storage.");
-                    return null;
-                }
-            }
-            // TODO check for internal dir
-//            else if (!createAppDirIfNotExists(path, name))
-//                return null;
-
-            OutputStream stream = null;
-            try {
-                // Save the file to the internal/external directory.jpg"
-                // Path == null writing to the internal else to the path specified.
-                String filePath = File.separator+ path + File.separator + name + type;
-                if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
-                File file = new File("/data" + filePath);
-                if (file.createNewFile())
-                {
-                    stream = new FileOutputStream(file);
-                    /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
-                    image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
-                    stream.flush();
-                    stream.close();
-                    return file;
-                }
-                return null;
-
-            } catch (FileNotFoundException e) {
-                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        private static File saveFile(Context context,File dir, String name, String type, Bitmap image, boolean external){
-
-            if (external)
-            {
-                if (!isExternalStorageWritable())
-                {
-                    if (Utils.DEBUG) Log.d(Utils.TAG, "No External storage.");
-                    return null;
-                }
-            }
-            // TODO check for internal dir
-//            else if (!createAppDirIfNotExists(path, name))
-//                return null;
-
-            OutputStream stream = null;
-            try {
-                if (dir == null) {
-                    return null;
-                }
-
-                String filePath = dir.getPath()+ File.separator + name + type;
-                if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
-
-                File file = new File(filePath);
-                if (file.createNewFile())
-                {
-                    stream = new FileOutputStream(file);
-                    /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
-                    image.compress(Bitmap.CompressFormat.JPEG, 80, stream);
-                    stream.flush();
-                    stream.close();
-                    return file;
-                }
-                if (DEBUG) Log.e(TAG, "Unable to create file.");
-                return null;
-
-            } catch (FileNotFoundException e) {
-                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-
-
-
-        /* Checks if external storage is available for read and write */
-        private static boolean isExternalStorageWritable() {
-            String state = Environment.getExternalStorageState();
-            if (Environment.MEDIA_MOUNTED.equals(state)) {
-                return true;
-            }
-            return false;
         }
 
         public static File getAlbumStorageDir(String albumName) {
@@ -399,43 +213,74 @@ public class Utils {
             return file;
         }
 
-        public static boolean createAppDirIfNotExists(Context context) {
-            if (DEBUG) Log.v(TAG, "createAppDirIfNotExists");
-            boolean ret = true;
-            File mydir = context.getDir(appDireName, Context.MODE_PRIVATE);
+        private static final String BubbleDir = "Bubbles";
+        public static Bitmap[] fetchOrCreateBubbleForColor(Context context, int color){
+            File dir = getInternalDir(context, BubbleDir);
 
-            if (!mydir.exists()) {
-                Log.e(Utils.TAG, "Problem creating Image folder");
-                ret = false;
+            Bitmap[] bubbles = new Bitmap[2];
+
+            if (dir.exists())
+            {
+               String hexName = /*Integer.toHexString(color)*/"Names";
+                Log.d(TAG, "HexName: " + hexName);
+
+                Log.d(TAG, "Left not exist");
+                bubbles[0] = ImageUtils.get_ninepatch(R.drawable.bubble_left, 26, 26, context);
+                bubbles[0] = ImageUtils.replaceIntervalColor(bubbles[0], 40, 75, 130, 140, 190, 210, color);
+                saveFile(dir, hexName + "L", PNG_FILE_ENDING, bubbles[0], Bitmap.CompressFormat.PNG, false);
+
+                Log.d(TAG, "Right not exist");
+                bubbles[1] = ImageUtils.get_ninepatch(R.drawable.bubble_right, 26, 26, context);
+                bubbles[1] = ImageUtils.replaceIntervalColor(bubbles[1], 40, 75, 130, 140, 190, 210, color);
+                saveFile(dir, hexName + "R", PNG_FILE_ENDING, bubbles[1], Bitmap.CompressFormat.PNG , false);
+
+                return bubbles;
             }
 
-            return ret;
+
+
+
+
+
+
+            Log.d(TAG, "Dir not exist");
+            return null;
         }
+    }
 
-        public static boolean createInternalDirIfNotExists(Context context, String name) {
-            if (DEBUG) Log.v(TAG, "createAppDirIfNotExists");
-            boolean ret = true;
-            File mydir = context.getDir(appDireName + File.separator + name, Context.MODE_PRIVATE);
-
-            if (!mydir.exists()) {
-                Log.e(Utils.TAG, "Problem creating Image folder");
-                ret = false;
-            }
-
-            return ret;
-        }
-
-        private static File getInternalDir(Context context, String name){
-            File mydir = context.getDir(appDireName + File.separator + name, Context.MODE_PRIVATE);
-
-            if (!mydir.exists()) {
-                Log.e(Utils.TAG, "Problem creating Image folder");
+    public static class LocationImageHandler extends ImageSaver{
+        public static File saveLocationImage(Context context, Bitmap image, String name){
+            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
                 return null;
-            }
 
-            return mydir;
+            if (name == null) name = DaoCore.generateEntity();
+            return saveFile(getInternalDir(context, LOCATION_DIR_NAME), name, IMG_FILE_ENDING, image, false);
+            // TODO delete file after used.
         }
 
+        public static File getLocationFile(Context context, String fileEntityID){
+            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
+                return null;
+
+            return new File(getInternalDir(context, LOCATION_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
+        }
+    }
+
+    public static class ThumbnailsHandler extends ImageSaver{
+        public static File saveImageThumbnail(Context context, Bitmap image, String name){
+            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
+                return null;
+
+            if (name == null) name = DaoCore.generateEntity();
+            return saveFile(getInternalDir(context, THUMBNAILS_DIR_NAME), name, IMG_FILE_ENDING, image, false);
+        }
+
+        public static File getThumbnail(Context context, String fileEntityID){
+            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
+                return null;
+
+            return new File(getInternalDir(context, THUMBNAILS_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
+        }
     }
 
     public static class SystemChecks{

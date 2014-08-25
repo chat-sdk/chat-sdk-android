@@ -296,12 +296,6 @@ public class ContactsFragment extends BaseFragment {
             return;
         }
 
-        if (BNetworkManager.sharedManager().getNetworkAdapter() == null)
-        {
-            if (DEBUG) Log.e(TAG, "network adapter is null");
-            return;
-        }
-
         final boolean isFirst;
         if (uiUpdater != null)
         {
@@ -312,7 +306,7 @@ public class ContactsFragment extends BaseFragment {
         else
         {
             isFirst = true;
-            if (adapter != null && adapter.getListData().size() == 0)
+            if (adapter != null && adapter.getListData().size() < 2)
             {
                 progressBar.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.INVISIBLE);

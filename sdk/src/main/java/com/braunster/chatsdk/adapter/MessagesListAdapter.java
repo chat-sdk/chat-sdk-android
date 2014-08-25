@@ -128,13 +128,12 @@ public class MessagesListAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
 
-
         View row;
         row = view;
         ViewHolder holder;
         type = getItemViewType(position);
-
         final MessageListItem message = listData.get(position);
+        final boolean sender = message.rowType % 2 == 0;
 
         if (row == null)
         {
@@ -186,9 +185,11 @@ public class MessagesListAdapter extends BaseAdapter{
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
 
                     break;
+
+
             }
 
-            loadDefaults(holder, row);
+            loadDefaults(holder, row, sender);
 
             row.setTag(holder);
         }
@@ -236,13 +237,13 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Load profile picture.
 //        if (position == 0 || message.sender != listData.get(position-1).sender) {
-            loadProfilePic(holder.profilePicImage, message.profilePicUrl, message.rowType % 2 == 0);
+            loadProfilePic(holder.profilePicImage, message.profilePicUrl, sender);
 //        } else profilePicImage.setVisibility(View.INVISIBLE);
 
         // Add click event to image if message is picture or location.
         // Set the time of the sending.
 
-        holder.txtTime.setText(message.time);
+        animateDate(sender, holder, message.time);
 
         return row;
     }
@@ -302,14 +303,45 @@ public class MessagesListAdapter extends BaseAdapter{
         return listData;
     }
 
-    private void loadDefaults(ViewHolder holder, View row){
+    private void loadDefaults(ViewHolder holder, View row, boolean sender){
         // Load profile picture.
         holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
     }
 
+    private void animateDate(boolean sender, ViewHolder holder, String time){
+
+        holder.txtTime.setText(time);
+
+        if (isScrolling)
+        {
+            if (sender)
+                holder.txtTime.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_left));
+            else holder.txtTime.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_right));
+
+            holder.txtTime.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            holder.txtTime.animate();
+        }
+
+    }
+
     /** Load profile picture for given url and image view.*/
-    private void loadProfilePic(final CircleImageView circleImageView, String url, final boolean sender){
+    private void loadProfilePic(final CircleImageView circleImageView, final String url, final boolean sender){
 
         if (url == null)
         {
@@ -317,10 +349,16 @@ public class MessagesListAdapter extends BaseAdapter{
             return;
         }
 
+        circleImageView.setTag(url);
 
         VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+
+                // Checking to see that there is no new rewuest on this image.
+                if (circleImageView.getTag() != null && !circleImageView.getTag().equals(url))
+                    return;
+
                 if (isImmediate && response.getBitmap() == null)
                 {
                     circleImageView.setImageResource(R.drawable.ic_profile);
@@ -364,7 +402,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                circleImageView.setImageResource(R.drawable.ic_profile);
             }
         }, circleImageView.getWidth(), circleImageView.getWidth());
     }
@@ -373,7 +411,6 @@ public class MessagesListAdapter extends BaseAdapter{
     private ChatBubbleImageView2 getBubbleImageViewFromRow(final ChatBubbleImageView2 image, final ProgressBar progressBar, final MessageListItem message){
         // Save the message text to the image tag so it could be found on the onClick.
         image.setTag(message.text);
-        image.setVisibility(View.VISIBLE);
 
         // Coloring the message
         int bubbleColor = message.color;
@@ -381,7 +418,7 @@ public class MessagesListAdapter extends BaseAdapter{
         // Loading the url.
         final ChatBubbleImageView2.LoadDone loadDone = new ChatBubbleImageView2.LoadDone() {
             //region Animation
-/*            private void animate(){
+            private void animate(){
 
                 image.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fade_in_expand));
                 image.getAnimation().setAnimationListener(new Animation.AnimationListener() {
@@ -405,7 +442,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
             private void cancelAnimation(){
 
-            }*/
+            }
             //endregion
 
             @Override
@@ -421,9 +458,13 @@ public class MessagesListAdapter extends BaseAdapter{
                     if (progressBar.getVisibility() == View.VISIBLE) {
                         progressBar.setVisibility(View.INVISIBLE);
                     }
+
+                    if (isScrolling)
+                        animate();
                 }
                 else
                 {
+                    image.clearCanvas();
                     if (progressBar.getVisibility() == View.INVISIBLE) {
                         progressBar.setVisibility(View.VISIBLE);
                     }
@@ -439,8 +480,9 @@ public class MessagesListAdapter extends BaseAdapter{
             params.height = message.dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
 
+            // Saving the url so we could remove it later on.
             cacheKeys.add(VolleyUtills.BitmapCache.getCacheKey(message.url, 0, 0));
-            image.loadFromUrl(message.url, loadDone);
+            image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
         }
 
         return image;
@@ -460,6 +502,9 @@ public class MessagesListAdapter extends BaseAdapter{
                 String url;
                 String [] urls = ((String) v.getTag()).split(BDefines.DIVIDER);
                 url = urls[0];
+
+                // Saving the url so we could remove it later on.
+                cacheKeys.add(VolleyUtills.BitmapCache.getCacheKey(url, 0, 0));
 
                 DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
                             showAtLocation(v, Gravity.CENTER, 0, 0);

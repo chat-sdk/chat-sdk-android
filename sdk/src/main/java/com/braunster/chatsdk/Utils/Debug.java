@@ -7,17 +7,17 @@ public class Debug {
 
     /*Network*/
     public static final boolean BFirebaseInterface = false;
-    public static final boolean AbstractNetworkAdapter = true;
+    public static final boolean AbstractNetworkAdapter = false;
     public static final boolean BFacebookManager = false;
     public static final boolean BNetworkManager = false;
     public static final boolean TwitterManager = false;
-    public static final boolean EventManager = true;
+    public static final boolean EventManager = false;
     public static final boolean BPath = false;
-    public static final boolean BFirebaseNetworkAdapter = true;
+    public static final boolean BFirebaseNetworkAdapter = false;
 
     /*Fragments*/
     public static final boolean ContactsFragment = false;
-    public static final boolean ConversationsFragment = true;
+    public static final boolean ConversationsFragment = false;
     public static final boolean ProfileFragment = false;
     public static final boolean ThreadsFragment = false;
     public static final boolean ExpandableContactsFragment = false;
@@ -36,7 +36,7 @@ public class Debug {
 
     /*Activities*/
     public static final boolean BaseActivity = false;
-    public static final boolean ChatActivity = false;
+    public static final boolean ChatActivity = true;
     public static final boolean LocationActivity = false;
     public static final boolean LoginActivity = false;
     public static final boolean MainActivity = false;

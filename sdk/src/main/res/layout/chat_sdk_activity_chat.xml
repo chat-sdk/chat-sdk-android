@@ -41,8 +41,7 @@
                 android:scrollbars="none"
                 android:divider="@null"
                 android:listSelector="@android:color/transparent"
-                android:descendantFocusability="afterDescendants"
-                android:padding="5dp"/>
+                android:descendantFocusability="afterDescendants"/>
         </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
     </FrameLayout>
 

@@ -529,25 +529,36 @@ public class BFirebaseInterface {
         return children;
     }
 
-    private static BUser getUser(DataSnapshot snapshot, String userFirebaseID){
-        if (DEBUG) Log.v(TAG, "getUser");
-        Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
-        // We need this in case we found the user first using the authID (so we don't know the Firebase ID)
-        String authID = (String) values.get(BDefines.Keys.BAuthenticationID);
-        BUser user = DaoCore.fetchOrCreateUserWithEntityAndAutID(userFirebaseID, authID);
+    private static class GetUserCall implements Callable<BUser> {
 
-        if (user == null)
-        {
-            if (DEBUG) Log.e(TAG, "Entity from DB is null");
-            return null;
+        private Map<String, Object> values;
+        private String userFirebaseID;
+        private DataSnapshot snapshot;
+
+        private GetUserCall(DataSnapshot snapshot, Map<String, Object> values, String userFirebaseID) {
+            this.values = values;
+            this.userFirebaseID = userFirebaseID;
+            this.snapshot = snapshot;
         }
 
-        user.setEntityID(userFirebaseID);
+        @Override
+        public BUser call() throws Exception {
+            // We need this in case we found the user first using the authID (so we don't know the Firebase ID)
+            String authID = (String) values.get(BDefines.Keys.BAuthenticationID);
+            BUser user = DaoCore.fetchOrCreateUserWithEntityAndAutID(userFirebaseID, authID);
 
-        user.updateFromMap(values);
+            if (user == null)
+            {
+                if (DEBUG) Log.e(TAG, "Entity from DB is null");
+                return null;
+            }
 
-        // Updating the user in the database.
-        user = DaoCore.updateEntity(user);
+            user.setEntityID(userFirebaseID);
+
+            user.updateFromMap(values);
+
+            // Updating the user in the database.
+            user = DaoCore.updateEntity(user);
        /* Note to much is going on on start up this is a fix.// We only want to check the threads if this is the current user
         if (user.equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUser()))
         {
@@ -555,148 +566,238 @@ public class BFirebaseInterface {
            objectFromSnapshot(snapshot.child(BFirebaseDefines.Path.BThreadPath));
         }*/
 
-        // Get more children if has any.
-        objectFromSnapshot(snapshot.child(BFirebaseDefines.Path.BMetaPath));
+            // Get more children if has any.
+            objectFromSnapshot(snapshot.child(BFirebaseDefines.Path.BMetaPath));
 
-        return user;
-    }
-
-    private static BUser getUserForThread(DataSnapshot snapshot, String userFirebaseID, String threadFirebaseID){
-        if (DEBUG) Log.v(TAG, "getUserForThread");
-        Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
-
-        BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
-        user.setEntityID(userFirebaseID);
-
-        // The name contained in the thread isn't very reliable because
-        // it's a duplicate so we only update the user if they don't
-        // have a name set
-        String name = (String) values.get(BDefines.Keys.BName);
-        if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
-            user.setMetaName(name);
-
-        // Saving the name for the user.
-        DaoCore.updateEntity(user);
-
-        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
-        thread.setEntityID(threadFirebaseID);
-
-        if (!thread.hasUser(user)){
-            if (DEBUG) Log.d(TAG, "Thread doesn't contain user");
-            DaoCore.connectUserAndThread(user, thread);
+            return user;
         }
-        return user;
     }
 
-    private static BThread getThread(DataSnapshot snapshot, String threadFirebaseID){
-        if (DEBUG) Log.v(TAG, "getThread, ID: " + threadFirebaseID);
-        Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
+    private static class GetUserForThreadCall implements Callable<BUser>{
+        private String userFirebaseID, threadFirebaseID;
+        private Map<String, Object> values;
 
-        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
-        thread.setEntityID(threadFirebaseID);
+        private GetUserForThreadCall(String userFirebaseID, String threadFirebaseID, Map<String, Object> values) {
+            this.userFirebaseID = userFirebaseID;
+            this.threadFirebaseID = threadFirebaseID;
+            this.values = values;
+        }
 
-        thread.updateFromMap(values);
+        @Override
+        public BUser call() throws Exception {
+            BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+            BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
 
-        thread.setLastUpdated(new Date());
+            user.setEntityID(userFirebaseID);
+            thread.setEntityID(threadFirebaseID);
 
-        DaoCore.updateEntity(thread);
+            // The name contained in the thread isn't very reliable because
+            // it's a duplicate so we only update the user if they don't
+            // have a name set
+            String name = (String) values.get(BDefines.Keys.BName);
+            if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
+                user.setMetaName(name);
+
+            // Saving the name for the user.
+            DaoCore.updateEntity(user);
+
+            if (!thread.hasUser(user)){
+                if (DEBUG) Log.d(TAG, "Thread doesn't contain user");
+                DaoCore.connectUserAndThread(user, thread);
+            }
+            return user;
+        }
+    }
+
+    private static class GetThreadCall implements Callable<BThread>{
+        private String threadFirebaseID;
+        private Map<String, Object> values;
+
+        private GetThreadCall(String threadFirebaseID, Map<String, Object> values) {
+            this.threadFirebaseID = threadFirebaseID;
+            this.values = values;
+        }
+
+        @Override
+        public BThread call() throws Exception {
+
+            BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
+            thread.setEntityID(threadFirebaseID);
+
+            thread.updateFromMap(values);
+
+            thread.setLastUpdated(new Date());
+
+            DaoCore.updateEntity(thread);
 
 //        objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BMessagesPath));
 
 //       Note we are already listening to all childs added from thread
 //        objectFromSnapshot( snapshot.child(BFirebaseDefines.Path.BUsersPath));
-        return thread;
+            return thread;
+        }
+    }
+
+    private static class GetThreadForUserCall implements Callable<BThread>{
+
+        private String threadFirebaseID, userFirebaeID;
+
+        private GetThreadForUserCall(String threadFirebaseID, String userFirebaeID) {
+            this.threadFirebaseID = threadFirebaseID;
+            this.userFirebaeID = userFirebaeID;
+        }
+
+        @Override
+        public BThread call() throws Exception {
+            BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
+            thread.setEntityID(threadFirebaseID);
+            thread.setType(3);// FIXME no type cause fails.
+
+            BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaeID);
+            user.setEntityID(userFirebaeID);
+
+            // If the user and the thread does not have a bond with each other bind them.
+            if (!user.hasThread(thread))
+            {
+                if (DEBUG) Log.d(TAG, "User doesn't contain thread.");
+                DaoCore.connectUserAndThread(user, thread);
+            }
+
+            thread.setLastUpdated(new Date());
+            return thread;
+        }
+    }
+
+    private static class GetMessageCall implements Callable<BMessage>{
+
+        private String messageFirebaseID, threadFirebaseID;
+        private Map<String, Object> values;
+
+        private GetMessageCall(String messageFirebaseID, String threadFirebaseID, Map<String, Object> values) {
+            this.messageFirebaseID = messageFirebaseID;
+            this.threadFirebaseID = threadFirebaseID;
+            this.values = values;
+        }
+
+        @Override
+        public BMessage call() throws Exception {
+
+            BMessage message = DaoCore.fetchOrCreateEntityWithEntityID(BMessage.class, messageFirebaseID);
+            message.setEntityID(messageFirebaseID);
+
+            BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
+            thread.setEntityID(threadFirebaseID);
+
+            String payload = (String) values.get(com.braunster.chatsdk.network.BDefines.Keys.BPayload);
+            if (StringUtils.isNotEmpty(payload))
+                message.setText(payload);
+
+            Long messageType = (Long) values.get(com.braunster.chatsdk.network.BDefines.Keys.BType);
+            if (messageType != null)
+                message.setType(messageType.intValue());
+
+            Long date = null;
+            try {
+                date = (Long) values.get(BDefines.Keys.BDate);
+            } catch (ClassCastException e) {
+                date = (((Double) values.get(BDefines.Keys.BDate)).longValue());
+//            e.printStackTrace();
+            }
+            finally {
+                if (date != null)
+                    message.setDate(new Date(date));
+            }
+
+            String userFirebaseID = (String) values.get(BDefines.Keys.BUserFirebaseId);
+            if (StringUtils.isNotEmpty(userFirebaseID))
+            {
+                BUser sender = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+                message.setBUserSender(sender);
+            }
+
+            String color = (String) values.get(BDefines.Keys.BColor);
+            if (StringUtils.isNotEmpty(color))
+                message.color = color;
+
+            String textColor = (String) values.get(BDefines.Keys.BTextColor);
+            if (StringUtils.isNotEmpty(textColor))
+                message.textColor = textColor;
+
+            String fontName = (String) values.get(BDefines.Keys.BFontName);
+            if (StringUtils.isNotEmpty(fontName))
+                message.fontName = fontName;
+
+            Integer fontSize = (Integer) values.get(BDefines.Keys.BFontSize);
+            if (fontSize != null)
+                message.fontSize = fontSize;
+
+            message.setLastUpdated(new Date());
+
+            // Mark the thead as having unread messages if this message
+            // doesn't already exist on the thread
+            if (message.getBThreadOwner() == null)
+                thread.setHasUnreadMessages(true);
+
+            // Update the thread and message
+            DaoCore.updateEntity(thread);
+
+            // Update the message.
+            message.setBThreadOwner(thread);
+            message.setOwnerThread(thread.getId());
+            DaoCore.updateEntity(message);
+
+            return message;
+        }
+    }
+
+    private static BUser getUser(DataSnapshot snapshot, String userFirebaseID){
+        if (DEBUG) Log.v(TAG, "getUser");
+        try {
+            return DaoCore.daoSession.callInTx(new GetUserCall(snapshot, (Map<String, Object>) snapshot.getValue(), userFirebaseID));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Get user call exception, message: "  + e.getMessage());
+            return null;
+        }
+    }
+
+    private static BUser getUserForThread(DataSnapshot snapshot, String userFirebaseID, String threadFirebaseID){
+        if (DEBUG) Log.v(TAG, "getUserForThread");
+        try {
+            return DaoCore.daoSession.callInTx(new GetUserForThreadCall(userFirebaseID, threadFirebaseID, (Map<String, Object>) snapshot.getValue()));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Get user for thread call exception, message: "  + e.getMessage());
+            return null;
+        }
+    }
+
+    private static BThread getThread(DataSnapshot snapshot, String threadFirebaseID){
+        if (DEBUG) Log.v(TAG, "getThread, ID: " + threadFirebaseID);
+        try {
+            return DaoCore.daoSession.callInTx(new GetThreadCall(threadFirebaseID, (Map<String, Object>) snapshot.getValue()));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, " get thread call exception, message: " + e.getMessage());
+            return null;
+        }
     }
 
     private static BThread getThreadForUser(DataSnapshot snapshot, String threadFirebaseID, String userFirebaeID){
         if (DEBUG) Log.v(TAG, "getThreadForUser");
-        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
-        thread.setEntityID(threadFirebaseID);
-        thread.setType(3);// FIXME no type cause fails.
-
-        BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaeID);
-        user.setEntityID(userFirebaeID);
-
-        // If the user and the thread does not have a bond with each other bind them.
-        if (!user.hasThread(thread))
-        {
-            if (DEBUG) Log.d(TAG, "User doesn't contain thread.");
-            DaoCore.connectUserAndThread(user, thread);
+        try {
+            return DaoCore.daoSession.callInTx(new GetThreadForUserCall(threadFirebaseID, userFirebaeID));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "get thread for user exception, message: " + e.getMessage());
+            return null;
         }
-
-        thread.setLastUpdated(new Date());
-        return thread;
     }
 
     private static BMessage getMessage(DataSnapshot snapshot, String messageFirebaseID, String threadFirebaseID) {
         if (DEBUG) Log.v(TAG, "getMessage");
-        Map<String, Object> values = (Map<String, Object>) snapshot.getValue();
-
-        BMessage message = DaoCore.fetchOrCreateEntityWithEntityID(BMessage.class, messageFirebaseID);
-        message.setEntityID(messageFirebaseID);
-
-        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
-        thread.setEntityID(threadFirebaseID);
-
-        String payload = (String) values.get(com.braunster.chatsdk.network.BDefines.Keys.BPayload);
-        if (StringUtils.isNotEmpty(payload))
-            message.setText(payload);
-
-        Long messageType = (Long) values.get(com.braunster.chatsdk.network.BDefines.Keys.BType);
-        if (messageType != null)
-            message.setType(messageType.intValue());
-
-        Long date = null;
         try {
-            date = (Long) values.get(BDefines.Keys.BDate);
-        } catch (ClassCastException e) {
-            date = (((Double) values.get(BDefines.Keys.BDate)).longValue());
-//            e.printStackTrace();
+            return DaoCore.daoSession.callInTx(new GetMessageCall(messageFirebaseID, threadFirebaseID, (Map<String, Object>) snapshot.getValue()));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "get message call exception, message: " + e.getMessage());
+            return null;
         }
-        finally {
-            if (date != null)
-                message.setDate(new Date(date));
-        }
-
-        String userFirebaseID = (String) values.get(BDefines.Keys.BUserFirebaseId);
-        if (StringUtils.isNotEmpty(userFirebaseID))
-        {
-            BUser sender = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
-            message.setBUserSender(sender);
-        }
-
-        String color = (String) values.get(BDefines.Keys.BColor);
-        if (StringUtils.isNotEmpty(color))
-            message.color = color;
-
-        String textColor = (String) values.get(BDefines.Keys.BTextColor);
-        if (StringUtils.isNotEmpty(textColor))
-            message.textColor = textColor;
-
-        String fontName = (String) values.get(BDefines.Keys.BFontName);
-        if (StringUtils.isNotEmpty(fontName))
-            message.fontName = fontName;
-
-        Integer fontSize = (Integer) values.get(BDefines.Keys.BFontSize);
-        if (fontSize != null)
-            message.fontSize = fontSize;
-
-        message.setLastUpdated(new Date());
-
-        // Mark the thead as having unread messages if this message
-        // doesn't already exist on the thread
-        if (message.getBThreadOwner() == null)
-            thread.setHasUnreadMessages(true);
-
-        // Update the thread and message
-        DaoCore.updateEntity(thread);
-
-        // Update the message.
-        message.setBThreadOwner(thread);
-        message.setOwnerThread(thread.getId());
-        DaoCore.updateEntity(message);
-
-        return message;
     }
 }
 

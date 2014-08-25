@@ -29,8 +29,10 @@ import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.events.BatchedEvent;
+import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
@@ -116,7 +118,6 @@ public class ThreadsFragment extends BaseFragment {
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
 
-
     @Override
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
@@ -148,7 +149,7 @@ public class ThreadsFragment extends BaseFragment {
             @Override
             public void run() {
 
-                if (isKilled())
+                if (isKilled() && !isFirst && noItems)
                     return;
 
 //                List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
@@ -173,23 +174,6 @@ public class ThreadsFragment extends BaseFragment {
         super.refreshForEntity(entity);
         adapter.replaceOrAddItem((BThread) entity);
     }
-
-    AppEventListener eventListener = new AppEventListener(APP_EVENT_TAG){
-        @Override
-        public boolean onMessageReceived(BMessage message) {
-            if (message.getBThreadOwner().getType() == BThread.Type.Public)
-                loadDataOnBackground();
-            return super.onMessageReceived(message);
-        }
-
-        @Override
-        public boolean onThreadDetailsChanged(String threadId) {
-            BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
-            if (thread.getType() != null && thread.getType() == BThread.Type.Public)
-                loadDataOnBackground();
-            return super.onThreadDetailsChanged(threadId);
-        }
-    };
 
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -280,8 +264,50 @@ public class ThreadsFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
 
+        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
+
+        batchedEvents.setBatchedAction(Event.Type.MessageEvent, new Batcher.BatchedAction<String>() {
+            @Override
+            public void triggered(List<String> list) {
+                if (DEBUG) Log.v(TAG, "onMessageReceived");
+                for (String messageID : list)
+                {
+                    BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, messageID);
+                    if (message.getBThreadOwner().getType() == BThread.Type.Public)
+                    {
+                        loadDataOnBackground();
+                        return;
+                    }
+                }
+            }
+        });
+
+        batchedEvents.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {
+            @Override
+            public void triggered(List<String> list) {
+                if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
+                for (String threadId : list)
+                {
+                    BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
+                    if (thread.getType() != null && thread.getType() == BThread.Type.Public)
+                    {
+                        loadDataOnBackground();
+                        return;
+                    }
+                }
+            }
+        });
+
+        batchedEvents.setBatchedAction(Event.Type.UserEvent, new Batcher.BatchedAction<String>() {
+            @Override
+            public void triggered(List<String> list) {
+                if (DEBUG) Log.v(TAG, "onUserDetailsChange");
+                loadDataOnBackground();
+            }
+        });
+
         EventManager.getInstance().removeEventByTag(APP_EVENT_TAG);
-        EventManager.getInstance().addAppEvent(eventListener);
+        EventManager.getInstance().addAppEvent(batchedEvents);
     }
 
     @Override

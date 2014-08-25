@@ -14,7 +14,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.events.FirebaseGeneralEvent;
 import com.braunster.chatsdk.network.events.MessageEventListener;
@@ -36,10 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -64,14 +62,14 @@ public class EventManager implements AppEvents {
     private static final String MSG_PREFIX = "msg_";
     private static final String USER_PREFIX = "user_";
 
-    ConcurrentHashMap<String, Event> events = new ConcurrentHashMap<String, Event>();
+    private ConcurrentHashMap<String, Event> events = new ConcurrentHashMap<String, Event>();
 
     public List<String> threadsIds = new ArrayList<String>();
     public List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
     public List<String> handledMessagesThreadsID = new ArrayList<String>();
     public List<String> usersIds = new ArrayList<String>();
 
-    public Map<String, FirebaseEventCombo> listenerAndRefs = new HashMap<String, FirebaseEventCombo>();
+    public ConcurrentHashMap<String, FirebaseEventCombo> listenerAndRefs = new ConcurrentHashMap<String, FirebaseEventCombo>();
 
     public static EventManager getInstance(){
         if (instance == null)
@@ -142,11 +140,15 @@ public class EventManager implements AppEvents {
             }
         });
 
-        // TODO add option to listen to specific thread and from specific type.
-        for (Event te : events.values())
+        for (Event e : events.values())
         {
-            te.onUserAddedToThread(threadId, userId);
-            te.onUserAddedToThread(threadId, userId);
+            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(threadId) &&  !e.getEntityId().equals(threadId) )
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.ThreadEvent, threadId);
+
+            e.onUserAddedToThread(threadId, userId);
         }
 
         return false;
@@ -154,15 +156,18 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onUserDetailsChange(BUser user) {
-        for (Event ue : events.values())
+        for (Event e : events.values())
         {
             // We check to see if the listener specified a specific user that he wants to listen to.
             // If we could find and match the data we ignore it.
-            if (!ue.getEntityId().equals(""))
-                if (user.getEntityID() != null && !ue.getEntityId().equals("") && user.getEntityID().equals(ue.getEntityId()))
-                    return false;
+            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(user.getEntityID()) &&  !e.getEntityId().equals(user.getEntityID()) )
+                continue;
 
-            ue.onUserDetailsChange(user);
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.UserEvent, user.getEntityID());
+
+            e.onUserDetailsChange(user);
         }
 
         return false;
@@ -170,16 +175,19 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onMessageReceived(BMessage message) {
-        for (Event me : events.values())
+        for (Event e : events.values())
         {
             // We check to see if the listener specified a specific thread that he wants to listen to.
             // If we could find and match the data we ignore it.
-            if (!me.getEntityId().equals(""))
-                if (message.getBThreadOwner() != null && message.getBThreadOwner().getEntityID() != null)
-                    if (!message.getBThreadOwner().getEntityID().equals(me.getEntityId()))
-                        continue;
+            if (StringUtils.isNotEmpty(e.getEntityId()) && message.getBThreadOwner() != null && message.getBThreadOwner().getEntityID() != null
+                    && !message.getBThreadOwner().getEntityID().equals(e.getEntityId()))
+                    continue;
 
-            me.onMessageReceived(message);
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.MessageEvent, message.getEntityID());
+
+            e.onMessageReceived(message);
         }
 
         return false;
@@ -199,11 +207,15 @@ public class EventManager implements AppEvents {
             }
         });
 
-        for (Event ae : events.values())
+        for (Event e : events.values())
         {
-            ae.onThreadDetailsChanged(threadId);
-            ae.onThreadDetailsChanged(threadId);
+            if (StringUtils.isNotEmpty(e.getEntityId()) && !threadId.equals(e.getEntityId()))
+                continue;
 
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.ThreadEvent, threadId);
+
+            e.onThreadDetailsChanged(threadId);
         }
 
         // TODO add option to listen to specific thread and from specific type.
@@ -213,24 +225,23 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onThreadIsAdded(String threadId) {
-        for (Event ae : events.values())
-            ae.onThreadIsAdded(threadId);
+        for (Event e : events.values())
+        {
+            if (StringUtils.isNotEmpty(e.getEntityId()) && !threadId.equals(e.getEntityId()))
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.ThreadEvent, threadId);
+
+            e.onThreadIsAdded(threadId);
+        }
 
         return false;
     }
 
     /*##########################################################################################*/
     /*------Assigning app events. ------*/
-
-    public void addEventIfNotExist(Event event){
-        if (DEBUG) Log.v(TAG, "addEventIfNotExist, Tag: " + event.getTag());
-
-         events.putIfAbsent(event.getTag(), event);
-
-        if (DEBUG) Log.d(TAG, "addEventIfNotExist, Added.");
-    }
-
-    public void addAppEvent(AppEventListener appEvents){
+    public void addAppEvent(Event appEvents){
         events.put(appEvents.getTag(), appEvents);
     }
 

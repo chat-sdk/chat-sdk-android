@@ -106,12 +106,6 @@ public class ThreadsListAdapter extends BaseAdapter {
         else
             holder = (ViewHolder) row.getTag();
 
-//        if (holder == null)
-//            if (DEBUG) Log.e(TAG, "Holder is null");
-//
-//        if (holder.txtName == null)
-//            if (DEBUG) Log.e(TAG, "textview name is null");
-
         holder.txtName.setText(thread.getName());
         holder.txtDate.setText(thread.getLastMessageDateAsString());
         holder.txtLastMsg.setText(thread.getLastMessageText());
@@ -120,11 +114,17 @@ public class ThreadsListAdapter extends BaseAdapter {
 
         //If has image url saved load it.
         int size = holder.imgIcon.getHeight();
-        holder.setDefaultImg(listData.get(position));
-        if (!listData.get(position).getImageUrl().equals(""))
+
+        if (StringUtils.isNotEmpty(listData.get(position).getImageUrl()))
             VolleyUtills.getImageLoader().get(listData.get(position).getImageUrl(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    if (isImmediate && response.getBitmap() == null)
+                    {
+                        holder.setDefaultImg(listData.get(position));
+                        return;
+                    }
+
                     if (response.getBitmap() != null) {
                         if (DEBUG) Log.i(TAG, "Loading thread picture from url");
 
@@ -136,8 +136,10 @@ public class ThreadsListAdapter extends BaseAdapter {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+                    holder.setDefaultImg(listData.get(position));
                 }
             }, size, size);
+        else  holder.setDefaultImg(listData.get(position));
 
         return row;
     }

@@ -10,6 +10,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
+import com.facebook.FacebookOperationCanceledException;
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
@@ -99,7 +100,14 @@ public class BFacebookManager {
         if (DEBUG) Log.i(TAG, "Session changed state");
 
         if (exception != null)
+        {
             exception.printStackTrace();
+            if (exception instanceof FacebookOperationCanceledException)
+            {
+                if (DEBUG) Log.d(TAG, "Canceled");
+                return;
+            }
+        }
 
         if (state.isOpened()) {
             if (DEBUG) Log.i(TAG, "Session is open.");

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -179,15 +180,11 @@ public class ImageUtils {
         if (boundBoxInDp == 0)
             return null;
 
-        // Get current dimensions
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
         // Determine how much to scale: the dimension requiring less scaling is
         // closer to the its side. This way the image always stays inside your
         // bounding box AND either x/y axis touches it.
-        float xScale = ((float) boundBoxInDp) / width;
-        float yScale = ((float) boundBoxInDp) / height;
+        float xScale = ((float) boundBoxInDp) / bitmap.getWidth();
+        float yScale = ((float) boundBoxInDp) / bitmap.getHeight();
         float scale = (xScale <= yScale) ? xScale : yScale;
 
         // Create a matrix for the scaling and add the scaling data
@@ -195,9 +192,7 @@ public class ImageUtils {
         matrix.postScale(scale, scale);
 
         // Create a new bitmap and convert it to a format understood by the ImageView
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-
-        return bitmap;
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     public static int[] calcNewImageSize(int[] imgDimensions, int bounds){
@@ -400,6 +395,57 @@ public class ImageUtils {
         np_drawable.draw(canvas);
 
         return output_bitmap;
+    }
+
+    public static Bitmap ResizeNinepatch(Bitmap bitmap, int x, int y, Context context){
+
+        byte[] chunk = bitmap.getNinePatchChunk();
+        NinePatchDrawable np_drawable = new NinePatchDrawable(context.getResources(), bitmap,
+                chunk, new Rect(), null);
+        np_drawable.setBounds(0, 0,x, y);
+
+        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output_bitmap);
+        np_drawable.draw(canvas);
+
+        return output_bitmap;
+    }
+
+    public static Bitmap replaceIntervalColor(Bitmap bitmap,
+                                              int redStart, int redEnd,
+                                              int greenStart, int greenEnd,
+                                              int blueStart, int blueEnd,
+                                              int colorNew) {
+        if (bitmap != null) {
+            int picw = bitmap.getWidth();
+            int pich = bitmap.getHeight();
+            int[] pix = new int[picw * pich];
+            bitmap.getPixels(pix, 0, picw, 0, 0, picw, pich);
+            for (int y = 0; y < pich; y++) {
+                for (int x = 0; x < picw; x++) {
+                    int index = y * picw + x;
+                    if (
+                            ((Color.red(pix[index]) >= redStart)&&(Color.red(pix[index]) <= redEnd))&&
+                                    ((Color.green(pix[index]) >= greenStart)&&(Color.green(pix[index]) <= greenEnd))&&
+                                    ((Color.blue(pix[index]) >= blueStart)&&(Color.blue(pix[index]) <= blueEnd)) ||
+                                    Color.alpha(pix[index]) > 0
+                            ){
+
+                        // If the alpha is not full that means we are on the edges of the bubbles so we create the new color with the old alpha.
+                        if (Color.alpha(pix[index]) > 0)
+                        {
+//                            Log.i(TAG, "PIX: " + Color.alpha(pix[index]));
+                            pix[index] = Color.argb(Color.alpha(pix[index]), Color.red(colorNew), Color.green(colorNew), Color.blue(colorNew));
+                        }
+                        else
+                            pix[index] = colorNew;
+                    }
+                }
+            }
+
+            return Bitmap.createBitmap(pix, picw, pich,Bitmap.Config.ARGB_8888);
+        }
+        return null;
     }
 
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";

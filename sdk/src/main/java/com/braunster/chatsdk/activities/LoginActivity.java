@@ -22,6 +22,7 @@ import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookException;
+import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
@@ -85,9 +86,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         fbLoginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
             @Override
             public void onError(FacebookException error) {
-                showAlertToast("Fb Login button error");
+                if (error instanceof FacebookOperationCanceledException)
+                    return;
+
+                showAlertToast("Facebook error: " + error.getMessage());
             }
         });
+
         fbLoginButton.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
         fbLoginButton.setBackgroundResource(R.drawable.ic_facebook);
         fbLoginButton.setReadPermissions(Arrays.asList("email", "user_friends"));
@@ -162,7 +167,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                                 dismissProgDialog();
 
                                 if (error.code != BError.Code.NO_LOGIN_INFO)
-                                    showToast(getString(R.string.auth_failed));
+                                    showAlertToast(getString(R.string.auth_failed));
                             }
                         }
                 );
@@ -338,22 +343,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                     break;
 
                 case PermissionDenied:
-                    toastMessage = "Premission denied";
+                    toastMessage = "Permission denied";
                     break;
 
                 default: toastMessage = "An Error Occurred.";
             }
-            showToast(toastMessage);
+            showAlertToast(toastMessage);
 //            Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
         }
         else if (login)
         {
 //            Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
-            showToast("Failed connect to Firebase.");
+            showAlertToast("Failed connect to Firebase.");
         }
         else {
 //            Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
-            showToast( "Failed registering to Firebase.");
+            showAlertToast("Failed registering to Firebase.");
         }
     }
 
@@ -385,7 +390,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     };
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception){
-        showOrUpdateProgDialog(getString(R.string.authenticating));
+        if (exception != null)
+        {
+            exception.printStackTrace();
+            if (exception instanceof FacebookOperationCanceledException)
+            {
+                if (DEBUG) Log.d(TAG, "Canceled");
+                return;
+            }
+        }else showOrUpdateProgDialog(getString(R.string.authenticating));
+
         BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
             @Override
             public void onDone() {
@@ -397,7 +411,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             public void onDoneWithError() {
                 if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
 //                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
-                showToast("Failed connect to facebook.");
+                showAlertToast("Failed connect to facebook.");
+                dismissProgDialog();
             }
         });
     }
@@ -405,7 +420,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(DEBUG) Log.v(TAG, "onActivityResult");
+        if(DEBUG) Log.v(TAG, "onActivityResult, RequestCode: " + requestCode + ", Result Code: " + resultCode);
         uiHelper.onActivityResult(requestCode, resultCode, data);
     }
 }

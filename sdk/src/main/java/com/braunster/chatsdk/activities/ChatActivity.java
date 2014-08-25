@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
@@ -22,6 +23,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -36,7 +38,6 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
-import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
 import com.braunster.chatsdk.Utils.volley.VolleyUtills;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
@@ -48,10 +49,12 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.events.BatchedEvent;
+import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.events.MessageEventListener;
-import com.braunster.chatsdk.network.events.ThreadEventListener;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.parse.PushUtils;
 import com.google.android.gms.maps.model.LatLng;
@@ -108,6 +111,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
     private TextView btnSend;
     private ImageButton btnOptions;
+    private View actionBarView;
     private EditText etMessage;
     private ListView listMessages;
     private MessagesListAdapter messagesListAdapter;
@@ -158,6 +162,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
     }
 
     private void initActionBar(){
+        if (DEBUG) Log.d(TAG, "initActionBar");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
             ab.setDisplayShowHomeEnabled(false);
@@ -167,10 +172,12 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
             /*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*/
 
             // Inflate the custom view
-            LayoutInflater inflater = LayoutInflater.from(this);
-            View header = inflater.inflate( R.layout.chat_sdk_actionbar_chat_activity, null );
+            if (actionBarView == null) {
+                LayoutInflater inflater = LayoutInflater.from(this);
+                actionBarView = inflater.inflate(R.layout.chat_sdk_actionbar_chat_activity, null);
+            }
 
-            TextView txtName = (TextView) header.findViewById(R.id.chat_sdk_name);
+            TextView txtName = (TextView) actionBarView.findViewById(R.id.chat_sdk_name);
 
             boolean changed = false;
 
@@ -190,10 +197,10 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
             final String imageUrl = thread.threadImageUrl();
 
-            final CircleImageView circleImageView = (CircleImageView) header.findViewById(R.id.chat_sdk_circle_image);
-            final RoundedCornerNetworkImageView roundedCornerImageView = (RoundedCornerNetworkImageView) header.findViewById(R.id.chat_sdk_round_corner_image);
+            final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.chat_sdk_circle_image);
+            final ImageView roundedCornerImageView = (ImageView) actionBarView.findViewById(R.id.chat_sdk_round_corner_image);
 
-            if (circleImageView.getTag() == null || !imageUrl.equals(circleImageView.getTag()))
+            if (circleImageView.getTag() == null || StringUtils.isEmpty(imageUrl) || !imageUrl.equals(circleImageView.getTag()))
             {
                 final View.OnClickListener onClickListener = new View.OnClickListener() {
                     @Override
@@ -203,49 +210,57 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                     }
                 };
 
-                VolleyUtills.getImageLoader().get(thread.threadImageUrl(), new ImageLoader.ImageListener() {
-                    @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null)
-                        {
-                            circleImageView.setTag(imageUrl);
-                            circleImageView.setVisibility(View.INVISIBLE);
-                            roundedCornerImageView.setVisibility(View.INVISIBLE);
-                            circleImageView.setImageBitmap(response.getBitmap());
-                            circleImageView.setVisibility(View.VISIBLE);
+                if (StringUtils.isEmpty(imageUrl))
+                    setRoundCornerDefault(circleImageView, roundedCornerImageView, onClickListener);
+                else
+                    VolleyUtills.getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
+                        @Override
+                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                            if (response.getBitmap() != null) {
+                                circleImageView.setTag(imageUrl);
+                                circleImageView.setVisibility(View.INVISIBLE);
+                                roundedCornerImageView.setVisibility(View.INVISIBLE);
+                                circleImageView.setImageBitmap(response.getBitmap());
+                                circleImageView.setVisibility(View.VISIBLE);
 
-                            circleImageView.setOnClickListener(onClickListener);
+                                circleImageView.setOnClickListener(onClickListener);
+
+                                circleImageView.bringToFront();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        setRoundCornerDefault();
-                    }
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            setRoundCornerDefault(circleImageView, roundedCornerImageView, onClickListener);
+                        }
 
-                    private void setRoundCornerDefault(){
-                        circleImageView.setVisibility(View.INVISIBLE);
-                        roundedCornerImageView.setVisibility(View.INVISIBLE);
 
-                        if (thread.getType() == BThread.Type.Public)
-                            roundedCornerImageView.setImageResource(R.drawable.ic_users);
-                        else if (thread.getUsers().size() < 3)
-                            roundedCornerImageView.setImageResource(R.drawable.ic_profile);
-                        else
-                            roundedCornerImageView.setImageResource(R.drawable.ic_users);
-
-                        roundedCornerImageView.setVisibility(View.VISIBLE);
-
-                        roundedCornerImageView.setOnClickListener(onClickListener);
-                    }
-                });
+                    });
 
                 changed = true;
             }
 
             if (changed)
-                ab.setCustomView(header);
+                ab.setCustomView(actionBarView);
         }
+    }
+
+    private void setRoundCornerDefault(CircleImageView circleImageView, ImageView roundedCornerImageView, View.OnClickListener onClickListener){
+        circleImageView.setVisibility(View.INVISIBLE);
+        roundedCornerImageView.setVisibility(View.INVISIBLE);
+
+        if (thread.getType() == BThread.Type.Public)
+            roundedCornerImageView.setImageResource(R.drawable.ic_users);
+        else if (thread.getUsers().size() < 3)
+            roundedCornerImageView.setImageResource(R.drawable.ic_profile);
+        else
+            roundedCornerImageView.setImageResource(R.drawable.ic_users);
+
+        roundedCornerImageView.setVisibility(View.VISIBLE);
+
+        roundedCornerImageView.bringToFront();
+
+        roundedCornerImageView.setOnClickListener(onClickListener);
     }
 
     private void initViews(){
@@ -276,7 +291,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                                             showToast("There is no new messages to load...");
                                         else {
                                             // Saving the position in the list so we could back to it after the update.
-                                            loadMessages(true, true, -2);
+                                            loadMessages(true, true, -1);
                                         }
 
                                         mPullToRefreshLayout.setRefreshComplete();
@@ -316,9 +331,6 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         super.onPause();
         EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
         EventManager.getInstance().removeEventByTag(ThreadListenerTAG + thread.getId());
-
-        for (String key : messagesListAdapter.getCacheKeys())
-            VolleyUtills.getBitmapCache().remove(key);
     }
 
     @Override
@@ -384,7 +396,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                 if (message.getBUserSender().getEntityID().equals(
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
                 {
-                    if (message.getType() != BMessage.Type.TEXT && isAdded)
+                    if (isAdded)
                     {
                         scrollListTo(-1, true);
                     }
@@ -403,19 +415,14 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
             }
         };
 
-        final ThreadEventListener threadEventListener = new ThreadEventListener(ThreadListenerTAG + thread.getId(), thread.getEntityID()) {
+        final BatchedEvent threadBatchedEvent = new BatchedEvent(ThreadListenerTAG + thread.getId(), thread.getEntityID(), Event.Type.ThreadEvent, handler);
+        threadBatchedEvent.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {
             @Override
-            public boolean onThreadDetailsChanged(String threadId) {
-                return false;
+            public void triggered(List<String> list) {
+                if (DEBUG) Log.v(TAG, "triggered, Users: " + list.size());
+                updateChat();
             }
-
-            @Override
-            public boolean onUserAddedToThread(String threadId, String userId) {
-                if (threadId.equals(thread.getEntityID()))
-                    updateChat();
-                return false;
-            }
-        };
+        });
 
         new Thread(new Runnable() {
             @Override
@@ -437,7 +444,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
                 // Removing the last listener just to be sure we wont receive duplicates notifications.
                 EventManager.getInstance().removeEventByTag(ThreadListenerTAG + thread.getId());
-                EventManager.getInstance().addThreadEvent(threadEventListener);
+                EventManager.getInstance().addAppEvent(threadBatchedEvent);
             }
         }).start();
 
@@ -527,6 +534,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                             @Override
                             public void onDone(BMessage bMessage) {
                                 if (DEBUG) Log.v(TAG, "Image is sent");
+
                                 dismissProgressCardWithSmallDelay();
 //                                messagesListAdapter.addRow(bMessage);
                             }
@@ -630,6 +638,9 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
     protected void onDestroy() {
         super.onDestroy();
         if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtills.getBitmapCache().size());
+
+        for (String key : messagesListAdapter.getCacheKeys())
+            VolleyUtills.getBitmapCache().remove(key);
     }
 
     /** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*/
@@ -769,7 +780,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            File file, dir =Utils.FileSaver.getAlbumStorageDir(Utils.FileSaver.IMAGE_DIR_NAME);
+            File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
             if(dir.exists())
             {
 
@@ -836,11 +847,23 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
         super.onBackPressed();
     }
 
+    private boolean queueStopped = false;
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (scrollState == SCROLL_STATE_IDLE)
-            scrolling = false;
-        else scrolling = true;
+        scrolling = scrollState != SCROLL_STATE_IDLE;
+
+        // Pause disk cache access to ensure smoother scrolling
+        if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+            VolleyUtills.getRequestQueue().stop();
+            queueStopped = true;
+        }
+
+        // Pause disk cache access to ensure smoother scrolling
+        if (queueStopped && !scrolling)
+        {
+            VolleyUtills.getRequestQueue().start();
+            queueStopped = false;
+        }
 
         messagesListAdapter.setScrolling(scrolling);
     }
@@ -849,7 +872,6 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
     }
-
 
     /*Message Loading and listView animation and scrolling*/
     /** Load messages from the database and saving the current position of the list.*/
@@ -997,7 +1019,8 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
         if (StringUtils.isEmpty(text) || StringUtils.isBlank(text))
         {
-            showAlertToast("Cant send empty message!");
+            if (!superToast.isShowing())
+                showAlertToast("Cant send empty message!");
             return;
         }
 
@@ -1008,14 +1031,18 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
             @Override
             public boolean onMainFinised(BMessage message, BError error) {
                 if (DEBUG) Log.v(TAG, "onMainFinished, Status: " + message.getStatusOrNull());
-                messagesListAdapter.addRow(message);
+
+                if(messagesListAdapter.addRow(message))
+                    scrollListTo(-1, true);
+
                 return false;
             }
 
             @Override
             public boolean onItem(BMessage message) {
                 if (DEBUG) Log.v(TAG, "onItem, Status: " + message.getStatusOrNull());
-                messagesListAdapter.addRow(message);
+                if(messagesListAdapter.addRow(message))
+                    scrollListTo(-1, true);
                 return false;
             }
 
@@ -1027,7 +1054,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
             @Override
             public void onItemError(BMessage message, BError error) {
                 showAlertToast("Error while sending message.");
-                messagesListAdapter.addRow(message);
+                /*messagesListAdapter.addRow(message);*/
                 /*FIXME todo handle error by showing indicator on the message in the list.*/
             }
         });
@@ -1058,5 +1085,6 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                 });
     }
 
+    private Handler handler = new Handler();
 
 }
