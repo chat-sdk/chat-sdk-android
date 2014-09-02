@@ -16,11 +16,12 @@ public class Debug {
     public static final boolean BFirebaseNetworkAdapter = false;
 
     /*Fragments*/
-    public static final boolean ContactsFragment = false;
-    public static final boolean ConversationsFragment = false;
-    public static final boolean ProfileFragment = false;
-    public static final boolean ThreadsFragment = false;
-    public static final boolean ExpandableContactsFragment = false;
+    private static final boolean FRAGMENTS = false;
+    public static final boolean ContactsFragment = FRAGMENTS || false;
+    public static final boolean ConversationsFragment = FRAGMENTS || false;
+    public static final boolean ProfileFragment = FRAGMENTS || true;
+    public static final boolean ThreadsFragment = FRAGMENTS || false;
+    public static final boolean ExpandableContactsFragment = FRAGMENTS || false;
 
     /*DaoCore*/
     public static final boolean DaoCore = false;
@@ -36,7 +37,7 @@ public class Debug {
 
     /*Activities*/
     public static final boolean BaseActivity = false;
-    public static final boolean ChatActivity = true;
+    public static final boolean ChatActivity = false;
     public static final boolean LocationActivity = false;
     public static final boolean LoginActivity = false;
     public static final boolean MainActivity = false;

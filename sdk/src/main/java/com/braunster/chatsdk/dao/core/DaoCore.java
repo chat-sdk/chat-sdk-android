@@ -366,6 +366,7 @@ public class DaoCore {
     private static String lastAuthID = "";
     /** Fetch Buser object For given AuthenticationID, If more then one found the first will be returned.*/
     public static BUser fetchUserWithAuthID(String authId){
+
         if (!lastAuthID.equals(authId) || userWithAuthQuery == null)
         {
             lastAuthID = authId;

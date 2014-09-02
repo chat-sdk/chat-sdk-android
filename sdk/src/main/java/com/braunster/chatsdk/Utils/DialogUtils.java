@@ -38,7 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.adapter.FBGraphUsersListVolleyAdapter;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -46,7 +46,7 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
-import com.firebase.simplelogin.User;
+import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
@@ -239,7 +239,7 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private CompletionListenerWithDataAndError<User, Object> listener;
+        private CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener;
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -351,7 +351,7 @@ public class DialogUtils {
             }
         };
 
-        public void setListener(CompletionListenerWithDataAndError<User, Object> listener) {
+        public void setListener(CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener) {
             this.listener = listener;
         }
     }
@@ -415,7 +415,7 @@ public class DialogUtils {
             case LOAD_FROM_URL:
                 if (DEBUG) Log.i(TAG, "Image from URL");
                 if (data != null && !data.equals(""))
-                    VolleyUtills.getImageLoader().get(data, new ImageLoader.ImageListener() {
+                    VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
                             if (response.getBitmap() != null)

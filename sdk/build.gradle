@@ -31,38 +31,35 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    //Google Play Services - For Google Maps
-    compile 'com.google.android.gms:play-services:5.0.+'
-    // Support Library.
-    compile 'com.android.support:appcompat-v7:19.+'
-    // Volley - Networking library from google.
-    compile 'com.mcxiaoke.volley:library:1.0.+'
     // Facebook SDK
     compile project(':facebook')
     // Greendao generator. Generate the database object and structure.
     compile project(':generator')
-    // Page Adapter for the application design.
-    compile project(':PagerSlidingTabStrip')
-    // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
-    compile ('de.greenrobot:greendao:1.3.0'){ exclude group: 'com.google.android', module: 'support-v4'}
-    // String Utils - Helping to keep the code clean without checking for null and empty strings all the time.
-    compile 'org.apache.commons:commons-lang3:3.3.+'
 
-    // BugSense - For bug and crash tracking
-    compile ('com.bugsense.trace:bugsense:3.5') { exclude  module: 'base64coder'}
+    // Used for StringUtils
+    compile files('libs/commons-lang3-3.3.2.jar')
+    // Bug tracking
+    compile files('libs/bugsense-3.6.1.jar')
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    //Google Play Services - For Google Maps
+    compile 'com.google.android.gms:play-services:5.0.77'
+    // Support Library.
+    compile 'com.android.support:appcompat-v7:19.1.0'
+    // Volley - Networking library from google.
+    compile 'com.mcxiaoke.volley:library:1.0.0'
+    // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
+    compile('de.greenrobot:greendao:1.3.0') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
 
     // Firebase
-    compile 'com.firebase:firebase-client:1.0.15'
-    compile 'com.firebase:firebase-simple-login:1.3.0'
-
+    compile 'com.firebase:firebase-simple-login:1.4.2'
     // Super Toast
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
-
     //  Pull to refresh layout library
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
 
-    // For twitter oath
-//    compile 'org.scribe:scribe:1.3.6'
-//    compile 'org.twitter4j:twitter4j-core:4.0.+'
+
 }

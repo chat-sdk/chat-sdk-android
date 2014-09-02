@@ -27,13 +27,14 @@ import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.events.BatchedEvent;
+import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.firebase.EventManager;
 import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
@@ -360,6 +361,9 @@ public class ContactsFragment extends BaseFragment {
         if (DEBUG) Log.d(TAG, "ClearData");
         if (adapter != null)
         {
+            if (uiUpdater != null)
+                uiUpdater.setKilled(true);
+
             adapter.getListData().clear();
             adapter.notifyDataSetChanged();
         }
@@ -483,38 +487,6 @@ public class ContactsFragment extends BaseFragment {
                 return true;
             }
         });
-
-        //region Multi select
-/*listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-            listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-                @Override
-                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                    mode.setTitle(adapter.getSelectedCount() + " selected.");
-                    adapter.toggleSelection(position);
-                }
-
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    mode.getMenuInflater().inflate(R.menu.multi_select_menu, menu);
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                    adapter.clearSelection();
-                }
-            });*/
-        //endregion
     }
 
     @Override
@@ -522,34 +494,18 @@ public class ContactsFragment extends BaseFragment {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume, TAG: " + eventTAG);
 
-        AppEventListener eventListener = new AppEventListener(eventTAG){
+        BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserEvent, handler);
+        userDetailsBatch.setBatchedAction(Event.Type.UserEvent, 1000, new Batcher.BatchedAction<String>() {
             @Override
-            public boolean onUserDetailsChange(BUser user) {
+            public void triggered(List<String> list) {
                 if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
                 loadDataOnBackground();
-                return false;
             }
-
-            @Override
-            public boolean onUserAddedToThread(String threadId, String userId) {
-                if (DEBUG) Log.d(TAG, "onUserAddedToThread");
-                if(!adapter.isItemExist(userId))
-                    return false;
-
-                BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
-
-                if (thread.getType() != null && thread.getType() != BThreadEntity.Type.Public)
-                {
-                    loadDataOnBackground();
-                }
-
-                return false;
-            }
-        };
+        });
 
         if (StringUtils.isNotEmpty(eventTAG))
         {
-            EventManager.getInstance().addAppEvent(eventListener);
+            EventManager.getInstance().addAppEvent(userDetailsBatch);
         }
     }
 

@@ -14,7 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.astuetz.pagersslidingtabstrip.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.NotificationUtils;
@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity {
     public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
 
     public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
-    public static final String Action_Logged_Out = "com.braunster.androidchatsdk.action.logged_out";
+    public static final String Action_clear_data = "com.braunster.androidchatsdk.action.logged_out";
     public static final String Action_Refresh_Fragment = "com.braunster.androidchatsdk.action.refresh_fragment";
 
     private int pageAdapterPos = -1;
@@ -138,7 +138,7 @@ public class MainActivity extends BaseActivity {
                 });
 
                 IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
-                intentFilter.addAction(Action_Logged_Out);
+                intentFilter.addAction(Action_clear_data);
                 intentFilter.addAction(Action_Refresh_Fragment);
 
                 registerReceiver(mainReceiver, intentFilter);
@@ -198,7 +198,8 @@ public class MainActivity extends BaseActivity {
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
                         if (!EventManager.getInstance().isEventTagExist(ChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-                            NotificationUtils.createMessageNotification(MainActivity.this, message);
+                            if (message.getBUserSender().getMetaName() != null)
+                                NotificationUtils.createMessageNotification(MainActivity.this, message);
                         }
                     }
                 }
@@ -321,22 +322,9 @@ public class MainActivity extends BaseActivity {
                         EventManager.getInstance().handleUsersDetailsChange(id);
                 }
             }
-            else if (intent.getAction().equals(Action_Logged_Out))
+            else if (intent.getAction().equals(Action_clear_data))
             {
-                BaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
-
-                if (contacts != null)
-                    contacts.clearData();
-
-                BaseFragment conv = getFragment(PagerAdapterTabs.Conversations);
-
-                if (conv != null)
-                    conv.clearData();
-
-                BaseFragment pro = getFragment(PagerAdapterTabs.Profile);
-
-                if (pro != null)
-                    pro.clearData();
+                clearData();
             }
             else if (intent.getAction().equals(Action_Refresh_Fragment))
             {
@@ -356,6 +344,23 @@ public class MainActivity extends BaseActivity {
             }
         }
     };
+
+    private void clearData(){
+        BaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
+
+        if (contacts != null)
+            contacts.clearData();
+
+        BaseFragment conv = getFragment(PagerAdapterTabs.Conversations);
+
+        if (conv != null)
+            conv.clearData();
+
+        BaseFragment pro = getFragment(PagerAdapterTabs.Profile);
+
+        if (pro != null)
+            pro.clearData();
+    }
 
     /* Exit Stuff*/
     @Override

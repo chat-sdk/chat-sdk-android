@@ -28,7 +28,7 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.UiUtils;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
@@ -351,7 +351,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
         circleImageView.setTag(url);
 
-        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+        VolleyUtils.getImageLoader().get(url, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
 
@@ -481,13 +481,12 @@ public class MessagesListAdapter extends BaseAdapter{
             image.setLayoutParams(params);
 
             // Saving the url so we could remove it later on.
-            cacheKeys.add(VolleyUtills.BitmapCache.getCacheKey(message.url, 0, 0));
+            cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(message.url + ChatBubbleImageView2.URL_FIX, 0, 0));
             image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
         }
 
         return image;
     }
-
 
     /** Click listener for an image view, A dialog that show the image will show for each click.*/
     public class showImageDialogClickListener implements View.OnClickListener{
@@ -504,7 +503,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 url = urls[0];
 
                 // Saving the url so we could remove it later on.
-                cacheKeys.add(VolleyUtills.BitmapCache.getCacheKey(url, 0, 0));
+                cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(url, 0, 0));
 
                 DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
                             showAtLocation(v, Gravity.CENTER, 0, 0);

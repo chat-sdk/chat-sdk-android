@@ -5,7 +5,7 @@
     android:id="@+id/content"
     tools:context="com.braunster.androidchatsdk.app.MainActivity">
 
-    <com.astuetz.PagerSlidingTabStrip
+    <com.astuetz.pagersslidingtabstrip.PagerSlidingTabStrip
         android:id="@+id/tabs"
         style="@style/TabSlidingPager" />
 

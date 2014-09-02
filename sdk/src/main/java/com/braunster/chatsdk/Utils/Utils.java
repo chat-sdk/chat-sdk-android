@@ -18,10 +18,13 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -57,11 +60,41 @@ public class Utils {
     }
 
     public static String getRealPathFromURI(Activity activity, Uri uri){
-        String[] proj = { MediaStore.Images.Media.DATA };
+        String[] proj = { MediaStore.Images.Media.DATA , MediaStore.Images.Media.DISPLAY_NAME};
         Cursor cursor = activity.getContentResolver()
                 .query(uri, proj, null, null, null);
 
-        int column_index = cursor.getColumnIndexOrThrow(proj[0]);
+        int column_index;
+
+        // some devices a non valid path so we load them to a temp file in the app cache dir.
+        if (uri.toString().startsWith("content://com.sec.android.gallery3d.provider") ||
+                uri.toString().startsWith("content://media/external/images/media/"))  {
+
+            File cacheDir = activity.getCacheDir();
+
+            if(!cacheDir.exists())
+                cacheDir.mkdirs();
+
+            File old = new File(cacheDir, "ProfileImage.jpg");
+            if (old.exists())
+                old.delete();
+
+            File f = new File(cacheDir, "ProfileImage.jpg");
+
+            InputStream is;
+            try {
+                is = activity.getContentResolver().openInputStream(uri);
+                OutputStream os = new FileOutputStream(f);
+                IOUtils.copy(is, os);
+                os.close();
+
+                return f.getPath();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        column_index = cursor.getColumnIndexOrThrow(proj[0]);
 
         cursor.moveToFirst();
 
@@ -71,7 +104,7 @@ public class Utils {
         return path;
     }
 
-    public static File getFile(Activity activity, Uri uri) throws NullPointerException{
+    public static File getFile(Activity activity, Uri uri) {
         return  new File(Uri.parse(getRealPathFromURI(activity, uri)).getPath());
     }
 
@@ -297,20 +330,4 @@ public class Utils {
         }
     }
 }
-/*
 
-
-    public static boolean createDirIfNotExists(String path, String name) {
-        if (DEBUG) Log.v(TAG, "createAppDirIfNotExists, Path: " + path + ", Name: " + name);
-        boolean ret = true;
-
-        File file = new File(path);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                Log.e(Utils.TAG, "Problem creating Image folder");
-                ret = false;
-            }
-        }
-
-        return ret;
-    }*/

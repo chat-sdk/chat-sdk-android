@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.astuetz;
+package com.astuetz.pagersslidingtabstrip;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -39,7 +39,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.astuetz.pagerslidingtabstrip.R;
+import com.braunster.chatsdk.R;
 
 import java.util.Locale;
 

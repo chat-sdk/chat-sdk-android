@@ -17,12 +17,12 @@ import com.android.volley.toolbox.Volley;
  * @author Ognyan Bankov
  *
  */
-public class VolleyUtills {
+public class VolleyUtils {
     private static RequestQueue mRequestQueue;
     private static ImageLoader mImageLoader;
     private static BitmapCache bitmapCache;
 
-    private VolleyUtills() {
+    private VolleyUtils() {
         // no instances
     }
 
@@ -33,7 +33,8 @@ public class VolleyUtills {
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
         // Use 1/8th of the available memory for this memory cache.
-        int cacheSize = maxMemory / 16 ;
+        int cacheSize = maxMemory / 8 ;
+
         mRequestQueue.start();
 
         Log.d("", "Cache Size: " + cacheSize);

@@ -31,7 +31,7 @@ public class ThreadDetailsChangeListener extends FirebaseGeneralEvent {
 
     @Override
     public void onDataChange(final DataSnapshot dataSnapshot) {
-        if (DEBUG) Log.i(TAG, "Thread details changed.");
+        if (DEBUG) Log.i(TAG, "Thread details changed, Alive: " + isAlive());
         if (isAlive())
             EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override

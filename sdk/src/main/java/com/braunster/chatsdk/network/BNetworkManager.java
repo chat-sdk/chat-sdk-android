@@ -8,7 +8,7 @@ import android.provider.Settings;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.bugsense.trace.BugSenseHandler;
@@ -42,7 +42,7 @@ public class BNetworkManager {
 
     public static void init(Context ctx){
         preferences = ctx.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
-        VolleyUtills.init(ctx);
+        VolleyUtils.init(ctx);
         DaoCore.init(ctx);
 
         // Parse init

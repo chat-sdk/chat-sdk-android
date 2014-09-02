@@ -8,16 +8,10 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.Utils;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -31,10 +25,7 @@ import java.io.File;
 /**
  * Created by braunster on 19/06/14.
  */
-public class LocationActivity extends FragmentActivity
-                        implements GooglePlayServicesClient.ConnectionCallbacks,
-                                    GooglePlayServicesClient.OnConnectionFailedListener,
-        LocationListener {
+public class LocationActivity extends FragmentActivity {
 
     public static final String TAG = LocationActivity.class.getSimpleName();
     public static final boolean DEBUG = Debug.LocationActivity;
@@ -43,29 +34,10 @@ public class LocationActivity extends FragmentActivity
     public static final String ERROR_SNAPSHOT = "error getting snapshot";
     public static final String ERROR_SAVING_IMAGE = "error saving image";
 
-    // TODO listen to marker and add option to send marker position.
     // TODO show close locations: http://stackoverflow.com/questions/13488048/google-maps-show-close-places-to-current-user-poisition
 
-    // Milliseconds per second
-    private static final int MILLISECONDS_PER_SECOND = 1000;
-    // Update frequency in seconds
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 120;
-    // Update frequency in milliseconds
-    private static final long UPDATE_INTERVAL =
-            MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
-    // The fastest update frequency, in seconds
-    private static final int FASTEST_INTERVAL_IN_SECONDS = 60;
-    // A fast frequency ceiling in milliseconds
-    private static final long FASTEST_INTERVAL =
-            MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
-
-    // Define an object that holds accuracy and frequency parameters
-    LocationRequest mLocationRequest;
-
     private GoogleMap map;
-    private LocationClient locationClient;
     private Button btnSendLocation;
-    private LatLng requestedLocation;
     private Marker selectedLocation;
 
     public static final String SHOW_LOCATION = "show_location";
@@ -81,17 +53,17 @@ public class LocationActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_locaction);
 
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(SHOW_LOCATION))
-        {
-            requestedLocation = new LatLng(getIntent().getExtras().getLong(LANITUDE), getIntent().getExtras().getLong(LONGITUDE));
-        }
-        else
-        {
-            // Show current location.
-            makeLocationRequest();
-        }
+//        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(SHOW_LOCATION))
+//        {
+//            requestedLocation = new LatLng(getIntent().getExtras().getLong(LANITUDE), getIntent().getExtras().getLong(LONGITUDE));
+//        }
+//        else
+//        {
+//            // Show current location.
+//            makeLocationRequest();
+//        }
 
-        locationClient = new LocationClient(this, this, this);
+//        locationClient = new LocationClient(this, this, this);
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                 .getMap();
@@ -106,12 +78,20 @@ public class LocationActivity extends FragmentActivity
         map.setMyLocationEnabled(true);
 
         btnSendLocation = (Button) findViewById(R.id.chat_sdk_btn_send_location);
+
+        map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                setLocation(location);
+                map.setOnMyLocationChangeListener(null);
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        locationClient.connect();
+//        locationClient.connect();
     }
 
     @Override
@@ -195,30 +175,6 @@ public class LocationActivity extends FragmentActivity
         finish();
     }
 
-    @Override
-    protected void onStop() {
-        locationClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-
-//        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-
-        //Register to location change if not null.
-        if (mLocationRequest != null)
-        {
-            locationClient.requestLocationUpdates(mLocationRequest, LocationActivity.this, getMainLooper());
-            setLocation(locationClient.getLastLocation());
-        }
-        else
-        {
-            // Show requested location.
-            setLocation(requestedLocation);
-        }
-    }
-
     private void setLocation(Location location){
         setLocation(new LatLng(location.getLatitude(), location.getLongitude()));
     }
@@ -232,70 +188,7 @@ public class LocationActivity extends FragmentActivity
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    @Override
-    public void onDisconnected() {
-        Toast.makeText(this, "Disconnected. Please re-connect.",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        /*if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(
-                        this,
-                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
-                *//*
-                 * Thrown if Google Play services canceled the original
-                 * PendingIntent
-                 *//*
-            } catch (IntentSender.SendIntentException e) {
-                // Log the error
-                e.printStackTrace();
-            }
-        } else {
-            *//*
-             * If no resolution is available, display a dialog to the
-             * user with the error.
-             *//*
-            showErrorDialog(connectionResult.getErrorCode());
-        }*/
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        setLocation(location);
-    }
-
     public void takeSnapShot(GoogleMap.SnapshotReadyCallback callback){
         map.snapshot(callback);
     }
-
-    private void makeLocationRequest(){
-        // Register to current location changes.
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create();
-        // Use high accuracy
-        mLocationRequest.setPriority(
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set the update interval to 5 seconds
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        // Set the fastest update interval to 1 second
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-    }
-
-    private int calculateZoomLevel(int screenWidth) {
-        double equatorLength = 40075004; // in meters
-        double widthInPixels = screenWidth;
-        double metersPerPixel = equatorLength / 256;
-        int zoomLevel = 1;
-        while ((metersPerPixel * widthInPixels) > 20000) {
-            metersPerPixel /= 2;
-            ++zoomLevel;
-        }
-        if (DEBUG) Log.i(TAG, "zoom level = " + zoomLevel);
-        return zoomLevel;
-    }
-
 }

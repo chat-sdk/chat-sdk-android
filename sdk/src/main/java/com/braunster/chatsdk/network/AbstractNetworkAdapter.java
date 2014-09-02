@@ -27,7 +27,7 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
-import com.firebase.simplelogin.User;
+import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 
@@ -89,7 +89,7 @@ public abstract class AbstractNetworkAdapter {
     }
 
     // Note done!
-    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<User, Object> listener);
+    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener);
 
     /**
      * Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,

@@ -28,7 +28,7 @@ public class IncomingMessagesListener extends FirebaseGeneralEvent {
 
     @Override
     public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
-        if (DEBUG) Log.v(TAG, "Message has arrived.");
+        if (DEBUG) Log.v(TAG, "Message has arrived, Alive: " + isAlive());
         if (isAlive())
             EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override

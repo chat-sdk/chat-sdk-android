@@ -1,7 +1,6 @@
 package com.braunster.chatsdk.fragments;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,9 +39,9 @@ import java.util.List;
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ConversationsFragment extends BaseFragment {
+public class ConversationsFragmentBACK extends BaseFragment {
 
-    private static final String TAG = ConversationsFragment.class.getSimpleName();
+    private static final String TAG = ConversationsFragmentBACK.class.getSimpleName();
     private static boolean DEBUG = Debug.ConversationsFragment;
     public static final String APP_EVENT_TAG= "ConverstaionFragment";
 
@@ -54,8 +53,8 @@ public class ConversationsFragment extends BaseFragment {
     private TimingLogger timings;
     private UIUpdater uiUpdater;
 
-    public static ConversationsFragment newInstance() {
-        ConversationsFragment f = new ConversationsFragment();
+    public static ConversationsFragmentBACK newInstance() {
+        ConversationsFragmentBACK f = new ConversationsFragmentBACK();
         Bundle b = new Bundle();
         f.setArguments(b);
         return f;
@@ -202,54 +201,7 @@ public class ConversationsFragment extends BaseFragment {
             }
         };
 
-        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 41);
-    }
-
-    private class LoadDataTask extends AsyncTask<Void, Void, List<ThreadsListAdapter.ThreadListItem>> {
-
-        @Override
-        protected List<ThreadsListAdapter.ThreadListItem> doInBackground(Void... params) {
-            if (isCancelled())
-            {
-                if (DEBUG) Log.v(TAG, "uiUpdater, is killed.");
-                return null;
-
-            }
-
-            if (DEBUG) {
-                timings.addSplit("Loading threads");
-            }
-
-            List<ThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private);
-
-            if (DEBUG) {
-                Log.d(TAG, "Thread Loaded");
-                timings.addSplit("Loading threads");
-            }
-
-            return list;
-        }
-
-        @Override
-        protected void onPostExecute(List<ThreadsListAdapter.ThreadListItem> threadListItems) {
-            super.onPostExecute(threadListItems);
-
-            if (isCancelled() || threadListItems == null)
-                return;
-
-            if (DEBUG) Log.d(TAG, "UpdateUI" + threadListItems.size());
-            adapter.setListData(threadListItems);
-            if (progressBar.getVisibility() == View.VISIBLE)
-            {
-                progressBar.setVisibility(View.INVISIBLE);
-                listThreads.setVisibility(View.VISIBLE);
-            }
-            if (DEBUG) {
-                timings.addSplit("Updating UI");
-                timings.dumpToLog();
-                timings.reset(TAG, "loadDataOnBackground");
-            }
-        }
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,/*isFirst ? 1 : 4*/1);
     }
 
     @Override

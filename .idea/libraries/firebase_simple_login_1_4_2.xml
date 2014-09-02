@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="firebase-simple-login-1.4.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.firebase/firebase-simple-login/1.4.2/b9522f95a8a6970b3def8a194037f6a25da0afb0/firebase-simple-login-1.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.firebase/firebase-simple-login/1.4.2/d5e4feb7993e5bd6d6f03c6aa75491a1f160ad40/firebase-simple-login-1.4.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

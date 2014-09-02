@@ -27,8 +27,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
-import com.firebase.simplelogin.User;
-import com.firebase.simplelogin.enums.Error;
+import com.firebase.simplelogin.FirebaseSimpleLoginError;
+import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,8 +88,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             public void onError(FacebookException error) {
                 if (error instanceof FacebookOperationCanceledException)
                     return;
+                else if (error.getMessage() != null && error.getMessage().equals("Log in attempt aborted."))
+                    return;
 
-                showAlertToast("Facebook error: " + error.getMessage());
+                showAlertToast("Facebook error: " + error.getMessage() + " " + error.getClass().getSimpleName());
             }
         });
 
@@ -201,6 +203,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         findViewById(R.id.chat_sdk_root_view).postDelayed(new Runnable() {
             @Override
             public void run() {
+
+                Intent logout = new Intent(MainActivity.Action_clear_data);
+                sendBroadcast(logout);
+
                 dismissProgDialog();
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -234,14 +240,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Password, etName.getText().toString(), etPass.getText().toString());
-            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
                 @Override
-                public void onDone(User firebaseSimpleLoginUser) {
+                public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
+                public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
                    toastErrorMessage(o, true);
 
                     dismissProgDialog();
@@ -253,14 +259,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             Map<String, Object> data = new HashMap<String, Object>();
             data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
-            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
                 @Override
-                public void onDone(User firebaseSimpleLoginUser) {
+                public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
+                public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
                     toastErrorMessage(o, false);
                     dismissProgDialog();
                 }
@@ -274,14 +280,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             Map<String, Object> data = FirebasePaths.getMap(new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                     BDefines.BAccountType.Register, etName.getText().toString(), etPass.getText().toString());
-            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<User, Object>() {
+            BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
                 @Override
-                public void onDone(User firebaseSimpleLoginUser) {
+                public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(User firebaseSimpleLoginUser, Object o) {
+                public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
                     toastErrorMessage(o, false);
                     dismissProgDialog();
                 }
@@ -289,16 +295,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         }
         else if (i == R.id.chat_sdk_btn_twitter_login){
             final ChatSDKTwitterLoginDialog dialog = ChatSDKTwitterLoginDialog.getInstance();
-            dialog.setListener(new CompletionListenerWithDataAndError<User, Object>(){
+            dialog.setListener(new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>(){
                 @Override
-                public void onDone(User user) {
+                public void onDone(FirebaseSimpleLoginUser user) {
                     dialog.dismiss();
                     showProgDialog(getString(R.string.authenticating));
                     afterLogin();
                 }
 
                 @Override
-                public void onDoneWithError(User user, Object error) {
+                public void onDoneWithError(FirebaseSimpleLoginUser user, Object error) {
                     dialog.dismiss();
                     toastErrorMessage(error, true);
                 }
@@ -308,11 +314,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     }
 
     private void toastErrorMessage(Object o, boolean login){
-        if (o instanceof Error)
+        if (o instanceof FirebaseSimpleLoginError)
         {
             String toastMessage = "";
-            Error error = ((Error) o);
-            switch (error)
+            FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
+            switch (error.getCode())
             {
                 case EmailTaken:
                     toastMessage = "Email is taken.";
@@ -349,15 +355,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 default: toastMessage = "An Error Occurred.";
             }
             showAlertToast(toastMessage);
-//            Toast.makeText(LoginActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
         }
         else if (login)
         {
-//            Toast.makeText(LoginActivity.this, "Failed connect to Firebase.", Toast.LENGTH_SHORT).show();
             showAlertToast("Failed connect to Firebase.");
         }
         else {
-//            Toast.makeText(LoginActivity.this, "Failed registering to Firebase.", Toast.LENGTH_SHORT).show();
             showAlertToast("Failed registering to Firebase.");
         }
     }
@@ -367,14 +370,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         {
 
 //            Toast.makeText(LoginActivity.this, "Please enter username/email." , Toast.LENGTH_SHORT).show();
-            showToast("Please enter username/email.");
+            showAlertToast("Please enter username/email.");
             return false;
         }
 
         if (etPass.getText().toString().isEmpty())
         {
 //            Toast.makeText(LoginActivity.this, "Please enter password." , Toast.LENGTH_SHORT).show();
-            showToast( "Please enter password.");
+            showAlertToast( "Please enter password.");
             return false;
         }
 

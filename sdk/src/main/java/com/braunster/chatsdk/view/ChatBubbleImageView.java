@@ -22,7 +22,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BDefines;
 
 /**
@@ -191,7 +191,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     }
 
     public void loadFromUrl(final String url, final int color,final int maxWidth, final LoadDone loadDone){
-        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+        VolleyUtils.getImageLoader().get(url, new ImageLoader.ImageListener() {
 
             boolean firstOnResponse = true;
 
@@ -306,7 +306,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         }).start();
 
 
-        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
+        VolleyUtils.getImageLoader().get(url, new ImageLoader.ImageListener() {
 
             boolean firstOnResponse = true;
 

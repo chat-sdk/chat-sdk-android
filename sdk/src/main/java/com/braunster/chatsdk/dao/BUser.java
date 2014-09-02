@@ -779,20 +779,6 @@ public class BUser extends BUserEntity  {
                 DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.BLinkData.class,
                         new Property[]{BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, thread.getId(), getId());
 
-/*
-        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.UserID, getId());
-
-        if (DEBUG) Log.d(TAG, "BUser, getThreads, Amount: " + (list==null?"null":list.size()) );
-
-        if (list == null) return false;
-
-        for (BLinkData data : list)
-        {
-            if (data.getBThread() != null && data.getBThread().getId().longValue() == thread.getId().longValue())
-                return true;
-        }
-*/
-
         return data != null;
     }
 

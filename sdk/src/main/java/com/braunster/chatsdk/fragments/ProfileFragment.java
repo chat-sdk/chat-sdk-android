@@ -30,9 +30,8 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.Utils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.activities.LoginActivity;
-import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -359,10 +358,11 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             {
                 case Activity.RESULT_OK:
                     if (DEBUG) Log.d(TAG, "Result OK");
-                    Uri uri = (Uri) data.getData();
-                    File image = null;
+                    Uri uri = data.getData();
+                    File image;
                     try
                     {
+                        if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
                         image = Utils.getFile(getActivity(), uri);
                     }
                     catch (NullPointerException e){
@@ -461,30 +461,79 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         }
     }
 
-    private void setProfilePic(final Bitmap bitmap){
-        if (DEBUG) Log.v(TAG, "setProfilePic, Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
-        // load image into imageview
-        final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+    private class PostProfilePic implements Runnable{
 
-        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
-        if (size == 0)
-        {
-            profileCircleImageView.post(new Runnable() {
-                @Override
-                public void run() {
-                    int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
-                    profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
-                    progressBar.setVisibility(View.GONE);
-                    profileCircleImageView.setVisibility(View.VISIBLE);
-                }
-            });
-        } else
-        {
+        private Bitmap bitmap;
+
+        private PostProfilePic(Bitmap bitmap){
+            this.bitmap = bitmap;
+        }
+
+        @Override
+        public void run() {
+            int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
             profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
             progressBar.setVisibility(View.GONE);
             profileCircleImageView.setVisibility(View.VISIBLE);
         }
     }
+
+    private PostProfilePic postProfilePic;
+
+    private void setProfilePic(final Bitmap bitmap){
+        if (DEBUG) Log.v(TAG, "setProfilePic, Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
+        // load image into imageview
+        final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
+
+        if (loadFromUrl != null)
+            loadFromUrl.setKilled(true);
+
+        if (postProfilePic != null)
+            profileCircleImageView.removeCallbacks(postProfilePic);
+
+        // If the size of the container is 0 we will wait for the view to do onLayout and only then measure it.
+        if (size == 0)
+        {
+            if (DEBUG) Log.d(TAG, "setProfilePic, Size == 0");
+            postProfilePic = new PostProfilePic(bitmap);
+
+            profileCircleImageView.post(postProfilePic);
+        } else
+        {
+            if (DEBUG) Log.d(TAG, "setProfilePic, Has Size");
+            profileCircleImageView.setImageBitmap(scaleImage(bitmap, size));
+            progressBar.setVisibility(View.GONE);
+            profileCircleImageView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private class LoadFromUrl implements ImageLoader.ImageListener{
+        private boolean killed = false;
+
+        public void setKilled(boolean killed) {
+            this.killed = killed;
+        }
+
+        @Override
+        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+
+            if (killed)
+                return;
+
+            if (response.getBitmap() != null) {
+                if (DEBUG) Log.v(TAG, "onResponse, Profile pic loaded from url.");
+                setProfilePic(response.getBitmap());
+            }
+        }
+
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+            setInitialsProfilePic();
+        }
+    };
+    private LoadFromUrl loadFromUrl;
 
     private void setProfilePicFromURL(String url){
         // Set default.
@@ -494,33 +543,32 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             return;
         }
 
-        VolleyUtills.getImageLoader().get(url, new ImageLoader.ImageListener() {
-            @Override
-            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    setProfilePic(response.getBitmap());
-                }
-            }
+        if (loadFromUrl != null)
+            loadFromUrl.setKilled(true);
 
+        loadFromUrl = new LoadFromUrl();
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-                setInitialsProfilePic();
-            }
-        });
+        VolleyUtils.getImageLoader().get(url, loadFromUrl);
     }
 
     private void saveProfilePicToParse(String path, boolean setAsPic) {
+        if (DEBUG) Log.v(TAG, "saveProfilePicToParse, Path: " + path);
+
         //  Loading the bitmap
         if (setAsPic)
         {
-            final Bitmap b = ImageUtils.loadBitmapFromFile(path);
+            if (DEBUG) Log.d(TAG, "SetAsPic");
+            Bitmap b = ImageUtils.loadBitmapFromFile(path);
 
             if (b == null)
             {
-                if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid");
-                return;
+                b = ImageUtils.loadBitmapFromFile(getActivity().getCacheDir().getPath() + path);
+                if (b == null)
+                {
+                    showToast("Unable to save file...");
+                    if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + getActivity().getCacheDir().getPath() + path);
+                    return;
+                }
             }
             setProfilePic(b);
         }
@@ -550,11 +598,6 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
         });
     }
 
-    private void notFacebookLogin(){
-        mainView.findViewById(R.id.chat_sdk_facebook_button).setVisibility(View.GONE);
-        mainView.findViewById(R.id.chat_sdk_logout_button).setVisibility(View.VISIBLE);
-    }
-
     private void getProfileFromFacebook(){
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
@@ -569,7 +612,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
                 public void onDone(GraphUser graphUser) {
                     Log.d(TAG, "Name: " + graphUser.getName());
 
-                    VolleyUtills.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
+                    VolleyUtils.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
                             new ImageLoader.ImageListener() {
                                 @Override
                                 public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
@@ -610,7 +653,7 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
             {
                 // The default image suppied by twitter is 48px on 48px image so we want a bigget one.
                 imageUrl = imageUrl.replace("_normal", "");
-                VolleyUtills.getImageLoader().get(imageUrl,
+                VolleyUtils.getImageLoader().get(imageUrl,
                         new ImageLoader.ImageListener() {
                             @Override
                             public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
@@ -663,6 +706,8 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     }
 
     private boolean createTempFileAndSave(Bitmap bitmap){
+        if (DEBUG) Log.v(TAG, "createTempFileAndSave");
+
         // Saving the image to tmp file.
         try {
             File tmp = File.createTempFile("Pic", ".jpg", getActivity().getCacheDir());
@@ -679,27 +724,25 @@ public class ProfileFragment extends BaseFragment implements TextView.OnEditorAc
     private void logout(){
         // Logout and return to the login activity.
 
-        if (loginType == BDefines.BAccountType.Facebook)
+        if (Session.getActiveSession() != null)
         {
-            if (Session.getActiveSession() != null)
-            {
-                Session.getActiveSession().closeAndClearTokenInformation();
-            }
-            else
-            {
-                if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
-                Session.openActiveSessionFromCache(getActivity()).closeAndClearTokenInformation();
-            }
+            Session.getActiveSession().closeAndClearTokenInformation();
         }
+        else
+        {
+            if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
+            Session session = Session.openActiveSessionFromCache(getActivity());
 
-        Intent logout = new Intent(MainActivity.Action_Logged_Out);
-        getActivity().sendBroadcast(logout);
+            if (session != null)
+                session.closeAndClearTokenInformation();
+        }
 
         BNetworkManager.sharedManager().getNetworkAdapter().logout();
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, true);
         startActivity(intent);
     }
+
     /*############################################*/
     @Override
     public boolean onEditorAction(final TextView v, int actionId, KeyEvent event) {

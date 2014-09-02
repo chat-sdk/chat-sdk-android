@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.facebook.model.GraphUser;
 
@@ -91,7 +91,7 @@ public class FBGraphUsersListVolleyAdapter extends BaseAdapter {
 
         // Load user profile pic.
         holder.circleNetworkImageView.setImageUrl(BFacebookManager.getPicUrl(user.getId()),
-                            VolleyUtills.getImageLoader());
+                            VolleyUtils.getImageLoader());
 
         return row;
     }

@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
@@ -150,6 +149,12 @@ public class PickFriendsActivity extends BaseActivity {
 
                 if (DEBUG) Log.d(TAG, "selected count: " + listAdapter.getSelectedCount());
 
+                if (listAdapter.getSelectedCount() == 0)
+                {
+                    showAlertToast("please select at least one user.");
+                    return;
+                }
+
                 int addCurrent = 1;
                 if (mode == MODE_ADD_TO_CONVERSATION)
                 {
@@ -178,6 +183,7 @@ public class PickFriendsActivity extends BaseActivity {
                             users[i] = listAdapter.getListData().get(pos).asBUser();
 
                             Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
+
                         }
 
                         if (mode == MODE_NEW_CONVERSATION)
@@ -198,21 +204,15 @@ public class PickFriendsActivity extends BaseActivity {
                                     PickFriendsActivity.this.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            dismissProgDialog();
 
                                             setResult(Activity.RESULT_OK);
+
+                                            dismissProgDialog();
+
                                             finish();
 
                                             if (animateExit)
                                                 overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-
-                                            // Updating the ui.
-                                            if (thread.getType() == BThread.Type.Private)
-                                            {
-                                                Intent intent = new Intent(MainActivity.Action_Refresh_Fragment);
-                                                intent.putExtra(MainActivity.PAGE_ADAPTER_POS, PagerAdapterTabs.Conversations);
-                                                sendBroadcast(intent);
-                                            }
                                         }
                                     });
                                 }

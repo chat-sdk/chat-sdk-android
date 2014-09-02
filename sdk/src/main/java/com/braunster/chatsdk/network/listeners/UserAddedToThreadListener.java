@@ -29,18 +29,19 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
     private static final boolean DEBUG = Debug.UserAddedToThreadListener;
 
     private static List<String> usersIds = new ArrayList<String>();
-    private String threadID;
+    private String threadID, observedUserId;
     private Handler handler;
     private FirebaseEventCombo combo;
     private FirebaseGeneralEvent userDetailsChangeListener;
 
-    public static UserAddedToThreadListener getNewInstance(String threadID, Handler handler) {
-        UserAddedToThreadListener userAddedToThreadListener = new UserAddedToThreadListener(threadID,  handler);
+    public static UserAddedToThreadListener getNewInstance(String observedUserId, String threadID, Handler handler) {
+        UserAddedToThreadListener userAddedToThreadListener = new UserAddedToThreadListener(observedUserId, threadID,  handler);
         return userAddedToThreadListener;
     }
 
-    public UserAddedToThreadListener(String threadID, Handler handler){
+    public UserAddedToThreadListener(String obeservedUserId, String threadID, Handler handler){
         super(ChildEvent);
+        this.observedUserId = obeservedUserId;
         this.handler = handler;
         this.threadID = threadID;
     }
@@ -49,13 +50,17 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
 
     @Override
     public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
-        if (DEBUG) Log.v(TAG, "User Added to thread.");
+        if (DEBUG) Log.v(TAG, "User Added to thread, Alive: " + isAlive());
 
         if (isAlive())
             EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
+                    BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                    if (!currentUser.getEntityID().equals(observedUserId))
+                        return;
 
                     BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
                     final String userFirebaseID = path.idForIndex(1);
@@ -69,13 +74,13 @@ public class UserAddedToThreadListener extends FirebaseGeneralEvent {
                         DaoCore.connectUserAndThread(bUser, thread);
 
                     // Dont notify the system for the current user added.
-                    if (userFirebaseID.equals(EventManager.getCurrentUserId())) {
+                    if (userFirebaseID.equals(currentUser.getEntityID())) {
                         return;
                     }
 
                     if (thread.getType() != BThread.Type.Public) {
                         // Users that are members of threads are shown in contacts
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(bUser);
+                        currentUser.addContact(bUser);
                     }
 
                     Message message = new Message();

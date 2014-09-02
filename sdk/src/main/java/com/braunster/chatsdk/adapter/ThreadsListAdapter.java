@@ -15,7 +15,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -116,7 +116,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         int size = holder.imgIcon.getHeight();
 
         if (StringUtils.isNotEmpty(listData.get(position).getImageUrl()))
-            VolleyUtills.getImageLoader().get(listData.get(position).getImageUrl(), new ImageLoader.ImageListener() {
+            VolleyUtils.getImageLoader().get(listData.get(position).getImageUrl(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (isImmediate && response.getBitmap() == null)

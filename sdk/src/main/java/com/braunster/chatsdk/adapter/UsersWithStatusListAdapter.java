@@ -17,7 +17,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
@@ -145,7 +145,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
                 int size = holder.profilePicture.getHeight();
 
                 if (userItem.pictureThumbnailURL != null )
-                    VolleyUtills.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
+                    VolleyUtils.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             if (isImmediate && response.getBitmap() == null)
@@ -422,18 +422,18 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             }
             else if (onlineUsers.size() == 0){
                 listData.add(UserListItem.getHeader(H_NO_ONLINE));
-                listData.add(UserListItem.getHeader(H_OFFLINE));
+                listData.add(UserListItem.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                 listData.addAll(offlineUsers);
             }
             else if (offlineUsers.size() == 0){
-                listData.add(UserListItem.getHeader(H_ONLINE));
+                listData.add(UserListItem.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
                 listData.addAll(onlineUsers);
                 listData.add(UserListItem.getHeader(H_NO_OFFLINE));
             }
             else {
-                listData.add(UserListItem.getHeader(H_ONLINE));
+                listData.add(UserListItem.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
                 listData.addAll(onlineUsers);
-                listData.add(UserListItem.getHeader(H_OFFLINE));
+                listData.add(UserListItem.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                 listData.addAll(offlineUsers);
             }
         }
@@ -443,6 +443,10 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 //                Log.d(TAG, "Report EntityID: " + s);
 
         return listData;
+    }
+
+    private static String getHeaderWithSize(String header, int size){
+        return header + " (" + size + ")";
     }
 
 

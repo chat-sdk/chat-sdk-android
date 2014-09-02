@@ -36,10 +36,10 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
+import com.firebase.simplelogin.FirebaseSimpleLoginError;
+import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
 import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
-import com.firebase.simplelogin.User;
-import com.firebase.simplelogin.enums.Error;
 import com.firebase.simplelogin.enums.Provider;
 import com.parse.PushService;
 
@@ -128,54 +128,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         authingStatus = AuthStatus.IDLE;
     }
 
-    // NOTE Not implemented yet. Will be in the future.
-/*    -(void) loginWithFacebookWithCompletion: (void(^)(NSError * error, FAUser * user)) completion {
-        [[BFacebookManager sharedManager] loginWithCompletion:^(NSError * error) {
-
-            Firebase * ref = [Firebase firebaseRef];
-            FirebaseSimpleLogin * auth = [[FirebaseSimpleLogin alloc] initWithRef:ref];
-
-            [auth createFacebookUserWithToken:[BFacebookManager sharedManager].accessToken
-            appId:bFacebookAppID
-            withCompletionBlock:completion];
-
-        }];
-    }*/
-
-   /* -(void) getUserFacebookFriendListWithCompletion: (void(^)(NSError * error, NSArray * friends)) completion {
-        // Check to see if the user has a facebook network associated
-        BUser * currentUser = (BUser *) [self currentUser];
-        BUserAccount * account = [currentUser accountWithType:bAccountTypeFacebook];
-
-        if (account && account.token) {
-
-            [BFacebookManager sharedManager].accessToken = account.token;
-            [[BFacebookManager sharedManager] getUserFriendListWithCompletion:^(NSError * error, NSArray * friends) {
-
-                if (friends.count) {
-                    BUser * currentUser = self.currentUser;
-
-                    // Add the users to contacts
-                    for (BUser * user in friends) {
-
-                        [currentUser addContact:user];
-                    }
-                }
-
-                completion(error, friends);
-            }];
-        }
-        else {
-            completion(Nil, @[]);
-        }
-    }
-*/
     public void test(){
 
     }
 
     @Override
-    public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<User, Object> listener) {
+    public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener) {
         if (DEBUG) Log.v(TAG, "authenticateWithMap, KeyType: " + details.get(Prefs.LoginTypeKey));
 
         if (isAuthing())
@@ -191,10 +149,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
             @Override
-            public void authenticated(Error error, final User firebaseSimpleLoginUser) {
+            public void authenticated(FirebaseSimpleLoginError error, final FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
                 if (error != null || firebaseSimpleLoginUser == null)
                 {
-                    if (DEBUG) Log.e(TAG, "Error login in, Name: " + error.name());
+                    if (DEBUG) Log.e(TAG, "Error login in, Name: " + error.getMessage());
                     resetAuth();
                     listener.onDoneWithError(firebaseSimpleLoginUser, error);
                 }
@@ -251,8 +209,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     }
 
-
-    public void handleFAUser(final User fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
+    public void handleFAUser(final FirebaseSimpleLoginUser fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
         if (DEBUG) Log.v(TAG, "handleFAUser");
 
         authingStatus = AuthStatus.HANDLING_F_USER;
@@ -298,9 +255,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 });
     }
 
-
     /**Copy some details from the FAUser like name etc...*/
-    public void updateUserFromFUser(final BUser user, User fireUser){
+    public void updateUserFromFUser(final BUser user, FirebaseSimpleLoginUser fireUser){
         if (DEBUG) Log.v(TAG, "updateUserFromFUser");
 
         authingStatus = AuthStatus.UPDATING_USER;
@@ -489,7 +445,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
             @Override
-            public void authenticated(Error error, User firebaseSimpleLoginUser) {
+            public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
                 if (error != null || firebaseSimpleLoginUser == null)
                 {
                     resetAuth();
@@ -498,7 +454,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
                     if (error != null)
                     {
-                        if (DEBUG) Log.d(TAG, error.name());
+                        if (DEBUG) Log.d(TAG, error.getMessage());
                     }
                     else if (DEBUG) Log.d(TAG, "No Error");
 
@@ -589,7 +545,6 @@ TODO
     * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
     *
     * This will allow us to find the user*/
-
     @Override
     public void usersForIndex(String index, final RepetitiveCompletionListener<BUser> listener) {
         mapForIndex(index, new MapForIndex() {
@@ -792,6 +747,12 @@ TODO
                 // Updating the index.
                 else map.put(Keys.BValue, index);
 
+                if (user.getEntityID() == null)
+                {
+                    listener.onDoneWithError();
+                    return;
+                }
+
                 // Adding the new data to the index.
                 values.put(user.getEntityID(), map);
 
@@ -854,9 +815,9 @@ TODO
             return currentUser;
         }
 
-        if (getCurrentUserAuthenticationId() != null)
+        String authID = getCurrentUserAuthenticationId();
+        if (authID != null)
         {
-            String authID = getCurrentUserAuthenticationId();
             if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
 
             currentUser = DaoCore.fetchOrCreateUserWithAuthenticationID(authID);
@@ -875,7 +836,7 @@ TODO
     }
 
     private long lastCurrentUserCall = 0;
-    private final long currentUserCallInterval = 2000;
+    private final long currentUserCallInterval = 100;
     private BUser currentUser = null;
 
     public void isOnline(final CompletionListenerWithData<Boolean> listener){
@@ -1143,9 +1104,10 @@ TODO
         final RepetitiveCompletionListenerWithError repetitiveCompletionListener = new RepetitiveCompletionListenerWithError<BUser, FirebaseError>() {
             @Override
             public boolean onItem(BUser user) {
-                if (DEBUG) Log.d(TAG,"addUsersToThread, OnItem, Users TO go: " + usersToGo.size() );
 
                 usersToGo.remove(user);
+
+                if (DEBUG) Log.d(TAG,"addUsersToThread, OnItem, Users TO go: " + usersToGo.size() );
 
                 if (listener != null)
                     listener.onItem(user);

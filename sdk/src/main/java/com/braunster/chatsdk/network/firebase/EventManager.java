@@ -132,6 +132,7 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onUserAddedToThread(String threadId, final String userId) {
+        if (DEBUG) Log.i(TAG, "onUserAddedToThread");
         post(new Runnable() {
             @Override
             public void run() {
@@ -140,8 +141,12 @@ public class EventManager implements AppEvents {
             }
         });
 
+
         for (Event e : events.values())
         {
+            if (e == null)
+                continue;
+
             if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(threadId) &&  !e.getEntityId().equals(threadId) )
                 continue;
 
@@ -156,8 +161,15 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onUserDetailsChange(BUser user) {
+        if (DEBUG) Log.i(TAG, "onUserDetailsChange");
+        if (user == null)
+            return false;
+
         for (Event e : events.values())
         {
+            if (e == null)
+                continue;
+
             // We check to see if the listener specified a specific user that he wants to listen to.
             // If we could find and match the data we ignore it.
             if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(user.getEntityID()) &&  !e.getEntityId().equals(user.getEntityID()) )
@@ -175,8 +187,12 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onMessageReceived(BMessage message) {
+        if (DEBUG) Log.i(TAG, "onMessageReceived");
         for (Event e : events.values())
         {
+            if (e == null)
+                continue;
+
             // We check to see if the listener specified a specific thread that he wants to listen to.
             // If we could find and match the data we ignore it.
             if (StringUtils.isNotEmpty(e.getEntityId()) && message.getBThreadOwner() != null && message.getBThreadOwner().getEntityID() != null
@@ -195,6 +211,7 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onThreadDetailsChanged(final String threadId) {
+        if (DEBUG) Log.i(TAG, "onThreadDetailsChanged");
         post(new Runnable() {
             @Override
             public void run() {
@@ -225,6 +242,7 @@ public class EventManager implements AppEvents {
 
     @Override
     public boolean onThreadIsAdded(String threadId) {
+        if (DEBUG) Log.i(TAG, "onThreadIsAdded");
         for (Event e : events.values())
         {
             if (StringUtils.isNotEmpty(e.getEntityId()) && !threadId.equals(e.getEntityId()))
@@ -304,7 +322,7 @@ public class EventManager implements AppEvents {
         // This will allow us to update the users in the database
         Firebase threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsersPath);
 
-        UserAddedToThreadListener userAddedToThreadListener= UserAddedToThreadListener.getNewInstance(threadId, handler);
+        UserAddedToThreadListener userAddedToThreadListener= UserAddedToThreadListener.getNewInstance(observedUserEntityID, threadId, handler);
 
         FirebaseEventCombo combo = getCombo(USER_PREFIX + threadId, threadUsers.toString(), userAddedToThreadListener);
 
@@ -405,8 +423,10 @@ public class EventManager implements AppEvents {
         else if (DEBUG) Log.e(TAG, "Thread is already handled..");
     }
 
+    private String observedUserEntityID = "";
     public void observeUser(final BUser user){
 
+        observedUserEntityID = user.getEntityID();
 /*        post(new Runnable() {
             @Override
             public void run() {
@@ -415,7 +435,7 @@ public class EventManager implements AppEvents {
             }
         });*/
 
-        FirebasePaths.userRef(user.getEntityID())
+        FirebasePaths.userRef(observedUserEntityID)
                 .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
                 .addChildEventListener(threadAddedListener);
 
@@ -539,9 +559,11 @@ public class EventManager implements AppEvents {
     /** Remove all firebase listeners and all app events listeners. After removing all class list will be cleared.*/
     public void removeAll(){
 
-        FirebasePaths.userRef(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID())
+        FirebasePaths.userRef(observedUserEntityID)
                 .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
                 .removeEventListener(threadAddedListener);
+
+        observedUserEntityID = "";
 
         FirebasePaths.publicThreadsRef().removeEventListener(threadAddedListener);
 
@@ -559,6 +581,8 @@ public class EventManager implements AppEvents {
             combo = listenerAndRefs.get(key);
             combo.breakCombo();
         }
+
+        Executor.getInstance().restart();
 
         clearLists();
     }
@@ -642,6 +666,11 @@ public class EventManager implements AppEvents {
 
         public void execute(Runnable runnable){
             threadPool.execute(runnable);
+        }
+
+        private void restart(){
+            threadPool.shutdownNow();
+            instance = new Executor();
         }
     }
 }

@@ -16,9 +16,10 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.firebase.client.Firebase;
+import com.firebase.simplelogin.FirebaseSimpleLoginError;
+import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
 import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
-import com.firebase.simplelogin.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +118,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
             simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
                 @Override
-                public void authenticated(com.firebase.simplelogin.enums.Error error, User user) {
+                public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
                     Intent resultIntent;
                     if (error == null && user != null)
                     {

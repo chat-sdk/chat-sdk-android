@@ -32,7 +32,7 @@ public class UserDetailsChangeListener extends FirebaseGeneralEvent {
 
     @Override
     public void onDataChange(final DataSnapshot snapshot) {
-        if (DEBUG) Log.v(TAG, "User Details has changed.");
+        if (DEBUG) Log.v(TAG, "User Details has changed, Alive: " + isAlive());
         if (isAlive())
             EventManager.Executor.getInstance().execute(new Runnable() {
                 @Override

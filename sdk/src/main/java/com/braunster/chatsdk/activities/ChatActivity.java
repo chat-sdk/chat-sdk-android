@@ -38,7 +38,7 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
-import com.braunster.chatsdk.Utils.volley.VolleyUtills;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.adapter.MessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -213,7 +213,7 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
                 if (StringUtils.isEmpty(imageUrl))
                     setRoundCornerDefault(circleImageView, roundedCornerImageView, onClickListener);
                 else
-                    VolleyUtills.getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
+                    VolleyUtils.getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             if (response.getBitmap() != null) {
@@ -637,10 +637,11 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtills.getBitmapCache().size());
+        if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtils.getBitmapCache().size());
 
+        /* Clear all the images that was loaded for this chat from the cache.
         for (String key : messagesListAdapter.getCacheKeys())
-            VolleyUtills.getBitmapCache().remove(key);
+            VolleyUtils.getBitmapCache().remove(key);*/
     }
 
     /** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*/
@@ -854,14 +855,14 @@ public class ChatActivity extends BaseActivity implements View.OnKeyListener, Vi
 
         // Pause disk cache access to ensure smoother scrolling
         if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-            VolleyUtills.getRequestQueue().stop();
+            VolleyUtils.getRequestQueue().stop();
             queueStopped = true;
         }
 
         // Pause disk cache access to ensure smoother scrolling
         if (queueStopped && !scrolling)
         {
-            VolleyUtills.getRequestQueue().start();
+            VolleyUtils.getRequestQueue().start();
             queueStopped = false;
         }
 
