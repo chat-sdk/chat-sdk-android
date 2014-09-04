@@ -27,7 +27,6 @@ android {
 }
 
 repositories {
-
 }
 
 dependencies {
@@ -35,12 +34,10 @@ dependencies {
     compile project(':facebook')
     // Greendao generator. Generate the database object and structure.
     compile project(':generator')
-
     // Used for StringUtils
     compile files('libs/commons-lang3-3.3.2.jar')
     // Bug tracking
     compile files('libs/bugsense-3.6.1.jar')
-
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
     //Google Play Services - For Google Maps
@@ -53,13 +50,10 @@ dependencies {
     compile('de.greenrobot:greendao:1.3.0') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
-
     // Firebase
     compile 'com.firebase:firebase-simple-login:1.4.2'
     // Super Toast
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
-    //  Pull to refresh layout library
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
 
-
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
 }

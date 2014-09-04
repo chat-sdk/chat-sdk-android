@@ -17,15 +17,5 @@ allprojects {
         maven {
             url "http://www.bugsense.com/gradle/"
         }
-
-        // The Scribe maven repo.
-//        maven {
-//            url "https://raw.github.com/fernandezpablo85/scribe-java/mvn-repo/"
-//        }
-
-        // The Twiiter4J maven repo.
-//        maven {
-//            url "http://twitter4j.org/maven2"
-//        }
     }
 }

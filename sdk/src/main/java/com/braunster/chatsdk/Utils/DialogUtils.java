@@ -26,7 +26,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -47,6 +46,7 @@ import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.ortiz.touch.TouchImageView;
 
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
@@ -60,11 +60,6 @@ public class DialogUtils {
 
     public static final String TAG = DialogUtils.class.getSimpleName();
     public static final boolean DEBUG = true;
-
-    // TODO show friends from facebook.
-    public static class FriendsListDialog extends DialogFragment {
-
-    }
 
     //region AlertDialog currently not working.
     // TODO Customizing alert dialog id needed.
@@ -386,7 +381,7 @@ public class DialogUtils {
         if (DEBUG) Log.v(TAG, "getImageDialog");
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.chat_sdk_popup_image, null);
+        View popupView = inflater.inflate(R.layout.chat_sdk_popup_touch_image, null);
 
         // Full screen popup.
         final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
@@ -399,7 +394,7 @@ public class DialogUtils {
             }
         });
 
-        final ImageView imageView = (ImageView) popupView.findViewById(R.id.chat_sdk_popup_image_imageview);
+        final TouchImageView imageView = (TouchImageView) popupView.findViewById(R.id.chat_sdk_popup_image_imageview);
         final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
 
         switch (loadingType)
@@ -418,9 +413,14 @@ public class DialogUtils {
                     VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+
+                            if (isImmediate && response.getBitmap() == null)
+                                progressBar.setVisibility(View.VISIBLE);
+
                             if (response.getBitmap() != null)
                             {
                                 imageView.setImageBitmap(response.getBitmap());
+
                                 if (DEBUG) Log.i(TAG, "response");
                                 imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
                                 imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
@@ -464,6 +464,7 @@ public class DialogUtils {
         imagePopup.setContentView(popupView);
         imagePopup.setBackgroundDrawable(new BitmapDrawable());
         imagePopup.setOutsideTouchable(true);
+        imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 //        imagePopup.setWidth(500);
 //        imagePopup.setHeight(400);
 

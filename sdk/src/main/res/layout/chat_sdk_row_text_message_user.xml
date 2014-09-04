@@ -26,7 +26,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Message Text"
-                android:layout_centerVertical="true"
                 android:id="@+id/txt_content"
                 android:padding="7dp"
                 android:layout_marginRight="3dp"
