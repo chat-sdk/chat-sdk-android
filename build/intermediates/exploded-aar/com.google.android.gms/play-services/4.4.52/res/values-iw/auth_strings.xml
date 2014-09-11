@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="auth_client_using_bad_version_title" msgid="2534454398764507874">"‏יש אפליקציה שניסתה להשתמש בגרסה שגויה של שירותי Google Play."</string>
+    <string name="auth_client_needs_enabling_title" msgid="3983201110833868073">"‏יש אפליקציה המחייבת הפעלה של שירותי Google Play."</string>
+    <string name="auth_client_needs_installation_title" msgid="7999585836145154206">"‏יש אפליקציה המחייבת התקנה של שירותי Google Play."</string>
+    <string name="auth_client_needs_update_title" msgid="6488605506794595966">"‏יש אפליקציה המחייבת עדכון של שירותי Google Play."</string>
+    <string name="auth_client_play_services_err_notification_msg" msgid="3635065018897986478">"‏שגיאה בשירותי Google Play"</string>
+    <string name="auth_client_requested_by_msg" msgid="6304135633531965756">"התבקשה על ידי <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+</resources>

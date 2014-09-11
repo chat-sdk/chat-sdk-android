@@ -209,16 +209,16 @@ public class TwitterManager {
             this.data = data;
         }
 
-        private static android.os.Message getErrorMessage(Object listener, Object data){
-            android.os.Message msg = new android.os.Message();
+        private static Message getErrorMessage(Object listener, Object data){
+            Message msg = new Message();
             msg.what = 1;
             msg.arg1 = ERROR;
             msg.obj = new MessageObj(listener, data);
             return msg;
         }
 
-        private static android.os.Message getSuccessMessage(Object listener, Object data){
-            android.os.Message msg = new android.os.Message();
+        private static Message getSuccessMessage(Object listener, Object data){
+            Message msg = new Message();
             msg.what = 1;
             msg.arg1 = SUCCESS;
             msg.obj = new MessageObj(listener, data);

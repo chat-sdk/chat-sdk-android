@@ -5,17 +5,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:0.12.2'
     }
 }
 
 allprojects {
     repositories {
         mavenCentral()
-
-        // The BugSense maven repo.
-        maven {
-            url "http://www.bugsense.com/gradle/"
-        }
     }
 }

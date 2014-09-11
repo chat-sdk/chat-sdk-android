@@ -6,11 +6,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.astuetz.pagersslidingtabstrip.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.fragments.BaseFragment;
-import com.braunster.chatsdk.fragments.ContactsFragment;
-import com.braunster.chatsdk.fragments.ConversationsFragment;
-import com.braunster.chatsdk.fragments.ProfileFragment;
-import com.braunster.chatsdk.fragments.ThreadsFragment;
+import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
+import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
+import com.braunster.chatsdk.fragments.ChatSDKConversationsFragment;
+import com.braunster.chatsdk.fragments.ChatSDKProfileFragment;
+import com.braunster.chatsdk.fragments.ChatSDKThreadsFragment;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -19,7 +19,7 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
 
     private final String[] TITLES = {"Conversations", "Chat Rooms", "Contacts", "Profile"};
 
-    private final BaseFragment[] FRAGMENTS = new BaseFragment[] {ConversationsFragment.newInstance(), ThreadsFragment.newInstance(), ContactsFragment.newInstance("ConvFragmentPage"), ProfileFragment.newInstance()};
+    private final ChatSDKBaseFragment[] FRAGMENTS = new ChatSDKBaseFragment[] {ChatSDKConversationsFragment.newInstance(), ChatSDKThreadsFragment.newInstance(), ChatSDKContactsFragment.newInstance("ConvFragmentPage"), ChatSDKProfileFragment.newInstance()};
 
     private final int[] ICONS = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
 
@@ -40,7 +40,7 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
     }
 
     @Override
-    public BaseFragment getItem(int position) {
+    public ChatSDKBaseFragment getItem(int position) {
         return FRAGMENTS[position];
     }
 

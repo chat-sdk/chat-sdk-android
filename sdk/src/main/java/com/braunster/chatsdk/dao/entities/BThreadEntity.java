@@ -40,7 +40,7 @@ public abstract class BThreadEntity extends Entity<BThread>{
     public String threadImageUrl(List<BUser> users){
         String url = "";
 
-        if (getType() == BThread.Type.Private) {
+        if (getType() == Type.Private) {
             if (users.size() == 2) {
                 String curUserEntity = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID();
                 if (!users.get(0).getEntityID().equals(curUserEntity))

@@ -281,10 +281,10 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
     private class FixImageAsyncTask extends AsyncTask<Bitmap, Void, Bitmap>{
         private String imageUrl = "";
         private int width, height;
-        private ChatBubbleImageView2.LoadDone loadDone;
+        private LoadDone loadDone;
         private boolean killed = false;
 
-        private FixImageAsyncTask(ChatBubbleImageView2.LoadDone loadDone, String imageUrl, int width, int height, boolean killed) {
+        private FixImageAsyncTask(LoadDone loadDone, String imageUrl, int width, int height, boolean killed) {
             this.imageUrl = imageUrl;
             this.width = width;
             this.height = height;

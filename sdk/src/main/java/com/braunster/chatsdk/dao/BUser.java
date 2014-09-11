@@ -43,8 +43,8 @@ public class BUser extends BUserEntity  {
     private String messageColor;
     private Boolean dirty;
     private String name;
-    private java.util.Date lastOnline;
-    private java.util.Date lastUpdated;
+    private Date lastOnline;
+    private Date lastUpdated;
     private Boolean Online;
     private Integer fontSize;
     private String fontName;
@@ -77,7 +77,7 @@ public class BUser extends BUserEntity  {
         this.id = id;
     }
 
-    public BUser(Long id, String entityID, String authenticationId, Integer AuthenticationType, String messageColor, Boolean dirty, String name, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
+    public BUser(Long id, String entityID, String authenticationId, Integer AuthenticationType, String messageColor, Boolean dirty, String name, Date lastOnline, Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationId = authenticationId;
@@ -155,19 +155,19 @@ public class BUser extends BUserEntity  {
         this.name = name;
     }
 
-    public java.util.Date getLastOnline() {
+    public Date getLastOnline() {
         return lastOnline;
     }
 
-    public void setLastOnline(java.util.Date lastOnline) {
+    public void setLastOnline(Date lastOnline) {
         this.lastOnline = lastOnline;
     }
 
-    public java.util.Date getLastUpdated() {
+    public Date getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(java.util.Date lastUpdated) {
+    public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
@@ -401,8 +401,8 @@ public class BUser extends BUserEntity  {
     }
 
     @Override //Note done
-    public Entity.Type getEntityType() {
-        return Entity.Type.bEntityTypeUser;
+    public Type getEntityType() {
+        return Type.bEntityTypeUser;
     }
 
     @Override //Note Done!

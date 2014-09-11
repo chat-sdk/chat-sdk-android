@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.activities.ChatActivity;
+import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -57,8 +57,8 @@ public class ThreadsActivity extends ActionBarActivity {
                 if (DEBUG) Log.i(TAG, "Thread Selected: " + listAdapter.getItem(position).getName()
                         + ", ID: " + listAdapter.getItem(position).getEntityId());
 
-                Intent intent = new Intent(ThreadsActivity.this, ChatActivity.class);
-                intent.putExtra(ChatActivity.THREAD_ID, listAdapter.getItem(position).getEntityId());
+                Intent intent = new Intent(ThreadsActivity.this, ChatSDKChatActivity.class);
+                intent.putExtra(ChatSDKChatActivity.THREAD_ID, listAdapter.getItem(position).getEntityId());
 
                 startActivity(intent);
             }

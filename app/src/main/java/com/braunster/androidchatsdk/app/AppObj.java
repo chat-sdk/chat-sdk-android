@@ -2,6 +2,7 @@ package com.braunster.androidchatsdk.app;
 
 import android.app.Application;
 
+import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseNetworkAdapter;
 
@@ -15,6 +16,8 @@ public class AppObj extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ChatSDKUiHelper.initDefault();
 
         // Android chat SDK init!
         BNetworkManager.init(getApplicationContext());

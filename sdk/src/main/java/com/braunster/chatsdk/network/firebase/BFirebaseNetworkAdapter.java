@@ -3,8 +3,8 @@ package com.braunster.chatsdk.network.firebase;
 import android.content.Context;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.activities.MainActivity;
 import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BLinkedAccount;
@@ -293,7 +293,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     linkedAccount.setUser(user.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(BDefines.Keys.Facebook.AccessToken));
+                linkedAccount.setToken((String) thirdPartyData.get(Keys.Facebook.AccessToken));
 
                 break;
 
@@ -816,7 +816,7 @@ TODO
         }
 
         String authID = getCurrentUserAuthenticationId();
-        if (authID != null)
+        if (StringUtils.isNotEmpty(authID))
         {
             if (DEBUG) Log.d(TAG, "AuthID: "  + authID);
 
@@ -934,7 +934,7 @@ TODO
                 @Override
                 public void onItemError(Object o, Object error) {
                     if(listener != null)
-                        listener.onDoneWithError((com.braunster.chatsdk.object.BError) error);
+                        listener.onDoneWithError((BError) error);
                 }
             });
         }
@@ -1338,7 +1338,7 @@ TODO
         if (!pushEnabled())
             return;
 
-        PushService.subscribe(context, channel, MainActivity.class);
+        PushService.subscribe(context, channel, ChatSDKUiHelper.getInstance().mainActivity);
     }
 
     private boolean pushEnabled(){

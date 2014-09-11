@@ -471,17 +471,19 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 
 
     /*############################################*/
-    public void toggleSelection(int position){
-        selectView(position, !selectedUsersPositions.get(position));
+    public boolean toggleSelection(int position){
+        boolean selected = selectView(position, !selectedUsersPositions.get(position));
+        notifyDataSetChanged();
+        return selected;
     }
 
-    public void selectView(int position, boolean value){
+    public boolean selectView(int position, boolean value){
         if (value)
             selectedUsersPositions.put(position, value);
         else
             selectedUsersPositions.delete(position);
 
-//        notifyDataSetChanged();
+        return value;
     }
 
     public SparseBooleanArray getSelectedUsersPositions() {

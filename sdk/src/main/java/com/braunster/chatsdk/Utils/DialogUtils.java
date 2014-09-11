@@ -1,5 +1,7 @@
 package com.braunster.chatsdk.Utils;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -9,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -52,6 +53,7 @@ import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Created by braunster on 19/06/14.
@@ -60,17 +62,6 @@ public class DialogUtils {
 
     public static final String TAG = DialogUtils.class.getSimpleName();
     public static final boolean DEBUG = true;
-
-    //region AlertDialog currently not working.
-    // TODO Customizing alert dialog id needed.
-    public static void showAlertDialog(FragmentManager fm, String alert, DialogInterface<Intent> listener){
-        ChatSDKAlertDialog dialog = ChatSDKAlertDialog.getInstace();
-
-        dialog.setAlert(alert, listener);
-
-        dialog.show(fm, "Alert Dialog");
-    }
-    //endregion
 
     public static class ChatSDKAlertDialog extends DialogFragment {
 
@@ -474,5 +465,49 @@ public class DialogUtils {
     /** Basic interface for getting callback from the dialog.*/
     public interface DialogInterface<T>{
         public void onFinished(T t);
+    }
+
+    public static void showAlertDialog(Activity activity, String title, String alert, String p, String n, final Callable neg, final Callable pos){
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+
+        // set title if not null
+        if (title != null && !title.equals(""))
+            alertDialogBuilder.setTitle(title);
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton(p, new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int id) {
+                        if (pos != null)
+                            try {
+                                pos.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(n, new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        if (neg != null)
+                            try {
+                                neg.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 }

@@ -688,11 +688,11 @@ public class BFirebaseInterface {
             BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadFirebaseID);
             thread.setEntityID(threadFirebaseID);
 
-            String payload = (String) values.get(com.braunster.chatsdk.network.BDefines.Keys.BPayload);
+            String payload = (String) values.get(BDefines.Keys.BPayload);
             if (StringUtils.isNotEmpty(payload))
                 message.setText(payload);
 
-            Long messageType = (Long) values.get(com.braunster.chatsdk.network.BDefines.Keys.BType);
+            Long messageType = (Long) values.get(BDefines.Keys.BType);
             if (messageType != null)
                 message.setType(messageType.intValue());
 

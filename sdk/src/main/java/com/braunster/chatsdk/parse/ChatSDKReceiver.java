@@ -5,10 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
-import com.braunster.chatsdk.activities.ChatActivity;
-import com.braunster.chatsdk.activities.LoginActivity;
-import com.braunster.chatsdk.activities.MainActivity;
+import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -125,17 +124,17 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                         // If the message is valide(Sender and Thread exist in the db) we should lead the user to the chat.
                         if (messageIsValid)
                         {
-                            resultIntent = new Intent(context, ChatActivity.class);
-                            resultIntent.putExtra(ChatActivity.THREAD_ENTITY_ID, threadEntityID);
-                            resultIntent.putExtra(ChatActivity.FROM_PUSH, true);
+                            resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().chatActivity);
+                            resultIntent.putExtra(ChatSDKChatActivity.THREAD_ENTITY_ID, threadEntityID);
+                            resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
                         }
                         // Open main activity
-                        else resultIntent = new Intent(context, MainActivity.class);
+                        else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
 
                     }
                     // Id user isn't authenticated we should open login so he could auth himself in.
                     else {
-                        resultIntent = new Intent(context, LoginActivity.class);
+                        resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
                     }
 
                     // Posting the notification.

@@ -12,7 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.braunster.chatsdk.activities.ChatActivity;
+import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.parse.PushUtils;
 
@@ -105,7 +105,7 @@ public class NotificationUtils {
         if (DEBUG) Log.v(TAG, "createMessageNotification");
 
         Intent resultIntent = getResultIntent(context);
-        resultIntent.putExtra(ChatActivity.THREAD_ID,  message.getOwnerThread());
+        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getOwnerThread());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
 
@@ -118,7 +118,7 @@ public class NotificationUtils {
     }
 
     private static Intent getResultIntent(Context context){
-        return new Intent(context, ChatActivity.class);
+        return new Intent(context, ChatSDKChatActivity.class);
     }
 
     /** Create an ongoing notification that can terminate the connection or play/stop the sound directly from the notification drawer.*/

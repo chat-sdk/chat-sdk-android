@@ -8,7 +8,7 @@ package com.braunster.chatsdk.interfaces;
  */
 
 public interface RepetitiveCompletionListenerWithMainTask<MI, I> extends RepetitiveCompletionListener<I> {
-    public boolean onMainFinised(MI mi,Object error);
+    public boolean onMainFinised(MI mi, Object error);
 
     @Override
     boolean onItem(I item);

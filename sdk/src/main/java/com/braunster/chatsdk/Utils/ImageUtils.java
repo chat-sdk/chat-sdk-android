@@ -164,7 +164,57 @@ public class ImageUtils {
         if (DEBUG) Log.v(TAG, "loadBitmapFromFile, Path: " + photoPath);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.RGB_565;
+
+
+        Matrix matrix = null;
+
+        try {
+            ExifInterface exif = new ExifInterface(photoPath);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+            matrix = new Matrix();
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_NORMAL:
+                    matrix = null;
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                    matrix.setScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.setRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                    matrix.setRotate(180);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSPOSE:
+                    matrix.setRotate(90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.setRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSVERSE:
+                    matrix.setRotate(-90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.setRotate(-90);
+                    break;
+                default:
+                    matrix = null;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
+
+        if (matrix != null)
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
         return bitmap;
     }
 

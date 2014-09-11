@@ -1,4 +1,4 @@
-/*
+package com.braunster.chatsdk.network.archive;/*
 package com.braunster.chatsdk.network;
 
 import com.braunster.chatsdk.dao.BMessage;

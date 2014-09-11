@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="auth_client_using_bad_version_title" msgid="2534454398764507874">"Հավելվածը փորձել է կիրառել Google Play ծառայությունների վատ տարբերակը:"</string>
+    <string name="auth_client_needs_enabling_title" msgid="3983201110833868073">"Հավելվածը պահանջում է միացնել Google Play ծառայությունները:"</string>
+    <string name="auth_client_needs_installation_title" msgid="7999585836145154206">"Հավելվածը պահանջում է տեղադրել Google Play ծառայությունները:"</string>
+    <string name="auth_client_needs_update_title" msgid="6488605506794595966">"Հավելվածը պահանջում է թարմացնել Google Play ծառայությունները:"</string>
+    <string name="auth_client_play_services_err_notification_msg" msgid="3635065018897986478">"Google Play ծառայությունների սխալ"</string>
+    <string name="auth_client_requested_by_msg" msgid="6304135633531965756">"<xliff:g id="APP_NAME">%1$s</xliff:g>-ի հարցմամբ"</string>
+</resources>

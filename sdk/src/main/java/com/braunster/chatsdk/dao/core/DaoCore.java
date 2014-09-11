@@ -380,6 +380,10 @@ public class DaoCore {
             if (DEBUG) Log.e(TAG, "Not unique");
         }
 
+        lastAuthID = authId;
+        userWithAuthQuery = daoSession.queryBuilder(BUser.class);
+        userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
+
         List<BUser> list = userWithAuthQuery.list();
         if (list != null && list.size()>0)
             return list.get(0) ;

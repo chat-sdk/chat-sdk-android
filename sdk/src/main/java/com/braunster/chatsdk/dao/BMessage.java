@@ -9,7 +9,6 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
-import com.braunster.greendao.generator.EntityProperties;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +27,7 @@ public class BMessage extends BMessageEntity  {
 
     private Long id;
     private String entityID;
-    private java.util.Date date;
+    private Date date;
     private Boolean dirty;
     private String resources;
     private String resourcesPath;
@@ -70,7 +69,7 @@ public class BMessage extends BMessageEntity  {
         this.id = id;
     }
 
-    public BMessage(Long id, String entityID, java.util.Date date, Boolean dirty, String resources, String resourcesPath, String text, Integer type, Integer status, Long OwnerThread, Long Sender) {
+    public BMessage(Long id, String entityID, Date date, Boolean dirty, String resources, String resourcesPath, String text, Integer type, Integer status, Long OwnerThread, Long Sender) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -106,11 +105,11 @@ public class BMessage extends BMessageEntity  {
         this.entityID = entityID;
     }
 
-    public java.util.Date getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(java.util.Date date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

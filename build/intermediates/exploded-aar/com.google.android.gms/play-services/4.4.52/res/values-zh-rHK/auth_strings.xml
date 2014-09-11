@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="auth_client_using_bad_version_title" msgid="2534454398764507874">"應用程式嘗試使用錯誤版本的「Google Play 服務」。"</string>
+    <string name="auth_client_needs_enabling_title" msgid="3983201110833868073">"必須啟用「Google Play 服務」，才能使用應用程式。"</string>
+    <string name="auth_client_needs_installation_title" msgid="7999585836145154206">"必須安裝「Google Play 服務」，才能使用應用程式。"</string>
+    <string name="auth_client_needs_update_title" msgid="6488605506794595966">"必須更新「Google Play 服務」，才能使用應用程式。"</string>
+    <string name="auth_client_play_services_err_notification_msg" msgid="3635065018897986478">"Google Play 服務錯誤"</string>
+    <string name="auth_client_requested_by_msg" msgid="6304135633531965756">"「<xliff:g id="APP_NAME">%1$s</xliff:g>」提出要求"</string>
+</resources>

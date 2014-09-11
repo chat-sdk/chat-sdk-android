@@ -23,10 +23,10 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.UiUtils;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
@@ -62,6 +62,8 @@ public class MessagesListAdapter extends BaseAdapter{
     private static final int TYPE_LOCATION_FRIEND = 5;
 
     int maxWidth;
+
+    private boolean hideMultipleImages = false;
 
     private Activity mActivity;
 
@@ -205,13 +207,11 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 holder.txtContent.setText(message.text == null ? "ERROR" : message.text);
 
-                holder.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
-
                 // Show links in text view if has any.
+                holder.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
                 Linkify.addLinks(holder.txtContent, Linkify.ALL);
 
-             /*  int bubbleColor = message.getColor();
-                txtContent.setBubbleColor(bubbleColor);*/
+                animateContent((View) holder.txtContent.getParent(), null);
 
                 break;
 
@@ -236,14 +236,13 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         // Load profile picture.
-//        if (position == 0 || message.sender != listData.get(position-1).sender) {
+        if (!hideMultipleImages || position == 0 || message.sender != listData.get(position-1).sender) {
             loadProfilePic(holder.profilePicImage, message.profilePicUrl, sender);
-//        } else profilePicImage.setVisibility(View.INVISIBLE);
+        } else holder.profilePicImage.setVisibility(View.INVISIBLE);
 
-        // Add click event to image if message is picture or location.
         // Set the time of the sending.
-
-        animateDate(sender, holder, message.time);
+        holder.txtTime.setText(message.time);
+        animateSided(holder.txtTime, sender, null);
 
         return row;
     }
@@ -295,6 +294,10 @@ public class MessagesListAdapter extends BaseAdapter{
         notifyDataSetChanged();
     }
 
+    public void hideMultipleImages(boolean hide){
+        this.hideMultipleImages = hide;
+    }
+
     public List<String> getCacheKeys() {
         return cacheKeys;
     }
@@ -307,37 +310,6 @@ public class MessagesListAdapter extends BaseAdapter{
         // Load profile picture.
         holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
-    }
-
-    private void animateDate(boolean sender, ViewHolder holder, String time){
-
-        holder.txtTime.setText(time);
-
-        if (isScrolling)
-        {
-            if (sender)
-                holder.txtTime.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_left));
-            else holder.txtTime.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_right));
-
-            holder.txtTime.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            holder.txtTime.animate();
-        }
-
     }
 
     /** Load profile picture for given url and image view.*/
@@ -373,12 +345,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     }
                     else
                     {
-                        if (sender)
-                            circleImageView.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_right));
-                        else
-                            circleImageView.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_left));
-
-                        circleImageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                        animateSided(circleImageView, !sender, new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
                                 circleImageView.setImageBitmap(response.getBitmap());
@@ -417,33 +384,6 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Loading the url.
         final ChatBubbleImageView2.LoadDone loadDone = new ChatBubbleImageView2.LoadDone() {
-            //region Animation
-            private void animate(){
-
-                image.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fade_in_expand));
-                image.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                image.animate();
-            }
-
-            private void cancelAnimation(){
-
-            }
-            //endregion
 
             @Override
             public void onDone() {
@@ -459,8 +399,7 @@ public class MessagesListAdapter extends BaseAdapter{
                         progressBar.setVisibility(View.INVISIBLE);
                     }
 
-                    if (isScrolling)
-                        animate();
+                    animateContent(image, null);
                 }
                 else
                 {
@@ -492,7 +431,7 @@ public class MessagesListAdapter extends BaseAdapter{
     public class showImageDialogClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            UiUtils.hideSoftKeyboard(mActivity);
+            ChatSDKUiHelper.hideSoftKeyboard(mActivity);
 
             if (DEBUG) Log.v(TAG, "OnClick - Location");
             // Show the location image.
@@ -764,99 +703,25 @@ public class MessagesListAdapter extends BaseAdapter{
     public void setScrolling(boolean isScrolling) {
         this.isScrolling = isScrolling;
     }
-}
 
+    private void animateSided(View view, boolean fromLeft, Animation.AnimationListener animationListener){
+        if (!isScrolling)
+            return;
 
-/*    private ImageView getImageViewfromRow(View row, String base64Data){
-        ImageView image = (ImageView) row.findViewById(R.id.chat_sdk_image);
-        image.setTag(base64Data);
-        image.setImageBitmap(ImageUtils.decodeFrom64(base64Data.getBytes()));
-        image.setOnClickListener(new showImageDialogClickListener());
+        if (fromLeft)
+            view.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_left));
+        else view.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.expand_slide_form_right));
 
-        return image;
-    }*/
-/*    @SuppressLint("NewApi")
-    private TextView getTextBubble(TextView txtContent, MessageListItem message){
-        // Setting the text color to the user text color.
-        if (message.textColor != null)
-            txtContent.setTextColor(Color.parseColor(message.textColor));
-
-        // setting the bubble color to the user message color.
-        Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, txtContent.getWidth(), txtContent.getHeight(), mActivity);
-        if (bubble == null)
-            Log.e(TAG, "bubble is null");
-                        *//*FIXME*//*
-        if (message.color != null && !message.color.equals("Red"))
-            bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
-        else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
-
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            ((FrameLayout) txtContent.getParent()).setBackgroundDrawable(new BitmapDrawable(mActivity.getResources(), bubble));
-        } else {
-            ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
-        }
-
-        txtContent.setVisibility(View.VISIBLE);
-
-        return txtContent;
+        view.getAnimation().setAnimationListener(animationListener);
+        view.animate();
     }
 
-    private TextView getTextBubble(TextView txtContent, MessageListItem message, int width, int height){
-        // Setting the text color to the user text color.
-        if (message.textColor != null)
-            txtContent.setTextColor(Color.parseColor(message.textColor));
+    private void animateContent(View view, Animation.AnimationListener animationListener){
+        if (!isScrolling)
+            return;
 
-        // setting the bubble color to the user message color.
-//        txtContent.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        Bitmap bubble = ChatBubbleImageView.get_ninepatch(R.drawable.bubble_left_2, width, height, mActivity);
-        if (bubble == null)
-            Log.e(TAG, "bubble is null");
-                        *//*FIXME*//*
-        if (message.color != null && !message.color.equals("Red"))
-            bubble = ChatBubbleImageView.setBubbleColor( bubble, Color.parseColor(message.color) );
-        else bubble = ChatBubbleImageView.setBubbleColor( bubble,BMessage.randomColor() );
-
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            ((FrameLayout) txtContent.getParent()).setBackgroundDrawable(new BitmapDrawable(mActivity.getResources(), bubble));
-        } else {
-            ((FrameLayout) txtContent.getParent()).setBackground(new BitmapDrawable(mActivity.getResources(), bubble));
-        }
-
-        txtContent.setVisibility(View.VISIBLE);
-
-        return txtContent;
-    }*/
-
-  /*  private String arrangeStringForUrl(String s){
-        // separate input by spaces ( URLs don't have spaces )
-        String [] parts = s.split("\\s+");
-        String urlString = "";
-        String newUrlString = "";
-
-        // Attempt to convert each item into an URL.
-        for( String item : parts )
-            try {
-                URL url = new URL(item);
-
-
-                urlString = item;
-                newUrlString = String.valueOf(Html.fromHtml("<a href=" + url + ">" + "The Link" + "</a> "));
-
-                // If possible then replace with anchor...
-                if (DEBUG) Log.d(TAG, "New url:  " + "<a href=" + url + ">"+ "Link" + "</a> " );
-
-                break;
-
-            } catch (MalformedURLException e) {
-                // If there was an URL that was not it!...
-                System.out.print( item + " " );
-            }
-
-
-        if (!urlString.equals(""))
-            s = s.replace(urlString, newUrlString);
-
-        return s;
-    }*/
+        view.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fade_in_expand));
+        view.getAnimation().setAnimationListener(animationListener);
+                view.animate();
+    }
+}

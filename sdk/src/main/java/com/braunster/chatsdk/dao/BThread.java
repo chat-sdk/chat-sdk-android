@@ -34,11 +34,11 @@ public class BThread extends BThreadEntity  {
 
     private Long id;
     private String entityID;
-    private java.util.Date creationDate;
+    private Date creationDate;
     private Boolean dirty;
     private Boolean hasUnreadMessages;
     private String name;
-    private java.util.Date LastMessageAdded;
+    private Date LastMessageAdded;
     private Integer type;
     private Long creator_ID;
 
@@ -68,7 +68,7 @@ public class BThread extends BThreadEntity  {
         this.id = id;
     }
 
-    public BThread(Long id, String entityID, java.util.Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, java.util.Date LastMessageAdded, Integer type, Long creator_ID) {
+    public BThread(Long id, String entityID, Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, Date LastMessageAdded, Integer type, Long creator_ID) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -102,11 +102,11 @@ public class BThread extends BThreadEntity  {
         this.entityID = entityID;
     }
 
-    public java.util.Date getCreationDate() {
+    public Date getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(java.util.Date creationDate) {
+    public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -134,11 +134,11 @@ public class BThread extends BThreadEntity  {
         this.name = name;
     }
 
-    public java.util.Date getLastMessageAdded() {
+    public Date getLastMessageAdded() {
         return LastMessageAdded;
     }
 
-    public void setLastMessageAdded(java.util.Date LastMessageAdded) {
+    public void setLastMessageAdded(Date LastMessageAdded) {
         this.LastMessageAdded = LastMessageAdded;
     }
 

@@ -5,7 +5,7 @@
     android:background="@android:color/white"
     android:id="@+id/chat_sdk_root_view"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.braunster.chatsdk.activities.LoginActivity">
+    tools:context="com.braunster.chatsdk.activities.ChatSDKLoginActivity">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -24,7 +24,6 @@
             android:layout_alignParentTop="true"
             android:layout_above="@id/chat_sdk_et_mail"/>
 
-        <!--android:text="t@g.com"-->
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +37,6 @@
             android:layout_centerVertical="true"
             android:hint="@string/email" />
 
-        <!--android:text="1"-->
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

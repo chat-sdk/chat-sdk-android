@@ -8,3 +8,6 @@
 
 # Show "No private threads" when there is no privte thread.
 
+# Reduce library method size - http://stackoverflow.com/questions/15209831/unable-to-execute-dex-method-id-not-in-0-0xffff-65536
+    https://code.google.com/p/android/issues/detail?id=7147#c6
+    http://stackoverflow.com/questions/15471772/how-to-shrink-code-65k-method-limit-in-dex

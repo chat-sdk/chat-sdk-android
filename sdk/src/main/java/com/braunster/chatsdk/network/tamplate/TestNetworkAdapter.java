@@ -1,4 +1,4 @@
-/*
+package com.braunster.chatsdk.network.tamplate;/*
 package com.braunster.chatsdk.network.tamplate;
 
 import android.util.Log;

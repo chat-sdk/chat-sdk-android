@@ -30,6 +30,7 @@
         android:id="@+id/checkbox"
         android:layout_alignParentRight="true"
         android:padding="10dp"
+        android:focusable="false"
         android:layout_centerVertical="true"
         android:visibility="invisible"/>
 </RelativeLayout>

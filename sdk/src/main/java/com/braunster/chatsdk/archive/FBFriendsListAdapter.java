@@ -1,4 +1,4 @@
-/*
+package com.braunster.chatsdk.archive;/*
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
