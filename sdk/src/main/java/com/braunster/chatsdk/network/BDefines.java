@@ -114,16 +114,12 @@ public class BDefines {
 
         public static final String UserId = "user-id";
 
-        public static final class Twitter{
+        public static final class ThirdPartyData{
             public static final String Name = "name";
             public static final String ImageURL = "profile_image_url";
             public static final String AccessToken = "accessToken";
             public static final String DisplayName = "displayName";
-        }
-
-        public static final class Facebook{
-            public static final String AccessToken = "accessToken";
-            public static final String DisplayName = "displayName";
+            public static final String EMail = "email";
         }
     }
 

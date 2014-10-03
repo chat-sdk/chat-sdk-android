@@ -34,11 +34,11 @@ public class BThread extends BThreadEntity  {
 
     private Long id;
     private String entityID;
-    private Date creationDate;
+    private java.util.Date creationDate;
     private Boolean dirty;
     private Boolean hasUnreadMessages;
     private String name;
-    private Date LastMessageAdded;
+    private java.util.Date LastMessageAdded;
     private Integer type;
     private Long creator_ID;
 
@@ -68,7 +68,7 @@ public class BThread extends BThreadEntity  {
         this.id = id;
     }
 
-    public BThread(Long id, String entityID, Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, Date LastMessageAdded, Integer type, Long creator_ID) {
+    public BThread(Long id, String entityID, java.util.Date creationDate, Boolean dirty, Boolean hasUnreadMessages, String name, java.util.Date LastMessageAdded, Integer type, Long creator_ID) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -102,11 +102,11 @@ public class BThread extends BThreadEntity  {
         this.entityID = entityID;
     }
 
-    public Date getCreationDate() {
+    public java.util.Date getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(java.util.Date creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -134,11 +134,11 @@ public class BThread extends BThreadEntity  {
         this.name = name;
     }
 
-    public Date getLastMessageAdded() {
+    public java.util.Date getLastMessageAdded() {
         return LastMessageAdded;
     }
 
-    public void setLastMessageAdded(Date LastMessageAdded) {
+    public void setLastMessageAdded(java.util.Date LastMessageAdded) {
         this.LastMessageAdded = LastMessageAdded;
     }
 
@@ -420,6 +420,24 @@ public class BThread extends BThreadEntity  {
         }*/
 
         return data != null;
+    }
+
+    public int getUnreadMessagesAmount(){
+        int count = 0;
+        List<BMessage> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
+        for (BMessage m : messages)
+        {
+            if(!m.wasRead())
+                count++;
+            else break;
+        }
+
+        return count;
+    }
+
+    public boolean isLastMessageWasRead(){
+        List<BMessage> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
+        return messages == null || messages.size() == 0 || getMessagesWithOrder(DaoCore.ORDER_DESC).get(0).wasRead();
     }
     // KEEP METHODS END
 

@@ -1,4 +1,5 @@
-package com.braunster.chatsdk.activities.abstracted;
+/*
+package com.braunster.chatsdk.archive;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,22 +20,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
+import com.braunster.chatsdk.Utils.ChatSDKChatHelper;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
@@ -60,6 +56,7 @@ import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.parse.PushUtils;
+import com.braunster.chatsdk.view.ChatMessageBoxView;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,12 +71,14 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 
+*/
 /**
  * Created by itzik on 6/8/2014.
- */
-public abstract class AbstractChatActivity extends ChatSDKBaseActivity implements View.OnKeyListener, View.OnClickListener, TextView.OnEditorActionListener, AbsListView.OnScrollListener{
+ *//*
 
-    private static final String TAG = AbstractChatActivity.class.getSimpleName();
+public abstract class ChatSDKAbstractChatActivityBackup extends ChatSDKBaseActivity implements  AbsListView.OnScrollListener, ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageSendListener{
+
+    private static final String TAG = ChatSDKAbstractChatActivityBackup.class.getSimpleName();
     private static final boolean DEBUG = Debug.ChatActivity;
 
     protected static final int PHOTO_PICKER_ID = 100;
@@ -87,47 +86,73 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
     public static final int PICK_LOCATION = 102;
     public static final int ADD_USERS = 103;
 
-    /** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
-     * It will be removed when activity is paused. or when opend again for new thread.*/
+    */
+/** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
+     * It will be removed when activity is paused. or when opend again for new thread.*//*
+
     public static final String MessageListenerTAG = TAG + "MessageTAG";
     public static final String ThreadListenerTAG = TAG + "threadTAG";
 
-    /** The key to get the thread long id.*/
+    */
+/** The key to get the thread long id.*//*
+
     public static final String THREAD_ID = "Thread_ID";
     public static final String THREAD_ENTITY_ID = "Thread_Entity_ID";
 
     public static final String LIST_POS = "list_pos";
     public static final String FROM_PUSH = "from_push";
 
-    /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
+    */
+/** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*//*
+
     public static final String CAPTURED_PHOTO_PATH = "captured_photo_path";
 
-    /** The key to get the shared file uri. This is used when the activity is opened to share and image or a file with the chat users.
-     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. */
+    */
+/** The key to get the shared file uri. This is used when the activity is opened to share and image or a file with the chat users.
+     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. *//*
+
     public static final String SHARED_FILE_URI = "share_file_uri";
 
-    /** The key to get shared text, this is used when the activity is open to share text with the chat user.
-     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. */
-    public static final String SHARED_TEXT = "shared_text";
+    */
+/** The key to get shared text, this is used when the activity is open to share text with the chat user.
+     *  The Activity will be open from the ContactsFragment that will be placed inside the ShareWithContactActivity. *//*
 
-    protected TextView btnSend;
-    protected  ImageButton btnOptions;
+    public static final String SHARED_TEXT = "shared_text";
     protected  View actionBarView;
-    protected  EditText etMessage;
+
+    protected ChatSDKChatHelper chatSDKChatHelper;
+
+    protected  ChatMessageBoxView messageBoxView;
     protected  ListView listMessages;
     protected  MessagesListAdapter messagesListAdapter;
     protected  BThread thread;
-    protected  PopupWindow optionPopup;
+
     protected  PullToRefreshLayout mPullToRefreshLayout;
     protected  ProgressBar progressBar;
     protected  int listPos = -1;
 
-    /** Path of the captured photo from camera, We need to store it if the app was killed when camera was open and stuff like that.*/
+    */
+/** Path of the captured photo from camera, We need to store it if the app was killed when camera was open and stuff like that.*//*
+
     protected  String capturePhotoPath = "";
 
     protected  Bundle data;
 
-    /** Save the scroll state of the messages list.*/
+    */
+/** If set to false in onCreate the menu items wont be inflated in the menu.
+     * This can be useful if you want to customize the action bar.*//*
+
+    protected boolean inflateMenuItems = true;
+
+    */
+/** If true the action bar image will be on the left and next to it the text, Else the text will be on the left an the image is centered.
+     * <b>Notice:</b> you should disable menu items if you try to use the centered optiom.*//*
+
+    protected boolean leftGravityActionBar = true;
+
+    */
+/** Save the scroll state of the messages list.*//*
+
     protected  boolean scrolling = false;
 
     @Override
@@ -141,6 +166,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
         if ( !getThread(savedInstanceState) )
             return;
+
+        chatSDKChatHelper = new ChatSDKChatHelper(this, thread, chatSDKUiHelper);
+        chatSDKChatHelper.restoreSavedInstance(savedInstanceState);
 
         if (savedInstanceState != null)
         {
@@ -157,26 +185,41 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         initActionBar();
     }
 
+    protected ActionBar readyActionBarToCustomView(){
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayShowHomeEnabled(false);
+        ab.setDisplayShowTitleEnabled(false);
+        ab.setDisplayShowCustomEnabled(true);
+
+        return ab;
+    }
+
+    protected View inflateActionBarView(int resId){
+        // Inflate the custom view
+        if (actionBarView == null) {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            actionBarView = inflater.inflate(resId, null);
+        }
+
+        return actionBarView;
+    }
+
     protected void initActionBar(){
         if (DEBUG) Log.d(TAG, "initActionBar");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar ab = getSupportActionBar();
-            ab.setDisplayShowHomeEnabled(false);
-            ab.setDisplayShowTitleEnabled(false);
-            ab.setDisplayShowCustomEnabled(true);
 
-            /*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*/
+            ActionBar ab = readyActionBarToCustomView();
 
-            // Inflate the custom view
-            if (actionBarView == null) {
-                LayoutInflater inflater = LayoutInflater.from(this);
-                actionBarView = inflater.inflate(R.layout.chat_sdk_actionbar_chat_activity, null);
-            }
+            */
+/*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*//*
 
-            TextView txtName = (TextView) actionBarView.findViewById(R.id.chat_sdk_name);
+
+            actionBarView = inflateActionBarView(leftGravityActionBar ? R.layout.chat_sdk_actionbar_chat_activity : R.layout.chat_sdk_action_bar_chat_activity_centerd);
+
 
             boolean changed = false;
 
+            TextView txtName = (TextView) actionBarView.findViewById(R.id.chat_sdk_name);
             String displayName = thread.displayName();
             if (txtName.getText() == null || !displayName.equals(txtName.getText().toString()))
             {
@@ -191,8 +234,34 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                 changed = true;
             }
 
-            final String imageUrl = thread.threadImageUrl();
+            if (!leftGravityActionBar)
+            {
+                */
+/*Dont show users icon for a private thread with two users or less.*//*
 
+                if (thread.getType() == BThread.Type.Public || thread.getUsers().size() > 2)
+                {
+                    actionBarView.findViewById(R.id.chat_sdk_chat_users_button).setVisibility(View.VISIBLE);
+                    actionBarView.findViewById(R.id.chat_sdk_chat_users_button).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showUsersDialog();
+                        }
+                    });
+                }
+                else actionBarView.findViewById(R.id.chat_sdk_chat_users_button).setVisibility(View.INVISIBLE);
+
+                // Show add users activity when pressed.
+                actionBarView.findViewById(R.id.chat_sdk_add_button).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startAddUsersActivity();
+                    }
+                });
+            }
+
+
+            final String imageUrl = thread.threadImageUrl();
             final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.chat_sdk_circle_image);
             final ImageView roundedCornerImageView = (ImageView) actionBarView.findViewById(R.id.chat_sdk_round_corner_image);
 
@@ -259,9 +328,10 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
     }
 
     protected void initViews(){
-        btnSend = (TextView) findViewById(R.id.chat_sdk_btn_chat_send_message);
-        btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
-        etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
+
+        messageBoxView = (ChatMessageBoxView) findViewById(R.id.chat_sdk_message_box);
+        messageBoxView.setAlertToast(chatSDKUiHelper.getAlertToast());
+
         progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
         mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
@@ -305,7 +375,7 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
         listMessages = (ListView) findViewById(R.id.list_chat);
 
-        messagesListAdapter = new MessagesListAdapter(AbstractChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
+        messagesListAdapter = new MessagesListAdapter(ChatSDKAbstractChatActivityBackup.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
         listMessages.setAdapter(messagesListAdapter);
     }
 
@@ -317,6 +387,8 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
         if (StringUtils.isNotEmpty(capturePhotoPath))
             outState.putString(CAPTURED_PHOTO_PATH, capturePhotoPath);
+
+        chatSDKChatHelper.onSavedInstanceBundle(outState);
 
         outState.putInt(LIST_POS, listMessages.getFirstVisiblePosition());
     }
@@ -367,7 +439,7 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                     @Override
                     public void run() {
                         if (!scrolling)
-                            hideSoftKeyboard(AbstractChatActivity.this);
+                            hideSoftKeyboard(ChatSDKAbstractChatActivityBackup.this);
                     }
                 }, 300);
 
@@ -401,7 +473,7 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                 // We check to see that this message is really a new one and not loaded from the server.
                 if (System.currentTimeMillis() - message.getDate().getTime() < 1000*60)
                 {
-                    Vibrator v = (Vibrator) AbstractChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+                    Vibrator v = (Vibrator) ChatSDKAbstractChatActivityBackup.this.getSystemService(Context.VIBRATOR_SERVICE);
                     // Vibrate for 500 milliseconds
                     v.vibrate(BDefines.VIBRATION_DURATION);
                 }
@@ -422,16 +494,12 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         new Thread(new Runnable() {
             @Override
             public void run() {
-                NotificationUtils.cancelNotification(AbstractChatActivity.this, PushUtils.MESSAGE_NOTIFICATION_ID);
+                NotificationUtils.cancelNotification(ChatSDKAbstractChatActivityBackup.this, PushUtils.MESSAGE_NOTIFICATION_ID);
 
-                btnSend.setOnClickListener(AbstractChatActivity.this);
+                messageBoxView.setMessageBoxOptionsListener(ChatSDKAbstractChatActivityBackup.this);
+                messageBoxView.setMessageSendListener(ChatSDKAbstractChatActivityBackup.this);
 
-                btnOptions.setOnClickListener(AbstractChatActivity.this);
-
-                etMessage.setOnEditorActionListener(AbstractChatActivity.this);
-                etMessage.setOnKeyListener(AbstractChatActivity.this);
-
-                listMessages.setOnScrollListener(AbstractChatActivity.this);
+                listMessages.setOnScrollListener(ChatSDKAbstractChatActivityBackup.this);
 
                 // Removing the last listener just to be sure we wont receive duplicates notifications.
                 EventManager.getInstance().removeEventByTag(MessageListenerTAG + thread.getId());
@@ -469,7 +537,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
             showProgressCard("Sending...");
         }
 
-        /* Pick photo logic*/
+        */
+/* Pick photo logic*//*
+
         if (requestCode == PHOTO_PICKER_ID)
         {
             switch (resultCode)
@@ -506,7 +576,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                     break;
             }
         }
-        /* Pick location logic*/
+        */
+/* Pick location logic*//*
+
         else if (requestCode == PICK_LOCATION)
         {
 
@@ -542,7 +614,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                         });
             }
         }
-        /* Capture image logic*/
+        */
+/* Capture image logic*//*
+
         else if (requestCode == CAPTURE_IMAGE)
         {
             if (DEBUG) Log.d(TAG, "Capture image return");
@@ -560,7 +634,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
             {
                 updateChat();
             }
-   /*         else showAlertToast("Failed to add users.");*/
+   */
+/*         else showAlertToast("Failed to add users.");*//*
+
 
         }
 
@@ -568,12 +644,18 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        if (!inflateMenuItems)
+            return super.onCreateOptionsMenu(menu);
+
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add contact to chat.");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
 
-        /*Dont show users icon for a private thread with two users or less.*/
+        */
+/*Dont show users icon for a private thread with two users or less.*//*
+
         if (thread.getType() == BThread.Type.Public || thread.getUsers().size() > 2)
         {
             MenuItem itemThreadUsers =
@@ -587,29 +669,48 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /* Cant use switch in the library*/
+
+        */
+/* Cant use switch in the library*//*
+
         int id = item.getItemId();
+
+        if (!inflateMenuItems)
+            return super.onOptionsItemSelected(item);
 
         // ASK what the add button do in this class
         if (id == R.id.action_chat_sdk_add)
         {
-            // Showing the pick friends activity.
-            Intent intent = new Intent(this, chatSDKUiHelper.pickFriendsActivity);
-            intent.putExtra(ChatSDKPickFriendsActivity.MODE, ChatSDKPickFriendsActivity.MODE_ADD_TO_CONVERSATION);
-            intent.putExtra(ChatSDKPickFriendsActivity.THREAD_ID, thread.getId());
-            intent.putExtra(ChatSDKPickFriendsActivity.ANIMATE_EXIT, true);
-
-            startActivityForResult(intent, ADD_USERS);
-
-            overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
+            startAddUsersActivity();
         }
         else if (id == R.id.action_chat_sdk_show)
         {
-            ChatSDKContactsFragment contactsFragment = ChatSDKContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:", true);
-            contactsFragment.show(getSupportFragmentManager(), "Contacts");
+            showUsersDialog();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void startAddUsersActivity(){
+        // Showing the pick friends activity.
+        Intent intent = new Intent(this, chatSDKUiHelper.pickFriendsActivity);
+        intent.putExtra(ChatSDKPickFriendsActivity.MODE, ChatSDKPickFriendsActivity.MODE_ADD_TO_CONVERSATION);
+        intent.putExtra(ChatSDKPickFriendsActivity.THREAD_ID, thread.getId());
+        intent.putExtra(ChatSDKPickFriendsActivity.ANIMATE_EXIT, true);
+
+        startActivityForResult(intent, ADD_USERS);
+
+        overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
+    }
+
+    protected void showUsersDialog(){
+        ChatSDKContactsFragment contactsFragment = ChatSDKContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:", true);
+        contactsFragment.show(getSupportFragmentManager(), "Contacts");
+    }
+
+    @Override
+    public boolean onOptionButtonPressed() {
+        return false;
     }
 
     @Override
@@ -624,12 +725,16 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         super.onDestroy();
         if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtils.getBitmapCache().size());
 
-        /* Clear all the images that was loaded for this chat from the cache.
+        */
+/* Clear all the images that was loaded for this chat from the cache.
         for (String key : messagesListAdapter.getCacheKeys())
-            VolleyUtils.getBitmapCache().remove(key);*/
+            VolleyUtils.getBitmapCache().remove(key);*//*
+
     }
 
-    /** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*/
+    */
+/** Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.*//*
+
     private boolean getThread(Bundle bundle){
 
         if (bundle != null && (bundle.containsKey(THREAD_ID) || bundle.containsKey(THREAD_ENTITY_ID)) )
@@ -676,24 +781,9 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         return true;
     }
 
-    /** Show the message option popup, From here the user can send images and location messages.*/
-    private void showOptionPopup(){
-        if (optionPopup!= null && optionPopup.isShowing())
-        {
-            if (DEBUG) Log.d(TAG, "Tying to show option popup when already showing");
-            return;
-        }
+    */
+/** Check the intent if carries some data that received from another app to share on this chat.*//*
 
-        optionPopup = DialogUtils.getMenuOptionPopup(this, this);
-        optionPopup.showAsDropDown(btnOptions);
-    }
-
-    private void dismissOption(){
-        if (optionPopup != null)
-            optionPopup.dismiss();
-    }
-
-    /** Check the intent if carries some data that received from another app to share on this chat.*/
     private void checkIfWantToShare(Intent intent){
         if (DEBUG) Log.v(TAG, "checkIfWantToShare");
 
@@ -720,98 +810,27 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         }
     }
 
-    /** Update chat current thread using the {@link AbstractChatActivity#data} bundle saved.
+    */
+/** Update chat current thread using the {@link com.braunster.chatsdk.archive.ChatSDKAbstractChatActivityBackup#data} bundle saved.
      *  Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
-     *  Finally update the action bar for thread image and name, The update will occur only if needed so free to call.*/
+     *  Finally update the action bar for thread image and name, The update will occur only if needed so free to call.*//*
+
     private void updateChat(){
         getThread(this.data);
         invalidateOptionsMenu();
         initActionBar();
     }
 
-    /* Implement listeners.*/
-    @Override
-    public void onClick(View v) {
-        int id= v.getId();
 
-        if (id == R.id.chat_sdk_btn_chat_send_message) {
-            sendTextMessageWithStatus();
-        }
-        else if (id == R.id.chat_sdk_btn_options){
-            showOptionPopup();
-        }
-        else  if (id == R.id.chat_sdk_btn_choose_picture) {
-            dismissOption();
+    */
+/** show the option popup when the menu key is pressed.*//*
 
-            // TODO allow multiple pick of photos.
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_PICK);
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent,
-                    "Complete action using"), PHOTO_PICKER_ID);
-
-
-        }
-        else  if (id == R.id.chat_sdk_btn_take_picture) {
-            if (!Utils.SystemChecks.checkCameraHardware(this))
-            {
-                Toast.makeText(this, "This device does not have a camera.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            dismissOption();
-
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-            File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
-            if(dir.exists())
-            {
-
-                file = new File(dir, DaoCore.generateEntity() + ".jpg");
-                capturePhotoPath = file.getPath();
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-            }
-
-            // start the image capture Intent
-            startActivityForResult(intent, CAPTURE_IMAGE);
-        }
-        else  if (id == R.id.chat_sdk_btn_location) {
-            dismissOption();
-            Intent intent = new Intent(AbstractChatActivity.this, chatSDKUiHelper.shareLocationActivity);
-            startActivityForResult(intent, PICK_LOCATION);
-        }
-    }
-
-    /** Send a text message when the done button is pressed on the keyboard.*/
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEND)
-            sendTextMessageWithStatus();
-
-        return false;
-    }
-
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        // if enter is pressed start calculating
-        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-            int editTextLineCount = ((EditText) v).getLineCount();
-            if (editTextLineCount >= getResources().getInteger(R.integer.chat_sdk_max_message_lines))
-                return true;
-        }
-        return false;
-    }
-
-    /** show the option popup when the menu key is pressed.*/
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode)
         {
             case KeyEvent.KEYCODE_MENU:
-                showOptionPopup();
+                messageBoxView.showOptionPopup();
                 return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -856,8 +875,54 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
     }
 
-    /*Message Loading and listView animation and scrolling*/
-    /** Load messages from the database and saving the current position of the list.*/
+    @Override
+    public void onSendPressed(String text) {
+        sendTextMessageWithStatus();
+    }
+
+    @Override
+    public void onLocationPressed() {
+        Intent intent = new Intent(ChatSDKAbstractChatActivityBackup.this, chatSDKUiHelper.shareLocationActivity);
+        startActivityForResult(intent, PICK_LOCATION);
+    }
+
+    @Override
+    public void onTakePhotoPressed() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
+        if(dir.exists())
+        {
+
+            file = new File(dir, DaoCore.generateEntity() + ".jpg");
+            capturePhotoPath = file.getPath();
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        }
+
+        // start the image capture Intent
+        startActivityForResult(intent, CAPTURE_IMAGE);
+    }
+
+    @Override
+    public void onPickImagePressed() {
+        // TODO allow multiple pick of photos.
+        Intent intent = new Intent();
+        intent.setType("image*/
+/*");
+        intent.setAction(Intent.ACTION_PICK);
+//                intent.setAction(Intent.ACTION_GET_CONTENT);
+//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent,
+                "Complete action using"), PHOTO_PICKER_ID);
+    }
+
+    */
+/*Message Loading and listView animation and scrolling*//*
+
+    */
+/** Load messages from the database and saving the current position of the list.*//*
+
     private void loadMessagesAndRetainCurrentPos(){
         loadMessages(true, false, 0);
     }
@@ -893,7 +958,7 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
 
                 if (list.size() == 0)
                 {
-                    AbstractChatActivity.this.runOnUiThread(new Runnable() {
+                    ChatSDKAbstractChatActivityBackup.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             progressBar.setVisibility(View.INVISIBLE);
@@ -903,7 +968,7 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                     return;
                 }
 
-                AbstractChatActivity.this.runOnUiThread(new Runnable() {
+                ChatSDKAbstractChatActivityBackup.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         messagesListAdapter.setListData(list);
@@ -988,21 +1053,27 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
         listMessages.getAnimation().start();
     }
 
-    /*Message Sending*/
-    /** Send text message logic.*/
+    */
+/*Message Sending*//*
+
+    */
+/** Send text message logic.*//*
+
     protected  void sendTextMessageWithStatus(){
-        sendTextMessageWithStatus(etMessage.getText().toString(), true);
+        sendTextMessageWithStatus(messageBoxView.getMessageText(), true);
     }
 
-    /** Send text message
+    */
+/** Send text message
      * @param text the text to send.
-     * @param clearEditText if true clear the message edit text.*/
+     * @param clearEditText if true clear the message edit text.*//*
+
     protected  void sendTextMessageWithStatus(String text, boolean clearEditText){
         if (DEBUG) Log.v(TAG, "sendTextMessage, Text: " + text + ", Clear: " + String.valueOf(clearEditText));
 
         if (StringUtils.isEmpty(text) || StringUtils.isBlank(text))
         {
-            if (!superToast.isShowing())
+            if (!getAlertToast().isShowing())
                 showAlertToast("Cant send empty message!");
             return;
         }
@@ -1037,17 +1108,23 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
             @Override
             public void onItemError(BMessage message, BError error) {
                 showAlertToast("Error while sending message.");
-                /*messagesListAdapter.addRow(message);*/
-                /*FIXME todo handle error by showing indicator on the message in the list.*/
+                */
+/*messagesListAdapter.addRow(message);*//*
+
+                */
+/*FIXME todo handle error by showing indicator on the message in the list.*//*
+
             }
         });
 
         if (clearEditText)
-            etMessage.getText().clear();
+            messageBoxView.clearText();
     }
 
-    /** Send an image message.
-     * @param filePath the path to the image file that need to be sent.*/
+    */
+/** Send an image message.
+     * @param filePath the path to the image file that need to be sent.*//*
+
     protected  void sendImageMessage(String filePath){
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(
                 filePath, thread.getId(), new CompletionListenerWithData<BMessage>() {
@@ -1068,6 +1145,11 @@ public abstract class AbstractChatActivity extends ChatSDKBaseActivity implement
                 });
     }
 
+    public MessagesListAdapter getMessagesListAdapter() {
+        return messagesListAdapter;
+    }
+
     private Handler handler = new Handler();
 
 }
+*/

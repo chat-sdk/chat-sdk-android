@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
@@ -44,26 +45,26 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+*/
 /**
  * Created by itzik on 6/5/2014.
- */
-public class MessagesListAdapter extends BaseAdapter{
+ *//*
+
+public class MessagesListAdapterBACKUP_27_9 extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private static final String TAG = MessagesListAdapterBACKUP_27_9.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
-    /* Row types */
+    */
+/* Row types *//*
+
     private static final int TYPE_TEXT_USER = 0;
     private static final int TYPE_TEXT_FRIEND = 1;
     private static final int TYPE_IMAGE_USER = 2;
     private static final int TYPE_IMAGE_FRIEND = 3;
     private static final int TYPE_LOCATION_USER = 4;
     private static final int TYPE_LOCATION_FRIEND = 5;
-
-    private int textUserRowResId = R.layout.chat_sdk_row_text_message_user, textFriendRowResId = R.layout.chat_sdk_row_text_message_friend,
-            imageUserRowResId = R.layout.chat_sdk_row_image_message_user, imageFriendRowResId = R.layout.chat_sdk_row_image_message_friend,
-            locationUserResId = R.layout.chat_sdk_row_image_message_user, locationFriendRowResId = R.layout.chat_sdk_row_image_message_friend;
 
     int maxWidth;
 
@@ -73,7 +74,6 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private List<MessageListItem> listData = new ArrayList<MessageListItem>();
 
-    private SimpleDateFormat customDateFormat = null;
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
     private List<String> cacheKeys = new ArrayList<String>();
 
@@ -87,7 +87,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private int textColor = -1991;
 
-    public MessagesListAdapter(Activity activity, Long userID){
+    public MessagesListAdapterBACKUP_27_9(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -95,7 +95,7 @@ public class MessagesListAdapter extends BaseAdapter{
         maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
     }
 
-    public MessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
+    public MessagesListAdapterBACKUP_27_9(Activity activity, Long userID, List<MessageListItem> listData){
         mActivity = activity;
 
         this.userID = userID;
@@ -150,7 +150,7 @@ public class MessagesListAdapter extends BaseAdapter{
             switch (type)
             {
                 case TYPE_TEXT_USER:
-                    row = inflater.inflate(textUserRowResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_user, null);
 
                     holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
 
@@ -158,14 +158,14 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 case TYPE_TEXT_FRIEND:
 
-                    row = inflater.inflate(textFriendRowResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_text_message_friend, null);
 
                     holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
 
                     break;
 
                 case TYPE_IMAGE_USER:
-                    row = inflater.inflate(imageUserRowResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
 
                     holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
@@ -173,14 +173,14 @@ public class MessagesListAdapter extends BaseAdapter{
                     break;
 
                 case TYPE_IMAGE_FRIEND:
-                    row = inflater.inflate(imageFriendRowResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
                     holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
                     break;
 
                 case TYPE_LOCATION_USER:
-                    row = inflater.inflate(locationUserResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_user, null);
 
                     holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
@@ -188,7 +188,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     break;
 
                 case TYPE_LOCATION_FRIEND:
-                    row = inflater.inflate(locationFriendRowResId, null);
+                    row = inflater.inflate(R.layout.chat_sdk_row_image_message_friend, null);
 
                     holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
                     holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
@@ -252,12 +252,14 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Set the time of the sending.
         holder.txtTime.setText(message.time);
-        animateSides(holder.txtTime, sender, null);
+        animateSided(holder.txtTime, sender, null);
 
         return row;
     }
 
-    /** @return true if the item is added to the list.*/
+    */
+/** @return true if the item is added to the list.*//*
+
     public boolean addRow(MessageListItem newItem){
         if (DEBUG) Log.d(TAG, "AddRow");
 
@@ -291,7 +293,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public boolean addRow(BMessage message){
-        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth, customDateFormat));
+        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth));
     }
 
     public void setListData(List<MessageListItem> listData) {
@@ -322,7 +324,9 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
     }
 
-    /** Load profile picture for given url and image view.*/
+    */
+/** Load profile picture for given url and image view.*//*
+
     private void loadProfilePic(final CircleImageView circleImageView, final String url, final boolean sender){
 
         if (url == null)
@@ -355,7 +359,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     }
                     else
                     {
-                        animateSides(circleImageView, !sender, new Animation.AnimationListener() {
+                        animateSided(circleImageView, !sender, new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
                                 circleImageView.setImageBitmap(response.getBitmap());
@@ -384,7 +388,9 @@ public class MessagesListAdapter extends BaseAdapter{
         }, circleImageView.getWidth(), circleImageView.getWidth());
     }
 
-    /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
+    */
+/** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. *//*
+
     private ChatBubbleImageView2 getBubbleImageViewFromRow(final ChatBubbleImageView2 image, final ProgressBar progressBar, final MessageListItem message){
         // Save the message text to the image tag so it could be found on the onClick.
         image.setTag(message.text);
@@ -437,7 +443,9 @@ public class MessagesListAdapter extends BaseAdapter{
         return image;
     }
 
-    /** Click listener for an image view, A dialog that show the image will show for each click.*/
+    */
+/** Click listener for an image view, A dialog that show the image will show for each click.*//*
+
     public class showImageDialogClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -466,7 +474,9 @@ public class MessagesListAdapter extends BaseAdapter{
         }
     }
 
-    /** Click listener for the view location button for location messages. The click will open Google Maps for the location.*/
+    */
+/** Click listener for the view location button for location messages. The click will open Google Maps for the location.*//*
+
     public class openGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -486,7 +496,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public List<MessageListItem> makeList(List<BMessage> list){
-        return MessageListItem.makeList(mActivity, userID, list, customDateFormat);
+        return MessageListItem.makeList(mActivity, userID, list);
     }
 
     public static class MessageListItem{
@@ -517,12 +527,7 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
 
-        public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth, SimpleDateFormat simpleDateFormat){
-
-            // If null that means no custom format was added to the adapter so we use the default.
-            if (simpleDateFormat == null)
-                simpleDateFormat = getFormat(message);
-
+        public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth){
             BUser user = message.getBUserSender();
 
             MessageListItem msg = new MessageListItem( message.getId(),
@@ -532,7 +537,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     message.getStatusOrNull(),
                     user.getId(),
                     user.getThumbnailPictureURL(),
-                    String.valueOf(simpleDateFormat.format(message.getDate())),
+                    String.valueOf(getFormat(message).format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),
                     user.getTextColor());
@@ -542,7 +547,7 @@ public class MessagesListAdapter extends BaseAdapter{
             return msg;
         }
 
-        public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
+        public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages){
             List<MessageListItem> list = new ArrayList<MessageListItem>();
 
             int maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
@@ -551,9 +556,11 @@ public class MessagesListAdapter extends BaseAdapter{
             for (BMessage message : messages)
                 if (message.getEntityID() != null)
                 {
-                    i = fromBMessage(message, userID, maxWidth, simpleDateFormat);
+                    i = fromBMessage(message, userID, maxWidth);
 
-                    /*Fixme Due to old data*/
+                    */
+/*Fixme Due to old data*//*
+
                     if (i.type != BMessage.Type.TEXT && i.dimensions == null)
                         continue;
 
@@ -567,7 +574,6 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         private static SimpleDateFormat getFormat(BMessage message){
-
             Date curTime = new Date();
             long interval = (curTime.getTime() - message.getDate().getTime()) / 1000L;
 
@@ -659,7 +665,9 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         private static String getUrl(String text, int type){
-            /*FIXME because of old data we need to do some testing adn extra checking*/
+            */
+/*FIXME because of old data we need to do some testing adn extra checking*//*
+
             String url = "";
             String [] urls = text.split(BDefines.DIVIDER);
             if (type == BMessageEntity.Type.IMAGE)
@@ -720,7 +728,7 @@ public class MessagesListAdapter extends BaseAdapter{
         this.isScrolling = isScrolling;
     }
 
-    private void animateSides(View view, boolean fromLeft, Animation.AnimationListener animationListener){
+    private void animateSided(View view, boolean fromLeft, Animation.AnimationListener animationListener){
         if (!isScrolling)
             return;
 
@@ -744,35 +752,5 @@ public class MessagesListAdapter extends BaseAdapter{
     public void setTextColor(int textColor) {
         this.textColor = textColor;
     }
-
-
-    /*Set row types resource id*/
-
-    public void setTextUserRowResId(int textUserRowResId) {
-        this.textUserRowResId = textUserRowResId;
-    }
-
-    public void setTextFriendRowResId(int textFriendRowResId) {
-        this.textFriendRowResId = textFriendRowResId;
-    }
-
-    public void setImageUserRowResId(int imageUserRowResId) {
-        this.imageUserRowResId = imageUserRowResId;
-    }
-
-    public void setImageFriendRowResId(int imageFriendRowResId) {
-        this.imageFriendRowResId = imageFriendRowResId;
-    }
-
-    public void setLocationUserResId(int locationUserResId) {
-        this.locationUserResId = locationUserResId;
-    }
-
-    public void setLocationFriendRowResId(int locationFriendRowResId) {
-        this.locationFriendRowResId = locationFriendRowResId;
-    }
-
-    public void setCustomDateFormat(SimpleDateFormat customDateFormat) {
-        this.customDateFormat = customDateFormat;
-    }
 }
+*/

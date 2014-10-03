@@ -22,9 +22,6 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_fragment_activity);
 
-        initToast();
-
-
         String action = getIntent().getAction();
         String type = getIntent().getType();
 

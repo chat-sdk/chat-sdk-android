@@ -13,6 +13,9 @@
   Some activity for result use default for now until i will abstract there patent activities.
 # App Structure fixes.
 # Exit helper added to help implementing a double tap on back pressed or showing a dialog when user tries to exit the main activity.
+# Ui Helpers added to the SDK for easier creation of screen that use SDK tools, i.e Chat helper for sending messages and handling the list movement, Profile helper for stuff realted to user profile.
+# Some editable parts was added to the messages list adapter.
+# Added is read indicator to message object. ThreadAdapter adapt to that to show how much messags was unread in this thead.
 ##########################
         BUG FIX
 --------------------------

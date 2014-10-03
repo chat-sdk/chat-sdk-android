@@ -8,6 +8,7 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
@@ -43,8 +44,8 @@ public class BUser extends BUserEntity  {
     private String messageColor;
     private Boolean dirty;
     private String name;
-    private Date lastOnline;
-    private Date lastUpdated;
+    private java.util.Date lastOnline;
+    private java.util.Date lastUpdated;
     private Boolean Online;
     private Integer fontSize;
     private String fontName;
@@ -77,7 +78,7 @@ public class BUser extends BUserEntity  {
         this.id = id;
     }
 
-    public BUser(Long id, String entityID, String authenticationId, Integer AuthenticationType, String messageColor, Boolean dirty, String name, Date lastOnline, Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
+    public BUser(Long id, String entityID, String authenticationId, Integer AuthenticationType, String messageColor, Boolean dirty, String name, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, Integer fontSize, String fontName, String textColor) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationId = authenticationId;
@@ -155,19 +156,19 @@ public class BUser extends BUserEntity  {
         this.name = name;
     }
 
-    public Date getLastOnline() {
+    public java.util.Date getLastOnline() {
         return lastOnline;
     }
 
-    public void setLastOnline(Date lastOnline) {
+    public void setLastOnline(java.util.Date lastOnline) {
         this.lastOnline = lastOnline;
     }
 
-    public Date getLastUpdated() {
+    public java.util.Date getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Date lastUpdated) {
+    public void setLastUpdated(java.util.Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
@@ -486,7 +487,7 @@ public class BUser extends BUserEntity  {
         if (list == null) return null;
 
         BThread thread;
-        boolean checkType = (type == BThread.Type.Private || type == BThread.Type.Public);
+        boolean checkType = (type == BThreadEntity.Type.Private || type == BThreadEntity.Type.Public);
         for (BLinkData data : list)
         {
             thread = data.getBThread();

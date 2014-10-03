@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive;
 
 import com.braunster.chatsdk.network.firebase.BPath;
@@ -5,9 +6,11 @@ import com.braunster.chatsdk.network.firebase.BPath;
 import java.util.Map;
 import java.util.Objects;
 
+*/
 /**
  * Created by itzik on 6/14/2014.
- */
+ *//*
+
 public abstract class AbstractEntity<T> {
 
     public String entityID;
@@ -41,3 +44,4 @@ public abstract class AbstractEntity<T> {
 
     public AbstractEntity(){}
 }
+*/

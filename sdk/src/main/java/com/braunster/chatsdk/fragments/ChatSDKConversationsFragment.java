@@ -8,12 +8,12 @@ import android.view.ViewGroup;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.fragments.abstracted.AbstractConversationsFragment;
+import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractConversationsFragment;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ChatSDKConversationsFragment extends AbstractConversationsFragment {
+public class ChatSDKConversationsFragment extends ChatSDKAbstractConversationsFragment {
 
     private static final String TAG = ChatSDKConversationsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ConversationsFragment;
@@ -28,7 +28,7 @@ public class ChatSDKConversationsFragment extends AbstractConversationsFragment 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(inflateMenuItems);
     }
 
     @Override

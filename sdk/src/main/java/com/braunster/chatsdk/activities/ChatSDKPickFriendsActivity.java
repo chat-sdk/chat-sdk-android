@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
@@ -43,7 +43,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     private static boolean DEBUG = Debug.PickFriendsActivity;
 
     private ListView listContacts;
-    private UsersWithStatusListAdapter listAdapter;
+    private ChatSDKUsersListAdapter listAdapter;
     private Button btnGetFBFriends, btnStartChat;
     private TextView txtSearch;
     private ImageView imgSearch;
@@ -78,7 +78,6 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
             }
         }
 
-        initToast();
         initViews();
     }
 
@@ -88,10 +87,10 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         animateExit = bundle.getBoolean(ANIMATE_EXIT, animateExit);
     }
 
-    private void initActionBar(){
+    protected void initActionBar(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar ab = getSupportActionBar();
-            ab.setTitle("Pick Friends");
+            ab.setTitle(getString(R.string.pick_friends));
             ab.setHomeButtonEnabled(true);
         }
     }
@@ -140,7 +139,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         if (list.size() > 0)
             chSelectAll.setEnabled(true);
 
-        listAdapter = new UsersWithStatusListAdapter(ChatSDKPickFriendsActivity.this, UsersWithStatusListAdapter.makeList(list, false, true), true);
+        listAdapter = new ChatSDKUsersListAdapter(ChatSDKPickFriendsActivity.this, true);
+        listAdapter.setUserItems(listAdapter.makeList(list, false, true));
         listContacts.setAdapter(listAdapter);
 
         listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -149,6 +149,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                listAdapter.toggleSelection(position);
             }
         });
+
 
 
       /*  listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -211,7 +212,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                             if (listAdapter.getSelectedUsersPositions().valueAt(i))
                                 pos = listAdapter.getSelectedUsersPositions().keyAt(i);
 
-                            users[i] = listAdapter.getListData().get(pos).asBUser();
+                            users[i] = listAdapter.getUserItems().get(pos).asBUser();
 
                             Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
 

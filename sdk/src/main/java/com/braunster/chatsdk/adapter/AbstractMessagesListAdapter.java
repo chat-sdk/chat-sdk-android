@@ -47,10 +47,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/5/2014.
  */
-public class MessagesListAdapter extends BaseAdapter{
+public class AbstractMessagesListAdapter extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private static final String TAG = AbstractMessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
     /* Row types */
@@ -73,7 +73,6 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private List<MessageListItem> listData = new ArrayList<MessageListItem>();
 
-    private SimpleDateFormat customDateFormat = null;
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
     private List<String> cacheKeys = new ArrayList<String>();
 
@@ -87,7 +86,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private int textColor = -1991;
 
-    public MessagesListAdapter(Activity activity, Long userID){
+    public AbstractMessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -95,7 +94,7 @@ public class MessagesListAdapter extends BaseAdapter{
         maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
     }
 
-    public MessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
+    public AbstractMessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
         mActivity = activity;
 
         this.userID = userID;
@@ -291,7 +290,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public boolean addRow(BMessage message){
-        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth, customDateFormat));
+        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth));
     }
 
     public void setListData(List<MessageListItem> listData) {
@@ -486,7 +485,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public List<MessageListItem> makeList(List<BMessage> list){
-        return MessageListItem.makeList(mActivity, userID, list, customDateFormat);
+        return MessageListItem.makeList(mActivity, userID, list);
     }
 
     public static class MessageListItem{
@@ -517,12 +516,7 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
 
-        public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth, SimpleDateFormat simpleDateFormat){
-
-            // If null that means no custom format was added to the adapter so we use the default.
-            if (simpleDateFormat == null)
-                simpleDateFormat = getFormat(message);
-
+        public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth){
             BUser user = message.getBUserSender();
 
             MessageListItem msg = new MessageListItem( message.getId(),
@@ -532,7 +526,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     message.getStatusOrNull(),
                     user.getId(),
                     user.getThumbnailPictureURL(),
-                    String.valueOf(simpleDateFormat.format(message.getDate())),
+                    String.valueOf(getFormat(message).format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),
                     user.getTextColor());
@@ -542,7 +536,7 @@ public class MessagesListAdapter extends BaseAdapter{
             return msg;
         }
 
-        public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
+        public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages){
             List<MessageListItem> list = new ArrayList<MessageListItem>();
 
             int maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
@@ -551,7 +545,7 @@ public class MessagesListAdapter extends BaseAdapter{
             for (BMessage message : messages)
                 if (message.getEntityID() != null)
                 {
-                    i = fromBMessage(message, userID, maxWidth, simpleDateFormat);
+                    i = fromBMessage(message, userID, maxWidth);
 
                     /*Fixme Due to old data*/
                     if (i.type != BMessage.Type.TEXT && i.dimensions == null)
@@ -567,7 +561,6 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         private static SimpleDateFormat getFormat(BMessage message){
-
             Date curTime = new Date();
             long interval = (curTime.getTime() - message.getDate().getTime()) / 1000L;
 
@@ -770,9 +763,5 @@ public class MessagesListAdapter extends BaseAdapter{
 
     public void setLocationFriendRowResId(int locationFriendRowResId) {
         this.locationFriendRowResId = locationFriendRowResId;
-    }
-
-    public void setCustomDateFormat(SimpleDateFormat customDateFormat) {
-        this.customDateFormat = customDateFormat;
     }
 }

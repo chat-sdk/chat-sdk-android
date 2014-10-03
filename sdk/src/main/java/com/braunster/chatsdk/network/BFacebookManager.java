@@ -48,7 +48,7 @@ public class BFacebookManager {
     private static SimpleLogin simpleLogin;
 
     public static void init(String id, Context context) {
-       if (DEBUG) Log.i(TAG, "Initialized");
+        if (DEBUG) Log.i(TAG, "Initialized");
         Firebase ref = FirebasePaths.firebaseRef();
         simpleLogin = new SimpleLogin(ref);
         facebookAppID = id;
@@ -77,22 +77,22 @@ public class BFacebookManager {
         });*/
 
         BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                FirebasePaths.getMap(new String[]{BDefines.Keys.Facebook.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
-                    new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
-            @Override
-            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                if (DEBUG) Log.i(TAG, "Logged to firebase");
-                // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
-                userFacebookID = firebaseSimpleLoginUser.getUserId();
-                completionListener.onDone();
-            }
+                FirebasePaths.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
+                new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+                    @Override
+                    public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+                        if (DEBUG) Log.i(TAG, "Logged to firebase");
+                        // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
+                        userFacebookID = firebaseSimpleLoginUser.getUserId();
+                        completionListener.onDone();
+                    }
 
-            @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
-                if (DEBUG) Log.e(TAG, "Log to firebase failed");
-                completionListener.onDone();
-            }
-        });
+                    @Override
+                    public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
+                        if (DEBUG) Log.e(TAG, "Log to firebase failed");
+                        completionListener.onDone();
+                    }
+                });
     }
 
     /** Re authenticate after session state changed.*/
@@ -122,9 +122,9 @@ public class BFacebookManager {
                 }
 
                 @Override
-                public void onDoneWithError() {
+                public void onDoneWithError(BError error) {
                     simpleLogin.logout();
-                    completionListener.onDoneWithError();
+                    completionListener.onDoneWithError(error);
 
                 }
             });
@@ -133,7 +133,7 @@ public class BFacebookManager {
             // Logged out of Facebook
             if (DEBUG) Log.i(TAG, "Session is closed.");
             simpleLogin.logout();
-            completionListener.onDoneWithError();
+            completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED, "Facebook session is closed."));
         }
         else
         {

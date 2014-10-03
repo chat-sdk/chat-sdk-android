@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BLinkedContactDao;
 import com.braunster.chatsdk.dao.BThread;
@@ -26,6 +26,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.BError;
 import com.github.johnpersano.supertoasts.SuperActivityToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
@@ -332,7 +333,7 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
                 }
 
                 @Override
-                public void onDoneWithError() {
+                public void onDoneWithError(BError error) {
                     showToast("Unable to delete thread.");
                 }
             });

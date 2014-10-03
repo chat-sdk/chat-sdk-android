@@ -13,7 +13,7 @@ import com.soundcloud.android.crop.CropImageActivity;
  * Created by braunster on 04/09/14.
  */
 public class Cropper extends Crop {
-    Uri source;
+    private Uri source;
 
     static interface Extra {
         String ASPECT_X = "aspect_x";
@@ -34,6 +34,17 @@ public class Cropper extends Crop {
         cropIntent.setClass(context, CropImageActivity.class);
         cropIntent.putExtra(Extra.ASPECT_X, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
         cropIntent.putExtra(Extra.ASPECT_Y, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+        cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, output);
+
+        return cropIntent;
+    }
+
+    public Intent getIntent(Context context, Uri output, int boxWidth, int boxHeight){
+        Intent cropIntent = new Intent();
+        cropIntent.setData(source);
+        cropIntent.setClass(context, CropImageActivity.class);
+        cropIntent.putExtra(Extra.ASPECT_X, boxWidth);
+        cropIntent.putExtra(Extra.ASPECT_Y, boxHeight);
         cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, output);
 
         return cropIntent;

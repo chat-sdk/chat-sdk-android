@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -98,7 +98,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             message.setType(type);
             message.setText(messagePayload);
             message.setEntityID(entityID);
-
+            message.setIsRead(false);
             BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
             BThread thread =DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
 

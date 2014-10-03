@@ -2,7 +2,7 @@ package com.braunster.androidchatsdk.app;
 
 import android.app.Application;
 
-import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseNetworkAdapter;
 

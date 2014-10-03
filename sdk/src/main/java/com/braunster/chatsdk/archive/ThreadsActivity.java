@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive;
 
 import android.content.Intent;
@@ -16,9 +17,11 @@ import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.List;
 
+*/
 /**
  * Created by itzik on 6/8/2014.
- */
+ *//*
+
 public class ThreadsActivity extends ActionBarActivity {
 
 
@@ -65,3 +68,4 @@ public class ThreadsActivity extends ActionBarActivity {
         });
     }
 }
+*/

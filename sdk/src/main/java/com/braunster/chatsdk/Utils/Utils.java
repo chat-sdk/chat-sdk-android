@@ -1,6 +1,7 @@
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -37,12 +39,17 @@ public class Utils {
     static final String TAG = Utils.class.getSimpleName();
     static final boolean DEBUG = true;
 
+
+    private static final String SCHEME_FILE = "file";
+    private static final String SCHEME_CONTENT = "content";
+
+
     public static String getSHA(Activity activity, String packageInfo){
         if (DEBUG) Log.d(TAG, "PackageName: " + packageInfo);
         // Add code to print out the key hash
         try {
             PackageInfo info = activity.getPackageManager().getPackageInfo(
-                  packageInfo,
+                    packageInfo,
                     PackageManager.GET_SIGNATURES);
             for (Signature signature : info.signatures) {
                 MessageDigest md = MessageDigest.getInstance("SHA");
@@ -59,9 +66,9 @@ public class Utils {
         return "Error";
     }
 
-    public static String getRealPathFromURI(Activity activity, Uri uri){
+    public static String getRealPathFromURI(Context context, Uri uri){
         String[] proj = { MediaStore.Images.Media.DATA , MediaStore.Images.Media.DISPLAY_NAME};
-        Cursor cursor = activity.getContentResolver()
+        Cursor cursor = context.getContentResolver()
                 .query(uri, proj, null, null, null);
 
         int column_index;
@@ -70,7 +77,7 @@ public class Utils {
         if (uri.toString().startsWith("content://com.sec.android.gallery3d.provider") ||
                 uri.toString().startsWith("content://media/external/images/media/"))  {
 
-            File cacheDir = activity.getCacheDir();
+            File cacheDir = context.getCacheDir();
 
             if(!cacheDir.exists())
                 cacheDir.mkdirs();
@@ -83,7 +90,7 @@ public class Utils {
 
             InputStream is;
             try {
-                is = activity.getContentResolver().openInputStream(uri);
+                is = context.getContentResolver().openInputStream(uri);
                 OutputStream os = new FileOutputStream(f);
                 IOUtils.copy(is, os);
                 os.close();
@@ -104,8 +111,39 @@ public class Utils {
         return path;
     }
 
-    public static File getFile(Activity activity, Uri uri) {
-        return  new File(Uri.parse(getRealPathFromURI(activity, uri)).getPath());
+    public static File getFile(Context context, Uri uri) {
+        return  new File(Uri.parse(getRealPathFromURI(context, uri)).getPath());
+    }
+
+    public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
+        if (uri == null) return null;
+
+        if (SCHEME_FILE.equals(uri.getScheme())) {
+            return new File(uri.getPath());
+        } else if (SCHEME_CONTENT.equals(uri.getScheme())) {
+            final String[] filePathColumn = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
+            Cursor cursor = null;
+            try {
+                cursor = resolver.query(uri, filePathColumn, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int columnIndex = (uri.toString().startsWith("content://com.google.android.gallery3d")) ?
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
+                    // Picasa image on newer devices with Honeycomb and up
+                    if (columnIndex != -1) {
+                        String filePath = cursor.getString(columnIndex);
+                        if (!TextUtils.isEmpty(filePath)) {
+                            return new File(filePath);
+                        }
+                    }
+                }
+            } catch (SecurityException ignored) {
+                // Nothing we can do
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        }
+        return null;
     }
 
     public static int getColorFromDec(String color){
@@ -162,7 +200,7 @@ public class Utils {
             return mydir;
         }
 
-        static File saveFile(File dir, String name, String type, Bitmap image, boolean external){
+        public static File saveFile(File dir, String name, String type, Bitmap image, boolean external){
             return saveFile(dir, name, type, image, Bitmap.CompressFormat.JPEG, external);
         }
 
@@ -214,7 +252,7 @@ public class Utils {
         }
 
         public static String getPath(Context context, String name){
-           return getInternalDir(context, name).getPath();
+            return getInternalDir(context, name).getPath();
         }
 
         public static File getAlbumStorageDir(String albumName) {
@@ -254,7 +292,7 @@ public class Utils {
 
             if (dir.exists())
             {
-               String hexName = /*Integer.toHexString(color)*/"Names";
+                String hexName = /*Integer.toHexString(color)*/"Names";
                 Log.d(TAG, "HexName: " + hexName);
 
                 Log.d(TAG, "Left not exist");

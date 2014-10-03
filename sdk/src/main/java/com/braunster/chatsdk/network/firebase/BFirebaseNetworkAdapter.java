@@ -3,8 +3,8 @@ package com.braunster.chatsdk.network.firebase;
 import android.content.Context;
 import android.util.Log;
 
-import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BLinkedAccount;
@@ -40,6 +40,7 @@ import com.firebase.simplelogin.FirebaseSimpleLoginError;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.firebase.simplelogin.SimpleLogin;
 import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
+import com.firebase.simplelogin.SimpleLoginCompletionHandler;
 import com.firebase.simplelogin.enums.Provider;
 import com.parse.PushService;
 
@@ -176,11 +177,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         {
             case Facebook:
                 if (DEBUG) Log.d(TAG, "authing with fb.");
-                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(Keys.Facebook.AccessToken), handler);
+                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(Keys.ThirdPartyData.AccessToken), handler);
                 break;
 
             case Twitter:
-                // TODO get twitter app id and etc.
                 Long userId;
                 if (details.get(Keys.UserId) instanceof Integer)
                     userId = new Long((Integer) details.get(Keys.UserId));
@@ -272,14 +272,14 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         {
             case FACEBOOK:
                 // Setting the name.
-                name =(String) thirdPartyData.get(Keys.Facebook.DisplayName);
+                name =(String) thirdPartyData.get(Keys.ThirdPartyData.DisplayName);
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                 {
                     user.setMetaName(name);
                 }
 
-                // Setting the email.//TODO get email
-                email = "Email Adress";
+                // Setting the email.//
+                email = (String) fireUser.getThirdPartyUserData().get(Keys.ThirdPartyData.EMail);
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
                 {
                     user.setMetaEmail(email);
@@ -293,19 +293,26 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     linkedAccount.setUser(user.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(Keys.Facebook.AccessToken));
+                linkedAccount.setToken((String) thirdPartyData.get(Keys.ThirdPartyData.AccessToken));
 
                 break;
 
             case TWITTER:
                 // Setting the name.
-                name = (String) thirdPartyData.get(Keys.Twitter.DisplayName);
+                name = (String) thirdPartyData.get(Keys.ThirdPartyData.DisplayName);
 
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                     user.setMetaName(name);
 
+                // Setting the email.//
+                email = (String) fireUser.getThirdPartyUserData().get(Keys.ThirdPartyData.EMail);
+                if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
+                {
+                    user.setMetaEmail(email);
+                }
+
                 TwitterManager.userId = Long.parseLong(fireUser.getUserId());
-                TwitterManager.profileImageUrl = (String) thirdPartyData.get(Keys.Twitter.ImageURL);
+                TwitterManager.profileImageUrl = (String) thirdPartyData.get(Keys.ThirdPartyData.ImageURL);
 
                 linkedAccount = user.getAccountWithType(BLinkedAccount.Type.TWITTER);
                 if (linkedAccount == null)
@@ -315,7 +322,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     linkedAccount.setUser(user.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(Keys.Twitter.AccessToken));
+                linkedAccount.setToken((String) thirdPartyData.get(Keys.ThirdPartyData.AccessToken));
 
                 break;
 
@@ -391,7 +398,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 if (DEBUG) Log.e(TAG, "Failed to push user After update from FUser");
                 resetAuth();
             }
@@ -418,7 +425,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             @Override
             public void onItemError(Object o, Object o2) {
                 if (listener != null)
-                    listener.onDoneWithError();
+                    listener.onDoneWithError((BError) o2);
 
             }
         });
@@ -515,6 +522,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
+    public void changePassword(String email, String oldPassword, String newPassword, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
+        getSimleSimpleLogin().changePassword(email, oldPassword, newPassword, simpleLoginCompletionHandler);
+    }
+
+    @Override
+    public void sendPasswordResetMail(String email, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
+        getSimleSimpleLogin().sendPasswordResetEmail(email, simpleLoginCompletionHandler);
+    }
+
+    @Override
     public void logout() {
 
         /* No need to logout from facebook due to the fact that the logout from facebook event will trigger this event.
@@ -536,15 +553,20 @@ TODO
         [[NSNotificationCenter defaultCenter] postNotificationName:bLogoutNotification object:Nil];
 */
     }
+
+    private SimpleLogin getSimleSimpleLogin(){
+        Firebase ref = FirebasePaths.firebaseRef();
+        return new SimpleLogin(ref, context);
+    }
 /*######################################################################################################*/
     /** Indexing
-    * To allow searching we're going to implement a simple index. Strings can be registered and
-    * associated with users i.e. if there's a user called John Smith we could make a new index
-    * like this:
-    *
-    * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
-    *
-    * This will allow us to find the user*/
+     * To allow searching we're going to implement a simple index. Strings can be registered and
+     * associated with users i.e. if there's a user called John Smith we could make a new index
+     * like this:
+     *
+     * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
+     *
+     * This will allow us to find the user*/
     @Override
     public void usersForIndex(String index, final RepetitiveCompletionListener<BUser> listener) {
         mapForIndex(index, new MapForIndex() {
@@ -674,14 +696,14 @@ TODO
 
     @Override
     public void removeUserFromIndex(final BUser user, String index, final CompletionListener listener) {
-        if (index == null)
+        if (StringUtils.isEmpty(index))
         {
-            Log.d(TAG, "removeUserFromIndex, Index is null");
+            if (listener!=null)
+                listener.onDoneWithError(new BError(BError.Code.NULL, "index is null"));
 
-            //Note for now we will return onDone because the reason index is null is that we first remove index before adding it.so it might be the first time.
-            listener.onDone();
             return;
         }
+
 
         mapForIndex(index, new MapForIndex() {
             @Override
@@ -702,7 +724,7 @@ TODO
 
                         if (error != null)
                         {
-                            listener.onDoneWithError();
+                            listener.onDoneWithError(BError.getFirebaseError(error));
                         }
                         else listener.onDone();
                     }
@@ -713,6 +735,14 @@ TODO
 
     @Override
     public void addUserToIndex(final BUser user, String index, final CompletionListener listener) {
+        if (StringUtils.isEmpty(index))
+        {
+            if (listener!=null)
+                listener.onDoneWithError(new BError(BError.Code.NULL, "index is null"));
+
+            return;
+        }
+
         // We don't want to index null strings!
         index = index.replace(" ", "");
         index = index.toLowerCase();
@@ -721,7 +751,7 @@ TODO
         {
             if (DEBUG) Log.e(TAG, "Index is empty");
             if (listener != null)
-                listener.onDoneWithError();
+                listener.onDoneWithError(new BError(BError.Code.NULL, "Index is empty"));
             return;
         }
 
@@ -749,7 +779,7 @@ TODO
 
                 if (user.getEntityID() == null)
                 {
-                    listener.onDoneWithError();
+                    listener.onDoneWithError(new BError(BError.Code.NULL, "User entity id is empty"));
                     return;
                 }
 
@@ -763,7 +793,7 @@ TODO
                             return;
 
                         if (error!=null)
-                            listener.onDoneWithError();
+                            listener.onDoneWithError(BError.getFirebaseError(error));
                         else listener.onDone();
                     }
                 });
@@ -773,7 +803,7 @@ TODO
     }
 /*######################################################################################################*/
 
-   @Override
+    @Override
     public void getUserFacebookFriendsToAppWithComplition(CompletionListenerWithData<List<BUser>> listener) {
      /*   // Check to see if the user has a facebook network associated
         BUser * currentUser = (BUser *) [self currentUser];
@@ -862,9 +892,9 @@ TODO
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see BFirebaseNetworkAdapter#PushMessageWithComplition}.*/
-      @Override //Note done!
+    @Override //Note done!
     public void sendMessage(final BMessage message, final CompletionListenerWithData<BMessage> listener){
-          if (DEBUG) Log.v(TAG, "sendMessage");
+        if (DEBUG) Log.v(TAG, "sendMessage");
         if (message.getBThreadOwner() != null)
         {
             // If this is a public thread we need to add the user to it
@@ -942,11 +972,11 @@ TODO
 
 
     /** Create thread for given users.
-         *  When the thread is added to the server the "onMainFinished" will be invoked,
-         *  If an error occurred the error object would not be null.
-         *  For each user that was successfully added the "onItem" method will be called,
-         *  For any item adding failure the "onItemFailed will be called.
-         *   If the main task will fail the error object in the "onMainFinished" method will be called."*/
+     *  When the thread is added to the server the "onMainFinished" will be invoked,
+     *  If an error occurred the error object would not be null.
+     *  For each user that was successfully added the "onItem" method will be called,
+     *  For any item adding failure the "onItemFailed will be called.
+     *   If the main task will fail the error object in the "onMainFinished" method will be called."*/
     @Override
     public void createThreadWithUsers(String name, final List<BUser> users, final RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener) {
 
@@ -1094,6 +1124,8 @@ TODO
         if (thread == null)
         {
             if (DEBUG) Log.e(TAG,"addUsersToThread, Thread is null" );
+            if (listener!=null)
+                listener.onItemError(null, new BError(BError.Code.NULL, "Thread is null"));
             return;
         }
 
@@ -1135,6 +1167,8 @@ TODO
             if (user == null)
             {
                 if (DEBUG) Log.e(TAG, "user is null");
+                if (listener!=null)
+                    listener.onItemError(null, new BError(BError.Code.NULL, "User is null"));
                 continue;
             }
 
@@ -1265,7 +1299,7 @@ TODO
                         else Log.d(TAG, "Thread isn't deleted.");
                     }
                     completionListener.onDone();
-                } else completionListener.onDoneWithError();
+                } else completionListener.onDoneWithError(BError.getFirebaseError(error));
             }
         });
 

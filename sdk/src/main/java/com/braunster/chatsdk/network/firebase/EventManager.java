@@ -373,22 +373,24 @@ public class EventManager implements AppEvents {
 
         List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
+
+        IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
+
         // If the message exists we only listen for newer messages
         if (messages.size() > 0)
         {
             // The plus 1 is needed so we wont receive the last message again.
             messagesQuery = messagesQuery.startAt(messages.get(0).getDate().getTime() + 1).limit(BDefines.MAX_MESSAGES_TO_PULL);
+
+            // Set any message that received as new.
+            incomingMessagesListener.setNew(true);
         }
         else
         {
             if (DEBUG) Log.d(TAG, "No Messages");
-//            startDate = new Date((long) (thread.lastMessageAdded().getTime() - BDefines.Time.BDays * 7));
-
-            // The plus 1 is needed so we wont receive the last message again.
             messagesQuery = messagesQuery.limit(BDefines.MAX_MESSAGES_TO_PULL);
         }
 
-        IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
         FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), messagesQuery.getRef().toString(), incomingMessagesListener);
 
         messagesQuery.addChildEventListener(combo.getListener());

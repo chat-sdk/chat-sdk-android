@@ -323,7 +323,7 @@ public class BFirebaseInterface {
     }
 
     public static void loadMoreMessagesForThread(BThread thread, int numOfMessages, final CompletionListenerWithData<BMessage[]> listener){
-        BMessage ealiestMessage = null;
+        BMessage earliestMessage = null;
         final Date messageDate;
 
         List<BMessage> messagesList = thread.getMessagesWithOrder(DaoCore.ORDER_ASC);
@@ -331,13 +331,13 @@ public class BFirebaseInterface {
         // Get the earliest message from the database
         if (messagesList.size() > 0)
         {
-            ealiestMessage = messagesList.get(0);
-            if (DEBUG) Log.d(TAG, "Newest message, Id: " + ealiestMessage.getEntityID() + ", Payload: " + ealiestMessage.getText());
+            earliestMessage = messagesList.get(0);
+            if (DEBUG) Log.d(TAG, "Newest message, Id: " + earliestMessage.getEntityID() + ", Payload: " + earliestMessage.getText());
         }
 
         // If we have a message in the database then we use the earliest
-        if (ealiestMessage != null)
-            messageDate = ealiestMessage.getDate();
+        if (earliestMessage != null)
+            messageDate = earliestMessage.getDate();
         // Otherwise we use todays date
         else messageDate = new Date();
 
@@ -494,7 +494,7 @@ public class BFirebaseInterface {
 
             if (StringUtils.isNotEmpty(userFirebaseID))
             {
-                return  getUserForThread(dataSnapshot, userFirebaseID, threadFirebaseID);
+                return getUserForThread(dataSnapshot, userFirebaseID, threadFirebaseID);
             }
             else childrenFromSnapshot(dataSnapshot);
         }

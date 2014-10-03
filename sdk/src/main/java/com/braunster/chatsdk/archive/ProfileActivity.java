@@ -1,3 +1,4 @@
+/*
 package com.braunster.chatsdk.archive;
 
 import android.os.Bundle;
@@ -12,9 +13,11 @@ import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
 
+*/
 /**
  * Created by itzik on 6/9/2014.
- */
+ *//*
+
 public class ProfileActivity extends ActionBarActivity {
 
     // TODO keyboard popups on screen load
@@ -65,7 +68,8 @@ public class ProfileActivity extends ActionBarActivity {
 
 
 
-    /*V2 not suppose to be used.    Bundle params = new Bundle();
+    */
+/*V2 not suppose to be used.    Bundle params = new Bundle();
 
         params.putString("fields", "name, picture, location, installed");
 

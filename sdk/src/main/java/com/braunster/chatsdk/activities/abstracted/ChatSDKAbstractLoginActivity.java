@@ -32,9 +32,9 @@ import java.util.Map;
 /**
  * Created by itzik on 6/8/2014.
  */
-public class AbstractLoginActivity extends ChatSDKBaseActivity {
+public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
-    private static final String TAG = AbstractLoginActivity.class.getSimpleName();
+    private static final String TAG = ChatSDKAbstractLoginActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.LoginActivity;
 
     private boolean exitOnBackPressed = false;
@@ -226,43 +226,7 @@ public class AbstractLoginActivity extends ChatSDKBaseActivity {
         {
             String toastMessage = "";
             FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
-            switch (error.getCode())
-            {
-                case EmailTaken:
-                    toastMessage = "Email is taken.";
-                    break;
-
-                case InvalidEmail:
-                    toastMessage = "Invalid Email.";
-                    break;
-
-                case InvalidPassword:
-                    toastMessage = "Invalid Password";
-                    break;
-
-                case AccountNotFound:
-                    toastMessage = "Account not found.";
-                    break;
-
-                case AccessNotGranted:
-                    toastMessage = "Access not granted.";
-                    break;
-
-                case OperationFailed:
-                    toastMessage = "Operation Failed";
-                    break;
-
-                case UserDoesNotExist:
-                    toastMessage = "User does not exist";
-                    break;
-
-                case PermissionDenied:
-                    toastMessage = "Permission denied";
-                    break;
-
-                default: toastMessage = "An Error Occurred.";
-            }
-            showAlertToast(toastMessage);
+            chatSDKUiHelper.showSimpleLoginErroToast(error.getCode());
         }
         else if (login)
         {
@@ -311,7 +275,7 @@ public class AbstractLoginActivity extends ChatSDKBaseActivity {
             }
 
             @Override
-            public void onDoneWithError() {
+            public void onDoneWithError(BError error) {
                 if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
 //                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
                 showAlertToast("Failed connect to facebook.");

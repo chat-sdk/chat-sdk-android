@@ -1,31 +1,25 @@
-package com.braunster.chatsdk.fragments.abstracted;
+package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
-import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
@@ -46,193 +40,40 @@ import java.io.IOException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by itzik on 6/17/2014.
+ * Created by braunster on 22/09/14.
  */
-public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
+public class ChatSDKProfileHelper {
 
-    protected static final int PHOTO_PICKER_ID = 100;
+    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDELD = 1993;
 
-    private static final String TAG = AbstractProfileFragment.class.getSimpleName();
-    private static boolean DEBUG = Debug.ProfileFragment;
-
-    private static final String LOGIN_TYPE = "login_type";
+    private static final String TAG = ChatSDKProfileHelper.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
     protected Cropper crop;
 
-    protected Bundle savedState;
-    protected CircleImageView profileCircleImageView;
-    protected ProgressBar progressBar;
-    protected Integer loginType;
-    private boolean enableActionBarItems = true;
+    private Fragment fragment = null;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        savedState = savedInstanceState;
+    public static final int PROFILE_PIC = 100;
+
+    public CircleImageView profileCircleImageView;
+    public ProgressBar progressBar;
+
+    private Activity activity;
+
+    private ChatSDKUiHelper uiHelper;
+
+    private View mainView;
+
+    public ChatSDKProfileHelper(Activity activity, CircleImageView profileCircleImageView, ProgressBar progressBar, ChatSDKUiHelper uiHelper, View mainView) {
+        this.profileCircleImageView = profileCircleImageView;
+        this.progressBar = progressBar;
+        this.activity = activity;
+        this.uiHelper = uiHelper;
+        this.mainView = mainView;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        if (DEBUG) Log.d(TAG, "onCreateView");
-
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
-        initToast();
-
-        loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
-
-        return mainView;
-    }
-
-    @Override
-    public void initViews(){
-        super.initViews();
-        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
-        profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
-    }
-
-    @Override
-    public void onResume() {
-        if (DEBUG) Log.d(TAG, "onResume");
-        super.onResume();
-
-        //endregion
-
-        // Long click will open the gallery so the user can change is picture.
-        profileCircleImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickIntent();
-//                Crop.pickzImage(getActivity());
-            }
-
-            private void pickIntent(){
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(intent,
-                        "Complete action using"), PHOTO_PICKER_ID);
-            }
-        });
-
-    }
-
-    @Override
-    public void clearData() {
-        super.clearData();
-
-        if (mainView != null)
-        {
-            profileCircleImageView.setImageResource(R.drawable.ic_action_user);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (DEBUG) Log.v(TAG, "onSaveInstanceState");
-        //http://stackoverflow.com/a/15314508/2568492
-        if (mainView == null)
-        {
-            if (savedState == null)
-                return;
-
-            outState.putInt(LOGIN_TYPE, savedState.getInt(LOGIN_TYPE));
-
-            savedState.remove(LOGIN_TYPE);
-
-            if (savedState.isEmpty())
-                savedState = null;
-
-            return;
-        }
-
-        outState.putInt(LOGIN_TYPE, loginType);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (data == null)
-        {
-            if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
-            return;
-        }
-
-        if (DEBUG) Log.v(TAG, "onActivityResult");
-
-        if (requestCode == PHOTO_PICKER_ID)
-        {
-            if (resultCode == Activity.RESULT_OK)
-            {
-                if (DEBUG) Log.d(TAG, "Result OK");
-                Uri uri = data.getData();
-
-                Uri outputUri = Uri.fromFile(new File(getActivity().getCacheDir(), "cropped.jpg"));
-                crop = new Cropper(uri);
-                startActivityForResult(crop.getIntent(getActivity(), outputUri), Crop.REQUEST_CROP);
-
-            }
-        }
-        else  if (requestCode == Crop.REQUEST_CROP) {
-            if (resultCode == Crop.RESULT_ERROR)
-            {
-                if (DEBUG) Log.e(TAG, "Result Error");
-                return;
-            }
-
-            try
-            {
-                File image;
-                Uri uri = Crop.getOutput(data);
-
-                if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
-                image = new File(getActivity().getCacheDir(), "cropped.jpg");
-                saveProfilePicToParse(image.getPath(), true);
-            }
-            catch (NullPointerException e){
-                if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                showToast("Unable to fetch image");
-            }
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        if (!enableActionBarItems)
-            return;
-
-        MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_logout, 12, "Logout");
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.icon_light_exit);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        /* Cant use switch in the library*/
-        int id = item.getItemId();
-
-        if (id == R.id.action_chat_sdk_logout)
-        {
-            logout();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    /*############################################*/
     /* UI*/
-    protected void loadProfilePic(int loginType){
+    public void loadProfilePic(int loginType){
         profileCircleImageView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         switch (loginType)
@@ -273,7 +114,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
 
     private PostProfilePic postProfilePic;
 
-    protected void setProfilePic(final Bitmap bitmap){
+    public void setProfilePic(final Bitmap bitmap){
         if (DEBUG) Log.v(TAG, "setProfilePic, Width: " + bitmap.getWidth() + ", Height: " + bitmap.getHeight());
         // load image into imageview
         final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
@@ -300,7 +141,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         }
     }
 
-    private class LoadFromUrl implements ImageLoader.ImageListener{
+    public class LoadFromUrl implements ImageLoader.ImageListener{
         private boolean killed = false;
 
         public void setKilled(boolean killed) {
@@ -326,9 +167,10 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
             setInitialsProfilePic();
         }
     };
+
     private LoadFromUrl loadFromUrl;
 
-    protected void setProfilePicFromURL(String url){
+    public void setProfilePicFromURL(String url){
         // Set default.
         if (url == null)
         {
@@ -344,7 +186,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         VolleyUtils.getImageLoader().get(url, loadFromUrl);
     }
 
-    protected void saveProfilePicToParse(String path, boolean setAsPic) {
+    public void saveProfilePicToParse(String path, boolean setAsPic) {
         if (DEBUG) Log.v(TAG, "saveProfilePicToParse, Path: " + path);
 
         //  Loading the bitmap
@@ -355,11 +197,11 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
 
             if (b == null)
             {
-                b = ImageUtils.loadBitmapFromFile(getActivity().getCacheDir().getPath() + path);
+                b = ImageUtils.loadBitmapFromFile(activity.getCacheDir().getPath() + path);
                 if (b == null)
                 {
-                    showToast("Unable to save file...");
-                    if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + getActivity().getCacheDir().getPath() + path);
+                    uiHelper.showAlertToast("Unable to save file...");
+                    if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + activity.getCacheDir().getPath() + path);
                     return;
                 }
             }
@@ -369,13 +211,13 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         saveProfilePicToParse(path);
     }
 
-    protected void saveProfilePicToParse(String path){
+    public void saveProfilePicToParse(String path){
         ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
             public void onSaved(ParseException exception, String... data) {
-                if (exception != null)
-                {
-                    if (DEBUG) Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
+                if (exception != null) {
+                    if (DEBUG)
+                        Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
                     return;
                 }
 
@@ -393,7 +235,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         });
     }
 
-    protected void getProfileFromFacebook(){
+    public void getProfileFromFacebook(){
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
 
@@ -421,21 +263,23 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
                                     setInitialsProfilePic();
-                                    showToast("Unable to load user profile pic.");
+                                    uiHelper.showAlertToast("Unable to load user profile pic.");
                                 }
                             });
-                };
+                }
+
+                ;
 
                 @Override
                 public void onDoneWithError(BError error) {
                     setInitialsProfilePic();
-                    showToast("Unable to fetch user details from fb" + (error != null ? error.code == BError.Code.EXCEPTION ? error.message : "" : ""));
+                    uiHelper.showAlertToast("Unable to fetch user details from fb" + (error != null ? error.code == BError.Code.EXCEPTION ? error.message : "" : ""));
                 }
             });
         }
     }
 
-    protected void getProfileFromTwitter(){
+    public void getProfileFromTwitter(){
         // Use facebook profile picture only if has no other picture saved.
         String savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
 
@@ -463,7 +307,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 setInitialsProfilePic();
-                                showToast("Unable to load user profile pic.");
+                                uiHelper.showAlertToast("Unable to load user profile pic.");
                             }
                         }
                 );
@@ -471,7 +315,7 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         }
     }
 
-    protected void setInitialsProfilePic(){
+    public void setInitialsProfilePic(){
 
         String initials = "";
 
@@ -493,19 +337,19 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         setInitialsProfilePic(initials);
     }
 
-    protected void setInitialsProfilePic(final String initials) {
+    public void setInitialsProfilePic(final String initials) {
         if (DEBUG) Log.v(TAG, "setInitialsProfilePic, Initials: " + initials);
-        Bitmap bitmap = ImageUtils.getInitialsBitmap(Color.GRAY, Color.BLACK, initials );
+        Bitmap bitmap = ImageUtils.getInitialsBitmap(Color.GRAY, Color.BLACK, initials);
         setProfilePic(bitmap);
         createTempFileAndSave(bitmap);
     }
 
-    protected boolean createTempFileAndSave(Bitmap bitmap){
+    public boolean createTempFileAndSave(Bitmap bitmap){
         if (DEBUG) Log.v(TAG, "createTempFileAndSave");
 
         // Saving the image to tmp file.
         try {
-            File tmp = File.createTempFile("Pic", ".jpg", getActivity().getCacheDir());
+            File tmp = File.createTempFile("Pic", ".jpg", activity.getCacheDir());
             ImageUtils.saveBitmapToFile(tmp, bitmap);
             if (DEBUG) Log.i(TAG, "Temp file path: " + tmp.getPath());
             saveProfilePicToParse(tmp.getPath(), false);
@@ -516,24 +360,106 @@ public abstract class AbstractProfileFragment extends ChatSDKBaseFragment {
         }
     }
 
-    public abstract void logout();
+    public Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
+        if (boundBoxInDp == 0)
+            return null;
 
-    public void enableActionBarItems(boolean enableActionBarItems) {
-        this.enableActionBarItems = enableActionBarItems;
+        // Get current dimensions
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // Determine how much to scale: the dimension requiring less scaling is
+        // closer to the its side. This way the image always stays inside your
+        // bounding box AND either x/y axis touches it.
+        float xScale = ((float) boundBoxInDp) / width;
+        float yScale = ((float) boundBoxInDp) / height;
+        float scale = (xScale <= yScale) ? xScale : yScale;
+
+        // Create a matrix for the scaling and add the scaling data
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        // Create a new bitmap and convert it to a format understood by the ImageView
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+
+        return bitmap;
     }
 
-    /*############################################*/
-    protected void indexUser(final BUser user, final String oldIndex, final String newIndex){
-        BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(user, oldIndex, new CompletionListener() {
-            @Override
-            public void onDone() {
-                BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(user, newIndex,null);
+    public int handleResult(int requestCode, int resultCode, Intent data){
+        if (data == null)
+        {
+            if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
+            return NOT_HANDLED;
+        }
+
+        if (DEBUG) Log.v(TAG, "onActivityResult");
+
+        if (requestCode == PROFILE_PIC)
+        {
+            if (resultCode == Activity.RESULT_OK)
+            {
+                if (DEBUG) Log.d(TAG, "Result OK");
+                Uri uri = data.getData();
+
+                Uri outputUri = Uri.fromFile(new File(this.activity.getCacheDir(), "cropped.jpg"));
+                crop = new Cropper(uri);
+
+                Intent cropIntent = crop.getIntent(this.activity, outputUri);
+                int request =Crop.REQUEST_CROP + PROFILE_PIC;
+
+                if (fragment==null)
+                    activity.startActivityForResult(cropIntent, request);
+                else ((FragmentActivity) activity).startActivityFromFragment(fragment, cropIntent, request);
+
+                return HANDELD;
+            }
+        }
+        else  if (requestCode == Crop.REQUEST_CROP + PROFILE_PIC) {
+            if (resultCode == Crop.RESULT_ERROR)
+            {
+                if (DEBUG) Log.e(TAG, "Result Error");
+                return ERROR;
             }
 
-            @Override
-            public void onDoneWithError() {
-                showToast("Cant set index.");
+            try
+            {
+                File image;
+                Uri uri = Crop.getOutput(data);
+
+                if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
+                image = new File(this.activity.getCacheDir(), "cropped.jpg");
+                saveProfilePicToParse(image.getPath(), true);
+
+                return HANDELD;
             }
-        });
+            catch (NullPointerException e){
+                if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
+                uiHelper.showAlertToast("Unable to fetch image");
+                return ERROR;
+            }
+        }
+
+        return NOT_HANDLED;
+    }
+
+    public static View.OnClickListener getProfilePicClickListener(final Activity activity){
+        return ChatSDKIntentClickListener.getPickImageClickListener(activity, PROFILE_PIC);
+    }
+
+    public static View.OnClickListener getProfilePicClickListener(final Activity activity, final Fragment fragment){
+        return ChatSDKIntentClickListener.getPickImageClickListener((FragmentActivity) activity, fragment, PROFILE_PIC);
+    }
+
+    public static View.OnClickListener getPickImageClickListener(final FragmentActivity activity,final Fragment fragment, final int requestCode){
+        return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, requestCode);
+    }
+
+    public static View.OnClickListener getPickImageClickListener(final FragmentActivity activity,final DialogFragment fragment, final int requestCode){
+        return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, requestCode);
+    }
+
+    /** If set the helper will use this fragment when calling startActivityForResult*/
+    public void setFragment(Fragment fragment) {
+        this.fragment = fragment;
     }
 }

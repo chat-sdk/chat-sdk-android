@@ -49,6 +49,7 @@ import com.facebook.model.GraphUser;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
 import com.ortiz.touch.TouchImageView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
 
@@ -293,18 +294,18 @@ public class DialogUtils {
                 }
             });
 
-           etPin.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-               @Override
-               public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                   if (actionId == EditorInfo.IME_ACTION_DONE) {
-                       if (etPin.getText().toString().isEmpty())
-                           return true;
+            etPin.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        if (etPin.getText().toString().isEmpty())
+                            return true;
 
-                       TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
-                   }
-                   return false;
-               }
-           });
+                        TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
+                    }
+                    return false;
+                }
+            });
 
             view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -325,10 +326,10 @@ public class DialogUtils {
                 switch (msg.what)
                 {
                     case TwitterManager.ERROR:
-                    if (listener != null)
-                        listener.onDoneWithError(null, msg.obj);
+                        if (listener != null)
+                            listener.onDoneWithError(null, msg.obj);
 
-                    break;
+                        break;
 
                     case TwitterManager.SUCCESS:
                         webView.loadUrl((String) msg.obj);
@@ -364,12 +365,15 @@ public class DialogUtils {
 
     /** Type indicate from where to load the file.*/
     public enum LoadTypes{
-        LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64
+        LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64, LOAD_FROM_LRU_CACHE;
     }
 
     /** Full screen popup for showing an image in greater size.*/
     public static PopupWindow getImageDialog(final Context context, String data, LoadTypes loadingType){
         if (DEBUG) Log.v(TAG, "getImageDialog");
+
+        if (StringUtils.isEmpty(data))
+            return null;
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.chat_sdk_popup_touch_image, null);
@@ -400,64 +404,80 @@ public class DialogUtils {
 
             case LOAD_FROM_URL:
                 if (DEBUG) Log.i(TAG, "Image from URL");
-                if (data != null && !data.equals(""))
-                    VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
+                    @Override
+                    public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
 
-                            if (isImmediate && response.getBitmap() == null)
-                                progressBar.setVisibility(View.VISIBLE);
+                        if (isImmediate && response.getBitmap() == null)
+                            progressBar.setVisibility(View.VISIBLE);
 
-                            if (response.getBitmap() != null)
-                            {
-                                imageView.setImageBitmap(response.getBitmap());
+                        if (response.getBitmap() != null)
+                        {
+                            imageView.setImageBitmap(response.getBitmap());
 
-                                if (DEBUG) Log.i(TAG, "response");
-                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                                    @Override
-                                    public void onAnimationStart(Animation animation) {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
+                            if (DEBUG) Log.i(TAG, "response");
+                            imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                            imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+                                    progressBar.setVisibility(View.GONE);
+                                }
 
-                                    @Override
-                                    public void onAnimationEnd(Animation animation) {
-                                        imageView.setVisibility(View.VISIBLE);
-                                    }
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    imageView.setVisibility(View.VISIBLE);
+                                }
 
-                                    @Override
-                                    public void onAnimationRepeat(Animation animation) {
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
 
-                                    }
-                                });
-                            }
+                                }
+                            });
                         }
+                    }
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            progressBar.setVisibility(View.GONE);
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressBar.setVisibility(View.GONE);
 
-                            ChatSDKToast.toastAlert(context, "Error while loading");
+                        ChatSDKToast.toastAlert(context, "Error while loading");
 
-                            imagePopup.dismiss();
-                        }
-                    });
+                        imagePopup.dismiss();
+                    }
+                });
                 break;
 
             case LOAD_FROM_PATH:
+                if (DEBUG) Log.i(TAG, "Image from path");
                 progressBar.setVisibility(View.GONE);
-                ImageUtils.loadBitmapFromFile(data);
+                imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
                 break;
+
+            case LOAD_FROM_LRU_CACHE:
+                imageView.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(data));
+                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        imageView.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
         }
 
-
-        // TODO fix popup size to wrap view size.
         imagePopup.setContentView(popupView);
         imagePopup.setBackgroundDrawable(new BitmapDrawable());
         imagePopup.setOutsideTouchable(true);
         imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
-//        imagePopup.setWidth(500);
-//        imagePopup.setHeight(400);
 
         return imagePopup;
     }

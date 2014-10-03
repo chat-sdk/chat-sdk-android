@@ -51,4 +51,15 @@
         android:id="@+id/txt_last_message_date"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="18sp"
+        android:layout_below="@+id/txt_last_message_date"
+        style="@style/TextViewStyleSmall"
+        android:layout_marginRight="5dp"
+        android:id="@+id/txt_unread_messages"
+        android:layout_alignParentRight="true"/>
 </RelativeLayout>

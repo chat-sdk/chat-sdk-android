@@ -90,6 +90,7 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
         public TextView txtName;
         public TextView txtDate;
         public TextView txtLastMsg;
+        public TextView txtUnreadMessagesAmount;
         public CircleImageView imgIcon;
 
         public void setDefaultImg(ThreadListItem item){
@@ -188,20 +189,22 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
     }
 
     public static class ThreadListItem{
-        public String entityId, name, lastMessageDate, imageUrl, lastMessageText;
-        public int usersAmount = 0;
+        public String entityId, name, imageUrl, lastMessageDate, lastMessageText;
+        public int usersAmount = 0, unreadMessagesAmount = 0;
         public long id;
         public Date date;
 
-        ThreadListItem(long id, String entityId, String name, String lastMessageDate, Date date, String lastMessageText, String imageUrl, int usersAmount) {
+
+        public ThreadListItem(String entityId, String name, String imageUrl, String lastMessageDate, String lastMessageText, int usersAmount, int unreadMessagesAmount, long id, Date date) {
+            this.entityId = entityId;
             this.name = name;
+            this.imageUrl = imageUrl;
+            this.lastMessageDate = lastMessageDate;
+            this.lastMessageText = lastMessageText;
+            this.usersAmount = usersAmount;
+            this.unreadMessagesAmount = unreadMessagesAmount;
             this.id = id;
             this.date = date;
-            this.entityId = entityId;
-            this.usersAmount = usersAmount;
-            this.lastMessageDate = lastMessageDate;
-            this.imageUrl = imageUrl;
-            this.lastMessageText = lastMessageText;
         }
 
         public static ThreadListItem fromBThread(BThread thread){
@@ -214,24 +217,34 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
 
             String displayName = thread.displayName(users);
 
-            return new ThreadListItem(thread.getId(), thread.getEntityID(), StringUtils.isEmpty(displayName) ? "No name." : displayName, data[1], thread.getLastMessageAdded(), data[0], url, users.size());
+            return new ThreadListItem(thread.getEntityID(),
+                                      StringUtils.isEmpty(displayName) ? "No name." : displayName,
+                                      url,
+                                      data[1],
+                                      data[0],
+                                      users.size(),
+                                      thread.getUnreadMessagesAmount(),
+                                      thread.getId(),
+                                      thread.getLastMessageAdded());
         }
 
         public static List<ThreadListItem> makeList(List<BThread> threads){
             List<ThreadListItem > list = new ArrayList<ThreadListItem>();
-
-            TimingLogger logger = new TimingLogger(TAG, "makeList");
+            TimingLogger logger;
+            if (DEBUG) logger = new TimingLogger(TAG, "makeList");
 
             int count= 0;
             for (BThread thread : threads)
             {
                 count++;
-                logger.addSplit("fromThread" + count);
+                if (DEBUG) logger.addSplit("fromThread" + count);
                 list.add(fromBThread(thread));
             }
 
-            logger.dumpToLog();
-            logger.reset(TAG, "makeList");
+            if (DEBUG){
+                logger.dumpToLog();
+                logger.reset(TAG, "makeList");
+            }
             return list;
         }
 
@@ -337,70 +350,9 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
         public long getId() {
             return id;
         }
-    }
 
-
-
-
-
-    /*private void messageLogic(ViewHolder holder, int position){
-            if (DEBUG) Log.v(TAG, "messageLogic");
-
-            BMessage message;
-
-            List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-            // If no message create dummy message.
-            if ( messages.size() == 0)
-            {
-                if (DEBUG) Log.d(TAG, "No messages");
-    //            message = new BMessage();
-    //            message.setText("No Messages...");
-    //            message.setType(bText.ordinal());
-                holder.txtLastMsg.setText("No Messages...");
-                return;
-            }
-            else message = messages.get(0);
-
-            if (DEBUG) Log.d(TAG, "Message text: " + message.getText());
-
-            if (message.getId() == null)
-            {
-                Log.e(TAG, "Message has no id");
-                Log.e(TAG, "Messages Amount: " + thread.getMessages().size()
-                        + (message.getText() == null ? "No Text" : message.getText()));
-
-                // Replace the problematic message with this dummy.
-                message.setText("Defected Message");
-                message.setEntityID(DaoCore.generateEntity());
-                message.setType(bText.ordinal());
-                message.setDate(new Date());
-            }
-
-            switch (types[message.getType()])
-            {
-                case bText:
-                    // TODO cut string if needed.
-                    //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
-                    holder.txtLastMsg.setText(message.getText());
-                    break;
-
-                case bImage:
-                    holder.txtLastMsg.setText("Image message");
-                    break;
-
-                case bLocation:
-                    holder.txtLastMsg.setText("Location message");
-                    break;
-            }
-
-            // Check if not dummy message.
-            if (message.getDate() != null)
-                holder.txtDate.setText(String.valueOf(simpleDateFormat.format(message.getDate())));
-            else
-                holder.txtDate.setText(String.valueOf(simpleDateFormat.format(new Date(System.currentTimeMillis()))));
-
+        public int getUnreadMessagesAmount() {
+            return unreadMessagesAmount;
         }
-    */
-
+    }
 }

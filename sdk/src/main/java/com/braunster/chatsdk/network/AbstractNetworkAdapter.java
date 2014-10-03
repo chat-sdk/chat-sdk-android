@@ -28,6 +28,7 @@ import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
 import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.firebase.simplelogin.SimpleLoginCompletionHandler;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 
@@ -112,9 +113,14 @@ public abstract class AbstractNetworkAdapter {
     /*NOTE this was added due to the android system can kill the app while the app is in the background.
     *       After the app is killed the online status will be false,
     *       The app will check this status when resumed and if false the app will re-auth the user in the background.*/
-    /** @return  the value of the user online status in firebase, i.e "firebase_path/user_entity_id/online" */
+    /*** Send a request to the server to get the online status of the user. */
     public abstract void isOnline(final CompletionListenerWithData<Boolean> listener);
 
+    /** Send a password change request to the server.*/
+    public abstract void changePassword(String email, String oldPassword, String newPassword, SimpleLoginCompletionHandler simpleLoginCompletionHandler);
+
+    /** Send a reset email request to the server.*/
+    public abstract void sendPasswordResetMail(String email, SimpleLoginCompletionHandler simpleLoginCompletionHandler);
 
 /*######################################################################################################*/
     /*Messages*/
@@ -367,6 +373,25 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<BMessage[]> listener);
 
+    public int getUnreadMessagesAmount(boolean onePerThread){
+        List<BThread> threads = currentUser().getThreads();
+
+        int count = 0;
+        for (BThread t : threads)
+        {
+            if (onePerThread)
+            {
+                if(t.isLastMessageWasRead())
+                    count++;
+            }
+            else
+            {
+                count += t.getUnreadMessagesAmount();
+            }
+        }
+
+        return count;
+    }
 
 /*######################################################################################################*/
     /*Index*/
@@ -412,8 +437,6 @@ public abstract class AbstractNetworkAdapter {
 
         // Get the thread list ordered desc by the last message added date.
         List<BThread> threadsFromDB;
-
-
 
         if (threadType == BThread.Type.Private)
             threadsFromDB = currentUser().getThreads();
@@ -476,20 +499,6 @@ public abstract class AbstractNetworkAdapter {
         return threads;
     }
 
-  /*  DaoSession session = null;
-    try {
-        session = DaoCore.daoMaster.newSession();
-        return session.callInTx(new ThreadsItemsWithTypeCall(threadType));
-    } catch (Exception e) {
-        if (DEBUG) Log.e(TAG, "threadItemsWithType call exception, message: " + e.getMessage());
-        return null;
-    }
-    finally {
-        if (session != null)
-        {
-            session.clear();
-        }
-    }*/
     public List<ThreadsListAdapter.ThreadListItem> threadItemsWithType(int threadType) {
         if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
         if (currentUser() == null) {

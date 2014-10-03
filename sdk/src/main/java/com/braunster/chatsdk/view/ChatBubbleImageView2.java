@@ -61,6 +61,8 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
 
     private int bubbleGravity = GRAVITY_LEFT, bubbleColor = Color.BLACK, pressedColor = BubbleDefaultPressedColor;
 
+    private int rightBubbleResourceId = -1, leftBubbleResourceId = -1;
+
     public ChatBubbleImageView2(Context context) {
         super(context);
 

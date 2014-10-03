@@ -18,7 +18,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.fragments.abstracted.AbstractProfileFragment;
+import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractProfileFragment;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ChatSDKProfileFragment extends AbstractProfileFragment implements TextView.OnEditorActionListener{
+public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment implements TextView.OnEditorActionListener{
 
 
     private static final String TAG = ChatSDKProfileFragment.class.getSimpleName();
@@ -66,8 +66,6 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
 
         initViews(inflater);
 
-        loginType = (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
-
         if (savedState != null)
         {
             Log.d(TAG, "Saved State is not null");
@@ -76,7 +74,7 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
             isPhoneTouched = savedState.getBoolean(S_I_F_PHONE);
             isProfilePicChanged = savedState.getBoolean(S_I_F_PROFILE);
 
-            setDetails(loginType, savedState);
+            setDetails(getLoginType(), savedState);
         }
         else if (savedInstanceState != null)
         {
@@ -86,7 +84,7 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
             isPhoneTouched = savedInstanceState.getBoolean(S_I_F_PHONE);
             isProfilePicChanged = savedInstanceState.getBoolean(S_I_F_PROFILE);
 
-            setDetails(loginType, savedInstanceState);
+            setDetails(getLoginType(), savedInstanceState);
         }
         else
         {
@@ -282,7 +280,7 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
         etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
         etMail.setText(user.getMetaEmail());
 
-        loadProfilePic(loginType);
+        chatSDKProfileHelper.loadProfilePic(loginType);
     }
 
     private void setDetails(int loginType, Bundle bundle){
@@ -290,7 +288,7 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
         etPhone.setText(bundle.getString(S_I_D_PHONE));
         etMail.setText(bundle.getString(S_I_D_EMAIL));
 
-        loadProfilePic(loginType);
+        chatSDKProfileHelper.loadProfilePic(loginType);
     }
 
     /*############################################*/
@@ -359,7 +357,7 @@ public class ChatSDKProfileFragment extends AbstractProfileFragment implements T
             }
 
             if (StringUtils.isEmpty(bUser.getMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING).getValue()))
-                setInitialsProfilePic();
+                chatSDKProfileHelper.setInitialsProfilePic();
 
             isNameTouched = false;
         }

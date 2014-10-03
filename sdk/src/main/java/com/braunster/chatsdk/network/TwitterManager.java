@@ -112,7 +112,7 @@ public class TwitterManager {
                 try {
                     JSONObject json = new JSONObject(response.getBody());
                     userId = json.getLong("id");
-                    profileImageUrl = json.getString(BDefines.Keys.Twitter.ImageURL);
+                    profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
                     BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
                             FirebasePaths.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter), listener);
                 } catch (JSONException e) {
@@ -142,7 +142,7 @@ public class TwitterManager {
                     try {
                         JSONObject json = new JSONObject(response.getBody());
                         userId = json.getLong("id");
-                        profileImageUrl = json.getString(BDefines.Keys.Twitter.ImageURL);
+                        profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
                         handler.sendMessage(MessageObj.getSuccessMessage(listener, response));
                     } catch (JSONException e) {
                         handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));

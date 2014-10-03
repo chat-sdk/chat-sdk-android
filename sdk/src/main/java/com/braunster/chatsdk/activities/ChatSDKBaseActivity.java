@@ -3,9 +3,7 @@ package com.braunster.chatsdk.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -13,10 +11,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.CompletionListener;
@@ -30,9 +27,10 @@ import com.braunster.chatsdk.object.BError;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.github.johnpersano.supertoasts.SuperActivityToast;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.Callable;
 
@@ -46,7 +44,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
     public static final String FROM_LOGIN = "From_Login";
 
-    UiLifecycleHelper uiHelper;
+    private UiLifecycleHelper uiHelper;
 
     private ProgressDialog progressDialog;
 
@@ -64,13 +62,14 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     /** A flag indicates that the activity in opened from the login activity so we wont do auth check when the activity will get to the onResume state.*/
     boolean fromLoginActivity = false;
 
+    /** Need to be set before on create, If true card toast will be available while activity run, You need to add a layout with a special id for this to work.
+     * Example can be seen in the chat activity.
+     * You cant use the card toast until onResume is called due to the config of the card toast. If you need it you can call initCardToast.*/
     private boolean enableCardToast = false;
 
     protected ChatSDKUiHelper chatSDKUiHelper;
 
-    protected SuperActivityToast superActivityToast;
-    protected SuperToast superToast;
-    protected SuperCardToast superCardToastProgress;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +95,9 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
             fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
 
         if (enableCardToast)
+        {
             SuperCardToast.onRestoreState(savedInstanceState, ChatSDKBaseActivity.this);
+        }
 
     }
 
@@ -123,6 +124,9 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     protected void onResume() {
         super.onResume();
 
+        if (enableCardToast)
+            chatSDKUiHelper.initCardToast();
+
         if (DEBUG) Log.v(TAG, "onResumed, From login: " + fromLoginActivity +", Check online: " + checkOnlineOnResumed);
 
         if (integratedWithFacebook)
@@ -144,7 +148,10 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                             @Override
                             public void onCheckDone(boolean isAuthenticated) {
                                 if (!isAuthenticated)
-                                    startLoginActivity(true);
+                                {
+                                    onAuthenticationFailed();
+
+                                }
                             }
 
                             @Override
@@ -156,11 +163,9 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                             @Override
                             public void onLoginFailed(BError error) {
                                 if (DEBUG) Log.d(TAG, "Authenticated Failed!");
-                                startLoginActivity(true);
+                                onAuthenticationFailed();
                             }
                         });
-//                        }
-
                     }
 
                 }
@@ -172,6 +177,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                 }
             });
         }
+
         fromLoginActivity = false;
     }
 
@@ -228,57 +234,23 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
         ChatSDKUiHelper.hideSoftKeyboard(activity);
     }
 
-    protected void initToast(){
-        superActivityToast = new SuperActivityToast(this);
-        superActivityToast.setDuration(SuperToast.Duration.MEDIUM);
-        superActivityToast.setBackground(SuperToast.Background.BLUE);
-        superActivityToast.setTextColor(Color.WHITE);
-        superActivityToast.setAnimations(SuperToast.Animations.FLYIN);
-
-        superToast = new SuperToast(this);
-        superToast.setDuration(SuperToast.Duration.MEDIUM);
-        superToast.setBackground(SuperToast.Background.BLUE);
-        superToast.setTextColor(Color.WHITE);
-        superToast.setAnimations(SuperToast.Animations.FLYIN);
-
-        if (enableCardToast)
-        {
-            initCardToast();
-        }
-    }
-
-    private void initCardToast(){
-        superCardToastProgress = new SuperCardToast(ChatSDKBaseActivity.this, SuperToast.Type.PROGRESS);
-        superCardToastProgress.setIndeterminate(true);
-        superCardToastProgress.setBackground(SuperToast.Background.WHITE);
-        superCardToastProgress.setTextColor(Color.BLACK);
-        superCardToastProgress.setSwipeToDismiss(true);
-    }
-
     /** Show a SuperToast with the given text. */
     protected void showToast(String text){
-        superToast.setBackground(SuperToast.Background.BLUE);
-        superToast.setText(text);
-        superToast.show();
+        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
+            return;
+        chatSDKUiHelper.getToast().setText(text);
+        chatSDKUiHelper.getToast().show();
     }
 
     protected void showAlertToast(String text){
-        superToast.setBackground(SuperToast.Background.RED);
-        superToast.setText(text);
-        superToast.show();
+        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
+            return;
+        chatSDKUiHelper.getAlertToast().setText(text);
+        chatSDKUiHelper.getAlertToast().show();
     }
 
     protected void showProgressCard(String text){
-
-        findViewById(R.id.card_container).bringToFront();
-
-        if (superCardToastProgress == null || !superCardToastProgress.isShowing())
-            initCardToast();
-
-        superCardToastProgress.setText(text);
-
-        if (!superCardToastProgress.isShowing())
-            superCardToastProgress.show();
+        chatSDKUiHelper.showProgressCard(text);
     }
 
     protected void dismissProgressCard(){
@@ -290,12 +262,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     }
 
     protected void dismissProgressCard(long delay){
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                superCardToastProgress.dismiss();
-            }
-        }, delay);
+        chatSDKUiHelper.dismissProgressCard(delay);
     }
 
     /** Authenticates the current user.*/
@@ -346,24 +313,24 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                     if (DEBUG) Log.e(TAG, "thread added is null");
 
                 if (checkIfOnMainThread())
+                {
                     if (thread != null)
                     {
                         Log.d(TAG, "Stating chat for thread.");
                         startChatActivityForID(thread.getId());
                     }
-                    else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                }
+                else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                            if (thread != null)
-                            {
-                                Log.d(TAG, "Stating chat for thread.");
-                                startChatActivityForID(thread.getId());
-                            }
+                        if (thread != null)
+                        {
+                            Log.d(TAG, "Stating chat for thread.");
+                            startChatActivityForID(thread.getId());
                         }
-                    });
-
-
+                    }
+                });
             }
 
             @Override
@@ -456,8 +423,8 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
             }
 
             @Override
-            public void onDoneWithError() {
-                if (DEBUG) Log.e(TAG, "onDoneWithError");
+            public void onDoneWithError(BError error) {
+                if (DEBUG) Log.e(TAG, "onDoneWithError. Error: " + error.message);
                 // Facebook session is closed so we need to disconnect from firebase.
                 BNetworkManager.sharedManager().getNetworkAdapter().logout();
                 startLoginActivity(true);
@@ -505,6 +472,11 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
     }
 
+    @Override
+    public void onAuthenticationFailed() {
+        startLoginActivity(true);
+    }
+
     public boolean checkIfOnMainThread() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             return false;
@@ -513,13 +485,30 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
         return true;
     }
 
-    public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
-        this.chatSDKUiHelper = chatSDKUiHelper;
+    /*Getters and Setters*/
+    public void setAlertToast(SuperToast alertToast) {
+        chatSDKUiHelper.setAlertToast(alertToast);
     }
 
     @Override
     public AbstractNetworkAdapter getNetworkAdapter() {
         return BNetworkManager.sharedManager().getNetworkAdapter();
+    }
+
+    public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
+        this.chatSDKUiHelper = chatSDKUiHelper;
+    }
+
+    public void setToast(SuperToast toast) {
+        chatSDKUiHelper.setToast(toast);
+    }
+
+    public SuperToast getToast() {
+        return chatSDKUiHelper.getToast();
+    }
+
+    public SuperToast getAlertToast() {
+        return chatSDKUiHelper.getAlertToast();
     }
 }
 
@@ -528,6 +517,8 @@ interface ChatSDKBaseActivityInterface extends ChatSDKUiHelper.ChatSDKUiHelperIn
      * checks if the user is authenticated(optional {@link ChatSDKBaseActivity#checkOnlineOnResumed}),
      * If the user was re - authenticated when it was resumed this method will be called. */
     public void onAuthenticated();
+
+    public void onAuthenticationFailed();
 
     public AbstractNetworkAdapter getNetworkAdapter();
 }

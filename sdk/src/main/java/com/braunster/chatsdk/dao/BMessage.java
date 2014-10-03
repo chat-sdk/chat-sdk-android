@@ -27,8 +27,9 @@ public class BMessage extends BMessageEntity  {
 
     private Long id;
     private String entityID;
-    private Date date;
+    private java.util.Date date;
     private Boolean dirty;
+    private Boolean isRead;
     private String resources;
     private String resourcesPath;
     private String text;
@@ -60,20 +61,18 @@ public class BMessage extends BMessageEntity  {
     // KEEP FIELDS END
 
     public BMessage() {
-        // KEEP CONSTRUCTOR-DEFAULT  - put your custom fields here
-        this.status = Status.NULL;
-        // KEEP CONSTRUCTOR-DEFAULT END
     }
 
     public BMessage(Long id) {
         this.id = id;
     }
 
-    public BMessage(Long id, String entityID, Date date, Boolean dirty, String resources, String resourcesPath, String text, Integer type, Integer status, Long OwnerThread, Long Sender) {
+    public BMessage(Long id, String entityID, java.util.Date date, Boolean dirty, Boolean isRead, String resources, String resourcesPath, String text, Integer type, Integer status, Long OwnerThread, Long Sender) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
         this.dirty = dirty;
+        this.isRead = isRead;
         this.resources = resources;
         this.resourcesPath = resourcesPath;
         this.text = text;
@@ -105,11 +104,11 @@ public class BMessage extends BMessageEntity  {
         this.entityID = entityID;
     }
 
-    public Date getDate() {
+    public java.util.Date getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(java.util.Date date) {
         this.date = date;
     }
 
@@ -119,6 +118,14 @@ public class BMessage extends BMessageEntity  {
 
     public void setDirty(Boolean dirty) {
         this.dirty = dirty;
+    }
+
+    public Boolean getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
     }
 
     public String getResources() {
@@ -393,10 +400,16 @@ public class BMessage extends BMessageEntity  {
 
     public Integer getStatusOrNull(){
         if (status == null)
-            status = Status.NULL;
+            status = BMessageEntity.Status.NULL;
 
         return status;
     }
+
+    /** Null safe version of getIsRead*/
+    public boolean wasRead(){
+        return isRead==null || isRead;
+    }
+
     // KEEP METHODS END
 
 }

@@ -80,7 +80,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
         firstTimeInApp();
         initViews();
-        initToast();
 
         enableCheckOnlineOnResumed(true);
 
@@ -200,7 +199,8 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
                         if (!EventManager.getInstance().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getOwnerThread())) {
-                            if (message.getBUserSender().getMetaName() != null)
+                            // Checking if the message has a sender with a name, Also if the message was read.
+                            if (message.getBUserSender().getMetaName() != null && !message.wasRead())
                                 NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
                         }
                     }

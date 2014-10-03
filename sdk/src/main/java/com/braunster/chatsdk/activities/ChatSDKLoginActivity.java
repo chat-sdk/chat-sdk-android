@@ -12,14 +12,14 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.activities.abstracted.AbstractLoginActivity;
+import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
 
 import java.util.Arrays;
 
 /**
  * Created by itzik on 6/8/2014.
  */
-public class ChatSDKLoginActivity extends AbstractLoginActivity implements View.OnClickListener{
+public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implements View.OnClickListener{
 
     private static final String TAG = ChatSDKLoginActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.LoginActivity;
@@ -40,7 +40,6 @@ public class ChatSDKLoginActivity extends AbstractLoginActivity implements View.
         setupTouchUIToDismissKeyboard(view);
 
         initViews();
-        initToast();
     }
 
     @Override

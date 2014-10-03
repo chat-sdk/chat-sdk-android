@@ -59,14 +59,7 @@ public class Batcher<T> {
             public void run() {
                 if (pulled && !toHold())
                 {
-                    if (handler != null)
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                trigger();
-                            }
-                        });
-                    else trigger();
+                    trigger();
                 }
             }
         };
@@ -100,14 +93,23 @@ public class Batcher<T> {
     }
 
     private void trigger(){
-        pulled = false;
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                pulled = false;
 
-        if (batchedAction != null)
-            batchedAction.triggered(new CopyOnWriteArrayList<T>(stash));
+                if (batchedAction != null)
+                    batchedAction.triggered(new CopyOnWriteArrayList<T>(stash));
 
-        stash.clear();
+                stash.clear();
 
-        pulledTime = 0;
+                pulledTime = 0;
+            }
+        };
+
+        if (handler != null)
+            handler.post(run);
+        else run.run();
     }
 
     public boolean isPulled() {

@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.adapter.UsersWithStatusListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -51,7 +51,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
     private Button btnAddContacts;
     private EditText etInput;
     private ListView listResults;
-    private UsersWithStatusListAdapter adapter;
+    private ChatSDKUsersListAdapter adapter;
     private CheckBox chSelectAll;
 
     private String action = "";
@@ -62,8 +62,6 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
         setContentView(R.layout.chat_sdk_activity_search);
 
         initViews();
-
-        initToast();
 
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
@@ -106,7 +104,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
     protected void onResume() {
         super.onResume();
 
-        adapter = new UsersWithStatusListAdapter(this, !action.equals(ACTION_ADD_WHEN_FOUND));
+        adapter = new ChatSDKUsersListAdapter(this, !action.equals(ACTION_ADD_WHEN_FOUND));
         listResults.setAdapter(adapter);
 
         etInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -153,7 +151,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                         usersFoundCount++;
                         dialog.setMessage("Fetching...Found: " + usersFoundCount);
 
-                        adapter.addRow(UsersWithStatusListAdapter.UserListItem.fromBUser(item));
+                        adapter.addRow(item);
 
                         if (action.equals(ACTION_ADD_WHEN_FOUND))
                         {
@@ -237,7 +235,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                     if (adapter.getSelectedUsersPositions().valueAt(i))
                         pos = adapter.getSelectedUsersPositions().keyAt(i);
 
-                    user = adapter.getListData().get(pos).asBUser();
+                    user = adapter.getUserItems().get(pos).asBUser();
                     currentUser.addContact(user);
                     entitiesIDs[i] = user.getEntityID();
                 }

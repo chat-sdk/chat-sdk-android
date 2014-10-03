@@ -23,6 +23,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,82 +32,98 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class UsersWithStatusListAdapter extends BaseAdapter {
+public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractUsersListAdapter.UserListItem> extends BaseAdapter {
 
-    private static final String TAG = UsersWithStatusListAdapter.class.getSimpleName();
+    private static final String TAG = ChatSDKAbstractUsersListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
 
-    private Activity mActivity;
+    protected Activity mActivity;
 
-    private List<UserListItem> listData = new ArrayList<UserListItem>();
-    private List<String> userIDs = new ArrayList<String>();
+    protected List<E> listData = new ArrayList<E>();
+    protected List<E> userItems = new ArrayList<E>();
+    protected List<String> userIDs = new ArrayList<String>();
 
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
-    private static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
+    protected static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
 
-    private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
-    private List<UserListItem> online = new ArrayList<UserListItem>(), offline = new ArrayList<UserListItem>();
+    protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
+    protected List<UserListItem> online = new ArrayList<UserListItem>(), offline = new ArrayList<UserListItem>();
     //View
-    private View row;
-    private boolean isMultiSelect = false;
+    protected View row;
+    protected boolean isMultiSelect = false;
 
-    class ViewHolder {
-         CircleImageView profilePicture;
-         TextView textView;
-         CheckBox checkBox;
+    protected boolean filtering = false;
+
+    protected int textColor =-1991;
+
+    protected ProfilePicClickListener profilePicClickListener;
+
+    public class ViewHolder {
+        public CircleImageView profilePicture;
+        public TextView textView;
+        public CheckBox checkBox;
+
+        public AbstractProfilePicLoader profilePicLoader;
     }
 
-    public UsersWithStatusListAdapter(Activity activity){
+    public ChatSDKAbstractUsersListAdapter(Activity activity){
         mActivity = activity;
 
-        listData = new ArrayList<UserListItem>();
+        initMaker();
+
+        userItems = new ArrayList<E>();
 
         isMultiSelect = false;
     }
 
-    public UsersWithStatusListAdapter(Activity activity, boolean isMultiSelect){
+    public ChatSDKAbstractUsersListAdapter(Activity activity, boolean isMultiSelect){
         mActivity = activity;
 
-        listData = new ArrayList<UserListItem>();
+        initMaker();
+
+        userItems = new ArrayList<E>();
 
         this.isMultiSelect = isMultiSelect;
     }
 
-    public UsersWithStatusListAdapter(Activity activity, List<UserListItem> listData){
+    public ChatSDKAbstractUsersListAdapter(Activity activity, List<E> userItems){
         mActivity = activity;
 
-        if (listData == null)
-            listData = new ArrayList<UserListItem>();
+        initMaker();
 
-        this.listData = listData;
+        if (userItems == null)
+            userItems = new ArrayList<E>();
+
+        setUserItems(userItems);
 
         isMultiSelect = false;
     }
 
-    public UsersWithStatusListAdapter(Activity activity, List<UserListItem> listData, boolean multiSelect){
+    public ChatSDKAbstractUsersListAdapter(Activity activity, List<E> userItems, boolean multiSelect){
         mActivity = activity;
 
-        if (listData == null)
-            listData = new ArrayList<UserListItem>();
+        initMaker();
 
-        this.listData = listData;
+        if (userItems == null)
+            userItems = new ArrayList<E>();
+
+        setUserItems(userItems);
 
         this.isMultiSelect = multiSelect;
     }
 
-
-
+    public UserListItemMaker<E> itemMaker = null;
 
     @Override
     public int getCount() {
-        return listData.size();
+        return userItems.size();
     }
 
     @Override
     public UserListItem getItem(int i) {
-        return listData.get(i);
+        return userItems.get(i);
     }
 
     @Override
@@ -116,7 +133,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return listData.get(position).getType();
+        return userItems.get(position).getType();
     }
 
     @Override
@@ -124,7 +141,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         row = view;
 
         final ViewHolder holder;
-        final UserListItem userItem = listData.get(position);
+        final UserListItem userItem = userItems.get(position);
 
         // If the row is null or the View inside the row is not good for the current item.
         if (row == null || userItem.getResourceID() != row.getId())
@@ -140,7 +157,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         {
 
 
-           if (userItem.fromURL)
+            if (userItem.fromURL)
             {
                 int size = holder.profilePicture.getHeight();
 
@@ -174,7 +191,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             {
                 if (DEBUG) Log.i(TAG, "Loading profile picture from the db");
 
-                Bitmap bitmap = listData.get(position).getPicture();
+                Bitmap bitmap = userItems.get(position).getPicture();
                 if (bitmap != null)
                 {
                     holder.profilePicture.setImageBitmap(bitmap);
@@ -189,8 +206,8 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return row;
     }
 
-    private View rowForType(ViewHolder holder, final int position){
-        View row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(listData.get(position).getResourceID(), null);
+    protected View rowForType(ViewHolder holder, final int position){
+        View row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(userItems.get(position).getResourceID(), null);
 
         holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
 
@@ -221,29 +238,42 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return getItemViewType(position) == TYPE_USER;
     }
 
-    public void addRow(UserListItem user){
-
-        listData.add(user);
+    public void addRow(E user){
+        userItems.add(user);
 
         userIDs.add(user.getEntityID());
 
         notifyDataSetChanged();
     }
 
-    public void addRows(List<UserListItem> users){
+    public void addRow(BUser user){
+        userItems.add(itemMaker.fromBUser(user));
 
-        listData.addAll(users);
+        userIDs.add(user.getEntityID());
 
         notifyDataSetChanged();
     }
 
-    public void setListData(List<UserListItem> listData) {
+    public void addRows(List<E> users){
+
+        userItems.addAll(users);
+
+        notifyDataSetChanged();
+    }
+
+    public void setUserItems(List<E> userItems) {
+        filtering = false;
+
+        if (DEBUG) Log.v(TAG, "setUserItems, size: " + (userItems==null?"NULL":userItems.size()) );
+        this.userItems.clear();
         this.listData.clear();
+
         userIDs.clear();
 
-        this.listData = listData;
+        this.userItems = userItems;
+        this.listData = userItems;
 
-        for (UserListItem item : listData)
+        for (UserListItem item : userItems)
             userIDs.add(item.getEntityID());
 
         notifyDataSetChanged();
@@ -253,33 +283,35 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return userIDs.contains(entityID);
     }
 
-    public List<UserListItem> getListData() {
-        return listData;
+    public List<E> getUserItems() {
+        return userItems;
     }
 
     /** Clear the list.*/
     public void clear(){
+        userItems.clear();
         listData.clear();
         clearSelection();
         notifyDataSetChanged();
     }
 
+    public boolean useCustomItems(){
+        return itemMaker != null;
+    }
+
+    public static class UserListItem implements Serializable{
+        public String entityID;
+        public String text;
+        public Bitmap picture;
+        public String pictureURL;
+        public String pictureThumbnailURL;
 
 
+        public boolean fromURL = false;
 
-    public static class UserListItem{
-        String entityID;
-        String text;
-        Bitmap picture;
-        String pictureURL;
-        String pictureThumbnailURL;
+        public int type, resourceID;
 
-
-        private boolean fromURL = false;
-
-        int type, resourceID;
-
-        UserListItem(int resourceID, String entityID, String text, Bitmap picture, int type) {
+        public UserListItem(int resourceID, String entityID, String text, Bitmap picture, int type) {
             this.text = text;
             this.picture = picture;
             this.resourceID  = resourceID;
@@ -287,7 +319,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             this.entityID = entityID;
         }
 
-        UserListItem(int resourceID, String entityID, String text,String pictureThumbnailURL, String pictureURL, int type) {
+        public UserListItem(int resourceID, String entityID, String text,String pictureThumbnailURL, String pictureURL, int type) {
             this.text = text;
             this.pictureURL = pictureURL;
             this.pictureThumbnailURL = pictureThumbnailURL;
@@ -297,23 +329,10 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             this.fromURL = true;
         }
 
-        UserListItem(int resourceID, String text, int type) {
+        public UserListItem(int resourceID, String text, int type) {
             this.text = text;
             this.resourceID = resourceID;
             this.type = type;
-        }
-
-        public static UserListItem fromBUser(BUser user){
-            return new UserListItem(R.layout.chat_sdk_row_contact,
-                    user.getEntityID(),
-                    user.getMetaName(),
-                    user.getThumbnailPictureURL(),
-                    user.getMetaPictureUrl(),
-                    TYPE_USER);
-        }
-
-        public static UserListItem getHeader(String text){
-            return new UserListItem(R.layout.chat_sdk_list_header, text, TYPE_HEADER);
         }
 
         public String getText() {
@@ -343,46 +362,22 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         public BUser asBUser(){
             return DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
         }
-
-/*        public boolean hasThumbnail(Context context){
-            File file = Utils.ThumbnailsHandler.getThumbnail(context, entityID);
-            return file != null && file.exists();
-        }
-
-        public String getThumbnail(Context context){
-            File file = Utils.ThumbnailsHandler.getThumbnail(context, entityID);
-            if (file != null && file.exists())
-                return file.getAbsolutePath();
-
-            return null;
-        }
-
-        public void saveThumbnail(Context context, Bitmap bitmap){
-            Utils.ThumbnailsHandler.saveImageThumbnail(context, bitmap, entityID);
-        }*/
-    }
-
-    /** Make aUserListItem list from BUser list.
-     * @param withHeaders If true list will have headers for online and offline users.
-     * @return a list with all the user item for the adapter.*/
-    public static List<UserListItem> makeList(List<BUser> users, boolean withHeaders){
-        return makeList(users, withHeaders, false);
     }
 
     /** Make aUserListItem list from BUser list.
      * @param withHeaders If true list will have headers for online and offline users.
      * @param  deleteDuplicates If true any duplicate entity(share same entity id) will be skipped.
      * @return a list with all tge user item for the adapter.*/
-    public static List<UserListItem> makeList(List<BUser> users, boolean withHeaders, boolean deleteDuplicates){
+    public List<E> makeList(List<BUser> users, boolean withHeaders, boolean deleteDuplicates){
 //        if (DEBUG) Log.v(TAG, "makeList" + (withHeaders?", With Headers" : "" )+ (deleteDuplicates? ", Delete duplicates." :".") );
         if (users == null)
-            return new ArrayList<UserListItem>();
+            return new ArrayList<E>();
 
-        List<UserListItem> listData = new ArrayList<UserListItem>();
+        List<E> listData = new ArrayList<E>();
         List<String> entitiesID = new ArrayList<String>();
 
-        List<UserListItem> onlineUsers = new ArrayList<UserListItem>();
-        List<UserListItem> offlineUsers = new ArrayList<UserListItem>();
+        List<E> onlineUsers = new ArrayList<E>();
+        List<E> offlineUsers = new ArrayList<E>();
 
         for (BUser user : users){
 
@@ -405,35 +400,35 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
             if (withHeaders)
             {
                 if (user.getOnline() != null && user.getOnline()) {
-                    onlineUsers.add(UserListItem.fromBUser(user));
+                    onlineUsers.add(itemMaker.fromBUser(user));
                 }
-                else offlineUsers.add(UserListItem.fromBUser(user));
+                else offlineUsers.add(itemMaker.fromBUser(user));
             }
             else
             {
-                listData.add(UserListItem.fromBUser(user));
+                listData.add(itemMaker.fromBUser(user));
             }
         }
 
         if (withHeaders) {
             if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
             {
-                listData.add(UserListItem.getHeader(H_NO_CONTACTS));
+                listData.add(itemMaker.getHeader(H_NO_CONTACTS));
             }
             else if (onlineUsers.size() == 0){
-                listData.add(UserListItem.getHeader(H_NO_ONLINE));
-                listData.add(UserListItem.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
+                listData.add(itemMaker.getHeader(H_NO_ONLINE));
+                listData.add(itemMaker.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                 listData.addAll(offlineUsers);
             }
             else if (offlineUsers.size() == 0){
-                listData.add(UserListItem.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                listData.add(itemMaker.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
                 listData.addAll(onlineUsers);
-                listData.add(UserListItem.getHeader(H_NO_OFFLINE));
+                listData.add(itemMaker.getHeader(H_NO_OFFLINE));
             }
             else {
-                listData.add(UserListItem.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                listData.add(itemMaker.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
                 listData.addAll(onlineUsers);
-                listData.add(UserListItem.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
+                listData.add(itemMaker.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                 listData.addAll(offlineUsers);
             }
         }
@@ -445,30 +440,45 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         return listData;
     }
 
+
     private static String getHeaderWithSize(String header, int size){
         return header + " (" + size + ")";
     }
 
+    /*Filtering option's of the list to make searches.*/
+    public void filterStartWith(String startWith){
 
+        filtering = true;
 
+        if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
+        {
+            if (DEBUG) Log.v(TAG, "filterStartWith, Empty Filter");
+            if (DEBUG) Log.d(TAG, "User items size: " + userItems.size() + ", ListData: " + listData.size());
+            this.userItems = listData;
+        }
+        else
+        {
+            startWith = startWith.trim();
 
+            List<E> filteredUsers = new ArrayList<E>();
 
+            for (E u : listData)
+            {
+                if (u.getText().toLowerCase().startsWith(startWith.toLowerCase()))
+                    filteredUsers.add(u);
+            }
 
+            this.userItems = filteredUsers;
+        }
 
+        if (DEBUG) Log.v(TAG, "filterStartWith, Filtered users amount: " + userItems.size());
 
+        notifyDataSetChanged();
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    public List<E> getListData() {
+        return listData;
+    }
 
     /*############################################*/
     public boolean toggleSelection(int position){
@@ -495,7 +505,7 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
     }
 
     public void selectAll(){
-        for (int i = 0 ; i < listData.size() ; i++){
+        for (int i = 0 ; i < userItems.size() ; i++){
             selectView(i, true);
         }
 
@@ -506,4 +516,66 @@ public class UsersWithStatusListAdapter extends BaseAdapter {
         selectedUsersPositions = new SparseBooleanArray();
         notifyDataSetChanged();
     }
+
+
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
+
+    public void setProfilePicClickListener(ProfilePicClickListener profilePicClickListener) {
+        this.profilePicClickListener = profilePicClickListener;
+    }
+
+    /*############################################*/
+    public interface UserListItemMaker<E>{
+        public E fromBUser(BUser user);
+        public E getHeader(String type);
+    }
+
+    public interface ProfilePicClickListener{
+        public void onClick(View profilePicView, BUser user);
+    }
+
+    public abstract class AbstractProfilePicLoader implements ImageLoader.ImageListener{
+        public abstract void kill();
+        protected boolean killed = false;
+    }
+
+    public class ProfilePicLoader extends AbstractProfilePicLoader{
+
+        private CircleImageView profilePic;
+
+        public ProfilePicLoader(CircleImageView profilePic) {
+            this.profilePic = profilePic;
+        }
+
+        @Override
+        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            if (isImmediate && response.getBitmap() == null)
+            {
+                profilePic.setImageResource(com.braunster.chatsdk.R.drawable.ic_profile);
+                return;
+            }
+
+            if (response.getBitmap() != null && !killed) {
+                // load image into imageview
+                profilePic.setImageBitmap(response.getBitmap());
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            if (!killed)
+                profilePic.setImageResource(com.braunster.chatsdk.R.drawable.ic_profile);
+        }
+
+        @Override
+        public void kill(){
+            killed = true;
+        }
+    }
+
+    /*############################################*/
+    public abstract void initMaker();
 }

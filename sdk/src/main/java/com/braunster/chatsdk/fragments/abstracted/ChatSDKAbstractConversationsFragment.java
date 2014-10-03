@@ -35,9 +35,9 @@ import java.util.List;
 /**
  * Created by itzik on 6/17/2014.
  */
-public class AbstractConversationsFragment extends ChatSDKBaseFragment {
+public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
-    private static final String TAG = AbstractConversationsFragment.class.getSimpleName();
+    private static final String TAG = ChatSDKAbstractConversationsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ConversationsFragment;
     public static final String APP_EVENT_TAG= "ConverstaionFragment";
 
@@ -47,6 +47,11 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
 
     protected TimingLogger timings;
     protected UIUpdater uiUpdater;
+
+    protected boolean inflateMenuItems = true;
+
+    protected AdapterView.OnItemLongClickListener onItemLongClickListener;
+    protected AdapterView.OnItemClickListener onItemClickListener;
 
     @Override
     public void initViews() {
@@ -63,28 +68,38 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
 
         listThreads.setAdapter(adapter);
 
-        listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
-                        + ", ID: " + adapter.getItem(position).getEntityId() );
-                startChatActivityForID(adapter.getItem(position).getId());
-            }
-        });
+        if (onItemClickListener==null)
+        {
+            onItemClickListener = new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
+                            + ", ID: " + adapter.getItem(position).getEntityId() );
+                    startChatActivityForID(adapter.getItem(position).getId());
+                }
+            };
+        }
 
-        listThreads.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (DEBUG)
-                    Log.i(TAG, "Thread Long Selected: " + adapter.getItem(position).getName()
-                            + ", ID: " + adapter.getItem(position).getEntityId());
+        listThreads.setOnItemClickListener(onItemClickListener);
 
-                showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                        getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
+        if (onItemLongClickListener== null)
+        {
+            onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (DEBUG)
+                        Log.i(TAG, "Thread Long Selected: " + adapter.getItem(position).getName()
+                                + ", ID: " + adapter.getItem(position).getEntityId());
 
-                return true;
-            }
-        });
+                    showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                            getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
+
+                    return true;
+                }
+            };
+        }
+
+        listThreads.setOnItemLongClickListener(onItemLongClickListener);
     }
 
     @Override
@@ -105,15 +120,15 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
 
-        if (DEBUG) Log.d(TAG, "isLoggable: " + Log.isLoggable(TAG, Log.VERBOSE));
+        if (DEBUG) Log.d(TAG, "isLoggable: " + Log.isLoggable(TAG.substring(0, 21), Log.VERBOSE));
 
-        if (DEBUG) timings = new TimingLogger(TAG, "loadDataOnBackground");
+        if (DEBUG) timings = new TimingLogger(TAG.substring(0, 21), "loadDataOnBackground");
 
-        if (DEBUG) Log.v(TAG, "loadDataOnBackground");
+        if (DEBUG) Log.v(TAG.substring(0, 21), "loadDataOnBackground");
 
         if (mainView == null)
         {
-            if (DEBUG) Log.e(TAG, "Main view is null");
+            if (DEBUG) Log.e(TAG.substring(0, 21), "Main view is null");
             return;
         }
 
@@ -171,7 +186,7 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
             }
         };
 
-        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 41);
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 4);
     }
 
     @Override
@@ -195,8 +210,8 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
             if (uiUpdater != null)
                 uiUpdater.setKilled(true);
 
-            adapter.notifyDataSetChanged();
             adapter.getListData().clear();
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -218,7 +233,7 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
                     if (DEBUG) {
                         timings.addSplit("Updating UI");
                         timings.dumpToLog();
-                        timings.reset(TAG, "loadDataOnBackground");
+                        timings.reset(TAG.substring(0, 21), "loadDataOnBackground");
                     }
                     break;
             }
@@ -227,6 +242,9 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!inflateMenuItems)
+            return;
+
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Conversation");
@@ -236,6 +254,9 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+
+        if (!inflateMenuItems)
+            return super.onOptionsItemSelected(item);
 
         /* Cant use switch in the library*/
         int id = item.getItemId();
@@ -252,6 +273,8 @@ public class AbstractConversationsFragment extends ChatSDKBaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        loadDataOnBackground();
 
         BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
 
