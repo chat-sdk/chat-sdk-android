@@ -96,7 +96,7 @@
         jar="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="2a184f0bdce0e6b63463ace158b71f7d21b36fb6"/>
+        sha1="5f19654c8eba3e4e1249c0c80ab29b39522fbb2c"/>
     <item
         dex="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/jackson-annotations-2.2.2-8e9d262ff9b187d4bf79d40fd7ac034e47132f09.jar"
         jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.2.2/285cb9c666f0f0f3dd8a1be04e1f457eb7b15113/jackson-annotations-2.2.2.jar"

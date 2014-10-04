@@ -59,9 +59,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     /** Loading all users for given thread id mode*/
     public static final int MODE_LOAD_THREAD_USERS = 1992;
 
-    private static final int MODE_LOAD_FOLLOWERS = 1993;
+    public static final int MODE_LOAD_FOLLOWERS = 1993;
 
-    private static final int MODE_LOAD_FOLLOWING = 1994;
+    public static final int MODE_LOAD_FOLLOWS = 1994;
 
     /** Using the users that was given to the fragment in to initializer;*/
     public static final int MODE_USE_SOURCE = 1995;
@@ -475,6 +475,14 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     users1.removeAll(threadUser);
                     sourceUsers = users1;
                     break;
+
+                case MODE_LOAD_FOLLOWERS:
+                    sourceUsers = getNetworkAdapter().currentUser().getFollowers();
+                    break;
+
+                case MODE_LOAD_FOLLOWS:
+                    sourceUsers = getNetworkAdapter().currentUser().getFollows();
+                    break;
             }
     }
 
@@ -483,8 +491,8 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume, TAG: " + eventTAG);
 
-        BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserEvent, handler);
-        userDetailsBatch.setBatchedAction(Event.Type.UserEvent, 1000, new Batcher.BatchedAction<String>() {
+        BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserDetailsEvent, handler);
+        userDetailsBatch.setBatchedAction(Event.Type.UserDetailsEvent, 1000, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
                 if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");

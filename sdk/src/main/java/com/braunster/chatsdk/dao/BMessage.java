@@ -409,7 +409,6 @@ public class BMessage extends BMessageEntity  {
     public boolean wasRead(){
         return isRead==null || isRead;
     }
-
     // KEEP METHODS END
 
 }

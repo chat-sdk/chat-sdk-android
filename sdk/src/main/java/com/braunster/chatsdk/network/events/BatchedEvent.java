@@ -45,7 +45,7 @@ public class BatchedEvent extends Event{
                 threadBatch = new Batcher(action, interval, handler);
                 break;
 
-            case UserEvent:
+            case UserDetailsEvent:
                 userDetailsBatcher = new Batcher(action, interval, handler);
                 break;
         }
@@ -57,6 +57,10 @@ public class BatchedEvent extends Event{
 
     public void setBatchedAction(Type type, long interval, Batcher.BatchedAction<String> batchedAction) {
         initBatcher(type, batchedAction, interval);
+    }
+
+    public void add(Type type){
+        add(type, null);
     }
 
     public void add(Type type, String entityID){
@@ -84,7 +88,7 @@ public class BatchedEvent extends Event{
                 threadBatch.add(entityID);
                 break;
 
-            case UserEvent:
+            case UserDetailsEvent:
                 userDetailsBatcher.add(entityID);
                 break;
         }

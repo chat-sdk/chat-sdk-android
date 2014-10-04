@@ -292,7 +292,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
             }
         });
 
-        batchedEvents.setBatchedAction(Event.Type.UserEvent, new Batcher.BatchedAction<String>() {
+        batchedEvents.setBatchedAction(Event.Type.UserDetailsEvent, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
                 if (DEBUG) Log.v(TAG, "onUserDetailsChange");

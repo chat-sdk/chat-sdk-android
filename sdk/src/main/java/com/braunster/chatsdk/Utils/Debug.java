@@ -58,4 +58,6 @@ public class Debug {
     public static final boolean ThreadDetailsChangeListener = false;
     public static final boolean UserAddedToThreadListener = false;
     public static final boolean UserDetailsChangeListener = false;
+    public static final boolean FollowerAddedListener = true;
+    public static final boolean UserToFollowAddedListener = true;
 }

@@ -25,6 +25,7 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig bMessageDaoConfig;
     private final DaoConfig bThreadDaoConfig;
     private final DaoConfig bLinkDataDaoConfig;
+    private final DaoConfig bFollowerDaoConfig;
 
     private final BUserDao bUserDao;
     private final BLinkedAccountDao bLinkedAccountDao;
@@ -33,6 +34,7 @@ public class DaoSession extends AbstractDaoSession {
     private final BMessageDao bMessageDao;
     private final BThreadDao bThreadDao;
     private final BLinkDataDao bLinkDataDao;
+    private final BFollowerDao bFollowerDao;
 
     public DaoSession(SQLiteDatabase db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
@@ -59,6 +61,9 @@ public class DaoSession extends AbstractDaoSession {
         bLinkDataDaoConfig = daoConfigMap.get(BLinkDataDao.class).clone();
         bLinkDataDaoConfig.initIdentityScope(type);
 
+        bFollowerDaoConfig = daoConfigMap.get(BFollowerDao.class).clone();
+        bFollowerDaoConfig.initIdentityScope(type);
+
         bUserDao = new BUserDao(bUserDaoConfig, this);
         bLinkedAccountDao = new BLinkedAccountDao(bLinkedAccountDaoConfig, this);
         bLinkedContactDao = new BLinkedContactDao(bLinkedContactDaoConfig, this);
@@ -66,6 +71,7 @@ public class DaoSession extends AbstractDaoSession {
         bMessageDao = new BMessageDao(bMessageDaoConfig, this);
         bThreadDao = new BThreadDao(bThreadDaoConfig, this);
         bLinkDataDao = new BLinkDataDao(bLinkDataDaoConfig, this);
+        bFollowerDao = new BFollowerDao(bFollowerDaoConfig, this);
 
         registerDao(BUser.class, bUserDao);
         registerDao(BLinkedAccount.class, bLinkedAccountDao);
@@ -74,6 +80,7 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(BMessage.class, bMessageDao);
         registerDao(BThread.class, bThreadDao);
         registerDao(BLinkData.class, bLinkDataDao);
+        registerDao(BFollower.class, bFollowerDao);
     }
     
     public void clear() {
@@ -84,6 +91,7 @@ public class DaoSession extends AbstractDaoSession {
         bMessageDaoConfig.getIdentityScope().clear();
         bThreadDaoConfig.getIdentityScope().clear();
         bLinkDataDaoConfig.getIdentityScope().clear();
+        bFollowerDaoConfig.getIdentityScope().clear();
     }
 
     public BUserDao getBUserDao() {
@@ -112,6 +120,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public BLinkDataDao getBLinkDataDao() {
         return bLinkDataDao;
+    }
+
+    public BFollowerDao getBFollowerDao() {
+        return bFollowerDao;
     }
 
 }

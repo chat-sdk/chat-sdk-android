@@ -3,6 +3,7 @@ package com.braunster.chatsdk.network.firebase;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
@@ -152,7 +153,6 @@ public class BFirebaseInterface {
             });
         }
         else  try {
-            // ASK i think this is the right behavior wanted
             // Call the method to push the entity,
             // If entity selected is null use the entity given in the "impl_pushEntity" call.
             new pushEntity( (entity) , listener).call();
@@ -414,6 +414,34 @@ public class BFirebaseInterface {
             else return childrenFromSnapshot(dataSnapshot);
         }
         // ---------------
+        // Follower Class Type.
+        else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollowers))
+        {
+            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollowers");
+            String followerFirebaseID = path.idForIndex(1);
+            String userFirebaseID = path.idForIndex(0);
+
+            if (StringUtils.isNotEmpty(followerFirebaseID))
+            {
+                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, BFollower.Type.FOLLOWER);
+            }
+            else return childrenFromSnapshot(dataSnapshot);
+        }
+        // ---------------
+        // Follower Class Type.
+        else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollows))
+        {
+            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollows");
+            String followerFirebaseID = path.idForIndex(1);
+            String userFirebaseID = path.idForIndex(0);
+
+            if (StringUtils.isNotEmpty(followerFirebaseID))
+            {
+                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, BFollower.Type.FOLLOWS);
+            }
+            else return childrenFromSnapshot(dataSnapshot);
+        }
+        // ---------------
         // Metadata Class Type.
         else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BMetaPath))
         {
@@ -512,6 +540,8 @@ public class BFirebaseInterface {
             }
             else return childrenFromSnapshot(dataSnapshot);
         }
+
+
         return null;
     }
 
@@ -668,6 +698,24 @@ public class BFirebaseInterface {
         }
     }
 
+    private static class GetFollowerCall implements Callable<BFollower>{
+        private String userEntityId, followerEntityId;
+        private int type = -1;
+
+        private GetFollowerCall(String userEntityId, String followerEntityId, int type) {
+            this.userEntityId = userEntityId;
+            this.followerEntityId = followerEntityId;
+            this.type = type;
+        }
+
+        @Override
+        public BFollower call() throws Exception {
+            BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userEntityId);
+            BUser followerUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followerEntityId);
+            return user.fetchOrCreateFollower(followerUser, type);
+        }
+    }
+
     private static class GetMessageCall implements Callable<BMessage>{
 
         private String messageFirebaseID, threadFirebaseID;
@@ -796,6 +844,16 @@ public class BFirebaseInterface {
             return DaoCore.daoSession.callInTx(new GetMessageCall(messageFirebaseID, threadFirebaseID, (Map<String, Object>) snapshot.getValue()));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "get message call exception, message: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static BFollower getFollower(DataSnapshot snapshot, String userFirebaseId, String followerFirebaseId, int followerType){
+        if (DEBUG) Log.v(TAG, "getFollower");
+        try {
+            return DaoCore.daoSession.callInTx(new GetFollowerCall(userFirebaseId, followerFirebaseId, followerType));
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "get follower call exception, follower: " + e.getMessage());
             return null;
         }
     }

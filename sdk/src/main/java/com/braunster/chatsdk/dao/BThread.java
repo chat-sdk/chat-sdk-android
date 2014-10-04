@@ -374,7 +374,7 @@ public class BThread extends BThreadEntity  {
 
             return name;
         }
-        else if (type == Type.Public)
+        else if (type == BThreadEntity.Type.Public)
             return name;
 
         return "No name available...";

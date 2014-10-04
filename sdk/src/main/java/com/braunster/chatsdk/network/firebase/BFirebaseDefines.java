@@ -18,6 +18,8 @@ public class BFirebaseDefines {
         public static final String BIndexPath = "index";
         public static final String BOnlinePath = "online";
         public static final String BMetaPath = "meta";
+        public static final String BFollowers = "followers";
+        public static final String BFollows = "follows";
     }
 
 

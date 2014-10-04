@@ -58,6 +58,7 @@ public class BUser extends BUserEntity  {
     private transient BUserDao myDao;
 
     private List<BLinkedContact> BLinkedContacts;
+    private List<BFollower> BFollowers;
     private List<BLinkedAccount> BLinkedAccounts;
     private List<BMetadata> Metadata;
     private List<BMessage> messages;
@@ -224,6 +225,28 @@ public class BUser extends BUserEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetBLinkedContacts() {
         BLinkedContacts = null;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<BFollower> getBFollowers() {
+        if (BFollowers == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            BFollowerDao targetDao = daoSession.getBFollowerDao();
+            List<BFollower> BFollowersNew = targetDao._queryBUser_BFollowers(id);
+            synchronized (this) {
+                if(BFollowers == null) {
+                    BFollowers = BFollowersNew;
+                }
+            }
+        }
+        return BFollowers;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetBFollowers() {
+        BFollowers = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -396,17 +419,17 @@ public class BUser extends BUserEntity  {
         // ASK should i mark this user as updated after this?
     }*/
 
-    @Override // Note Done!
+    @Override
     public BPath getPath() {
         return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
     }
 
-    @Override //Note done
+    @Override
     public Type getEntityType() {
         return Type.bEntityTypeUser;
     }
 
-    @Override //Note Done!
+    @Override
     public void updateFromMap(Map<String, Object> map) {
         if (map.containsKey(BDefines.Keys.BAuthenticationID) && StringUtils.isNotEmpty((CharSequence) map.get(BDefines.Keys.BAuthenticationID)))
             this.authenticationId = (String) map.get(BDefines.Keys.BAuthenticationID);
@@ -440,7 +463,7 @@ public class BUser extends BUserEntity  {
         lastUpdated = new Date();
     }
 
-    @Override //Note Done!
+    @Override
     public Map<String, Object> asMap() {
         Map<String , Object> map = new HashMap<String, Object>();
 
@@ -468,6 +491,18 @@ public class BUser extends BUserEntity  {
 
     public String[] getCacheIDs(){
         return new String[]{entityID != null ? entityID : "", authenticationId != null ? authenticationId : ""};
+    }
+
+    /** Get a link account of the user by type.
+     * @return BLinkedAccount if found
+     * @return null if no account found.*/
+    public BLinkedAccount getAccountWithType(int type){
+        for (BLinkedAccount account : getBLinkedAccounts())
+        {
+            if (account.getType() == type)
+                return account;
+        }
+        return null;
     }
 
     @Override
@@ -574,16 +609,74 @@ public class BUser extends BUserEntity  {
         }
     }
 
-    /** Get a link account of the user by type.
-     * @return BLinkedAccount if found
-     * @return null if no account found.*/
-    public BLinkedAccount getAccountWithType(int type){
-        for (BLinkedAccount account : getBLinkedAccounts())
+    /*##################################################*/
+    /*Following Fetching Logic*/
+    private BFollower fetchFollower(BUser follower, int type){
+        return DaoCore.fetchEntityWithProperties(BFollower.class,
+                new Property[]{BFollowerDao.Properties.BUserId, BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
+                follower.getId(), getId(),  type);
+    }
+
+    @Override
+    public List<BUser> getFollowers() {
+        List<BUser> users = new ArrayList<BUser>();
+
+        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
+                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
+                getId(), BFollower.Type.FOLLOWER);
+
+        for (BFollower f : followers)
         {
-            if (account.getType() == type)
-                return account;
+            if (f!=null)
+                users.add(f.getUser());
         }
-        return null;
+
+        return users;
+    }
+
+    @Override
+    public List<BUser> getFollows() {
+        List<BUser> users = new ArrayList<BUser>();
+
+        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
+                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
+                getId(), BFollower.Type.FOLLOWS);
+
+        for (BFollower f : followers)
+        {
+            if (f!=null)
+                users.add(f.getUser());
+        }
+
+        return users;
+    }
+
+    @Override
+    public BFollower fetchOrCreateFollower(BUser follower, int type) {
+
+        BFollower follows = fetchFollower(follower, type);
+
+        if (follows== null)
+        {
+            follows = new BFollower();
+
+            follows.setOwner(this);
+            follows.setUser(follower);
+            follows.setType(type);
+
+            follows = DaoCore.createEntity(follows);
+        }
+
+        return follows;
+    }
+
+    public boolean isFollowing(BUser user){
+        return fetchFollower(user, BFollower.Type.FOLLOWER) != null;
+    }
+
+
+    public boolean follows(BUser user){
+        return fetchFollower(user, BFollower.Type.FOLLOWS) != null;
     }
 
 
@@ -721,7 +814,7 @@ public class BUser extends BUserEntity  {
     }
 
     public BMetadata setMetadataImage( String key, File image) {
-       if (DEBUG) Log.v(TAG, "setMetaImage, FilePath: " + image.getPath());
+        if (DEBUG) Log.v(TAG, "setMetaImage, FilePath: " + image.getPath());
 
         BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
 

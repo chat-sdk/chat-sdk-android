@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
@@ -68,6 +69,7 @@ public class EventManager implements AppEvents {
     public List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
     public List<String> handledMessagesThreadsID = new ArrayList<String>();
     public List<String> usersIds = new ArrayList<String>();
+    public List<String> handleFollowDataChangeUsersId = new ArrayList<String>();
 
     public ConcurrentHashMap<String, FirebaseEventCombo> listenerAndRefs = new ConcurrentHashMap<String, FirebaseEventCombo>();
 
@@ -122,6 +124,26 @@ public class EventManager implements AppEvents {
                     if (notNull())
                         manager.get().onUserAddedToThread(msg.getData().getString(THREAD_ID), msg.getData().getString(USER_ID));
                     break;
+
+                case AppEvents.FOLLOWER_ADDED:
+                    if (notNull())
+                        manager.get().onFollowerAdded((BFollower) msg.obj);
+                    break;
+
+                case AppEvents.FOLLOWER_REMOVED:
+                    if (notNull())
+                        manager.get().onFollowerRemoved();
+                    break;
+
+                case AppEvents.USER_TO_FOLLOW_ADDED:
+                    if (notNull())
+                        manager.get().onUserToFollowAdded((BFollower) msg.obj);
+                    break;
+
+                case AppEvents.USER_TO_FOLLOW_REMOVED:
+                    if (notNull())
+                        manager.get().onUserToFollowRemoved();
+                    break;
             }
         }
 
@@ -160,6 +182,84 @@ public class EventManager implements AppEvents {
     }
 
     @Override
+    public boolean onFollowerAdded(final BFollower follower) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                handleUsersDetailsChange(follower.getUser().getEntityID());
+            }
+        });
+
+        if (follower!=null)
+            for (Event e : events.values())
+            {
+                if (e == null)
+                    continue;
+
+                if(e instanceof BatchedEvent)
+                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
+
+                e.onFollowerAdded(follower);
+            }
+        return false;
+    }
+
+    @Override
+    public boolean onFollowerRemoved() {
+        for (Event e : events.values())
+        {
+            if (e == null)
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.FollwerEvent);
+
+            e.onFollowerRemoved();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onUserToFollowAdded(final BFollower follower) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                handleUsersDetailsChange(follower.getUser().getEntityID());
+            }
+        });
+
+        if (follower!=null)
+            for (Event e : events.values())
+            {
+                if (e == null)
+                    continue;
+
+                if(e instanceof BatchedEvent)
+                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
+
+                e.onUserToFollowAdded(follower);
+            }
+        return false;
+    }
+
+    @Override
+    public boolean onUserToFollowRemoved() {
+        for (Event e : events.values())
+        {
+            if (e == null)
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.FollwerEvent);
+
+            e.onUserToFollowRemoved();
+        }
+        return false;
+    }
+
+    @Override
     public boolean onUserDetailsChange(BUser user) {
         if (DEBUG) Log.i(TAG, "onUserDetailsChange");
         if (user == null)
@@ -177,7 +277,7 @@ public class EventManager implements AppEvents {
 
 
             if(e instanceof BatchedEvent)
-                ((BatchedEvent) e).add(Event.Type.UserEvent, user.getEntityID());
+                ((BatchedEvent) e).add(Event.Type.UserDetailsEvent, user.getEntityID());
 
             e.onUserDetailsChange(user);
         }
@@ -358,6 +458,23 @@ public class EventManager implements AppEvents {
         userRef.addValueEventListener(combo.getListener());
     }
 
+    private void handleUserFollowDataChange(String userID){
+        if (DEBUG) Log.v(TAG, "handleUserFollowDataChange, Entered. " + userID);
+
+
+        if (handleFollowDataChangeUsersId.contains(userID))
+        {
+            if (DEBUG) Log.v(TAG, "handleUserFollowDataChange, Listening." + userID);
+            return;
+        }
+
+        handleFollowDataChangeUsersId.add(userID);
+
+        final FirebasePaths userRef = FirebasePaths.userRef(userID);
+
+
+    }
+
     /** Handle incoming messages for thread.*/
     private void handleMessages(String threadId){
         // Check if handled.
@@ -441,6 +558,9 @@ public class EventManager implements AppEvents {
                 .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
                 .addChildEventListener(threadAddedListener);
 
+        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollowers).addChildEventListener(followerEventListener);
+        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
+
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
 
         post(new Runnable() {
@@ -483,7 +603,6 @@ public class EventManager implements AppEvents {
                     }
                 }
             });
-
         }
 
         //region Not used.
@@ -507,6 +626,81 @@ public class EventManager implements AppEvents {
 
         }
         //endregion
+    };
+
+    private ChildEventListener followerEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(final DataSnapshot snapshot, String s) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (DEBUG) Log.i(TAG, "Follower is added. SnapShot Ref: " + snapshot.getRef().toString());
+                    BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+
+                    handleUsersDetailsChange(follower.getUser().getEntityID());
+                }
+            });
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+            if (DEBUG) Log.i(TAG, "Follower is removed. SnapShot Ref: " + snapshot.getRef().toString());
+            BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+            DaoCore.deleteEntity(follower);
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError firebaseError) {
+
+        }
+    };
+
+    private ChildEventListener followsEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(final DataSnapshot snapshot, String s) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (DEBUG) Log.i(TAG, "Follower is added. SnapShot Ref: " + snapshot.getRef().toString());
+                    BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+
+                    handleUsersDetailsChange(follower.getUser().getEntityID());
+                }
+            });
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+            if (DEBUG) Log.i(TAG, "Follower is removed. SnapShot Ref: " + snapshot.getRef().toString());
+            BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+            if (DEBUG) Log.i(TAG, "Follower is removed. UserID: " + follower.getUser().getEntityID() + ", OwnerID: " + follower.getOwner().getEntityID());
+            DaoCore.deleteEntity(follower);
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError firebaseError) {
+
+        }
     };
 
     /** Check to see if the given thread id is already handled by this class.

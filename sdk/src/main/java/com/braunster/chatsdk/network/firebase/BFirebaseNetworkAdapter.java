@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
+import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BLinkedAccount;
@@ -523,12 +524,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override
     public void changePassword(String email, String oldPassword, String newPassword, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
-        getSimleSimpleLogin().changePassword(email, oldPassword, newPassword, simpleLoginCompletionHandler);
+        getSimpleSimpleLogin().changePassword(email, oldPassword, newPassword, simpleLoginCompletionHandler);
     }
 
     @Override
     public void sendPasswordResetMail(String email, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
-        getSimleSimpleLogin().sendPasswordResetEmail(email, simpleLoginCompletionHandler);
+        getSimpleSimpleLogin().sendPasswordResetEmail(email, simpleLoginCompletionHandler);
     }
 
     @Override
@@ -554,7 +555,7 @@ TODO
 */
     }
 
-    private SimpleLogin getSimleSimpleLogin(){
+    private SimpleLogin getSimpleSimpleLogin(){
         Firebase ref = FirebasePaths.firebaseRef();
         return new SimpleLogin(ref, context);
     }
@@ -888,11 +889,74 @@ TODO
             }
         });
     }
+
+    @Override/*TODO report success and error*/
+    public void followUser(final BUser userToFollow, final CompletionListener listener) {
+
+        if (!BDefines.EnableFollowers)
+            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
+
+        final BUser user = currentUser();
+
+        // Add the current user to the userToFollow "followers" path
+        FirebasePaths userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BFollowers).appendPathComponent(user.getEntityID());
+        if (DEBUG) Log.d(TAG, "followUser, userToFollowRef: " + userToFollowRef.toString());
+
+        userToFollowRef.setValue("null", new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError!=null)
+                {
+                    //TODO handle error.
+                }
+                else
+                {
+                    BFollower follows = user.fetchOrCreateFollower(userToFollow, BFollower.Type.FOLLOWS);
+
+                    // Add the user to follow to the current user follow
+                    FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getPath().getPath());
+                    if (DEBUG) Log.d(TAG, "followUser, curUserFollowsRef: " + curUserFollowsRef.toString());
+                    curUserFollowsRef.setValue("null", new Firebase.CompletionListener() {
+                        @Override
+                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                            if (listener!=null)
+                                listener.onDone();
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    @Override/*TODO report success and error*/
+    public void unFollowUser(BUser userToUnfollow, final CompletionListener listener) {
+        if (!BDefines.EnableFollowers)
+            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
+
+        final BUser user = currentUser();
+
+        // Remove the current user to the userToFollow "followers" path
+        FirebasePaths userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BFollowers).appendPathComponent(user.getEntityID());
+        if (DEBUG) Log.d(TAG, "followUser, userToFollowRef: " + userToFollowRef.toString());
+
+        userToFollowRef.removeValue();
+
+        BFollower follows = user.fetchOrCreateFollower(userToUnfollow, BFollower.Type.FOLLOWS);
+
+        // Add the user to follow to the current user follow
+        FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getPath().getPath());
+        if (DEBUG) Log.d(TAG, "followUser, curUserFollowsRef: " + curUserFollowsRef.toString());
+        curUserFollowsRef.removeValue();
+
+        DaoCore.deleteEntity(follows);
+    }
+
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see BFirebaseNetworkAdapter#PushMessageWithComplition}.*/
-    @Override //Note done!
+    @Override
     public void sendMessage(final BMessage message, final CompletionListenerWithData<BMessage> listener){
         if (DEBUG) Log.v(TAG, "sendMessage");
         if (message.getBThreadOwner() != null)
@@ -910,7 +974,7 @@ TODO
                     @Override
                     public void onDone() {
                         if (DEBUG) Log.d(TAG, "sendMessage, OnDone");
-                        new PushMessageWithComplition(message, listener);
+                        new PushMessageWithCompletion(message, listener);
                     }
 
                     @Override
@@ -926,16 +990,16 @@ TODO
                 for (BUser user : message.getBThreadOwner().getUsers())
                     currentUSer.addContact(user);
 
-                new PushMessageWithComplition(message, listener);
+                new PushMessageWithCompletion(message, listener);
             }
         } else if (DEBUG) Log.e(TAG, "Message doesn't have an owner thread.");
     }
 
     /** Push the message to the firebase server and update the thread. */
-    private class PushMessageWithComplition{
+    private class PushMessageWithCompletion {
 
-        public PushMessageWithComplition(final BMessage message, final CompletionListenerWithData<BMessage> listener){
-            if (DEBUG) Log.v(TAG, "PushMessageWithComplition");
+        public PushMessageWithCompletion(final BMessage message, final CompletionListenerWithData<BMessage> listener){
+            if (DEBUG) Log.v(TAG, "PushMessageWithCompletion");
 
             BFirebaseInterface.pushEntity(message, new RepetitiveCompletionListenerWithError() {
                 @Override
@@ -969,7 +1033,6 @@ TODO
             });
         }
     }
-
 
     /** Create thread for given users.
      *  When the thread is added to the server the "onMainFinished" will be invoked,
@@ -1332,6 +1395,9 @@ TODO
         setLastOnline(new Date());
     }
 
+
+
+    /*PUSH*/
     private void pushForMessage(BMessage message){
         if (DEBUG) Log.v(TAG, "pushForMessage");
         BUser currentUser = currentUser();
@@ -1378,6 +1444,33 @@ TODO
     private boolean pushEnabled(){
         return StringUtils.isNotEmpty(BDefines.APIs.ParseAppId) && StringUtils.isNotEmpty(BDefines.APIs.ParseClientKey);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
     * #pragma Push Notifications
 

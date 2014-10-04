@@ -15,11 +15,11 @@ public class Generator {
     // TODO set not null attribute to the properties that needs it.
     private static String outputDir = "../sdk/src/main/java";
 
-    private static Entity user, linkedAccount, thread, message, threadUsers, linkedContact, metaData;
+    private static Entity user, linkedAccount, thread, message, threadUsers, linkedContact, metaData, follower;
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(39,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(40,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -30,6 +30,7 @@ public class Generator {
         addMessages(schema);
         addThread(schema);
         addThreadUsers(schema);
+        addFollower(schema);
 
         setProperties();
 
@@ -69,6 +70,13 @@ public class Generator {
         linkedContact.addIdProperty();
         linkedContact.addStringProperty(EntityProperties.EntityID);
         linkedContact.addStringProperty(EntityProperties.AuthenticationID);
+    }
+
+    private static void addFollower(Schema schema) {
+        follower = schema.addEntity(EntityProperties.BFollower);
+        follower.addIdProperty();
+        follower.addStringProperty(EntityProperties.EntityID);
+        follower.addIntProperty(EntityProperties.Type);
     }
 
     private static void addMetaData(Schema schema) {
@@ -115,6 +123,14 @@ public class Generator {
     //endregion
 
     private static void setProperties(){
+        Property userPropOwner = follower.addLongProperty(EntityProperties.OwnerId).getProperty();
+        ToOne toOneUserPropOwner = follower.addToOne(user, userPropOwner);
+        toOneUserPropOwner.setName(EntityProperties.Owner);
+
+        Property userPropUser = follower.addLongProperty(EntityProperties.BUserId).getProperty();
+        ToOne toOneUserPropUser = follower.addToOne(user, userPropUser);
+        toOneUserPropUser.setName(EntityProperties.User);
+
         // LinkedContact, LinkedAccount and MetaData - START
         Property userProp = linkedContact.addLongProperty(EntityProperties.Owner).getProperty();
         ToOne toOneUserProp = linkedContact.addToOne(user, userProp);
@@ -160,6 +176,9 @@ public class Generator {
         ToMany contacts = user.addToMany(linkedContact, userProp);
         contacts.setName(EntityProperties.BLinkedContacts);
 
+        ToMany followers = user.addToMany(follower, userProp);
+        followers.setName(EntityProperties.BFollowers);
+
         ToMany accounts = user.addToMany(linkedAccount, userProp2);
         accounts.setName(EntityProperties.BLinkedAccounts);
 
@@ -200,5 +219,6 @@ public class Generator {
         linkedContact.setSuperclass("Entity<BLinkedContact>");
         metaData.setSuperclass("BMetadataEntity");
         threadUsers.setSuperclass("Entity<BLinkData>");
+        follower.setSuperclass("BFollowerEntity");
     }
 }

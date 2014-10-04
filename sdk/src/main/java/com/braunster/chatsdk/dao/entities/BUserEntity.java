@@ -2,6 +2,7 @@ package com.braunster.chatsdk.dao.entities;
 
 import android.graphics.Bitmap;
 
+import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -63,6 +64,8 @@ public abstract class BUserEntity extends Entity<BUser> {
 
     public abstract void addContact(BUser user);
 
+    public abstract BFollower fetchOrCreateFollower(BUser follower, int type);
+
     public abstract void addMetaDataObject(BMetadata metadata);
 
     public abstract Bitmap getThumnail();
@@ -86,6 +89,10 @@ public abstract class BUserEntity extends Entity<BUser> {
     public abstract String getMetaEmail();
 
     public abstract String getThumbnailPictureURL();
+
+    public abstract List<BUser> getFollowers();
+
+    public abstract List<BUser> getFollows();
 /*    public abstract BMetadata fetchOrCreateMetadataForKey(String key, int type);*/
 
 

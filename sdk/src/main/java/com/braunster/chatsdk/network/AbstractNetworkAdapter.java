@@ -122,6 +122,11 @@ public abstract class AbstractNetworkAdapter {
     /** Send a reset email request to the server.*/
     public abstract void sendPasswordResetMail(String email, SimpleLoginCompletionHandler simpleLoginCompletionHandler);
 
+    /*######################################################################################################*/
+   /*Followers*/
+    public abstract void followUser(BUser userToFollow, CompletionListener listener);
+
+    public abstract void unFollowUser(BUser userToUnfollow, CompletionListener listener);
 /*######################################################################################################*/
     /*Messages*/
     /**
@@ -314,7 +319,7 @@ public abstract class AbstractNetworkAdapter {
         });
     }
 
-     /**
+    /**
      * Preparing a location message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
      * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
@@ -381,7 +386,7 @@ public abstract class AbstractNetworkAdapter {
         {
             if (onePerThread)
             {
-                if(t.isLastMessageWasRead())
+                if(!t.isLastMessageWasRead())
                     count++;
             }
             else
@@ -393,7 +398,7 @@ public abstract class AbstractNetworkAdapter {
         return count;
     }
 
-/*######################################################################################################*/
+    /*######################################################################################################*/
     /*Index*/
     public abstract void usersForIndex(String index, RepetitiveCompletionListener<BUser> listener);
 
@@ -676,7 +681,7 @@ public abstract class AbstractNetworkAdapter {
         addUsersToThread(thread, Arrays.asList(users), listener);
     }
 
-/*######################################################################################################*/
+    /*######################################################################################################*/
     /*Getter And Setters*/
     public abstract void setLastOnline(Date date);
 

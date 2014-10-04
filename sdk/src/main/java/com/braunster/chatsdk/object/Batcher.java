@@ -70,7 +70,8 @@ public class Batcher<T> {
     }
 
     public boolean add(T t){
-        stash.add(t);
+        if (t!=null)
+            stash.add(t);
 
         if (!pulled)
         {

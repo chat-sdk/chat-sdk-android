@@ -14,13 +14,16 @@ public class EntityProperties {
     public static final String BLinkedAccount = "BLinkedAccount";
     public static final String BLinkedContact = "BLinkedContact";
     public static final String BLinkData = "BLinkData";
+    public static final String BFollower = "BFollower";
 
     /* General*/
 
     public static final String EntityID = "entityID";
     public static final String Owner = "Owner";
+    public static final String OwnerId = "OwnerId";
     public static final String Owner_ID = "OwnerID";
     public static final String Name = "name";
+    public static final String BUserId = "BUserId";
     public static final String Type = "type";
     public static final String LastUpdated = "lastUpdated";
     public static final String Messages = "messages";
@@ -29,16 +32,13 @@ public class EntityProperties {
     public static final String Dirty = "dirty";
     public static final String AuthenticationID = "authenticationId";
     public static final String LastOnline = "lastOnline";
-    public static final String PictureExists = "pictureExist";
-    public static final String PictureURL = "pictureURL";
-    public static final String Threads = "threads";
-    public static final String BUser_FirebaseID = "BUser_FirebaseID";
     public static final String Online = "Online";
     public static final String AuthenticationType = "AuthenticationType";
     public static final String ThreadsCreated = "threadsCreated";
     public static final String MessageColor = "messageColor";
     public static final String BLinkedContacts = "BLinkedContacts";
     public static final String BLinkedAccounts = "BLinkedAccounts";
+    public static final String BFollowers = "BFollowers";
 
     /* Message*/
     public static final String Date = "date";
@@ -57,7 +57,6 @@ public class EntityProperties {
     public static final String CreationDate = "creationDate";
     public static final String HasUnreadMessaged = "hasUnreadMessages";
     public static final String LastMessageAdded = "LastMessageAdded";
-    public static final String Users = "users";
     public static final String Creator = "creator";
     public static final String CreatorID = "creator_ID";
 

@@ -30,6 +30,7 @@ public class BDefines {
     public static final String ContactDeveloper_Subject = "Report: ";
     public static final String ContactDeveloper_DialogTitle = "Contact Developer";
 
+    public static boolean EnableFollowers = true;
 
     public static final class Defaults{
         public static final String MessageColor = "0.635294 0.552941 0.686275 1";
