@@ -490,7 +490,6 @@ public class EventManager implements AppEvents {
 
         List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
-
         IncomingMessagesListener incomingMessagesListener = new IncomingMessagesListener(handler);
 
         // If the message exists we only listen for newer messages
@@ -637,6 +636,7 @@ public class EventManager implements AppEvents {
                     if (DEBUG) Log.i(TAG, "Follower is added. SnapShot Ref: " + snapshot.getRef().toString());
                     BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
 
+                    onFollowerAdded(follower);
                     handleUsersDetailsChange(follower.getUser().getEntityID());
                 }
             });
@@ -652,6 +652,7 @@ public class EventManager implements AppEvents {
             if (DEBUG) Log.i(TAG, "Follower is removed. SnapShot Ref: " + snapshot.getRef().toString());
             BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
             DaoCore.deleteEntity(follower);
+            onFollowerRemoved();
         }
 
         @Override
@@ -674,6 +675,7 @@ public class EventManager implements AppEvents {
                     if (DEBUG) Log.i(TAG, "Follower is added. SnapShot Ref: " + snapshot.getRef().toString());
                     BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
 
+                    onUserToFollowAdded(follower);
                     handleUsersDetailsChange(follower.getUser().getEntityID());
                 }
             });
@@ -690,6 +692,7 @@ public class EventManager implements AppEvents {
             BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
             if (DEBUG) Log.i(TAG, "Follower is removed. UserID: " + follower.getUser().getEntityID() + ", OwnerID: " + follower.getOwner().getEntityID());
             DaoCore.deleteEntity(follower);
+            onUserToFollowRemoved();
         }
 
         @Override
@@ -759,6 +762,9 @@ public class EventManager implements AppEvents {
                 .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
                 .removeEventListener(threadAddedListener);
 
+        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
+        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
+
         observedUserEntityID = "";
 
         FirebasePaths.publicThreadsRef().removeEventListener(threadAddedListener);
@@ -793,6 +799,7 @@ public class EventManager implements AppEvents {
         usersIds.clear();
         handledMessagesThreadsID.clear();
         handledAddedUsersToThreadIDs.clear();
+        handleFollowDataChangeUsersId.clear();
     }
 
     /*##########################################################################################*/

@@ -10,14 +10,9 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.bugsense.trace.BugSenseHandler;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -28,19 +23,19 @@ public class BNetworkManager {
     private static final boolean DEBUG = Debug.BNetworkManager;
 
     private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
-    public static final boolean BUGSENSE_ENABLED = false;
+    public static final boolean BUGSENSE_ENABLED = false, PushEnabledDefaultValue = true;
 
-    public static SharedPreferences preferences;
+    public static SharedPreferences preferences, userPreferences;
 
     private static BNetworkManager instance;
 
-    private HashSet<ActivityListener> listeners = new HashSet<ActivityListener>();
-
-    private List<ActivityListener> activityListeners= new ArrayList<ActivityListener>();
-
     private AbstractNetworkAdapter networkAdapter;
 
+    private static Context context;
+
     public static void init(Context ctx){
+        context = ctx;
+
         preferences = ctx.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
         VolleyUtils.init(ctx);
         DaoCore.init(ctx);
@@ -60,19 +55,9 @@ public class BNetworkManager {
 
         if (adb == 0 || BNetworkManager.BUGSENSE_ENABLED) {
             BugSenseHandler.initAndStartSession(ctx, BDefines.APIs.BugSenseKey);
-            BugSenseHandler.addCrashExtraData("Version", ctx.getResources().getString(R.string.chat_sdk_version));
+            BugSenseHandler.addCrashExtraData("Version", ctx.getResources().getString(R.string.chat_sdk_version_name));
         }
-
-/*        Bitmap[] bubbles = Utils.ImageSaver.fetchOrCreateBubbleForColor(ctx,
-                Utils.getColorFromDec(BDefines.Defaults.MessageColor));
-
-        VolleyUtills.getBitmapCache().put(Left_Bubble_Key, bubbles[0]);
-        VolleyUtills.getBitmapCache().put(Right_Bubble_Key, bubbles[1]);*/
     }
-
-    public static final String Left_Bubble_Key = "left_bubble2";
-    public static final String Right_Bubble_Key = "right_bubble2";
-
     public static BNetworkManager sharedManager(){
 //        if (DEBUG) Log.v(TAG, "sharedManager");
         if (instance == null) {
@@ -87,5 +72,14 @@ public class BNetworkManager {
 
     public AbstractNetworkAdapter getNetworkAdapter() {
         return networkAdapter;
+    }
+
+    /** Always safe to call*/
+    public static SharedPreferences getUserPrefs(String entityId){
+        return context.getSharedPreferences(entityId, Context.MODE_PRIVATE);
+    }
+    /** Safe to call after login.*/
+    public static SharedPreferences getCurrentUserPrefs(){
+        return context.getSharedPreferences(sharedManager().getNetworkAdapter().currentUser().getEntityID(), Context.MODE_PRIVATE);
     }
 }

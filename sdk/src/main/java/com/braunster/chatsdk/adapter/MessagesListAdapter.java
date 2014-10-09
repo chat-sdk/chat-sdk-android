@@ -425,7 +425,7 @@ public class MessagesListAdapter extends BaseAdapter{
         {
             // Getting the dimensions of the image so we can calc it final size and prepare room for it in the list view.
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) image.getLayoutParams();
-            params.width = (int) (message.dimensions[0] + image.getImagePadding() + image.getPointSize());
+            params.width = (int) (message.dimensions[0] + image.getImagePadding() + image.getTipSize());
             params.height = message.dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
 

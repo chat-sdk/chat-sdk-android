@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="firebase-client-jvm-1.0.17">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/sdk/libs/firebase-client-jvm-1.0.17.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

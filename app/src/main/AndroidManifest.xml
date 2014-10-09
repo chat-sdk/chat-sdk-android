@@ -25,6 +25,14 @@
             </intent-filter>
         </activity>
 
+        <!-- Parse -->
+        <receiver android:name="com.braunster.chatsdk.parse.ChatSDKReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="com.braunster.chatsdk.parse.MESSAGE_RECEIVED"/>
+                <action android:name="com.braunster.chatsdk.parse.FOLLOWER_ADDED"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

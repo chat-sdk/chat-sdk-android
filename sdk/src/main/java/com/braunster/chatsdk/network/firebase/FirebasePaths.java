@@ -76,6 +76,14 @@ public class FirebasePaths extends Firebase{
         return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BOnlinePath);
     }
 
+    public static FirebasePaths userFollowsRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollows);
+    }
+
+    public static FirebasePaths userFollowersRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollowers);
+    }
+
     public static Map<String, Object> getMap(String[] keys,  Object...values){
         Map<String, Object> map = new HashMap<String, Object>();
 

@@ -1,20 +1,28 @@
 package com.braunster.chatsdk.fragments.abstracted;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.util.TimingLogger;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.adapter.AbstractThreadsListAdapter;
 import com.braunster.chatsdk.adapter.ThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
@@ -52,6 +60,12 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
     protected AdapterView.OnItemLongClickListener onItemLongClickListener;
     protected AdapterView.OnItemClickListener onItemClickListener;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        getActivity().registerReceiver(receiver, new IntentFilter(ChatSDKAbstractChatActivity.ACTION_CHAT_CLOSED));
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
     @Override
     public void initViews() {
@@ -274,7 +288,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
     public void onResume() {
         super.onResume();
 
-        loadDataOnBackground();
+//        loadDataOnBackground();
 
         BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
 
@@ -325,4 +339,24 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
     public void setAdapter(AbstractThreadsListAdapter adapter) {
         this.adapter = adapter;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            getActivity().unregisterReceiver(receiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ChatSDKAbstractChatActivity.ACTION_CHAT_CLOSED))
+            {
+                loadDataOnBackground();
+            }
+        }
+    };
 }

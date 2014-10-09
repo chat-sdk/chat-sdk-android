@@ -173,7 +173,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                 @Override
                 public void onDoneWithError(BError error) {
                     if (DEBUG) Log.d(TAG, "Check online failed!");
-                    startLoginActivity(true);
+                    onAuthenticationFailed();
                 }
             });
         }

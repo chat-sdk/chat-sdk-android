@@ -8,7 +8,7 @@ import static com.braunster.chatsdk.network.events.Event.Type.AppEvent;
 
 public class BatchedEvent extends Event{
 
-    private Batcher<String> threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher;
+    private Batcher<String> threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher, followerBatcher;
     private Handler handler;
 
     public BatchedEvent(String tag, String entityId, Type type) {
@@ -31,6 +31,7 @@ public class BatchedEvent extends Event{
                 threadAddedBatcher = new Batcher(action, interval, handler);
                 userDetailsBatcher = new Batcher(action, interval, handler);
                 MessageBatcher = new Batcher(action, interval, handler);
+                followerBatcher = new Batcher(action, interval, handler);
                 break;
 
             case MessageEvent:
@@ -47,6 +48,10 @@ public class BatchedEvent extends Event{
 
             case UserDetailsEvent:
                 userDetailsBatcher = new Batcher(action, interval, handler);
+                break;
+
+            case FollwerEvent:
+                followerBatcher = new Batcher(action, interval, handler);
                 break;
         }
     }
@@ -74,26 +79,38 @@ public class BatchedEvent extends Event{
                 threadAddedBatcher.add(entityID);
                 userDetailsBatcher.add(entityID);
                 MessageBatcher.add(entityID);
+                followerBatcher.add(entityID);
                 break;
 
             case MessageEvent:
+                if (MessageBatcher==null)
+                    return;
                 MessageBatcher.add(entityID);
                 break;
 
             case ThreadAddedEvent:
+                if (threadAddedBatcher==null)
+                    return;
                 threadAddedBatcher.add(entityID);
                 break;
 
             case ThreadEvent:
+                if (threadBatch==null)
+                    return;
                 threadBatch.add(entityID);
                 break;
 
             case UserDetailsEvent:
+                if (userDetailsBatcher==null)
+                    return;
                 userDetailsBatcher.add(entityID);
                 break;
+
+            case FollwerEvent:
+                if (followerBatcher==null)
+                    return;
+                followerBatcher.add(entityID);
+                break;
         }
-
-
-
     }
 }

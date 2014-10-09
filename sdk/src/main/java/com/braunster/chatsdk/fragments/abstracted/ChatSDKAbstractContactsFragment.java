@@ -32,6 +32,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
@@ -44,6 +45,7 @@ import com.braunster.chatsdk.object.UIUpdater;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -313,8 +315,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
                     if (progressBar.getVisibility() == View.VISIBLE)
                     {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        listView.setVisibility(View.VISIBLE);
+                        hideLoading();
                     }
 
                     setList();
@@ -477,13 +478,73 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     break;
 
                 case MODE_LOAD_FOLLOWERS:
-                    sourceUsers = getNetworkAdapter().currentUser().getFollowers();
+                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
+                    {
+                        sourceUsers = new ArrayList<BUser>();
+                        showLoading();
+                        getNetworkAdapter().getFollowers((String) extraData, new RepetitiveCompletionListener<BUser>() {
+                            @Override
+                            public boolean onItem(BUser item) {
+                                hideLoading();
+                                sourceUsers.add(item);
+                                adapter.addRow(item);
+                                return false;
+                            }
+
+                            @Override
+                            public void onDone() {
+                                adapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onItemError(Object object) {
+
+                            }
+                        });
+                    }
+                    else
+                        sourceUsers = getNetworkAdapter().currentUser().getFollowers();
                     break;
 
                 case MODE_LOAD_FOLLOWS:
-                    sourceUsers = getNetworkAdapter().currentUser().getFollows();
+                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
+                    {
+                        sourceUsers = new ArrayList<BUser>();
+                        showLoading();
+                        getNetworkAdapter().getFollows((String) extraData, new RepetitiveCompletionListener<BUser>() {
+                            @Override
+                            public boolean onItem(BUser item) {
+                                hideLoading();
+                                sourceUsers.add(item);
+                                adapter.addRow(item);
+                                return false;
+                            }
+
+                            @Override
+                            public void onDone() {
+
+                            }
+
+                            @Override
+                            public void onItemError(Object object) {
+
+                            }
+                        });
+                    }
+                    else
+                        sourceUsers = getNetworkAdapter().currentUser().getFollows();
                     break;
             }
+    }
+
+    private void showLoading(){
+        progressBar.setVisibility(View.VISIBLE);
+        listView.setVisibility(View.INVISIBLE);
+    }
+
+    private void hideLoading(){
+        progressBar.setVisibility(View.INVISIBLE);
+        listView.setVisibility(View.VISIBLE);
     }
 
     @Override

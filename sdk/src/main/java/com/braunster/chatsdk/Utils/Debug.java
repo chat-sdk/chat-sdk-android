@@ -32,7 +32,7 @@ public class Debug {
     /*Adapters*/
     public static final boolean FBFriendsListVolleyAdapter = false;
     public static final boolean MessagesListAdapter = false;
-    public static final boolean ThreadsListAdapter = true;
+    public static final boolean ThreadsListAdapter = false;
     public static final boolean UsersWithStatusListAdapter = false;
 
     /*Activities*/

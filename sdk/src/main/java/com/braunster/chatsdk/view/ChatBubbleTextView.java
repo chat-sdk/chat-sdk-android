@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
@@ -33,6 +35,8 @@ public class ChatBubbleTextView extends TextView {
 
     private int bubbleGravity = GRAVITY_LEFT, bubbleColor = BubbleDefaultColor, pressedColor = BubbleDefaultPressedColor;
 
+    private Drawable bubbleBackground = null;
+
     public ChatBubbleTextView(Context context) {
         super(context);
 
@@ -59,7 +63,12 @@ public class ChatBubbleTextView extends TextView {
         if (DEBUG) Log.v(TAG, "init");
         setWillNotDraw(false);
 
-        if (bubbleGravity == GRAVITY_LEFT)
+        if (bubbleBackground!=null){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+                setBackgroundDrawable(bubbleBackground);
+            else setBackground(bubbleBackground);
+        }
+        else if (bubbleGravity == GRAVITY_LEFT)
             setPadding((int) (15 * getResources().getDisplayMetrics().density), getPaddingTop(), getPaddingRight(), getPaddingBottom());
         else
             setPadding(getPaddingLeft(), getPaddingTop(), (int) (15 * getResources().getDisplayMetrics().density), getPaddingBottom());
@@ -77,6 +86,10 @@ public class ChatBubbleTextView extends TextView {
 
             // Bubble color. The color could be changed when loading the the image url.
             bubbleColor = a.getColor(R.styleable.ChatBubbleTextView_bubble_color, BubbleDefaultColor);
+
+            // Background
+            bubbleBackground = a.getDrawable(R.styleable.ChatBubbleImageView_bubble_background);
+
         } finally {
             a.recycle();
         }

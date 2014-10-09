@@ -231,7 +231,7 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
         public static List<ThreadListItem> makeList(List<BThread> threads){
             List<ThreadListItem > list = new ArrayList<ThreadListItem>();
             TimingLogger logger;
-            if (DEBUG) logger = new TimingLogger(TAG, "makeList");
+            if (DEBUG) logger = new TimingLogger(TAG.substring(0, 20), "makeList");
 
             int count= 0;
             for (BThread thread : threads)
@@ -243,7 +243,7 @@ public class AbstractThreadsListAdapter extends BaseAdapter {
 
             if (DEBUG){
                 logger.dumpToLog();
-                logger.reset(TAG, "makeList");
+                logger.reset(TAG.substring(0, 20), "makeList");
             }
             return list;
         }

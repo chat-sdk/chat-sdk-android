@@ -128,12 +128,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Parse -->
-        <receiver android:name="com.braunster.chatsdk.parse.ChatSDKReceiver" android:exported="false">
-            <intent-filter>
-                <action android:name="com.braunster.chatsdk.parse.MESSAGE_RECEIVED"/>
-            </intent-filter>
-        </receiver>
+
 
         <!-- Parse -->
         <service android:name="com.parse.PushService" />

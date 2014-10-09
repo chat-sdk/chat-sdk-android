@@ -10,7 +10,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
@@ -43,11 +45,11 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
     public final float MAX_WIDTH = 200 * getResources().getDisplayMetrics().density;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
-    private float pointSize = 4.2f * getResources().getDisplayMetrics().density;
+    private float tipSize = 4.2f * getResources().getDisplayMetrics().density;
 
     private int imagePadding = (int) (10 * getResources().getDisplayMetrics().density);
 
-    private float roundRadius = /*18.5f*/ 6f * getResources().getDisplayMetrics().density;
+    private float cornerRadius = /*18.5f*/ 6f * getResources().getDisplayMetrics().density;
 
     private boolean pressed = false;
 
@@ -61,7 +63,7 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
 
     private int bubbleGravity = GRAVITY_LEFT, bubbleColor = Color.BLACK, pressedColor = BubbleDefaultPressedColor;
 
-    private int rightBubbleResourceId = -1, leftBubbleResourceId = -1;
+    private Drawable bubbleBackground = null;
 
     public ChatBubbleImageView2(Context context) {
         super(context);
@@ -103,6 +105,12 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
             imagePadding = a.getDimensionPixelSize(R.styleable.ChatBubbleImageView_image_padding, imagePadding);
 
             showClickIndication = a.getBoolean(R.styleable.ChatBubbleImageView_bubble_with_click_indicator, false);
+
+            bubbleBackground = a.getDrawable(R.styleable.ChatBubbleImageView_bubble_background);
+
+            tipSize = a.getDimensionPixelSize(R.styleable.ChatBubbleImageView_bubble_tip_size, (int) tipSize);
+
+            cornerRadius = a.getDimensionPixelSize(R.styleable.ChatBubbleImageView_bubble_image_corner_radius, (int) cornerRadius);
         } finally {
             a.recycle();
         }
@@ -110,13 +118,21 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
     }
 
     private void init(){
-        if (bubbleGravity == GRAVITY_RIGHT)
-        {
-            setBackgroundResource(R.drawable.bubble_right);
+        if (bubbleBackground!=null){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+                setBackgroundDrawable(bubbleBackground);
+            else setBackground(bubbleBackground);
         }
         else
         {
-            setBackgroundResource(R.drawable.bubble_left);
+            if (bubbleGravity == GRAVITY_RIGHT)
+            {
+                setBackgroundResource(R.drawable.bubble_right);
+            }
+            else
+            {
+                setBackgroundResource(R.drawable.bubble_left);
+            }
         }
     }
 
@@ -148,7 +164,7 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
         }
         else
         {
-            canvas.drawBitmap(image, imagePadding /2 +  pointSize, imagePadding /2 , null);
+            canvas.drawBitmap(image, imagePadding /2 + tipSize, imagePadding /2 , null);
         }
     }
 
@@ -305,7 +321,7 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
             img = Bitmap.createScaledBitmap(img, width, height, true);
 
             // rounding the corners of the image.
-            img = getRoundedCornerBitmap(img, roundRadius);
+            img = getRoundedCornerBitmap(img, cornerRadius);
 
             // Out with the old
             VolleyUtils.getBitmapCache().remove(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl, 0, 0));
@@ -384,7 +400,7 @@ public class ChatBubbleImageView2 extends ImageView /*implements View.OnTouchLis
         return imagePadding;
     }
 
-    public float getPointSize() {
-        return pointSize;
+    public float getTipSize() {
+        return tipSize;
     }
 }

@@ -56,6 +56,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public static final String SHARE_LOCATION = "share_location";
     public static final String LAT = "lat", LNG = "lng";
 
+    public static final String READ_COUNT = "read_count";
+
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String SELECTED_FILE_PATH = "captured_photo_path";
 
@@ -73,6 +75,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private String mediaType = "";
 
     private double lat = 0, lng = 0;
+
+    /** Keeping track of the amount of messages that was read in this thread.*/
+    private int readCount = 0;
 
     private static final String TAG = ChatSDKChatHelper.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -272,7 +277,14 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         {
             m.setIsRead(true);
             DaoCore.updateEntity(m);
+            readCount++;
         }
+    }
+
+    public void markAsRead(BMessage message){
+        message.setIsRead(true);
+        DaoCore.updateEntity(message);
+        readCount++;
     }
 
     public void loadMessagesAndScrollBottom(){
@@ -479,8 +491,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 outState.putDouble(LNG, lng);
                 outState.putDouble(LAT, lat);
             }
-
         }
+
+        outState.putInt(READ_COUNT, readCount);
     }
 
     public void restoreSavedInstance(Bundle savedInstanceState){
@@ -493,6 +506,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         lng = savedInstanceState.getDouble(LNG, 0);
         lat = savedInstanceState.getDouble(LAT, 0);
 
+        readCount = savedInstanceState.getInt(READ_COUNT);
         savedInstanceState.remove(LNG);
         savedInstanceState.remove(LAT);
     }
@@ -663,5 +677,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public void setMessagesListAdapter(MessagesListAdapter messagesListAdapter) {
         this.messagesListAdapter = messagesListAdapter;
+    }
+
+    public int getReadCount() {
+        return readCount;
     }
 }

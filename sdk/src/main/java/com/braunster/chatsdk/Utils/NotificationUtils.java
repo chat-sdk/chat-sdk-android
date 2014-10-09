@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.parse.PushUtils;
@@ -42,10 +43,14 @@ public class NotificationUtils {
 
     /** Create and alert notification that the connection has lost.*/
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static void createAlertNotification(Context context, String tag, int id, Intent resultIntent, Bundle data){
+    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
+        createAlertNotification(context, id, resultIntent, data, android.R.drawable.ic_notification_overlay, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
+    }
+
+    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, int smallIconResID, Uri soundUri, int number){
         String title, content;
 
-        if (DEBUG) Log.i(TAG, "createAlertNotification, ID: " + id);
+        if (DEBUG) Log.i(TAG, "createAlertNotification, ID: " + id + ", Number: " + number);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -62,17 +67,15 @@ public class NotificationUtils {
             content = data.getString(CONTENT);
         else throw new MissingResourceException("you must have a content for creating notification.", NotificationUtils.class.getSimpleName(), CONTENT);
 
-        //Define sound URI - adding sound to the notification.
-        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
         Notification.Builder mBuilder =
                 new Notification.Builder(context)
-                        .setSmallIcon(android.R.drawable.ic_notification_overlay)
+                        .setSmallIcon(smallIconResID)
                         .setContentTitle(title)
                         .setContentText(content)
                         .setLights(0xFF0000FF, 500, 3000)
                         .setVibrate(new long[]{0, 250, 100, 250})
                         .setSound(soundUri)
+                        .setNumber(number)
                         .setContentIntent(resultPendingIntent);
 
         if (data.getString(TICKER) != null)
@@ -89,22 +92,21 @@ public class NotificationUtils {
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-   /*     // Builds the notification and issues it.
-        if (StringUtils.isNotEmpty(tag))
-        {
-            if (DEBUG) Log.d(TAG, "Notification with tag");
-            mNotifyMgr.notify(data.getString(NOT_TAG), id, notification);
-        }
-        else*/
-            mNotifyMgr.notify(id, notification);
-
-
+        mNotifyMgr.notify(id, notification);
     }
 
     public static void createMessageNotification(Context context, BMessage message){
+        createMessageNotification(context, message, android.R.drawable.ic_notification_overlay, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
+    }
+
+    public static void createMessageNotification(Context context, BMessage message, int smallIconResID, Uri soundUri, int number){
+        createMessageNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
+    }
+
+    public static void createMessageNotification(Context context, int id, BMessage message, int smallIconResID, Uri soundUri, int number){
         if (DEBUG) Log.v(TAG, "createMessageNotification");
 
-        Intent resultIntent = getResultIntent(context);
+        Intent resultIntent = getChatResultIntent(context);
         resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getOwnerThread());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
@@ -114,90 +116,18 @@ public class NotificationUtils {
 
         Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
 
-        createAlertNotification(context, message.getBThreadOwner().getEntityID(), PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent, data);
+        createAlertNotification(context, id, resultIntent, data, smallIconResID, soundUri, number);
     }
 
-    private static Intent getResultIntent(Context context){
-        return new Intent(context, ChatSDKChatActivity.class);
+    private static Intent getChatResultIntent(Context context){
+        return new Intent(context, ChatSDKUiHelper.getInstance().chatActivity);
     }
-
-    /** Create an ongoing notification that can terminate the connection or play/stop the sound directly from the notification drawer.*/
-    //region Ongoing Notification
-/*  public static void  createConnectedNotification(Context context, boolean isStreaming, boolean isServer){
-
-        if(DEBUG) Log.d(TAG, "createConnectedNotification, " + (isStreaming ? "Streaming" : "not streaming") );
-
-        // Build the notification characteristic.
-        Notification.Builder mBuilder;
-        mBuilder = new Notification.Builder(context)
-                .setSmallIcon(R.drawable.disconnect_btn);
-
-        // The view for the notification
-        RemoteViews contentView= new RemoteViews(context.getPackageName(), R.layout.notification_running_layout);
-
-        // Listener for disconnect button
-        Intent disconnectIntent =new Intent(TCPConnection.ACTION_CLOSE_CONNECTION);
-        PendingIntent disconnectPendingIntent = PendingIntent.getBroadcast(context, 1, disconnectIntent, 0);
-        contentView.setOnClickPendingIntent(R.id.btn_disconnect, disconnectPendingIntent);
-
-        // Listener for play/pause button
-        Intent playStopIntent =new Intent(TCPConnection.ACTION_TOGGLE_CONTROLLER);
-        // Extra which controller to use. Server use sound player client us recorder
-        playStopIntent.putExtra(TCPConnection.CONTROLLER,
-                isServer ? TCPConnection.CONTROLLER_SOUND_PLAYER : TCPConnection.CONTROLLER_SOUND_RECORDER);
-        // The action to do, opposite from the current state so if streaming, stop streaming.
-        playStopIntent.putExtra(TCPConnection.CONTROLLER_ACTION, !isStreaming);
-
-        PendingIntent playStopPendingIntent = PendingIntent.getBroadcast(context, 1, playStopIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        );
-
-        if (isStreaming)
-            contentView.setImageViewResource(R.id.btn_controller, R.drawable.stop_btn);
-        else
-            contentView.setImageViewResource(R.id.btn_controller, R.drawable.play_btn);
-
-        contentView.setOnClickPendingIntent(R.id.btn_controller, playStopPendingIntent);
-
-        // Listener for the text message
-        Intent messageIntent =new Intent(context, MonitorActivity.class);
-        PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 1, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        contentView.setOnClickPendingIntent(R.id.txt_message, messagePendingIntent);
-
-        // Notification Object from Builder
-        Notification notification;
-
-        if (Build.VERSION.SDK_INT < 16)
-            notification = mBuilder.getNotification();
-        else
-            notification = mBuilder.build();
-
-        // Add flag of ongoing event
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        // Set the content view of the notification to the xml.
-        notification.contentView = contentView;
-
-        NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(Activity.NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-
-        mNotifyMgr.notify(NOTIFICATION_CONNECTION_ID, notification);
-    }*/
-    //endregion
 
     /** Cancel the ongoing notification that controls the connection state and play/stop*/
     public static void cancelNotification(Context context, int id){
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.cancel(id);
-
-        // Canceling the pending intent.
-        PendingIntent pendingIntent = NotificationUtils.existAlarm(context, PushUtils.MESSAGE_NOTIFICATION_ID);
-        if (pendingIntent != null)
-        {
-            pendingIntent.cancel();
-            if (DEBUG) Log.e(TAG, "Pending intent exist" + pendingIntent.toString());
-        }
     }
 
     public static void cancelNotification(Context context, String tag, int id){
@@ -205,13 +135,6 @@ public class NotificationUtils {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotifyMgr.cancel(tag, id);
-    }
-
-    public static PendingIntent existAlarm(Context context, int id) {
-        Intent intent = getResultIntent(context);
-
-        PendingIntent test = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_NO_CREATE);
-        return test;
     }
 
     public static Bundle getDataBundle(String title, String ticker, String content){

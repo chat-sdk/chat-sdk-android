@@ -46,7 +46,7 @@ public class IncomingMessagesListener extends FirebaseGeneralEvent {
                     // Or if the date of the message is later then the creation of this object.
                     if (isNew)
                         bmessage.setIsRead(false);
-                    else if (creationTime > bmessage.getDate().getTime())
+                    else if (creationTime < bmessage.getDate().getTime())
                         bmessage.setIsRead(false);
 
 //                    if (DEBUG) Log.d(TAG, "IsNew: " + isNew + ", CreationTIme: " + creationTime + ", MsgDate: " + bmessage.getDate().getTime() + ", WasRead: " + bmessage.wasRead());

@@ -32,25 +32,9 @@ public class PushUtils {
     public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
     public static final String MESSAGE_TYPE = "message_type";
     public static final String MESSAGE_PAYLOAD= "message_payload";
+
     public static final int MESSAGE_NOTIFICATION_ID = 1000;
-
-/*    public static void sendMessage(String content, String channel){
-        if (DEBUG) Log.v(TAG, "sendMessage, Content: " +  content + ", Channel: " + channel);
-
-        JSONObject data = new JSONObject();
-        try {
-            data.put(ACTION, ChatSDKReceiver.MESSAGE_ACTION);
-            data.put(CONTENT, content);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
-        ParsePush push = new ParsePush();
-        push.setQuery(parseQuery);
-        push.setChannel(channel);
-        push.setData(data);
-        push.sendInBackground();
-    }*/
+    public static final int FOLLOWER_NOTIFICATION_ID = 1001;
 
     public static void sendMessage(BMessage message, Collection<String> channels){
 
@@ -66,7 +50,7 @@ public class PushUtils {
 
         JSONObject data = new JSONObject();
         try {
-            data.put(ACTION, ChatSDKReceiver.MESSAGE_ACTION);
+            data.put(ACTION, ChatSDKReceiver.ACTION_MESSAGE);
             data.put(CONTENT, text);
             data.put(MESSAGE_ENTITY_ID, message.getEntityID());
             data.put(THREAD_ENTITY_ID, message.getBThreadOwner().getEntityID());
@@ -82,6 +66,25 @@ public class PushUtils {
         ParsePush push = new ParsePush();
         push.setQuery(parseQuery);
         push.setChannels(channels);
+        push.setData(data);
+        push.sendInBackground();
+    }
+
+    /** @param channel The channel to push to.
+     * @param content The follow notification content.*/
+    public static void sendFollowPush(String channel, String content){
+        JSONObject data = new JSONObject();
+        try {
+            data.put(ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
+            data.put(CONTENT, content);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
+        ParsePush push = new ParsePush();
+        push.setQuery(parseQuery);
+        push.setChannel(channel);
         push.setData(data);
         push.sendInBackground();
     }

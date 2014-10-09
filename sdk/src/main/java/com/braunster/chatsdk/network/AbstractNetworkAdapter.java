@@ -124,6 +124,10 @@ public abstract class AbstractNetworkAdapter {
 
     /*######################################################################################################*/
    /*Followers*/
+    public abstract void getFollowers(String entityId, final RepetitiveCompletionListener<BUser> listener);
+
+    public abstract void getFollows(String entityId, final RepetitiveCompletionListener<BUser> listener);
+
     public abstract void followUser(BUser userToFollow, CompletionListener listener);
 
     public abstract void unFollowUser(BUser userToUnfollow, CompletionListener listener);
@@ -735,6 +739,8 @@ public abstract class AbstractNetworkAdapter {
                 keyValuesEditor.putInt(s, (Integer) values.get(s));
             else if (values.get(s) instanceof String)
                 keyValuesEditor.putString(s, (String) values.get(s));
+            else if (values.get(s) instanceof Boolean)
+                keyValuesEditor.putBoolean(s, (Boolean) values.get(s));
             else Log.e(TAG, "Cant add this --> " + values.get(s) + " to the prefs");
         }
 

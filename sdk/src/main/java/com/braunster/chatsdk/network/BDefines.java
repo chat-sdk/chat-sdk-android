@@ -81,6 +81,7 @@ public class BDefines {
         public static final String LoginEmailKey = "login-email";
         public static final String LoginTypeKey = "login-type";
         public static final String LoginPasswordKey = "login-password";
+        public static final String PushEnabled = "push-enabled";
     }
 
     public static final class Keys{

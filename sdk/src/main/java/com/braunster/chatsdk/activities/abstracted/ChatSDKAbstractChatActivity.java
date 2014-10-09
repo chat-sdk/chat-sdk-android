@@ -67,8 +67,10 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
     public static final int ADD_USERS = 103;
 
+    public static final String ACTION_CHAT_CLOSED = "braunster.chat.action.chat_closed";
+
     /** The message event listener tag, This is used so we could find and remove the listener from the EventManager.
-     * It will be removed when activity is paused. or when opend again for new thread.*/
+     * It will be removed when activity is paused. or when opened again for new thread.*/
     public static final String MessageListenerTAG = TAG + "MessageTAG";
     public static final String ThreadListenerTAG = TAG + "threadTAG";
 
@@ -383,8 +385,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 }
 
                 //Set as read.
-                message.setIsRead(true);
-                DaoCore.updateEntity(message);
+                chatSDKChatHelper.markAsRead(message);
 
                 boolean isAdded = messagesListAdapter.addRow(message);
 
@@ -545,6 +546,13 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (chatSDKChatHelper.getReadCount() > 0)
+            sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtils.getBitmapCache().size());
@@ -601,8 +609,6 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         return true;
     }
 
-
-
     /** Update chat current thread using the {@link ChatSDKAbstractChatActivity#data} bundle saved.
      *  Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
      *  Finally update the action bar for thread image and name, The update will occur only if needed so free to call.*/
@@ -611,7 +617,6 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         invalidateOptionsMenu();
         initActionBar();
     }
-
 
     /** show the option popup when the menu key is pressed.*/
     @Override

@@ -3,6 +3,7 @@ package com.braunster.chatsdk.network.firebase;
 import android.content.Context;
 import android.util.Log;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BFollower;
@@ -230,10 +231,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         // Save the authentication ID for the current user
         // Set the current user
-        Map<String, Object> loginInfoMap = new HashMap<String, Object>();
+        final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
         loginInfoMap.put(Prefs.AuthenticationID, aid);
         loginInfoMap.put(Prefs.AccountTypeKey, fuser.getProvider().ordinal());
-        setLoginInfo(loginInfoMap);
 
         final BUser user = DaoCore.fetchOrCreateUserWithAuthenticationID(aid);
         user.setAuthenticationType(fuser.getProvider().ordinal());
@@ -242,6 +242,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 new CompletionListenerWithDataAndError<BUser, FirebaseError>() {
                     @Override
                     public void onDone(BUser buser) {
+                        loginInfoMap.put(Prefs.PushEnabled,
+                                BNetworkManager.getUserPrefs(buser.getEntityID()).getBoolean(Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue));
+
+                        setLoginInfo(loginInfoMap);
 
                         updateUserFromFUser(buser, fuser);
 
@@ -535,6 +539,8 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public void logout() {
 
+        BUser user = currentUser();
+
         /* No need to logout from facebook due to the fact that the logout from facebook event will trigger this event.
         *  The logout from fb is taking care of by the fb login button.*/
         setAuthenticated(false);
@@ -542,17 +548,17 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Stop listening to user related alerts. (added message or thread.)
         EventManager.getInstance().removeAll();
 
+        // Removing the push channel
+        unsubscribeToPushChannel(user.getPushChannel());
+
         // Obtaining the simple login object from the ref.
         SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef(), context);
+
         // Login out
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(currentUser().getEntityID());
+        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
         userOnlineRef.setValue(false);
         simpleLogin.logout();
- /*
-TODO
-        // Post a notification
-        [[NSNotificationCenter defaultCenter] postNotificationName:bLogoutNotification object:Nil];
-*/
+
     }
 
     private SimpleLogin getSimpleSimpleLogin(){
@@ -798,7 +804,6 @@ TODO
                         else listener.onDone();
                     }
                 });
-
             }
         });
     }
@@ -890,6 +895,8 @@ TODO
         });
     }
 
+    /*######################################################################################################*/
+    /*Followers*/
     @Override/*TODO report success and error*/
     public void followUser(final BUser userToFollow, final CompletionListener listener) {
 
@@ -913,12 +920,18 @@ TODO
                 {
                     BFollower follows = user.fetchOrCreateFollower(userToFollow, BFollower.Type.FOLLOWS);
 
+                    user.addContact(userToFollow);
+
                     // Add the user to follow to the current user follow
                     FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getPath().getPath());
                     if (DEBUG) Log.d(TAG, "followUser, curUserFollowsRef: " + curUserFollowsRef.toString());
                     curUserFollowsRef.setValue("null", new Firebase.CompletionListener() {
                         @Override
                         public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+
+                            // Send a push to the user that is now followed.
+                            PushUtils.sendFollowPush(userToFollow.getPushChannel(), user.getMetaName() + " " + context.getString(R.string.not_follower_content));
+
                             if (listener!=null)
                                 listener.onDone();
                         }
@@ -952,6 +965,136 @@ TODO
         DaoCore.deleteEntity(follows);
     }
 
+    @Override
+    public void getFollowers(String entityId, final RepetitiveCompletionListener<BUser> listener){
+        if (DEBUG) Log.v(TAG, "getFollowers, Id: " + entityId);
+
+        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+
+        FirebasePaths followersRef = FirebasePaths.userFollowersRef(entityId);
+
+        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren())
+                {
+                    Log.d(TAG, "Name: " + snap.getName());
+                    String followingUserID = snap.getName();
+
+                    final List<BUser> followers = new ArrayList<BUser>();
+
+                    if (StringUtils.isNotEmpty(followingUserID))
+                    {
+                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
+
+                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWER);
+
+                        followers.add(follwer);
+                    }
+
+                    for (BUser u : followers)
+                    {
+                        if (listener!=null)
+                        {
+                            BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
+                                @Override
+                                public void onDone(BUser u) {
+                                    // Remove the user.
+                                    followers.remove(u);
+
+                                    // Notify that a user has been found.
+                                    listener.onItem(u);
+
+                                    // if no more users to found call on done.
+                                    if (followers.size() == 0)
+                                        listener.onDone();
+                                }
+
+                                @Override
+                                public void onDoneWithError(BUser bUser1, Object o) {
+                                    if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
+                                    // Notify that an error occurred while selecting.
+                                    listener.onItemError(o);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
+    @Override
+    public void getFollows(String entityId, final RepetitiveCompletionListener<BUser> listener){
+        if (DEBUG) Log.v(TAG, "getFollowers, Id: " + entityId);
+
+        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+
+        FirebasePaths followersRef = FirebasePaths.userFollowsRef(entityId);
+
+        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren())
+                {
+                    Log.d(TAG, "Name: " + snap.getName());
+                    String followingUserID = snap.getName();
+
+                    final List<BUser> followers = new ArrayList<BUser>();
+
+                    if (StringUtils.isNotEmpty(followingUserID))
+                    {
+                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
+
+                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWS);
+
+                        followers.add(follwer);
+                    }
+
+                    for (BUser u : followers)
+                    {
+                        if (listener!=null)
+                        {
+                            BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
+                                @Override
+                                public void onDone(BUser u) {
+                                    // Remove the user.
+                                    followers.remove(u);
+
+                                    // Notify that a user has been found.
+                                    listener.onItem(u);
+
+                                    // if no more users to found call on done.
+                                    if (followers.size() == 0)
+                                        listener.onDone();
+                                }
+
+                                @Override
+                                public void onDoneWithError(BUser bUser1, Object o) {
+                                    if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
+                                    // Notify that an error occurred while selecting.
+                                    listener.onItemError(o);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+/*######################################################################################################*/
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
@@ -1439,6 +1582,13 @@ TODO
             return;
 
         PushService.subscribe(context, channel, ChatSDKUiHelper.getInstance().mainActivity);
+    }
+
+    public void unsubscribeToPushChannel(String channel){
+        if (!pushEnabled())
+            return;
+
+        PushService.unsubscribe(context, channel);
     }
 
     private boolean pushEnabled(){
