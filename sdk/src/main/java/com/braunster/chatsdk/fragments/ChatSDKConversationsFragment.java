@@ -45,4 +45,5 @@ public class ChatSDKConversationsFragment extends ChatSDKAbstractConversationsFr
 
         return mainView;
     }
+
 }

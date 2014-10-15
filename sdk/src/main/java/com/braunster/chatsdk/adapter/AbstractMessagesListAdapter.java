@@ -49,7 +49,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class AbstractMessagesListAdapter extends BaseAdapter{
 
-    // FIXME  fix content overlap the hour.
     private static final String TAG = AbstractMessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 

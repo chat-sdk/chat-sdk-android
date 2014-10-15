@@ -11,7 +11,7 @@ import java.util.Map;
 public class FirebasePaths extends Firebase{
 
     public static final String FIREBASE_PATH = "https://incandescent-fire-3147.firebaseio.com/";
-//    public static final String FIREBASE_PATH = "https://chat-sdk-android-2.firebaseio.com/";
+//   /*Ben Test Path*/ public static final String FIREBASE_PATH = "https://chat-sdk-android-2.firebaseio.com/";
 //public static final String FIREBASE_PATH = "https://chatsdkbrett.firebaseio.com/";
 
     private StringBuilder builder = new StringBuilder();

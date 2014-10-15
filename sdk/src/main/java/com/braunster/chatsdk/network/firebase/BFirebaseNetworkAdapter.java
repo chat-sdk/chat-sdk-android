@@ -12,6 +12,7 @@ import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
+import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -363,6 +364,9 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             }*/
             //ASK do i need to change the roboto font if there isnt a default?
         }
+
+        DaoCore.updateEntity(user.getMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING));
+        DaoCore.updateEntity(user.getMetadataForKey(Keys.BPictureURL, BMetadata.Type.STRING));
 
         // Font size.
         if (user.getFontSize() == null || user.getFontSize() == 0){
@@ -846,10 +850,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public BUser currentUser() {
 
-        if (currentUser != null && System.currentTimeMillis() - lastCurrentUserCall < currentUserCallInterval)
+    /*    if (currentUser != null && System.currentTimeMillis() - lastCurrentUserCall < currentUserCallInterval)
         {
             return currentUser;
-        }
+        }*/
 
         String authID = getCurrentUserAuthenticationId();
         if (StringUtils.isNotEmpty(authID))
@@ -969,6 +973,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     public void getFollowers(String entityId, final RepetitiveCompletionListener<BUser> listener){
         if (DEBUG) Log.v(TAG, "getFollowers, Id: " + entityId);
 
+        if (StringUtils.isEmpty(entityId))
+        {
+            listener.onItemError(BError.getError(BError.Code.NULL, "Entity id is empty"));
+            listener.onDone();
+            return;
+        }
+
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
         FirebasePaths followersRef = FirebasePaths.userFollowersRef(entityId);
@@ -1033,6 +1044,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     @Override
     public void getFollows(String entityId, final RepetitiveCompletionListener<BUser> listener){
         if (DEBUG) Log.v(TAG, "getFollowers, Id: " + entityId);
+
+        if (StringUtils.isEmpty(entityId))
+        {
+            listener.onItemError(BError.getError(BError.Code.NULL, "Entity id is empty"));
+            listener.onDone();
+            return;
+        }
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 

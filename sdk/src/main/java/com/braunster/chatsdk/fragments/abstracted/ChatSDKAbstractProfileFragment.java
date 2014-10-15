@@ -154,12 +154,26 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(user, oldIndex, new CompletionListener() {
             @Override
             public void onDone() {
-                BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(user, newIndex,null);
+                index(user, newIndex);
             }
 
             @Override
             public void onDoneWithError(BError error) {
-                showToast("Cant set index.");
+                index(user, newIndex);
+            }
+        });
+    }
+
+    private void index(final BUser user, String newIndex){
+        BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(user, newIndex, new CompletionListener() {
+            @Override
+            public void onDone() {
+
+            }
+
+            @Override
+            public void onDoneWithError(BError error) {
+                showToast("Cant index user details.");
             }
         });
     }

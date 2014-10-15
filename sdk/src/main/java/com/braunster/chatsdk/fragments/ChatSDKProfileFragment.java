@@ -357,7 +357,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment imple
             }
 
             if (StringUtils.isEmpty(bUser.getMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING).getValue()))
-                chatSDKProfileHelper.setInitialsProfilePic();
+                chatSDKProfileHelper.setInitialsProfilePic(false);
 
             isNameTouched = false;
         }

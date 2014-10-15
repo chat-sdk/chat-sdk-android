@@ -485,8 +485,11 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                         getNetworkAdapter().getFollowers((String) extraData, new RepetitiveCompletionListener<BUser>() {
                             @Override
                             public boolean onItem(BUser item) {
-                                hideLoading();
+                                if (getNetworkAdapter().currentUser().getId() == item.getId())
+                                    return false;
+
                                 sourceUsers.add(item);
+                                hideLoading();
                                 adapter.addRow(item);
                                 return false;
                             }
@@ -509,11 +512,15 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                 case MODE_LOAD_FOLLOWS:
                     if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
                     {
+
                         sourceUsers = new ArrayList<BUser>();
                         showLoading();
                         getNetworkAdapter().getFollows((String) extraData, new RepetitiveCompletionListener<BUser>() {
                             @Override
                             public boolean onItem(BUser item) {
+                                if (getNetworkAdapter().currentUser().getId() == item.getId())
+                                    return false;
+
                                 hideLoading();
                                 sourceUsers.add(item);
                                 adapter.addRow(item);

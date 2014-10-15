@@ -125,7 +125,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Private);
 
-        adapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
+        adapter.setThreadItems(adapter.makeList(threads));
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
@@ -158,7 +158,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             isFirst = true;
         }
 
-        final boolean hasItems = adapter != null && adapter.getListData().size() > 0;
+        final boolean hasItems = adapter != null && adapter.getThreadItems().size() > 0;
 
         if (isFirst && !hasItems) {
             if (DEBUG) Log.v(TAG, "loadDataOnBackground, hiding list.");
@@ -182,7 +182,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List<ThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private);
+                List<ThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker());
 
                 if (DEBUG) {
                     Log.d(TAG, "Thread Loaded");
@@ -224,7 +224,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             if (uiUpdater != null)
                 uiUpdater.setKilled(true);
 
-            adapter.getListData().clear();
+            adapter.getThreadItems().clear();
             adapter.notifyDataSetChanged();
         }
     }
@@ -238,7 +238,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             {
                 case 1:
                     if (DEBUG) Log.d(TAG, "UpdaeUI" + ((List<ThreadsListAdapter.ThreadListItem>) msg.obj).size());
-                    adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    adapter.setThreadItems((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
                     if (progressBar.getVisibility() == View.VISIBLE)
                     {
                         progressBar.setVisibility(View.INVISIBLE);
@@ -359,4 +359,12 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             }
         }
     };
+
+    public void filterThreads(String text){
+        adapter.filterItems(text);
+    }
+
+    public AbstractThreadsListAdapter getAdapter() {
+        return adapter;
+    }
 }

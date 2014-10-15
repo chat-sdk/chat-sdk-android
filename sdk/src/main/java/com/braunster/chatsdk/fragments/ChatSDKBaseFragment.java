@@ -37,7 +37,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class ChatSDKBaseFragment extends DialogFragment implements ChatSDKBaseFragmentInterface {
 
-    // TODO refresh on background method.
+    // TODO support chatsdk ui utils for toasting.
     private static final String TAG = ChatSDKBaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
 

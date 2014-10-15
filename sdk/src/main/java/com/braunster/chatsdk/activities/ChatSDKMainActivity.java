@@ -22,12 +22,10 @@ import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
 import com.braunster.chatsdk.fragments.ChatSDKProfileFragment;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AppEventListener;
@@ -90,23 +88,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             if (DEBUG) Log.v(TAG, "Saved Instance is not null, "  + savedInstanceState.getInt(PAGE_ADAPTER_POS));
             pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
         }
-
-        getNetworkAdapter().getFollowers(getNetworkAdapter().currentUser().getEntityID(), new RepetitiveCompletionListener<BUser>() {
-            @Override
-            public boolean onItem(BUser item) {
-                return false;
-            }
-
-            @Override
-            public void onDone() {
-
-            }
-
-            @Override
-            public void onItemError(Object object) {
-
-            }
-        });
     }
 
     @Override

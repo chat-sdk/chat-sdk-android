@@ -134,7 +134,7 @@ public class DaoCore {
 //                linkedContact.setOwner(us.getEntityID());
 //                DaoCore.createEntity(linkedContact);
 //            }
-                return;
+            return;
         }
 
         BUser userDan = null, userAlex = null;
@@ -362,25 +362,25 @@ public class DaoCore {
         return fetchEntityWithProperty(c, EntityID, entityID);
     }
 
-    private static QueryBuilder<BUser> userWithAuthQuery = null;
-    private static String lastAuthID = "";
+ /*   private static QueryBuilder<BUser> userWithAuthQuery = null;
+    private static String lastAuthID = "";*/
     /** Fetch Buser object For given AuthenticationID, If more then one found the first will be returned.*/
     public static BUser fetchUserWithAuthID(String authId){
 
-        if (!lastAuthID.equals(authId) || userWithAuthQuery == null)
+        /*if (!lastAuthID.equals(authId) || userWithAuthQuery == null)
         {
-            lastAuthID = authId;
-            userWithAuthQuery = daoSession.queryBuilder(BUser.class);
-            userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
-        }
+            lastAuthID = authId;*/
+        QueryBuilder<BUser> userWithAuthQuery = daoSession.queryBuilder(BUser.class);
+        userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
+//        }
 
-        try {
+     /*   try {
             return userWithAuthQuery.uniqueOrThrow();
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Not unique");
-        }
+        }*/
 
-        lastAuthID = authId;
+//        lastAuthID = authId;
         userWithAuthQuery = daoSession.queryBuilder(BUser.class);
         userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
 
@@ -395,11 +395,11 @@ public class DaoCore {
         QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
 
-        try {
+/*        try {
             return (T) qb.uniqueOrThrow();
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Not unique");
-        }
+        }*/
 
         List<T> list = qb.list();
         if (list != null && list.size()>0)
@@ -669,6 +669,9 @@ public class DaoCore {
 
     public static <T extends Entity> T updateEntity(T entity){
         if (DEBUG) Log.v(TAG, "updateEntity");
+
+        if (entity==null)
+            return entity;
 
         printEntity(entity);
 

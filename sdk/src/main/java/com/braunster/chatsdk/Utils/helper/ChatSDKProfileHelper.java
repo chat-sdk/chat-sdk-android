@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -20,15 +21,12 @@ import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
-import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Cropper;
 import com.braunster.chatsdk.parse.ParseUtils;
-import com.facebook.model.GraphUser;
 import com.parse.ParseException;
 import com.soundcloud.android.crop.Crop;
 
@@ -36,6 +34,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -73,6 +73,10 @@ public class ChatSDKProfileHelper {
     }
 
     /* UI*/
+    public void loadProfilePic(){
+        loadProfilePic(getLoginType());
+    }
+
     public void loadProfilePic(int loginType){
         profileCircleImageView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
@@ -83,11 +87,11 @@ public class ChatSDKProfileHelper {
                 break;
 
             case BDefines.BAccountType.Password:
-                setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL));
+                setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL), false);
                 break;
 
             case BDefines.BAccountType.Anonymous:
-                setInitialsProfilePic(BDefines.InitialsForAnonymous);
+                setInitialsProfilePic(BDefines.InitialsForAnonymous, true);
 
             case BDefines.BAccountType.Twitter:
                 getProfileFromTwitter();
@@ -144,6 +148,16 @@ public class ChatSDKProfileHelper {
     public class LoadFromUrl implements ImageLoader.ImageListener{
         private boolean killed = false;
 
+        private boolean saveAfterLoad = false;
+
+        public LoadFromUrl(){
+
+        }
+
+        public LoadFromUrl(boolean saveAfterLoad){
+            this.saveAfterLoad = saveAfterLoad;
+        }
+
         public void setKilled(boolean killed) {
             this.killed = killed;
         }
@@ -157,6 +171,7 @@ public class ChatSDKProfileHelper {
             if (response.getBitmap() != null) {
                 if (DEBUG) Log.v(TAG, "onResponse, Profile pic loaded from url.");
                 setProfilePic(response.getBitmap());
+                createTempFileAndSave(response.getBitmap());
             }
         }
 
@@ -164,24 +179,24 @@ public class ChatSDKProfileHelper {
         @Override
         public void onErrorResponse(VolleyError error) {
             if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-            setInitialsProfilePic();
+            setInitialsProfilePic(false);
         }
     };
 
     private LoadFromUrl loadFromUrl;
 
-    public void setProfilePicFromURL(String url){
+    public void setProfilePicFromURL(String url, boolean saveAfterLoad){
         // Set default.
-        if (url == null)
+        if (StringUtils.isEmpty(url))
         {
-            setInitialsProfilePic();
+            setInitialsProfilePic(false);
             return;
         }
 
         if (loadFromUrl != null)
             loadFromUrl.setKilled(true);
 
-        loadFromUrl = new LoadFromUrl();
+        loadFromUrl = new LoadFromUrl(saveAfterLoad);
 
         VolleyUtils.getImageLoader().get(url, loadFromUrl);
     }
@@ -239,44 +254,45 @@ public class ChatSDKProfileHelper {
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
 
-        if (imageUrl != null)
-            setProfilePicFromURL(imageUrl);
+        if (StringUtils.isNotEmpty(imageUrl))
+            setProfilePicFromURL(imageUrl, false);
         else
         {
-            // If there isnt any picture url saved we will save the fb profile pic to parse and save the url to the user.
-            BFacebookManager.getUserDetails(new CompletionListenerWithData<GraphUser>() {
+            // Load the profile picture from facebook.
+            new AsyncTask<Void, Void, String>() {
                 @Override
-                public void onDone(GraphUser graphUser) {
-                    Log.d(TAG, "Name: " + graphUser.getName());
+                protected String doInBackground(Void... params) {
+                    HttpURLConnection client = null;
+                    try {
+                        String facebookId = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().replace("fb", "");
+                        if (DEBUG) Log.d(TAG, "Facebook Id: " + facebookId);
 
-                    VolleyUtils.getImageLoader().get(BFacebookManager.getPicUrl(graphUser.getId()),
-                            new ImageLoader.ImageListener() {
-                                @Override
-                                public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-                                    if (response.getBitmap() != null) {
-                                        setProfilePic(response.getBitmap());
 
-                                        createTempFileAndSave(response.getBitmap());
-                                    }
-                                }
+                        String facebookImageUrl = BFacebookManager.getPicUrl(facebookId);
+                        HttpURLConnection con = (HttpURLConnection) (new URL(facebookImageUrl).openConnection());
+                        con.setInstanceFollowRedirects(false);
+                        con.connect();
+                        int responseCode = con.getResponseCode();
+                        System.out.println(responseCode);
+                        String location = con.getHeaderField("Location");
+                        System.out.println(location);
+                        return location;
 
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    setInitialsProfilePic();
-                                    uiHelper.showAlertToast("Unable to load user profile pic.");
-                                }
-                            });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    return null;
                 }
 
-                ;
-
                 @Override
-                public void onDoneWithError(BError error) {
-                    setInitialsProfilePic();
-                    uiHelper.showAlertToast("Unable to fetch user details from fb" + (error != null ? error.code == BError.Code.EXCEPTION ? error.message : "" : ""));
+                protected void onPostExecute(String s) {
+                    super.onPostExecute(s);
+                    setProfilePicFromURL(s, true);
                 }
-            });
+            }.execute();
         }
+
     }
 
     public void getProfileFromTwitter(){
@@ -284,7 +300,7 @@ public class ChatSDKProfileHelper {
         String savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(savedUrl))
-            setProfilePicFromURL(savedUrl);
+            setProfilePicFromURL(savedUrl, false);
         else {
             String imageUrl = TwitterManager.profileImageUrl;
             if (DEBUG) Log.d(TAG, "Image URL: " + imageUrl);
@@ -292,31 +308,12 @@ public class ChatSDKProfileHelper {
             {
                 // The default image suppied by twitter is 48px on 48px image so we want a bigget one.
                 imageUrl = imageUrl.replace("_normal", "");
-                VolleyUtils.getImageLoader().get(imageUrl,
-                        new ImageLoader.ImageListener() {
-                            @Override
-                            public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-                                if (response.getBitmap() != null) {
-
-                                    setProfilePic(response.getBitmap());
-
-                                    createTempFileAndSave(response.getBitmap());
-                                }
-                            }
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                setInitialsProfilePic();
-                                uiHelper.showAlertToast("Unable to load user profile pic.");
-                            }
-                        }
-                );
+                setProfilePicFromURL(imageUrl, true);
             }
         }
     }
 
-    public void setInitialsProfilePic(){
-
+    public void setInitialsProfilePic(boolean save){
         String initials = "";
 
         String name = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaName();
@@ -334,14 +331,16 @@ public class ChatSDKProfileHelper {
             else initials = BDefines.InitialsForAnonymous;
         }
 
-        setInitialsProfilePic(initials);
+        setInitialsProfilePic(initials, save);
     }
 
-    public void setInitialsProfilePic(final String initials) {
+    public void setInitialsProfilePic(final String initials, boolean save) {
         if (DEBUG) Log.v(TAG, "setInitialsProfilePic, Initials: " + initials);
         Bitmap bitmap = ImageUtils.getInitialsBitmap(Color.GRAY, Color.BLACK, initials);
         setProfilePic(bitmap);
-        createTempFileAndSave(bitmap);
+
+        if (save)
+            createTempFileAndSave(bitmap);
     }
 
     public boolean createTempFileAndSave(Bitmap bitmap){
@@ -456,6 +455,10 @@ public class ChatSDKProfileHelper {
 
     public static View.OnClickListener getPickImageClickListener(final FragmentActivity activity,final DialogFragment fragment, final int requestCode){
         return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, requestCode);
+    }
+
+    public Integer getLoginType(){
+        return (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
     }
 
     /** If set the helper will use this fragment when calling startActivityForResult*/

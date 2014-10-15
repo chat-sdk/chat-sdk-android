@@ -337,6 +337,8 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         created = true;
 
+        chatSDKChatHelper.setThread(thread);
+
         if (messagesListAdapter != null)
             messagesListAdapter.clear();
 

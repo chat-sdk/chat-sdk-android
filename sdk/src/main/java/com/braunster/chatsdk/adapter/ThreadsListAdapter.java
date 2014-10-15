@@ -23,7 +23,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class ThreadsListAdapter extends AbstractThreadsListAdapter {
+public class ThreadsListAdapter extends AbstractThreadsListAdapter<AbstractThreadsListAdapter.ThreadListItem> {
 
     private static final String TAG = ThreadsListAdapter.class.getSimpleName();
     public static final boolean DEBUG = Debug.ThreadsListAdapter;
@@ -43,7 +43,7 @@ public class ThreadsListAdapter extends AbstractThreadsListAdapter {
 
         final ViewHolder holder;
 
-        thread = listData.get(position);
+        thread = threadItems.get(position);
 
         if ( row == null)
         {
@@ -76,13 +76,13 @@ public class ThreadsListAdapter extends AbstractThreadsListAdapter {
         //If has image url saved load it.
         int size = holder.imgIcon.getHeight();
 
-        if (StringUtils.isNotEmpty(listData.get(position).getImageUrl()))
-            VolleyUtils.getImageLoader().get(listData.get(position).getImageUrl(), new ImageLoader.ImageListener() {
+        if (StringUtils.isNotEmpty(threadItems.get(position).getImageUrl()))
+            VolleyUtils.getImageLoader().get(threadItems.get(position).getImageUrl(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (isImmediate && response.getBitmap() == null)
                     {
-                        holder.setDefaultImg(listData.get(position));
+                        holder.setDefaultImg(threadItems.get(position));
                         return;
                     }
 
@@ -97,11 +97,16 @@ public class ThreadsListAdapter extends AbstractThreadsListAdapter {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-                    holder.setDefaultImg(listData.get(position));
+                    holder.setDefaultImg(threadItems.get(position));
                 }
             }, size, size);
-        else holder.setDefaultImg(listData.get(position));
+        else holder.setDefaultImg(threadItems.get(position));
 
         return row;
+    }
+
+    @Override
+    public void initMaker() {
+        itemMaker = getDefaultMaker();
     }
 }

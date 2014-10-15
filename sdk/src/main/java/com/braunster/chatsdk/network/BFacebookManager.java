@@ -90,7 +90,7 @@ public class BFacebookManager {
                     @Override
                     public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
                         if (DEBUG) Log.e(TAG, "Log to firebase failed");
-                        completionListener.onDone();
+                        completionListener.onDoneWithError(null);
                     }
                 });
     }
@@ -258,9 +258,7 @@ public class BFacebookManager {
     public static String getPicUrl(String id, String type){
         return "http://graph.facebook.com/"+id+"/picture?type=" + type;
     }
-    public static String getCurrentUserProfilePicURL(){
-        return getPicUrl(facebookAppID);
-    }
+
 }
 
 

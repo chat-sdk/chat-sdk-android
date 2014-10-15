@@ -111,7 +111,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
         List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
 
-        adapter.setListData(ThreadsListAdapter.ThreadListItem.makeList(threads));
+        adapter.setThreadItems(adapter.makeList(threads));
 
         if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
     }
@@ -137,7 +137,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
             isFirst = true;
         }
 
-        final boolean noItems = adapter != null && adapter.getListData().size() == 0;
+        final boolean noItems = adapter != null && adapter.getThreadItems().size() == 0;
         if (isFirst && noItems) {
             listThreads.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
@@ -152,7 +152,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public);
+                message.obj = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public, adapter.getItemMaker());
 
                 handler.sendMessage(message);
 
@@ -177,7 +177,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    adapter.setListData((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    adapter.setThreadItems((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
                     progressBar.setVisibility(View.GONE);
                     listThreads.setVisibility(View.VISIBLE);
                     break;

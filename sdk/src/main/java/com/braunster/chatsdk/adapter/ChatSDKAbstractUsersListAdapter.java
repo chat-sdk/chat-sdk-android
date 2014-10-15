@@ -452,7 +452,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
         {
-            if (DEBUG) Log.v(TAG, "filterStartWith, Empty Filter");
+            if (DEBUG) Log.v(TAG, "filterItems, Empty Filter");
             if (DEBUG) Log.d(TAG, "User items size: " + userItems.size() + ", ListData: " + listData.size());
             this.userItems = listData;
         }
@@ -471,7 +471,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             this.userItems = filteredUsers;
         }
 
-        if (DEBUG) Log.v(TAG, "filterStartWith, Filtered users amount: " + userItems.size());
+        if (DEBUG) Log.v(TAG, "filterItems, Filtered users amount: " + userItems.size());
 
         notifyDataSetChanged();
     }

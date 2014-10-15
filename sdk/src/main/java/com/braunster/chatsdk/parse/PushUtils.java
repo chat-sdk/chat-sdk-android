@@ -33,8 +33,8 @@ public class PushUtils {
     public static final String MESSAGE_TYPE = "message_type";
     public static final String MESSAGE_PAYLOAD= "message_payload";
 
-    public static final int MESSAGE_NOTIFICATION_ID = 1000;
-    public static final int FOLLOWER_NOTIFICATION_ID = 1001;
+    public static final int MESSAGE_NOTIFICATION_ID = 1001;
+    public static final int FOLLOWER_NOTIFICATION_ID = 1002;
 
     public static void sendMessage(BMessage message, Collection<String> channels){
 
