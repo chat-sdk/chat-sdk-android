@@ -93,6 +93,14 @@ public class ChatSDKActionBarHelper {
         return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_center);
     }
 
+    public TextView getRightTextView(){
+        return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_right);
+    }
+
+    public TextView getLeftTextView(){
+        return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_left);
+    }
+
     public ChatSDKActionBarHelper setLeftIcon(int id){
         ((ImageView) actionBarView.findViewById(R.id.chat_sdk_left_icon)).setImageResource(id);
         return this;
@@ -111,6 +119,7 @@ public class ChatSDKActionBarHelper {
     public enum CenterViewOption{
         ICON, TEXT;
     }
+
     public ChatSDKActionBarHelper setCenter(CenterViewOption option){
         switch (option)
         {

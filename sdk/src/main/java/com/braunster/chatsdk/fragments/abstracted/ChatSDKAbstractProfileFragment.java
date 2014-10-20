@@ -46,6 +46,8 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
     protected ProgressBar progressBar;
     private boolean enableActionBarItems = true;
 
+    protected boolean clickableProfilePic = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,8 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         super.onResume();
 
         // Long click will open the gallery so the user can change is picture.
-        profileCircleImageView.setOnClickListener(ChatSDKProfileHelper.getProfilePicClickListener(getActivity(), this));
+        if (clickableProfilePic)
+            profileCircleImageView.setOnClickListener(ChatSDKProfileHelper.getProfilePicClickListener(getActivity(), this));
 
     }
 
@@ -140,6 +143,10 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setProfilePicClickable(boolean clickableProfilePic) {
+        this.clickableProfilePic = clickableProfilePic;
     }
 
     /*############################################*/

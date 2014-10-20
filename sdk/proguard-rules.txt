@@ -15,3 +15,37 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+
+-dontwarn com.firebase.client.**
+-dontwarn javax.servlet.**
+-dontwarn javax.xml.bind.**
+-dontwarn org.shaded.apache.**
+-dontwarn org.apache.commons.**
+-dontwarn org.w3c.dom.bootstrap.**
+
+-keepattributes Exceptions,InnerClasses, Signature, *Annotation*, EnclosingMethod
+
+-keep class com.braunster.chatsdk.** { *; }
+-keep class com.parse.** { *; }
+-keep class com.firebase.** { *; }
+-keep class org.apache.commons.lang3.StringUtils {*;}
+-keep class org.apache.commons.io.IOUtils{*;}
+
+-keepclassmembers class * {
+    @fully.qualified.package.AnnotationType *;
+}
+
+-keepclassmembers public final enum org.codehaus.jackson.annotate.JsonAutoDetect$Visibility {
+    public static final org.codehaus.jackson.annotate.JsonAutoDetect$Visibility *;
+}
+
+-keepnames class  com.shaded.fasterxml.jackson.** { *; }
+
+-keep class com.braunster.chatsdk.adapter.AbstractThreadsListAdapter$* {
+                                                                         *;
+                                                                     }

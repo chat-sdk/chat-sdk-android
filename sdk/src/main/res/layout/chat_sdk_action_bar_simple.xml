@@ -33,6 +33,17 @@
         android:id="@+id/chat_sdk_left_icon"
         android:src="@drawable/ic_launcher"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:textSize="20sp"
+        android:text="Center"
+        android:paddingLeft="5dp"
+        android:id="@+id/chat_sdk_txt_header_left"
+        android:visibility="invisible"/>
+
     <!--Right-->
     <ImageView
         android:layout_width="32dp"
@@ -42,4 +53,15 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:src="@drawable/ic_launcher"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:textSize="20sp"
+        android:text="Center"
+        android:paddingRight="5dp"
+        android:id="@+id/chat_sdk_txt_header_right"
+        android:visibility="invisible"/>
 </RelativeLayout>

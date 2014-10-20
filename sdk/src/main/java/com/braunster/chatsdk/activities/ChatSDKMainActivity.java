@@ -19,6 +19,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ExitHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
+import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -343,6 +344,10 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                 if (frag!= null)
                     frag.refresh();
 
+            }
+            else if (intent.getAction().equals(ChatSDKAbstractChatActivity.ACTION_CHAT_CLOSED))
+            {
+                getFragment(PagerAdapterTabs.Conversations).loadDataOnBackground();
             }
         }
     };

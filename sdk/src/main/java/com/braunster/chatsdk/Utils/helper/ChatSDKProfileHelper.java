@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -46,6 +47,8 @@ public class ChatSDKProfileHelper {
 
     public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDELD = 1993;
 
+    private static final String LAST_IMAGE_PATH = "last_image_path";
+
     private static final String TAG = ChatSDKProfileHelper.class.getSimpleName();
     private static final boolean DEBUG = true;
 
@@ -64,6 +67,14 @@ public class ChatSDKProfileHelper {
 
     private View mainView;
 
+    private boolean clickableProfilePic = true;
+
+    public ChatSDKProfileHelper(Activity activity, ChatSDKUiHelper uiHelper, View mainView) {
+        this.activity = activity;
+        this.uiHelper = uiHelper;
+        this.mainView = mainView;
+    }
+
     public ChatSDKProfileHelper(Activity activity, CircleImageView profileCircleImageView, ProgressBar progressBar, ChatSDKUiHelper uiHelper, View mainView) {
         this.profileCircleImageView = profileCircleImageView;
         this.progressBar = progressBar;
@@ -71,6 +82,10 @@ public class ChatSDKProfileHelper {
         this.uiHelper = uiHelper;
         this.mainView = mainView;
     }
+
+    private String lastImageLoadedPath = "";
+
+    private boolean saveImageWhenLoaded = true;
 
     /* UI*/
     public void loadProfilePic(){
@@ -171,7 +186,9 @@ public class ChatSDKProfileHelper {
             if (response.getBitmap() != null) {
                 if (DEBUG) Log.v(TAG, "onResponse, Profile pic loaded from url.");
                 setProfilePic(response.getBitmap());
-                createTempFileAndSave(response.getBitmap());
+
+                if (saveAfterLoad)
+                    createTempFileAndSave(response.getBitmap());
             }
         }
 
@@ -207,23 +224,27 @@ public class ChatSDKProfileHelper {
         //  Loading the bitmap
         if (setAsPic)
         {
-            if (DEBUG) Log.d(TAG, "SetAsPic");
-            Bitmap b = ImageUtils.loadBitmapFromFile(path);
-
-            if (b == null)
-            {
-                b = ImageUtils.loadBitmapFromFile(activity.getCacheDir().getPath() + path);
-                if (b == null)
-                {
-                    uiHelper.showAlertToast("Unable to save file...");
-                    if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + activity.getCacheDir().getPath() + path);
-                    return;
-                }
-            }
-            setProfilePic(b);
+            setProfilePicFromPath(path);
         }
 
         saveProfilePicToParse(path);
+    }
+
+    public void setProfilePicFromPath(String path){
+        if (DEBUG) Log.d(TAG, "SetAsPic");
+        Bitmap b = ImageUtils.loadBitmapFromFile(path);
+
+        if (b == null)
+        {
+            b = ImageUtils.loadBitmapFromFile(activity.getCacheDir().getPath() + path);
+            if (b == null)
+            {
+                uiHelper.showAlertToast("Unable to save file...");
+                if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + activity.getCacheDir().getPath() + path);
+                return;
+            }
+        }
+        setProfilePic(b);
     }
 
     public void saveProfilePicToParse(String path){
@@ -246,6 +267,30 @@ public class ChatSDKProfileHelper {
                 currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING);
 
                 BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
+            }
+        });
+    }
+
+    public void saveProfilePicToParse(String path, final ParseUtils.MultiSaveCompletedListener listener){
+        ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
+            @Override
+            public void onSaved(ParseException exception, String... data) {
+                if (exception != null) {
+                    if (DEBUG)
+                        Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
+                    listener.onSaved(exception, data);
+                    return;
+                }
+
+                // Saving the image to parse.
+                final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+
+                currentUser.setMetadataString(BDefines.Keys.BPictureURL, data[0]);
+                currentUser.setMetadataString(BDefines.Keys.BPictureURLThumbnail, data[1]);
+
+                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING);
+                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING);
+                listener.onSaved(exception, data);
             }
         });
     }
@@ -427,8 +472,12 @@ public class ChatSDKProfileHelper {
 
                 if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
                 image = new File(this.activity.getCacheDir(), "cropped.jpg");
-                saveProfilePicToParse(image.getPath(), true);
 
+                lastImageLoadedPath = image.getPath();
+
+                if (saveImageWhenLoaded)
+                    saveProfilePicToParse(lastImageLoadedPath, true);
+                else setProfilePicFromPath(lastImageLoadedPath);
                 return HANDELD;
             }
             catch (NullPointerException e){
@@ -439,6 +488,23 @@ public class ChatSDKProfileHelper {
         }
 
         return NOT_HANDLED;
+    }
+
+    public void initViews(){
+        if (mainView!=null)
+        {
+            profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
+            progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
+        }
+    }
+
+    public void onSaveInstanceState(Bundle output){
+        output.putString(LAST_IMAGE_PATH, lastImageLoadedPath);
+    }
+
+    public void restoreFromSavedInstance(Bundle savedInstance){
+        if (savedInstance!=null)
+            lastImageLoadedPath = savedInstance.getString(LAST_IMAGE_PATH);
     }
 
     public static View.OnClickListener getProfilePicClickListener(final Activity activity){
@@ -464,5 +530,17 @@ public class ChatSDKProfileHelper {
     /** If set the helper will use this fragment when calling startActivityForResult*/
     public void setFragment(Fragment fragment) {
         this.fragment = fragment;
+    }
+
+    public String getLastImageLoadedPath() {
+        return lastImageLoadedPath;
+    }
+
+    public void saveImageWhenLoaded(boolean saveImageWhenLoaded) {
+        this.saveImageWhenLoaded = saveImageWhenLoaded;
+    }
+
+    public CircleImageView getProfilePic() {
+        return profileCircleImageView;
     }
 }

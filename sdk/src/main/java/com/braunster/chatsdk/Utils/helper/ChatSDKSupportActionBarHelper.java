@@ -89,6 +89,14 @@ public class ChatSDKSupportActionBarHelper {
         return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_center);
     }
 
+    public TextView getRightTextView(){
+        return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_right);
+    }
+
+    public TextView getLeftTextView(){
+        return (TextView) actionBarView.findViewById(R.id.chat_sdk_txt_header_left);
+    }
+
     public ChatSDKSupportActionBarHelper setLeftIcon(int id){
         ((ImageView) actionBarView.findViewById(R.id.chat_sdk_left_icon)).setImageResource(id);
         return this;
