@@ -1559,28 +1559,64 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
 
     /*PUSH*/
-    private void pushForMessage(BMessage message){
+    private void pushForMessage(final BMessage message){
         if (DEBUG) Log.v(TAG, "pushForMessage");
-        BUser currentUser = currentUser();
-        List<BUser> users = new ArrayList<BUser>();
-        if (message.getBThreadOwner().getType() == BThread.Type.Private)
-        {
-            for (BUser user : message.getBThreadOwner().getUsers())
-                if (!user.equals(currentUser))
-                    if (user.getOnline() == null || !user.getOnline())
-                    {
-                        if (DEBUG) Log.d(TAG, "Pushing message.");
-                        users.add(user);
+        if (message.getBThreadOwner().getType() == BThread.Type.Private) {
+
+            // Loading the message from firebase to get the timestamp from server.
+            FirebasePaths firebase = FirebasePaths.threadRef(
+                    message.getBThreadOwner().getEntityID())
+                    .appendPathComponent(BFirebaseDefines.Path.BMessagesPath)
+                    .appendPathComponent(message.getEntityID());
+
+            firebase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    Long date = null;
+                    try {
+                        date = (Long) snapshot.child(BDefines.Keys.BDate).getValue();
+                    } catch (ClassCastException e) {
+                        date = (((Double)snapshot.child(BDefines.Keys.BDate).getValue()).longValue());
+                    }
+                    finally {
+                        if (date != null)
+                        {
+                            Log.d(TAG, "Setting new date.");
+                            message.setDate(new Date(date));
+                            DaoCore.updateEntity(message);
+                        }
                     }
 
-            pushToUsers(message, users);
+                    // If we failed to get date dont push.
+                    if (message.getDate()==null)
+                        return;
+
+                    BUser currentUser = currentUser();
+                    List<BUser> users = new ArrayList<BUser>();
+
+                    for (BUser user : message.getBThreadOwner().getUsers())
+                        if (!user.equals(currentUser))
+                            if (user.getOnline() == null || !user.getOnline())
+                            {
+                                if (DEBUG) Log.d(TAG, "Pushing message.");
+                                users.add(user);
+                            }
+
+                    pushToUsers(message, users);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
         }
     }
 
     private void pushToUsers(BMessage message, List<BUser> users){
         if (DEBUG) Log.v(TAG, "pushToUsers");
 
-        if (!pushEnabled())
+        if (!pushEnabled() || users.size() == 0)
             return;
 
         // We're identifying each user using push channels. This means that

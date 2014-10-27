@@ -146,7 +146,7 @@ public abstract class AbstractNetworkAdapter {
         message.setText(text);
         message.setOwnerThread(threadEntityId);
         message.setType(TEXT);
-        message.setDate(new Date());
+//        message.setDate(new Date());
         message.setBUserSender(currentUser());
         final BMessage bMessage = DaoCore.createEntity(message);
         sendMessage(bMessage, new CompletionListenerWithData<BMessage>() {
@@ -183,7 +183,7 @@ public abstract class AbstractNetworkAdapter {
         message.setText(text);
         message.setOwnerThread(threadEntityId);
         message.setType(TEXT);
-        message.setDate(new Date());
+//        message.setDate(new Date());
         message.setBUserSender(currentUser());
         message.setStatus(BMessageEntity.Status.SENDING);
         final BMessage bMessage = DaoCore.createEntity(message);
@@ -240,7 +240,7 @@ public abstract class AbstractNetworkAdapter {
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
         message.setType(IMAGE);
-        message.setDate(new Date());
+//        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
         try {
@@ -288,7 +288,7 @@ public abstract class AbstractNetworkAdapter {
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
         message.setType(IMAGE);
-        message.setDate(new Date());
+//        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
         ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
@@ -338,7 +338,7 @@ public abstract class AbstractNetworkAdapter {
         final BMessage message = new BMessage();
         message.setOwnerThread(threadEntityId);
         message.setType(LOCATION);
-        message.setDate(new Date());
+//        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
         ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {

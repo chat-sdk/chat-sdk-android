@@ -9,6 +9,7 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
+import com.firebase.client.ServerValue;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -343,7 +344,7 @@ public class BMessage extends BMessageEntity  {
 
         map.put(BDefines.Keys.BPayload, text);
         map.put(BDefines.Keys.BType, type);
-        map.put(BDefines.Keys.BDate, date.getTime());
+        map.put(BDefines.Keys.BDate, ServerValue.TIMESTAMP);
         map.put(BDefines.Keys.BUserFirebaseId, getBUserSender().getEntityID());
 
         return map;
@@ -351,7 +352,7 @@ public class BMessage extends BMessageEntity  {
 
     @Override
     public Object getPriority() {
-        return date.getTime();
+        return ServerValue.TIMESTAMP;
     }
 
     public boolean isSameDayAsMessage(BMessage message){

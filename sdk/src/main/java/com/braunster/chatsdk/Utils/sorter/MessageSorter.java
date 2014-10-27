@@ -24,7 +24,7 @@ public class MessageSorter implements Comparator<BMessage> {
     public int compare(BMessage x, BMessage y) {
         // TODO: Handle null x or y values
         if (order == ORDER_TYPE_ASC)
-            return x.getDate().compareTo(y.getDate());
-        else return y.getDate().compareTo(x.getDate());
+            return (x == null || y == null) ? -1 : x.getDate().compareTo(y.getDate());
+        else return (x == null || y == null) ? 1 : y.getDate().compareTo(x.getDate());
     }
 }

@@ -103,6 +103,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     /** Send text message
+     * FIXME the messages does not added to the row anymore because we are getting the date from firebase server. Need to find a different way, Maybe new item mode for the row that wont have any date.
      * @param text the text to send.
      * @param clearEditText if true clear the message edit text.*/
     public  void sendTextMessageWithStatus(String text, boolean clearEditText){
@@ -128,9 +129,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 if (messagesListAdapter== null)
                     return false;
 
-                if(messagesListAdapter.addRow(message))
-                    scrollListTo(-1, true);
-
                 return false;
             }
 
@@ -141,8 +139,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 if (messagesListAdapter== null)
                     return false;
 
-                if(messagesListAdapter.addRow(message))
-                    scrollListTo(-1, true);
                 return false;
             }
 
@@ -173,10 +169,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     public void onDone(BMessage message) {
                         if (DEBUG) Log.v(TAG, "Image is sent");
                         uiHelper.dismissProgressCardWithSmallDelay();
-
-                        if (messagesListAdapter != null)
-                            if(messagesListAdapter.addRow(message))
-                                scrollListTo(-1, true);
                     }
 
                     @Override

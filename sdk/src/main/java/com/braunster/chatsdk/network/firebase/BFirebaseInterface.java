@@ -189,7 +189,7 @@ public class BFirebaseInterface {
             if (DEBUG) Log.d(TAG, "pushEntityClass, RefPath: " + ref.toString());
 
             // If the entity has id that means its already added to the database and only need to be updated.
-            if (entity.getEntityID() != null && entity.getEntityID().length() > 0)
+            if (StringUtils.isNotEmpty(entity.getEntityID()) && StringUtils.isNotBlank(entity.getEntityID()))
             {
                 ref.updateChildren(entity.asMap(), new Firebase.CompletionListener() {
                     @Override

@@ -135,7 +135,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
         if (checkOnlineOnResumed && !fromLoginActivity)
         {
             if(DEBUG) Log.d(TAG, "Check online on resumed");
-            BNetworkManager.sharedManager().getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
+            getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
                 @Override
                 public void onDone(Boolean online) {
                     if (online == null) return;
@@ -267,12 +267,12 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
     /** Authenticates the current user.*/
     public void authenticate(AuthListener listener){
-        BNetworkManager.sharedManager().getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
+        getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
     }
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
     protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
+        getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
 
             BThread thread = null;
 
@@ -426,7 +426,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
             public void onDoneWithError(BError error) {
                 if (DEBUG) Log.e(TAG, "onDoneWithError. Error: " + error.message);
                 // Facebook session is closed so we need to disconnect from firebase.
-                BNetworkManager.sharedManager().getNetworkAdapter().logout();
+                getNetworkAdapter().logout();
                 startLoginActivity(true);
             }
         });
