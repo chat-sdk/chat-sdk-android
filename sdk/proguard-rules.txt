@@ -24,8 +24,8 @@
 -dontwarn com.firebase.client.**
 -dontwarn javax.servlet.**
 -dontwarn javax.xml.bind.**
--dontwarn org.shaded.apache.**
 -dontwarn org.apache.commons.**
+-dontwarn org.shaded.apache.**
 -dontwarn org.w3c.dom.bootstrap.**
 
 -keepattributes Exceptions,InnerClasses, Signature, *Annotation*, EnclosingMethod
@@ -35,6 +35,10 @@
 -keep class com.firebase.** { *; }
 -keep class org.apache.commons.lang3.StringUtils {*;}
 -keep class org.apache.commons.io.IOUtils{*;}
+-keep class org.shaded.apache.commons.logging.impl.** { *; }
+-keep class org.shaded.apache.log4j.Priority {*;}
+-keep class org.shaded.apache.log4j.** { *; }
+-keepnames class org.shaded.apache.**
 
 -keepclassmembers class * {
     @fully.qualified.package.AnnotationType *;
@@ -46,6 +50,6 @@
 
 -keepnames class  com.shaded.fasterxml.jackson.** { *; }
 
--keep class com.braunster.chatsdk.adapter.AbstractThreadsListAdapter$* {
+-keep class com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter$* {
                                                                          *;
                                                                      }

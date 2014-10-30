@@ -117,6 +117,7 @@ public class BDefines {
         public static final String UserId = "user-id";
 
         public static final class ThirdPartyData{
+            public static final String ID = "id";
             public static final String Name = "name";
             public static final String ImageURL = "profile_image_url";
             public static final String AccessToken = "accessToken";

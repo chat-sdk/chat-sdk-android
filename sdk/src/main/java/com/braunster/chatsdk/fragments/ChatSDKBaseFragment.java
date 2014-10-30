@@ -3,9 +3,6 @@ package com.braunster.chatsdk.fragments;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -26,9 +23,11 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
-import com.github.johnpersano.supertoasts.SuperActivityToast;
 import com.github.johnpersano.supertoasts.SuperToast;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.Callable;
 
@@ -37,13 +36,10 @@ import java.util.concurrent.Callable;
  */
 public abstract class ChatSDKBaseFragment extends DialogFragment implements ChatSDKBaseFragmentInterface {
 
-    // TODO support chatsdk ui utils for toasting.
     private static final String TAG = ChatSDKBaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
 
     private ProgressDialog progressDialog;
-
-    SuperActivityToast superActivityToast;
 
     protected View mainView;
     protected ChatSDKUiHelper chatSDKUiHelper;
@@ -125,24 +121,19 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
     }
 
-    /** Init all the toast object.*/
-    protected void initToast(){
-        superActivityToast = new SuperActivityToast(getActivity());
-        superActivityToast.setDuration(SuperToast.Duration.MEDIUM);
-        superActivityToast.setBackground(SuperToast.Background.BLUE);
-        superActivityToast.setTextColor(Color.WHITE);
-        superActivityToast.setAnimations(SuperToast.Animations.FLYIN);
-        superActivityToast.setTouchToDismiss(true);
+    /** Show a SuperToast with the given text. */
+    protected void showToast(String text){
+        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
+            return;
+        chatSDKUiHelper.getToast().setText(text);
+        chatSDKUiHelper.getToast().show();
     }
 
-    /** Show a toast.*/
-    protected void showToast(String text)
-    {
-        if (superActivityToast == null)
+    protected void showAlertToast(String text){
+        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
             return;
-
-        superActivityToast.setText(text);
-        superActivityToast.show();
+        chatSDKUiHelper.getAlertToast().setText(text);
+        chatSDKUiHelper.getAlertToast().show();
     }
 
     /** Start the chat activity for the given thread id.
@@ -325,7 +316,7 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
         @Override
         public Object call() throws Exception {
-            BNetworkManager.sharedManager().getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
+            getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
                 @Override
                 public void onDone() {
                     showToast("Thread is deleted.");
@@ -358,34 +349,31 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
         }
     }
 
-    protected Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
-        if (boundBoxInDp == 0)
-            return null;
-
-        // Get current dimensions
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        // Determine how much to scale: the dimension requiring less scaling is
-        // closer to the its side. This way the image always stays inside your
-        // bounding box AND either x/y axis touches it.
-        float xScale = ((float) boundBoxInDp) / width;
-        float yScale = ((float) boundBoxInDp) / height;
-        float scale = (xScale <= yScale) ? xScale : yScale;
-
-        // Create a matrix for the scaling and add the scaling data
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-
-        // Create a new bitmap and convert it to a format understood by the ImageView
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-
-        return bitmap;
-    }
-
     @Override
     public AbstractNetworkAdapter getNetworkAdapter() {
         return BNetworkManager.sharedManager().getNetworkAdapter();
+    }
+
+    /** Authenticates the current user.*/
+    public void authenticate(AuthListener listener){
+        getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
+    }
+
+
+    public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
+        this.chatSDKUiHelper = chatSDKUiHelper;
+    }
+
+    public void setToast(SuperToast toast) {
+        chatSDKUiHelper.setToast(toast);
+    }
+
+    public SuperToast getToast() {
+        return chatSDKUiHelper.getToast();
+    }
+
+    public SuperToast getAlertToast() {
+        return chatSDKUiHelper.getAlertToast();
     }
 }
 

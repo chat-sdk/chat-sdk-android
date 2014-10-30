@@ -100,7 +100,6 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
         initViews();
-        initToast();
 
         loadDataOnBackground();
 

@@ -22,8 +22,8 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.firebase.client.AuthData;
+import com.firebase.client.FirebaseError;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -110,19 +110,19 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                 BDefines.BAccountType.Password, etEmail.getText().toString(), etPass.getText().toString());
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
-            @Override
-            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                afterLogin();
-            }
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                    @Override
+                    public void onDone(AuthData authData) {
+                        afterLogin();
+                    }
 
-            @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                toastErrorMessage(o, true);
+                    @Override
+                    public void onDoneWithError(AuthData authData, Object o) {
+                        toastErrorMessage(o, true);
 
-                dismissProgDialog();
-            }
-        });
+                        dismissProgDialog();
+                    }
+                });
     }
 
     public void register(){
@@ -135,18 +135,18 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                 BDefines.BAccountType.Register, etEmail.getText().toString(), etPass.getText().toString());
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
-            @Override
-            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                afterLogin();
-            }
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                    @Override
+                    public void onDone(AuthData authData) {
+                        afterLogin();
+                    }
 
-            @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                toastErrorMessage(o, false);
-                dismissProgDialog();
-            }
-        });
+                    @Override
+                    public void onDoneWithError(AuthData authData, Object o) {
+                        toastErrorMessage(o, false);
+                        dismissProgDialog();
+                    }
+                });
     }
 
     public void anonymosLogin(){
@@ -156,32 +156,32 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
-            @Override
-            public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                afterLogin();
-            }
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                    @Override
+                    public void onDone(AuthData authData) {
+                        afterLogin();
+                    }
 
-            @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser firebaseSimpleLoginUser, Object o) {
-                toastErrorMessage(o, false);
-                dismissProgDialog();
-            }
-        });
+                    @Override
+                    public void onDoneWithError(AuthData authData, Object o) {
+                        toastErrorMessage(o, false);
+                        dismissProgDialog();
+                    }
+                });
     }
 
     public void twitterLogin(){
         final DialogUtils.ChatSDKTwitterLoginDialog dialog = DialogUtils.ChatSDKTwitterLoginDialog.getInstance();
-        dialog.setListener(new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>(){
+        dialog.setListener(new CompletionListenerWithDataAndError<AuthData, Object>(){
             @Override
-            public void onDone(FirebaseSimpleLoginUser user) {
+            public void onDone(AuthData authData) {
                 dialog.dismiss();
                 showProgDialog(getString(R.string.authenticating));
                 afterLogin();
             }
 
             @Override
-            public void onDoneWithError(FirebaseSimpleLoginUser user, Object error) {
+            public void onDoneWithError(AuthData authData, Object error) {
                 dialog.dismiss();
                 toastErrorMessage(error, true);
             }
@@ -222,11 +222,11 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     }
 
     public void toastErrorMessage(Object o, boolean login){
-        if (o instanceof FirebaseSimpleLoginError)
+        if (o instanceof FirebaseError)
         {
             String toastMessage = "";
-            FirebaseSimpleLoginError error = ((FirebaseSimpleLoginError) o);
-            chatSDKUiHelper.showSimpleLoginErroToast(error.getCode());
+            FirebaseError error = ((FirebaseError) o);
+            chatSDKUiHelper.showToastForFirebaseError(error.getCode());
         }
         else if (login)
         {

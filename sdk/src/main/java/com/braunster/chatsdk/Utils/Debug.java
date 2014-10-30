@@ -13,13 +13,13 @@ public class Debug {
     public static final boolean TwitterManager = false;
     public static final boolean EventManager = false;
     public static final boolean BPath = false;
-    public static final boolean BFirebaseNetworkAdapter = false;
+    public static final boolean BFirebaseNetworkAdapter = true;
 
     /*Fragments*/
     private static final boolean FRAGMENTS = false;
     public static final boolean ContactsFragment = FRAGMENTS || false;
-    public static final boolean ConversationsFragment = FRAGMENTS || true;
-    public static final boolean ProfileFragment = FRAGMENTS || true;
+    public static final boolean ConversationsFragment = FRAGMENTS || false;
+    public static final boolean ProfileFragment = FRAGMENTS || false;
     public static final boolean ThreadsFragment = FRAGMENTS || false;
     public static final boolean ExpandableContactsFragment = FRAGMENTS || false;
 
@@ -54,10 +54,10 @@ public class Debug {
     public static final boolean ChatBubbleTextView = false;
 
     /*Firebase - Listeners */
-    public static final boolean IncomingMessagesListener = true;
+    public static final boolean IncomingMessagesListener = false;
     public static final boolean ThreadDetailsChangeListener = false;
     public static final boolean UserAddedToThreadListener = false;
     public static final boolean UserDetailsChangeListener = false;
-    public static final boolean FollowerAddedListener = true;
-    public static final boolean UserToFollowAddedListener = true;
+    public static final boolean FollowerAddedListener = false;
+    public static final boolean UserToFollowAddedListener = false;
 }

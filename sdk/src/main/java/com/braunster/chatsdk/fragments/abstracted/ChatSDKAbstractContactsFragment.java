@@ -24,8 +24,8 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKChatHelper;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.activities.ChatSDKSearchActivity;
-import com.braunster.chatsdk.adapter.ChatSDKAbstractUsersListAdapter;
 import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
+import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractUsersListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
@@ -99,6 +99,8 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     protected boolean removeDuplicates = true, withHeaders = true, inflateMenu = true;
 
     private ChatSDKAbstractUsersListAdapter.ProfilePicClickListener profilePicClickListener;
+
+    protected boolean withUpdates = true;
 
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
     private boolean isDialog = false;
@@ -559,18 +561,21 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume, TAG: " + eventTAG);
 
-        BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserDetailsEvent, handler);
-        userDetailsBatch.setBatchedAction(Event.Type.UserDetailsEvent, 1000, new Batcher.BatchedAction<String>() {
-            @Override
-            public void triggered(List<String> list) {
-                if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
-                loadDataOnBackground();
-            }
-        });
-
-        if (StringUtils.isNotEmpty(eventTAG))
+        if (withUpdates)
         {
-            EventManager.getInstance().addAppEvent(userDetailsBatch);
+            BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserDetailsEvent, handler);
+            userDetailsBatch.setBatchedAction(Event.Type.UserDetailsEvent, 1000, new Batcher.BatchedAction<String>() {
+                @Override
+                public void triggered(List<String> list) {
+                    if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
+                    loadDataOnBackground();
+                }
+            });
+
+            if (StringUtils.isNotEmpty(eventTAG))
+            {
+                EventManager.getInstance().addAppEvent(userDetailsBatch);
+            }
         }
     }
 
@@ -589,6 +594,10 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     public void onDestroy() {
         super.onDestroy();
         EventManager.getInstance().removeEventByTag(eventTAG);
+    }
+
+    public void setAdapter(ChatSDKAbstractUsersListAdapter adapter) {
+        this.adapter = adapter;
     }
 
     private ContactListListener contactListListener;
@@ -634,5 +643,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             adapter.setProfilePicClickListener(profilePicClickListener);
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void withUpdates(boolean withUpdates) {
+        this.withUpdates = withUpdates;
     }
 }

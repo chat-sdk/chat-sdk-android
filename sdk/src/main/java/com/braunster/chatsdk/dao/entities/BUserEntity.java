@@ -8,7 +8,6 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
 import com.braunster.chatsdk.network.firebase.BPath;
-import com.firebase.simplelogin.enums.Provider;
 
 import java.io.File;
 import java.util.List;
@@ -23,23 +22,24 @@ public abstract class BUserEntity extends Entity<BUser> {
     public String email ="";
     public String pictureURL = "";
 
-    public static String safeAuthenticationID(String aid, Provider type){
+    public static String safeAuthenticationID(String aid, int type){
 
+        // Numbers are like the Provider enum in simple login.
         String prefix = "";
         switch (type){
-            case PASSWORD:
+            case 1:
                 prefix = "pw";
                 break;
-            case FACEBOOK:
+            case 2:
                 prefix = "fb";
                 break;
-            case TWITTER:
+            case 4:
                 prefix = "tw";
                 break;
-            case ANONYMOUS:
+            case 5:
                 prefix = "an";
                 break;
-            case GOOGLE:
+            case 3:
                 prefix = "go";
                 break;
         }

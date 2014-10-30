@@ -10,7 +10,7 @@ import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.firebase.client.AuthData;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -83,7 +83,7 @@ public class TwitterManager {
         });
     }
 
-    public static Thread getVerifierThread(final String ver, final CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener){
+    public static Thread getVerifierThread(final String ver, final CompletionListenerWithDataAndError<AuthData, Object> listener){
         return new Thread(new Runnable() {
             @Override
             public void run() {

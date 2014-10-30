@@ -98,4 +98,66 @@ public class FirebasePaths extends Firebase{
 
         return map;
     }
+
+
+    public static final class ProviderString{
+        public static final String Anonymous = "anonymous";
+        public static final String Password = "password";
+        public static final String Facebook = "facebook";
+        public static final String Twitter = "twitter";
+        public static final String Google = "google";
+    }
+
+    public static final class ProviderInt{
+        public static final int Password = 1;
+        public static final int Facebook = 2;
+        public static final int Google = 3;
+        public static final int Twitter = 4;
+        public static final int Anonymous = 5;
+    }
+
+    public static int providerToInt(String provider){
+        if (provider.equals(ProviderString.Password))
+        {
+            return ProviderInt.Password;
+        }
+        else if (provider.equals(ProviderString.Facebook))
+        {
+            return ProviderInt.Facebook;
+        }
+        else if (provider.equals(ProviderString.Google))
+        {
+            return ProviderInt.Google;
+        }
+        else if (provider.equals(ProviderString.Twitter))
+        {
+            return ProviderInt.Twitter;
+        }
+        else if (provider.equals(ProviderString.Anonymous))
+        {
+            return ProviderInt.Anonymous;
+        }
+
+        throw new IllegalArgumentException("Np provider was found matching requested.");
+    }
+
+    public static String providerToString(int provider){
+
+        switch (provider){
+            case ProviderInt.Password:
+                return ProviderString.Password;
+            case ProviderInt.Facebook:
+                return ProviderString.Facebook;
+            case ProviderInt.Google:
+                return ProviderString.Google;
+            case ProviderInt.Twitter:
+                return ProviderString.Twitter;
+            case ProviderInt.Anonymous:
+                return ProviderString.Anonymous;
+
+            default:
+                /*return ProviderString.Password;*/
+                throw new IllegalArgumentException("Np provider was found matching requested.");
+        }
+    }
 }

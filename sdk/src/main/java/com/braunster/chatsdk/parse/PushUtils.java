@@ -25,6 +25,7 @@ public class PushUtils {
 
     public static final String ACTION = "action";
     public static final String ALERT = "alert";
+    public static final String BADGE = "badge", INCREMENT = "Increment";
     public static final String CONTENT = "text";
     public static final String MESSAGE_ENTITY_ID = "message_entity_id";
     public static final String THREAD_ENTITY_ID = "thread_entity_id";
@@ -50,6 +51,11 @@ public class PushUtils {
 
         JSONObject data = new JSONObject();
         try {
+
+            //For iOS
+            data.put(BADGE, INCREMENT);
+            data.put(ALERT, text);
+
             data.put(ACTION, ChatSDKReceiver.ACTION_MESSAGE);
             data.put(CONTENT, text);
             data.put(MESSAGE_ENTITY_ID, message.getEntityID());
@@ -75,6 +81,9 @@ public class PushUtils {
     public static void sendFollowPush(String channel, String content){
         JSONObject data = new JSONObject();
         try {
+            //For iOS
+            data.put(BADGE, INCREMENT);
+            data.put(ALERT, content);
             data.put(ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
             data.put(CONTENT, content);
         } catch (JSONException e) {

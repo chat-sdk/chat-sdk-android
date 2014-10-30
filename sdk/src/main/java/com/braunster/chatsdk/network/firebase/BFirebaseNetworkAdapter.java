@@ -33,18 +33,12 @@ import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.PushUtils;
 import com.bugsense.trace.BugSenseHandler;
-import com.facebook.Session;
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
-import com.firebase.simplelogin.SimpleLogin;
-import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
-import com.firebase.simplelogin.SimpleLoginCompletionHandler;
-import com.firebase.simplelogin.enums.Provider;
 import com.parse.PushService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
@@ -62,6 +57,7 @@ import static com.braunster.chatsdk.network.BDefines.BAccountType.Register;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Keys;
 import static com.braunster.chatsdk.network.BDefines.Prefs;
+import static com.braunster.chatsdk.network.firebase.FirebasePaths.ProviderInt;
 
 /**
  * Created by braunster on 23/06/14.
@@ -137,7 +133,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     @Override
-    public void authenticateWithMap(Map<String, Object> details, final CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener) {
+    public void authenticateWithMap(final Map<String, Object> details, final CompletionListenerWithDataAndError<AuthData, Object> listener) {
         if (DEBUG) Log.v(TAG, "authenticateWithMap, KeyType: " + details.get(Prefs.LoginTypeKey));
 
         if (isAuthing())
@@ -149,22 +145,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         authingStatus = AuthStatus.AUTH_WITH_MAP;
 
         Firebase ref = FirebasePaths.firebaseRef();
-        SimpleLogin simpleLogin = new SimpleLogin(ref, context);
 
-        SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
+        Firebase.AuthResultHandler authResultHandler = new Firebase.AuthResultHandler() {
             @Override
-            public void authenticated(FirebaseSimpleLoginError error, final FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                if (error != null || firebaseSimpleLoginUser == null)
-                {
-                    if (DEBUG) Log.e(TAG, "Error login in, Name: " + error.getMessage());
-                    resetAuth();
-                    listener.onDoneWithError(firebaseSimpleLoginUser, error);
-                }
-                else handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
+            public void onAuthenticated(final AuthData authData) {
+                handleFAUser(authData, new CompletionListenerWithDataAndError<BUser, Object>() {
                     @Override
                     public void onDone(BUser user) {
                         resetAuth();
-                        listener.onDone(firebaseSimpleLoginUser);
+                        listener.onDone(authData);
                     }
 
                     @Override
@@ -174,13 +163,20 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     }
                 });
             }
+
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                if (DEBUG) Log.e(TAG, "Error login in, Name: " + firebaseError.getMessage());
+                resetAuth();
+                listener.onDoneWithError(null, firebaseError);
+            }
         };
 
         switch ((Integer)details.get(Prefs.LoginTypeKey))
         {
             case Facebook:
-                if (DEBUG) Log.d(TAG, "authing with fb.");
-                simpleLogin.loginWithFacebook(BDefines.APIs.FacebookAppId, (String) details.get(Keys.ThirdPartyData.AccessToken), handler);
+                if (DEBUG) Log.d(TAG, "authing with fb, AccessToken: " + BFacebookManager.userFacebookAccessToken);
+                ref.authWithOAuthToken("facebook", BFacebookManager.userFacebookAccessToken, authResultHandler);
                 break;
 
             case Twitter:
@@ -189,35 +185,58 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     userId = new Long((Integer) details.get(Keys.UserId));
                 else userId = (Long) details.get(Keys.UserId);
 
+                Map<String, String> options = new HashMap<String, String>();
+                options.put("oauth_token", BDefines.APIs.TwitterAccessToken);
+                options.put("oauth_token_secret",BDefines.APIs.TwitterAccessTokenSecret);
+                options.put("user_id", String.valueOf(userId));
+
                 if (DEBUG) Log.d(TAG, "authing with twitter. id: " + userId);
-                simpleLogin.loginWithTwitter(BDefines.APIs.TwitterAccessToken, BDefines.APIs.TwitterAccessTokenSecret, userId, handler);
+                ref.authWithOAuthToken("twitter", options, authResultHandler);
                 break;
 
             case Password:
-                simpleLogin.loginWithEmail((String) details.get(Prefs.LoginEmailKey),
-                        (String) details.get(Prefs.LoginPasswordKey), handler);
+                ref.authWithPassword((String) details.get(Prefs.LoginEmailKey),
+                        (String) details.get(Prefs.LoginPasswordKey), authResultHandler);
                 break;
             case  Register:
-                simpleLogin.createUser((String) details.get(Prefs.LoginEmailKey),
-                        (String) details.get(Prefs.LoginPasswordKey), handler);
+                ref.createUser((String) details.get(Prefs.LoginEmailKey),
+                        (String) details.get(Prefs.LoginPasswordKey), new Firebase.ResultHandler() {
+                            @Override
+                            public void onSuccess() {
+                                resetAuth();
+                                //Authing the user after creating it.
+                                details.put(Prefs.LoginTypeKey, Password);
+                                authenticateWithMap(details, listener);
+                            }
+
+                            @Override
+                            public void onError(FirebaseError firebaseError) {
+                                if (DEBUG) Log.e(TAG, "Error login in, Name: " + firebaseError.getMessage());
+                                resetAuth();
+                                listener.onDoneWithError(null, firebaseError);
+                            }
+                        });
                 break;
             case Anonymous:
-                simpleLogin.loginAnonymously(handler);
+                ref.authAnonymously(authResultHandler);
                 break;
 
             default:
+                if (DEBUG) Log.d(TAG, "No login type was found");
+                if (listener!=null)
+                    listener.onDoneWithError(null, BError.getError(BError.Code.NO_LOGIN_TYPE, "No matching login type was found"));
                 break;
         }
 
 
     }
 
-    public void handleFAUser(final FirebaseSimpleLoginUser fuser, final CompletionListenerWithDataAndError<BUser, Object> listener){
+    public void handleFAUser(final AuthData authData, final CompletionListenerWithDataAndError<BUser, Object> listener){
         if (DEBUG) Log.v(TAG, "handleFAUser");
 
         authingStatus = AuthStatus.HANDLING_F_USER;
 
-        if (fuser == null)
+        if (authData == null)
         {
             resetAuth();
             // If the user isn't authenticated they'll need to login
@@ -228,16 +247,32 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Flag that the user has been authenticated
         setAuthenticated(true);
 
-        String aid = BUser.safeAuthenticationID(fuser.getUserId(), fuser.getProvider());
+        String provider = authData.getProvider();
+        String aid;
+
+        // We need to get the user safe if, Password has it saved in the Uid also anonymous.
+        if (provider.equals(FirebasePaths.ProviderString.Password))
+        {
+            if (DEBUG) Log.d(TAG, "Uid: " + authData.getUid());
+            aid = BUser.safeAuthenticationID(authData.getUid().replace("simplelogin:", ""), FirebasePaths.providerToInt(authData.getProvider()));
+        }
+        else if (provider.equals(FirebasePaths.ProviderString.Anonymous))
+        {
+            aid = BUser.safeAuthenticationID(authData.getUid().replace("anonymous:", ""), FirebasePaths.providerToInt(authData.getProvider()));
+        }
+        else
+        {
+            aid = BUser.safeAuthenticationID((String) authData.getProviderData().get(Keys.ThirdPartyData.ID), FirebasePaths.providerToInt(authData.getProvider()));
+        }
 
         // Save the authentication ID for the current user
         // Set the current user
         final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
         loginInfoMap.put(Prefs.AuthenticationID, aid);
-        loginInfoMap.put(Prefs.AccountTypeKey, fuser.getProvider().ordinal());
+        loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProvider()));
 
         final BUser user = DaoCore.fetchOrCreateUserWithAuthenticationID(aid);
-        user.setAuthenticationType(fuser.getProvider().ordinal());
+        user.setAuthenticationType(FirebasePaths.providerToInt(authData.getProvider()));
 
         BFirebaseInterface.selectEntity(user,
                 new CompletionListenerWithDataAndError<BUser, FirebaseError>() {
@@ -248,7 +283,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                         setLoginInfo(loginInfoMap);
 
-                        updateUserFromFUser(buser, fuser);
+                        updateUserFromFUser(buser, authData);
 
                         listener.onDone(buser);
                     }
@@ -262,30 +297,28 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     /**Copy some details from the FAUser like name etc...*/
-    public void updateUserFromFUser(final BUser user, FirebaseSimpleLoginUser fireUser){
+    public void updateUserFromFUser(final BUser user, AuthData authData){
         if (DEBUG) Log.v(TAG, "updateUserFromFUser");
 
         authingStatus = AuthStatus.UPDATING_USER;
 
-        Map <String, Object> thirdPartyData = fireUser.getThirdPartyUserData();
-        String name;
-        String email;
+        Map <String, Object> thirdPartyData = authData.getProviderData();
+        String name = (String) thirdPartyData.get(Keys.ThirdPartyData.DisplayName);;
+        String email = (String) thirdPartyData.get(Keys.ThirdPartyData.EMail);;
         BLinkedAccount linkedAccount;
 
         user.setOnline(true);
 
-        switch (fireUser.getProvider())
+        switch (FirebasePaths.providerToInt(authData.getProvider()))
         {
-            case FACEBOOK:
+            case ProviderInt.Facebook:
                 // Setting the name.
-                name =(String) thirdPartyData.get(Keys.ThirdPartyData.DisplayName);
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                 {
                     user.setMetaName(name);
                 }
 
                 // Setting the email.//
-                email = (String) fireUser.getThirdPartyUserData().get(Keys.ThirdPartyData.EMail);
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
                 {
                     user.setMetaEmail(email);
@@ -303,21 +336,18 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 break;
 
-            case TWITTER:
-                // Setting the name.
-                name = (String) thirdPartyData.get(Keys.ThirdPartyData.DisplayName);
-
+            case ProviderInt.Twitter:
+                // Setting the name
                 if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
                     user.setMetaName(name);
 
                 // Setting the email.//
-                email = (String) fireUser.getThirdPartyUserData().get(Keys.ThirdPartyData.EMail);
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
                 {
                     user.setMetaEmail(email);
                 }
 
-                TwitterManager.userId = Long.parseLong(fireUser.getUserId());
+                TwitterManager.userId = Long.parseLong((String) thirdPartyData.get(Keys.ThirdPartyData.ID));
                 TwitterManager.profileImageUrl = (String) thirdPartyData.get(Keys.ThirdPartyData.ImageURL);
 
                 linkedAccount = user.getAccountWithType(BLinkedAccount.Type.TWITTER);
@@ -332,8 +362,11 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 break;
 
-            case PASSWORD:
-                email = fireUser.getEmail();
+            case ProviderInt.Password:
+                // Setting the name
+                if (StringUtils.isNotEmpty(name) && StringUtils.isEmpty(user.getMetaName()))
+                    user.setMetaName(name);
+
                 if (StringUtils.isNotEmpty(email) && StringUtils.isEmpty(user.getMetaEmail()))
                     user.setMetaEmail(email);
                 break;
@@ -342,7 +375,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }
 
         // Message Color.
-        if (StringUtils.isEmpty(user.getMessageColor()) /*FIxME*/|| user.getMessageColor().equals("Red"))
+        if (StringUtils.isEmpty(user.getMessageColor()) /*FIxME due to old data*/|| user.getMessageColor().equals("Red"))
         {
             if (StringUtils.isNotEmpty(BDefines.Defaults.MessageColor))
                 user.setMessageColor(BDefines.Defaults.MessageColor);
@@ -454,53 +487,35 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         if (!getLoginInfo().containsKey(Prefs.AccountTypeKey))
         {
+            if (DEBUG) Log.d(TAG, "No account type key");
             resetAuth();
             listener.onLoginFailed(new BError(BError.Code.NO_LOGIN_INFO));
             return;
         }
 
-        SimpleLoginAuthenticatedHandler handler = new SimpleLoginAuthenticatedHandler() {
-            @Override
-            public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
-                if (error != null || firebaseSimpleLoginUser == null)
-                {
-                    resetAuth();
 
-                    listener.onCheckDone(false);
-                    if (DEBUG) Log.d(TAG, "Firebase SimpleLogin,  not authenticated");
-                    if (error != null)
-                    {
-                        if (DEBUG) Log.d(TAG, error.getMessage());
-                    }
-                    else if (DEBUG) Log.d(TAG, "No Error");
-
-                    if (firebaseSimpleLoginUser != null)
-                    {
-                        if (DEBUG) Log.d(TAG, "fire base user is not null");
-                    }
-                    else if (DEBUG) Log.d(TAG, "firebase user is null");
+        Firebase ref = FirebasePaths.firebaseRef();
+        if (ref.getAuth()!=null)
+        {
+            handleFAUser(ref.getAuth(), new CompletionListenerWithDataAndError<BUser, Object>() {
+                @Override
+                public void onDone(BUser user) {
+                    listener.onLoginDone();
                 }
-                else {
-                    if (DEBUG) Log.d(TAG, "Firebase SimpleLogin, Authenticated");
-                    listener.onCheckDone(true);
-                    handleFAUser(firebaseSimpleLoginUser, new CompletionListenerWithDataAndError<BUser, Object>() {
-                        @Override
-                        public void onDone(BUser user) {
-                            resetAuth();
-                            listener.onLoginDone();
-                        }
 
-                        @Override
-                        public void onDoneWithError(BUser user, Object o) {
-                            resetAuth();
-                            listener.onLoginFailed((BError) o);
-                        }
-                    });
+                @Override
+                public void onDoneWithError(BUser user, Object o) {
+                    //TODO Add real error value.
+                    listener.onLoginFailed(null);
                 }
-            }
-        };
+            });
 
-        if ((Integer) getLoginInfo().get(Prefs.AccountTypeKey) == Provider.FACEBOOK.ordinal())
+        }
+        else listener.onCheckDone(false);
+
+        resetAuth();
+
+        /*if ((Integer) getLoginInfo().get(Prefs.AccountTypeKey) == Provider.FACEBOOK.ordinal())
         {
             Session session = Session.getActiveSession();
             if (session == null)
@@ -524,20 +539,23 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }
         else
         {
+            if (DEBUG) Log.d(TAG, "SimpleLogin");
             Firebase ref = FirebasePaths.firebaseRef();
+
+
             final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
             simpleLogin.checkAuthStatus(handler);
-        }
+        }*/
     }
 
     @Override
-    public void changePassword(String email, String oldPassword, String newPassword, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
-        getSimpleSimpleLogin().changePassword(email, oldPassword, newPassword, simpleLoginCompletionHandler);
+    public void changePassword(String email, String oldPassword, String newPassword, Firebase.ResultHandler resultHandler){
+        FirebasePaths.firebaseRef().changePassword(email, oldPassword, newPassword, resultHandler);
     }
 
     @Override
-    public void sendPasswordResetMail(String email, final SimpleLoginCompletionHandler simpleLoginCompletionHandler){
-        getSimpleSimpleLogin().sendPasswordResetEmail(email, simpleLoginCompletionHandler);
+    public void sendPasswordResetMail(String email, Firebase.ResultHandler resultHandler){
+        FirebasePaths.firebaseRef().resetPassword(email, resultHandler);
     }
 
     @Override
@@ -556,19 +574,15 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         unsubscribeToPushChannel(user.getPushChannel());
 
         // Obtaining the simple login object from the ref.
-        SimpleLogin simpleLogin = new SimpleLogin(FirebasePaths.firebaseRef(), context);
+        FirebasePaths ref = FirebasePaths.firebaseRef();
 
         // Login out
         FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
         userOnlineRef.setValue(false);
-        simpleLogin.logout();
 
+        ref.unauth();
     }
 
-    private SimpleLogin getSimpleSimpleLogin(){
-        Firebase ref = FirebasePaths.firebaseRef();
-        return new SimpleLogin(ref, context);
-    }
 /*######################################################################################################*/
     /** Indexing
      * To allow searching we're going to implement a simple index. Strings can be registered and
@@ -579,238 +593,111 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
      *
      * This will allow us to find the user*/
     @Override
-    public void usersForIndex(String index, final RepetitiveCompletionListener<BUser> listener) {
-        mapForIndex(index, new MapForIndex() {
-            @Override
-            public void Completed(Firebase ref, String index, Map<String, Object> values) {
-                if (DEBUG) Log.d(TAG, "usersForIndex, Completed");
+    public void usersForIndex(final String index, final String value, final RepetitiveCompletionListener<BUser> listener) {
+        if (StringUtils.isBlank(value))
+        {
+            if (listener!=null)
+                listener.onDone();
+            return;
+        }
 
-                if (ref == null && values == null)
-                {
-                    if (DEBUG) Log.e(TAG, "Error occurred while fetching the map for the index.");
-                    return;
-                }
-
-                final List<BUser> usersToGo = new ArrayList<BUser>();
-                List<String> keys = new ArrayList<String>();
-
-                // So we dont have to call the db for each key.
-                String currentUserEntityID = currentUser().getEntityID();
-
-                // Adding all keys to the list, Except the current user key.
-                for (String key : values.keySet())
-                    if (!key.equals(currentUserEntityID))
-                        keys.add(key);
-
-                if (keys.size() == 0)
-                    if (DEBUG) Log.e(TAG, "Keys size is zero");
-
-                /* Note this methods(Getting the user and selecting entities) is separated here not like in the iOS version.
-                // Note because i am afraid the call back return to fast from selectEnity and a bad result will happen.*/
-
-                // Fetch or create users in the local db.
-                BUser bUser;
-                if (keys.size() > 0){
-                    for (String entityID : keys)
-                    {
-                        bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
-                        usersToGo.add(bUser);
-                    }
-
-                    for (BUser user : usersToGo)
-                    {
-                        BFirebaseInterface.selectEntity(user, new CompletionListenerWithDataAndError<BUser, Object>() {
-                            @Override
-                            public void onDone(BUser u) {
-                                // Remove the user.
-                                usersToGo.remove(u);
-
-                                // Notify that a user has been found.
-                                listener.onItem(u);
-
-                                // if no more users to found call on done.
-                                if (usersToGo.size() == 0)
-                                    listener.onDone();
-                            }
-
-                            @Override
-                            public void onDoneWithError(BUser bUser1, Object o) {
-                                if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
-                                // Notify that an error occurred while selecting.
-                                listener.onItemError(o);
-                            }
-                        });
-                    }
-                }
-                else listener.onDone();
-            }
-        });
-    }
-
-    /**This method get the map values of data stored at a particular index*/
-    private void mapForIndex(String index, final MapForIndex mapForIndex){
-        Log.v(TAG, "mapForIndex, Index: " + index);
-        FirebasePaths indexRef = FirebasePaths.indexRef();
-
-        // Remove spaces from string and make it lower case
-        index = index.replace(" ", "");
-        index = index.toLowerCase();
-
-        if (DEBUG) Log.d(TAG, "index after fix: " + index);
-
-        Query query = indexRef.startAt(index).endAt(index);
-
-        final String finalIndex = index;
+        Query query = FirebasePaths.indexRef().orderByChild(index).startAt(processForQuery(value)).limitToFirst(BFirebaseDefines.NumberOfUserToLoadForIndex);
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if(snapshot != null && snapshot.getValue() != null && snapshot.hasChildren())
-                {
-                    Log.v(TAG, "mapForIndex, onDataChanged, Has children.");
-                    // Check to see if this user is already registered
+                if (snapshot.getValue() != null) {
+                    Map<String, Objects> values = (Map<String, Objects>) snapshot.getValue();
 
-                    for (DataSnapshot child : snapshot.getChildren())
-                    {
-                        // The child will contain a dictionary of users i.e. [user ID] => name => [user name]
-                        if (child.getValue() != null)
-                        {
-                            // Return the index location and the value at the index
-                            mapForIndex.Completed(child.getRef(), finalIndex, (Map<String, Object>) child.getValue());
-                        } else if (DEBUG) Log.e(TAG, "apForIndex, onDataChanged, Value is null");
-                        break;
-                        // ASK why break here after the first child? is it because we can do snapshot.get(0)?
-                    }
+                    final List<BUser> usersToGo = new ArrayList<BUser>();
+                    List<String> keys = new ArrayList<String>();
 
-                }
-                // Otherwise create a new index and add the user
-                else
-                {
-                    Firebase ref = snapshot.getRef().push();
+                    // So we dont have to call the db for each key.
+                    String currentUserEntityID = currentUser().getEntityID();
 
-                    // Return the new index
-                    mapForIndex.Completed(ref, finalIndex, new HashMap<String, Object>());
-                }
-            }
+                    // Adding all keys to the list, Except the current user key.
+                    for (String key : values.keySet())
+                        if (!key.equals(currentUserEntityID))
+                            keys.add(key);
 
-            @Override
-            public void onCancelled(FirebaseError error) {
-                mapForIndex.Completed(null, finalIndex, null);
-            }
-        });
-    }
+                    if (keys.size() == 0)
+                        if (DEBUG) Log.e(TAG, "Keys size is zero");
 
-    /** Interface to return values from the <b>mapForIndex</b> method.*/
-    public interface MapForIndex{
-        public void Completed(Firebase ref, String index, Map<String, Object> values);
-    }
+                /* Note this methods(Getting the user and selecting entities) is separated here not like in the iOS version.
+                // Note because i am afraid the call back return to fast from selectEnity and a bad result will happen.*/
 
-    @Override
-    public void removeUserFromIndex(final BUser user, String index, final CompletionListener listener) {
-        if (StringUtils.isEmpty(index))
-        {
-            if (listener!=null)
-                listener.onDoneWithError(new BError(BError.Code.NULL, "index is null"));
-
-            return;
-        }
-
-
-        mapForIndex(index, new MapForIndex() {
-            @Override
-            public void Completed(Firebase ref, String index, Map<String, Object> values) {
-                if (ref == null || values == null)
-                {
-                    if (DEBUG) Log.e(TAG, "Error occurred while fetching the map for the index.");
-                    return;
-                }
-
-                values.remove(user.getEntityID());
-
-                ref.setValue(values, index, new Firebase.CompletionListener() {
-                    @Override
-                    public void onComplete(FirebaseError error, Firebase firebase) {
-                        if (listener == null)
-                            return;
-
-                        if (error != null)
-                        {
-                            listener.onDoneWithError(BError.getFirebaseError(error));
+                    // Fetch or create users in the local db.
+                    BUser bUser;
+                    if (keys.size() > 0) {
+                        for (String entityID : keys) {
+                            bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
+                            usersToGo.add(bUser);
                         }
-                        else listener.onDone();
-                    }
-                });
+
+                        for (BUser user : usersToGo) {
+                            BFirebaseInterface.selectEntity(user, new CompletionListenerWithDataAndError<BUser, Object>() {
+                                @Override
+                                public void onDone(BUser u) {
+                                    // Remove the user.
+                                    usersToGo.remove(u);
+
+                                    // Notify that a user has been found.
+                                    // Making sure the user due start with the wanted name
+                                    if (processForQuery(u.metaStringForKey(index)).startsWith(processForQuery(value)))
+                                        listener.onItem(u);
+
+                                    // if no more users to found call on done.
+                                    if (usersToGo.size() == 0)
+                                        listener.onDone();
+                                }
+
+                                @Override
+                                public void onDoneWithError(BUser bUser1, Object o) {
+                                    if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
+                                    // Notify that an error occurred while selecting.
+                                    listener.onItemError(o);
+                                }
+                            });
+                        }
+                    } else listener.onDone();
+                } else {
+                    if (listener != null)
+                        listener.onItemError(BError.getError(BError.Code.NULL, "No values found for this index."));
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
             }
         });
     }
 
     @Override
-    public void addUserToIndex(final BUser user, String index, final CompletionListener listener) {
-        if (StringUtils.isEmpty(index))
-        {
-            if (listener!=null)
-                listener.onDoneWithError(new BError(BError.Code.NULL, "index is null"));
+    public void updateIndexForUser(BUser user, final CompletionListener listener){
+        FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(user.getEntityID());
 
-            return;
-        }
+        Map<String, String> values = new HashMap<String, String>();
+        values.put(BDefines.Keys.BName, processForQuery(user.getMetaName()));
+        values.put(BDefines.Keys.BEmail, processForQuery(user.getMetaEmail()));
 
-        // We don't want to index null strings!
-        index = index.replace(" ", "");
-        index = index.toLowerCase();
-
-        if (StringUtils.isEmpty(index))
-        {
-            if (DEBUG) Log.e(TAG, "Index is empty");
-            if (listener != null)
-                listener.onDoneWithError(new BError(BError.Code.NULL, "Index is empty"));
-            return;
-        }
-
-        mapForIndex(index, new MapForIndex() {
+        // No listener was assigned so ne need for callback
+        if (listener==null)
+            ref.setValue(values);
+        else ref.setValue(values, new Firebase.CompletionListener() {
             @Override
-            public void Completed(Firebase ref, String index, Map<String, Object> values) {
-                if (ref == null || values == null)
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError==null)
                 {
-                    if (DEBUG) Log.e(TAG, "Error occurred while fetching the map for the index.");
-                    return;
+                    listener.onDone();
                 }
-
-                // Getting the user index by his entity id.
-                Map<String, Object> map = ((Map<String, Object>) values.get(user.getEntityID()));
-
-                // Map for index could not find older data so we create a new one.
-                if (map == null)
-                {
-                    // Creating the new index
-                    map = new HashMap<String, Object>();
-                    map.put(Keys.BValue, index);
+                else{
+                    listener.onDoneWithError(BError.getFirebaseError(firebaseError));
                 }
-                // Updating the index.
-                else map.put(Keys.BValue, index);
-
-                if (user.getEntityID() == null)
-                {
-                    listener.onDoneWithError(new BError(BError.Code.NULL, "User entity id is empty"));
-                    return;
-                }
-
-                // Adding the new data to the index.
-                values.put(user.getEntityID(), map);
-
-                ref.setValue(values, index, new Firebase.CompletionListener() {
-                    @Override
-                    public void onComplete(FirebaseError error, Firebase firebase) {
-                        if (listener == null)
-                            return;
-
-                        if (error!=null)
-                            listener.onDoneWithError(BError.getFirebaseError(error));
-                        else listener.onDone();
-                    }
-                });
             }
         });
     }
+
 /*######################################################################################################*/
 
     @Override

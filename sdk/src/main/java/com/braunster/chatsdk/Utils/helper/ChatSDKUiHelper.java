@@ -22,7 +22,7 @@ import com.braunster.chatsdk.activities.ChatSDKShareWithContactsActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractProfileActivity;
-import com.firebase.simplelogin.enums.FirebaseSimpleLoginErrorCode;
+import com.firebase.client.FirebaseError;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
@@ -326,40 +326,45 @@ public class ChatSDKUiHelper {
         this.alertToast = alertToast;
     }
 
-    public void showSimpleLoginErroToast(FirebaseSimpleLoginErrorCode error){
+    public void showToastForFirebaseError(int error){
         String toastMessage = "";
+
 
         switch (error)
         {
-            case EmailTaken:
+            case FirebaseError.EMAIL_TAKEN:
                 toastMessage = "Email is taken.";
                 break;
 
-            case InvalidEmail:
+            case FirebaseError.INVALID_EMAIL:
                 toastMessage = "Invalid Email.";
                 break;
 
-            case InvalidPassword:
+            case FirebaseError.INVALID_PASSWORD:
                 toastMessage = "Invalid Password";
                 break;
 
-            case AccountNotFound:
+            case FirebaseError.USER_DOES_NOT_EXIST:
                 toastMessage = "Account not found.";
                 break;
 
-            case AccessNotGranted:
-                toastMessage = "Access not granted.";
+            case FirebaseError.NETWORK_ERROR:
+                toastMessage = "Network Error.";
                 break;
 
-            case OperationFailed:
-                toastMessage = "Operation Failed";
+            case FirebaseError.INVALID_CREDENTIALS:
+                toastMessage = "Invalid credentials.";
                 break;
 
-            case UserDoesNotExist:
-                toastMessage = "User does not exist";
+            case FirebaseError.EXPIRED_TOKEN:
+                toastMessage = "Expired Token.";
                 break;
 
-            case PermissionDenied:
+            case FirebaseError.OPERATION_FAILED:
+                toastMessage = "Operation failed";
+                break;
+
+            case FirebaseError.PERMISSION_DENIED:
                 toastMessage = "Permission denied";
                 break;
 

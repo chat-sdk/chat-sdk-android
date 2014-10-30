@@ -13,6 +13,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,16 +24,16 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class ThreadsListAdapter extends AbstractThreadsListAdapter<AbstractThreadsListAdapter.ThreadListItem> {
+public class ChatSDKThreadsListAdapter extends ChatSDKAbstractThreadsListAdapter<ChatSDKAbstractThreadsListAdapter.ThreadListItem> {
 
-    private static final String TAG = ThreadsListAdapter.class.getSimpleName();
+    private static final String TAG = ChatSDKThreadsListAdapter.class.getSimpleName();
     public static final boolean DEBUG = Debug.ThreadsListAdapter;
 
-    public ThreadsListAdapter(Activity activity) {
+    public ChatSDKThreadsListAdapter(Activity activity) {
         super(activity);
     }
 
-    public ThreadsListAdapter(Activity activity, List<ThreadListItem> listData) {
+    public ChatSDKThreadsListAdapter(Activity activity, List<ThreadListItem> listData) {
         super(activity, listData);
     }
 
@@ -66,7 +67,7 @@ public class ThreadsListAdapter extends AbstractThreadsListAdapter<AbstractThrea
 
         int unreadMsg = thread.getUnreadMessagesAmount();
         if (DEBUG) Log.d(TAG, "Unread messages amount: " + unreadMsg);
-        if (unreadMsg!=0)
+        if (unreadMsg!=0 &&  thread.isPrivate)
         {
             holder.txtUnreadMessagesAmount.setText(String.valueOf(unreadMsg));
             holder.txtUnreadMessagesAmount.setVisibility(View.VISIBLE);

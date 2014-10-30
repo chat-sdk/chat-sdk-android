@@ -47,10 +47,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/5/2014.
  */
-public class MessagesListAdapter extends BaseAdapter{
+public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
     // FIXME  fix content overlap the hour.
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private static final String TAG = ChatSDKMessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
     /* Row types */
@@ -87,7 +87,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     private int textColor = -1991;
 
-    public MessagesListAdapter(Activity activity, Long userID){
+    public ChatSDKMessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -95,7 +95,7 @@ public class MessagesListAdapter extends BaseAdapter{
         maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
     }
 
-    public MessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
+    public ChatSDKMessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
         mActivity = activity;
 
         this.userID = userID;

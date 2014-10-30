@@ -65,6 +65,7 @@ public class BError {
         public static final int NO_LOGIN_INFO = 17; // When there is no available login info to use when login.
         public static final int ACCESS_TOKEN_REFUSED = 18;
         public static final int BAD_RESPONSE = 19;
+        public static final int NO_LOGIN_TYPE = 20;
     }
 
     public static final class Message{

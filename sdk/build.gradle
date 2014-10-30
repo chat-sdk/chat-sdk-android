@@ -32,9 +32,10 @@ repositories {
 
 dependencies {
     // Facebook SDK
-    compile project(':facebook') /*{
-        exclude group: 'com.android.support', module: 'support-v4'
-    }*/
+    compile project(':facebook')
+    /*{
+                exclude group: 'com.android.support', module: 'support-v4'
+            }*/
     // Used for StringUtils
     compile files('libs/commons-lang3-3.3.2.jar')
     // Bug tracking
@@ -71,4 +72,6 @@ dependencies {
     compile('com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
+    compile files('libs/firebase-client-android-1.2.0-beta.2.jar')
+    compile files('libs/firebase-client-android-1.1.1.jar')
 }

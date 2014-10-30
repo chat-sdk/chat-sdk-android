@@ -9,7 +9,7 @@ import android.util.TimingLogger;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
-import com.braunster.chatsdk.adapter.AbstractThreadsListAdapter;
+import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
@@ -27,12 +27,13 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTask
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.parse.ParseUtils;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
-import com.firebase.simplelogin.SimpleLoginCompletionHandler;
+import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public abstract class AbstractNetworkAdapter {
     }
 
     // Note done!
-    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener);
+    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<AuthData, Object> listener);
 
     /**
      * Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,
@@ -116,10 +117,10 @@ public abstract class AbstractNetworkAdapter {
     public abstract void isOnline(final CompletionListenerWithData<Boolean> listener);
 
     /** Send a password change request to the server.*/
-    public abstract void changePassword(String email, String oldPassword, String newPassword, SimpleLoginCompletionHandler simpleLoginCompletionHandler);
+    public abstract void changePassword(String email, String oldPassword, String newPassword, Firebase.ResultHandler handler);
 
     /** Send a reset email request to the server.*/
-    public abstract void sendPasswordResetMail(String email, SimpleLoginCompletionHandler simpleLoginCompletionHandler);
+    public abstract void sendPasswordResetMail(String email, Firebase.ResultHandler handler);
 
     /*######################################################################################################*/
    /*Followers*/
@@ -406,13 +407,13 @@ public abstract class AbstractNetworkAdapter {
 
     /*######################################################################################################*/
     /*Index*/
-    public abstract void usersForIndex(String index, RepetitiveCompletionListener<BUser> listener);
+    public abstract void usersForIndex(String index, String value, RepetitiveCompletionListener<BUser> listener);
 
-    public abstract void removeUserFromIndex(BUser user, String index, CompletionListener listener);
+    public abstract void updateIndexForUser(BUser user, CompletionListener listener);
 
-    public abstract void addUserToIndex(BUser user, String index, CompletionListener listener);
-
-
+    protected String processForQuery(String query){
+        return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
+    }
 /*######################################################################################################*/
     /*Thread*/
     /**
@@ -479,7 +480,7 @@ public abstract class AbstractNetworkAdapter {
                     threads.add(thread);
                     continue;
                 }
-                else if (DEBUG) Log.e(TAG, "threadsWithType, Thread has no messages.");
+                else if (DEBUG) Log.d(TAG, "threadsWithType, Thread has no messages.");
 
                 threadCreator = thread.getCreator();
                 if (threadCreator != null )
@@ -510,7 +511,7 @@ public abstract class AbstractNetworkAdapter {
         return threads;
     }
 
-    public <E extends AbstractThreadsListAdapter.ThreadListItem> List<E> threadItemsWithType(int threadType, AbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker) {
+    public <E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> List<E> threadItemsWithType(int threadType, ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker) {
         if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
         if (currentUser() == null) {
             if (DEBUG) Log.e(TAG, "threadItemsWithType, Current user is null");
@@ -660,7 +661,7 @@ public abstract class AbstractNetworkAdapter {
                 keyValuesEditor.putString(s, (String) values.get(s));
             else if (values.get(s) instanceof Boolean)
                 keyValuesEditor.putBoolean(s, (Boolean) values.get(s));
-            else Log.e(TAG, "Cant add this --> " + values.get(s) + " to the prefs");
+            else if (DEBUG) Log.e(TAG, "Cant add this --> " + values.get(s) + " to the prefs");
         }
 
         keyValuesEditor.apply();
@@ -672,7 +673,7 @@ public abstract class AbstractNetworkAdapter {
             keyValuesEditor.putInt(key, (Integer) value);
         else if (value instanceof String)
             keyValuesEditor.putString(key, (String) value);
-        else Log.e(TAG, "Cant add this --> " + value+ " to the prefs");
+        else if (DEBUG) Log.e(TAG, "Cant add this --> " + value+ " to the prefs");
 
         keyValuesEditor.apply();
     }
@@ -681,21 +682,4 @@ public abstract class AbstractNetworkAdapter {
     public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();
     }
-
-
-
-/*######################################################################################################*/
-    //TODO implement later on.
-    /*// These are standard methods to register for push notifications
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    // This is an abstract method which must be overridden
-    NSLog(@"application: didReceiveRemoteNotification: completion must be overridden");
-    assert(1 == 2);
-}
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    // This is an abstract method which must be overridden
-    NSLog(@"application: withProgress: didRegisterForRemoteNotificationsWithDeviceToken must be overridden");
-    assert(1 == 2);
-}*/
 }

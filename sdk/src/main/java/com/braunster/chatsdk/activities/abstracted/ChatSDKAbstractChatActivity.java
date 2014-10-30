@@ -29,7 +29,7 @@ import com.braunster.chatsdk.Utils.helper.ChatSDKChatHelper;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.activities.ChatSDKBaseActivity;
 import com.braunster.chatsdk.activities.ChatSDKPickFriendsActivity;
-import com.braunster.chatsdk.adapter.MessagesListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKMessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
@@ -90,7 +90,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
     protected  ChatMessageBoxView messageBoxView;
     protected  ListView listMessages;
-    protected  MessagesListAdapter messagesListAdapter;
+    protected ChatSDKMessagesListAdapter messagesListAdapter;
     protected  BThread thread;
 
     protected  PullToRefreshLayout mPullToRefreshLayout;
@@ -303,7 +303,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         chatSDKChatHelper.setListMessages(listMessages);
 
         if (messagesListAdapter == null)
-            messagesListAdapter = new MessagesListAdapter(ChatSDKAbstractChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
+            messagesListAdapter = new ChatSDKMessagesListAdapter(ChatSDKAbstractChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
 
         listMessages.setAdapter(messagesListAdapter);
         chatSDKChatHelper.setMessagesListAdapter(messagesListAdapter);
@@ -675,7 +675,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     /*Message Loading and listView animation and scrolling*/
 
 
-    public MessagesListAdapter getMessagesListAdapter() {
+    public ChatSDKMessagesListAdapter getMessagesListAdapter() {
         return messagesListAdapter;
     }
 

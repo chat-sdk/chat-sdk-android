@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.adapter;
+package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
 import android.util.Log;
@@ -36,9 +36,9 @@ import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 /**
  * Created by itzik on 6/16/2014.
  */
-public abstract class AbstractThreadsListAdapter<E extends AbstractThreadsListAdapter.ThreadListItem> extends BaseAdapter {
+public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> extends BaseAdapter {
 
-    protected static final String TAG = AbstractThreadsListAdapter.class.getSimpleName();
+    protected static final String TAG = ChatSDKAbstractThreadsListAdapter.class.getSimpleName();
     protected static final boolean DEBUG = Debug.ThreadsListAdapter;
 
     protected Activity mActivity;
@@ -66,12 +66,12 @@ public abstract class AbstractThreadsListAdapter<E extends AbstractThreadsListAd
 
     protected boolean filtering = false;
 
-    public AbstractThreadsListAdapter(Activity activity){
+    public ChatSDKAbstractThreadsListAdapter(Activity activity){
         mActivity = activity;
         initMaker();
     }
 
-    public AbstractThreadsListAdapter(Activity activity, List<E> threadItems){
+    public ChatSDKAbstractThreadsListAdapter(Activity activity, List<E> threadItems){
         mActivity = activity;
 
         // Prevent crash due to null pointer. When a thread will be found it could be added using AddRow or setThreadItems.
@@ -315,6 +315,7 @@ public abstract class AbstractThreadsListAdapter<E extends AbstractThreadsListAd
         public int usersAmount = 0, unreadMessagesAmount = 0;
         public long id;
         public Date date;
+        public boolean isPrivate;
 
         public int type;
 
@@ -323,9 +324,10 @@ public abstract class AbstractThreadsListAdapter<E extends AbstractThreadsListAd
             type = TYPE_HEADER;
         }
 
-        public ThreadListItem(String entityId, String name, String imageUrl, String lastMessageDate, String lastMessageText, int usersAmount, int unreadMessagesAmount, long id, Date date) {
+        public ThreadListItem(String entityId, String name, String imageUrl, String lastMessageDate, String lastMessageText, int usersAmount, int unreadMessagesAmount, long id, Date date, boolean isPrivate) {
             this.entityId = entityId;
             this.name = name;
+            this.isPrivate = isPrivate;
             this.type = TYPE_THREAD;
             this.imageUrl = imageUrl;
             this.lastMessageDate = lastMessageDate;
@@ -480,7 +482,8 @@ public abstract class AbstractThreadsListAdapter<E extends AbstractThreadsListAd
                         users.size(),
                         thread.getUnreadMessagesAmount(),
                         thread.getId(),
-                        thread.getLastMessageAdded());
+                        thread.getLastMessageAdded(),
+                        thread.getType() == BThread.Type.Private);
             }
 
             @Override

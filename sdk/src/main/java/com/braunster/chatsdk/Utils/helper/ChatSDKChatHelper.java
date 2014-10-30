@@ -16,7 +16,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
 import com.braunster.chatsdk.activities.ChatSDKLocationActivity;
-import com.braunster.chatsdk.adapter.MessagesListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKMessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -88,7 +88,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private ListView listMessages;
     private ChatMessageBoxView messageBoxView;
     private ProgressBar progressBar;
-    private MessagesListAdapter messagesListAdapter;
+    private ChatSDKMessagesListAdapter messagesListAdapter;
 
     public ChatSDKChatHelper(Activity activity, BThread thread, ChatSDKUiHelper uiHelper) {
         this.activity = activity;
@@ -217,7 +217,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 markAsRead(messages);
 
                 // Setting the new message to the adapter.
-                final List<MessagesListAdapter.MessageListItem> list = messagesListAdapter.makeList(messages);
+                final List<ChatSDKMessagesListAdapter.MessageListItem> list = messagesListAdapter.makeList(messages);
 
                 if (list.size() == 0)
                 {
@@ -548,11 +548,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         return false;
     }
 
-    public void integrateUI(ChatMessageBoxView messageBoxView, MessagesListAdapter messagesListAdapter, ListView listView, ProgressBar progressBar) {
+    public void integrateUI(ChatMessageBoxView messageBoxView, ChatSDKMessagesListAdapter messagesListAdapter, ListView listView, ProgressBar progressBar) {
         integrateUI(true, messageBoxView, messagesListAdapter, listView, progressBar);
     }
 
-    public void integrateUI(boolean autoSend, ChatMessageBoxView messageBoxView, MessagesListAdapter messagesListAdapter, ListView listView, ProgressBar progressBar) {
+    public void integrateUI(boolean autoSend, ChatMessageBoxView messageBoxView, ChatSDKMessagesListAdapter messagesListAdapter, ListView listView, ProgressBar progressBar) {
         this.listMessages = listView;
         this.progressBar = progressBar;
         this.messagesListAdapter = messagesListAdapter;
@@ -667,7 +667,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         this.progressBar = progressBar;
     }
 
-    public void setMessagesListAdapter(MessagesListAdapter messagesListAdapter) {
+    public void setMessagesListAdapter(ChatSDKMessagesListAdapter messagesListAdapter) {
         this.messagesListAdapter = messagesListAdapter;
     }
 

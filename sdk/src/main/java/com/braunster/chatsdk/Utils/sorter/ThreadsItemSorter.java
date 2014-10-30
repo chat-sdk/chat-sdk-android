@@ -1,6 +1,6 @@
 package com.braunster.chatsdk.Utils.sorter;
 
-import com.braunster.chatsdk.adapter.AbstractThreadsListAdapter;
+import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by braunster on 18/06/14.
  */
-public class ThreadsItemSorter implements Comparator<AbstractThreadsListAdapter.ThreadListItem> {
+public class ThreadsItemSorter implements Comparator<ChatSDKAbstractThreadsListAdapter.ThreadListItem> {
     public static final int ORDER_TYPE_ASC = 0;
     public static final int ORDER_TYPE_DESC = 1;
 
@@ -21,7 +21,7 @@ public class ThreadsItemSorter implements Comparator<AbstractThreadsListAdapter.
     }
 
     @Override
-    public int compare(AbstractThreadsListAdapter.ThreadListItem t1, AbstractThreadsListAdapter.ThreadListItem t2) {
+    public int compare(ChatSDKAbstractThreadsListAdapter.ThreadListItem t1, ChatSDKAbstractThreadsListAdapter.ThreadListItem t2) {
         Date x, y;
         if (t1.getLastMessageDate() == null)
         {

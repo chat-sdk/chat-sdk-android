@@ -30,7 +30,7 @@
         jar="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="8a1435ed94293e00f73e3fa057eff3601b76882e"/>
+        sha1="2bf52d1e154a8b28a74fe0ce2e8a5cff448f570d"/>
     <item
         dex="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/junit-3.8.2-3d6accd4312c0ba854468cb8f18982f460743c43.jar"
         jar="/home/braunster/.gradle/caches/modules-2/files-2.1/junit/junit/3.8.2/7e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060/junit-3.8.2.jar"
@@ -78,7 +78,7 @@
         jar="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="803f4a780683e85101e31dacd72458f7233e3794"/>
+        sha1="d8298e07627c5379545677152de5996d96330a7f"/>
     <item
         dex="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-dbd091d9b90ea0dd39e2e691ebd6d6ce3693d49c.jar"
         jar="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"

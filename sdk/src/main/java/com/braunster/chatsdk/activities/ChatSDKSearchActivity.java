@@ -22,6 +22,7 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
 
                 adapter.clear();
 
-                BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(etInput.getText().toString(), new RepetitiveCompletionListener<BUser>() {
+                BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BName, etInput.getText().toString(), new RepetitiveCompletionListener<BUser>() {
                     private int usersFoundCount = 0;
                     private List<String> userIds = new ArrayList<String>();
 
@@ -198,7 +199,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
 
                     @Override
                     public void onItemError(Object object) {
-
+                        onDone();
                     }
                 });
             }

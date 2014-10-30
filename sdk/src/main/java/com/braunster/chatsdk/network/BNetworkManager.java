@@ -11,6 +11,7 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.bugsense.trace.BugSenseHandler;
+import com.firebase.client.Firebase;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
@@ -35,6 +36,8 @@ public class BNetworkManager {
 
     public static void init(Context ctx){
         context = ctx;
+
+        Firebase.setAndroidContext(context);
 
         preferences = ctx.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
         VolleyUtils.init(ctx);

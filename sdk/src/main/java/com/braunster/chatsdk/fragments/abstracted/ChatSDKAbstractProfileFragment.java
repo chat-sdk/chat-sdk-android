@@ -62,8 +62,6 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        initToast();
-
         return mainView;
     }
 
@@ -157,22 +155,8 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
     }
 
     /*############################################*/
-    protected void indexUser(final BUser user, final String oldIndex, final String newIndex){
-        BNetworkManager.sharedManager().getNetworkAdapter().removeUserFromIndex(user, oldIndex, new CompletionListener() {
-            @Override
-            public void onDone() {
-                index(user, newIndex);
-            }
-
-            @Override
-            public void onDoneWithError(BError error) {
-                index(user, newIndex);
-            }
-        });
-    }
-
-    private void index(final BUser user, String newIndex){
-        BNetworkManager.sharedManager().getNetworkAdapter().addUserToIndex(user, newIndex, new CompletionListener() {
+    protected void indexUser(final BUser user){
+        getNetworkAdapter().updateIndexForUser(user, new CompletionListener() {
             @Override
             public void onDone() {
 
@@ -180,8 +164,10 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
             @Override
             public void onDoneWithError(BError error) {
-                showToast("Cant index user details.");
+
             }
         });
     }
+
+
 }

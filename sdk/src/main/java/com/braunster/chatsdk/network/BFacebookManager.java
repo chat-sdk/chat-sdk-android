@@ -18,9 +18,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
-import com.firebase.simplelogin.SimpleLogin;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,51 +43,30 @@ public class BFacebookManager {
     public static String userFacebookID, userFacebookAccessToken, userFacebookName;
     private static String facebookAppID;
     private static String userThirdPartyUserAccount;
-
-    private static SimpleLogin simpleLogin;
+    private static Context ctx;
 
     public static void init(String id, Context context) {
         if (DEBUG) Log.i(TAG, "Initialized");
         Firebase ref = FirebasePaths.firebaseRef();
-        simpleLogin = new SimpleLogin(ref);
         facebookAppID = id;
+        ctx = context;
     }
 
     public static void loginWithFacebook(final CompletionListener completionListener) {
         if (DEBUG) Log.v(TAG, "loginWithFacebook");
-        /*simpleLogin.loginWithFacebook(facebookAppID, userFacebookAccessToken, new SimpleLoginAuthenticatedHandler() {
-            @Override
-            public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
-                if (error == null && user != null) {
-                    String accessToken = (String) user.getThirdPartyUserData().get(AccessToken);
-
-                    setNetworkCredentials(user.getUserId(), (String) user.getThirdPartyUserData().get(DISPLAY_NAME), accessToken);
-
-                    completionListener.onDone();
-                } else {
-                    if (error != null)
-                        Log.e(TAG, "Error: " + error.getMessage());
-
-                    setNetworkCredentials(null, null, null);
-                    completionListener.onDoneWithError();
-                }
-
-            }
-        });*/
-
         BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
                 FirebasePaths.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
-                new CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object>() {
+                new CompletionListenerWithDataAndError<AuthData, Object>() {
                     @Override
-                    public void onDone(FirebaseSimpleLoginUser firebaseSimpleLoginUser) {
+                    public void onDone(AuthData authData) {
                         if (DEBUG) Log.i(TAG, "Logged to firebase");
                         // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
-                        userFacebookID = firebaseSimpleLoginUser.getUserId();
+                        userFacebookID = (String) authData.getProviderData().get(BDefines.Keys.ThirdPartyData.ID);
                         completionListener.onDone();
                     }
 
                     @Override
-                    public void onDoneWithError(FirebaseSimpleLoginUser fuser, Object o) {
+                    public void onDoneWithError(AuthData authData, Object o) {
                         if (DEBUG) Log.e(TAG, "Log to firebase failed");
                         completionListener.onDoneWithError(null);
                     }
@@ -115,24 +93,11 @@ public class BFacebookManager {
             // We will need this session later to make request.
             userFacebookAccessToken = Session.getActiveSession().getAccessToken();
 
-            loginWithFacebook(new CompletionListener() {
-                @Override
-                public void onDone() {
-                    completionListener.onDone();
-                }
-
-                @Override
-                public void onDoneWithError(BError error) {
-                    simpleLogin.logout();
-                    completionListener.onDoneWithError(error);
-
-                }
-            });
+            loginWithFacebook(completionListener);
 
         } else if (state.isClosed()) {
             // Logged out of Facebook
             if (DEBUG) Log.i(TAG, "Session is closed.");
-            simpleLogin.logout();
             completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED, "Facebook session is closed."));
         }
         else
@@ -257,6 +222,25 @@ public class BFacebookManager {
     }
     public static String getPicUrl(String id, String type){
         return "http://graph.facebook.com/"+id+"/picture?type=" + type;
+    }
+
+    // For making sure that we logout completely from facebook.
+    public static void logout(Context ctx){
+        userFacebookID = null;
+        userFacebookAccessToken = null;
+
+        if (Session.getActiveSession() != null)
+        {
+            Session.getActiveSession().closeAndClearTokenInformation();
+        }
+        else
+        {
+            if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
+            Session session = Session.openActiveSessionFromCache(ctx);
+
+            if (session != null)
+                session.closeAndClearTokenInformation();
+        }
     }
 
 }

@@ -46,7 +46,7 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.model.GraphUser;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
+import com.firebase.client.AuthData;
 import com.ortiz.touch.TouchImageView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -226,7 +226,7 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener;
+        private CompletionListenerWithDataAndError<AuthData, Object> listener;
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -338,7 +338,7 @@ public class DialogUtils {
             }
         };
 
-        public void setListener(CompletionListenerWithDataAndError<FirebaseSimpleLoginUser, Object> listener) {
+        public void setListener(CompletionListenerWithDataAndError<AuthData, Object> listener) {
             this.listener = listener;
         }
     }

@@ -20,9 +20,9 @@ import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractProfileFragment;
 import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.BFirebaseInterface;
-import com.facebook.Session;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -248,19 +248,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment imple
     @Override
     public void logout() {
         // Logout and return to the login activity.
-
-        if (Session.getActiveSession() != null)
-        {
-            Session.getActiveSession().closeAndClearTokenInformation();
-        }
-        else
-        {
-            if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
-            Session session = Session.openActiveSessionFromCache(getActivity());
-
-            if (session != null)
-                session.closeAndClearTokenInformation();
-        }
+        BFacebookManager.logout(getActivity());
 
         BNetworkManager.sharedManager().getNetworkAdapter().logout();
         chatSDKUiHelper.startLoginActivity(true);
@@ -339,7 +327,6 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment imple
             {
                 bUser.setMetadataString(BDefines.Keys.BPhone, phone);
                 metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPhone, BMetadata.Type.STRING));
-                indexUser(bUser, curPhone, phone);
             }
 
             isPhoneTouched = false;
@@ -353,7 +340,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment imple
             {
                 bUser.setMetaName(name);
                 metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BName, BMetadata.Type.STRING));
-                indexUser(bUser, curName, name);
+                indexUser(bUser);
             }
 
             if (StringUtils.isEmpty(bUser.getMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING).getValue()))
@@ -370,7 +357,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment imple
             {
                 bUser.setMetaEmail(email);
                 metadataToPush.add(bUser.fetchOrCreateMetadataForKey(BDefines.Keys.BEmail, BMetadata.Type.STRING));
-                indexUser(bUser, curEmail, email);
+                indexUser(bUser);
             }
 
             isEmailTouched = false;

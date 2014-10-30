@@ -23,8 +23,8 @@ import android.widget.ProgressBar;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
-import com.braunster.chatsdk.adapter.AbstractThreadsListAdapter;
-import com.braunster.chatsdk.adapter.ThreadsListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKThreadsListAdapter;
+import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -50,7 +50,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
     public static final String APP_EVENT_TAG= "ConverstaionFragment";
 
     protected ListView listThreads;
-    protected AbstractThreadsListAdapter adapter;
+    protected ChatSDKAbstractThreadsListAdapter adapter;
     protected ProgressBar progressBar;
 
     protected TimingLogger timings;
@@ -78,7 +78,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
         // Create the adpater only if null, This is here so we wont override the adapter given from the extended class with setAdapter.
         if (adapter == null)
-            adapter = new ThreadsListAdapter(getActivity());
+            adapter = new ChatSDKThreadsListAdapter(getActivity());
 
         listThreads.setAdapter(adapter);
 
@@ -182,7 +182,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List<ThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker());
+                List<ChatSDKThreadsListAdapter.ThreadListItem> list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker());
 
                 if (DEBUG) {
                     Log.d(TAG, "Thread Loaded");
@@ -237,8 +237,8 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    if (DEBUG) Log.d(TAG, "UpdaeUI" + ((List<ThreadsListAdapter.ThreadListItem>) msg.obj).size());
-                    adapter.setThreadItems((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    if (DEBUG) Log.d(TAG, "UpdaeUI" + ((List<ChatSDKThreadsListAdapter.ThreadListItem>) msg.obj).size());
+                    adapter.setThreadItems((List<ChatSDKThreadsListAdapter.ThreadListItem>) msg.obj);
                     if (progressBar.getVisibility() == View.VISIBLE)
                     {
                         progressBar.setVisibility(View.INVISIBLE);
@@ -336,7 +336,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         EventManager.getInstance().addAppEvent(batchedEvents);
     }
 
-    public void setAdapter(AbstractThreadsListAdapter adapter) {
+    public void setAdapter(ChatSDKAbstractThreadsListAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -364,7 +364,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         adapter.filterItems(text);
     }
 
-    public AbstractThreadsListAdapter getAdapter() {
+    public ChatSDKAbstractThreadsListAdapter getAdapter() {
         return adapter;
     }
 }

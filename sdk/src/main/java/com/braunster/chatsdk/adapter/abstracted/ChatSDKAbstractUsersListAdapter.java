@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.adapter;
+package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -32,7 +34,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by itzik on 6/16/2014.
  */
-public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractUsersListAdapter.UserListItem> extends BaseAdapter {
+public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> extends BaseAdapter {
 
     private static final String TAG = ChatSDKAbstractUsersListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
@@ -43,13 +45,15 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     protected List<E> userItems = new ArrayList<E>();
     protected List<String> userIDs = new ArrayList<String>();
 
+    protected Comparator<E> comparator;
+
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
     protected static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
-    protected List<UserListItem> online = new ArrayList<UserListItem>(), offline = new ArrayList<UserListItem>();
+    protected List<AbstractUserListItem> online = new ArrayList<AbstractUserListItem>(), offline = new ArrayList<AbstractUserListItem>();
     //View
     protected View row;
     protected boolean isMultiSelect = false;
@@ -114,7 +118,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         this.isMultiSelect = multiSelect;
     }
 
-    public UserListItemMaker<E> itemMaker = null;
+    protected UserListItemMaker<E> itemMaker = null;
+
 
     @Override
     public int getCount() {
@@ -122,7 +127,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
     @Override
-    public UserListItem getItem(int i) {
+    public AbstractUserListItem getItem(int i) {
         return userItems.get(i);
     }
 
@@ -141,7 +146,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         row = view;
 
         final ViewHolder holder;
-        final UserListItem userItem = userItems.get(position);
+        final AbstractUserListItem userItem = userItems.get(position);
 
         // If the row is null or the View inside the row is not good for the current item.
         if (row == null || userItem.getResourceID() != row.getId())
@@ -211,21 +216,22 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
 
-        if (isMultiSelect)
-        {
-            holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
-            holder.checkBox.setVisibility(View.VISIBLE);
-            holder.checkBox.setChecked(selectedUsersPositions.get(position));
-            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    selectView(position, isChecked);
-                }
-            });
-        }
-
         if (getItemViewType(position) == TYPE_USER)
+        {
             holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
+            if (isMultiSelect)
+            {
+                holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
+                holder.checkBox.setVisibility(View.VISIBLE);
+                holder.checkBox.setChecked(selectedUsersPositions.get(position));
+                holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        selectView(position, isChecked);
+                    }
+                });
+            }
+        }
 
         row.setTag(holder);
 
@@ -261,7 +267,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         notifyDataSetChanged();
     }
 
-    public void setUserItems(List<E> userItems) {
+    public void setUserItems(List<E> userItems, boolean sort) {
         filtering = false;
 
         if (DEBUG) Log.v(TAG, "setUserItems, size: " + (userItems==null?"NULL":userItems.size()) );
@@ -273,10 +279,17 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         this.userItems = userItems;
         this.listData = userItems;
 
-        for (UserListItem item : userItems)
+        if (sort)
+            sortList(userItems);
+
+        for (AbstractUserListItem item : userItems)
             userIDs.add(item.getEntityID());
 
         notifyDataSetChanged();
+    }
+
+    public void setUserItems(List<E> userItems) {
+        setUserItems(userItems, false);
     }
 
     public boolean isItemExist(String entityID){
@@ -299,28 +312,22 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return itemMaker != null;
     }
 
-    public static class UserListItem implements Serializable{
+    public static class AbstractUserListItem implements Serializable{
         public String entityID;
         public String text;
         public Bitmap picture;
         public String pictureURL;
         public String pictureThumbnailURL;
+        public boolean online;
 
 
         public boolean fromURL = false;
 
         public int type, resourceID;
 
-        public UserListItem(int resourceID, String entityID, String text, Bitmap picture, int type) {
+        public AbstractUserListItem(int resourceID, String entityID, String text, String pictureThumbnailURL, String pictureURL, int type, boolean online) {
             this.text = text;
-            this.picture = picture;
-            this.resourceID  = resourceID;
-            this.type = type;
-            this.entityID = entityID;
-        }
-
-        public UserListItem(int resourceID, String entityID, String text,String pictureThumbnailURL, String pictureURL, int type) {
-            this.text = text;
+            this.online = online;
             this.pictureURL = pictureURL;
             this.pictureThumbnailURL = pictureThumbnailURL;
             this.resourceID  = resourceID;
@@ -329,7 +336,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             this.fromURL = true;
         }
 
-        public UserListItem(int resourceID, String text, int type) {
+        public AbstractUserListItem(int resourceID, String text, int type) {
             this.text = text;
             this.resourceID = resourceID;
             this.type = type;
@@ -376,9 +383,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         List<E> listData = new ArrayList<E>();
         List<String> entitiesID = new ArrayList<String>();
 
-        List<E> onlineUsers = new ArrayList<E>();
-        List<E> offlineUsers = new ArrayList<E>();
-
         for (BUser user : users){
 
             // Not showing users that has no name.
@@ -397,40 +401,15 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
             entitiesID.add(user.getEntityID());
 
-            if (withHeaders)
-            {
-                if (user.getOnline() != null && user.getOnline()) {
-                    onlineUsers.add(itemMaker.fromBUser(user));
-                }
-                else offlineUsers.add(itemMaker.fromBUser(user));
-            }
-            else
-            {
-                listData.add(itemMaker.fromBUser(user));
-            }
+            listData.add(itemMaker.fromBUser(user));
         }
 
+
         if (withHeaders) {
-            if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
-            {
-                listData.add(itemMaker.getHeader(H_NO_CONTACTS));
-            }
-            else if (onlineUsers.size() == 0){
-                listData.add(itemMaker.getHeader(H_NO_ONLINE));
-                listData.add(itemMaker.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
-                listData.addAll(offlineUsers);
-            }
-            else if (offlineUsers.size() == 0){
-                listData.add(itemMaker.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                listData.addAll(onlineUsers);
-                listData.add(itemMaker.getHeader(H_NO_OFFLINE));
-            }
-            else {
-                listData.add(itemMaker.getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                listData.addAll(onlineUsers);
-                listData.add(itemMaker.getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
-                listData.addAll(offlineUsers);
-            }
+            listData = itemMaker.getListWithHeaders(listData);
+        }
+        else {
+            sortList(listData);
         }
 
 //        if (DEBUG && deleteDuplicates)
@@ -440,14 +419,12 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return listData;
     }
 
-
-    private static String getHeaderWithSize(String header, int size){
+    protected static String getHeaderWithSize(String header, int size){
         return header + " (" + size + ")";
     }
 
     /*Filtering option's of the list to make searches.*/
     public void filterStartWith(String startWith){
-
         filtering = true;
 
         if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
@@ -471,6 +448,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             this.userItems = filteredUsers;
         }
 
+        sortList(userItems);
+
         if (DEBUG) Log.v(TAG, "filterItems, Filtered users amount: " + userItems.size());
 
         notifyDataSetChanged();
@@ -480,7 +459,16 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return listData;
     }
 
+    protected void sortList(List<E> list){
+        if (comparator!=null)
+        {
+            Collections.sort(list, comparator);
+        }
+    }
+
+
     /*############################################*/
+    /*Selection*/
     public boolean toggleSelection(int position){
         boolean selected = selectView(position, !selectedUsersPositions.get(position));
         notifyDataSetChanged();
@@ -519,6 +507,13 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
 
 
+    /*Setters*/
+
+    public void setItemMaker(UserListItemMaker<E> itemMaker){
+        this.itemMaker = itemMaker;
+    }
+
+
     public void setTextColor(int textColor) {
         this.textColor = textColor;
     }
@@ -531,6 +526,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     public interface UserListItemMaker<E>{
         public E fromBUser(BUser user);
         public E getHeader(String type);
+        public List<E> getListWithHeaders(List<E> list);
     }
 
     public interface ProfilePicClickListener{
@@ -575,7 +571,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             killed = true;
         }
     }
-
     /*############################################*/
     public abstract void initMaker();
 }

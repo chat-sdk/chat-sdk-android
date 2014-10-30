@@ -39,8 +39,6 @@ public class ChatSDKConversationsFragment extends ChatSDKAbstractConversationsFr
 
         initViews();
 
-        initToast();
-
         loadDataOnBackground();
 
         return mainView;

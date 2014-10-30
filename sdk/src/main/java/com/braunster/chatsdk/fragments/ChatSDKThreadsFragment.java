@@ -19,7 +19,7 @@ import android.widget.ProgressBar;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
-import com.braunster.chatsdk.adapter.ThreadsListAdapter;
+import com.braunster.chatsdk.adapter.ChatSDKThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -50,7 +50,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     public static final String APP_EVENT_TAG= "ChatRoomsFrag";
 
     private ListView listThreads;
-    private ThreadsListAdapter adapter;
+    private ChatSDKThreadsListAdapter adapter;
     private ActivityListener activityListener;
     private ProgressBar progressBar;
     private UIUpdater uiUpdater;
@@ -69,7 +69,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (DEBUG) Log.d(TAG, "onCreateView");
         init(inflater);
-        initToast();
 
         loadDataOnBackground();
 
@@ -89,7 +88,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     }
 
     private void initList(){
-        adapter = new ThreadsListAdapter(getActivity());
+        adapter = new ChatSDKThreadsListAdapter(getActivity());
         listThreads.setAdapter(adapter);
 
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -177,7 +176,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
             switch (msg.what)
             {
                 case 1:
-                    adapter.setThreadItems((List<ThreadsListAdapter.ThreadListItem>) msg.obj);
+                    adapter.setThreadItems((List<ChatSDKThreadsListAdapter.ThreadListItem>) msg.obj);
                     progressBar.setVisibility(View.GONE);
                     listThreads.setVisibility(View.VISIBLE);
                     break;

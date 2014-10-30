@@ -28,6 +28,8 @@ public class BFirebaseDefines {
     // load the messages that were sent in the last x seconds
     public static final int NumberOfMessagesPerBatch = 30;
 
+    public static final int NumberOfUserToLoadForIndex = 20;
+
     /*
     * ASK is this callbacks?
       typedef void(^Completion)(id object);
