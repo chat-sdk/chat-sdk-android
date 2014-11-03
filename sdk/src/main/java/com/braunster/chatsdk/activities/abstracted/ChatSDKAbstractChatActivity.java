@@ -357,6 +357,16 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         if ( !getThread(data) )
             return;
 
+        EventManager.getInstance().handleMessages(thread.getEntityID());
+
+        // Making sure that this thread is handled by the EventManager so the user will get all the chat updates as he enters.
+        // If we are not listening then we add it the the manager.
+        if (!EventManager.getInstance().isListeningToThread(thread.getEntityID()))
+        {
+            EventManager.getInstance().handleThread(thread.getEntityID());
+
+        }
+
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
         setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), new View.OnTouchListener() {

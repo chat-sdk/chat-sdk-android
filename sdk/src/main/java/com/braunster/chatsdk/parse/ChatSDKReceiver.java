@@ -17,10 +17,6 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.firebase.client.Firebase;
-import com.firebase.simplelogin.FirebaseSimpleLoginError;
-import com.firebase.simplelogin.FirebaseSimpleLoginUser;
-import com.firebase.simplelogin.SimpleLogin;
-import com.firebase.simplelogin.SimpleLoginAuthenticatedHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -118,40 +114,33 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
                 // Checking to see if the user is authenticated so we can decide to where we should direct it from the notification.
                 Firebase ref = FirebasePaths.firebaseRef();
-                final SimpleLogin simpleLogin = new SimpleLogin(ref, context);
-                simpleLogin.checkAuthStatus(new SimpleLoginAuthenticatedHandler() {
-                    @Override
-                    public void authenticated(FirebaseSimpleLoginError error, FirebaseSimpleLoginUser user) {
-                        Intent resultIntent;
-                        if (error == null && user != null)
-                        {
-                            // If the message is valid(Sender and Thread exist in the db) we should lead the user to the chat.
-                            if (messageIsValid)
-                            {
-                                resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().chatActivity);
-                                resultIntent.putExtra(ChatSDKChatActivity.THREAD_ENTITY_ID, threadEntityID);
-                                resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
-                            }
-                            // Open main activity
-                            else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
-                        }
-                        // Id user isn't authenticated we should open login so he could auth himself in.
-                        else {
-                            resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
-                        }
+                Intent resultIntent;
 
-                        // Posting the notification.
-                        try {
-                            NotificationUtils.createAlertNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
-                                    NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                            context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
-                        } catch (JSONException e) {
-                            Log.e(TAG, "JSONException: " + e.getMessage());
-                        }
+                if (ref.getAuth()!=null)
+                {
+                    // If the message is valid(Sender and Thread exist in the db) we should lead the user to the chat.
+                    if (messageIsValid)
+                    {
+                        resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().chatActivity);
+                        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ENTITY_ID, threadEntityID);
+                        resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
                     }
-                });
+                    // Open main activity
+                    else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+                }
+                else
+                {
+                    resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
+                }
 
-
+                // Posting the notification.
+                try {
+                    NotificationUtils.createAlertNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, resultIntent,
+                            NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
+                                    context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                } catch (JSONException e) {
+                    Log.e(TAG, "JSONException: " + e.getMessage());
+                }
             } catch (JSONException e) {
                 Log.d(TAG, "JSONException: " + e.getMessage());
             }

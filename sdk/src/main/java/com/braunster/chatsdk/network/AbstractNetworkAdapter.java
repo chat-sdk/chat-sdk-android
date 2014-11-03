@@ -10,7 +10,6 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
 import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
-import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
@@ -626,8 +625,8 @@ public abstract class AbstractNetworkAdapter {
         this.authenticated = authenticated;
     }
 
-    public List<BLinkedContact> getContacs() {
-        return currentUser().getBLinkedContacts();
+    public List<BUser> getContacs() {
+        return currentUser().getContacts();
     }
 
     /**

@@ -283,7 +283,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                         setLoginInfo(loginInfoMap);
 
-                        updateUserFromFUser(buser, authData);
+                        updateUserFromFUser(buser, authData, listener);
 
                         listener.onDone(buser);
                     }
@@ -297,7 +297,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     }
 
     /**Copy some details from the FAUser like name etc...*/
-    public void updateUserFromFUser(final BUser user, AuthData authData){
+    public void updateUserFromFUser(final BUser user, AuthData authData, final CompletionListenerWithDataAndError<BUser, Object> listener){
         if (DEBUG) Log.v(TAG, "updateUserFromFUser");
 
         authingStatus = AuthStatus.UPDATING_USER;
@@ -437,12 +437,18 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     BugSenseHandler.setUserIdentifier(currentUser.getEntityID());
 
                 resetAuth();
+
+                if (listener!=null)
+                    listener.onDone(currentUser);
             }
 
             @Override
             public void onDoneWithError(BError error) {
                 if (DEBUG) Log.e(TAG, "Failed to push user After update from FUser");
                 resetAuth();
+
+                /*FIXME see if needed. if (listener!=null)
+                    listener.onDoneWithError(error);*/
             }
         });
     }
@@ -675,6 +681,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     @Override
     public void updateIndexForUser(BUser user, final CompletionListener listener){
+        if (StringUtils.isEmpty(user.getEntityID()))
+        {
+            if (listener!= null)
+                listener.onDoneWithError(BError.getError(BError.Code.NULL, "Entity id is null"));
+            return;
+        }
+
         FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(user.getEntityID());
 
         Map<String, String> values = new HashMap<String, String>();
@@ -874,12 +887,19 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                if (DEBUG) Log.v(TAG, "onDataChanged: " + snapshot.getChildrenCount());
+
+                final List<BUser> followers = new ArrayList<BUser>();
+
+                if (DEBUG)Log.d(TAG, snapshot.getChildren()!=null ? "has children, has next? " + snapshot.getChildren().iterator().hasNext() : "no children");
+
+                if (DEBUG)Log.d(TAG, snapshot.getRef().toString());
+
                 for (DataSnapshot snap : snapshot.getChildren())
                 {
-                    Log.d(TAG, "Name: " + snap.getName());
+                    if (DEBUG) Log.d(TAG, "this is it.");
+                    if (DEBUG) Log.d(TAG, "Snapshot Name: " + snap.getName());
                     String followingUserID = snap.getName();
-
-                    final List<BUser> followers = new ArrayList<BUser>();
 
                     if (StringUtils.isNotEmpty(followingUserID))
                     {
@@ -888,34 +908,34 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                         BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWER);
 
                         followers.add(follwer);
-                    }
+                    } else if (DEBUG) Log.e(TAG, "Follower id is empty");
+                }
 
-                    for (BUser u : followers)
+                for (BUser u : followers)
+                {
+                    if (listener!=null)
                     {
-                        if (listener!=null)
-                        {
-                            BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
-                                @Override
-                                public void onDone(BUser u) {
-                                    // Remove the user.
-                                    followers.remove(u);
+                        BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
+                            @Override
+                            public void onDone(BUser u) {
+                                // Remove the user.
+                                followers.remove(u);
 
-                                    // Notify that a user has been found.
-                                    listener.onItem(u);
+                                // Notify that a user has been found.
+                                listener.onItem(u);
 
-                                    // if no more users to found call on done.
-                                    if (followers.size() == 0)
-                                        listener.onDone();
-                                }
+                                // if no more users to found call on done.
+                                if (followers.size() == 0)
+                                    listener.onDone();
+                            }
 
-                                @Override
-                                public void onDoneWithError(BUser bUser1, Object o) {
-                                    if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
-                                    // Notify that an error occurred while selecting.
-                                    listener.onItemError(o);
-                                }
-                            });
-                        }
+                            @Override
+                            public void onDoneWithError(BUser bUser1, Object o) {
+                                if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
+                                // Notify that an error occurred while selecting.
+                                listener.onItemError(o);
+                            }
+                        });
                     }
                 }
             }
@@ -946,12 +966,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                final List<BUser> followers = new ArrayList<BUser>();
+
                 for (DataSnapshot snap : snapshot.getChildren())
                 {
                     Log.d(TAG, "Name: " + snap.getName());
                     String followingUserID = snap.getName();
-
-                    final List<BUser> followers = new ArrayList<BUser>();
 
                     if (StringUtils.isNotEmpty(followingUserID))
                     {
@@ -961,33 +981,33 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                         followers.add(follwer);
                     }
+                }
 
-                    for (BUser u : followers)
+                for (BUser u : followers)
+                {
+                    if (listener!=null)
                     {
-                        if (listener!=null)
-                        {
-                            BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
-                                @Override
-                                public void onDone(BUser u) {
-                                    // Remove the user.
-                                    followers.remove(u);
+                        BFirebaseInterface.selectEntity(u, new CompletionListenerWithDataAndError<BUser, Object>() {
+                            @Override
+                            public void onDone(BUser u) {
+                                // Remove the user.
+                                followers.remove(u);
 
-                                    // Notify that a user has been found.
-                                    listener.onItem(u);
+                                // Notify that a user has been found.
+                                listener.onItem(u);
 
-                                    // if no more users to found call on done.
-                                    if (followers.size() == 0)
-                                        listener.onDone();
-                                }
+                                // if no more users to found call on done.
+                                if (followers.size() == 0)
+                                    listener.onDone();
+                            }
 
-                                @Override
-                                public void onDoneWithError(BUser bUser1, Object o) {
-                                    if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
-                                    // Notify that an error occurred while selecting.
-                                    listener.onItemError(o);
-                                }
-                            });
-                        }
+                            @Override
+                            public void onDoneWithError(BUser bUser1, Object o) {
+                                if (DEBUG) Log.e(TAG, "usersForIndex, onDoneWithError.");
+                                // Notify that an error occurred while selecting.
+                                listener.onItemError(o);
+                            }
+                        });
                     }
                 }
             }
@@ -1490,13 +1510,13 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                             }
 
                     pushToUsers(message, users);
-            }
+                }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
 
-            }
-        });
+                }
+            });
         }
     }
 

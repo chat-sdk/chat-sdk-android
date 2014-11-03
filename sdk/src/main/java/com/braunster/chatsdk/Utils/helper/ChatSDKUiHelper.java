@@ -303,7 +303,13 @@ public class ChatSDKUiHelper {
 
         initCardToast();
 
-        activity.getWindow().getDecorView().findViewById(android.R.id.content).findViewById(R.id.card_container).bringToFront();
+        View decorView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        ViewGroup viewGroup = superCardToastProgress.getViewGroup();
+
+        if (viewGroup!=null && superCardToastProgress.getView()!= null && viewGroup.findViewById(superCardToastProgress.getView().getId()) != null)
+            viewGroup.removeView(superCardToastProgress.getView());
+
+        decorView.findViewById(R.id.card_container).bringToFront();
 
         superCardToastProgress.setText(text);
 

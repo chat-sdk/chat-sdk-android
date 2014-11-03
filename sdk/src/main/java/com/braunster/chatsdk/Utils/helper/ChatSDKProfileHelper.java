@@ -56,6 +56,9 @@ public class ChatSDKProfileHelper {
 
     private Fragment fragment = null;
 
+    /** If this was set this is the user that will be used instead of the current user.*/
+    private BUser profileUser;
+
     public static final int PROFILE_PIC = 100;
 
     public CircleImageView profileCircleImageView;
@@ -102,7 +105,9 @@ public class ChatSDKProfileHelper {
                 break;
 
             case BDefines.BAccountType.Password:
-                setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL), false);
+                if (profileUser==null)
+                    setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUser().metaStringForKey(BDefines.Keys.BPictureURL), false);
+                else setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
                 break;
 
             case BDefines.BAccountType.Anonymous:
@@ -218,6 +223,7 @@ public class ChatSDKProfileHelper {
         VolleyUtils.getImageLoader().get(url, loadFromUrl);
     }
 
+    /** Only for current user.*/
     public void saveProfilePicToParse(String path, boolean setAsPic) {
         if (DEBUG) Log.v(TAG, "saveProfilePicToParse, Path: " + path);
 
@@ -230,6 +236,7 @@ public class ChatSDKProfileHelper {
         saveProfilePicToParse(path);
     }
 
+    /** Only for current user.*/
     public void setProfilePicFromPath(String path){
         if (DEBUG) Log.d(TAG, "SetAsPic");
         Bitmap b = ImageUtils.loadBitmapFromFile(path);
@@ -247,6 +254,7 @@ public class ChatSDKProfileHelper {
         setProfilePic(b);
     }
 
+    /** Only for current user.*/
     public void saveProfilePicToParse(String path){
         ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
@@ -271,6 +279,7 @@ public class ChatSDKProfileHelper {
         });
     }
 
+    /** Only for current user.*/
     public void saveProfilePicToParse(String path, final ParseUtils.MultiSaveCompletedListener listener){
         ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
             @Override
@@ -297,7 +306,10 @@ public class ChatSDKProfileHelper {
 
     public void getProfileFromFacebook(){
         // Use facebook profile picture only if has no other picture saved.
-        String imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+        String imageUrl;
+        if (profileUser==null)
+            imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+        else imageUrl = profileUser.getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(imageUrl))
             setProfilePicFromURL(imageUrl, false);
@@ -309,7 +321,11 @@ public class ChatSDKProfileHelper {
                 protected String doInBackground(Void... params) {
                     HttpURLConnection client = null;
                     try {
-                        String facebookId = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().replace("fb", "");
+                        String facebookId;
+                        if (profileUser==null)
+                            facebookId = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().replace("fb", "");
+                        else facebookId = profileUser.getAuthenticationId().replace("fb", "");
+
                         if (DEBUG) Log.d(TAG, "Facebook Id: " + facebookId);
 
 
@@ -342,7 +358,11 @@ public class ChatSDKProfileHelper {
 
     public void getProfileFromTwitter(){
         // Use facebook profile picture only if has no other picture saved.
-        String savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+        String savedUrl;
+
+        if (profileUser==null)
+            savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaPictureUrl();
+        else savedUrl = profileUser.getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(savedUrl))
             setProfilePicFromURL(savedUrl, false);
@@ -361,7 +381,15 @@ public class ChatSDKProfileHelper {
     public void setInitialsProfilePic(boolean save){
         String initials = "";
 
-        String name = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaName();
+        String name;
+        if (profileUser==null)
+            name = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getMetaName();
+        else{
+            // We dont save initials image for other users.
+            save = false;
+            name = profileUser.getMetaName();
+        }
+
         if (DEBUG) Log.v(TAG, "setInitialsProfilePic, Name: " + name);
 
         if (StringUtils.isEmpty(name))
@@ -542,5 +570,9 @@ public class ChatSDKProfileHelper {
 
     public CircleImageView getProfilePic() {
         return profileCircleImageView;
+    }
+
+    public void setProfileUser(BUser profileUser) {
+        this.profileUser = profileUser;
     }
 }

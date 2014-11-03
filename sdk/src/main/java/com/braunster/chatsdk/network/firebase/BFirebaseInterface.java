@@ -329,7 +329,7 @@ public class BFirebaseInterface {
         List<BMessage> messagesList = thread.getMessagesWithOrder(DaoCore.ORDER_ASC);
 
         // Get the earliest message from the database
-        if (messagesList.size() > 0)
+        if (messagesList != null && messagesList.size() > 0)
         {
             earliestMessage = messagesList.get(0);
             if (DEBUG) Log.d(TAG, "Newest message, Id: " + earliestMessage.getEntityID() + ", Payload: " + earliestMessage.getText());
@@ -353,10 +353,15 @@ public class BFirebaseInterface {
             public void onDataChange(DataSnapshot snapshot) {
                 Object[] objs = (Object[]) objectFromSnapshot(snapshot);
 
-                BMessage[] messages = new BMessage[objs.length];
-                for (int i = 0 ; i < objs.length; i++)
-                    if (objs[i] instanceof BMessage)
-                        messages[i] = (BMessage) objs[i];
+                BMessage[] messages;
+                if (objs!= null && objs.length > 0)
+                {
+                    messages = new BMessage[objs.length];
+                    for (int i = 0 ; i < objs.length; i++)
+                        if (objs[i] instanceof BMessage)
+                            messages[i] = (BMessage) objs[i];
+                }
+                else messages = new BMessage[0];
 
                 if (listener != null)
                     listener.onDone(messages);

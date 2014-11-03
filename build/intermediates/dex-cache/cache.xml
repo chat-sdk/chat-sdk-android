@@ -30,7 +30,7 @@
         jar="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="2bf52d1e154a8b28a74fe0ce2e8a5cff448f570d"/>
+        sha1="ef30da7f22d322c76e77bf36cd0d8db252221545"/>
     <item
         dex="/media/braunster/Workspace/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/junit-3.8.2-3d6accd4312c0ba854468cb8f18982f460743c43.jar"
         jar="/home/braunster/.gradle/caches/modules-2/files-2.1/junit/junit/3.8.2/7e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060/junit-3.8.2.jar"

@@ -24,7 +24,7 @@ public class BNetworkManager {
     private static final boolean DEBUG = Debug.BNetworkManager;
 
     private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
-    public static final boolean BUGSENSE_ENABLED = false, PushEnabledDefaultValue = true;
+    public static final boolean BUGSENSE_ENABLED = true, PushEnabledDefaultValue = true;
 
     public static SharedPreferences preferences, userPreferences;
 

@@ -27,6 +27,8 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
+import com.braunster.chatsdk.Utils.sorter.MessageItemSorter;
+import com.braunster.chatsdk.Utils.sorter.MessageSorter;
 import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
@@ -285,6 +287,8 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
         listData.add(newItem);
 
+        Collections.sort(listData, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+
         notifyDataSetChanged();
 
         return true;
@@ -492,16 +496,17 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     public static class MessageListItem{
         private String entityId, profilePicUrl, time, text, textColor;
         private int type, status, color, rowType;
-        private long sender;
+        private long sender, timeInMillis;
         private long id;
         private int[] dimensions = null;
         private String url;
 
         private MessageListItem(long id, String entityId, int type, int rowType, int status,
                                 long senderID, String profilePicUrl, String time,
-                                String text, String color, String textColor) {
+                                String text, String color, String textColor, long timeInMillis) {
             this.type = type;
             this.id = id;
+            this.timeInMillis = timeInMillis;
             this.status = status;
             this.sender = senderID;
             this.entityId = entityId;
@@ -535,7 +540,8 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                     String.valueOf(simpleDateFormat.format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),
-                    user.getTextColor());
+                    user.getTextColor(),
+                    message.getDate().getTime());
 
             msg.setDimension(maxWidth);
 
@@ -705,6 +711,10 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 return Color.parseColor(BDefines.Defaults.MessageSendingColor);
 
             return color;
+        }
+
+        public long getTimeInMillis() {
+            return timeInMillis;
         }
     }
 

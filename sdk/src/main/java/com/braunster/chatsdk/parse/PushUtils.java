@@ -52,11 +52,8 @@ public class PushUtils {
         JSONObject data = new JSONObject();
         try {
 
-            //For iOS
-            data.put(BADGE, INCREMENT);
-            data.put(ALERT, text);
-
             data.put(ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+
             data.put(CONTENT, text);
             data.put(MESSAGE_ENTITY_ID, message.getEntityID());
             data.put(THREAD_ENTITY_ID, message.getBThreadOwner().getEntityID());
@@ -64,6 +61,10 @@ public class PushUtils {
             data.put(MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
             data.put(MESSAGE_TYPE, message.getType());
             data.put(MESSAGE_PAYLOAD, message.getText());
+
+            //For iOS
+            data.put(BADGE, INCREMENT);
+//            data.put(ALERT, text);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -81,11 +82,13 @@ public class PushUtils {
     public static void sendFollowPush(String channel, String content){
         JSONObject data = new JSONObject();
         try {
-            //For iOS
-            data.put(BADGE, INCREMENT);
-            data.put(ALERT, content);
+
             data.put(ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
             data.put(CONTENT, content);
+
+            //For iOS
+            data.put(BADGE, INCREMENT);
+//            data.put(ALERT, content);
         } catch (JSONException e) {
             e.printStackTrace();
         }

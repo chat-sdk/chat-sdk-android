@@ -65,11 +65,11 @@ public class EventManager implements AppEvents {
 
     private ConcurrentHashMap<String, Event> events = new ConcurrentHashMap<String, Event>();
 
-    public List<String> threadsIds = new ArrayList<String>();
-    public List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
-    public List<String> handledMessagesThreadsID = new ArrayList<String>();
-    public List<String> usersIds = new ArrayList<String>();
-    public List<String> handleFollowDataChangeUsersId = new ArrayList<String>();
+    private List<String> threadsIds = new ArrayList<String>();
+    private List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
+    private List<String> handledMessagesThreadsID = new ArrayList<String>();
+    private List<String> usersIds = new ArrayList<String>();
+    private List<String> handleFollowDataChangeUsersId = new ArrayList<String>();
 
     public ConcurrentHashMap<String, FirebaseEventCombo> listenerAndRefs = new ConcurrentHashMap<String, FirebaseEventCombo>();
 
@@ -400,7 +400,7 @@ public class EventManager implements AppEvents {
     /*##########################################################################################*/
     /*------Assigning listeners to Firebase refs. ------*/
     /**Set listener to thread details change.*/
-    private void handleThreadDetails(final String threadId, FirebasePaths threadRef){
+    public void handleThreadDetails(final String threadId, FirebasePaths threadRef){
         // Add an observer to the thread details so we get
         // updated when the thread details change
         FirebasePaths detailsRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BDetailsPath);
@@ -411,7 +411,7 @@ public class EventManager implements AppEvents {
     }
 
     /** Set listener to users that are added to thread.*/
-    private void handleUsersAddedToThread(final String threadId){
+    public void handleUsersAddedToThread(final String threadId){
         // Check if handled.
         if (handledAddedUsersToThreadIDs.contains(threadId))
             return;
@@ -476,7 +476,7 @@ public class EventManager implements AppEvents {
     }
 
     /** Handle incoming messages for thread.*/
-    private void handleMessages(String threadId){
+    public void handleMessages(String threadId){
         // Check if handled.
         if (handledMessagesThreadsID.contains(threadId))
             return;

@@ -546,12 +546,12 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             }
     }
 
-    private void showLoading(){
+    public void showLoading(){
         progressBar.setVisibility(View.VISIBLE);
         listView.setVisibility(View.INVISIBLE);
     }
 
-    private void hideLoading(){
+    public void hideLoading(){
         progressBar.setVisibility(View.INVISIBLE);
         listView.setVisibility(View.VISIBLE);
     }

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -214,7 +215,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         }
     };
 
-    static final Handler handler = new Handler();
+    static final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

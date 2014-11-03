@@ -26,6 +26,7 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.view.ChatMessageBoxView;
+import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +68,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public static final int PICK_LOCATION = 102;
 
     public static final int ADD_USERS = 103;
+
+    /** to keep track if the share asked for was for filled so we wont try sharing again.*/
+    private static final String SHARED = "shared";
+    private boolean shared = false;
 
     /** The selected file that is picked to be sent.
      *  This is also the path to the camera output.*/
@@ -354,8 +359,12 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         // Just to be sure its init.
         uiHelper.initCardToast();
 
-        if (send && requestCode != ADD_USERS && resultCode == Activity.RESULT_OK) {
-            uiHelper.showProgressCard("Sending...");
+        try {
+            if (send && requestCode != ADD_USERS && resultCode == Activity.RESULT_OK) {
+                uiHelper.showProgressCard("Sending...");
+            }
+        } catch (Exception e) {
+//            e.printStackTrace();
         }
 
         /* Pick photo logic*/
@@ -485,6 +494,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             }
         }
 
+        outState.putBoolean(SHARED, shared);
+
+        SuperCardToast.onSaveState(outState);
+
         outState.putInt(READ_COUNT, readCount);
     }
 
@@ -498,9 +511,13 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         lng = savedInstanceState.getDouble(LNG, 0);
         lat = savedInstanceState.getDouble(LAT, 0);
 
+        shared = savedInstanceState.getBoolean(SHARED);
+
         readCount = savedInstanceState.getInt(READ_COUNT);
         savedInstanceState.remove(LNG);
         savedInstanceState.remove(LAT);
+
+        SuperCardToast.onRestoreState(savedInstanceState, activity);
     }
 
     @Override
@@ -572,6 +589,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public void checkIfWantToShare(Intent intent){
         if (DEBUG) Log.v(TAG, "checkIfWantToShare");
 
+        if (shared)
+            return;
+
         if (intent.getExtras() == null || intent.getExtras().isEmpty())
         {
             if (DEBUG) Log.e(TAG, "Extras is null or empty");
@@ -591,6 +611,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             intent.getExtras().remove(SHARED_FILE_URI);
 
             sendImageMessage(path);
+
+            intent.removeExtra(SHARED_FILE_URI);
+
+            shared = true;
         }
         else if (intent.getExtras().containsKey(SHARED_TEXT))
         {
@@ -602,6 +626,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             intent.getExtras().remove(SHARED_TEXT);
 
             sendTextMessageWithStatus(text, false);
+
+            intent.removeExtra(SHARED_TEXT);
+
+            shared = true;
         }
         else if (intent.getExtras().containsKey(SHARED_FILE_PATH))
         {
@@ -615,6 +643,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             intent.getExtras().remove(SHARED_FILE_PATH);
 
             sendImageMessage(path);
+
+            intent.removeExtra(SHARED_FILE_PATH);
+
+            shared = true;
         }
         else if (intent.getExtras().containsKey(SHARE_LOCATION)){
             if (DEBUG) Log.i(TAG, "Want to share Location");
@@ -636,6 +668,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                             uiHelper.showAlertToast("Location could not been sent.");
                         }
                     });
+
+            intent.removeExtra(SHARE_LOCATION);
+
+            shared = true;
         }
     }
 
