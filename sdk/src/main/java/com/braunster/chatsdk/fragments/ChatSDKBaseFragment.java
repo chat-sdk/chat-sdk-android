@@ -4,19 +4,17 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
-import com.braunster.chatsdk.dao.BLinkedContact;
-import com.braunster.chatsdk.dao.BLinkedContactDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
@@ -34,7 +32,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by itzik on 6/17/2014.
  */
-public abstract class ChatSDKBaseFragment extends DialogFragment implements ChatSDKBaseFragmentInterface {
+public abstract class ChatSDKBaseFragment extends android.app.DialogFragment implements ChatSDKBaseFragmentInterface {
 
     private static final String TAG = ChatSDKBaseFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -174,24 +172,27 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
     }
 
     /** Create or fetch chat for users, Opens the chat when done.*/
-    protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        createAndOpenThreadWithUsers(name, null, true, users);
-    }
-    /** Create or fetch chat for users, Opens the chat when done.*/
     protected void createAndOpenThreadWithUsers(String name, final CompletionListenerWithData doneListener, BUser...users){
-        createAndOpenThreadWithUsers(name, doneListener, true, users);
+        createThreadWithUsers(name, doneListener, true, users);
     }
     /** Create or fetch chat for users. Opens the chat if wanted.*/
-    protected void createAndOpenThreadWithUsers(String name, final CompletionListenerWithData doneListener, final boolean openChatWhenDone, BUser...users){
-        BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
+    protected void createThreadWithUsers(String name, final CompletionListenerWithData doneListener, final boolean openChatWhenDone, BUser... users){
+        BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError>() {
 
             BThread thread = null;
 
             @Override
-            public boolean onMainFinised(BThread bThread, Object o) {
+            public boolean onMainFinised(BThread bThread, BError o) {
                 if (o != null)
                 {
-                    showToast("Failed to start chat.");
+                    if (isOnMainThread())
+                        showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                    else getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAlertToast( getString(R.string.create_thread_with_users_fail_toast) );
+                        }
+                    });
                     return true;
                 }
 
@@ -221,7 +222,7 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
             }
 
             @Override
-            public void onItemError(BUser user, Object o) {
+            public void onItemError(BUser user, BError o) {
                 if (DEBUG) Log.d(TAG, "Failed to add user to thread, User name: " +user.getName());
             }
         }, users);
@@ -261,6 +262,14 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
             // For handling orientation changed.
             e.printStackTrace();
         }
+    }
+
+    protected boolean isOnMainThread() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            return false;
+        }
+
+        return true;
     }
 
     protected void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
@@ -319,32 +328,15 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
             getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
                 @Override
                 public void onDone() {
-                    showToast("Thread is deleted.");
+                    showToast( getString(R.string.delete_thread_success_toast) );
                     refreshOnBackground();
                 }
 
                 @Override
                 public void onDoneWithError(BError error) {
-                    showToast("Unable to delete thread.");
+                    showAlertToast(  getString(R.string.delete_thread_fail_toast)  );
                 }
             });
-            return null;
-        }
-    }
-
-    class DeleteContact implements Callable{
-
-        private String userID;
-
-        public DeleteContact(String userID){
-            this.userID = userID;
-        }
-
-        @Override
-        public Object call() throws Exception {
-            BLinkedContact linkedContact = DaoCore.<BLinkedContact>fetchEntityWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.EntityID, userID);
-            DaoCore.deleteEntity(linkedContact);
-            loadData();
             return null;
         }
     }
@@ -358,7 +350,6 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
     public void authenticate(AuthListener listener){
         getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
     }
-
 
     public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
         this.chatSDKUiHelper = chatSDKUiHelper;

@@ -3,37 +3,43 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 19
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-    signingConfigs {
 
-        debug {
-            //TODO create a key for this SDK and not use my own.
-            storeFile file('/media/braunster/Workspace/Android/braunserkey')
-            keyAlias 'braunsteralias'
-            keyPassword 'Itzikbraun1991'
-            storePassword 'Itzikbraun1991'
-        }
-
-        release {
-            storeFile file('/media/braunster/Workspace/Android/braunserkey')
-            keyAlias 'braunsteralias'
-            keyPassword 'Itzikbraun1991'
-            storePassword 'Itzikbraun1991'
-        }
-    }
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
+
+    signingConfigs {
+
+        debug {
+            //TODO create a key for this SDK and not use my own.
+            storeFile file('/media/braunster/Code/Android/braunserkey')
+            keyAlias 'braunsteralias'
+            keyPassword 'Itzikbraun1991'
+            storePassword 'Itzikbraun1991'
+        }
+
+        release {
+            storeFile file('/media/braunster/Code/Android/braunserkey')
+            keyAlias 'braunsteralias'
+            keyPassword 'Itzikbraun1991'
+            storePassword 'Itzikbraun1991'
+        }
+    }
+
     buildTypes {
         release {
-            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             signingConfig signingConfigs.release
             debuggable false
-            jniDebugBuild false
-            zipAlign true
+            jniDebuggable false
+            zipAlignEnabled true
         }
     }
+
+
+
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
@@ -41,28 +47,13 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+
     productFlavors {
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':sdk')
+    compile project(':firebase_plugin')
 }
 
-
-//task askForPasswords << {
-//    // Must create String because System.readPassword() returns char[]
-//    // (and assigning that below fails silently)
-//    def storePw = new String(System.console().readPassword("Keystore password: "))
-//    def keyPw  = new String(System.console().readPassword("Key password: "))
-//
-//    android.signingConfigs.release.storePassword = storePw
-//    android.signingConfigs.release.keyPassword = keyPw
-//}
-//
-//tasks.whenTaskAdded { theTask ->
-//    if (theTask.name.equals("packageRelease")) {
-//        theTask.dependsOn "askForPasswords"
-//    }
-//}

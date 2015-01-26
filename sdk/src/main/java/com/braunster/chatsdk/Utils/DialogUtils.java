@@ -2,6 +2,7 @@ package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -10,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -28,7 +28,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -37,23 +36,20 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
+import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
-import com.braunster.chatsdk.adapter.FBGraphUsersListVolleyAdapter;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
-import com.facebook.model.GraphUser;
-import com.firebase.client.AuthData;
+import com.github.johnpersano.supertoasts.SuperToast;
 import com.ortiz.touch.TouchImageView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
 
-import java.util.List;
+import java.io.File;
 import java.util.concurrent.Callable;
 
 /**
@@ -64,40 +60,15 @@ public class DialogUtils {
     public static final String TAG = DialogUtils.class.getSimpleName();
     public static final boolean DEBUG = true;
 
-    public static class ChatSDKAlertDialog extends DialogFragment {
-
-        private String alert = "Alert";
-        private DialogInterface<Intent> listener;
-
-        public static ChatSDKAlertDialog getInstace(){
-            return new ChatSDKAlertDialog();
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
-
-            ((TextView)view.findViewById(R.id.textView)).setText(alert);
-//
-//
-//            if ( listener != null)
-//                listener.onFinished();
-            return view;
-        }
-
-        public void setAlert(String alert, DialogInterface<Intent> listener){
-            this.alert = alert;
-            this.listener = listener;
-        }
-    }
-
     /** A dialog that contain editText, Response from dialog is received through the interface.*/
     public static class ChatSDKEditTextDialog extends DialogFragment implements TextView.OnEditorActionListener {
 
         private EditText mEditText;
         private String dialogTitle = "Title";
         private EditTextDialogInterface listener;
+
+
+        private ChatSDKUiHelper chatSDKUiHelper;
 
         public static ChatSDKEditTextDialog getInstace(){
             ChatSDKEditTextDialog f = new ChatSDKEditTextDialog();
@@ -112,11 +83,13 @@ public class DialogUtils {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
+            chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(getActivity());
+
             View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
             mEditText = (EditText) view.findViewById(R.id.et_enter);
 
             getDialog().setTitle(dialogTitle);
-
 
             // Show soft keyboard automatically
             mEditText.requestFocus();
@@ -144,7 +117,10 @@ public class DialogUtils {
             if (EditorInfo.IME_ACTION_DONE == actionId) {
                 if (mEditText.getText().toString().isEmpty())
                 {
-                    ChatSDKToast.toastAlert(getActivity(), "Please enter chat name", Gravity.TOP);
+                    SuperToast toast = chatSDKUiHelper.getAlertToast();
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.setText("Please enter chat name");
+                    toast.show();
                     return true;
                 }
 
@@ -161,62 +137,6 @@ public class DialogUtils {
         }
     }
 
-    public static class ChatSDKFacebookFriendsDialog extends DialogFragment {
-
-        private DialogInterface<List<GraphUser>> listener;
-
-        public static ChatSDKFacebookFriendsDialog getInstance(){
-            return new ChatSDKFacebookFriendsDialog();
-        }
-
-        // TODO add check option for each user and return the list when done.
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            final View view = inflater.inflate(R.layout.chat_sdk_dialog_fb_friends_list, null);
-
-
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
-            BNetworkManager.sharedManager().getNetworkAdapter().getUserFacebookFriendsWithCallback(new CompletionListenerWithData<List<GraphUser>>() {
-                @Override
-                public void onDone(List<GraphUser> graphUsers) {
-                    if (DEBUG) Log.v(TAG, "onDone");
-                    // The regular adapter (i.e not volley) have problem sometime with the loading so ive changed to the volley.
-                    // The adapter duplicate pictures.
-//                    FBFriendsListAdapter adapter = new FBFriendsListAdapter(getActivity(), graphUsers);
-                    FBGraphUsersListVolleyAdapter adapter = new FBGraphUsersListVolleyAdapter(getActivity(), graphUsers);
-                    ((ListView) view.findViewById(R.id.chat_sdk_listview_friends_list)).setAdapter(adapter);
-                }
-
-                @Override
-                public void onDoneWithError(BError error) {
-                    if (DEBUG) Log.e(TAG, "cant find friends.");
-                    ChatSDKToast.toastAlert(getActivity(), "Cant find friends...");
-                }
-            });
-
-            view.findViewById(R.id.chat_sdk_btn_fb_cancel).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (DEBUG) Log.v(TAG, "Cancel");
-                    dismiss();
-                }
-            });
-
-            view.findViewById(R.id.chat_sdk_btn_fb_send).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (DEBUG) Log.v(TAG, "Send");
-                }
-            });
-            return view;
-        }
-
-        public void setFinishedListener(DialogInterface<List<GraphUser>> listener){
-            this.listener = listener;
-        }
-    }
-
     public static class ChatSDKTwitterLoginDialog extends DialogFragment {
 
         private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
@@ -226,7 +146,7 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private CompletionListenerWithDataAndError<AuthData, Object> listener;
+        private CompletionListenerWithDataAndError<Object, BError> listener;
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -240,6 +160,13 @@ public class DialogUtils {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             final View view = inflater.inflate(R.layout.chat_sdk_dialog_twitter_login, null);
+
+            if (!BNetworkManager.sharedManager().getNetworkAdapter().twitterEnabled())
+            {
+                listener.onDoneWithError(null, BError.getError(BError.Code.OPERATION_FAILED, "Twitter is disabled."));
+                dismiss();
+                return null;
+            }
 
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
@@ -270,7 +197,7 @@ public class DialogUtils {
                     Uri uri = Uri.parse(url);
                     String ver = uri.getQueryParameter("oauth_verifier");
 
-                    TwitterManager.getVerifierThread(ver, listener).start();
+                    TwitterManager.getVerifierThread(getActivity(), ver, listener).start();
 
                     ((TextView) progressBar.findViewById(R.id.chat_sdk_progressbar_text)).setText(getActivity().getResources().getString(R.string.connecting));
                     webView.setVisibility(View.INVISIBLE);
@@ -301,7 +228,7 @@ public class DialogUtils {
                         if (etPin.getText().toString().isEmpty())
                             return true;
 
-                        TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
+                        TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), listener).start();
                     }
                     return false;
                 }
@@ -310,11 +237,11 @@ public class DialogUtils {
             view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TwitterManager.getVerifierThread(etPin.getText().toString(), listener).start();
+                    TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), listener).start();
                 }
             });
 
-            TwitterManager.getAuthorizationURLThread(handler).start();
+            TwitterManager.getAuthorizationURLThread(getActivity(), handler).start();
 
             return view;
         }
@@ -327,7 +254,7 @@ public class DialogUtils {
                 {
                     case TwitterManager.ERROR:
                         if (listener != null)
-                            listener.onDoneWithError(null, msg.obj);
+                            listener.onDoneWithError(null, ((BError) msg.obj));
 
                         break;
 
@@ -338,9 +265,11 @@ public class DialogUtils {
             }
         };
 
-        public void setListener(CompletionListenerWithDataAndError<AuthData, Object> listener) {
+        public void setListener(CompletionListenerWithDataAndError<Object, BError> listener) {
             this.listener = listener;
         }
+
+
     }
 
     /** A popup to select the type of message to send, "Text", "Image", "Location".*/
@@ -363,13 +292,16 @@ public class DialogUtils {
         return optionPopup;
     }
 
-    /** Type indicate from where to load the file.*/
-    public enum LoadTypes{
-        LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64, LOAD_FROM_LRU_CACHE;
+    /** Full screen popup for showing an image in greater size.*/
+    public static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType){
+        return getImageDialog(context, data, loadingType, false, "");
     }
 
-    /** Full screen popup for showing an image in greater size.*/
-    public static PopupWindow getImageDialog(final Context context, String data, LoadTypes loadingType){
+    public static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType, String imageName){
+        return getImageDialog(context, data, loadingType, true, imageName);
+    }
+
+    private static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType, boolean saveAfterLoad, String imageName){
         if (DEBUG) Log.v(TAG, "getImageDialog");
 
         if (StringUtils.isEmpty(data))
@@ -379,107 +311,188 @@ public class DialogUtils {
         View popupView = inflater.inflate(R.layout.chat_sdk_popup_touch_image, null);
 
         // Full screen popup.
-        final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        final ImagePopupWindow imagePopup = new ImagePopupWindow(context, popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
 
-        // Dismiss popup when clicked.
-        popupView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imagePopup.dismiss();
-            }
-        });
-
-        final TouchImageView imageView = (TouchImageView) popupView.findViewById(R.id.chat_sdk_popup_image_imageview);
-        final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
-
-        switch (loadingType)
-        {
-            case LOAD_FROM_BASE64:
-                if (DEBUG) Log.i(TAG, "Image is Base64");
-                progressBar.setVisibility(View.GONE);
-                imageView.setVisibility(View.VISIBLE);
-                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                imageView.setImageBitmap(ImageUtils.decodeFrom64(data.getBytes()));
-                break;
-
-            case LOAD_FROM_URL:
-                if (DEBUG) Log.i(TAG, "Image from URL");
-                VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
-                    @Override
-                    public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-
-                        if (isImmediate && response.getBitmap() == null)
-                            progressBar.setVisibility(View.VISIBLE);
-
-                        if (response.getBitmap() != null)
-                        {
-                            imageView.setImageBitmap(response.getBitmap());
-
-                            if (DEBUG) Log.i(TAG, "response");
-                            imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                            imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    imageView.setVisibility(View.VISIBLE);
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        progressBar.setVisibility(View.GONE);
-
-                        ChatSDKToast.toastAlert(context, "Error while loading");
-
-                        imagePopup.dismiss();
-                    }
-                });
-                break;
-
-            case LOAD_FROM_PATH:
-                if (DEBUG) Log.i(TAG, "Image from path");
-                progressBar.setVisibility(View.GONE);
-                imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
-                break;
-
-            case LOAD_FROM_LRU_CACHE:
-                imageView.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(data));
-                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        imageView.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-        }
-
+        imagePopup.setData(data);
+        imagePopup.setImageName(imageName);
+        imagePopup.setLoadingType(loadingType);
+        imagePopup.saveToImageDir(saveAfterLoad);
         imagePopup.setContentView(popupView);
         imagePopup.setBackgroundDrawable(new BitmapDrawable());
         imagePopup.setOutsideTouchable(true);
         imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 
+        imagePopup.load();
+
         return imagePopup;
+    }
+
+    public static class ImagePopupWindow extends PopupWindow{
+        private boolean saveToDir =false;
+
+        private LoadTypes loadingType;
+
+        private Context context;
+
+        private String data;
+
+        private ChatSDKUiHelper chatSDKUiHelper;
+
+        private String imageName = "";
+
+        private View popupView;
+
+        /** Type indicate from where to load the file.*/
+        public enum LoadTypes{
+            LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64, LOAD_FROM_LRU_CACHE;
+        }
+
+        public ImagePopupWindow(Context ctx, View popupView, int width, int height, boolean focusable) {
+            super(popupView, width, height, focusable);
+
+            this.context = ctx;
+
+            this.popupView = popupView;
+
+            chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(context);
+        }
+
+        public void load(){
+            // Dismiss popup when clicked.
+            popupView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+
+            final TouchImageView imageView = (TouchImageView) popupView.findViewById(R.id.chat_sdk_popup_image_imageview);
+            final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+
+            switch (loadingType)
+            {
+                case LOAD_FROM_BASE64:
+                    if (DEBUG) Log.i(TAG, "Image is Base64");
+                    progressBar.setVisibility(View.GONE);
+                    imageView.setVisibility(View.VISIBLE);
+                    imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                    imageView.setImageBitmap(ImageUtils.decodeFrom64(data.getBytes()));
+                    break;
+
+                case LOAD_FROM_URL:
+                    if (DEBUG) Log.i(TAG, "Image from URL");
+                    VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
+                        @Override
+                        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+
+                            if (isImmediate && response.getBitmap() == null)
+                                progressBar.setVisibility(View.VISIBLE);
+
+                            if (response.getBitmap() != null)
+                            {
+                                imageView.setImageBitmap(response.getBitmap());
+
+                                if (saveToDir)
+                                {
+                                    File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
+                                    if (dir != null)
+                                        if(dir.exists()) {
+                                            file = new File(dir, imageName + ".jpg");
+
+                                            if (!file.exists())
+                                            {
+                                                if(DEBUG) Log.d(TAG, "Saving image to image dir");
+                                                ImageUtils.saveBitmapToFile(file, response.getBitmap());
+
+                                                galleryAddPic(file.getPath());
+                                            }
+                                            else if (DEBUG) Log.d(TAG, "Image is already saved in image dir");
+                                        }
+                                }
+
+                                if (DEBUG) Log.i(TAG, "response");
+                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        imageView.setVisibility(View.VISIBLE);
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            progressBar.setVisibility(View.GONE);
+
+                            chatSDKUiHelper.showAlertToast("Error while loading");
+
+                            dismiss();
+                        }
+                    });
+                    break;
+
+                case LOAD_FROM_PATH:
+                    if (DEBUG) Log.i(TAG, "Image from path");
+                    progressBar.setVisibility(View.GONE);
+                    imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
+                    break;
+
+                case LOAD_FROM_LRU_CACHE:
+                    imageView.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(data));
+                    imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+                    imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            imageView.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+            }
+        }
+
+        private void galleryAddPic(String path) {
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            File f = new File(path);
+            Uri contentUri = Uri.fromFile(f);
+            mediaScanIntent.setData(contentUri);
+            context.sendBroadcast(mediaScanIntent);
+        }
+
+        public void saveToImageDir(boolean saveToDir) {
+            this.saveToDir = saveToDir;
+        }
+
+        public void setData(String data) {
+            this.data = data;
+        }
+
+        public void setLoadingType(LoadTypes loadingType) {
+            this.loadingType = loadingType;
+        }
+
+        public void setImageName(String imageName) {
+            this.imageName = imageName;
+        }
     }
 
     /** Basic interface for getting callback from the dialog.*/

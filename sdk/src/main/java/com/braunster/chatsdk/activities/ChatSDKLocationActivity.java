@@ -11,7 +11,7 @@ import android.widget.Button;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.Utils;
+import com.braunster.chatsdk.Utils.ImageUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -19,6 +19,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
 
@@ -34,36 +36,19 @@ public class ChatSDKLocationActivity extends FragmentActivity {
     public static final String ERROR_SNAPSHOT = "error getting snapshot";
     public static final String ERROR_SAVING_IMAGE = "error saving image";
 
-    // TODO show close locations: http://stackoverflow.com/questions/13488048/google-maps-show-close-places-to-current-user-poisition
-
     private GoogleMap map;
     private Button btnSendLocation;
     private Marker selectedLocation;
 
-    public static final String SHOW_LOCATION = "show_location";
     public static final String LANITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String SNAP_SHOT_PATH = "snap_shot_path";
     public static final String ZOOM = "zoom";
-    public static final String BASE_64_FILE = "base_64_file";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_locaction);
-
-//        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(SHOW_LOCATION))
-//        {
-//            requestedLocation = new LatLng(getIntent().getExtras().getLong(LANITUDE), getIntent().getExtras().getLong(LONGITUDE));
-//        }
-//        else
-//        {
-//            // Show current location.
-//            makeLocationRequest();
-//        }
-
-//        locationClient = new LocationClient(this, this, this);
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
                 .getMap();
@@ -86,12 +71,6 @@ public class ChatSDKLocationActivity extends FragmentActivity {
                 map.setOnMyLocationChangeListener(null);
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        locationClient.connect();
     }
 
     @Override
@@ -129,7 +108,9 @@ public class ChatSDKLocationActivity extends FragmentActivity {
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            File savedFile = Utils.LocationImageHandler.saveLocationImage(ChatSDKLocationActivity.this, bitmapLocation, null);
+                            File savedFile = File.createTempFile("LocationImage" + RandomUtils.nextInt(0, 10), ".jpg", ChatSDKLocationActivity.this.getCacheDir());
+                            ImageUtils.saveBitmapToFile(savedFile, bitmapLocation);
+//                            File savedFile = Utils.LocationImageHandler.saveLocationImage(ChatSDKLocationActivity.this, bitmapLocation, null);
                             if ( savedFile == null)
                                 reportError(ERROR_SAVING_IMAGE);
                             else

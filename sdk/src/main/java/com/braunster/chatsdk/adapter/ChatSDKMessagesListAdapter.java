@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,13 +30,15 @@ import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.sorter.MessageItemSorter;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
-import com.braunster.chatsdk.Utils.volley.ChatSDKToast;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.view.ChatBubbleImageView2;
+import com.braunster.chatsdk.view.ChatBubbleImageView;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,7 +54,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
-    // FIXME  fix content overlap the hour.
     private static final String TAG = ChatSDKMessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
@@ -89,12 +91,15 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
     private int textColor = -1991;
 
+    private ChatSDKUiHelper chatSDKUiHelper;
+
+
+
     public ChatSDKMessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
         this.userID = userID;
-        inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
 
-        maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
+        init();
     }
 
     public ChatSDKMessagesListAdapter(Activity activity, Long userID, List<MessageListItem> listData){
@@ -105,10 +110,20 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         if (listData == null)
             listData = new ArrayList<MessageListItem>();
 
-        this.listData = (List<MessageListItem>) listData;
+        this.listData = listData;
+
+        init();
+
+    }
+
+
+
+    private void init(){
         inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
 
-        maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
+        maxWidth =  (mActivity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
+
+        chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(mActivity);
     }
 
     @Override
@@ -127,7 +142,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     }
 
     @Override
-    public Object getItem(int i) {
+    public MessageListItem getItem(int i) {
         return listData.get(i);
     }
 
@@ -149,66 +164,111 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         if (row == null)
         {
             holder = new ViewHolder();
-            switch (type)
-            {
-                case TYPE_TEXT_USER:
-                    row = inflater.inflate(textUserRowResId, null);
 
-                    holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
+            row = inflateRow(holder);
 
-                    break;
-
-                case TYPE_TEXT_FRIEND:
-
-                    row = inflater.inflate(textFriendRowResId, null);
-
-                    holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
-
-                    break;
-
-                case TYPE_IMAGE_USER:
-                    row = inflater.inflate(imageUserRowResId, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-
-                case TYPE_IMAGE_FRIEND:
-                    row = inflater.inflate(imageFriendRowResId, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-                    break;
-
-                case TYPE_LOCATION_USER:
-                    row = inflater.inflate(locationUserResId, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-
-                case TYPE_LOCATION_FRIEND:
-                    row = inflater.inflate(locationFriendRowResId, null);
-
-                    holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
-                    holder.image = (ChatBubbleImageView2) row.findViewById(R.id.chat_sdk_image);
-
-                    break;
-
-
-            }
-
-            loadDefaults(holder, row, sender);
+            inflateDefaults(holder, row, sender);
 
             row.setTag(holder);
         }
         else
             holder = (ViewHolder) row.getTag();
 
-        if (DEBUG) Log.d(TAG, "Message, Type: " + message.type  + " Row Type: " + type + ", Text: " + message.text);
+//        if (DEBUG) Log.d(TAG, "Message, Type: " + message.type  + " Row Type: " + type + ", Text: " + message.text);
 
+        // Load the message data.
+        loadMessageData(holder, message);
+
+        loadDefaults(holder, position, message, sender);
+
+        return row;
+    }
+
+
+
+    /**
+     * Inflating the row for type.
+     *
+     * By Overriding this function you can inflate a custom type of a message.
+     *
+     * You can keep the result for the super call and see if it is null if so check for your custom inflation or just check for type.
+     *
+     * */
+    protected View inflateRow(ViewHolder holder){
+        View row = null;
+        switch (type)
+        {
+            case TYPE_TEXT_USER:
+                row = inflater.inflate(textUserRowResId, null);
+
+                holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
+
+                break;
+
+            case TYPE_TEXT_FRIEND:
+
+                row = inflater.inflate(textFriendRowResId, null);
+
+                holder.txtContent = (TextView) row.findViewById(R.id.txt_content);
+
+                break;
+
+            case TYPE_IMAGE_USER:
+                row = inflater.inflate(imageUserRowResId, null);
+
+                holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
+                holder.image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+
+                break;
+
+            case TYPE_IMAGE_FRIEND:
+                row = inflater.inflate(imageFriendRowResId, null);
+
+                holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
+                holder.image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+                break;
+
+            case TYPE_LOCATION_USER:
+                row = inflater.inflate(locationUserResId, null);
+
+                holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
+                holder.image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+
+                break;
+
+            case TYPE_LOCATION_FRIEND:
+                row = inflater.inflate(locationFriendRowResId, null);
+
+                holder.progressBar = (ProgressBar) row.findViewById(R.id.chat_sdk_progress_bar);
+                holder.image = (ChatBubbleImageView) row.findViewById(R.id.chat_sdk_image);
+
+                break;
+        }
+
+        return row;
+    }
+
+    /**
+     * Load the default components that will be in each message no matter what.
+     *
+     * By Overriding this you can stop default loading of the profile image and time.
+     * You can also add your own defaults here.
+     *
+     * */
+    protected void inflateDefaults(ViewHolder holder, View row, boolean sender){
+        // Load profile picture.
+        holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
+        holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
+    }
+
+    /**
+     * Load the data for each message, The data will be loaded for each message type and would be animated if needed.
+     *
+     * By Overriding this function you can load data for your custom messages type, For example video message or audio.
+     * You can also just change one of the default loading type.
+     *
+     * */
+    protected void loadMessageData(ViewHolder holder, MessageListItem message){
         switch (type)
         {
             case TYPE_TEXT_USER:
@@ -232,8 +292,13 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
                 getBubbleImageViewFromRow(holder.image, holder.progressBar, message);
 
+                String url;
+                String [] urls = message.text.split(BDefines.DIVIDER);
+                url = urls[0];
+
                 // Show the image in a dialog on click.
-                holder.image.setOnClickListener(new showImageDialogClickListener());
+                holder.image.setOnClickListener(new showImageDialogClickListener(message.entityId, url));
+
                 break;
 
             case TYPE_LOCATION_USER:
@@ -246,8 +311,19 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
                 break;
         }
+    }
 
+    /**
+     * Load the default data for each message, The data will be loaded for each message and be animated if needed.
+     *
+     * By Overriding this function you change or add logic for your default message data load,
+     * For example load online status for each user.
+     *
+     * */
+    protected void loadDefaults(ViewHolder holder, int position, MessageListItem message, boolean sender){
         // Load profile picture.
+        // If we want to hide multiple images we check to see that it is not the first image,
+        // And that it is from the same sender as the previous message sender.
         if (!hideMultipleImages || position == 0 || message.sender != listData.get(position-1).sender) {
             loadProfilePic(holder.profilePicImage, message.profilePicUrl, sender);
         } else holder.profilePicImage.setVisibility(View.INVISIBLE);
@@ -255,75 +331,6 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         // Set the time of the sending.
         holder.txtTime.setText(message.time);
         animateSides(holder.txtTime, sender, null);
-
-        return row;
-    }
-
-    /** @return true if the item is added to the list.*/
-    public boolean addRow(MessageListItem newItem){
-        if (DEBUG) Log.d(TAG, "AddRow");
-
-        // Bad data.
-        if (newItem == null)
-            return false;
-
-        // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.entityId == null && newItem.status != BMessage.Status.SENDING)
-        {
-            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + newItem.text);
-            return false;
-        }
-
-        // Check for duplicates, And update the message status if its already exist.
-        for (MessageListItem item : listData)
-        {
-            if (item.entityId != null && item.entityId.equals(newItem.entityId) || item.id == newItem.id)
-            {
-                item.status = newItem.status;
-                notifyDataSetChanged();
-                return false;
-            }
-        }
-
-        listData.add(newItem);
-
-        Collections.sort(listData, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
-
-        notifyDataSetChanged();
-
-        return true;
-    }
-
-    public boolean addRow(BMessage message){
-        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth, customDateFormat));
-    }
-
-    public void setListData(List<MessageListItem> listData) {
-        this.listData = listData;
-        notifyDataSetChanged();
-    }
-
-    public void clear(){
-        listData.clear();
-        notifyDataSetChanged();
-    }
-
-    public void hideMultipleImages(boolean hide){
-        this.hideMultipleImages = hide;
-    }
-
-    public List<String> getCacheKeys() {
-        return cacheKeys;
-    }
-
-    public List<MessageListItem> getListData() {
-        return listData;
-    }
-
-    private void loadDefaults(ViewHolder holder, View row, boolean sender){
-        // Load profile picture.
-        holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
-        holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
     }
 
     /** Load profile picture for given url and image view.*/
@@ -389,15 +396,12 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     }
 
     /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
-    private ChatBubbleImageView2 getBubbleImageViewFromRow(final ChatBubbleImageView2 image, final ProgressBar progressBar, final MessageListItem message){
+    private ChatBubbleImageView getBubbleImageViewFromRow(final ChatBubbleImageView image, final ProgressBar progressBar, final MessageListItem message){
         // Save the message text to the image tag so it could be found on the onClick.
         image.setTag(message.text);
 
-        // Coloring the message
-        int bubbleColor = message.color;
-
         // Loading the url.
-        final ChatBubbleImageView2.LoadDone loadDone = new ChatBubbleImageView2.LoadDone() {
+        final ChatBubbleImageView.LoadDone loadDone = new ChatBubbleImageView.LoadDone() {
 
             @Override
             public void onDone() {
@@ -434,43 +438,118 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             image.setLayoutParams(params);
 
             // Saving the url so we could remove it later on.
-            cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(message.url + ChatBubbleImageView2.URL_FIX, 0, 0));
+            cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(message.url + ChatBubbleImageView.URL_FIX, 0, 0));
             image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
         }
 
         return image;
     }
 
-    /** Click listener for an image view, A dialog that show the image will show for each click.*/
+
+
+    /**
+     * Add a new message to the list.
+     * @return true if the item is added to the list.
+     * */
+    public boolean addRow(MessageListItem newItem){
+        if (DEBUG) Log.d(TAG, "AddRow");
+
+        // Bad data.
+        if (newItem == null)
+            return false;
+
+        // Dont add message that does not have entity id and the status of the message is not sending.
+        if (newItem.entityId == null && newItem.status != BMessage.Status.SENDING)
+        {
+            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + newItem.text);
+            return false;
+        }
+
+        // Check for duplicates, And update the message status if its already exist.
+        for (MessageListItem item : listData)
+        {
+            if (item.entityId != null && item.entityId.equals(newItem.entityId) || item.id == newItem.id)
+            {
+                item.status = newItem.status;
+                notifyDataSetChanged();
+                return false;
+            }
+        }
+
+        listData.add(newItem);
+
+        Collections.sort(listData, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+
+        notifyDataSetChanged();
+
+        return true;
+    }
+
+    /**
+     * Add a new message to the list.
+     * @return true if the item is added to the list.
+     * */
+    public boolean addRow(BMessage message){
+        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth, customDateFormat));
+    }
+
+    /**
+     * Clear the messages list.
+     * */
+    public void clear(){
+        listData.clear();
+        notifyDataSetChanged();
+    }
+
+
+
+    /**
+     *  Click listener for an image view, A dialog that show the image will show for each click.
+     *  */
     public class showImageDialogClickListener implements View.OnClickListener{
+
+        private String messageEntityID;
+        private String imageUrl;
+
+        public showImageDialogClickListener(String messageEntityID, String imageUrl) {
+            this.messageEntityID = messageEntityID;
+            this.imageUrl = imageUrl;
+        }
+
         @Override
         public void onClick(View v) {
             ChatSDKUiHelper.hideSoftKeyboard(mActivity);
 
             if (DEBUG) Log.v(TAG, "OnClick - Location");
+
             // Show the location image.
-            if (v.getTag() != null)
+            if (StringUtils.isNotBlank(imageUrl))
             {
-                String url;
-                String [] urls = ((String) v.getTag()).split(BDefines.DIVIDER);
-                url = urls[0];
-
                 // Saving the url so we could remove it later on.
-                cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(url, 0, 0));
+                cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(imageUrl, 0, 0));
 
-                DialogUtils.getImageDialog(mActivity, url, DialogUtils.LoadTypes.LOAD_FROM_URL).
-                        showAtLocation(v, Gravity.CENTER, 0, 0);
+                PopupWindow popupWindow;
+
+                if (!BDefines.SaveImagesToDir)
+                    popupWindow = DialogUtils.getImageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
+                else
+                    popupWindow = DialogUtils.getImageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL, messageEntityID);
+
+                if (popupWindow == null)
+                    chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_load_image_fail));
+                else popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
             }
+
             else
             {
-                ChatSDKToast.toastAlert(mActivity, "Cant show image.");
+                chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_load_image_fail));
             }
-
-
         }
     }
 
-    /** Click listener for the view location button for location messages. The click will open Google Maps for the location.*/
+    /**
+     * Click listener for the view location button for location messages. The click will open Google Maps for the location.
+     * */
     public class openGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -484,15 +563,28 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 mActivity.startActivity(intent);
             } catch (ActivityNotFoundException e) {
-                ChatSDKToast.toastAlert(mActivity, "This phone does not have google maps.");
+                chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_no_google_maps));
             }
         }
     }
 
+    /**
+     * Converts a the messages list from BMessage to MessageListItem list.
+     *
+     * Here the custom date format is used to create the modified date format.
+     *
+     * @see #setCustomDateFormat(java.text.SimpleDateFormat)
+     * */
     public List<MessageListItem> makeList(List<BMessage> list){
         return MessageListItem.makeList(mActivity, userID, list, customDateFormat);
     }
 
+
+
+
+    /**
+     * The MessageListItem holds the BMessage object so we wont need to query data about the message each time we inflate a row.
+     * */
     public static class MessageListItem{
         private String entityId, profilePicUrl, time, text, textColor;
         private int type, status, color, rowType;
@@ -551,7 +643,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
             List<MessageListItem> list = new ArrayList<MessageListItem>();
 
-            int maxWidth = (int) (activity.getResources().getDisplayMetrics().density * 200);
+            int maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
 
             MessageListItem i;
             for (BMessage message : messages)
@@ -561,6 +653,10 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
                     /*Fixme Due to old data*/
                     if (i.type != BMessage.Type.TEXT && i.dimensions == null)
+                        continue;
+
+                    /*Skip messages with no date.*/
+                    if (message.getDate() == null)
                         continue;
 
                     list.add(i);
@@ -696,7 +792,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         private void setDimension(int maxWidth){
             try {
                 String[] data = text.split(BDefines.DIVIDER);
-                dimensions = ImageUtils.getDimentionsFromString(data[data.length - 1]);
+                dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
                 dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
 
                 if (dimensions.length != 2)
@@ -716,20 +812,72 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         public long getTimeInMillis() {
             return timeInMillis;
         }
+
+        public BMessage asBMessage(){
+            return DaoCore.fetchEntityWithEntityID(BMessage.class, entityId);
+        }
     }
 
+    /**
+     * Class to hold the row child views so we wont have to inflate more them once per row view.
+     * */
     class ViewHolder{
         CircleImageView profilePicImage;
         TextView txtTime;
-        ChatBubbleImageView2 image;
+        ChatBubbleImageView image;
         TextView txtContent;
         ProgressBar progressBar;
     }
 
+
+
+
+
+    /**
+     * Set the messages list data.
+     * */
+    public void setListData(List<MessageListItem> listData) {
+        this.listData = listData;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Get the messages list data.
+     * */
+    public List<MessageListItem> getListData() {
+        return listData;
+    }
+
+    /**
+     * If true the user profile image will be hidden if the message above is also from the same user.
+     * */
+    public void hideMultipleImages(boolean hide){
+        this.hideMultipleImages = hide;
+    }
+
+    /**
+     * Get the cache keys that where used when loading images for this current messages list.
+     *
+     * This could be used for cleaning the cache after user exit a chat room,
+     * The SDK does not use this feature but it can be found (commented out) in the {@link com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity ChatSDKAbstractChatActivity} onDestroy() function.
+     * */
+    public List<String> getCacheKeys() {
+        return cacheKeys;
+    }
+
+    /**
+     * Set the scrolling mode of the list view.
+     *
+     * We need to keep track of it so we wont animate rows when list view does not scroll.
+     * If we do animate when list view does not scroll then there would be multiple animation each time notifyDataSetChanged called.
+     * */
     public void setScrolling(boolean isScrolling) {
         this.isScrolling = isScrolling;
     }
 
+    /**
+     * Animating the sides of the row, For example animating the user profile image and the message date.
+     * */
     private void animateSides(View view, boolean fromLeft, Animation.AnimationListener animationListener){
         if (!isScrolling)
             return;
@@ -742,6 +890,9 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         view.animate();
     }
 
+    /**
+     *  Animating the center part of the row, For example the image in an image message or the text in text message.
+     * */
     private void animateContent(View view, Animation.AnimationListener animationListener){
         if (!isScrolling)
             return;
@@ -751,37 +902,61 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         view.animate();
     }
 
+    /**
+     * Set the message text color.
+     *
+     * The default is the color defined in the layout file that will be inflated.
+     *
+     * */
     public void setTextColor(int textColor) {
         this.textColor = textColor;
     }
 
-
-    /*Set row types resource id*/
-
+    /**
+     * Set the layout id that will be inflated for each user text message row.
+     * */
     public void setTextUserRowResId(int textUserRowResId) {
         this.textUserRowResId = textUserRowResId;
     }
 
+    /**
+     * Set the layout id that will be inflated for each friend text message row.
+     * */
     public void setTextFriendRowResId(int textFriendRowResId) {
         this.textFriendRowResId = textFriendRowResId;
     }
 
+    /**
+     * Set the layout id that will be inflated for each user image message row.
+     * */
     public void setImageUserRowResId(int imageUserRowResId) {
         this.imageUserRowResId = imageUserRowResId;
     }
 
+    /**
+     * Set the layout id that will be inflated for each friend image message row.
+     * */
     public void setImageFriendRowResId(int imageFriendRowResId) {
         this.imageFriendRowResId = imageFriendRowResId;
     }
 
+    /**
+     * Set the layout id that will be inflated for each user location message row.
+     * */
     public void setLocationUserResId(int locationUserResId) {
         this.locationUserResId = locationUserResId;
     }
 
+    /**
+     * Set the layout id that will be inflated for each friends location message row.
+     * */
     public void setLocationFriendRowResId(int locationFriendRowResId) {
         this.locationFriendRowResId = locationFriendRowResId;
     }
 
+    /**
+     * Set the date format that will be used to format the message date.
+     * */
     public void setCustomDateFormat(SimpleDateFormat customDateFormat) {
         this.customDateFormat = customDateFormat;
     }

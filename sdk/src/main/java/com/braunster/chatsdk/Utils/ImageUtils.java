@@ -1,15 +1,12 @@
 package com.braunster.chatsdk.Utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.NinePatchDrawable;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
@@ -30,6 +27,33 @@ public class ImageUtils {
     public static final String TAG = ImageUtils.class.getSimpleName();
     public static final boolean DEBUG = Debug.ImageUtils;
 
+    /** Constructing a bitmap that contains the given bitmaps(max is three).
+     * If given bitmaps amount is two the returned bitmap will be the two images split to two half's.
+     * Case three the first will get half the return bitmap and the two other will take the second half.*/
+    public static Bitmap getMixImagesBitmap(int width, int height, Bitmap...bitmaps){
+
+        if (bitmaps.length == 0)
+            return null;
+
+        Bitmap finalImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(finalImage);
+
+        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+
+        if (bitmaps.length == 2){
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height), width/2, 0, paint);
+        }
+        else{
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height/2), width/2, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], width/2, height/2), width/2, height/2, paint);
+        }
+
+        return finalImage;
+    }
+
+    /** Constructing a bitmap with the given text written in it.*/
     public static Bitmap getInitialsBitmap(int backGroundColor, int textColor, String initials){
 
         int size = BDefines.ImageProperties.INITIALS_IMAGE_SIZE;
@@ -65,6 +89,7 @@ public class ImageUtils {
         return b;
     }
 
+    /** @return a bitmap with text.*/
     private static Bitmap textAsBitmap(String text, float textSize, int textColor) {
 
         Paint paint = new Paint();
@@ -82,36 +107,6 @@ public class ImageUtils {
         canvas.drawText(text, 0, baseline, paint);
 
         return image;
-    }
-
-    public static Bitmap decodeSampledBitmapFromFile(String path,
-                                                     int reqWidth, int reqHeight) {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
-    }
-
-    public static Bitmap decodeSampledBitmapFromString(String path,
-                                                     int reqWidth, int reqHeight) {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
     }
 
     public static int calculateInSampleSize(
@@ -407,14 +402,14 @@ public class ImageUtils {
         }
     }
 
-    public static String getDimensionString(Bitmap bitmap){
+    public static String getDimensionAsString(Bitmap bitmap){
         if (bitmap == null)
             throw  new NullPointerException("Bitmap cannot be null");
 
         return WIDTH + bitmap.getWidth() +  DIVIDER + HEIGHT + bitmap.getHeight();
     }
 
-    public static int[] getDimentionsFromString(String dimensions){
+    public static int[] getDimensionsFromString(String dimensions){
         if (StringUtils.isEmpty(dimensions))
             throw new IllegalArgumentException("dimensions cannot be empty");
 
@@ -430,116 +425,8 @@ public class ImageUtils {
         return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
     }
 
-    public static Bitmap get_ninepatch(int id,int x, int y, Context context){
-        // id is a resource id for a valid ninepatch
-        Bitmap bitmap = BitmapFactory.decodeResource(
-                context.getResources(), id);
-
-        byte[] chunk = bitmap.getNinePatchChunk();
-        NinePatchDrawable np_drawable = new NinePatchDrawable(context.getResources(), bitmap,
-                chunk, new Rect(), null);
-        np_drawable.setBounds(0, 0,x, y);
-
-        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output_bitmap);
-        np_drawable.draw(canvas);
-
-        return output_bitmap;
-    }
-
-    public static Bitmap ResizeNinepatch(Bitmap bitmap, int x, int y, Context context){
-
-        byte[] chunk = bitmap.getNinePatchChunk();
-        NinePatchDrawable np_drawable = new NinePatchDrawable(context.getResources(), bitmap,
-                chunk, new Rect(), null);
-        np_drawable.setBounds(0, 0,x, y);
-
-        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output_bitmap);
-        np_drawable.draw(canvas);
-
-        return output_bitmap;
-    }
-
-    public static Bitmap replaceIntervalColor(Bitmap bitmap,
-                                              int redStart, int redEnd,
-                                              int greenStart, int greenEnd,
-                                              int blueStart, int blueEnd,
-                                              int colorNew) {
-        if (bitmap != null) {
-            int picw = bitmap.getWidth();
-            int pich = bitmap.getHeight();
-            int[] pix = new int[picw * pich];
-            bitmap.getPixels(pix, 0, picw, 0, 0, picw, pich);
-            for (int y = 0; y < pich; y++) {
-                for (int x = 0; x < picw; x++) {
-                    int index = y * picw + x;
-                    if (
-                            ((Color.red(pix[index]) >= redStart)&&(Color.red(pix[index]) <= redEnd))&&
-                                    ((Color.green(pix[index]) >= greenStart)&&(Color.green(pix[index]) <= greenEnd))&&
-                                    ((Color.blue(pix[index]) >= blueStart)&&(Color.blue(pix[index]) <= blueEnd)) ||
-                                    Color.alpha(pix[index]) > 0
-                            ){
-
-                        // If the alpha is not full that means we are on the edges of the bubbles so we create the new color with the old alpha.
-                        if (Color.alpha(pix[index]) > 0)
-                        {
-//                            Log.i(TAG, "PIX: " + Color.alpha(pix[index]));
-                            pix[index] = Color.argb(Color.alpha(pix[index]), Color.red(colorNew), Color.green(colorNew), Color.blue(colorNew));
-                        }
-                        else
-                            pix[index] = colorNew;
-                    }
-                }
-            }
-
-            return Bitmap.createBitmap(pix, picw, pich,Bitmap.Config.ARGB_8888);
-        }
-        return null;
-    }
 
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 }
 
 
-/*
-    public static Bitmap getInitialsBitmap(Context context,int bacgroundColor, int textColor, int bitmapWidth, int bitmapHeight, String initials){
-        if (DEBUG) Log.v(TAG, "getInitialsBitmap, Width: " + bitmapWidth + ", Height: " + bitmapHeight);
-
-        int smallerDim = bitmapHeight > bitmapWidth ? bitmapWidth : bitmapHeight;
-        if (DEBUG) Log.i(TAG, "Smaller DIm: " + smallerDim);
-
-        int textSpace = smallerDim/2;
-        if (DEBUG) Log.i(TAG, "Text Space: " + textSpace);
-
-        // Create bitmap and canvas to draw to
-        Bitmap b = Bitmap.createBitmap(smallerDim, smallerDim, Bitmap.Config.RGB_565);
-        Canvas c= new Canvas(b);
-
-        if (DEBUG) Log.i(TAG, "Canvas W: " + c.getWidth() + ", H: " + c.getHeight());
-
-        // Draw background
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG
-                | Paint.LINEAR_TEXT_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(bacgroundColor);
-        c.drawPaint(paint);
-
-        // Draw text
-        c.save();
-
-        Bitmap textBitmap = textAsBitmap(initials, textSpace/2 * context.getResources().getDisplayMetrics().density, textColor);
-
-        // Making sure the image isnt to big.
-        if (textBitmap.getHeight() > smallerDim/2)
-            textBitmap = textAsBitmap(initials, textSpace/4 * context.getResources().getDisplayMetrics().density, textColor);
-
-        if (DEBUG) Log.i(TAG, "TextBitmap, W: " + textBitmap.getWidth() + ", H: " + textBitmap.getHeight());
-
-        c.drawBitmap(textBitmap, smallerDim/2 - textBitmap.getWidth()/2, smallerDim/2 - textBitmap.getHeight()/2, null);
-
-        c.restore();
-
-        return b;
-    }
-*/

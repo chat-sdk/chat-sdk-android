@@ -3,23 +3,23 @@
     tools:context="com.braunster.androidchatsdk.app.MainActivity">
 
     <!-- Base application theme. -->
-    <style name="ChatSDKTheme" parent="Theme.Base.AppCompat.Light">
+    <style name="ChatSDKTheme" parent="@android:style/Theme.Holo.Light">
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
     <!-- For the sliding affect to look good in the chat activity and pick friends activity.-->
-    <style name="ChatSDKSlidingTransactionTheme" parent="ChatSDKTheme">
+    <style name="ChatSDKSlidingTransactionTheme" parent="@style/ChatSDKTheme">
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
     <!--Action bar style-->
-    <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
+    <style name="ActionBarStyle" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@color/chat_sdk_theme_color</item>
         <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
     </style>
 
-    <style name="actionBarTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+    <style name="actionBarTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@android:color/white</item>
     </style>
 
@@ -53,6 +53,10 @@
         <item name="android:layout_width">48dp</item>
         <item name="android:layout_height">48dp</item>
         <item name="border_color">@android:color/black</item>
+    </style>
+
+    <style name="ThreadListCircleIconStyle" parent="CircleIconStyle">
+        <item name="android:layout_margin">3dp</item>
     </style>
 
     <!--Rounded corner image view style-->

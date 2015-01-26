@@ -3,6 +3,19 @@
     package="com.braunster.androidchatsdk.app"
     android:versionName="@string/chat_sdk_version_name">
 
+    <!-- For Google Maps.-->
+    <permission
+        android:name="com.braunster.androidchatsdk.locationapi.maps.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.braunster.androidchatsdk.android.locationapi.maps.permission.MAPS_RECEIVE" />
+
+    <permission android:protectionLevel="signature"
+        android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
+
+    <!--FIXME For contact import-->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
 
         android:allowBackup="true"
@@ -15,9 +28,9 @@
             android:name="com.braunster.chatsdk.activities.ChatSDKLoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:theme="@style/ChatSDKTheme"
             android:windowSoftInputMode="stateHidden|adjustPan"
             >
-            <meta-data android:name="com.facebook.sdk.ApplicationId"   android:value="@string/facebook_id"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,12 +39,36 @@
         </activity>
 
         <!-- Parse -->
-        <receiver android:name="com.braunster.chatsdk.parse.ChatSDKReceiver" android:exported="false">
+        <receiver android:name="com.braunster.androidchatsdk.firebaseplugin.firebase.parse.ChatSDKReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="com.braunster.chatsdk.parse.MESSAGE_RECEIVED"/>
                 <action android:name="com.braunster.chatsdk.parse.FOLLOWER_ADDED"/>
             </intent-filter>
         </receiver>
+
+        <!-- Parse -->
+        <service android:name="com.parse.PushService" />
+
+        <receiver android:name="com.parse.ParseBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.braunster.androidchatsdk.app" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Google Maps Metadata-->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key"/>
 
     </application>
 

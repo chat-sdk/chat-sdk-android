@@ -1,7 +1,6 @@
 package com.braunster.chatsdk.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,8 +93,6 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
-        if (DEBUG) Log.d(TAG, "onCreateView");
 
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 

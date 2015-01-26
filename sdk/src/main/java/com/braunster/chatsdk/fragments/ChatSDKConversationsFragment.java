@@ -1,7 +1,6 @@
 package com.braunster.chatsdk.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +32,8 @@ public class ChatSDKConversationsFragment extends ChatSDKAbstractConversationsFr
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (DEBUG) Log.d(TAG, "onCreateView");
 
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, container, false);
 
         initViews();
 

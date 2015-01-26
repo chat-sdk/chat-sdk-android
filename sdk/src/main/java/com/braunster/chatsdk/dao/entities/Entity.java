@@ -1,6 +1,11 @@
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.network.firebase.BPath;
+
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BMetadata;
+import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.network.BPath;
 
 import java.util.Date;
 import java.util.List;
@@ -9,7 +14,7 @@ import java.util.Map;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Entity<E>{
+public class Entity implements com.braunster.chatsdk.dao.entity_interface.Entity{
 
     private Date lastUpdated;
 
@@ -17,15 +22,10 @@ public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Ent
 
     }
 
-    @Override
-    public void updateFrom(E e) {
-
-    }
-
-    /** It is important to notice that if your path depends on another object path <b>do not</b> call the Object.getPath() directly.
+    /** It is important to notice that if your path depends on another object path <b>do not</b> call the Object.getBPath() directly.
      * The GreenDao load object lezley so you need to use the getter method of this object.*/
     @Override
-    public BPath getPath() {
+    public BPath getBPath() {
         return null;
     }
 
@@ -74,12 +74,55 @@ public class Entity<E> implements com.braunster.chatsdk.dao.entity_interface.Ent
     }
 
     @Override
-    public <E1 extends Entity> List<E1> getChildren() {
+    public <ChildEntity extends Entity> List<ChildEntity> getChildren() {
         return null;
     }
 
     @Override
     public Long getId() {
         return -1L;
+    }
+
+    @Override
+    public boolean isDirty() {
+
+        if (this instanceof BUser)
+        {
+            return ((BUser) this).getDirty() == null || ((BUser) this).getDirty();
+        }
+        else if (this instanceof BMessage)
+        {
+            return ((BMessage) this).getDirty() == null || ((BMessage) this).getDirty();
+        }
+        else if (this instanceof BMetadata)
+        {
+            return ((BMetadata) this).getDirty() == null || ((BMetadata) this).getDirty();
+        }
+        else if (this instanceof BThread)
+        {
+            return ((BThread) this).getDirty() == null || ((BThread) this).getDirty();
+        }
+
+        return true;
+    }
+
+    @Override
+    public void setAsDirty(boolean dirty) {
+        if (this instanceof BUser)
+        {
+            ((BUser) this).setDirty(dirty);
+        }
+        else if (this instanceof BMessage)
+        {
+            ((BMessage) this).setDirty(dirty);
+        }
+        else if (this instanceof BMetadata)
+        {
+            ((BMetadata) this).setDirty(dirty);
+        }
+        else if (this instanceof BThread)
+        {
+            ((BThread) this).setDirty(dirty);
+        }
     }
 }

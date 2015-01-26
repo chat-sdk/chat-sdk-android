@@ -69,7 +69,7 @@ public class Batcher<T> {
         setBatchedAction(action);
     }
 
-    public boolean add(T t){
+    public synchronized boolean add(T t){
         if (t!=null)
             stash.add(t);
 
@@ -88,36 +88,39 @@ public class Batcher<T> {
         return false;
     }
 
-    private void pull(){
+    private synchronized void pull(){
         pulledTime = System.currentTimeMillis();
         pulled = true;
     }
 
-    private void trigger(){
-        Runnable run = new Runnable() {
-            @Override
-            public void run() {
-                pulled = false;
+    private Runnable triggerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            pulled = false;
 
-                if (batchedAction != null)
-                    batchedAction.triggered(new CopyOnWriteArrayList<T>(stash));
+            if (batchedAction != null)
+                batchedAction.triggered(new CopyOnWriteArrayList<T>(stash));
 
-                stash.clear();
+            stash.clear();
 
-                pulledTime = 0;
-            }
-        };
+            pulledTime = 0;
+        }
+    };
 
+    private synchronized void trigger(){
         if (handler != null)
-            handler.post(run);
-        else run.run();
+        {
+            handler.removeCallbacks(triggerRunnable);
+            handler.post(triggerRunnable);
+        }
+        else triggerRunnable.run();
     }
 
     public boolean isPulled() {
         return pulled;
     }
 
-    private boolean toHold(){
+    private synchronized boolean toHold(){
         return  pulledTime == 0 || System.currentTimeMillis() - pulledTime < interval;
     }
 

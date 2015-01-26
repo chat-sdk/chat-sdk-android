@@ -5,12 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
@@ -37,7 +36,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by braunster on 18/06/14.
  */
-public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBaseActivityInterface {
+public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivityInterface {
 
     private static final String TAG = ChatSDKBaseActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.BaseActivity;
@@ -77,7 +76,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
         chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(this);
 
-        if (integratedWithFacebook)
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
         {
             uiHelper = new UiLifecycleHelper(this, callback);
             uiHelper.onCreate(savedInstanceState);
@@ -116,7 +115,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     @Override
     protected void onPause() {
         super.onPause();
-        if (integratedWithFacebook)
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onPause();
     }
 
@@ -129,7 +128,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
         if (DEBUG) Log.v(TAG, "onResumed, From login: " + fromLoginActivity +", Check online: " + checkOnlineOnResumed);
 
-        if (integratedWithFacebook)
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onResume();
 
         if (checkOnlineOnResumed && !fromLoginActivity)
@@ -185,7 +184,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     protected void onDestroy() {
         super.onDestroy();
 
-        if (integratedWithFacebook)
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onDestroy();
 
         dismissProgDialog();
@@ -195,7 +194,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (integratedWithFacebook) uiHelper.onSaveInstanceState(outState);
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled()) uiHelper.onSaveInstanceState(outState);
 
         outState.putBoolean(FROM_LOGIN, fromLoginActivity);
 
@@ -272,20 +271,20 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
     protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object>() {
+        getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError>() {
 
             BThread thread = null;
 
             @Override
-            public boolean onMainFinised(BThread bThread, Object o) {
+            public boolean onMainFinised(BThread bThread, BError o) {
                 if (o != null)
                 {
-                    if (checkIfOnMainThread())
-                        Toast.makeText(ChatSDKBaseActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                    if (isOnMainThread())
+                        showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
                     else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(ChatSDKBaseActivity.this, "Failed to start chat.", Toast.LENGTH_SHORT).show();
+                            showAlertToast( getString(R.string.create_thread_with_users_fail_toast) );
                         }
                     });
                     return true;
@@ -312,7 +311,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
                 if (thread == null)
                     if (DEBUG) Log.e(TAG, "thread added is null");
 
-                if (checkIfOnMainThread())
+                if (isOnMainThread())
                 {
                     if (thread != null)
                     {
@@ -334,7 +333,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
             }
 
             @Override
-            public void onItemError(BUser user, Object o) {
+            public void onItemError(BUser user, BError o) {
                 if (DEBUG) Log.d(TAG, "Failed to add user to thread, User name: " +user.getName());
             }
         }, users);
@@ -402,12 +401,11 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     }
 
     protected void dismissProgDialog(){
+        // For handling orientation changed.
         try {
             if (progressDialog != null && progressDialog.isShowing())
                 progressDialog.dismiss();
         } catch (Exception e) {
-            // For handling orientation changed.
-            e.printStackTrace();
         }
     }
 
@@ -436,7 +434,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(DEBUG) Log.v(TAG, "onActivityResult");
-        if (integratedWithFacebook)
+        if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -444,13 +442,10 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
-            if (integratedWithFacebook)
+            if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
                 onSessionStateChange(session, state, exception);
         }
     };
-
-
-
 
     /** When enabled the app will check the user online ref to see if he is not offline each time that the activity is resumed.
      *  This method is good for times that the app is in the background and killed by the android system and we need to listen to all the user details again.
@@ -477,7 +472,7 @@ public class ChatSDKBaseActivity extends ActionBarActivity implements ChatSDKBas
         startLoginActivity(true);
     }
 
-    public boolean checkIfOnMainThread() {
+    protected boolean isOnMainThread() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             return false;
         }

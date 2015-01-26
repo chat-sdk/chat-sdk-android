@@ -59,6 +59,9 @@ public class EntityProperties {
     public static final String LastMessageAdded = "LastMessageAdded";
     public static final String Creator = "creator";
     public static final String CreatorID = "creator_ID";
+    public static final String CreatorEntityID = "creatorEntityId";
+    public static final String BDeleted = "deleted";
+    public static final String BThreadImageUrl = "imageUrl";
 
     /* Metadata*/
     public static final String Key = "Key";

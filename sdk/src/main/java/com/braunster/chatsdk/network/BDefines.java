@@ -5,6 +5,25 @@ package com.braunster.chatsdk.network;
  */
 public class BDefines {
 
+    /** This is the root path of all the app data,
+     *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
+    private static final String BRootPath = "v1_0_2/";
+
+    /** The server url that is used to do all the API calls.*/
+    public static String ServerUrl = "https://chat-sdk-android-2.firebaseio.com/" + BRootPath;
+
+    /**
+     * The name of the app image directory that will be seen in the phone image galley
+     * */
+    public static final String ImageDirName = "AndroidChatSDK";
+
+    /**
+     * If true images opened in the chat activity will be saved to the user image gallery under the name assigned in the ImageDirName
+     *
+     * @see #ImageDirName
+     * */
+    public static final boolean SaveImagesToDir = true;
+
     /** Each type get his own prefix by using the private constructor.
      * This is the place to change the prefix if wanted.*/
     public static final class BAccountType{
@@ -16,26 +35,53 @@ public class BDefines {
         public static final int Register = 6;
     }
 
-    public static final boolean AnonymuosLoginEnabled = true;
+    /**
+     * If true anonymous login is possible.
+     * */
+    public static final boolean AnonymousLoginEnabled = true;
+
+    /**
+     * The initials that will be used to create initials image for anonymous user and user without names.
+     * @see com.braunster.chatsdk.Utils.ImageUtils#getInitialsBitmap(int, int, String)
+     * */
     public static final String InitialsForAnonymous = "AN";
 
+    /**
+     * divide tat is used to divide b */
     public static final String DIVIDER = ",";
 
-    // Vibration Duration in Millis
+    /**
+     * Vibration Duration in Millis of the notifications.
+     * */
     public static final int VIBRATION_DURATION = 300;
 
+    /**
+     * Amount of messages that will be pulled for a thread from local db or from server.
+     * */
     public static final int MAX_MESSAGES_TO_PULL = 30;
 
-    public static final String ContactDeveloper_Email = "itzik.register@gmail.com";
+    /**
+     * If true user phone number will be index if not empty.
+     *
+     * This is not final so you could set this up each time the user enters the app,
+     * This way you could make an option to enable this option in your settings screen if the user does not want to index his phone number.
+     *
+     * */
+    public static boolean IndexUserPhoneNumber = true;
+
+    public static final String ContactDeveloper_Email = "";
     public static final String ContactDeveloper_Subject = "Report: ";
     public static final String ContactDeveloper_DialogTitle = "Contact Developer";
 
+    /**
+     * Currently there is no reason to disable following but maybe in the future it would be needed to keep track of it.
+     * */
     public static boolean EnableFollowers = true;
 
     public static final class Defaults{
         public static final String MessageColor = "0.635294 0.552941 0.686275 1";
-        public static final String MessageTextColor = "#000000";
-        public static final String MessageFontName= "Roboto";
+        public static final String MessageTextColor = "0 0 0 1";
+        public static final String MessageFontName= "bSystemFont";
         public static final String MessageSendingColor = "#C3C2C4";
         public static final String BubbleDefaultColor = "#27ae60";
         public static final String BubbleDefaultPressedColor = "#3498db";
@@ -49,27 +95,6 @@ public class BDefines {
         public static final int EXIT_MODE_DIALOG = 1992;
 
         public static final int DOUBLE_CLICK_INTERVAL = 2000;
-    }
-
-    public static final class APIs{
-        /* Change this id's to your app id's!*/
-        // Facebook
-        public static final String FacebookAppId = "247787328762280";
-
-        // Google
-        public static final String GoogleAppId = "";
-
-        // Twitter
-        public static final String TwitterConsumerKey = "PppCGHuU1jQWMrUSuCCfumUCB";
-        public static final String TwitterConsumerSecret = "bY5Pc5EXfY1tzUFTwqh0HprRVSJ50sa83nJQIMIxvvlEsFODVY";
-        public static final String TwitterAccessToken = "447438464-UiyStJVNB1uhtvzyzJmmeDs3hZ3yprowdzheWUeg";
-        public static final String TwitterAccessTokenSecret = "fdZbHxMyXl97MKm84VwB9ceuuNbNuuDcx1hyc6qnoB5cN";
-
-        // Parse
-        public static final String ParseAppId = "oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d";
-        public static final String ParseClientKey = "A1lZKXHQWKUQogcfCCIFBg1cPbJ0dtekh2ghV6He";
-
-        public static final String BugSenseKey = "a83a219d";
     }
 
     public static final class Prefs{
@@ -87,7 +112,7 @@ public class BDefines {
     public static final class Keys{
         /*Metadata*/
         public static final String BEmail = "email";
-        public static final String Bkey = "key";
+        public static final String BKey = "key";
         public static final String BValue = "value";
         public static final String BPhone = "phone";
         public static final String BPicture = "picture";
@@ -114,6 +139,10 @@ public class BDefines {
         public static final String BLastUpdated = "last-updated";
         public static final String BLastOnline = "last-online";
 
+        public static final String BImageUrl = "image-url";
+        public static final String BCreatorEntityId = "creator-firebase-id";
+        public static final String BDeleted = "deleted";
+        public static final String BLeaved = "leaved";
         public static final String UserId = "user-id";
 
         public static final class ThirdPartyData{
@@ -145,4 +174,8 @@ public class BDefines {
         public static final int INITIALS_IMAGE_SIZE = 500;
         public static final float INITIALS_TEXT_SIZE = 150f;
     }
+
+    public static final int MESSAGE_NOTIFICATION_ID = 1001;
+    public static final int FOLLOWER_NOTIFICATION_ID = 1002;
+
 }

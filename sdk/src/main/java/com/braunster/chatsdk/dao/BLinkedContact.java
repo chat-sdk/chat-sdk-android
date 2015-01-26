@@ -1,10 +1,6 @@
 package com.braunster.chatsdk.dao;
 
 import com.braunster.chatsdk.dao.entities.Entity;
-import com.braunster.chatsdk.network.firebase.BPath;
-
-import java.util.Date;
-import java.util.Map;
 
 import de.greenrobot.dao.DaoException;
 
@@ -14,7 +10,7 @@ import de.greenrobot.dao.DaoException;
 /**
  * Entity mapped to table BLINKED_CONTACT.
  */
-public class BLinkedContact extends Entity<BLinkedContact>  {
+public class BLinkedContact extends Entity  {
 
     private Long id;
     private String entityID;
@@ -136,41 +132,6 @@ public class BLinkedContact extends Entity<BLinkedContact>  {
     }
 
     // KEEP METHODS - put your custom methods here
-
-    @Override
-    public void updateFrom(BLinkedContact bLinkedContact) {
-
-    }
-
-    @Override
-    public BPath getPath() {
-        return null;
-    }
-
-    @Override
-    public Type getEntityType() {
-        return null;
-    }
-
-    @Override
-    public void updateFromMap(Map<String, Object> map) {
-
-    }
-
-    @Override
-    public Map<String, Object> asMap() {
-        return null;
-    }
-
-    @Override
-    public Object getPriority() {
-        return null;
-    }
-
-    @Override
-    public Date lastUpdated() {
-        return null;
-    }
     // KEEP METHODS END
 
 }

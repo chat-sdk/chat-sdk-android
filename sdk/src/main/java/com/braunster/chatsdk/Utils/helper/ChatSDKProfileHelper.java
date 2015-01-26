@@ -2,6 +2,7 @@ package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,7 +10,6 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,13 +22,13 @@ import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.interfaces.MultiSaveCompletedListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
+import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Cropper;
-import com.braunster.chatsdk.parse.ParseUtils;
-import com.parse.ParseException;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
@@ -224,8 +224,8 @@ public class ChatSDKProfileHelper {
     }
 
     /** Only for current user.*/
-    public void saveProfilePicToParse(String path, boolean setAsPic) {
-        if (DEBUG) Log.v(TAG, "saveProfilePicToParse, Path: " + path);
+    public void saveProfilePicToServer(String path, boolean setAsPic) {
+        if (DEBUG) Log.v(TAG, "saveProfilePicToServer, Path: " + path);
 
         //  Loading the bitmap
         if (setAsPic)
@@ -233,7 +233,7 @@ public class ChatSDKProfileHelper {
             setProfilePicFromPath(path);
         }
 
-        saveProfilePicToParse(path);
+        saveProfilePicToServer(path);
     }
 
     /** Only for current user.*/
@@ -255,13 +255,13 @@ public class ChatSDKProfileHelper {
     }
 
     /** Only for current user.*/
-    public void saveProfilePicToParse(String path){
-        ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
+    public void saveProfilePicToServer(String path){
+        BNetworkManager.sharedManager().getNetworkAdapter().saveImageWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException exception, String... data) {
-                if (exception != null) {
+            public void onSaved(BError error, String... data) {
+                if (error != null) {
                     if (DEBUG)
-                        Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
+                        Log.e(TAG, "Parse Exception while saving profile pic --- " + error.message);
                     return;
                 }
 
@@ -280,14 +280,14 @@ public class ChatSDKProfileHelper {
     }
 
     /** Only for current user.*/
-    public void saveProfilePicToParse(String path, final ParseUtils.MultiSaveCompletedListener listener){
-        ParseUtils.saveImageFileToParseWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
+    public void saveProfilePicToServer(String path, final MultiSaveCompletedListener listener){
+        BNetworkManager.sharedManager().getNetworkAdapter().saveImageWithThumbnail(path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE, new MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException exception, String... data) {
-                if (exception != null) {
+            public void onSaved(BError error, String... data) {
+                if (error != null) {
                     if (DEBUG)
-                        Log.e(TAG, "Parse Exception while saving profile pic --- " + exception.getMessage());
-                    listener.onSaved(exception, data);
+                        Log.e(TAG, "Parse Exception while saving profile pic --- " + error.message);
+                    listener.onSaved(error, data);
                     return;
                 }
 
@@ -299,7 +299,7 @@ public class ChatSDKProfileHelper {
 
                 currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING);
                 currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING);
-                listener.onSaved(exception, data);
+                listener.onSaved(null, data);
             }
         });
     }
@@ -424,7 +424,7 @@ public class ChatSDKProfileHelper {
             File tmp = File.createTempFile("Pic", ".jpg", activity.getCacheDir());
             ImageUtils.saveBitmapToFile(tmp, bitmap);
             if (DEBUG) Log.i(TAG, "Temp file path: " + tmp.getPath());
-            saveProfilePicToParse(tmp.getPath(), false);
+            saveProfilePicToServer(tmp.getPath(), false);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -481,7 +481,7 @@ public class ChatSDKProfileHelper {
 
                 if (fragment==null)
                     activity.startActivityForResult(cropIntent, request);
-                else ((FragmentActivity) activity).startActivityFromFragment(fragment, cropIntent, request);
+                else activity.startActivityFromFragment(fragment, cropIntent, request);
 
                 return HANDELD;
             }
@@ -504,7 +504,7 @@ public class ChatSDKProfileHelper {
                 lastImageLoadedPath = image.getPath();
 
                 if (saveImageWhenLoaded)
-                    saveProfilePicToParse(lastImageLoadedPath, true);
+                    saveProfilePicToServer(lastImageLoadedPath, true);
                 else setProfilePicFromPath(lastImageLoadedPath);
                 return HANDELD;
             }
@@ -540,7 +540,7 @@ public class ChatSDKProfileHelper {
     }
 
     public static View.OnClickListener getProfilePicClickListener(final Activity activity, final Fragment fragment){
-        return ChatSDKIntentClickListener.getPickImageClickListener((FragmentActivity) activity, fragment, PROFILE_PIC);
+        return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, PROFILE_PIC);
     }
 
     public static View.OnClickListener getPickImageClickListener(final FragmentActivity activity,final Fragment fragment, final int requestCode){

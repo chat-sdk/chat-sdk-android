@@ -1,8 +1,8 @@
 package com.braunster.chatsdk.adapter;
 
 
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.app.FragmentManager;
+import android.support.v13.app.FragmentPagerAdapter;
 
 import com.astuetz.pagersslidingtabstrip.PagerSlidingTabStrip;
 import com.braunster.chatsdk.R;

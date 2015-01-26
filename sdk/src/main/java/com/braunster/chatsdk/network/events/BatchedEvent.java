@@ -8,7 +8,7 @@ import static com.braunster.chatsdk.network.events.Event.Type.AppEvent;
 
 public class BatchedEvent extends Event{
 
-    private Batcher<String> threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher, followerBatcher;
+    private Batcher<String> appBatch, threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher, followerBatcher;
     private Handler handler;
 
     public BatchedEvent(String tag, String entityId, Type type) {
@@ -27,11 +27,7 @@ public class BatchedEvent extends Event{
         switch (type){
 
             case AppEvent:
-                threadBatch = new Batcher(action, interval, handler);
-                threadAddedBatcher = new Batcher(action, interval, handler);
-                userDetailsBatcher = new Batcher(action, interval, handler);
-                MessageBatcher = new Batcher(action, interval, handler);
-                followerBatcher = new Batcher(action, interval, handler);
+                appBatch = new Batcher<String>(action, interval, handler);
                 break;
 
             case MessageEvent:
@@ -69,19 +65,17 @@ public class BatchedEvent extends Event{
     }
 
     public void add(Type type, String entityID){
-        if (this.type != AppEvent &&  type != this.type)
+        if (this.type == AppEvent)
+        {
+            if (appBatch!=null)
+                appBatch.add(entityID);
             return;
+        }
+        else
+            if (type != this.type)
+                return;
 
         switch (type){
-
-            case AppEvent:
-                threadBatch.add(entityID);
-                threadAddedBatcher.add(entityID);
-                userDetailsBatcher.add(entityID);
-                MessageBatcher.add(entityID);
-                followerBatcher.add(entityID);
-                break;
-
             case MessageEvent:
                 if (MessageBatcher==null)
                     return;

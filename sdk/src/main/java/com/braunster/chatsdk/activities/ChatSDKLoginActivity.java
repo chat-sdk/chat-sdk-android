@@ -29,7 +29,7 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableFacebookIntegration(true);
+        enableFacebookIntegration(getNetworkAdapter().facebookEnabled());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activty_login);
 
@@ -45,10 +45,14 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
     @Override
     protected void initViews(){
         super.initViews();
-
         facebookLogin.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
         facebookLogin.setBackgroundResource(R.drawable.ic_facebook);
-        facebookLogin.setReadPermissions(Arrays.asList("email", "user_friends"));
+
+        if (integratedWithFacebook)
+        {
+
+            facebookLogin.setReadPermissions(Arrays.asList("email", "user_friends"));
+        }
 
         btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
         btnAnon = (Button) findViewById(R.id.chat_sdk_btn_anon_login);

@@ -1,11 +1,9 @@
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.dao.BMetadata;
-
 /**
  * Created by braunster on 25/06/14.
  */
-public class BMetadataEntity extends Entity<BMetadata>{
+public class BMetadataEntity extends Entity{
 
     public static class Type{
         public static final int NONE = 0;

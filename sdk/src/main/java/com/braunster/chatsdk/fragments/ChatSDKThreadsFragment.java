@@ -1,10 +1,10 @@
 package com.braunster.chatsdk.fragments;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,10 +20,8 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.ChatSDKThreadsListAdapter;
-import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.interfaces.ActivityListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
@@ -31,7 +29,7 @@ import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
-import com.braunster.chatsdk.network.firebase.EventManager;
+import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
@@ -67,7 +65,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (DEBUG) Log.d(TAG, "onCreateView");
         init(inflater);
 
         loadDataOnBackground();
@@ -94,8 +91,10 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
                         + ", ID: " + adapter.getItem(position).getEntityId());
+
                 startChatActivityForID(adapter.getItem(position).getId());
             }
         });
@@ -108,11 +107,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().threadsWithType(BThread.Type.Public);
-
-        adapter.setThreadItems(adapter.makeList(threads));
-
-        if (DEBUG) Log.d(TAG, "Threads, Amount: " + (threads != null ? threads.size(): "No Threads") );
+        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public, adapter.getItemMaker()));
     }
 
     @Override
@@ -153,7 +148,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                 message.what = 1;
                 message.obj = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public, adapter.getItemMaker());
 
-                handler.sendMessage(message);
+                handler.sendMessageAtFrontOfQueue(message);
 
                 uiUpdater = null;
             }
@@ -188,7 +183,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Public chat Room");
+                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.public_thread_fragment_add_item_text));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
     }
@@ -200,22 +195,22 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
         if (id == R.id.action_chat_sdk_add)
         {
-            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentManager fm = getActivity().getFragmentManager();
             DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
 
-            dialog.setTitleAndListen("Add Chat Room", new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
+            dialog.setTitleAndListen( getString(R.string.add_public_chat_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
                 public void onFinished(final String s) {
                     if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
 
-                    showProgDialog("Creating thread...");
-                    BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, Object>() {
+                    showProgDialog(getString(R.string.add_public_chat_dialog_progress_message));
+                    BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, BError>() {
                         @Override
                         public void onDone(final BThread bThread) {
 
                             // Add the current user to the thread.
                             BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(bThread,
-                                    new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                                    new RepetitiveCompletionListenerWithError<BUser, BError>() {
                                 @Override
                                 public boolean onItem(BUser user) {
 
@@ -226,11 +221,13 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                                 public void onDone() {
                                     dismissProgDialog();
                                     adapter.addRow(bThread);
-                                    showToast("Public thread " + s + " is created.");
+                                    showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
+                                            + s
+                                            + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
                                 }
 
                                 @Override
-                                public void onItemError(BUser user, Object o) {
+                                public void onItemError(BUser user, BError o) {
 
                                 }
                             }, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
@@ -238,8 +235,8 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                         }
 
                         @Override
-                        public void onDoneWithError(BThread bThread, Object o) {
-                            showToast("Failed to create public thread " + s + ".");
+                        public void onDoneWithError(BThread bThread, BError o) {
+                            showToast( getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s );
                         }
                     });
                 }
@@ -259,47 +256,15 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
         BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
 
-        batchedEvents.setBatchedAction(Event.Type.MessageEvent, new Batcher.BatchedAction<String>() {
+        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
-                if (DEBUG) Log.v(TAG, "onMessageReceived");
-                for (String messageID : list)
-                {
-                    BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, messageID);
-                    if (message.getBThreadOwner().getType() == BThread.Type.Public)
-                    {
-                        loadDataOnBackground();
-                        return;
-                    }
-                }
-            }
-        });
-
-        batchedEvents.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {
-            @Override
-            public void triggered(List<String> list) {
-                if (DEBUG) Log.v(TAG, "onThreadDetailsChanged");
-                for (String threadId : list)
-                {
-                    BThread thread = DaoCore.<BThread>fetchEntityWithEntityID(BThread.class, threadId);
-                    if (thread.getType() != null && thread.getType() == BThread.Type.Public)
-                    {
-                        loadDataOnBackground();
-                        return;
-                    }
-                }
-            }
-        });
-
-        batchedEvents.setBatchedAction(Event.Type.UserDetailsEvent, new Batcher.BatchedAction<String>() {
-            @Override
-            public void triggered(List<String> list) {
-                if (DEBUG) Log.v(TAG, "onUserDetailsChange");
+                if (DEBUG) Log.d(TAG, "Triggered");
                 loadDataOnBackground();
             }
         });
 
-        EventManager.getInstance().removeEventByTag(APP_EVENT_TAG);
-        EventManager.getInstance().addAppEvent(batchedEvents);
+        getNetworkAdapter().getEventManager().removeEventByTag(APP_EVENT_TAG);
+        getNetworkAdapter().getEventManager().addEvent(batchedEvents);
     }
 }

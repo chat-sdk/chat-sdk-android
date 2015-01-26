@@ -6,10 +6,9 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
+import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BPath;
-import com.firebase.client.ServerValue;
+import com.braunster.chatsdk.network.BPath;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -261,51 +260,13 @@ public class BMessage extends BMessageEntity  {
 
     // KEEP METHODS - put your custom methods here
     @Override
-    public void updateFrom(BMessage message) {
-        if (message == null)
-            return;
-
-        if (message.lastUpdated().before(date))
-            return;
-
-        if (getEntityID() == null)
-            entityID = message.getEntityID();
-
-        if (message.getBUserSender() != null)
-            setBUserSender(message.BUserSender);
-
-        if (message.getText() != null)
-            setText(message.getText());
-
-        if (message.getResourcesPath() != null)
-            setResourcesPath(message.getResourcesPath());
-
-        // TODO create default value for message type.
-        if (message.getType() != -1)
-            setType(message.getType());
-
-        if (message.color != null && !message.color.equals(""))
-            color = message.color;
-
-        if (message.textColor != null && !message.textColor.equals(""))
-            textColor = message.textColor;
-
-        if (message.fontName != null && !message.fontName.equals(""))
-            fontName = message.fontName;
-
-        if (message.fontSize != -1)
-            fontSize = message.fontSize;
-    }
-
-    // TODO get PAth
-    @Override
-    public BPath getPath() {
+    public BPath getBPath() {
         if (getBThreadOwner() == null)
         {
             if (DEBUG) Log.e(TAG, "Owner Thread is null");
             return null;
         }
-        return getBThreadOwner().getPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
+        return getBThreadOwner().getBPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
     }
 
     @Override
@@ -315,7 +276,6 @@ public class BMessage extends BMessageEntity  {
 
     @Override
     public void updateFromMap(Map<String, Object> map) {
-        // TODO maybe chagne all tags to the firebase paths..
         if (map.containsKey(BDefines.Keys.BPayload) && !map.get(EntityProperties.Text).equals(""))
             this.text = (String) map.get(EntityProperties.Text);
 
@@ -344,7 +304,8 @@ public class BMessage extends BMessageEntity  {
 
         map.put(BDefines.Keys.BPayload, text);
         map.put(BDefines.Keys.BType, type);
-        map.put(BDefines.Keys.BDate, ServerValue.TIMESTAMP);
+
+        map.put(BDefines.Keys.BDate, BFirebaseDefines.getServerTimestamp());
         map.put(BDefines.Keys.BUserFirebaseId, getBUserSender().getEntityID());
 
         return map;
@@ -352,7 +313,7 @@ public class BMessage extends BMessageEntity  {
 
     @Override
     public Object getPriority() {
-        return ServerValue.TIMESTAMP;
+        return BFirebaseDefines.getServerTimestamp();
     }
 
     public boolean isSameDayAsMessage(BMessage message){

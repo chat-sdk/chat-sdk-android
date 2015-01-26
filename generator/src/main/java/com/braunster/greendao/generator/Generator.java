@@ -19,7 +19,7 @@ public class Generator {
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(40,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(42,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -97,9 +97,12 @@ public class Generator {
         thread.addDateProperty(EntityProperties.CreationDate);
         thread.addBooleanProperty(EntityProperties.Dirty);
         thread.addBooleanProperty(EntityProperties.HasUnreadMessaged);
+        thread.addBooleanProperty(EntityProperties.BDeleted);
         thread.addStringProperty(EntityProperties.Name);
         thread.addDateProperty(EntityProperties.LastMessageAdded);
         thread.addIntProperty(EntityProperties.Type);
+        thread.addStringProperty(EntityProperties.CreatorEntityID);
+        thread.addStringProperty(EntityProperties.BThreadImageUrl);
     }
 
     private static void addThreadUsers(Schema schema){
@@ -201,24 +204,14 @@ public class Generator {
         user.setHasKeepSections(true);
     }
 
-    private static void setImplementation(){
-        user.implementsInterface("Entity<BUser>");
-        message.implementsInterface("Entity<BMessage>");
-        thread.implementsInterface("Entity<BThread>");
-        linkedAccount.implementsInterface("Entity<BLinkedAccount>");
-        linkedContact.implementsInterface("Entity<BLinkedContact>");
-        metaData.implementsInterface("Entity<BMetadata>");
-        threadUsers.implementsInterface("Entity<BLinkData>");
-    }
-
     private static void setSuperClass(){
         user.setSuperclass("BUserEntity");
         message.setSuperclass("BMessageEntity");
         thread.setSuperclass("BThreadEntity");
         linkedAccount.setSuperclass("BLinkedAccountEntity");
-        linkedContact.setSuperclass("Entity<BLinkedContact>");
+        linkedContact.setSuperclass("Entity");
         metaData.setSuperclass("BMetadataEntity");
-        threadUsers.setSuperclass("Entity<BLinkData>");
+        threadUsers.setSuperclass("Entity");
         follower.setSuperclass("BFollowerEntity");
     }
 }

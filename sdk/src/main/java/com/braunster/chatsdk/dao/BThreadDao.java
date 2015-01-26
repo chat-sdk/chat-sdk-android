@@ -32,10 +32,13 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         public final static Property CreationDate = new Property(2, java.util.Date.class, "creationDate", false, "CREATION_DATE");
         public final static Property Dirty = new Property(3, Boolean.class, "dirty", false, "DIRTY");
         public final static Property HasUnreadMessages = new Property(4, Boolean.class, "hasUnreadMessages", false, "HAS_UNREAD_MESSAGES");
-        public final static Property Name = new Property(5, String.class, "name", false, "NAME");
-        public final static Property LastMessageAdded = new Property(6, java.util.Date.class, "LastMessageAdded", false, "LAST_MESSAGE_ADDED");
-        public final static Property Type = new Property(7, Integer.class, "type", false, "TYPE");
-        public final static Property Creator_ID = new Property(8, Long.class, "creator_ID", false, "CREATOR__ID");
+        public final static Property Deleted = new Property(5, Boolean.class, "deleted", false, "DELETED");
+        public final static Property Name = new Property(6, String.class, "name", false, "NAME");
+        public final static Property LastMessageAdded = new Property(7, java.util.Date.class, "LastMessageAdded", false, "LAST_MESSAGE_ADDED");
+        public final static Property Type = new Property(8, Integer.class, "type", false, "TYPE");
+        public final static Property CreatorEntityId = new Property(9, String.class, "creatorEntityId", false, "CREATOR_ENTITY_ID");
+        public final static Property ImageUrl = new Property(10, String.class, "imageUrl", false, "IMAGE_URL");
+        public final static Property Creator_ID = new Property(11, Long.class, "creator_ID", false, "CREATOR__ID");
     };
 
     private DaoSession daoSession;
@@ -60,10 +63,13 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
                 "'CREATION_DATE' INTEGER," + // 2: creationDate
                 "'DIRTY' INTEGER," + // 3: dirty
                 "'HAS_UNREAD_MESSAGES' INTEGER," + // 4: hasUnreadMessages
-                "'NAME' TEXT," + // 5: name
-                "'LAST_MESSAGE_ADDED' INTEGER," + // 6: LastMessageAdded
-                "'TYPE' INTEGER," + // 7: type
-                "'CREATOR__ID' INTEGER);"); // 8: creator_ID
+                "'DELETED' INTEGER," + // 5: deleted
+                "'NAME' TEXT," + // 6: name
+                "'LAST_MESSAGE_ADDED' INTEGER," + // 7: LastMessageAdded
+                "'TYPE' INTEGER," + // 8: type
+                "'CREATOR_ENTITY_ID' TEXT," + // 9: creatorEntityId
+                "'IMAGE_URL' TEXT," + // 10: imageUrl
+                "'CREATOR__ID' INTEGER);"); // 11: creator_ID
     }
 
     /** Drops the underlying database table. */
@@ -102,24 +108,39 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
             stmt.bindLong(5, hasUnreadMessages ? 1l: 0l);
         }
  
+        Boolean deleted = entity.getDeleted();
+        if (deleted != null) {
+            stmt.bindLong(6, deleted ? 1l: 0l);
+        }
+ 
         String name = entity.getName();
         if (name != null) {
-            stmt.bindString(6, name);
+            stmt.bindString(7, name);
         }
  
         java.util.Date LastMessageAdded = entity.getLastMessageAdded();
         if (LastMessageAdded != null) {
-            stmt.bindLong(7, LastMessageAdded.getTime());
+            stmt.bindLong(8, LastMessageAdded.getTime());
         }
  
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(8, type);
+            stmt.bindLong(9, type);
+        }
+ 
+        String creatorEntityId = entity.getCreatorEntityId();
+        if (creatorEntityId != null) {
+            stmt.bindString(10, creatorEntityId);
+        }
+ 
+        String imageUrl = entity.getImageUrl();
+        if (imageUrl != null) {
+            stmt.bindString(11, imageUrl);
         }
  
         Long creator_ID = entity.getCreator_ID();
         if (creator_ID != null) {
-            stmt.bindLong(9, creator_ID);
+            stmt.bindLong(12, creator_ID);
         }
     }
 
@@ -144,10 +165,13 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
             cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // creationDate
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // dirty
             cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // hasUnreadMessages
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // name
-            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)), // LastMessageAdded
-            cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // type
-            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8) // creator_ID
+            cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0, // deleted
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // name
+            cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)), // LastMessageAdded
+            cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // type
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // creatorEntityId
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // imageUrl
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // creator_ID
         );
         return entity;
     }
@@ -160,10 +184,13 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         entity.setCreationDate(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
         entity.setDirty(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
         entity.setHasUnreadMessages(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
-        entity.setName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setLastMessageAdded(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
-        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
-        entity.setCreator_ID(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
+        entity.setDeleted(cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0);
+        entity.setName(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setLastMessageAdded(cursor.isNull(offset + 7) ? null : new java.util.Date(cursor.getLong(offset + 7)));
+        entity.setType(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
+        entity.setCreatorEntityId(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setImageUrl(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setCreator_ID(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
      }
     
     /** @inheritdoc */

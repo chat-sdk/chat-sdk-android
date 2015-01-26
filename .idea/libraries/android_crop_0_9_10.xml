@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="android-crop-0.9.10">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/res" />
+      <root url="jar://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

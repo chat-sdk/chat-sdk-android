@@ -41,7 +41,6 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
     protected Cropper crop;
 
-    protected Bundle savedState;
     protected CircleImageView profileCircleImageView;
     protected ProgressBar progressBar;
     private boolean enableActionBarItems = true;
@@ -52,7 +51,6 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(enableActionBarItems);
-        savedState = savedInstanceState;
     }
 
     @Override
@@ -99,14 +97,6 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
     protected Integer getLoginType(){
         return (Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (DEBUG) Log.v(TAG, "onSaveInstanceState");
-        //http://stackoverflow.com/a/15314508/2568492
-
     }
 
     @Override

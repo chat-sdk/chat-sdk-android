@@ -13,6 +13,11 @@ import java.util.concurrent.Callable;
 
 /**
  * Created by braunster on 10/09/14.
+ *
+ * Helper to create special exit to your app.
+ * See {@link com.braunster.chatsdk.network.BDefines.Exit} for setting the app exit action.
+ *
+ * Example for it's use is in {@link com.braunster.chatsdk.activities.ChatSDKMainActivity#exitHelper MainActivity exit helper}
  */
 public class ExitHelper {
 
@@ -52,7 +57,7 @@ public class ExitHelper {
                 }, BDefines.Exit.DOUBLE_CLICK_INTERVAL);
 
                 this.doubleBackToExitPressedOnce = true;
-                showAlertToast("Please click back again to exit");
+                showAlertToast( activity.getString(R.string.exit_helper_double_tap_toast) );
                 break;
 
             case BDefines.Exit.EXIT_MODE_NONE:

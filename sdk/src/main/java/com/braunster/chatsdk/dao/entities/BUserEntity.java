@@ -6,8 +6,8 @@ import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BPath;
+import com.braunster.chatsdk.network.BFirebaseDefines;
+import com.braunster.chatsdk.network.BPath;
 
 import java.io.File;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by braunster on 25/06/14.
  */
-public abstract class BUserEntity extends Entity<BUser> {
+public abstract class BUserEntity extends Entity {
 
     public boolean hasApp = false;
     public boolean pictureExist = false;
@@ -49,8 +49,8 @@ public abstract class BUserEntity extends Entity<BUser> {
         return prefix;
     }
 
-    @Override // Note Done!
-    public BPath getPath() {
+    @Override
+    public BPath getBPath() {
         return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
     }
 

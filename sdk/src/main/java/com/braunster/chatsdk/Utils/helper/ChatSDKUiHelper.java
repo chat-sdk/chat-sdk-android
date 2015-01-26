@@ -1,6 +1,7 @@
 package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -19,10 +20,10 @@ import com.braunster.chatsdk.activities.ChatSDKMainActivity;
 import com.braunster.chatsdk.activities.ChatSDKPickFriendsActivity;
 import com.braunster.chatsdk.activities.ChatSDKSearchActivity;
 import com.braunster.chatsdk.activities.ChatSDKShareWithContactsActivity;
+import com.braunster.chatsdk.activities.ThreadDetailsActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractProfileActivity;
-import com.firebase.client.FirebaseError;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
@@ -98,20 +99,21 @@ public class ChatSDKUiHelper {
     private static final int NULL = -1991;
 
     /** If one of this toast are initialized it will be used across the app as the default toast.
-     *  Each activity can set it's own toast using the ui helper the sdk offers.
-     *  If you use the ChatSDKBaseActivity you can set your toast in any stage in the activity lifecycle.*/
+     *  Each context can set it's own toast using the ui helper the sdk offers.
+     *  If you use the ChatSDKBaseActivity you can set your toast in any stage in the context lifecycle.*/
     private static SuperToast customAlertToast = null, customToast = null;
 
     private SuperToast toast, alertToast;
     private SuperCardToast superCardToastProgress;
 
-    private Activity activity;
+    private Context context;
     public Class chatActivity, mainActivity, loginActivity,
             searchActivity = ChatSDKSearchActivity.class,
             pickFriendsActivity = ChatSDKPickFriendsActivity.class,
             shareWithFriendsActivity = ChatSDKShareWithContactsActivity.class,
             shareLocationActivity = ChatSDKLocationActivity.class,
-            profileActivity = null;
+            profileActivity = null,
+            threadDetailsActivity = ThreadDetailsActivity.class;
 
     public static ChatSDKUiHelper initDefault(){
         instance = new ChatSDKUiHelper(ChatSDKChatActivity.class, ChatSDKMainActivity.class, ChatSDKLoginActivity.class);
@@ -129,17 +131,17 @@ public class ChatSDKUiHelper {
         this.loginActivity = loginActivity;
     }
 
-    public ChatSDKUiHelper(Activity activity, Class chatActivity, Class mainActivity, Class loginActivity) {
+    public ChatSDKUiHelper(Context context, Class chatActivity, Class mainActivity, Class loginActivity) {
         this.chatActivity = chatActivity;
         this.mainActivity = mainActivity;
         this.loginActivity = loginActivity;
-        this.activity = activity;
+        this.context = context;
 
         init();
     }
 
-    public ChatSDKUiHelper(Activity activity, Class chatActivity, Class mainActivity, Class loginActivity, Class searchActivity, Class pickFriendsActivity, Class shareWithFriendsActivity, Class shareLocationActivity, Class profileActivity) {
-        this.activity = activity;
+    public ChatSDKUiHelper(Context context, Class chatActivity, Class mainActivity, Class loginActivity, Class searchActivity, Class pickFriendsActivity, Class shareWithFriendsActivity, Class shareLocationActivity, Class profileActivity) {
+        this.context = context;
         this.chatActivity = chatActivity;
         this.mainActivity = mainActivity;
         this.loginActivity = loginActivity;
@@ -152,8 +154,8 @@ public class ChatSDKUiHelper {
         init();
     }
 
-    public ChatSDKUiHelper get(Activity activity){
-        return new ChatSDKUiHelper(activity, chatActivity, mainActivity, loginActivity, searchActivity, pickFriendsActivity, shareWithFriendsActivity, shareLocationActivity, profileActivity);
+    public ChatSDKUiHelper get(Context context){
+        return new ChatSDKUiHelper(context, chatActivity, mainActivity, loginActivity, searchActivity, pickFriendsActivity, shareWithFriendsActivity, shareLocationActivity, profileActivity);
     }
 
     private void init(){
@@ -168,51 +170,51 @@ public class ChatSDKUiHelper {
 
     /** Start the chat activity for given thread id.*/
     public void startChatActivityForID(long id){
-        Intent intent = new Intent(activity, chatActivity);
+        Intent intent = new Intent(context, chatActivity);
         intent.putExtra(ChatSDKAbstractChatActivity.THREAD_ID, id);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        activity.startActivity(intent);
+        context.startActivity(intent);
     }
 
     public void startLoginActivity(boolean loggedOut){
-        Intent intent = new Intent(activity, loginActivity);
+        Intent intent = new Intent(context, loginActivity);
         intent.putExtra(ChatSDKAbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
-        activity.startActivity(intent);
+        context.startActivity(intent);
     }
 
     public void startMainActivity(){
-        Intent intent = new Intent(activity, mainActivity);
-        activity.startActivity(intent);
+        Intent intent = new Intent(context, mainActivity);
+        context.startActivity(intent);
     }
 
     public void startSearchActivity(){
-        Intent intent = new Intent(activity, searchActivity);
-        activity.startActivity(intent);
+        Intent intent = new Intent(context, searchActivity);
+        context.startActivity(intent);
     }
 
     public void startPickFriendsActivity(){
-        Intent intent = new Intent(activity, pickFriendsActivity);
-        activity.startActivity(intent);
+        Intent intent = new Intent(context, pickFriendsActivity);
+        context.startActivity(intent);
     }
 
     public void startShareWithFriendsActivity(){
-        Intent intent = new Intent(activity, shareWithFriendsActivity);
-        activity.startActivity(intent);
+        Intent intent = new Intent(context, shareWithFriendsActivity);
+        context.startActivity(intent);
     }
 
     public void startShareLocationActivityActivity(){
-        Intent intent = new Intent(activity, shareLocationActivity);
-        activity.startActivity(intent);
+        Intent intent = new Intent(context, shareLocationActivity);
+        context.startActivity(intent);
     }
 
     public boolean startProfileActivity(String entityId){
         if (profileActivity==null)
             return false;
 
-        Intent intent = new Intent(activity, profileActivity);
+        Intent intent = new Intent(context, profileActivity);
         intent.putExtra(ChatSDKAbstractProfileActivity.USER_ENTITY_ID, entityId);
 
-        activity.startActivity(intent);
+        context.startActivity(intent);
 
         return true;
     }
@@ -221,10 +223,10 @@ public class ChatSDKUiHelper {
         if (profileActivity==null)
             return false;
 
-        Intent intent = new Intent(activity, profileActivity);
+        Intent intent = new Intent(context, profileActivity);
         intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
 
-        activity.startActivity(intent);
+        context.startActivity(intent);
 
         return true;
     }
@@ -247,7 +249,7 @@ public class ChatSDKUiHelper {
     }
 
     private void initDefaultAlertToast(){
-        alertToast = new SuperToast(activity);
+        alertToast = new SuperToast(context);
         alertToast.setDuration(SuperToast.Duration.MEDIUM);
         alertToast.setBackground(SuperToast.Background.RED);
         alertToast.setTextColor(Color.WHITE);
@@ -256,7 +258,7 @@ public class ChatSDKUiHelper {
     }
 
     private void initDefaultToast(){
-        toast = new SuperToast(activity);
+        toast = new SuperToast(context);
         toast.setDuration(SuperToast.Duration.MEDIUM);
         toast.setBackground(SuperToast.Background.BLUE);
         toast.setTextColor(Color.WHITE);
@@ -264,29 +266,37 @@ public class ChatSDKUiHelper {
 
     }
 
+    /** You should pass שמ Activity and not a context if you want to use this.*/
     public void initCardToast(){
-        if (superCardToastProgress != null)
-            return;
 
-        try {
-            superCardToastProgress = new SuperCardToast(activity, SuperToast.Type.PROGRESS);
-            superCardToastProgress.setIndeterminate(true);
-            superCardToastProgress.setBackground(SuperToast.Background.WHITE);
-            superCardToastProgress.setTextColor(Color.BLACK);
-            superCardToastProgress.setSwipeToDismiss(true);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (context instanceof Activity)
+        {
+            if (superCardToastProgress != null)
+                return;
+
+            try {
+                superCardToastProgress = new SuperCardToast((Activity) context, SuperToast.Type.PROGRESS);
+                superCardToastProgress.setIndeterminate(true);
+                superCardToastProgress.setBackground(SuperToast.Background.WHITE);
+                superCardToastProgress.setTextColor(Color.BLACK);
+                superCardToastProgress.setSwipeToDismiss(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    /** You should pass שמ Activity and not a context if you want to use this.*/
     public void dismissProgressCard(){
         dismissProgressCard(0);
     }
 
+    /** You should pass Activity and not a context if you want to use this.*/
     public void dismissProgressCardWithSmallDelay(){
         dismissProgressCard(1500);
     }
 
+    /** You should pass שמ Activity and not a context if you want to use this.*/
     public void dismissProgressCard(long delay){
         if (superCardToastProgress == null)
             return;
@@ -299,22 +309,26 @@ public class ChatSDKUiHelper {
         }, delay);
     }
 
+    /** You should pass שמ Activity and not a context if you want to use this.*/
     public void showProgressCard(String text){
+        if (context instanceof Activity) {
 
-        initCardToast();
+            initCardToast();
 
-        View decorView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
-        ViewGroup viewGroup = superCardToastProgress.getViewGroup();
+            View decorView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+            ViewGroup viewGroup = superCardToastProgress.getViewGroup();
 
-        if (viewGroup!=null && superCardToastProgress.getView()!= null && viewGroup.findViewById(superCardToastProgress.getView().getId()) != null)
-            viewGroup.removeView(superCardToastProgress.getView());
+            if (viewGroup!=null && superCardToastProgress.getView()!= null && viewGroup.findViewById(superCardToastProgress.getView().getId()) != null)
+                viewGroup.removeView(superCardToastProgress.getView());
 
-        decorView.findViewById(R.id.card_container).bringToFront();
+            decorView.findViewById(R.id.card_container).bringToFront();
 
-        superCardToastProgress.setText(text);
+            superCardToastProgress.setText(text);
 
-        if (!superCardToastProgress.isShowing())
-            superCardToastProgress.show();
+            if (!superCardToastProgress.isShowing())
+                superCardToastProgress.show();
+
+        }
     }
 
     /*Getters and Setters*/
@@ -330,54 +344,6 @@ public class ChatSDKUiHelper {
 
     public void setAlertToast(SuperToast alertToast) {
         this.alertToast = alertToast;
-    }
-
-    public void showToastForFirebaseError(int error){
-        String toastMessage = "";
-
-
-        switch (error)
-        {
-            case FirebaseError.EMAIL_TAKEN:
-                toastMessage = "Email is taken.";
-                break;
-
-            case FirebaseError.INVALID_EMAIL:
-                toastMessage = "Invalid Email.";
-                break;
-
-            case FirebaseError.INVALID_PASSWORD:
-                toastMessage = "Invalid Password";
-                break;
-
-            case FirebaseError.USER_DOES_NOT_EXIST:
-                toastMessage = "Account not found.";
-                break;
-
-            case FirebaseError.NETWORK_ERROR:
-                toastMessage = "Network Error.";
-                break;
-
-            case FirebaseError.INVALID_CREDENTIALS:
-                toastMessage = "Invalid credentials.";
-                break;
-
-            case FirebaseError.EXPIRED_TOKEN:
-                toastMessage = "Expired Token.";
-                break;
-
-            case FirebaseError.OPERATION_FAILED:
-                toastMessage = "Operation failed";
-                break;
-
-            case FirebaseError.PERMISSION_DENIED:
-                toastMessage = "Permission denied";
-                break;
-
-            default: toastMessage = "An Error Occurred.";
-        }
-
-        showAlertToast(toastMessage);
     }
 
     public void setToast(SuperToast toast) {

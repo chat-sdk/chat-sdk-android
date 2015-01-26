@@ -8,7 +8,6 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.FacebookRequestError;
@@ -18,8 +17,6 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,14 +37,13 @@ public class BFacebookManager {
     private static final String TAG = BFacebookManager.class.getSimpleName();
     private static final boolean DEBUG = Debug.BFacebookManager;
 
-    public static String userFacebookID, userFacebookAccessToken, userFacebookName;
+    public static String userFacebookAccessToken;
     private static String facebookAppID;
     private static String userThirdPartyUserAccount;
     private static Context ctx;
 
     public static void init(String id, Context context) {
         if (DEBUG) Log.i(TAG, "Initialized");
-        Firebase ref = FirebasePaths.firebaseRef();
         facebookAppID = id;
         ctx = context;
     }
@@ -55,18 +51,16 @@ public class BFacebookManager {
     public static void loginWithFacebook(final CompletionListener completionListener) {
         if (DEBUG) Log.v(TAG, "loginWithFacebook");
         BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                FirebasePaths.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
-                new CompletionListenerWithDataAndError<AuthData, Object>() {
+                AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
+                new CompletionListenerWithDataAndError<Object, BError>() {
                     @Override
-                    public void onDone(AuthData authData) {
+                    public void onDone(Object authData) {
                         if (DEBUG) Log.i(TAG, "Logged to firebase");
-                        // Setting the user facebook id, This will be used to pull data on the user.(Friends list, profile pic etc...)
-                        userFacebookID = (String) authData.getProviderData().get(BDefines.Keys.ThirdPartyData.ID);
                         completionListener.onDone();
                     }
 
                     @Override
-                    public void onDoneWithError(AuthData authData, Object o) {
+                    public void onDoneWithError(Object authData, BError o) {
                         if (DEBUG) Log.e(TAG, "Log to firebase failed");
                         completionListener.onDoneWithError(null);
                     }
@@ -108,11 +102,7 @@ public class BFacebookManager {
     }
 
     public static boolean isAuthenticated() {
-        return userFacebookID != null && userFacebookAccessToken != null;
-    }
-
-    public static String getUserFacebookID() {
-        return userFacebookID;
+        return  userFacebookAccessToken != null;
     }
 
     public static void getUserDetails(final CompletionListenerWithData<GraphUser> listenerWithData){
@@ -226,7 +216,6 @@ public class BFacebookManager {
 
     // For making sure that we logout completely from facebook.
     public static void logout(Context ctx){
-        userFacebookID = null;
         userFacebookAccessToken = null;
 
         if (Session.getActiveSession() != null)

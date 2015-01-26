@@ -6,11 +6,9 @@ import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BLinkData;
-import com.braunster.chatsdk.dao.BLinkedContact;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.BUserDao;
 import com.braunster.chatsdk.dao.DaoMaster;
@@ -22,15 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.async.AsyncSession;
 import de.greenrobot.dao.query.QueryBuilder;
-
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 
 /**
@@ -67,8 +62,6 @@ public class DaoCore {
 
         if(helper == null)
             openDB();
-
-        test();
     }
 
     public static void init(Context ctx, String databaseName){
@@ -90,275 +83,13 @@ public class DaoCore {
         asyncSession = daoSession.startAsyncSession();
     }
 
-    //region Test
-    private static void test(){
-//        clearTestData();
-//        printUsersData(daoSession.loadAll(BUser.class));
-    }
-
-    public static void printUsersData(){
-        printUsersData(daoSession.loadAll(BUser.class));
-    }
-
-    public static void clearTestData(){
-        daoSession.getBUserDao().deleteAll();
-        daoSession.getBMessageDao().deleteAll();
-        daoSession.getBThreadDao().deleteAll();
-        daoSession.getBMetadataDao().deleteAll();
-        daoSession.getBLinkedAccountDao().deleteAll();
-        daoSession.getBLinkedContactDao().deleteAll();
-        daoSession.getBLinkDataDao().deleteAll();
-    }
-
-    public static void createTestData(){
-
-        // So we wont recreate the test again when app get killed by the System.
-        BUser tmp = fetchEntityWithProperty(BUser.class, BUserDao.Properties.Name, "Dan");
-        if (tmp != null)
-        {
-//            BLinkedContact linkedContact;
-//            BUser us;
-//            for (int i = 0 ; i < 50; i++) {
-//                us = new BUser();
-//                us.setEntityID(generateEntity());
-//                us.setName("YOYOYOYO");
-//                us.hasApp = true;
-//                us.setOnline(true);
-//                us.pictureExist = true;
-//                us.pictureURL = "http://www.thedrinksbusiness.com/wordpress/wp-content/uploads/2012/05/Brad.jpg";
-//                createEntity(us);
-//
-//
-//                linkedContact = new BLinkedContact();
-//                linkedContact.setEntityId(tmp.getEntityID());
-//                linkedContact.setOwner(us.getEntityID());
-//                DaoCore.createEntity(linkedContact);
-//            }
-            return;
-        }
-
-        BUser userDan = null, userAlex = null;
-        try {
-            userDan = new BUser();
-            userDan.setName("Dan");
-            userDan.setLastOnline(new Date(System.currentTimeMillis()));
-            userDan.setEntityID(generateEntity());
-            createEntity(userDan);
-
-            userAlex = new BUser();
-            userAlex.setName("Alex");
-            userAlex.setLastOnline(new Date(System.currentTimeMillis()));
-            userAlex.setEntityID(generateEntity());
-            createEntity(userAlex);
-
-            BMetadata bMetadata, bMetadata1;
-
-            String[] key = new String[]{"Country" , "Gender", "Age", "FootballTeam", "NationalTeam"};
-            String[] values = new String[]{"Israel" , "Male", "23", "Juventus", "Italy"};
-
-            String[] key1 = new String[]{"Country" , "Gender", "Age", "FootballTeam", "NationalTeam"};
-            String[] values1 = new String[]{"Germany" , "Male", "26", "Herta Berlin", "Germany"};
-
-            for (int i = 0 ; i < 5 ; i++)
-            {
-                bMetadata = new BMetadata();
-                bMetadata.setOwnerID(userDan.getId());
-                bMetadata.setType(BMetadata.Type.STRING);
-                bMetadata.setKey(key[i]);
-                bMetadata.setValue(values[i]);
-                createEntity(bMetadata);
-
-                bMetadata1 = new BMetadata();
-                bMetadata1.setOwnerID(userAlex.getId());
-                bMetadata1.setType(BMetadata.Type.STRING);
-                bMetadata1.setKey(key1[i]);
-                bMetadata1.setValue(values1[i]);
-                createEntity(bMetadata1);
-            }
-
-
-            BUser user = new BUser();
-            user.setEntityID(DaoCore.generateEntity());
-            user.setName("Bob");
-            user.hasApp = true;
-            user.setOnline(true);
-            user.pictureExist = true;
-            user.pictureURL = "http://www.thedrinksbusiness.com/wordpress/wp-content/uploads/2012/05/Brad.jpg";
-
-            BUser user1 = new BUser();
-            user1.setEntityID(DaoCore.generateEntity());
-            user1.setName("Giorgio");
-            user1.hasApp = true;
-            user1.setOnline(false);
-            user1.pictureExist = true;
-            user1.pictureURL = "http://www.insidespanishfootball.com/wp-content/uploads/2013/07/Cheillini-300x203.jpg";
-
-            BUser user2 = new BUser();
-            user2.setEntityID(DaoCore.generateEntity());
-            user2.setName("Claudio");
-            user2.setOnline(false);
-            user2.hasApp = true;
-            user2.pictureExist = true;
-            user2.pictureURL = "http://www.affashionate.com/wp-content/uploads/2013/04/Claudio-Marchisio-season-2012-2013-claudio-marchisio-32347274-741-1024.jpg";
-
-            BUser user3 = new BUser();
-            user3.setEntityID(DaoCore.generateEntity());
-            user3.setName("John");
-            user3.hasApp = true;
-            user3.setOnline(true);
-            user3.pictureExist = true;
-            user3.pictureURL = "http://images2.alphacoders.com/249/249012.jpg";
-
-            DaoCore.createEntity(user);
-            DaoCore.createEntity(user1);
-            DaoCore.createEntity(user2);
-            DaoCore.createEntity(user3);
-
-            BLinkedContact linkedContact = new BLinkedContact();
-            linkedContact.setEntityID(userDan.getEntityID());
-            linkedContact.setOwner(user.getId());
-            DaoCore.createEntity(linkedContact);
-
-            BLinkedContact linkedContact1 = new BLinkedContact();
-            linkedContact1.setEntityID(userDan.getEntityID());
-            linkedContact1.setOwner(user1.getId());
-            DaoCore.createEntity(linkedContact1);
-
-            BLinkedContact linkedContact2 = new BLinkedContact();
-            linkedContact2.setEntityID(userDan.getEntityID());
-            linkedContact2.setOwner(user2.getId());
-            DaoCore.createEntity(linkedContact2);
-
-            BLinkedContact linkedContact3 = new BLinkedContact();
-            linkedContact3.setEntityID(userDan.getEntityID());
-            linkedContact3.setOwner(user3.getId());
-            DaoCore.createEntity(linkedContact3);
-
-            int t = 9;
-            BThread thread;
-            String [] threadNames = new String[] { "Work", "Family", "Party", "Serie A", "World Cup", "School", "Army Friends", "JCI"};
-            int [] threadType = new int[] { 0, 0, 1, 1, 1, 0, 0, 0};
-            BLinkData linkData;
-
-            for (int i = 0; i < t; i++) {
-
-                thread = new BThread();
-                thread.setEntityID(generateEntity());
-                thread.setType(threadType[i]);
-                thread.setName(threadNames[i]);
-                thread.setCreator(i % 2 == 0 ? userDan : userAlex);
-                createEntity(thread);
-
-                //region LinkData
-                linkData = new BLinkData();
-                linkData.setEntityID(generateEntity());
-                linkData.setThreadID(thread.getId());
-                linkData.setUserID(userDan.getId());
-
-                createEntity(linkData);
-
-                linkData = new BLinkData();
-                linkData.setEntityID(generateEntity());
-                linkData.setThreadID(thread.getId());
-                linkData.setUserID(userAlex.getId());
-
-                createEntity(linkData);
-                //endregion
-
-                BMessage message;
-                for (int j = 0; j < 7; j++) {
-                    message = new BMessage();
-                    message.setEntityID(generateEntity());
-                    message.setOwnerThread(thread.getId());
-                    message.setText(generateEntity());
-                    message.setDate(new Date(System.currentTimeMillis()));
-                    message.setType(TEXT);
-                    message.setSender(j % 2 == 0 ? userDan.getId() : userAlex.getId());
-                    createEntity(message);
-                }
-            }
-
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void getTestData(){
-        //region Description
-/*        QueryBuilder<BUser> queryBuilder = daoSession.queryBuilder(BUser.class);
-        BUser bUser = queryBuilder.where(BUserDao.Properties.EntityID .eq("asdasdas54d5a")).unique();
-
-        if (bUser == null)
-        {
-            Log.d(TAG, "user is null");
-            bUser = queryBuilder.where(BUserDao.Properties.Name .eq("Dan")).unique();
-        }
-
-        if (bUser == null)
-        {
-            Log.d(TAG, "user is null");
-        }
-        else
-        {
-            Log.d(TAG, "has user");
-        }*/
-        //endregion
-
-        printUsersData(daoSession.loadAll(BUser.class));
-    }
-
-    private static void printUsersData(List<BUser> users){
-        if (!DEBUG)
-            return;
-
-        Log.v(TAG, "PrintUserData: " + users.size());
-        for (BUser u : users)
-        {
-            if (u == null)
-                Log.d(TAG, "user is null");
-            else
-            {
-                Log.i(TAG, "--------------------User--------------------");
-                printEntity(u);
-
-                Log.i(TAG, "Contacts Amount: " + u.getContacts().size());
-                for (BUser c : u.getContacts())
-                    printEntity(c);
-
-                Log.i(TAG, "Metadata Size: " + u.getMetadata().size());
-                for (BMetadata m : u.getMetadata())
-                {
-                    printEntity(m);
-                }
-      /*          Log.i(TAG, "Threads Size: "  + u.getThreads().size());
-
-                for (BThread t : u.getThreads())
-                {
-                    printEntity(t);
-
-                    for (BMessage m : t.getMessages())
-                        printEntity(m);
-                }
-                Log.i(TAG, "Messages Amount: " + u.getMessages().size());*/
-                Log.i(TAG, "--------------------------------------------");
-            }
-        }
-    }
-
-    private static void getTestData2(){
-        List<BUser> list = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.Name, "Dan");
-        printUsersData(list);
-        BThread thread = fetchEntityWithEntityID(BThread.class, "asdasda");
-        List<BThread> threads = fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, "0");
-    }
-
     public static String generateEntity() {
         return new BigInteger(130, new Random()).toString(32);
     }
-    //endregion
+
 
     /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
-    public static <T extends Entity<T>> T fetchEntityWithEntityID(Class c, Object entityID){
+    public static <T extends Entity> T fetchEntityWithEntityID(Class c, Object entityID){
         return fetchEntityWithProperty(c, EntityID, entityID);
     }
 
@@ -391,7 +122,7 @@ public class DaoCore {
     }
 
     /** Fetch an entity for given property and value. If more then one found the first will be returned.*/
-    public static <T extends Entity<T>> T fetchEntityWithProperty(Class c, Property property,Object value){
+    public static <T extends Entity> T fetchEntityWithProperty(Class c, Property property,Object value){
         QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
 
@@ -407,7 +138,7 @@ public class DaoCore {
         else return null;
     }
 
-    public static <T extends Entity<T>> T fetchEntityWithProperties(Class c, Property properties[],Object... values){
+    public static <T extends Entity> T fetchEntityWithProperties(Class c, Property properties[],Object... values){
         List<T> list = fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
 
         if (list == null || list.size() == 0)
@@ -417,24 +148,23 @@ public class DaoCore {
     }
 
     /** Fetch a list of entities for a given property and value.*/
-    public static <T extends Entity<T>> List<T> fetchEntitiesWithProperty(Class c, Property property, Object value){
+    public static <T extends Entity> List<T> fetchEntitiesWithProperty(Class c, Property property, Object value){
         QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
-
         return qb.list();
     }
 
     /** Fetch a list of entities for a given properties and values.*/
-    public static <T extends Entity<T>> List<T> fetchEntitiesWithProperties(Class c, Property properties[], Object... values){
+    public static <T extends Entity> List<T> fetchEntitiesWithProperties(Class c, Property properties[], Object... values){
         return fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
     }
 
     /** Fetch a list of entities for a given property and value. Entities are arrange by given order.*/
-    public static <T extends Entity<T>> List<T> fetchEntitiesWithPropertyAndOrder(Class c, Property whereOrder, int order, Property property, Object value){
+    public static <T extends Entity> List<T> fetchEntitiesWithPropertyAndOrder(Class c, Property whereOrder, int order, Property property, Object value){
         return fetchEntitiesWithPropertiesAndOrder(c, whereOrder, order, new Property[]{property}, value);
     }
 
-    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrder(Class c, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrder(Class c, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -463,7 +193,7 @@ public class DaoCore {
         return qb.list();
     }
 
-    public static <T extends Entity<T>> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -715,7 +445,7 @@ public class DaoCore {
                 Log.i(TAG, "Name: " + ((BThread) entity).getName());
                 Log.i(TAG, "Display Name: " + ((BThread) entity).displayName());
                 Log.i(TAG, "Creation Date: " + ((BThread)entity).getCreationDate().getTime());
-                Log.i(TAG, "Type: " + ( ((BThread) entity).getType() == 1 ? "Public" : "Private"));
+                Log.i(TAG, "Type: " + ( ((BThread) entity).getTypeSafely() == 1 ? "Public" : "Private"));
                 Log.i(TAG, "Messages Amount: " + ((BThread) entity).getMessages().size());
             }
             else if (entity.getClass().equals(BMessage.class))
@@ -767,38 +497,4 @@ public class DaoCore {
 
         return (Entity) o;
     }
-/*    private static <T extends Entity> T merge(List<T> entities){
-
-        T tmp = null;
-
-        if (entities == null)
-        {
-            return null;
-        }
-        if (entities.size() == 1)
-        {
-            return entities.get(0);
-        }
-        if (entities.size() > 1)
-        {
-            // It's possible that we could get multiple user records some registered
-            // with a Facebook ID and some with a Firebase ID so we'll merge the records here
-            tmp = entities.get(0);
-
-            for (T t : entities)
-            {
-                if (!t.equals(tmp))
-                {
-                    tmp.updateFrom(t);
-                    deleteEntity(t);
-                }
-            }
-
-            updateEntity(tmp);
-
-            return tmp;
-        }
-
-        return null;
-    }*/
 }

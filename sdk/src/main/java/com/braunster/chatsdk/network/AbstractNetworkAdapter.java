@@ -1,11 +1,13 @@
 package com.braunster.chatsdk.network;
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
-import android.util.TimingLogger;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
@@ -20,28 +22,31 @@ import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.interfaces.MultiSaveCompletedListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
+import com.braunster.chatsdk.interfaces.SaveCompletedListener;
+import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
-import com.braunster.chatsdk.parse.ParseUtils;
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.ParseException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.greenrobot.dao.query.QueryBuilder;
 
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
@@ -59,55 +64,51 @@ import static com.braunster.chatsdk.network.BDefines.Prefs.AuthenticationID;
  */
 public abstract class AbstractNetworkAdapter {
 
-    //Note maybe catch the error if occur in the send message of some kind and try to fix them here before returning the error to the caller.
     private static final String TAG = AbstractNetworkAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.AbstractNetworkAdapter;
 
     private boolean authenticated = false;
 
+    protected Context context;
+
+    public AbstractNetworkAdapter(Context context){
+        this.context = context;
+    }
+
     public boolean accountTypeEnabled(int type) {
         switch (type) {
             case Anonymous:
-                return BDefines.AnonymuosLoginEnabled;
+                return BDefines.AnonymousLoginEnabled;
 
             case Facebook:
-                return !BDefines.APIs.FacebookAppId.equals("");
+                return facebookEnabled();
 
             case Google:
-                return !BDefines.APIs.GoogleAppId.equals("");
+                return  googleEnabled();
 
             case Password:
             case Register:
                 return true;
 
             case Twitter:
-                return !BDefines.APIs.TwitterConsumerKey.equals("");
+                return !twitterEnabled();
 
             default:
                 return false;
         }
     }
 
-    // Note done!
-    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<AuthData, Object> listener);
+    public abstract void authenticateWithMap(Map<String, Object> details, CompletionListenerWithDataAndError<Object, BError> listener);
 
-    /**
-     * Due to the fact that the error can contain a FirebaseSimpleLoginError obj if the auth failed,
-     * Or it can contain FirebaseError if after the auth something failed.
-     * The return type of the listener must be Object and need to be cast.
-     */
     public abstract void checkUserAuthenticatedWithCallback(AuthListener listener);
 
     public abstract void pushUserWithCallback(CompletionListener listener);
 
     public abstract void logout();
 
-    //TODO make an object that obtain the error message. need to see some errors before it.
-    public abstract void getUserFacebookFriendsToAppWithComplition(CompletionListenerWithData<List<BUser>> listener);
-
-    public abstract void getUserFacebookFriendsWithCallback(CompletionListenerWithData listener);
-
     public abstract BUser currentUser();
+
+    private AbstractEventManager eventManager;
 
     /*NOTE this was added due to the android system can kill the app while the app is in the background.
     *       After the app is killed the online status will be false,
@@ -116,12 +117,16 @@ public abstract class AbstractNetworkAdapter {
     public abstract void isOnline(final CompletionListenerWithData<Boolean> listener);
 
     /** Send a password change request to the server.*/
-    public abstract void changePassword(String email, String oldPassword, String newPassword, Firebase.ResultHandler handler);
+    public abstract void changePassword(String email, String oldPassword, String newPassword, CompletionListener listener);
 
     /** Send a reset email request to the server.*/
-    public abstract void sendPasswordResetMail(String email, Firebase.ResultHandler handler);
+    public abstract void sendPasswordResetMail(String email, CompletionListener listener);
 
-    /*######################################################################################################*/
+    public abstract void pushThreadWithCallback(BThread thread, final CompletionListener listener);
+
+
+
+/*######################################################################################################*/
    /*Followers*/
     public abstract void getFollowers(String entityId, final RepetitiveCompletionListener<BUser> listener);
 
@@ -130,6 +135,11 @@ public abstract class AbstractNetworkAdapter {
     public abstract void followUser(BUser userToFollow, CompletionListener listener);
 
     public abstract void unFollowUser(BUser userToUnfollow, CompletionListener listener);
+
+
+
+
+
 /*######################################################################################################*/
     /*Messages*/
     /**
@@ -244,7 +254,13 @@ public abstract class AbstractNetworkAdapter {
         message.setBUserSender(currentUser());
 
         try {
-            message.setText(Base64.encodeToString(FileUtils.readFileToByteArray(image), Base64.DEFAULT));
+            int size = (int) image.length();
+            byte[] bytes = new byte[size];
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(image));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+            String data = Base64.encodeToString(bytes, Base64.DEFAULT);
+            message.setText(data);
         } catch (IOException e) {
             e.printStackTrace();
             if (DEBUG) Log.e(TAG, "Error encoding file");
@@ -291,10 +307,10 @@ public abstract class AbstractNetworkAdapter {
 //        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
-        ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
+        saveImageWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException exception, String... url) {
-                if (exception == null) {
+            public void onSaved(BError error, String... url) {
+                if (error == null) {
                     message.setText(url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
 
                     DaoCore.createEntity(message);
@@ -314,9 +330,8 @@ public abstract class AbstractNetworkAdapter {
                             listener.onDoneWithError(error);
                         }
                     });
-                }
-                else {
-                    listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
+                } else {
+                    listener.onDoneWithError(error);
                 }
             }
         });
@@ -341,12 +356,12 @@ public abstract class AbstractNetworkAdapter {
 //        message.setDate(new Date());
         message.setBUserSender(currentUser());
 
-        ParseUtils.saveImageFileToParseWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new ParseUtils.MultiSaveCompletedListener() {
+        saveImageWithThumbnail(filePath, BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE, new MultiSaveCompletedListener() {
             @Override
-            public void onSaved(ParseException exception, String... url) {
-                if (exception == null) {
+            public void onSaved(BError error, String... url) {
+                if (error == null) {
                     // Add the LatLng data to the message and the image url and thumbnail url
-                    message.setText(String.valueOf(location.latitude) + BDefines.DIVIDER  + String.valueOf(location.longitude) + BDefines.DIVIDER  + url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
+                    message.setText(String.valueOf(location.latitude) + BDefines.DIVIDER + String.valueOf(location.longitude) + BDefines.DIVIDER + url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
 
                     DaoCore.createEntity(message);
 
@@ -365,9 +380,8 @@ public abstract class AbstractNetworkAdapter {
                             listener.onDoneWithError(error);
                         }
                     });
-                }
-                else {
-                    listener.onDoneWithError(new BError(BError.Code.PARSE_EXCEPTION, exception));
+                } else {
+                    listener.onDoneWithError(error);
                 }
 
                 new File(filePath).delete();
@@ -375,11 +389,11 @@ public abstract class AbstractNetworkAdapter {
         });
     }
 
-
-    // TODO need to support progress feedback for dialog.
     public abstract void sendMessage(BMessage messages, CompletionListenerWithData<BMessage> listener);
 
     public abstract void loadMoreMessagesForThread(BThread thread, CompletionListenerWithData<BMessage[]> listener);
+
+    public abstract void loadMoreMessagesForThread(BThread thread, BMessage message, CompletionListenerWithData<BMessage[]> listener);
 
     public int getUnreadMessagesAmount(boolean onePerThread){
         List<BThread> threads = currentUser().getThreads(BThread.Type.Private);
@@ -404,6 +418,11 @@ public abstract class AbstractNetworkAdapter {
         return count;
     }
 
+
+
+
+
+
     /*######################################################################################################*/
     /*Index*/
     public abstract void usersForIndex(String index, String value, RepetitiveCompletionListener<BUser> listener);
@@ -413,6 +432,11 @@ public abstract class AbstractNetworkAdapter {
     protected String processForQuery(String query){
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
     }
+
+
+
+
+
 /*######################################################################################################*/
     /*Thread*/
     /**
@@ -423,13 +447,13 @@ public abstract class AbstractNetworkAdapter {
      * For any item adding failure the "onItemFailed will be called.
      * If the main task will fail the error object in the "onMainFinished" method will be called.
      */
-    public abstract void createThreadWithUsers(String name, List<BUser> users, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener);
+    public abstract void createThreadWithUsers(String name, List<BUser> users, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError> listener);
 
-    public void createThreadWithUsers(String name, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, Object> listener, BUser... users) {
+    public void createThreadWithUsers(String name, RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError> listener, BUser... users) {
         createThreadWithUsers(name, Arrays.asList(users), listener);
     }
 
-    public abstract void createPublicThreadWithName(String name, CompletionListenerWithDataAndError<BThread, Object> listener);
+    public abstract void createPublicThreadWithName(String name, CompletionListenerWithDataAndError<BThread, BError> listener);
 
     public abstract void deleteThreadWithEntityID(String entityID, CompletionListener listener);
 
@@ -440,56 +464,54 @@ public abstract class AbstractNetworkAdapter {
             return null;
         }
 
-        TimingLogger timingLogger;
-        if (DEBUG)
-            timingLogger = new TimingLogger(TAG, "threadWithType, Type: " + threadType);
-
         BUser currentUser = currentUser(), threadCreator;
 
         // Get the thread list ordered desc by the last message added date.
         List<BThread> threadsFromDB;
-
         if (threadType == BThread.Type.Private)
-            threadsFromDB = currentUser().getThreads();
+        {
+            if (DEBUG) Log.v(TAG, "threadItemsWithType, loading private.");
+            threadsFromDB = currentUser().getThreads(BThread.Type.Private);
+        }
         else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
 
         List<BThread> threads = new ArrayList<BThread>();
 
-        if (DEBUG)
-            timingLogger.addSplit("Loading threads.");
-
         if (threadType == BThread.Type.Public)
         {
             for (BThread thread : threadsFromDB)
-                if (thread.getType() == BThread.Type.Public)
+                if (thread.getTypeSafely() == BThread.Type.Public)
                     threads.add(thread);
         }
         else {
             for (BThread thread : threadsFromDB) {
-                if (DEBUG) Log.i(TAG, "threadsWithType, ThreadID: " + thread.getId());
+                if (DEBUG) Log.i(TAG, "threadItemsWithType, ThreadID: " + thread.getId());
 
-                if (thread.getType() == null || thread.getType() == BThread.Type.Public)
-                {
-                    if (DEBUG) Log.e(TAG, "Thread has no type or is public, Thread ID: " + thread.getEntityID());
+                if (thread.isDeleted())
                     continue;
-                }
 
                 if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
                 {
                     threads.add(thread);
                     continue;
                 }
-                else if (DEBUG) Log.d(TAG, "threadsWithType, Thread has no messages.");
+//                else if (DEBUG) Log.e(TAG, "threadItemsWithType, Thread has no messages.");
 
-                threadCreator = thread.getCreator();
-                if (threadCreator != null )
+                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
                 {
-                    if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                    threads.add(thread);
+                }
+                else
+                {
+                    threadCreator = thread.getCreator();
+                    if (threadCreator != null )
                     {
-                        if (DEBUG) Log.d(TAG, "Current user is the creator.");
-                        threads.add(thread);
-                        continue;
+//                    if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                        {
+//                        if (DEBUG) Log.d(TAG, "Current user is the creator.");
+                            threads.add(thread);
+                        }
                     }
                 }
             }
@@ -497,29 +519,18 @@ public abstract class AbstractNetworkAdapter {
 
         if (DEBUG) Log.v(TAG, "threadsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
 
-        if (DEBUG)
-            timingLogger.addSplit("Filtering threads.");
-
         Collections.sort(threads, new ThreadsSorter());
-        if (DEBUG)
-            timingLogger.addSplit("Ordering threads.");
-
-        if (DEBUG)
-            timingLogger.dumpToLog();
 
         return threads;
     }
 
     public <E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> List<E> threadItemsWithType(int threadType, ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker) {
         if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType);
+
         if (currentUser() == null) {
             if (DEBUG) Log.e(TAG, "threadItemsWithType, Current user is null");
             return null;
         }
-
-        TimingLogger timingLogger;
-        if (DEBUG)
-            timingLogger = new TimingLogger(TAG, "threadItemsWithType, Type: " + threadType);
 
         BUser currentUser = currentUser(), threadCreator;
 
@@ -535,18 +546,19 @@ public abstract class AbstractNetworkAdapter {
 
         List<E> threads = new ArrayList<E>();
         if (DEBUG) Log.v(TAG, "threadItemsWithType, size: " + threadsFromDB.size());
-        if (DEBUG)
-            timingLogger.addSplit("Loading threads.");
 
         if (threadType == BThread.Type.Public)
         {
             for (BThread thread : threadsFromDB)
-                if (thread.getType() == BThread.Type.Public)
+                if (thread.getTypeSafely() == BThread.Type.Public)
                     threads.add(itemMaker.fromBThread(thread));
         }
         else {
             for (BThread thread : threadsFromDB) {
                 if (DEBUG) Log.i(TAG, "threadItemsWithType, ThreadID: " + thread.getId());
+
+                if (thread.isDeleted())
+                    continue;
 
                 if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
                 {
@@ -555,15 +567,21 @@ public abstract class AbstractNetworkAdapter {
                 }
                 else if (DEBUG) Log.e(TAG, "threadItemsWithType, Thread has no messages.");
 
-                threadCreator = thread.getCreator();
-                if (threadCreator != null )
+                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
                 {
-                    if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
-                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                    threads.add(itemMaker.fromBThread(thread));
+                }
+                else
+                {
+                    threadCreator = thread.getCreator();
+                    if (threadCreator != null )
                     {
-                        if (DEBUG) Log.d(TAG, "Current user is the creator.");
-                        threads.add(itemMaker.fromBThread(thread));
-                        continue;
+                        if (DEBUG) Log.d(TAG, "thread has creator. Entity ID: " + thread.getEntityID());
+                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+                        {
+                            if (DEBUG) Log.d(TAG, "Current user is the creator.");
+                            threads.add(itemMaker.fromBThread(thread));
+                        }
                     }
                 }
             }
@@ -571,20 +589,14 @@ public abstract class AbstractNetworkAdapter {
 
         if (DEBUG) Log.v(TAG, "threadItemsWithType, Type: " + threadType +", Found on db: " + threadsFromDB.size() + ", Threads List Size: " + threads.size());
 
-        if (DEBUG)
-            timingLogger.addSplit("Filtering threads.");
-
         Collections.sort(threads, new ThreadsItemSorter());
-        if (DEBUG)
-            timingLogger.addSplit("Ordering threads.");
-
-        if (DEBUG)
-            timingLogger.dumpToLog();
 
         return threads;
     }
 
-    public abstract void deleteThread(BThread thread, CompletionListener listener);
+    public void deleteThread(BThread thread, CompletionListener listener){
+        deleteThreadWithEntityID(thread.getEntityID(), listener);
+    }
 
     /**
      * Add given users list to the given thread.
@@ -592,7 +604,7 @@ public abstract class AbstractNetworkAdapter {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.
      */
-    public abstract void addUsersToThread(BThread thread, List<BUser> users, RepetitiveCompletionListenerWithError<BUser, Object> listener);
+    public abstract void addUsersToThread(BThread thread, List<BUser> users, RepetitiveCompletionListenerWithError<BUser, BError> listener);
 
     /**
      * Add given users list to the given thread.
@@ -600,9 +612,24 @@ public abstract class AbstractNetworkAdapter {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.
      */
-    public void addUsersToThread(BThread thread, final RepetitiveCompletionListenerWithError<BUser, Object> listener, BUser... users) {
+    public void addUsersToThread(BThread thread, final RepetitiveCompletionListenerWithError<BUser, BError> listener, BUser... users) {
         addUsersToThread(thread, Arrays.asList(users), listener);
     }
+
+
+
+
+    /*######################################################################################################*/
+    /*Save Image*/
+    public abstract void saveImageWithThumbnail(String path, int thumbnailSize, MultiSaveCompletedListener listener);
+
+    public abstract void saveImage(String path, SaveCompletedListener listener);
+
+    public abstract void saveImage(Bitmap b, int size, SaveCompletedListener listener);
+
+
+
+
 
     /*######################################################################################################*/
     /*Getter And Setters*/
@@ -633,10 +660,46 @@ public abstract class AbstractNetworkAdapter {
      * Get all messages for given thread id ordered Ascending/Descending
      */
     public List<BMessage> getMessagesForThreadForEntityID(Long id) {
-        /* Get the messages by pre defined order*/
-        //TODO add option to order the messages.
-        return DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, id);
+        List<BMessage> list ;/*= DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, getId());*/
+
+        QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
+        qb.where(BMessageDao.Properties.OwnerThread.eq(id));
+
+        // Making sure no null messages infected the sort.
+        qb.where(BMessageDao.Properties.Date.isNotNull());
+
+        qb.orderDesc(BMessageDao.Properties.Date);
+
+        qb.limit(BDefines.MAX_MESSAGES_TO_PULL);
+
+        list = qb.list();
+
+        return list;
     }
+
+    /**
+     * Get all messages for given thread id ordered Ascending/Descending
+     */
+    public List<BMessage> getMessagesForThreadForEntityID(Long id, int limit) {
+        List<BMessage> list ;/*= DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, getId());*/
+
+        QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
+        qb.where(BMessageDao.Properties.OwnerThread.eq(id));
+
+        // Making sure no null messages infected the sort.
+        qb.where(BMessageDao.Properties.Date.isNotNull());
+
+        qb.orderDesc(BMessageDao.Properties.Date);
+
+        qb.limit(limit);
+
+        list = qb.list();
+
+        return list;
+    }
+
+
+
 
     /**
      * @return the save auth id saved in the preference manager.
@@ -680,5 +743,55 @@ public abstract class AbstractNetworkAdapter {
     //http://stackoverflow.com/questions/8151523/how-to-store-and-retrieve-key-value-kind-of-data-using-saved-preferences-andro
     public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();
+    }
+
+    public static Map<String, Object> getMap(String[] keys,  Object...values){
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        for (int i = 0 ; i < keys.length; i++){
+
+            // More values then keys entered.
+            if (i == values.length)
+                break;
+
+            map.put(keys[i], values[i]);
+        }
+
+        return map;
+    }
+
+
+
+
+    public void setEventManager(AbstractEventManager eventManager) {
+        this.eventManager = eventManager;
+    }
+
+    public AbstractEventManager getEventManager() {
+        return eventManager;
+    }
+
+
+
+
+
+
+    public boolean parseEnabled(){
+        return StringUtils.isNotEmpty(context.getString(R.string.parse_app_id)) && StringUtils.isNotEmpty(context.getString(R.string.parse_client_key));
+    }
+
+    public boolean facebookEnabled(){
+        return StringUtils.isNotEmpty(context.getString(R.string.facebook_id));
+    }
+
+    public boolean googleEnabled(){
+        return false;
+    }
+
+    public boolean twitterEnabled(){
+        return StringUtils.isNotEmpty(context.getString(R.string.twitter_consumer_key))
+                && StringUtils.isNotEmpty(context.getString(R.string.twitter_consumer_secret))
+                && StringUtils.isNotEmpty(context.getString(R.string.twitter_access_token))
+                && StringUtils.isNotEmpty(context.getString(R.string.twitter_access_token_secret));
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="chat_sdk_chat_action_barcircle_image_view_size">32dp</dimen>
+    <dimen name="chat_sdk_max_image_message_width">200dp</dimen>
+    <dimen name="chat_sdk_unread_message_indicator_width">5dp</dimen>
+</resources>

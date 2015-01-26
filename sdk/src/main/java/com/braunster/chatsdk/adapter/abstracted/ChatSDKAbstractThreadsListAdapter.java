@@ -1,6 +1,7 @@
 package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.asynctask.MakeThreadImage;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
@@ -125,43 +127,148 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
         public TextView txtLastMsg;
         public TextView txtUnreadMessagesAmount;
         public CircleImageView imgIcon;
+        public View indicator;
 
         public void setDefaultImg(ThreadListItem item){
             if (item.getUsersAmount() > 2)
-                imgIcon.setImageResource(R.drawable.ic_users);
+                setMultipleUserDefaultImg();
             else
-                imgIcon.setImageResource(R.drawable.ic_profile);
+                setTwoUsersDefaultImg();
         }
+
+        public void setMultipleUserDefaultImg(){
+            imgIcon.setImageResource(R.drawable.ic_users);
+        }
+
+        public void setTwoUsersDefaultImg(){
+            imgIcon.setImageResource(R.drawable.ic_profile);
+        }
+
+        public void showUnreadIndicator(){
+            indicator.setVisibility(View.VISIBLE);
+        }
+
+        public void hideUnreadIndicator(){
+            indicator.setVisibility(View.GONE);
+        }
+
+        public PicLoader picLoader;
+
+        public PicLoader initPicLoader(ThreadListItem threadListItem){
+            if (picLoader!=null)
+                picLoader.kill();
+
+            picLoader = new PicLoader(threadListItem);
+            return picLoader;
+        }
+
+        class PicLoader implements ImageLoader.ImageListener{
+
+            private boolean killed = false;
+
+            private ThreadListItem threadListItem;
+
+
+            PicLoader(ThreadListItem threadListItem) {
+                this.threadListItem = threadListItem;
+            }
+
+            private void kill() {
+                this.killed = true;
+            }
+
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+
+                if (killed)
+                    return;
+
+                // If response was not immidate, i.e  image was cached we show the default image while loading
+                if (isImmediate && response.getBitmap() == null)
+                {
+                    setDefaultImg(threadListItem);
+                    return;
+                }
+
+                // Set the response to the image.
+                if (response.getBitmap() != null) {
+                    if (DEBUG) Log.i(TAG, "Loading thread picture from url");
+
+                    // load image into imageview
+                    imgIcon.setImageBitmap(response.getBitmap());
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+
+                if (killed)
+                    return;
+
+                // in case of error we show the default.
+                setDefaultImg(threadListItem);
+            }
+        }
+
+        public MakeThreadImage makeThreadImage;
     }
 
     public void setPic(final ViewHolder holder, final int position){
+
+        // Canceling the old task if has any.
+        if (holder.makeThreadImage!=null)
+            holder.makeThreadImage.cancel(false);
+
+        //If has image url saved load it.
         int size = holder.imgIcon.getHeight();
 
-        if (StringUtils.isNotEmpty(threadItems.get(position).getImageUrl()))
-            VolleyUtils.getImageLoader().get(threadItems.get(position).getImageUrl(), new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (isImmediate && response.getBitmap() == null)
-                    {
-                        holder.setDefaultImg(threadItems.get(position));
-                        return;
-                    }
+        // Splitting the url to see if there is more then one url.
+        final String urls[] = thread.getImageUrl().split(",");
 
-                    if (response.getBitmap() != null) {
-                        if (DEBUG) Log.i(TAG, "Loading thread picture from url");
+        // Kill the old loader and make a new.
+        holder.initPicLoader(thread);
 
-                        // load image into imageview
-                        holder.imgIcon.setImageBitmap(response.getBitmap());
-                    }
+        // Check if the url isn't empty and if only contains one url. If so we load the image using volley.
+        if (StringUtils.isNotEmpty(getItem(position).getImageUrl()) && urls.length == 1)
+            VolleyUtils.getImageLoader().get(getItem(position).getImageUrl(), holder.picLoader, size, size);
+        else {
+//            if (DEBUG) Log.d(TAG, "UrlsString: " + thread.getImageUrl() + ", Urls length: " + urls.length);
+
+            // If thread image url contain more then one url.
+            if (urls.length > 1)
+            {
+//                if (DEBUG) Log.d(TAG, "Thread has more then 2 users.");
+
+                // If we do not yet have size post the creation
+                if (size==0)
+                    holder.imgIcon.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int size = holder.imgIcon.getHeight();
+
+                            if (DEBUG) Log.d(TAG, "Making thread image.");
+                            //Default image while loading
+                            holder.setMultipleUserDefaultImg();
+
+                            holder.makeThreadImage = new MakeThreadImage(urls, size, size, thread.getEntityId(), holder.imgIcon);
+                        }
+                    });
+                else
+                {
+                    if (DEBUG) Log.d(TAG, "Making thread image.");
+                    //Default image while loading
+                    holder.setMultipleUserDefaultImg();
+
+                    holder.makeThreadImage = new MakeThreadImage(urls, size, size, thread.getEntityId(), holder.imgIcon);
                 }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-                    holder.setDefaultImg(threadItems.get(position));
-                }
-            }, size, size);
-        else  holder.setDefaultImg(threadItems.get(position));
+            }
+            // Url is empty show default.
+            else
+            {
+                holder.setDefaultImg(getItem(position));
+            }
+        }
     }
 
     public void addRow(E thread){
@@ -182,10 +289,10 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
         this.threadItems = threadItems;
         this.listData = threadItems;
 
-
         if (filtering) {
             filterItems(filterText);
         }
+        else sort();
 
         notifyDataSetChanged();
     }
@@ -283,6 +390,16 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
         return threadItems;
     }
 
+    /**
+     * Used for creating the items that would fill the list.
+     *
+     * If you want to add more data to your list you can extend the absract adapter after that you can extend the {@link com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItem ThreadListItem}
+     * And add new variables to keep it and populate then in with your maker.
+     *
+     * @see com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#fromBThread(com.braunster.chatsdk.dao.BThread)
+     * @see com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#getGroupsHeader()
+     * @see @see com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#getMorePeopleHeader
+     * */
     public interface ThreadListItemMaker<E>{
         public E fromBThread(BThread thread);
         public E getGroupsHeader();
@@ -294,11 +411,11 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
         TimingLogger logger;
         if (DEBUG) logger = new TimingLogger(TAG.substring(0, 20), "makeList");
 
-        int count= 0;
+//        int count= 0;
         for (BThread thread : threads)
         {
-            count++;
-            if (DEBUG) logger.addSplit("fromThread" + count);
+//            count++;
+//            if (DEBUG) logger.addSplit("fromThread" + count);
             list.add(itemMaker.fromBThread(thread));
         }
 
@@ -379,7 +496,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
             // If no message create dummy message.
             if ( messages.size() == 0)
             {
-                if (DEBUG) Log.d(TAG, "No messages");
+//                if (DEBUG) Log.d(TAG, "No messages");
 //            message = new BMessage();
 //            message.setText("No Messages...");
 //            message.setType(bText.ordinal());
@@ -388,7 +505,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                 return data;
             }
 
-            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
+//            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
 
             if (messages.get(0).getType() == null)
                 data[0] = "Bad Data";
@@ -448,6 +565,18 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
         public int getUnreadMessagesAmount() {
             return unreadMessagesAmount;
         }
+
+        public boolean isImageChached(){
+            return VolleyUtils.getBitmapCache().contains(getEntityId());
+        }
+
+        public Bitmap getCachedImage(){
+            return VolleyUtils.getBitmapCache().get(getEntityId());
+        }
+
+        public void cacheImage(Bitmap bitmap){
+            VolleyUtils.getBitmapCache().put(getEntityId(), bitmap);
+        }
     }
 
     public void setItemMaker(ThreadListItemMaker<E> itemMaker) {
@@ -470,7 +599,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                 ThreadListItem.getLastMessageTextAndDate(thread, data);
 
                 List<BUser> users = thread.getUsers();
-                String url  = thread.threadImageUrl(users);
+                String url  = thread.threadImageUrl();
 
                 String displayName = thread.displayName(users);
 
@@ -483,7 +612,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         thread.getUnreadMessagesAmount(),
                         thread.getId(),
                         thread.getLastMessageAdded(),
-                        thread.getType() == BThread.Type.Private);
+                        thread.getTypeSafely() == BThread.Type.Private);
             }
 
             @Override
@@ -497,4 +626,5 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
             }
         };
     }
+
 }

@@ -6,19 +6,19 @@ package com.braunster.chatsdk.Utils;
 public class Debug {
 
     /*Network*/
-    public static final boolean BFirebaseInterface = false;
+    public static final boolean BFirebaseInterface = true;
     public static final boolean AbstractNetworkAdapter = false;
     public static final boolean BFacebookManager = false;
     public static final boolean BNetworkManager = false;
     public static final boolean TwitterManager = false;
-    public static final boolean EventManager = false;
+    public static final boolean EventManager = true;
     public static final boolean BPath = false;
     public static final boolean BFirebaseNetworkAdapter = true;
 
     /*Fragments*/
     private static final boolean FRAGMENTS = false;
     public static final boolean ContactsFragment = FRAGMENTS || false;
-    public static final boolean ConversationsFragment = FRAGMENTS || false;
+    public static final boolean ConversationsFragment = FRAGMENTS || true;
     public static final boolean ProfileFragment = FRAGMENTS || false;
     public static final boolean ThreadsFragment = FRAGMENTS || false;
     public static final boolean ExpandableContactsFragment = FRAGMENTS || false;
@@ -44,6 +44,8 @@ public class Debug {
     public static final boolean PickFriendsActivity = false;
     public static final boolean SearchActivity = false;
     public static final boolean ShareWithContactsActivity = false;
+    public static final boolean ThreadDetailsActivity = false;
+    public static final boolean ChatSDKBaseThreadActivity = false;
 
     /*Utils*/
     public static final boolean ImageUtils = false;
@@ -54,7 +56,7 @@ public class Debug {
     public static final boolean ChatBubbleTextView = false;
 
     /*Firebase - Listeners */
-    public static final boolean IncomingMessagesListener = false;
+    public static final boolean IncomingMessagesListener = true;
     public static final boolean ThreadDetailsChangeListener = false;
     public static final boolean UserAddedToThreadListener = false;
     public static final boolean UserDetailsChangeListener = false;

@@ -2,17 +2,15 @@ package com.braunster.chatsdk.dao.entities;
 
 import android.graphics.Color;
 
-import com.braunster.chatsdk.dao.BMessage;
-
 import java.util.Random;
 
 /**
  * Created by braunster on 13/07/14.
  */
-public abstract class BMessageEntity extends Entity<BMessage> {
+public abstract class BMessageEntity extends Entity {
 
     public static final class Type{
-        public static final int TEXT = 0, IMAGE = 1, LOCATION = 2;
+        public static final int TEXT = 0, IMAGE = 2, LOCATION = 1;
     }
 
     public static final class Status{

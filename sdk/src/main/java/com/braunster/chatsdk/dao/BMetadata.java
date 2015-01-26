@@ -2,8 +2,8 @@ package com.braunster.chatsdk.dao;
 
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BPath;
+import com.braunster.chatsdk.network.BFirebaseDefines;
+import com.braunster.chatsdk.network.BPath;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -179,15 +179,11 @@ public class BMetadata extends BMetadataEntity  {
     }
 
     // KEEP METHODS - put your custom methods here
-    @Override
-    public void updateFrom(BMetadata bMetadata) {
-
-    }
 
     @Override
-    public BPath getPath() {
+    public BPath getBPath() {
         if (getOwner() != null)
-            return getOwner().getPath().addPathComponent(BFirebaseDefines.Path.BMetaPath, entityID);
+            return getOwner().getBPath().addPathComponent(BFirebaseDefines.Path.BMetaPath, entityID);
         else return null;
     }
 
@@ -198,8 +194,8 @@ public class BMetadata extends BMetadataEntity  {
 
     @Override
     public void updateFromMap(Map<String, Object> map) {
-        if (map.containsKey(BDefines.Keys.Bkey) && !map.get(BDefines.Keys.Bkey).equals(""))
-            this.Key = (String) map.get(BDefines.Keys.Bkey);
+        if (map.containsKey(BDefines.Keys.BKey) && !map.get(BDefines.Keys.BKey).equals(""))
+            this.Key = (String) map.get(BDefines.Keys.BKey);
 
         if (map.containsKey(BDefines.Keys.BType))
         {
@@ -214,7 +210,7 @@ public class BMetadata extends BMetadataEntity  {
     public Map<String, Object> asMap() {
         Map<String , Object> map = new HashMap<String, Object>();
 
-        map.put(BDefines.Keys.Bkey, Key);
+        map.put(BDefines.Keys.BKey, Key);
         map.put(BDefines.Keys.BValue, Value);
         map.put(BDefines.Keys.BType, type);
 

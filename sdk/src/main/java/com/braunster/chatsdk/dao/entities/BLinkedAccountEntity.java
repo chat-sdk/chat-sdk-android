@@ -1,11 +1,9 @@
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.dao.BLinkedAccount;
-
 /**
  * Created by braunster on 25/06/14.
  */
-public class BLinkedAccountEntity extends Entity<BLinkedAccount>{
+public class BLinkedAccountEntity extends Entity{
 
     public static class Type{
         public static final int FACEBOOK = 0;

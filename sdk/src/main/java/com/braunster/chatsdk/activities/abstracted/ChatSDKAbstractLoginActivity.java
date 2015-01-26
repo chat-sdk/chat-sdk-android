@@ -11,10 +11,10 @@ import com.braunster.chatsdk.activities.ChatSDKBaseActivity;
 import com.braunster.chatsdk.activities.ChatSDKMainActivity;
 import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookException;
@@ -22,8 +22,8 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
-import com.firebase.client.AuthData;
-import com.firebase.client.FirebaseError;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,14 +47,12 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     public static final String FLAG_LOGGED_OUT = "LoggedOut";
 
     protected void initViews(){
-        if (integratedWithFacebook)
-            facebookLogin = (LoginButton) findViewById(R.id.chat_sdk_facebook_button);
+        facebookLogin = (LoginButton) findViewById(R.id.chat_sdk_facebook_button);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (DEBUG) Log.d(TAG, "onResume, Session State: " + Session.getActiveSession().getState().name());
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
         Map<String, ?> loginInfo =BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo();
@@ -84,7 +82,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                                 dismissProgDialog();
 
                                 if (error.code != BError.Code.NO_LOGIN_INFO)
-                                    showAlertToast(getString(R.string.auth_failed));
+                                    showAlertToast(getString(R.string.login_activity_auth_failed));
                             }
                         }
                 );
@@ -105,19 +103,19 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
         showProgDialog(getString(R.string.connecting));
 
-        Map<String, Object> data = FirebasePaths.getMap(
+        Map<String, Object> data = AbstractNetworkAdapter.getMap(
                 new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey},
                 BDefines.BAccountType.Password, etEmail.getText().toString(), etPass.getText().toString());
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<Object, BError>() {
                     @Override
-                    public void onDone(AuthData authData) {
+                    public void onDone(Object authData) {
                         afterLogin();
                     }
 
                     @Override
-                    public void onDoneWithError(AuthData authData, Object o) {
+                    public void onDoneWithError(Object authData, BError o) {
                         toastErrorMessage(o, true);
 
                         dismissProgDialog();
@@ -130,19 +128,21 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             return;
         showProgDialog(getString(R.string.registering));
 
-        Map<String, Object> data = FirebasePaths.getMap(
+        Map<String, Object> data = AbstractNetworkAdapter.getMap(
                 new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
                 BDefines.BAccountType.Register, etEmail.getText().toString(), etPass.getText().toString());
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<Object, BError>() {
                     @Override
-                    public void onDone(AuthData authData) {
+                    public void onDone(Object authData) {
+                        // Indexing the user.
+                        getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUser(), null);
                         afterLogin();
                     }
 
                     @Override
-                    public void onDoneWithError(AuthData authData, Object o) {
+                    public void onDoneWithError(Object authData, BError o) {
                         toastErrorMessage(o, false);
                         dismissProgDialog();
                     }
@@ -156,14 +156,14 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
 
         BNetworkManager.sharedManager().getNetworkAdapter()
-                .authenticateWithMap(data, new CompletionListenerWithDataAndError<AuthData, Object>() {
+                .authenticateWithMap(data, new CompletionListenerWithDataAndError<Object, BError>() {
                     @Override
-                    public void onDone(AuthData authData) {
+                    public void onDone(Object authData) {
                         afterLogin();
                     }
 
                     @Override
-                    public void onDoneWithError(AuthData authData, Object o) {
+                    public void onDoneWithError(Object authData, BError o) {
                         toastErrorMessage(o, false);
                         dismissProgDialog();
                     }
@@ -172,21 +172,22 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     public void twitterLogin(){
         final DialogUtils.ChatSDKTwitterLoginDialog dialog = DialogUtils.ChatSDKTwitterLoginDialog.getInstance();
-        dialog.setListener(new CompletionListenerWithDataAndError<AuthData, Object>(){
+        dialog.setListener(new CompletionListenerWithDataAndError<Object, BError>(){
             @Override
-            public void onDone(AuthData authData) {
+            public void onDone(Object authData) {
                 dialog.dismiss();
                 showProgDialog(getString(R.string.authenticating));
+                getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUser(), null);
                 afterLogin();
             }
 
             @Override
-            public void onDoneWithError(AuthData authData, Object error) {
+            public void onDoneWithError(Object authData, BError error) {
                 dialog.dismiss();
                 toastErrorMessage(error, true);
             }
         });
-        dialog.show(getSupportFragmentManager(), "TwitterLogin");
+        dialog.show(getFragmentManager(), "TwitterLogin");
     }
 
     protected void setFacebookLogin(){
@@ -221,35 +222,30 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     }
 
-    public void toastErrorMessage(Object o, boolean login){
-        if (o instanceof FirebaseError)
-        {
-            String toastMessage = "";
-            FirebaseError error = ((FirebaseError) o);
-            chatSDKUiHelper.showToastForFirebaseError(error.getCode());
-        }
+    public void toastErrorMessage(BError error, boolean login){
+        String errorMessage = "";
+
+        if (StringUtils.isNotBlank(error.message))
+            errorMessage = error.message;
         else if (login)
-        {
-            showAlertToast("Failed connect to Firebase.");
-        }
-        else {
-            showAlertToast("Failed registering to Firebase.");
-        }
+            errorMessage = getString(R.string.login_activity_failed_to_login_toast);
+        else
+            errorMessage = getString(R.string.login_activity_failed_to_register_toast);
+
+
+        showAlertToast(errorMessage);
     }
 
     protected boolean checkFields(){
         if (etEmail.getText().toString().isEmpty())
         {
-
-//            Toast.makeText(LoginActivity.this, "Please enter username/email." , Toast.LENGTH_SHORT).show();
-            showAlertToast("Please enter email.");
+            showAlertToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }
 
         if (etPass.getText().toString().isEmpty())
         {
-//            Toast.makeText(LoginActivity.this, "Please enter password." , Toast.LENGTH_SHORT).show();
-            showAlertToast( "Please enter password.");
+            showAlertToast( getString(R.string.login_activity_no_password_toast) );
             return false;
         }
 
@@ -257,6 +253,12 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     }
 
     public void onSessionStateChange(Session session, SessionState state, Exception exception){
+
+        if (!getNetworkAdapter().facebookEnabled())
+        {
+            return;
+        }
+
         if (exception != null)
         {
             exception.printStackTrace();
@@ -270,7 +272,8 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
             @Override
             public void onDone() {
-                if (DEBUG) Log.i(TAG, "FB and Firebase are connected");
+                if (DEBUG) Log.i(TAG, "FB is connected");
+                getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUser(), null);
                 afterLogin();
             }
 
@@ -278,13 +281,14 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             public void onDoneWithError(BError error) {
                 if (DEBUG) Log.e(TAG, "Error connecting to FB or firebase");
 //                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
-                showAlertToast("Failed connect to facebook.");
+                showAlertToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
+                BFacebookManager.logout(ChatSDKAbstractLoginActivity.this);
                 dismissProgDialog();
             }
         });
     }
 
-    public void setExitOnBackPressed(boolean exitOnBackPressed) {
+    protected void setExitOnBackPressed(boolean exitOnBackPressed) {
         this.exitOnBackPressed = exitOnBackPressed;
     }
 }

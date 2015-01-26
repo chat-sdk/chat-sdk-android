@@ -20,8 +20,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             style="@style/CircleIconStyle"
-            android:layout_height="32dp"
-            android:layout_width="32dp"
+            android:layout_height="@dimen/chat_sdk_chat_action_barcircle_image_view_size"
+            android:layout_width="@dimen/chat_sdk_chat_action_barcircle_image_view_size"
             android:layout_gravity="center_vertical"
             android:id="@+id/chat_sdk_circle_image"
             android:visibility="invisible"/>

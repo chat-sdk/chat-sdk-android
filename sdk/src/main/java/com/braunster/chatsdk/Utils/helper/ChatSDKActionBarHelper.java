@@ -36,16 +36,19 @@ public class ChatSDKActionBarHelper {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+        actionBar.setHomeButtonEnabled(false);
 
         return this;
     }
 
     /** If you want to achieve this for lower api the best way it to add a theme to your activity with the homeAsUpIndicator as transparent.
      * Example can be found in the style.xml file*/
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public ChatSDKActionBarHelper hideUpIndicator(){
-        actionBar.setHomeAsUpIndicator(android.R.color.transparent);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1)
+            actionBar.setHomeAsUpIndicator(android.R.color.transparent);
+
+        actionBar.setDisplayHomeAsUpEnabled(false);
+
         return this;
 
     }

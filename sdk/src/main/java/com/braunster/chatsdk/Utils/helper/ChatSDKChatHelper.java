@@ -22,6 +22,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
@@ -73,6 +74,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private static final String SHARED = "shared";
     private boolean shared = false;
 
+    /** The amount of messages that was loaded for this thread,
+     *  When we load more then the default messages amount we want to keep the amount so we could load them again if the list needs to be re-created.*/
+    public static final String LOADED_MESSAGES_AMOUNT = "LoadedMessagesAmount";
+    private int loadedMessagesAmount = 0;
+
     /** The selected file that is picked to be sent.
      *  This is also the path to the camera output.*/
     private String selectedFilePath = "";
@@ -94,6 +100,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private ChatMessageBoxView messageBoxView;
     private ProgressBar progressBar;
     private ChatSDKMessagesListAdapter messagesListAdapter;
+
+
 
     public ChatSDKChatHelper(Activity activity, BThread thread, ChatSDKUiHelper uiHelper) {
         this.activity = activity;
@@ -186,10 +194,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     /** Load messages from the database and saving the current position of the list.*/
     public void loadMessagesAndRetainCurrentPos(){
-        loadMessages(true, false, 0);
+        loadMessages(true, false, 0, 0);
     }
 
-    public void loadMessages(final boolean retain, final boolean hideListView, final int offsetOrPos){
+    public void loadMessages(final boolean retain, final boolean hideListView, final int offsetOrPos, final int amountToLoad){
 
         if (messagesListAdapter == null || listMessages == null || progressBar == null || activity == null)
             return;
@@ -213,11 +221,25 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                 final int oldDataSize = messagesListAdapter.getCount();
 
+                List<BMessage> messages;
                 // Loading messages
-                List<BMessage> messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId());
+                // Load with fixed limit
+                if (amountToLoad > 0)
+                    messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId(), amountToLoad);
+                // we allread loaded messages so we load more then the default limit.
+                else if (messagesListAdapter.getCount() > BDefines.MAX_MESSAGES_TO_PULL + 1)
+                    messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId(), messagesListAdapter.getCount());
+                //This value is saved in the savedInstanceState so we could check if there was more loaded messages then normal before.
+                else if (loadedMessagesAmount > BDefines.MAX_MESSAGES_TO_PULL + 1)
+                    messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId(), loadedMessagesAmount);
+                //Loading with default limit.
+                else
+                    messages = BNetworkManager.sharedManager().getNetworkAdapter().getMessagesForThreadForEntityID(thread.getId());
 
                 // Sorting the message by date to make sure the list looks ok.
                 Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
+
+                loadedMessagesAmount = messages.size();
 
                 markAsRead(messages);
 
@@ -285,11 +307,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public void loadMessagesAndScrollBottom(){
-        loadMessages(false, true, - 1);
+        loadMessages(false, true, - 1, 0);
     }
 
     public void loadMessages(int scrollingPos){
-        loadMessages(false, true, scrollingPos);
+        loadMessages(false, true, scrollingPos, 0);
     }
 
     public void scrollListTo(final int pos, final boolean smooth) {
@@ -317,21 +339,26 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public void animateListView(){
-        if (DEBUG) Log.v(TAG, "animateListView");
 
         if (listMessages == null)
             return;
+
+        if (DEBUG) Log.v(TAG, "animateListView");
 
         listMessages.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.fade_in_expand));
         listMessages.getAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                if (DEBUG) Log.v(TAG, "onAnimationStart");
+
                 if (progressBar!= null)
                     progressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                if (DEBUG) Log.v(TAG, "onAnimationEnd");
+
                 listMessages.setVisibility(View.VISIBLE);
             }
 
@@ -360,7 +387,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         uiHelper.initCardToast();
 
         try {
-            if (send && requestCode != ADD_USERS && resultCode == Activity.RESULT_OK) {
+            if (send && (requestCode == PHOTO_PICKER_ID || requestCode == PICK_LOCATION || requestCode == CAPTURE_IMAGE) && resultCode == Activity.RESULT_OK) {
                 uiHelper.showProgressCard("Sending...");
             }
         } catch (Exception e) {
@@ -494,13 +521,14 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             }
         }
 
+        outState.putInt(LOADED_MESSAGES_AMOUNT, loadedMessagesAmount);
+
         outState.putBoolean(SHARED, shared);
 
         SuperCardToast.onSaveState(outState);
 
         outState.putInt(READ_COUNT, readCount);
     }
-
     public void restoreSavedInstance(Bundle savedInstanceState){
         if (savedInstanceState == null)
             return;
@@ -512,6 +540,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         lat = savedInstanceState.getDouble(LAT, 0);
 
         shared = savedInstanceState.getBoolean(SHARED);
+
+        loadedMessagesAmount = savedInstanceState.getInt(LOADED_MESSAGES_AMOUNT, 0);
 
         readCount = savedInstanceState.getInt(READ_COUNT);
         savedInstanceState.remove(LNG);

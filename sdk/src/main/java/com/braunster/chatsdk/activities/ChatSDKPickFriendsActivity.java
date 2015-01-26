@@ -1,9 +1,8 @@
 package com.braunster.chatsdk.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
@@ -24,6 +24,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.BError;
 
 import java.util.List;
 
@@ -35,16 +36,23 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     public static final int MODE_NEW_CONVERSATION = 1991;
     public static final int MODE_ADD_TO_CONVERSATION = 1992;
 
-    public static final String MODE= "mode";
-    public static final String THREAD_ID = "thread_id";
-    public static final String ANIMATE_EXIT = "animate_exit";
+    public static final String MODE = "mode";
+
+    /** @deprecated
+     * Please use the value from the {@link com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity ChatSDKAbstractChatActivity}.
+     * This value will be removed in one of the next version of the SDK.
+     *
+     * Pass true if you want slide down animation for this activity exit.
+     *
+     * */
+    public static final String ANIMATE_EXIT = ChatSDKAbstractChatActivity.ANIMATE_EXIT;
 
     private static final String TAG = ChatSDKPickFriendsActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.PickFriendsActivity;
 
     private ListView listContacts;
     private ChatSDKUsersListAdapter listAdapter;
-    private Button btnGetFBFriends, btnStartChat;
+    private Button btnStartChat;
     private TextView txtSearch;
     private ImageView imgSearch;
     private CheckBox chSelectAll;
@@ -54,9 +62,11 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
     /** For add to conversation mode.*/
     private long threadID = -1;
+
     /** For add to conversation mode.*/
     private BThread thread;
 
+    /** Set true if you want slide down animation for this activity exit. */
     private boolean animateExit = false;
 
     @Override
@@ -65,31 +75,31 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         setContentView(R.layout.chat_sdk_activity_pick_friends);
         initActionBar();
 
-
         if (savedInstanceState != null)
         {
-            getDateFromBundle(savedInstanceState);
+            getDataFromBundle(savedInstanceState);
         }
         else
         {
             if (getIntent().getExtras() != null)
             {
-                getDateFromBundle(getIntent().getExtras());
+                getDataFromBundle(getIntent().getExtras());
             }
         }
 
         initViews();
     }
 
-    private void getDateFromBundle(Bundle bundle){
+    private void getDataFromBundle(Bundle bundle){
         mode = bundle.getInt(MODE, mode);
-        threadID = bundle.getLong(THREAD_ID, threadID);
-        animateExit = bundle.getBoolean(ANIMATE_EXIT, animateExit);
+        threadID = bundle.getLong(ChatSDKBaseThreadActivity.THREAD_ID, threadID);
+        animateExit = bundle.getBoolean(ChatSDKAbstractChatActivity.ANIMATE_EXIT, animateExit);
     }
 
     protected void initActionBar(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar ab = getSupportActionBar();
+        ActionBar ab = getActionBar();
+        if (ab!=null)
+        {
             ab.setTitle(getString(R.string.pick_friends));
             ab.setHomeButtonEnabled(true);
         }
@@ -98,10 +108,9 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(THREAD_ID, threadID);
+        outState.putLong(ChatSDKBaseThreadActivity.THREAD_ID, threadID);
         outState.putInt(MODE, mode);
-        outState.putBoolean(ANIMATE_EXIT, animateExit);
-
+        outState.putBoolean(ChatSDKAbstractChatActivity.ANIMATE_EXIT, animateExit);
     }
 
     @Override
@@ -116,7 +125,6 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
-        btnGetFBFriends = (Button) findViewById(R.id.chat_sdk_btn_invite_from_fb);
         txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
         imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
@@ -149,19 +157,6 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                listAdapter.toggleSelection(position);
             }
         });
-
-
-
-      /*  listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (DEBUG) Log.i(TAG, "Contact Selected: " + listAdapter.getItem(position).getText()
-                        + ", ID: " + listAdapter.getItem(position).getEntityID());
-
-                createAndOpenThreadWithUsers(listAdapter.getItem(position).getText(),
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), listAdapter.getItem(position).asBUser());
-            }
-        });*/
     }
 
     @Override
@@ -183,19 +178,19 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                 if (listAdapter.getSelectedCount() == 0)
                 {
-                    showAlertToast("please select at least one user.");
+                    showAlertToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
                     return;
                 }
 
                 int addCurrent = 1;
                 if (mode == MODE_ADD_TO_CONVERSATION)
                 {
-                    showProgDialog("Adding users to thread...");
+                    showProgDialog( getString(R.string.pick_friends_activity_prog_dialog_add_to_convo_message));
                     addCurrent = 0;
                 }
                 else if (mode == MODE_NEW_CONVERSATION)
                 {
-                    showProgDialog("Creating thread...");
+                    showProgDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
                     addCurrent = 1;
                 }
 
@@ -225,7 +220,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                         }
                         else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, Object>() {
+                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, BError>() {
                                 @Override
                                 public boolean onItem(BUser user) {
                                     return false;
@@ -250,7 +245,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                                 }
 
                                 @Override
-                                public void onItemError(BUser user, Object o) {
+                                public void onItemError(BUser user, BError o) {
                                     ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -297,4 +292,6 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         if (animateExit)
             overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
     }
+
+
 }

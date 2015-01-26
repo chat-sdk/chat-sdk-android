@@ -10,15 +10,15 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
-import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.firebase.BFirebaseDefines;
-import com.braunster.chatsdk.network.firebase.BPath;
+import com.braunster.chatsdk.network.BFirebaseDefines;
+import com.braunster.chatsdk.network.BPath;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -363,7 +363,7 @@ public class BUser extends BUserEntity  {
     public void delete() {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
-        }    
+        }
         myDao.delete(this);
     }
 
@@ -371,7 +371,7 @@ public class BUser extends BUserEntity  {
     public void update() {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
-        }    
+        }
         myDao.update(this);
     }
 
@@ -379,7 +379,7 @@ public class BUser extends BUserEntity  {
     public void refresh() {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
-        }    
+        }
         myDao.refresh(this);
     }
 
@@ -420,7 +420,7 @@ public class BUser extends BUserEntity  {
     }*/
 
     @Override
-    public BPath getPath() {
+    public BPath getBPath() {
         return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
     }
 
@@ -528,6 +528,9 @@ public class BUser extends BUserEntity  {
             thread = data.getBThread();
             if (thread != null)
             {
+                if (thread.isDeleted())
+                    continue;
+
                 if (!checkType)
                 {
                     threads.add(data.getBThread());
@@ -549,7 +552,6 @@ public class BUser extends BUserEntity  {
 
         if (DEBUG) Log.d(TAG, "BUser, getContacts, Amount: " + (list==null?"nulll":list.size()) );
 
-        /* FIXME check if can be changed to quicker method*/
         for (BLinkedContact contact : list)
         {
             BUser user = null;
@@ -808,6 +810,8 @@ public class BUser extends BUserEntity  {
         BMetadata meta = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.STRING);
         meta.setValue(value);
 
+        meta.setAsDirty(true);
+
         DaoCore.updateEntity(meta);
 
         return meta;
@@ -817,10 +821,15 @@ public class BUser extends BUserEntity  {
         if (DEBUG) Log.v(TAG, "setMetaImage, FilePath: " + image.getPath());
 
         BMetadata metadata = fetchOrCreateMetadataForKey(key, BMetadataEntity.Type.IMAGE);
-
+        int size = (int) image.length();
+        byte[] bytes = new byte[size];
         try {
-            String data = Base64.encodeToString(FileUtils.readFileToByteArray(image), Base64.DEFAULT);
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(image));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+            String data = Base64.encodeToString(bytes, Base64.DEFAULT);
             metadata.setValue(data);
+            metadata.setAsDirty(true);
             if (DEBUG) Log.v(TAG, "setMetaImage, Base64 Data Length: " + data.length());
 
             DaoCore.updateEntity(metadata);
@@ -839,6 +848,7 @@ public class BUser extends BUserEntity  {
 
         String data = ImageUtils.BitmapToString(image);
         metadata.setValue(data);
+        metadata.setAsDirty(true);
         if (DEBUG) Log.v(TAG, "setMetaImage, Base64 Data Length: " + data.length());
 
         DaoCore.updateEntity(metadata);
@@ -859,13 +869,13 @@ public class BUser extends BUserEntity  {
     }
     /*##################################################*/
 
-    public <T extends Entity> List<T> getChildren() {
+    public  List<BMetadata> getChildren() {
         if (DEBUG) Log.v(TAG, "getChildren, id: " + getId());
         List<BMetadata> list =  DaoCore.fetchEntitiesWithProperty(BMetadata.class, BMetadataDao.Properties.OwnerID, getId());
 
         if (DEBUG) Log.d(TAG, "BUser, GetChildren, Amount: " + (list==null?"nulll":list.size()) );
 
-        return (List<T>) list;
+        return list;
     }
 
     public boolean hasThread(BThread thread){
@@ -882,73 +892,7 @@ public class BUser extends BUserEntity  {
 
         return USER_PREFIX + (entityID.replace("-",""));
     }
-    //ASK what is this.
-    /*#define bUserPrefix @"user"
-            #define bThumbnailSize CGSizeMake(72, 72)
 
-    #define bListenerAddedProperty @"listener-added"*/
-   /* -(void) setListenerAdded: (BOOL) listenerAdded {
-        objc_setAssociatedObject(self, bListenerAddedProperty, @(listenerAdded), OBJC_ASSOCIATION_RETAIN);
-    }
-
-    -(BOOL) listenerAdded {
-        return [objc_getAssociatedObject(self, bListenerAddedProperty) boolValue];
-    }*/
-   /* -(NSString *) pushChannel {
-        return [NSString stringWithFormat:@"%@_%@", bUserPrefix, self.entityID];
-    }*/
-
-    /*-(NSString *) pushChannel {
-        return [NSString stringWithFormat:@"%@_%@", bUserPrefix, self.entityID];
-    }
-
-    -(BUserAccount *) accountWithType: (bAccountType) type {
-        for (BUserAccount * account in self.linkedAccounts) {
-            if (account.type.intValue == type) {
-                return account;
-            }
-        }
-        return Nil;
-    }*/
-
-
-   /* // Make sure that any meta data that's added is valid
-    -(void) addMetaDataObject:(BMetaData *)value {
-
-        // Check to see if an object with this key already exists
-        if (!value.key || !value.key.length) {
-            NSLog(@"Meta data has no key!");
-            return;
-        }
-
-        if (!value.type || value.type.intValue == bPropertyTypeNone) {
-            NSLog(@"Meta data has no type!");
-            return;
-        }
-
-        if (value.type.intValue == bPropertyTypeImage) {
-            NSLog(@"Image");
-        }
-
-        // See if there's already a piece of metadata with the same key
-        BMetaData * dataForKey = [self metaDataForKey:value.key type:value.type.intValue];
-        if (!dataForKey) {
-            dataForKey = value;
-        }
-        else {
-            dataForKey.value = value.value;
-            //NSLog(@"Meta data has same key as another piece of data");
-        }
-
-        if (![self.metaData containsObject:dataForKey]) {
-
-            NSLog(@"Adding meta data: %@", value.entityID);
-
-            NSMutableSet * set = [NSMutableSet setWithSet:self.metaData];
-            [set addObject:dataForKey];
-            self.metaData = set;
-        }
-    }*/
     // KEEP METHODS END
 
 }

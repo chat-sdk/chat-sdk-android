@@ -8,14 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -55,6 +50,7 @@ public class ChatSDKThreadsListAdapter extends ChatSDKAbstractThreadsListAdapter
             holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
             holder.imgIcon = (CircleImageView) row.findViewById(R.id.img_thread_image);
             holder.txtUnreadMessagesAmount= (TextView) row.findViewById(R.id.txt_unread_messages);
+            holder.indicator = row.findViewById(R.id.chat_sdk_indicator);
 
             row.setTag(holder);
         }
@@ -71,37 +67,15 @@ public class ChatSDKThreadsListAdapter extends ChatSDKAbstractThreadsListAdapter
         {
             holder.txtUnreadMessagesAmount.setText(String.valueOf(unreadMsg));
             holder.txtUnreadMessagesAmount.setVisibility(View.VISIBLE);
+
+            holder.showUnreadIndicator();
         }
-        else holder.txtUnreadMessagesAmount.setVisibility(View.INVISIBLE);
+        else {
+            holder.hideUnreadIndicator();
+            holder.txtUnreadMessagesAmount.setVisibility(View.INVISIBLE);
+        }
 
-        //If has image url saved load it.
-        int size = holder.imgIcon.getHeight();
-
-        if (StringUtils.isNotEmpty(threadItems.get(position).getImageUrl()))
-            VolleyUtils.getImageLoader().get(threadItems.get(position).getImageUrl(), new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (isImmediate && response.getBitmap() == null)
-                    {
-                        holder.setDefaultImg(threadItems.get(position));
-                        return;
-                    }
-
-                    if (response.getBitmap() != null) {
-                        if (DEBUG) Log.i(TAG, "Loading thread picture from url");
-
-                        // load image into imageview
-                        holder.imgIcon.setImageBitmap(response.getBitmap());
-                    }
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-                    holder.setDefaultImg(threadItems.get(position));
-                }
-            }, size, size);
-        else holder.setDefaultImg(threadItems.get(position));
+        setPic(holder, position);
 
         return row;
     }

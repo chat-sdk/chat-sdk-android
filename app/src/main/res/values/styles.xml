@@ -1,13 +1,4 @@
 <resources>
 
- <!--    Base application theme.
-    <style name="AppTheme" parent="Theme.Base.AppCompat.Light">
-        <item name="android:background">@android:color/black</item>
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
-    </style>
-
-    <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@android:color/white</item>
-    </style>-->
 
 </resources>

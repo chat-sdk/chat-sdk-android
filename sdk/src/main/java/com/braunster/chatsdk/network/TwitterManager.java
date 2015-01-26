@@ -1,16 +1,16 @@
 package com.braunster.chatsdk.network;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
-import com.braunster.chatsdk.network.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.AuthData;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -23,6 +23,9 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
@@ -45,19 +48,18 @@ public class TwitterManager {
 
     // Twitter Urls.
     private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
-    private static final String USERS_SHOW_URL = "https://api.twitter.com/1.1/users/show.json?user_id=";
 
     private static OAuthService service;
     private static Token requestToken;
     private static Token accessToken;
 
-    public static Thread getAuthorizationURLThread(final Handler handler){
+    public static Thread getAuthorizationURLThread(final Context context, final Handler handler){
         return new Thread(new Runnable() {
             @Override
             public void run() {
                 // If you choose to use a callback, "oauth_verifier" will be the return value by Twitter (request param)
                 if (service == null)
-                    service = createService();
+                    service = createService(context);
 
                 try {
                     requestToken = service.getRequestToken();
@@ -83,7 +85,7 @@ public class TwitterManager {
         });
     }
 
-    public static Thread getVerifierThread(final String ver, final CompletionListenerWithDataAndError<AuthData, Object> listener){
+    public static Thread getVerifierThread(final Context context, final String ver, final CompletionListenerWithDataAndError<Object, BError> listener){
         return new Thread(new Runnable() {
             @Override
             public void run() {
@@ -97,7 +99,7 @@ public class TwitterManager {
                     return;
                 }
 
-                Response response = getReponse(PROTECTED_RESOURCE_URL);
+                Response response = getResponse(context, PROTECTED_RESOURCE_URL);
 
                 if (!response.isSuccessful())
                 {
@@ -114,7 +116,7 @@ public class TwitterManager {
                     userId = json.getLong("id");
                     profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
                     BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                            FirebasePaths.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter), listener);
+                            AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter), listener);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -123,51 +125,16 @@ public class TwitterManager {
         );
     }
 
-    public static void getUserDetails(final CompletionListenerWithData<Response> listener){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Response response = getReponse(USERS_SHOW_URL + userId);
-
-                if (response == null){
-                    handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.BAD_RESPONSE, "response is null")));
-                    return;
-                }
-                if (DEBUG) Log.d(TAG, "Header: " + response.getHeader("id"));
-
-                if (DEBUG) Log.d(TAG, "response, succsesful: " + response.isSuccessful()  + ", Message" + response.getMessage() + ", Body" + response.getBody());
-
-                if (response.isSuccessful())
-                {
-                    try {
-                        JSONObject json = new JSONObject(response.getBody());
-                        userId = json.getLong("id");
-                        profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
-                        handler.sendMessage(MessageObj.getSuccessMessage(listener, response));
-                    } catch (JSONException e) {
-                        handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));
-                        return;
-                    }
-                }
-                else{
-                    handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));
-                    return;
-                }
-            }
-        }).start();
-
-    }
-
     /** Must be called from inside a thread.*/
-    private static Response getReponse(String url){
+    private static Response getResponse(Context context, String url){
         if (service == null)
-            service = createService();
+            service = createService(context);
 
         OAuthRequest request =  new OAuthRequest(Verb.GET, url);
 
         if (accessToken == null)
         {
-            accessToken = new Token(BDefines.APIs.TwitterAccessToken, BDefines.APIs.TwitterAccessTokenSecret);
+            accessToken = new Token(context.getString(R.string.twitter_access_token), context.getString(R.string.twitter_access_token_secret));
         }
 
         service.signRequest(accessToken, request);
@@ -189,12 +156,12 @@ public class TwitterManager {
         }
     }
 
-    private static OAuthService createService(){
+    private static OAuthService createService(Context context){
         // If you choose to use a callback, "oauth_verifier" will be the return value by Twitter (request param)
         return service = new ServiceBuilder()
                 .provider(TwitterApi.SSL.class)
-                .apiKey(BDefines.APIs.TwitterConsumerKey)
-                .apiSecret(BDefines.APIs.TwitterConsumerSecret)
+                .apiKey(context.getString(R.string.twitter_access_token))
+                .apiSecret(context.getString(R.string.twitter_access_token_secret))
                 .callback("http://androidchatsdktwitter.com")
                 .debug()
                 .build();
@@ -245,4 +212,18 @@ public class TwitterManager {
             }
         }
     };
-}
+
+    public static Map<String, Object> getMap(String[] keys,  Object...values){
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        for (int i = 0 ; i < keys.length; i++){
+
+            // More values then keys entered.
+            if (i == values.length)
+                break;
+
+            map.put(keys[i], values[i]);
+        }
+
+        return map;
+    }}

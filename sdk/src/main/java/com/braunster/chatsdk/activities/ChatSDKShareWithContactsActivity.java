@@ -17,6 +17,7 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
     public static final String TAG = ChatSDKShareWithContactsActivity.class.getSimpleName();
     public static final boolean DEBUG = Debug.ShareWithContactsActivity;
 
+    /*FIXME add a check to see if there is any user logged in, If there is not add an option for a quick login just for passing all the data.*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,10 +27,16 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
         String type = getIntent().getType();
 
         if (StringUtils.isEmpty(action) && StringUtils.isEmpty(type))
+        {
+            showAlertToast(getString(R.string.share_activity_error_getting_share_data));
             return;
+        }
 
         if (!action.equals(Intent.ACTION_SEND))
+        {
+            showAlertToast(getString(R.string.share_activity_error_getting_share_data));
             return;
+        }
 
         if (getIntent().getExtras() != null)
         {
@@ -45,11 +52,8 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
             }
 
             ChatSDKContactsFragment fragment = ChatSDKContactsFragment.newInstance(ChatSDKContactsFragment.MODE_LOAD_CONTACTS, ChatSDKContactsFragment.CLICK_MODE_SHARE_CONTENT, extraData);
-            getSupportFragmentManager().beginTransaction().replace(R.id.content, fragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.content, fragment).commit();
         }
-        else showAlertToast("Error getting the image.");
-
-
-
+        else showAlertToast(getString(R.string.share_activity_error_getting_share_data));
     }
 }

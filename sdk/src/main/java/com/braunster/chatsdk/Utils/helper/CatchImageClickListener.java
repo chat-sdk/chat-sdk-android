@@ -1,13 +1,12 @@
 package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import org.apache.commons.lang3.StringUtils;
@@ -66,9 +65,9 @@ public class CatchImageClickListener implements View.OnClickListener{
 
         // start the image capture Intent
         if (dialogFragment != null)
-            ((FragmentActivity) activity).startActivityFromFragment(dialogFragment, intent, requestCode);
+            activity.startActivityFromFragment(dialogFragment, intent, requestCode);
         else if (fragment!= null)
-            ((FragmentActivity) activity).startActivityFromFragment(fragment, intent, requestCode);
+            activity.startActivityFromFragment(fragment, intent, requestCode);
         else activity.startActivityForResult(intent, requestCode);
     }
 

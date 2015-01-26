@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/AndroidChatSDK.iml" filepath="$PROJECT_DIR$/AndroidChatSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/facebook/facebook.iml" filepath="$PROJECT_DIR$/facebook/facebook.iml" />
+      <module fileurl="file://$PROJECT_DIR$/firebase_plugin/firebase_plugin.iml" filepath="$PROJECT_DIR$/firebase_plugin/firebase_plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/generator/generator.iml" filepath="$PROJECT_DIR$/generator/generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/sdk/sdk.iml" filepath="$PROJECT_DIR$/sdk/sdk.iml" />
     </modules>

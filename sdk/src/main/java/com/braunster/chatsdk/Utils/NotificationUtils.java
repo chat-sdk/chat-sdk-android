@@ -15,7 +15,7 @@ import android.util.Log;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.parse.PushUtils;
+import com.braunster.chatsdk.network.BDefines;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -100,7 +100,7 @@ public class NotificationUtils {
     }
 
     public static void createMessageNotification(Context context, BMessage message, int smallIconResID, Uri soundUri, int number){
-        createMessageNotification(context, PushUtils.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
+        createMessageNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
     }
 
     public static void createMessageNotification(Context context, int id, BMessage message, int smallIconResID, Uri soundUri, int number){
@@ -108,6 +108,8 @@ public class NotificationUtils {
 
         Intent resultIntent = getChatResultIntent(context);
         resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getOwnerThread());
+        resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
+        resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
 
@@ -120,7 +122,7 @@ public class NotificationUtils {
     }
 
     private static Intent getChatResultIntent(Context context){
-        return new Intent(context, ChatSDKUiHelper.getInstance().chatActivity);
+        return new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
     }
 
     /** Cancel the ongoing notification that controls the connection state and play/stop*/

@@ -1,7 +1,6 @@
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -12,15 +11,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
-import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.core.DaoCore;
-
-import org.apache.commons.io.IOUtils;
+import com.braunster.chatsdk.network.BDefines;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,11 +33,6 @@ public class Utils {
 
     static final String TAG = Utils.class.getSimpleName();
     static final boolean DEBUG = true;
-
-
-    private static final String SCHEME_FILE = "file";
-    private static final String SCHEME_CONTENT = "content";
-
 
     public static String getSHA(Activity activity, String packageInfo){
         if (DEBUG) Log.d(TAG, "PackageName: " + packageInfo);
@@ -92,7 +82,13 @@ public class Utils {
             try {
                 is = context.getContentResolver().openInputStream(uri);
                 OutputStream os = new FileOutputStream(f);
-                IOUtils.copy(is, os);
+
+                byte[] buffer = new byte[10240];
+                int len;
+                while ((len = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+
                 os.close();
 
                 return f.getPath();
@@ -115,37 +111,6 @@ public class Utils {
         return  new File(Uri.parse(getRealPathFromURI(context, uri)).getPath());
     }
 
-    public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
-        if (uri == null) return null;
-
-        if (SCHEME_FILE.equals(uri.getScheme())) {
-            return new File(uri.getPath());
-        } else if (SCHEME_CONTENT.equals(uri.getScheme())) {
-            final String[] filePathColumn = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
-            Cursor cursor = null;
-            try {
-                cursor = resolver.query(uri, filePathColumn, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    final int columnIndex = (uri.toString().startsWith("content://com.google.android.gallery3d")) ?
-                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
-                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
-                    // Picasa image on newer devices with Honeycomb and up
-                    if (columnIndex != -1) {
-                        String filePath = cursor.getString(columnIndex);
-                        if (!TextUtils.isEmpty(filePath)) {
-                            return new File(filePath);
-                        }
-                    }
-                }
-            } catch (SecurityException ignored) {
-                // Nothing we can do
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        }
-        return null;
-    }
-
     public static int getColorFromDec(String color){
         String[] split = color.split(" ");
 
@@ -159,14 +124,10 @@ public class Utils {
         return bubbleColor;
     }
 
-    public static  class ImageSaver{
-        public static final String IMAGE_DIR_NAME = "AndroidChatSDKImage";
-        public static final String THUMBNAILS_DIR_NAME = "thumbnails";
-        public static final String LOCATION_DIR_NAME = "location_snapshots";
-        public static final String MAIN_DIR_NAME = "AndroidChatSDKTTestAppDir";
+    public static  class ImageSaver {
+        public static final String IMAGE_DIR_NAME = BDefines.ImageDirName;
 
         public static final String IMG_FILE_ENDING = ".jpg";
-        public static final String PNG_FILE_ENDING = ".9.png";
 
         static boolean isExternalStorageWritable() {
             String state = Environment.getExternalStorageState();
@@ -189,7 +150,7 @@ public class Utils {
             return ret;
         }
 
-        static File getInternalDir(Context context, String name){
+        static File getInternalDir(Context context, String name) {
             File mydir = context.getDir(name, Context.MODE_PRIVATE);
 
             if (!mydir.exists()) {
@@ -200,16 +161,14 @@ public class Utils {
             return mydir;
         }
 
-        public static File saveFile(File dir, String name, String type, Bitmap image, boolean external){
+        public static File saveFile(File dir, String name, String type, Bitmap image, boolean external) {
             return saveFile(dir, name, type, image, Bitmap.CompressFormat.JPEG, external);
         }
 
-        private static File saveFile(File dir, String name, String type, Bitmap image, Bitmap.CompressFormat compressFormat, boolean external){
+        private static File saveFile(File dir, String name, String type, Bitmap image, Bitmap.CompressFormat compressFormat, boolean external) {
 
-            if (external)
-            {
-                if (!isExternalStorageWritable())
-                {
+            if (external) {
+                if (!isExternalStorageWritable()) {
                     if (Utils.DEBUG) Log.d(Utils.TAG, "No External storage.");
                     return null;
                 }
@@ -224,12 +183,11 @@ public class Utils {
                     return null;
                 }
 
-                String filePath = dir.getPath()+ File.separator + name + type;
+                String filePath = dir.getPath() + File.separator + name + type;
                 if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
 
                 File file = new File(filePath);
-                if (file.createNewFile())
-                {
+                if (file.createNewFile()) {
                     stream = new FileOutputStream(file);
                     /* Write bitmap to file using JPEG and 80% quality hint for JPEG. */
                     image.compress(compressFormat, 80, stream);
@@ -251,13 +209,12 @@ public class Utils {
             }
         }
 
-        public static String getPath(Context context, String name){
+        public static String getPath(Context context, String name) {
             return getInternalDir(context, name).getPath();
         }
 
         public static File getAlbumStorageDir(String albumName) {
-            if (!isExternalStorageWritable())
-            {
+            if (!isExternalStorageWritable()) {
                 if (Utils.DEBUG) Log.e(Utils.TAG, "External Storage is not writable.");
                 return null;
             }
@@ -266,91 +223,20 @@ public class Utils {
             File file = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES), albumName);
 
-            if (file.exists())
-            {
+            if (file.exists()) {
                 if (Utils.DEBUG) Log.e(Utils.TAG, "public picture album exist");
                 return file;
             }
             if (!file.mkdirs()) {
                 if (Utils.DEBUG) Log.e(Utils.TAG, "Directory not created");
                 return null;
-            }else if (!file.isDirectory())
-            {
+            } else if (!file.isDirectory()) {
                 if (Utils.DEBUG) Log.e(Utils.TAG, "saveImage, getAlbumDir file is not a Directory");
                 return null;
             }
             if (Utils.DEBUG) Log.d(Utils.TAG, "Album dir fetched successfully.");
 
             return file;
-        }
-
-        private static final String BubbleDir = "Bubbles";
-        public static Bitmap[] fetchOrCreateBubbleForColor(Context context, int color){
-            File dir = getInternalDir(context, BubbleDir);
-
-            Bitmap[] bubbles = new Bitmap[2];
-
-            if (dir.exists())
-            {
-                String hexName = /*Integer.toHexString(color)*/"Names";
-                Log.d(TAG, "HexName: " + hexName);
-
-                Log.d(TAG, "Left not exist");
-                bubbles[0] = ImageUtils.get_ninepatch(R.drawable.bubble_left, 26, 26, context);
-                bubbles[0] = ImageUtils.replaceIntervalColor(bubbles[0], 40, 75, 130, 140, 190, 210, color);
-                saveFile(dir, hexName + "L", PNG_FILE_ENDING, bubbles[0], Bitmap.CompressFormat.PNG, false);
-
-                Log.d(TAG, "Right not exist");
-                bubbles[1] = ImageUtils.get_ninepatch(R.drawable.bubble_right, 26, 26, context);
-                bubbles[1] = ImageUtils.replaceIntervalColor(bubbles[1], 40, 75, 130, 140, 190, 210, color);
-                saveFile(dir, hexName + "R", PNG_FILE_ENDING, bubbles[1], Bitmap.CompressFormat.PNG , false);
-
-                return bubbles;
-            }
-
-
-
-
-
-
-
-            Log.d(TAG, "Dir not exist");
-            return null;
-        }
-    }
-
-    public static class LocationImageHandler extends ImageSaver{
-        public static File saveLocationImage(Context context, Bitmap image, String name){
-            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(getInternalDir(context, LOCATION_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-            // TODO delete file after used.
-        }
-
-        public static File getLocationFile(Context context, String fileEntityID){
-            if (!createInternalDirIfNotExists(context, LOCATION_DIR_NAME))
-                return null;
-
-            return new File(getInternalDir(context, LOCATION_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
-        }
-    }
-
-    public static class ThumbnailsHandler extends ImageSaver{
-        public static File saveImageThumbnail(Context context, Bitmap image, String name){
-            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
-                return null;
-
-            if (name == null) name = DaoCore.generateEntity();
-            return saveFile(getInternalDir(context, THUMBNAILS_DIR_NAME), name, IMG_FILE_ENDING, image, false);
-        }
-
-        public static File getThumbnail(Context context, String fileEntityID){
-            if (!createInternalDirIfNotExists(context, THUMBNAILS_DIR_NAME))
-                return null;
-
-            return new File(getInternalDir(context, THUMBNAILS_DIR_NAME).getPath(), fileEntityID + IMG_FILE_ENDING);
         }
     }
 

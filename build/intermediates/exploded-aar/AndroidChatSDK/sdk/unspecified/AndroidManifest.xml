@@ -99,7 +99,7 @@
 
         <!-- Parse -->
         <receiver
-            android:name="com.braunster.chatsdk.parse.ChatSDKReceiver"
+            android:name="com.braunster.androidchatsdk.firebaseplugin.firebase.parse.ChatSDKReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.braunster.chatsdk.parse.MESSAGE_RECEIVED" />

@@ -2,8 +2,25 @@
 <resources>
 
     <string name="app_name">AndroidChatSDK</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="facebook_id">247787328762280</string>
+
+    <!--#######Api-Keys#######-->
+    <!--Facebook-->
+    <string name="facebook_id"></string>
+    <!--Google Maps-->
+    <string name="google_maps_api_key">AIzaSyCC4ZRHdZhKDDhQgCOOISLcw0sprH-EGDQ</string>
+
+    <!--Twitter-->
+    <string name="twitter_consumer_key"></string>
+    <string name="twitter_consumer_secret"></string>
+    <string name="twitter_access_token"></string>
+    <string name="twitter_access_token_secret"></string>
+
+    <!--Parse-->
+    <string name="parse_app_id">oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d</string>
+    <string name="parse_client_key">A1lZKXHQWKUQogcfCCIFBg1cPbJ0dtekh2ghV6He</string>
+
+    <!--BugSense-->
+    <string name="bug_sense_key">a83a219d</string>
 
 </resources>

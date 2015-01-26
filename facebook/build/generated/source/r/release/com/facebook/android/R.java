@@ -83,7 +83,7 @@ containing a value of this type.
 <colgroup align="left" />
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
-<tr><td><code>small</code></td><td>-2</td><td> Keep in sync with constants in ProfilePictureView </td></tr>
+<tr><td><code>small</code></td><td>-2</td><td></td></tr>
 <tr><td><code>normal</code></td><td>-3</td><td></td></tr>
 <tr><td><code>large</code></td><td>-4</td><td></td></tr>
 </table>
@@ -633,7 +633,7 @@ containing a value of this type.
 <colgroup align="left" />
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
-<tr><td><code>small</code></td><td>-2</td><td> Keep in sync with constants in ProfilePictureView </td></tr>
+<tr><td><code>small</code></td><td>-2</td><td></td></tr>
 <tr><td><code>normal</code></td><td>-3</td><td></td></tr>
 <tr><td><code>large</code></td><td>-4</td><td></td></tr>
 </table>

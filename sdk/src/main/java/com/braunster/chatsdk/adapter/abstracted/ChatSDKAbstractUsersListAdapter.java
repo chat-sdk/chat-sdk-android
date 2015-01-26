@@ -389,14 +389,11 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             if (StringUtils.isEmpty(user.getMetaName()))
                 continue;
 
-            if (deleteDuplicates)
+            if (deleteDuplicates && entitiesID.contains(user.getEntityID()))
             {
-//                if (DEBUG) Log.d(TAG, "EntityID: " + user.getEntityID());
-                if (entitiesID.contains(user.getEntityID()))
-                {
+                Log.d(TAG, "SkippedUser Name: " + user.getMetaName());
 //                    if (DEBUG) Log.d(TAG, "EntityExist");
-                    continue;
-                }
+                continue;
             }
 
             entitiesID.add(user.getEntityID());
