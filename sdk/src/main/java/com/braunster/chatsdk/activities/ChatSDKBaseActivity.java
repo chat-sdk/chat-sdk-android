@@ -134,45 +134,50 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
         if (checkOnlineOnResumed && !fromLoginActivity)
         {
             if(DEBUG) Log.d(TAG, "Check online on resumed");
-            getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
+            getWindow().getDecorView().post(new Runnable() {
                 @Override
-                public void onDone(Boolean online) {
-                    if (online == null) return;
+                public void run() {
+                    getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
+                        @Override
+                        public void onDone(Boolean online) {
+                            if (online == null) return;
 
-                    if(DEBUG) Log.d(TAG, "Check done, " + online);
+                            if(DEBUG) Log.d(TAG, "Check done, " + online);
 
-                    if (!online)
-                    {
-                        authenticate(new AuthListener() {
-                            @Override
-                            public void onCheckDone(boolean isAuthenticated) {
-                                if (!isAuthenticated)
-                                {
-                                    onAuthenticationFailed();
+                            if (!online)
+                            {
+                                authenticate(new AuthListener() {
+                                    @Override
+                                    public void onCheckDone(boolean isAuthenticated) {
+                                        if (!isAuthenticated)
+                                        {
+                                            onAuthenticationFailed();
 
-                                }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onLoginDone() {
+                                        if (DEBUG) Log.d(TAG, "Authenticated!");
+                                        onAuthenticated();
+                                    }
+
+                                    @Override
+                                    public void onLoginFailed(BError error) {
+                                        if (DEBUG) Log.d(TAG, "Authenticated Failed!");
+                                        onAuthenticationFailed();
+                                    }
+                                });
                             }
 
-                            @Override
-                            public void onLoginDone() {
-                                if (DEBUG) Log.d(TAG, "Authenticated!");
-                                onAuthenticated();
-                            }
+                        }
 
-                            @Override
-                            public void onLoginFailed(BError error) {
-                                if (DEBUG) Log.d(TAG, "Authenticated Failed!");
-                                onAuthenticationFailed();
-                            }
-                        });
-                    }
-
-                }
-
-                @Override
-                public void onDoneWithError(BError error) {
-                    if (DEBUG) Log.d(TAG, "Check online failed!");
-                    onAuthenticationFailed();
+                        @Override
+                        public void onDoneWithError(BError error) {
+                            if (DEBUG) Log.d(TAG, "Check online failed!");
+                            onAuthenticationFailed();
+                        }
+                    });
                 }
             });
         }

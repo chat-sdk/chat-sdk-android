@@ -52,7 +52,7 @@ public class ChatSDKProfileHelper {
     private static final String TAG = ChatSDKProfileHelper.class.getSimpleName();
     private static final boolean DEBUG = true;
 
-    protected Cropper crop;
+    private Cropper crop;
 
     private Fragment fragment = null;
 

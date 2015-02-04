@@ -106,6 +106,7 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract void logout();
 
+ 
     public abstract BUser currentUser();
 
     private AbstractEventManager eventManager;
@@ -429,7 +430,9 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract void updateIndexForUser(BUser user, CompletionListener listener);
 
-    protected String processForQuery(String query){
+    public abstract void updateIndexForUser(String entityId, Map<String, String> values, CompletionListener listener);
+
+    public static String processForQuery(String query){
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
     }
 

@@ -6,6 +6,7 @@ import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
 
@@ -27,20 +28,20 @@ public abstract class BUserEntity extends Entity {
         // Numbers are like the Provider enum in simple login.
         String prefix = "";
         switch (type){
-            case 1:
-                prefix = "pw";
+            case BDefines.ProviderInt.Password:
+                prefix = "simplelogin";
                 break;
-            case 2:
-                prefix = "fb";
+            case BDefines.ProviderInt.Facebook:
+                prefix = "facebook";
                 break;
-            case 4:
-                prefix = "tw";
+            case BDefines.ProviderInt.Twitter:
+                prefix = "twitter";
                 break;
-            case 5:
-                prefix = "an";
+            case BDefines.ProviderInt.Anonymous:
+                prefix = "anonymous";
                 break;
-            case 3:
-                prefix = "go";
+            case BDefines.ProviderInt.Google:
+                prefix = "google";
                 break;
         }
 

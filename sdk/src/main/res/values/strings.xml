@@ -5,10 +5,10 @@
 
     <!--Api-Keys-->
             <!--Facebook-->
-            <string name="facebook_id">648056098576150</string>
+            <string name="facebook_id"></string>
     
             <!--Google Maps-->
-            <string name="google_maps_api_key">AIzaSyCC4ZRHdZhKDDhQgCOOISLcw0sprH-EGDQ</string>
+            <string name="google_maps_api_key"></string>
 
             <!--Twitter-->
             <string name="twitter_consumer_key"></string>
@@ -17,8 +17,8 @@
             <string name="twitter_access_token_secret"></string>
 
             <!--Parse-->
-            <string name="parse_app_id">vveOzZuJzI04HR7I9d3ZlkA9Fwi0RcgXnkpOKc5W</string>
-            <string name="parse_client_key">JgBouZGn8UVed6At2yYEID1AtmAGCMbogqVIhgtN</string>
+            <string name="parse_app_id"></string>
+            <string name="parse_client_key"></string>
 
             <!--BugSense-->
             <string name="bug_sense_key"></string>

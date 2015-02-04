@@ -20,7 +20,6 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ExitHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
-import com.braunster.chatsdk.Utils.asynctask.ImportPhoneContactTask;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
@@ -158,9 +157,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             }
         });
 
-
-        // FIXME only for testing the import.
-        new ImportPhoneContactTask(this).execute();
     }
 
     @Override

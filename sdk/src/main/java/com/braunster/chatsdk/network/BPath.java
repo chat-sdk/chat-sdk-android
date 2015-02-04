@@ -29,6 +29,8 @@ public class BPath {
     public BPath(String path){
         if (DEBUG) Log.d(TAG, "Init path, Path: " + path);
 
+        path = path .replace("%3A", ":").replace("%253A", ":");
+        
         // Cutting the the server path.
         if (BDefines.ServerUrl.length() < path.length())
         {
@@ -111,7 +113,7 @@ public class BPath {
 
         if (DEBUG) Log.i(TAG, "getBPath, Result: " + path.toString());
 
-        // Remove the trailing slash
-        return path.toString().substring(0, path.length() -1);
+        // Remove the trailing slash and replacing the colon coding if necessary.
+        return path.toString().substring(0, path.length() -1).replace("%3A", ":").replace("%253A", ":");
     }
 }

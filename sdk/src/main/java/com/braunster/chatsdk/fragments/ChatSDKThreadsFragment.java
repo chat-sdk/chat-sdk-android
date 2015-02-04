@@ -196,7 +196,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         if (id == R.id.action_chat_sdk_add)
         {
             FragmentManager fm = getActivity().getFragmentManager();
-            DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
+            final DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
 
             dialog.setTitleAndListen( getString(R.string.add_public_chat_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
@@ -236,7 +236,11 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
                         @Override
                         public void onDoneWithError(BThread bThread, BError o) {
-                            showToast( getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s );
+                            showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
+                            
+                            Log.e(TAG, "Error: " + o.message);
+                            
+                            dismissProgDialog();
                         }
                     });
                 }

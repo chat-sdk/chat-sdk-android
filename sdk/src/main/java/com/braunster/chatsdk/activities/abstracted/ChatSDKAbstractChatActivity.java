@@ -141,11 +141,6 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         initActionBar();
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-    }
-
     protected ActionBar readyActionBarToCustomView(){
         ActionBar ab = getActionBar();
         ab.setDisplayShowHomeEnabled(false);
@@ -406,15 +401,6 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         if ( !getThread(data) )
             return;
 
-        getNetworkAdapter().getEventManager().handleMessages(thread.getEntityID());
-
-        // Making sure that this thread is handled by the EventManager so the user will get all the chat updates as he enters.
-        // If we are not listening then we add it the the manager.
-        if (!getNetworkAdapter().getEventManager().isListeningToThread(thread.getEntityID()))
-        {
-            getNetworkAdapter().getEventManager().handleThread(thread.getEntityID());
-
-        }
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
@@ -485,6 +471,16 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+                getNetworkAdapter().getEventManager().handleMessages(thread.getEntityID());
+
+                // Making sure that this thread is handled by the EventManager so the user will get all the chat updates as he enters.
+                // If we are not listening then we add it the the manager.
+                if (!getNetworkAdapter().getEventManager().isListeningToThread(thread.getEntityID()))
+                {
+                    getNetworkAdapter().getEventManager().handleThread(thread.getEntityID());
+                }
+
                 NotificationUtils.cancelNotification(ChatSDKAbstractChatActivity.this, BDefines.MESSAGE_NOTIFICATION_ID);
 
                 chatSDKChatHelper.integrateUI(messageBoxView, messagesListAdapter, listMessages, progressBar);

@@ -156,7 +156,6 @@ public class BFirebaseInterface {
                     @Override
                     public void onDone(T en) {
                         try {
-                            // ASK i think this is the right behavior wanted
                             // Call the method to push the entity,
                             // If entity selected is null use the entity given in the "impl_pushEntity" call.
                             new pushEntity( (en==null?entity:en) , listener).call();
@@ -297,6 +296,7 @@ public class BFirebaseInterface {
                     listener.onDoneWithError(entity, BFirebaseNetworkAdapter.getFirebaseError(firebaseError));
                 }
             });
+            
         }
         // If no address exists get the object by its priority.
         else
@@ -338,7 +338,7 @@ public class BFirebaseInterface {
             else
             {
                 if (DEBUG) Log.d(TAG, "No priority.");
-                listener.onDone(entity);//ASK output null or just send error.
+                listener.onDone(entity);
             }
         }
     }

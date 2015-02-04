@@ -26,9 +26,11 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
+import com.braunster.chatsdk.object.Cropper;
 import com.braunster.chatsdk.view.ChatMessageBoxView;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.google.android.gms.maps.model.LatLng;
+import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -63,7 +65,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String SELECTED_FILE_PATH = "captured_photo_path";
 
-
+    private Cropper crop;
+    
     protected static final int PHOTO_PICKER_ID = 100;
     protected static final int CAPTURE_IMAGE = 101;
     public static final int PICK_LOCATION = 102;
@@ -403,7 +406,21 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             switch (resultCode)
             {
                 case Activity.RESULT_OK:
+
                     if (DEBUG) Log.d(TAG, "Result OK");
+                    Uri uri = data.getData();
+
+                    Uri outputUri = Uri.fromFile(new File(this.activity.getCacheDir(), "cropped.jpg"));
+                    crop = new Cropper(uri);
+
+                    Intent cropIntent = crop.getAdjustIntent(this.activity, outputUri);
+                    int request = Crop.REQUEST_CROP + PHOTO_PICKER_ID;
+
+                    activity.startActivityForResult(cropIntent, request);
+                    
+                    return HANDELD;
+                    
+                    /*if (DEBUG) Log.d(TAG, "Result OK");
                     Uri uri = data.getData();
                     File image = null;
                     try
@@ -432,13 +449,41 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                         uiHelper.dismissProgressCardWithSmallDelay();
                         uiHelper.showAlertToast("Error when loading the image.");
                         return ERROR;
-                    }
+                    }*/
 
                 case Activity.RESULT_CANCELED:
                     if (DEBUG) Log.d(TAG, "Result Canceled");
                     return HANDELD;
             }
         }
+        else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
+            if (resultCode == Crop.RESULT_ERROR)
+            {
+                if (DEBUG) Log.e(TAG, "Result Error");
+                return ERROR;
+            }
+
+            try
+            {
+                File image;
+                Uri uri = Crop.getOutput(data);
+
+                if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
+                image = new File(this.activity.getCacheDir(), "cropped.jpg");
+
+                selectedFilePath = image.getPath();
+
+                sendImageMessage(image.getPath());
+                
+                return HANDELD;
+            }
+            catch (NullPointerException e){
+                if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
+                uiHelper.showAlertToast("Unable to fetch image");
+                return ERROR;
+            }
+        }
+
         /* Pick location logic*/
         else if (requestCode == PICK_LOCATION)
         {
@@ -582,7 +627,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         // TODO allow multiple pick of photos.
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_PICK);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
 //                intent.setAction(Intent.ACTION_GET_CONTENT);
 //                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 //                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);

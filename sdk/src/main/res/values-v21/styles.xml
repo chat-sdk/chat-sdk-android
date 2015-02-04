@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="ChatSDKTheme" parent="android:Theme.Material.Light">
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        
+        <item name="colorPrimary">@color/chat_sdk_theme_color</item>
+        <item name="colorPrimaryDark">@color/chat_sdk_theme_color_dark</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+
+        <item name="android:statusBarColor">@color/chat_sdk_theme_color_dark</item>
+        
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <item name="colorAccent">@color/white</item>
+    </style>
+
+<!--    <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/chat_sdk_theme_color</item>
+        <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
+    </style>
+
+    <style name="actionBarTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>-->
+    
+</resources>

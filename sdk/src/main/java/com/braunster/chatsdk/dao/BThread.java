@@ -350,7 +350,14 @@ public class BThread extends BThreadEntity  {
         Map<String , Object> map = new HashMap<String, Object>();
         Map<String , Object> nestedMap = new HashMap<String, Object>();
 
-        nestedMap.put(BDefines.Keys.BCreationDate, creationDate.getTime());
+        // If the creation date is null we assume that the thread is now being created so we push the server timestamp with it.
+        // Else we will push the saved creation date from the db.
+        // No treating this as so can cause problems with firebase security rules.
+        if (creationDate == null)
+            nestedMap.put(BDefines.Keys.BCreationDate, BFirebaseDefines.getServerTimestamp());
+        else
+            nestedMap.put(BDefines.Keys.BCreationDate, creationDate.getTime());
+        
         nestedMap.put(BDefines.Keys.BName, name);
         nestedMap.put(BDefines.Keys.BType, type);
 

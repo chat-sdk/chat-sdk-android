@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.braunster.chatsdk.network.BDefines.ServerUrl;
+
 /**
  * Created by itzik on 6/8/2014.
  */
@@ -23,10 +25,10 @@ public class FirebasePaths extends Firebase{
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main firebase ref.*/
     public static FirebasePaths firebaseRef(){
-        if (StringUtils.isBlank(BDefines.ServerUrl))
+        if (StringUtils.isBlank(ServerUrl))
             throw new NullPointerException("Please set the server url in BDefines class");
 
-        return fb(BDefines.ServerUrl);
+        return fb(ServerUrl);
     }
 
     /** @return Firebase object for give url.*/
@@ -38,8 +40,9 @@ public class FirebasePaths extends Firebase{
     /** @return Firebase object for the base path of firebase + the component given..*/
     public FirebasePaths appendPathComponent(String component){
         /* Im pretty sure that this is what you wanted*/
-        builder = new StringBuilder(this.toString()).append("/").append(component);
-        return fb(builder.toString());
+        builder.setLength(0);
+        builder.append(this.toString()).append("/").append(component);
+        return fb(builder.toString().replace("%3A", ":").replace("%253A", ":"));
     }
 
     /* Users */
@@ -104,42 +107,28 @@ public class FirebasePaths extends Firebase{
     }
 
 
-    public static final class ProviderString{
-        public static final String Anonymous = "anonymous";
-        public static final String Password = "password";
-        public static final String Facebook = "facebook";
-        public static final String Twitter = "twitter";
-        public static final String Google = "google";
-    }
 
-    public static final class ProviderInt{
-        public static final int Password = 1;
-        public static final int Facebook = 2;
-        public static final int Google = 3;
-        public static final int Twitter = 4;
-        public static final int Anonymous = 5;
-    }
 
     public static int providerToInt(String provider){
-        if (provider.equals(ProviderString.Password))
+        if (provider.equals(BDefines.ProviderString.Password))
         {
-            return ProviderInt.Password;
+            return BDefines.ProviderInt.Password;
         }
-        else if (provider.equals(ProviderString.Facebook))
+        else if (provider.equals(BDefines.ProviderString.Facebook))
         {
-            return ProviderInt.Facebook;
+            return BDefines.ProviderInt.Facebook;
         }
-        else if (provider.equals(ProviderString.Google))
+        else if (provider.equals(BDefines.ProviderString.Google))
         {
-            return ProviderInt.Google;
+            return BDefines.ProviderInt.Google;
         }
-        else if (provider.equals(ProviderString.Twitter))
+        else if (provider.equals(BDefines.ProviderString.Twitter))
         {
-            return ProviderInt.Twitter;
+            return BDefines.ProviderInt.Twitter;
         }
-        else if (provider.equals(ProviderString.Anonymous))
+        else if (provider.equals(BDefines.ProviderString.Anonymous))
         {
-            return ProviderInt.Anonymous;
+            return BDefines.ProviderInt.Anonymous;
         }
 
         throw new IllegalArgumentException("Np provider was found matching requested.");
@@ -148,16 +137,16 @@ public class FirebasePaths extends Firebase{
     public static String providerToString(int provider){
 
         switch (provider){
-            case ProviderInt.Password:
-                return ProviderString.Password;
-            case ProviderInt.Facebook:
-                return ProviderString.Facebook;
-            case ProviderInt.Google:
-                return ProviderString.Google;
-            case ProviderInt.Twitter:
-                return ProviderString.Twitter;
-            case ProviderInt.Anonymous:
-                return ProviderString.Anonymous;
+            case BDefines.ProviderInt.Password:
+                return BDefines.ProviderString.Password;
+            case BDefines.ProviderInt.Facebook:
+                return BDefines.ProviderString.Facebook;
+            case BDefines.ProviderInt.Google:
+                return BDefines.ProviderString.Google;
+            case BDefines.ProviderInt.Twitter:
+                return BDefines.ProviderString.Twitter;
+            case BDefines.ProviderInt.Anonymous:
+                return BDefines.ProviderString.Anonymous;
 
             default:
                 /*return ProviderString.Password;*/

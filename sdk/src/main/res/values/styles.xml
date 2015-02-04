@@ -5,6 +5,9 @@
     <!-- Base application theme. -->
     <style name="ChatSDKTheme" parent="@android:style/Theme.Holo.Light">
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 

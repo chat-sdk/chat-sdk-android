@@ -233,8 +233,12 @@ public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                     @Override
                     public void onItemError(BUser user, BError o) {
-                        if (DEBUG)
-                            Log.d(TAG, "Failed to add user to thread, User name: " + user.getName());
+                       
+                        dismissProgDialog();
+                        
+                        showAlertToast("Failed to open the thread.");
+                        /*if (DEBUG)
+                            Log.d(TAG, "Failed to add user to thread, User name: " + user.getName());*/
                     }
                 }, contactsFragment.getAdapter().getItem(position).asBUser(), getNetworkAdapter().currentUser());
 

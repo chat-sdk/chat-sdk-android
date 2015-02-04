@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths.ProviderInt;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
@@ -264,32 +263,37 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         setAuthenticated(true);
 
         String provider = authData.getProvider();
-        String aid;
+        String token = (String) authData.getProviderData().get(Keys.ThirdPartyData.AccessToken);
+        
+        String aid = authData.getUid();
 
         // We need to get the user safe if, Password has it saved in the Uid also anonymous.
-        if (provider.equals(FirebasePaths.ProviderString.Password))
+/*        if (provider.equals(BDefines.ProviderString.Password))
         {
             if (DEBUG) Log.d(TAG, "Uid: " + authData.getUid());
             aid = BUser.safeAuthenticationID(authData.getUid().replace("simplelogin:", ""), FirebasePaths.providerToInt(authData.getProvider()));
         }
-        else if (provider.equals(FirebasePaths.ProviderString.Anonymous))
+        else if (provider.equals(BDefines.ProviderString.Anonymous))
         {
             aid = BUser.safeAuthenticationID(authData.getUid().replace("anonymous:", ""), FirebasePaths.providerToInt(authData.getProvider()));
         }
         else
         {
             aid = BUser.safeAuthenticationID((String) authData.getProviderData().get(Keys.ThirdPartyData.ID), FirebasePaths.providerToInt(authData.getProvider()));
-        }
+        }*/
 
         // Save the authentication ID for the current user
         // Set the current user
         final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
         loginInfoMap.put(Prefs.AuthenticationID, aid);
         loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProvider()));
+        loginInfoMap.put(Prefs.TokenKey, token);
 
         final BUser user = DaoCore.fetchOrCreateUserWithAuthenticationID(aid);
         user.setAuthenticationType(FirebasePaths.providerToInt(authData.getProvider()));
 
+        user.setEntityID(aid);
+        
         BFirebaseInterface.selectEntity(user,
                 new CompletionListenerWithDataAndError<BUser, BError>() {
                     @Override
@@ -327,7 +331,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         switch (FirebasePaths.providerToInt(authData.getProvider()))
         {
-            case ProviderInt.Facebook:
+            case BDefines.ProviderInt.Facebook:
                 // Setting the name.
                 if (StringUtils.isNotBlank(name) && StringUtils.isBlank(user.getMetaName()))
                 {
@@ -352,7 +356,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 break;
 
-            case ProviderInt.Twitter:
+            case BDefines.ProviderInt.Twitter:
                 // Setting the name
                 if (StringUtils.isNotBlank(name) && StringUtils.isBlank(user.getMetaName()))
                     user.setMetaName(name);
@@ -378,7 +382,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 break;
 
-            case ProviderInt.Password:
+            case BDefines.ProviderInt.Password:
                 // Setting the name
                 if (StringUtils.isNotBlank(name) && StringUtils.isBlank(user.getMetaName()))
                     user.setMetaName(name);
@@ -621,14 +625,18 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         EventManager.getInstance().removeAll();
 
         // Removing the push channel
-        unsubscribeToPushChannel(user.getPushChannel());
+        if (user != null)
+            unsubscribeToPushChannel(user.getPushChannel());
 
         // Obtaining the simple login object from the ref.
         FirebasePaths ref = FirebasePaths.firebaseRef();
 
         // Login out
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
-        userOnlineRef.setValue(false);
+        if (user != null)
+        {
+            FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
+            userOnlineRef.setValue(false);
+        }
 
         ref.unauth();
     }
@@ -731,24 +739,22 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         });
     }
 
+
     @Override
     public void updateIndexForUser(BUser user, final CompletionListener listener){
-        if (StringUtils.isEmpty(user.getEntityID()))
+        updateIndexForUser(user.getEntityID(), user.getUserIndexMap(), listener);
+    }
+
+    @Override
+    public void updateIndexForUser(String entityId, Map<String, String> values,  final CompletionListener listener){
+        if (StringUtils.isEmpty(entityId))
         {
             if (listener!= null)
                 listener.onDoneWithError(BError.getError(BError.Code.NULL, "Entity id is null"));
             return;
         }
 
-        FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(user.getEntityID());
-
-        Map<String, String> values = new HashMap<String, String>();
-        values.put(BDefines.Keys.BName, processForQuery(user.getMetaName()));
-        values.put(BDefines.Keys.BEmail, processForQuery(user.getMetaEmail()));
-
-        String phoneNumber = user.metaStringForKey(Keys.BPhone);
-        if (BDefines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber))
-            values.put(Keys.BPhone, processForQuery(phoneNumber));
+        FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(entityId);
 
         // No listener was assigned so ne need for callback
         if (listener==null)
@@ -1165,8 +1171,12 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             }
         }
 
+        // Didnt find a new thread so we create a new.
         final BThread thread = new BThread();
-        thread.setCreationDate(new Date());
+
+        // This is now out so for the first push we will use the server timestamp.
+//        thread.setCreationDate(new Date());
+        
         thread.setCreator(currentUser);
         thread.setCreatorEntityId(currentUser.getEntityID());
 
@@ -1222,7 +1232,10 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Crating the new thread.
         // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
         final BThread thread = new BThread();
-        thread.setCreationDate(new Date());
+        
+        // This is now out so for the first push we will use the server timestamp.
+//        thread.setCreationDate(new Date());
+        
         BUser curUser = currentUser();
         thread.setCreator(curUser);
         thread.setCreatorEntityId(curUser.getEntityID());
@@ -1618,7 +1631,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         if (!parseEnabled())
             return;
 
-        PushService.subscribe(context, channel, ChatSDKUiHelper.getInstance().mainActivity);
+        try {
+            PushService.subscribe(context, channel, ChatSDKUiHelper.getInstance().mainActivity);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+
+            if (channel.contains("%3A"))
+                PushService.subscribe(context, channel.replace("%3A", "_"), ChatSDKUiHelper.getInstance().mainActivity);
+            else if (channel.contains("%253A"))
+                PushService.subscribe(context, channel.replace("%253A", "_"), ChatSDKUiHelper.getInstance().mainActivity);
+        }
     }
 
     public void unsubscribeToPushChannel(String channel){

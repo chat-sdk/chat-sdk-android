@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="play-services-6.1.11">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.1.11/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/sdk/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.1.11/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

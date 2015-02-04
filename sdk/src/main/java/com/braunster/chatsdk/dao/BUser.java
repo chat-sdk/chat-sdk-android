@@ -10,6 +10,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMetadataEntity;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
+import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
@@ -467,15 +468,12 @@ public class BUser extends BUserEntity  {
     public Map<String, Object> asMap() {
         Map<String , Object> map = new HashMap<String, Object>();
 
-        if (lastOnline == null)
-            lastOnline = new Date();
-
         map.put(BDefines.Keys.BAuthenticationID, (authenticationId == null ? "Huston we have a problem" : authenticationId) );
         map.put(BDefines.Keys.BColor, messageColor);
         map.put(BDefines.Keys.BTextColor, textColor);
         map.put(BDefines.Keys.BFontName, fontName);
         map.put(BDefines.Keys.BFontSize, fontSize);
-        map.put(BDefines.Keys.BLastOnline, lastOnline.getTime());
+        map.put(BDefines.Keys.BLastOnline, BFirebaseDefines.getServerTimestamp());
 
         return map;
     }
@@ -890,9 +888,20 @@ public class BUser extends BUserEntity  {
         if (entityID == null)
             return "";
 
-        return USER_PREFIX + (entityID.replace("-",""));
+        return USER_PREFIX + (entityID.replace(":","_"));
     }
 
+    public Map<String, String> getUserIndexMap(){
+        Map<String, String> values = new HashMap<String, String>();
+        values.put(BDefines.Keys.BName, AbstractNetworkAdapter.processForQuery(getMetaName()));
+        values.put(BDefines.Keys.BEmail, AbstractNetworkAdapter.processForQuery(getMetaEmail()));
+
+        String phoneNumber = metaStringForKey(BDefines.Keys.BPhone);
+        if (BDefines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber))
+            values.put(BDefines.Keys.BPhone, AbstractNetworkAdapter.processForQuery(phoneNumber));
+        
+        return values;
+    }
     // KEEP METHODS END
 
 }
