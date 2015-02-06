@@ -51,7 +51,7 @@
     <string name="message_adapter_load_image_fail">Can\'t show image</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk_version_name">0.9.2</string>
+    <string name="chat_sdk_version_name">0.9.3</string>
     <string name="chat_sdk_version">Version:</string>
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>

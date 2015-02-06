@@ -13,7 +13,6 @@ android {
     signingConfigs {
 
         debug {
-            //TODO create a key for this SDK and not use my own.
             storeFile file('/media/braunster/Code/Android/braunserkey')
             keyAlias 'braunsteralias'
             keyPassword 'Itzikbraun1991'

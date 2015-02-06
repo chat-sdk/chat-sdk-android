@@ -744,6 +744,11 @@ public class BUser extends BUserEntity  {
     }
 
     @Override
+    public void setMetaPictureThumbnail(String thumbnailUrl) {
+        setMetadataString(BDefines.Keys.BPictureURLThumbnail, thumbnailUrl);
+    }
+
+    @Override
     public void setMetaName(String name) {
         setMetadataString(BDefines.Keys.BName, name);
     }

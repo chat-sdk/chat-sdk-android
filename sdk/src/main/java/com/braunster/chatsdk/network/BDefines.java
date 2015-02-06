@@ -7,7 +7,7 @@ public class BDefines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    private static final String BRootPath = "v3_1_3T/";
+    private static final String BRootPath = "v3_1_3TA/";
 
     /** The server url that is used to do all the API calls.*/
     public static String ServerUrl = "https://chat-sdk.firebaseio.com/" + BRootPath;

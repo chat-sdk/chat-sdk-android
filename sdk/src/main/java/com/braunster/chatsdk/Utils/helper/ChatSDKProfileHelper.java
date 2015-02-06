@@ -20,7 +20,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.MultiSaveCompletedListener;
 import com.braunster.chatsdk.network.BDefines;
@@ -268,11 +267,8 @@ public class ChatSDKProfileHelper {
                 // Saving the image to parse.
                 final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
-                currentUser.setMetadataString(BDefines.Keys.BPictureURL, data[0]);
-                currentUser.setMetadataString(BDefines.Keys.BPictureURLThumbnail, data[1]);
-
-                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING);
-                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING);
+                currentUser.setMetaPictureUrl(data[0]);
+                currentUser.setMetaPictureThumbnail(data[1]);
 
                 BNetworkManager.sharedManager().getNetworkAdapter().pushUserWithCallback(null);
             }
@@ -294,11 +290,9 @@ public class ChatSDKProfileHelper {
                 // Saving the image to parse.
                 final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
 
-                currentUser.setMetadataString(BDefines.Keys.BPictureURL, data[0]);
-                currentUser.setMetadataString(BDefines.Keys.BPictureURLThumbnail, data[1]);
-
-                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURL, BMetadata.Type.STRING);
-                currentUser.fetchOrCreateMetadataForKey(BDefines.Keys.BPictureURLThumbnail, BMetadata.Type.STRING);
+                currentUser.setMetaPictureUrl(data[0]);
+                currentUser.setMetaPictureThumbnail(data[1]);
+                
                 listener.onSaved(null, data);
             }
         });
@@ -323,8 +317,8 @@ public class ChatSDKProfileHelper {
                     try {
                         String facebookId;
                         if (profileUser==null)
-                            facebookId = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().replace("fb", "");
-                        else facebookId = profileUser.getAuthenticationId().replace("fb", "");
+                            facebookId = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getAuthenticationId().replace(BDefines.ProviderString.Facebook + ":", "");
+                        else facebookId = profileUser.getAuthenticationId().replace(BDefines.ProviderString.Facebook + ":", "");
 
                         if (DEBUG) Log.d(TAG, "Facebook Id: " + facebookId);
 

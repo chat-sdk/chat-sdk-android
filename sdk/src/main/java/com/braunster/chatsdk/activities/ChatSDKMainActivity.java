@@ -20,6 +20,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ExitHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
+import com.braunster.chatsdk.Utils.helper.OpenFromPushChecker;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
@@ -60,6 +61,8 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
     private int pageAdapterPos = -1;
 
+    private OpenFromPushChecker mOpenFromPushChecker;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,19 +91,10 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
         }
 
-        Intent intent = getIntent();
-
-        if (intent.getExtras()!= null && intent.getExtras().getBoolean(ChatSDKChatActivity.FROM_PUSH, false))
+        mOpenFromPushChecker = new OpenFromPushChecker();
+        if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState))
         {
-            msgTimestamp = intent.getExtras().getLong(ChatSDKAbstractChatActivity.MSG_TIMESTAMP);
-
-            // We are checking to see if this message was not opened before.
-            if (savedInstanceState == null || msgTimestamp > savedInstanceState.getLong(LAST_MSG_TIMESTAMP, -1))
-            {
-                intent.getExtras().remove(ChatSDKAbstractChatActivity.FROM_PUSH);
-                startChatActivityForID(intent.getExtras().getLong(ChatSDKAbstractChatActivity.THREAD_ID));
-            }
-
+            startChatActivityForID(getIntent().getExtras().getLong(ChatSDKAbstractChatActivity.THREAD_ID));
             return;
         }
     }
@@ -164,9 +158,11 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         super.onNewIntent(intent);
         if (DEBUG) Log.v(TAG, "onNewIntent");
 
-        if (intent.getExtras()!= null && intent.getExtras().getBoolean(ChatSDKChatActivity.FROM_PUSH, false))
+        if (mOpenFromPushChecker == null)
+            mOpenFromPushChecker = new OpenFromPushChecker();
+        
+        if (mOpenFromPushChecker.checkOnNewIntent(intent))
         {
-            intent.getExtras().remove(ChatSDKAbstractChatActivity.FROM_PUSH);
             startChatActivityForID(intent.getExtras().getLong(ChatSDKAbstractChatActivity.THREAD_ID));
             return;
         }
@@ -234,7 +230,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
-        outState.putLong(LAST_MSG_TIMESTAMP, msgTimestamp);
+        mOpenFromPushChecker.onSaveInstanceState(outState);
     }
 
     private void initViews(){

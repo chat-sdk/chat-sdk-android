@@ -81,6 +81,8 @@ public abstract class BUserEntity extends Entity {
 
     public abstract String getMetaPictureUrl();
 
+    public abstract void setMetaPictureThumbnail(String thumbnailUrl);
+    
     public abstract void setMetaName(String name);
 
     public abstract String getMetaName();

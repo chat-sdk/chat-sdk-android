@@ -172,7 +172,17 @@ public class ChatSDKUiHelper {
     public void startChatActivityForID(long id){
         Intent intent = new Intent(context, chatActivity);
         intent.putExtra(ChatSDKAbstractChatActivity.THREAD_ID, id);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
+        /**
+         * Note
+         *
+         * * Not sure if do needed
+         * 
+         * There could be problems when this is activated but i am not sure if the activity should be recreated each time its called.
+         * * * *
+         **/
+//        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
         context.startActivity(intent);
     }
 
