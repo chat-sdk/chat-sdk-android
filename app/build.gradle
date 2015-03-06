@@ -5,7 +5,7 @@ android {
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
-        multiDexEnabled = true
+        multiDexEnabled = false
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
@@ -13,17 +13,17 @@ android {
     signingConfigs {
 
         debug {
-            storeFile file('/media/braunster/Code/Android/braunserkey')
-            keyAlias 'braunsteralias'
-            keyPassword 'Itzikbraun1991'
-            storePassword 'Itzikbraun1991'
+            storeFile file('path/to/key')
+            keyAlias 'keyAlias'
+            keyPassword 'keyPassword'
+            storePassword 'storePassword'
         }
 
         release {
-            storeFile file('/media/braunster/Code/Android/braunserkey')
-            keyAlias 'braunsteralias'
-            keyPassword 'Itzikbraun1991'
-            storePassword 'Itzikbraun1991'
+            storeFile file('path/to/key')
+            keyAlias 'keyAlias'
+            keyPassword 'keyPassword'
+            storePassword 'storePassword'
         }
     }
 

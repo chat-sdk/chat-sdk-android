@@ -93,7 +93,16 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
     private ChatSDKUiHelper chatSDKUiHelper;
 
-
+    /**
+     * if true each image cache key will be saved in a list.
+     * @see #cacheKeys
+     * * */
+    private boolean saveCacheKeys = false;
+    
+    /**
+     * Builder that will be use to create the chache keys.
+     * * */
+    private StringBuilder builder = new StringBuilder();
 
     public ChatSDKMessagesListAdapter(Activity activity, Long userID){
         mActivity = activity;
@@ -292,12 +301,8 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
                 getBubbleImageViewFromRow(holder.image, holder.progressBar, message);
 
-                String url;
-                String [] urls = message.text.split(BDefines.DIVIDER);
-                url = urls[0];
-
                 // Show the image in a dialog on click.
-                holder.image.setOnClickListener(new showImageDialogClickListener(message.entityId, url));
+                holder.image.setOnClickListener(new showImageDialogClickListener(message.entityId, message.text.split(BDefines.DIVIDER)[0]));
 
                 break;
 
@@ -438,14 +443,25 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             image.setLayoutParams(params);
 
             // Saving the url so we could remove it later on.
-            cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(message.url + ChatBubbleImageView.URL_FIX, 0, 0));
+            if (saveCacheKeys)
+                saveCacheKey(message.url + ChatBubbleImageView.URL_FIX);
+            
             image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
         }
 
         return image;
     }
 
-
+    private void saveCacheKey(String key){
+        // Saving the url so we could remove it later on.
+        
+        if (!saveCacheKeys)
+            return;
+        
+        String cacheKey = VolleyUtils.BitmapCache.getCacheKey(builder, key, 0, 0);
+        if (!cacheKeys.contains(cacheKey))
+            cacheKeys.add(cacheKey);
+    }
 
     /**
      * Add a new message to the list.
@@ -526,7 +542,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             if (StringUtils.isNotBlank(imageUrl))
             {
                 // Saving the url so we could remove it later on.
-                cacheKeys.add(VolleyUtils.BitmapCache.getCacheKey(imageUrl, 0, 0));
+                saveCacheKey(imageUrl);
 
                 PopupWindow popupWindow;
 
@@ -959,5 +975,9 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * */
     public void setCustomDateFormat(SimpleDateFormat customDateFormat) {
         this.customDateFormat = customDateFormat;
+    }
+
+    public void setSaveCacheKeys(boolean saveCacheKeys) {
+        this.saveCacheKeys = saveCacheKeys;
     }
 }

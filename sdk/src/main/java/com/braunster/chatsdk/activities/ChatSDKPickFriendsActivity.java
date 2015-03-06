@@ -23,6 +23,7 @@ import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 
@@ -37,15 +38,6 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     public static final int MODE_ADD_TO_CONVERSATION = 1992;
 
     public static final String MODE = "mode";
-
-    /** @deprecated
-     * Please use the value from the {@link com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity ChatSDKAbstractChatActivity}.
-     * This value will be removed in one of the next version of the SDK.
-     *
-     * Pass true if you want slide down animation for this activity exit.
-     *
-     * */
-    public static final String ANIMATE_EXIT = ChatSDKAbstractChatActivity.ANIMATE_EXIT;
 
     private static final String TAG = ChatSDKPickFriendsActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.PickFriendsActivity;
@@ -132,6 +124,12 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
         if (mode == MODE_ADD_TO_CONVERSATION)
             btnStartChat.setText(getResources().getString(R.string.add_users));
+        
+        if (!BDefines.Options.GroupEnabled)
+        {
+            btnStartChat.setVisibility(View.GONE);
+            chSelectAll.setVisibility(View.GONE);
+        }
     }
 
     private void initList(){
@@ -147,14 +145,20 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         if (list.size() > 0)
             chSelectAll.setEnabled(true);
 
-        listAdapter = new ChatSDKUsersListAdapter(ChatSDKPickFriendsActivity.this, true);
+        listAdapter = new ChatSDKUsersListAdapter(ChatSDKPickFriendsActivity.this, BDefines.Options.GroupEnabled);
         listAdapter.setUserItems(listAdapter.makeList(list, false, true));
         listContacts.setAdapter(listAdapter);
 
         listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               listAdapter.toggleSelection(position);
+                // If groups enabled toggeling selection
+                if (BDefines.Options.GroupEnabled)
+                    listAdapter.toggleSelection(position);
+                else
+                {
+                    createAndOpenThreadWithUsers("", getNetworkAdapter().currentUser(), listAdapter.getItem(position).asBUser());
+                }
             }
         });
     }

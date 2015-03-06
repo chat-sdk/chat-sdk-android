@@ -20,13 +20,14 @@ import com.braunster.chatsdk.activities.ChatSDKMainActivity;
 import com.braunster.chatsdk.activities.ChatSDKPickFriendsActivity;
 import com.braunster.chatsdk.activities.ChatSDKSearchActivity;
 import com.braunster.chatsdk.activities.ChatSDKShareWithContactsActivity;
-import com.braunster.chatsdk.activities.ThreadDetailsActivity;
+import com.braunster.chatsdk.activities.ChatSDKThreadDetailsActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractProfileActivity;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -106,14 +107,14 @@ public class ChatSDKUiHelper {
     private SuperToast toast, alertToast;
     private SuperCardToast superCardToastProgress;
 
-    private Context context;
+    private WeakReference<Context> context;
     public Class chatActivity, mainActivity, loginActivity,
             searchActivity = ChatSDKSearchActivity.class,
             pickFriendsActivity = ChatSDKPickFriendsActivity.class,
             shareWithFriendsActivity = ChatSDKShareWithContactsActivity.class,
             shareLocationActivity = ChatSDKLocationActivity.class,
             profileActivity = null,
-            threadDetailsActivity = ThreadDetailsActivity.class;
+            threadDetailsActivity = ChatSDKThreadDetailsActivity.class;
 
     public static ChatSDKUiHelper initDefault(){
         instance = new ChatSDKUiHelper(ChatSDKChatActivity.class, ChatSDKMainActivity.class, ChatSDKLoginActivity.class);
@@ -135,13 +136,13 @@ public class ChatSDKUiHelper {
         this.chatActivity = chatActivity;
         this.mainActivity = mainActivity;
         this.loginActivity = loginActivity;
-        this.context = context;
+        this.context = new WeakReference<Context>(context);
 
         init();
     }
 
     public ChatSDKUiHelper(Context context, Class chatActivity, Class mainActivity, Class loginActivity, Class searchActivity, Class pickFriendsActivity, Class shareWithFriendsActivity, Class shareLocationActivity, Class profileActivity) {
-        this.context = context;
+        this.context = new WeakReference<Context>(context);
         this.chatActivity = chatActivity;
         this.mainActivity = mainActivity;
         this.loginActivity = loginActivity;
@@ -170,7 +171,11 @@ public class ChatSDKUiHelper {
 
     /** Start the chat activity for given thread id.*/
     public void startChatActivityForID(long id){
-        Intent intent = new Intent(context, chatActivity);
+        
+        if (colleted())
+            return;
+        
+        Intent intent = new Intent(context.get(), chatActivity);
         intent.putExtra(ChatSDKAbstractChatActivity.THREAD_ID, id);
         
         /**
@@ -183,60 +188,69 @@ public class ChatSDKUiHelper {
          **/
 //        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
     public void startLoginActivity(boolean loggedOut){
-        Intent intent = new Intent(context, loginActivity);
+        Intent intent = new Intent(context.get(), loginActivity);
         intent.putExtra(ChatSDKAbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
     public void startMainActivity(){
-        Intent intent = new Intent(context, mainActivity);
-        context.startActivity(intent);
+        startActivity(mainActivity);
     }
 
     public void startSearchActivity(){
-        Intent intent = new Intent(context, searchActivity);
-        context.startActivity(intent);
+        startActivity(searchActivity);
     }
 
     public void startPickFriendsActivity(){
-        Intent intent = new Intent(context, pickFriendsActivity);
-        context.startActivity(intent);
+        startActivity(pickFriendsActivity);
     }
 
     public void startShareWithFriendsActivity(){
-        Intent intent = new Intent(context, shareWithFriendsActivity);
-        context.startActivity(intent);
+        if (colleted())
+            return;
+
+        startActivity(shareWithFriendsActivity);
     }
 
     public void startShareLocationActivityActivity(){
-        Intent intent = new Intent(context, shareLocationActivity);
-        context.startActivity(intent);
+        if (colleted())
+            return;
+
+        startActivity(shareLocationActivity);
     }
 
     public boolean startProfileActivity(String entityId){
+
+        if (colleted())
+            return false;
+        
         if (profileActivity==null)
             return false;
 
-        Intent intent = new Intent(context, profileActivity);
+        Intent intent = new Intent(context.get(), profileActivity);
         intent.putExtra(ChatSDKAbstractProfileActivity.USER_ENTITY_ID, entityId);
 
-        context.startActivity(intent);
+        startActivity(intent);
 
         return true;
     }
 
     public boolean startProfileActivity(long id){
+
+        if (colleted())
+            return false;
+        
         if (profileActivity==null)
             return false;
 
-        Intent intent = new Intent(context, profileActivity);
+        Intent intent = new Intent(context.get(), profileActivity);
         intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
 
-        context.startActivity(intent);
+        startActivity(intent);
 
         return true;
     }
@@ -259,7 +273,10 @@ public class ChatSDKUiHelper {
     }
 
     private void initDefaultAlertToast(){
-        alertToast = new SuperToast(context);
+        if (colleted())
+            return;
+        
+        alertToast = new SuperToast(context.get());
         alertToast.setDuration(SuperToast.Duration.MEDIUM);
         alertToast.setBackground(SuperToast.Background.RED);
         alertToast.setTextColor(Color.WHITE);
@@ -268,7 +285,10 @@ public class ChatSDKUiHelper {
     }
 
     private void initDefaultToast(){
-        toast = new SuperToast(context);
+        if (colleted())
+            return;
+        
+        toast = new SuperToast(context.get());
         toast.setDuration(SuperToast.Duration.MEDIUM);
         toast.setBackground(SuperToast.Background.BLUE);
         toast.setTextColor(Color.WHITE);
@@ -279,13 +299,16 @@ public class ChatSDKUiHelper {
     /** You should pass שמ Activity and not a context if you want to use this.*/
     public void initCardToast(){
 
-        if (context instanceof Activity)
+        if (colleted())
+            return;
+        
+        if (context.get() instanceof Activity)
         {
             if (superCardToastProgress != null)
                 return;
 
             try {
-                superCardToastProgress = new SuperCardToast((Activity) context, SuperToast.Type.PROGRESS);
+                superCardToastProgress = new SuperCardToast((Activity) context.get(), SuperToast.Type.PROGRESS);
                 superCardToastProgress.setIndeterminate(true);
                 superCardToastProgress.setBackground(SuperToast.Background.WHITE);
                 superCardToastProgress.setTextColor(Color.BLACK);
@@ -321,11 +344,15 @@ public class ChatSDKUiHelper {
 
     /** You should pass שמ Activity and not a context if you want to use this.*/
     public void showProgressCard(String text){
-        if (context instanceof Activity) {
+        
+        if (colleted())
+            return;
+        
+        if (context.get() instanceof Activity) {
 
             initCardToast();
 
-            View decorView = ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
+            View decorView = ((Activity) context.get()).getWindow().getDecorView().findViewById(android.R.id.content);
             ViewGroup viewGroup = superCardToastProgress.getViewGroup();
 
             if (viewGroup!=null && superCardToastProgress.getView()!= null && viewGroup.findViewById(superCardToastProgress.getView().getId()) != null)
@@ -394,6 +421,27 @@ public class ChatSDKUiHelper {
 
     public void setProfileActivity(Class profileActivity) {
         this.profileActivity = profileActivity;
+    }
+    
+    private boolean colleted(){
+        return context == null || context.get() == null;
+        
+    }
+
+    private void startActivity(Intent intent){
+        if (colleted())
+            return;
+
+        context.get().startActivity(intent);
+    }
+    
+    private void startActivity(Class activity){
+        if (colleted())
+        {
+            return;
+        }
+
+        startActivity(new Intent(context.get(), activity));
     }
 }
 

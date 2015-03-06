@@ -40,9 +40,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by braunster on 24/11/14.
  */
-public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
+public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
-    private static final String TAG = ThreadDetailsActivity.class.getSimpleName();
+    private static final String TAG = ChatSDKThreadDetailsActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.ThreadDetailsActivity;
 
     private static final int THREAD_PIC = 1991;
@@ -154,6 +154,8 @@ public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
         contactsFragment.setLoadingMode(ChatSDKAbstractContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
+        contactsFragment.setEventTAG(this.getClass().getSimpleName());
+        contactsFragment.withUpdates(true);
         contactsFragment.setClickMode(ChatSDKAbstractContactsFragment.CLICK_MODE_NONE);
 
         getFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
@@ -179,7 +181,7 @@ public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                                 showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
                                 dismissProgDialog();
                             }
-                            else ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                            else ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
@@ -218,7 +220,7 @@ public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                                 setResult(RESULT_OK, intent);
                                 finish();
                             }
-                        } else ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                        } else ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (thread != null) {
@@ -287,6 +289,13 @@ public class ThreadDetailsActivity extends ChatSDKBaseThreadActivity {
             });
         }
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        getNetworkAdapter().getEventManager().removeEventByTag(this.getClass().getSimpleName());
     }
 
     @Override

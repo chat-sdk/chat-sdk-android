@@ -26,7 +26,6 @@ public class AppObj extends MultiDexApplication {
         // Adapter init.
         BFirebaseNetworkAdapter adapter = new BFirebaseNetworkAdapter(getApplicationContext());
 
-
         BNetworkManager.sharedManager().setNetworkAdapter(adapter);
     }
 }

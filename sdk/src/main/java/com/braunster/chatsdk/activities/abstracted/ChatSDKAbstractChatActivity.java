@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -52,9 +53,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 
 /**
@@ -99,7 +97,6 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     protected ChatSDKMessagesListAdapter messagesListAdapter;
     protected  BThread thread;
 
-    protected  PullToRefreshLayout mPullToRefreshLayout;
     protected  ProgressBar progressBar;
     protected  int listPos = -1;
 
@@ -302,47 +299,40 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         chatSDKChatHelper.setProgressBar(progressBar);
 
-        mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+        final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout)findViewById(R.id.ptr_layout);
+        
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (DEBUG) Log.d(TAG, "onRefreshStarted");
 
-        // Now setup the PullToRefreshLayout
-        ActionBarPullToRefresh.from(this)
-                // Mark All Children as pullable
-                .allChildrenArePullable()
-                        // Set a OnRefreshListener
-                .listener(new OnRefreshListener() {
+                CompletionListenerWithData<BMessage[]> completionListener = new CompletionListenerWithData<BMessage[]>() {
                     @Override
-                    public void onRefreshStarted(View view) {
-                        if (DEBUG) Log.d(TAG, "onRefreshStarted");
+                    public void onDone(BMessage[] messages) {
+                        if (DEBUG)
+                            Log.d(TAG, "New messages are loaded, Amount: " + (messages == null ? "No messages" : messages.length));
 
-                        CompletionListenerWithData completionListener = new CompletionListenerWithData<BMessage[]>() {
-                            @Override
-                            public void onDone(BMessage[] messages) {
-                                if (DEBUG)
-                                    Log.d(TAG, "New messages are loaded, Amount: " + (messages == null ? "No messages" : messages.length));
+                        if (messages.length < 2)
+                            showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
+                        else {
+                            // Saving the position in the list so we could back to it after the update.
+                            chatSDKChatHelper.loadMessages(true, false, -1, messagesListAdapter.getCount() + messages.length);
+                        }
 
-                                if (messages.length < 2)
-                                    showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
-                                else {
-                                    // Saving the position in the list so we could back to it after the update.
-                                    chatSDKChatHelper.loadMessages(true, false, -1, messagesListAdapter.getCount() + messages.length);
-                                }
-
-                                mPullToRefreshLayout.setRefreshComplete();
-                            }
-
-                            @Override
-                            public void onDoneWithError(BError error) {
-
-                            }
-                        };
-
-                        if (messagesListAdapter.getCount() == 0)
-                            BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, completionListener);
-                        else BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, messagesListAdapter.getItem(0).asBMessage(), completionListener);
+                        mSwipeRefresh.setRefreshing(false);
                     }
-                })
-                        // Finally commit the setup to our PullToRefreshLayout
-                .setup(mPullToRefreshLayout);
+
+                    @Override
+                    public void onDoneWithError(BError error) {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
+                };
+
+                if (messagesListAdapter.getCount() == 0)
+                    BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, completionListener);
+                else BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, messagesListAdapter.getItem(0).asBMessage(), completionListener);
+            }
+        });
 
         listMessages = (ListView) findViewById(R.id.list_chat);
 
@@ -561,11 +551,14 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         if (!inflateMenuItems)
             return super.onCreateOptionsMenu(menu);
 
-        MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_plus);
-
+        // Adding the add user option only if group chat is enabled.
+        if (BDefines.Options.GroupEnabled)
+        {
+            MenuItem item =
+                    menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            item.setIcon(R.drawable.ic_plus);
+        }
 
         MenuItem itemThreadUsers =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_thread_details, 10, getString(R.string.chat_activity_show_thread_details));

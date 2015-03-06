@@ -26,6 +26,8 @@ import com.braunster.chatsdk.network.BDefines;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.ref.WeakReference;
+
 
 /**
  * Created by braunster on 04/07/14.
@@ -36,7 +38,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
     public static final String TAG = ChatBubbleImageView.class.getSimpleName();
     public static final boolean DEBUG = Debug.ChatBubbleImageView;
 
-    private Bitmap image;
+    private WeakReference<Bitmap>image;
 
     private Loader loader = new Loader();
     private LoadDone loadDone ;
@@ -86,6 +88,12 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         // Note style not supported.
     }
 
+    public interface LoadDone{
+        public void onDone();
+        public void immediate(boolean immediate);
+    }
+
+    
     private void getAttrs(AttributeSet attrs){
         TypedArray a=getContext().obtainStyledAttributes(
                 attrs,
@@ -136,6 +144,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         }
     }
 
+    
+    
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -152,7 +162,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
             }
         }*/
 
-        if (image == null)
+        if (image == null || image.get() == null)
         {
             loadFromUrl(bubbleImageUrl, loadDone, imgWidth, imgHeight);
             return;
@@ -160,11 +170,11 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
         if (bubbleGravity == GRAVITY_RIGHT)
         {
-            canvas.drawBitmap(image,  imagePadding /2 , imagePadding /2 , null);
+            canvas.drawBitmap(image.get(),  imagePadding /2 , imagePadding /2 , null);
         }
         else
         {
-            canvas.drawBitmap(image, imagePadding /2 + tipSize, imagePadding /2 , null);
+            canvas.drawBitmap(image.get(), imagePadding /2 + tipSize, imagePadding /2 , null);
         }
     }
 
@@ -268,7 +278,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
                     if (isKilled)
                         return;
 
-                    image = response.getBitmap();
+                    image = new WeakReference<Bitmap>(response.getBitmap());
                     invalidate();
 
                     if (loadDone != null)
@@ -296,7 +306,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         }
     }
 
-    private class FixImageAsyncTask extends AsyncTask<Bitmap, Void, Bitmap>{
+    
+    private class FixImageAsyncTask extends AsyncTask<Bitmap, Void, WeakReference<Bitmap>>{
         private String imageUrl = "";
         private int width, height;
         private LoadDone loadDone;
@@ -311,28 +322,26 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         }
 
         @Override
-        protected Bitmap doInBackground(Bitmap... params) {
-            Bitmap img =  params[0];
+        protected WeakReference<Bitmap> doInBackground(Bitmap... params) {
+            WeakReference<Bitmap> img;
 
             if (DEBUG) Log.d(TAG, "New making");
             // scaling the image to the needed width.
-//                            img = ImageUtils.scaleImage(img, (int) MAX_WIDTH);
-
-            img = Bitmap.createScaledBitmap(img, width, height, true);
-
             // rounding the corners of the image.
-            img = getRoundedCornerBitmap(img, cornerRadius);
+            img = new WeakReference<Bitmap>(
+                    getRoundedCornerBitmap(Bitmap.createScaledBitmap(params[0], width, height, true),
+                    cornerRadius));
 
             // Out with the old
             VolleyUtils.getBitmapCache().remove(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl, 0, 0));
             // In with the new.
-            VolleyUtils.getBitmapCache().put(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl + URL_FIX, 0, 0), img);
+            VolleyUtils.getBitmapCache().put(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl + URL_FIX, 0, 0), img.get());
 
             return img;
         }
 
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
+        protected void onPostExecute(WeakReference<Bitmap> bitmap) {
             super.onPostExecute(bitmap);
             if (DEBUG) Log.v(TAG, "onPostExecute");
             // Validating the data so we wont show the wrong image.
@@ -371,11 +380,12 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         return output;
     }
 
-    public interface LoadDone{
-        public void onDone();
-        public void immediate(boolean immediate);
-    }
-
+    
+    
+  
+    
+    
+    
     public void setBubbleGravity(int bubbleGravity) {
         this.bubbleGravity = bubbleGravity;
     }

@@ -711,7 +711,7 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                                     // if no more users to found call on done.
                                     if (usersToGo.size() == 0)
                                     {
-                                        Log.d(TAG, "Finished with users.");
+                                        if (DEBUG) Log.d(TAG, "Finished with users.");
                                         listener.onDone();
                                     }
                                 }

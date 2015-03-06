@@ -4,7 +4,6 @@ package com.braunster.chatsdk.Utils.volley;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -36,8 +35,6 @@ public class VolleyUtils {
         int cacheSize = maxMemory / 8 ;
 
         mRequestQueue.start();
-
-        Log.d("", "Cache Size: " + cacheSize);
 
         bitmapCache = new BitmapCache(cacheSize);
         mImageLoader = new ImageLoader(mRequestQueue, bitmapCache);
@@ -100,12 +97,6 @@ public class VolleyUtils {
             put(url, bitmap);
         }
 
-        @Override
-        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
-            super.entryRemoved(evicted, key, oldValue, newValue);
-            Log.i("", "Entry removed: "  +key);
-        }
-
         /**
          * Creates a cache key for use with the L1 cache.
          * @param url The URL of the request.
@@ -116,5 +107,20 @@ public class VolleyUtils {
             return new StringBuilder(url.length() + 12).append("#W").append(maxWidth)
                     .append("#H").append(maxHeight).append(url).toString();
         }
+
+        /**
+         * Creates a cache key for use with the L1 cache.
+         * @param url The URL of the request.
+         * @param maxWidth The max-width of the output.
+         * @param maxHeight The max-height of the output.
+         */
+        public static String getCacheKey(StringBuilder builder, String url, int maxWidth, int maxHeight) {
+            builder.setLength(0);
+            builder.setLength(url.length() + 12);
+            return builder.append("#W").append(maxWidth)
+                    .append("#H").append(maxHeight).append(url).toString();
+        }
+        
+
     }
 }

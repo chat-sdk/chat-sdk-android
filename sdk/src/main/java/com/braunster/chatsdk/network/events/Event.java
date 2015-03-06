@@ -50,6 +50,15 @@ public class Event implements AppEvents{
         return type;
     }
 
+    /**
+     * Kills the event.
+     * Implemented in the {@link com.braunster.chatsdk.network.events.BatchedEvent BatchedEvent}
+     **/
+    public void kill(){
+        
+        
+    }
+    
     @Override
     public boolean onUserDetailsChange(BUser user) {
         return false;

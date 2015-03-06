@@ -39,6 +39,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
@@ -281,6 +282,10 @@ public class DialogUtils {
         popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
         popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
 
+        if (!BDefines.Options.LocationEnabled || context.getString(R.string.google_maps_api_key).isEmpty()){
+            popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
+        }
+        
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
         // TODO fix popup size to wrap view size.

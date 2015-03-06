@@ -5,15 +5,8 @@
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="45fb4fee01f21260d0375b9aef242485315f74c4">
+        sha1="040ecb76b319058b024256bb9066024d40ab88e2">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-d63d09938df37cad7ee9ff53be351aff921bcf27.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-c6988fe509e594fc1e8e26f7f20f0550a30eb872.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"
@@ -21,13 +14,6 @@
         revision="21.1.2"
         sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bf073f8a65817c70c0bc43c55c322f853427b0f4.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/android-test/4.1.1.4/5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6/android-test-4.1.1.4.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/android-test-4.1.1.4-d24f19551556160016d0cf9b72087f14a5f5289a.jar" />
     </item>
     <item
         jar="/home/braunster/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.3.2/90a3822c38ec8c996e84c16a3477ef632cbc87a3/commons-lang3-3.3.2.jar"
@@ -51,11 +37,11 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-969ed5ab13c13b782a009b022864cc8691196649.jar" />
     </item>
     <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.mcxiaoke.volley/library/1.0.0/15f8abc7f1414bbffca8d32b73097223d3a83847/library-1.0.0.jar"
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/6.5.87/classes.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="15f8abc7f1414bbffca8d32b73097223d3a83847">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/library-1.0.0-334bf1ecc56480e5694898ff15ccfade5cc59d06.jar" />
+        revision="21.1.2"
+        sha1="95482e7c792a7c0d5a9d5461e97726bd54fe9549">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-f86edefa73a05adec99306a6d77cc2bdca004cac.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/multidex/1.0.0/classes.jar"
@@ -72,179 +58,25 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/bolts-397bc6c347781514ecac73a9e02fb7ba3977f054.jar" />
     </item>
     <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.chrisbanes.actionbarpulltorefresh/library/0.9.9/classes.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="06ca4ea902f14efb76284d918edb085df33cc365">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-91b001b3f01cc26c64a1247e5797680860bc1290.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.castorflex.smoothprogressbar/library/0.4.0/classes.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="6ca319f998430aa20c4dde97ba6df213d6cf3dd0">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-508c306125e6e9f22a69991f0cf15f88d0ff715e.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.mcxiaoke.volley/library/1.0.0/15f8abc7f1414bbffca8d32b73097223d3a83847/library-1.0.0.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="15f8abc7f1414bbffca8d32b73097223d3a83847">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/library-1.0.0-334bf1ecc56480e5694898ff15ccfade5cc59d06.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="172dc198ae7979bba8f97720a93d3a78035d925f">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-d63d09938df37cad7ee9ff53be351aff921bcf27.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bf073f8a65817c70c0bc43c55c322f853427b0f4.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.castorflex.smoothprogressbar/library/0.4.0/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="6ca319f998430aa20c4dde97ba6df213d6cf3dd0">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-508c306125e6e9f22a69991f0cf15f88d0ff715e.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/libs/bolts.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="1e5ba33c837d05dcca9dc40a0ab458f8599d7aef">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/bolts-397bc6c347781514ecac73a9e02fb7ba3977f054.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/Parse-1.5.0.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="8a675f7e3312d8b28188ec653bbea6d435aaa7d1">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/Parse-1.5.0-4b4655e0adb93e7742b77f36384620dfabdd3975.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.0/fc1bb0b579277b34d086aa10fd9b6238ebfa3272/greendao-1.3.0.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="fc1bb0b579277b34d086aa10fd9b6238ebfa3272">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/greendao-1.3.0-cfbd149efd27ac24eb718da4ce69b4aa59d5309e.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/android-test/4.1.1.4/5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6/android-test-4.1.1.4.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/android-test-4.1.1.4-d24f19551556160016d0cf9b72087f14a5f5289a.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="ca7d3f3b02da5f707924ae166c0f990c4a4b162b">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-d63d09938df37cad7ee9ff53be351aff921bcf27.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bf073f8a65817c70c0bc43c55c322f853427b0f4.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/annotations/4.1.1.4/a1678ba907bf92691d879fef34e1a187038f9259/annotations-4.1.1.4.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="a1678ba907bf92691d879fef34e1a187038f9259">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/annotations-4.1.1.4-f882635cd52bc8113aff9cc319d1ffc3255ab2e7.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.0/fc1bb0b579277b34d086aa10fd9b6238ebfa3272/greendao-1.3.0.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="fc1bb0b579277b34d086aa10fd9b6238ebfa3272">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/greendao-1.3.0-cfbd149efd27ac24eb718da4ce69b4aa59d5309e.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.mcxiaoke.volley/library/1.0.0/15f8abc7f1414bbffca8d32b73097223d3a83847/library-1.0.0.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="15f8abc7f1414bbffca8d32b73097223d3a83847">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/library-1.0.0-334bf1ecc56480e5694898ff15ccfade5cc59d06.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/Parse-1.5.0.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="8a675f7e3312d8b28188ec653bbea6d435aaa7d1">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/Parse-1.5.0-4b4655e0adb93e7742b77f36384620dfabdd3975.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/junit/junit/3.8.2/7e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060/junit-3.8.2.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/junit-3.8.2-3d6accd4312c0ba854468cb8f18982f460743c43.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/android-test/4.1.1.4/5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6/android-test-4.1.1.4.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="5ac4da79230c68fc7d60dc6b02f1c153fca7a6e6">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/android-test-4.1.1.4-d24f19551556160016d0cf9b72087f14a5f5289a.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.castorflex.smoothprogressbar/library/0.4.0/classes.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="6ca319f998430aa20c4dde97ba6df213d6cf3dd0">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-508c306125e6e9f22a69991f0cf15f88d0ff715e.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-e9afa8a7c9fe16cddc12df0980d9d4849293f1f5.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-ae861d6f84c0c205cc4aa55187bc8edad58b058d.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/annotations/4.1.1.4/a1678ba907bf92691d879fef34e1a187038f9259/annotations-4.1.1.4.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="a1678ba907bf92691d879fef34e1a187038f9259">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/annotations-4.1.1.4-f882635cd52bc8113aff9cc319d1ffc3255ab2e7.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.0/fc1bb0b579277b34d086aa10fd9b6238ebfa3272/greendao-1.3.0.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="fc1bb0b579277b34d086aa10fd9b6238ebfa3272">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/greendao-1.3.0-cfbd149efd27ac24eb718da4ce69b4aa59d5309e.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/junit/junit/3.8.2/7e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060/junit-3.8.2.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/junit-3.8.2-3d6accd4312c0ba854468cb8f18982f460743c43.jar" />
-    </item>
-    <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
         sha1="e6211ac429797b607bcfc2e040dd3551ab3ffd45">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-152bd62eb47e9d18ab930bb2dab8abb19897f05e.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-maps/6.5.87/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a75b29dc51b364df032af8bcfcad7e54ccfda28d">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-e8020df6bdfe54653b055948e75e3f04ea0ccb8e.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.0/support-annotations-21.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1a578b9607b36266c63d43a4fa0ab5664dbe911e">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.0-f1f8fe26303fd1b8018d317e0d614d85c9614b66.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/classes.jar"
@@ -261,6 +93,13 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-4dc761c8ad0b987a43cc3e5ba18da98a96562784.jar" />
     </item>
     <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/libs/scribe-1.3.5.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a3b3deded9d241d9f2c8aa9c9bcd90ad29e2581e">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/scribe-1.3.5-6c63090b3be3ff7140ba74791df902bcce78c2eb.jar" />
+    </item>
+    <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/firebase-client-android-2.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -275,18 +114,25 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/Parse-1.5.0-4b4655e0adb93e7742b77f36384620dfabdd3975.jar" />
     </item>
     <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.0/libs/internal_impl-21.0.0.jar"
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/libs/bugsense-3.6.1.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="5a8e01742aee890c56fe638ea7c921b91a3fdc62">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-28f0d88159842811f0cdd5943da7af37587276bf.jar" />
+        sha1="bf354591194bef969ec162609bd1cc279d2d113b">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/bugsense-3.6.1-f941fdc7cc94e03ffc69781a6b3e57f1ac576fd7.jar" />
     </item>
     <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.chrisbanes.actionbarpulltorefresh/library/0.9.9/classes.jar"
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
         jumboMode="false"
-        revision="21.1.2"
-        sha1="06ca4ea902f14efb76284d918edb085df33cc365">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-91b001b3f01cc26c64a1247e5797680860bc1290.jar" />
+        revision="19.1.0"
+        sha1="172dc198ae7979bba8f97720a93d3a78035d925f">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-d63d09938df37cad7ee9ff53be351aff921bcf27.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bf073f8a65817c70c0bc43c55c322f853427b0f4.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/libs/bolts.jar"
@@ -296,32 +142,18 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/bolts-397bc6c347781514ecac73a9e02fb7ba3977f054.jar" />
     </item>
     <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.1.11/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="0f700f6802ba1a1f1fa7ac26d5db0666a89d75a6">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bfd324f37af9eea3e75ec39681ef48e5d2e51811.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="0c0c19759e5868604a3b4c2c0074ee9404d73c76">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-c5af37637d95d41fbdf7f4cf91fe0f002772f41e.jar" />
-    </item>
-    <item
-        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.chrisbanes.actionbarpulltorefresh/library/0.9.9/classes.jar"
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/libs/bolts.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="06ca4ea902f14efb76284d918edb085df33cc365">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-91b001b3f01cc26c64a1247e5797680860bc1290.jar" />
+        sha1="1e5ba33c837d05dcca9dc40a0ab458f8599d7aef">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/bolts-397bc6c347781514ecac73a9e02fb7ba3977f054.jar" />
     </item>
     <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/junit/junit/3.8.2/7e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060/junit-3.8.2.jar"
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/Parse-1.5.0.jar"
         jumboMode="false"
-        revision="19.1.0"
-        sha1="07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/junit-3.8.2-3d6accd4312c0ba854468cb8f18982f460743c43.jar" />
+        revision="21.1.2"
+        sha1="8a675f7e3312d8b28188ec653bbea6d435aaa7d1">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/Parse-1.5.0-4b4655e0adb93e7742b77f36384620dfabdd3975.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.github.johnpersano/supertoasts/1.3.4/classes.jar"
@@ -331,18 +163,25 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-4dc761c8ad0b987a43cc3e5ba18da98a96562784.jar" />
     </item>
     <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="686344a780033e4ba22b926cd225f8d4941247e6">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-c217a721422efc6aa4412b8faaeb10f18ebcfce9.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.mcxiaoke.volley/library-aar/1.0.1/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="cf9754bfa8484f88f26e45d28fe298daa544d4f0">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-ac515e6392138109444f0da7ed90835f72b1347f.jar" />
+    </item>
+    <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/facebook/unspecified/classes.jar"
         jumboMode="false"
         revision="19.1.0"
         sha1="600d5d665785605725d7c8b3ad766ab46cde4e1f">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-969ed5ab13c13b782a009b022864cc8691196649.jar" />
-    </item>
-    <item
-        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/com.google.android/annotations/4.1.1.4/a1678ba907bf92691d879fef34e1a187038f9259/annotations-4.1.1.4.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="a1678ba907bf92691d879fef34e1a187038f9259">
-        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/annotations-4.1.1.4-f882635cd52bc8113aff9cc319d1ffc3255ab2e7.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/firebase-client-android-2.0.3.jar"
@@ -352,11 +191,32 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/firebase-client-android-2.0.3-3a4814722091802ec3588237d5d69a3cb25f7e83.jar" />
     </item>
     <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.3/libs/internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="0dcc55e70f7ebf7238fe2ec53f662eb378ab2668">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-7388d1423c055e8ea5fbc296f8d02eb98a83d4ba.jar" />
+    </item>
+    <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="8920719c738c9ad99480513df6ad202f0a83e7ad">
+        sha1="89bed96868206af9501cc186996f94e227c32dbc">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-152bd62eb47e9d18ab930bb2dab8abb19897f05e.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="ca7d3f3b02da5f707924ae166c0f990c4a4b162b">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-d63d09938df37cad7ee9ff53be351aff921bcf27.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.soundcloud.android/android-crop/0.9.10/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-bf073f8a65817c70c0bc43c55c322f853427b0f4.jar" />
     </item>
     <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
@@ -366,11 +226,39 @@
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-2b0dc6fe92de642e2a590a8b12e4ff6ffdc3b9ee.jar" />
     </item>
     <item
+        jar="/home/braunster/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.7/dda08161d004c4df96938da6909f1c2b96cd33c8/greendao-1.3.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/greendao-1.3.7-ad97aeec49f0aa75de1b5e0abb842e53bb2f6cd2.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c2071dcaf7a008c3b01a6381a33be55396bab09">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-71419e7b7dc0d1aef19ee9bcef1dc3a6087675be.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/libs/Parse-1.5.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="8a675f7e3312d8b28188ec653bbea6d435aaa7d1">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/Parse-1.5.0-4b4655e0adb93e7742b77f36384620dfabdd3975.jar" />
+    </item>
+    <item
         jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="20.0.0"
         sha1="5462fdd7890db1de626712ac355016d3d0f31303">
         <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-152bd62eb47e9d18ab930bb2dab8abb19897f05e.jar" />
+    </item>
+    <item
+        jar="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/libs/internal_impl-21.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1609e6d42d0480b0f4188e2c29f75388fa12a8f0">
+        <dex dex="/media/braunster/Code/Android/Projects/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-20662987bb5d73f35f2954c4ce78e4ca899986a1.jar" />
     </item>
 
 </items>

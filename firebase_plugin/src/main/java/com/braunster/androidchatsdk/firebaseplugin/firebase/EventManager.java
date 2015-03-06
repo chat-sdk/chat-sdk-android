@@ -169,7 +169,8 @@ public class EventManager extends AbstractEventManager implements AppEvents {
             if (e == null)
                 continue;
 
-            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(threadId) &&  !e.getEntityId().equals(threadId) )
+            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(threadId)
+                    &&  !e.getEntityId().equals(threadId) )
                 continue;
 
             if(e instanceof BatchedEvent)
@@ -192,7 +193,7 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         });
 
         if (follower!=null)
-            for (Event e : events.values())
+            for (Event  e : events.values())
             {
                 if (e == null)
                     continue;
@@ -207,9 +208,9 @@ public class EventManager extends AbstractEventManager implements AppEvents {
 
     @Override
     public boolean onFollowerRemoved() {
-        for (Event e : events.values())
+        for ( Event  e : events.values())
         {
-            if (e == null)
+            if (e == null )
                 continue;
 
             if(e instanceof BatchedEvent)
@@ -246,9 +247,9 @@ public class EventManager extends AbstractEventManager implements AppEvents {
 
     @Override
     public boolean onUserToFollowRemoved() {
-        for (Event e : events.values())
+        for (Event  e : events.values())
         {
-            if (e == null)
+            if (e == null )
                 continue;
 
             if(e instanceof BatchedEvent)
@@ -265,19 +266,20 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         if (user == null)
             return false;
 
-        for (Event e : events.values())
+        for ( Event e : events.values())
         {
             if (e == null)
                 continue;
 
             // We check to see if the listener specified a specific user that he wants to listen to.
             // If we could find and match the data we ignore it.
-            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(user.getEntityID()) &&  !e.getEntityId().equals(user.getEntityID()) )
+            if (StringUtils.isNotEmpty(e.getEntityId())  && StringUtils.isNotEmpty(user.getEntityID())
+                    &&  !e.getEntityId().equals(user.getEntityID()) )
                 continue;
 
 
             if(e instanceof BatchedEvent)
-                ((BatchedEvent) e).add(Event.Type.UserDetailsEvent, user.getEntityID());
+                ((BatchedEvent) e ).add(Event.Type.UserDetailsEvent, user.getEntityID());
 
             e.onUserDetailsChange(user);
         }
@@ -287,7 +289,7 @@ public class EventManager extends AbstractEventManager implements AppEvents {
 
     @Override
     public boolean onMessageReceived(BMessage message) {
-        /*if (DEBUG) */Log.i(TAG, "onMessageReceived");
+        if (DEBUG) Log.i(TAG, "onMessageReceived");
         for (Event e : events.values())
         {
             if (e == null)
@@ -295,7 +297,8 @@ public class EventManager extends AbstractEventManager implements AppEvents {
 
             // We check to see if the listener specified a specific thread that he wants to listen to.
             // If we could find and match the data we ignore it.
-            if (StringUtils.isNotEmpty(e.getEntityId()) && message.getBThreadOwner() != null && message.getBThreadOwner().getEntityID() != null
+            if (StringUtils.isNotEmpty(e.getEntityId()) && message.getBThreadOwner() != null
+                    && message.getBThreadOwner().getEntityID() != null
                     && !message.getBThreadOwner().getEntityID().equals(e.getEntityId()))
                     continue;
 
@@ -326,6 +329,10 @@ public class EventManager extends AbstractEventManager implements AppEvents {
 
         for (Event e : events.values())
         {
+            if (e  == null)
+                continue;
+
+            
             if (StringUtils.isNotEmpty(e.getEntityId()) && !threadId.equals(e.getEntityId()))
                 continue;
 
@@ -345,6 +352,10 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         if (DEBUG) Log.i(TAG, "onThreadIsAdded");
         for (Event e : events.values())
         {
+
+            if (e == null)
+                continue;
+            
             if (StringUtils.isNotEmpty(e.getEntityId()) && !threadId.equals(e.getEntityId()))
                 continue;
 
@@ -357,36 +368,6 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         return false;
     }
 
-    /*##########################################################################################*/
-    /*------Assigning app events. ------*/
-    @Override
-    public void addEvent(Event appEvents){
-        events.put(appEvents.getTag(), appEvents);
-    }
-
-    /** Removes an app event by tag.*/
-    @Override
-    public boolean removeEventByTag(String tag){
-
-        if (DEBUG) Log.v(TAG, "removeEventByTag, Tag: " + tag);
-
-        if (StringUtils.isEmpty(tag)){
-            return false;
-        }
-
-        boolean removed = events.remove(tag) != null;
-
-        if (DEBUG && !removed) Log.d(TAG, "Event was not found.");
-
-        return removed;
-    }
-
-    /** Check if there is a AppEvent listener with the currnt tag, Could be AppEvent or one of his child(MessageEventListener, ThreadEventListener, UserEventListener).
-     * @return true if found.*/
-     @Override
-     public boolean isEventTagExist(String tag){
-        return events.containsKey(tag);
-    }
 
     /*##########################################################################################*/
     /*------Assigning listeners to Firebase refs. ------*/
@@ -754,13 +735,13 @@ public class EventManager extends AbstractEventManager implements AppEvents {
     public void stopListeningToThread(String threadID){
         if (DEBUG) Log.v(TAG, "stopListeningToThread, ThreadID: "  + threadID);
 
-        if (listenerAndRefs.containsKey(threadID))
+        if (listenerAndRefs.containsKey(threadID) && listenerAndRefs.get(threadID) != null)
             listenerAndRefs.get(threadID).breakCombo();
 
-        if (listenerAndRefs.containsKey(MSG_PREFIX + threadID))
+        if (listenerAndRefs.containsKey(MSG_PREFIX + threadID) && listenerAndRefs.get(MSG_PREFIX  + threadID) != null)
             listenerAndRefs.get(MSG_PREFIX  + threadID).breakCombo();
 
-        if (listenerAndRefs.containsKey(USER_PREFIX + threadID))
+        if (listenerAndRefs.containsKey(USER_PREFIX + threadID) && listenerAndRefs.get(USER_PREFIX + threadID) != null)
             listenerAndRefs.get(USER_PREFIX  + threadID).breakCombo();
 
         // Removing the combo's from the Map.
@@ -786,9 +767,50 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         listenerAndRefs.put(index, combo);
     }
 
+    
+    
     /*##########################################################################################*/
     /*------Clearing all the data from class. ------*/
 
+    /*------Assigning app events. ------*/
+    @Override
+    public void addEvent(Event appEvents){
+        Event e = events.put(appEvents.getTag(), appEvents);
+        
+        if (e != null )
+            e.kill();
+    }
+
+    /** Removes an app event by tag.*/
+    @Override
+    public boolean removeEventByTag(String tag){
+
+        if (DEBUG) Log.v(TAG, "removeEventByTag, Tag: " + tag);
+
+        if (StringUtils.isEmpty(tag)){
+            return false;
+        }
+
+        Event e = events.remove(tag);
+        
+        if (e != null)
+        {
+            if (DEBUG) Log.i(TAG, "killing event, Tag: " + e.getTag());
+            e.kill();
+        }
+
+        if (DEBUG && e == null) Log.d(TAG, "Event was not found.");
+        
+        return e != null;
+    }
+
+    /** Check if there is a AppEvent listener with the currnt tag, Could be AppEvent or one of his child(MessageEventListener, ThreadEventListener, UserEventListener).
+     * @return true if found.*/
+    @Override
+    public boolean isEventTagExist(String tag){
+        return events.containsKey(tag);
+    }
+    
     /** Remove all firebase listeners and all app events listeners. After removing all class list will be cleared.*/
     public void removeAll(){
 
@@ -815,7 +837,9 @@ public class EventManager extends AbstractEventManager implements AppEvents {
             if (DEBUG) Log.d(TAG, "Removing listener, Key: " + key);
 
             combo = listenerAndRefs.get(key);
-            combo.breakCombo();
+            
+            if (combo != null)
+                combo.breakCombo();
         }
 
         Executor.getInstance().restart();
@@ -827,6 +851,13 @@ public class EventManager extends AbstractEventManager implements AppEvents {
     private void clearLists(){
         listenerAndRefs.clear();
 
+        // Killing all events
+        for (Event e : events.values())
+        {
+            if (e != null)
+                e.kill();
+        }
+        
         events.clear();
 
         threadsIds.clear();
@@ -836,6 +867,8 @@ public class EventManager extends AbstractEventManager implements AppEvents {
         handleFollowDataChangeUsersId.clear();
     }
 
+    
+    
     /*##########################################################################################*/
 
     /** get the current user entity so we know not to listen to his details and so on.*/

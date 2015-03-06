@@ -82,7 +82,7 @@ public class ImageUtils {
 
         if (DEBUG) Log.i(TAG, "TextBitmap, W: " + textBitmap.getWidth() + ", H: " + textBitmap.getHeight());
 
-        c.drawBitmap(textBitmap, textSpace - textBitmap.getWidth()/2, textSpace - textBitmap.getHeight()/2, null);
+        c.drawBitmap(textAsBitmap(initials, textSize, textColor), textSpace - textBitmap.getWidth()/2, textSpace - textBitmap.getHeight()/2, null);
 
         c.restore();
 

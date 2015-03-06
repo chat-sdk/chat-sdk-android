@@ -19,6 +19,7 @@ import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
     protected static final boolean DEBUG = Debug.ThreadsListAdapter;
 
     private int width, height;
-    private LoadBitmapsForThreadImage loadBitmapsForThreadImage;
+    private WeakReference<LoadBitmapsForThreadImage> loadBitmapsForThreadImage;
     private String cacheKey;
 
     private int urlsLength = 0;
@@ -46,8 +47,8 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if (loadBitmapsForThreadImage!=null)
-            loadBitmapsForThreadImage.kill();
+        if (loadBitmapsForThreadImage!=null && loadBitmapsForThreadImage.get() != null)
+            loadBitmapsForThreadImage.get().kill();
     }
 
     public MakeThreadImage(String[] urls, int width, int height, String cacheKey, ImageView image) {
@@ -58,16 +59,18 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
 
         urlsLength= urls.length;
 
+        // Loading from cache
         if (VolleyUtils.getBitmapCache().contains(getCacheKey(cacheKey, urlsLength)))
         {
             image.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(getCacheKey(cacheKey, urlsLength)));
             image.setVisibility(View.VISIBLE);
             image.bringToFront();
         }
+        // Creating an image.
         else
         {
-            loadBitmapsForThreadImage = new LoadBitmapsForThreadImage(urls);
-            loadBitmapsForThreadImage.run();
+            loadBitmapsForThreadImage = new WeakReference<LoadBitmapsForThreadImage>(new LoadBitmapsForThreadImage(urls));
+            loadBitmapsForThreadImage.get().run();
         }
     }
 
@@ -102,8 +105,12 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
         }
     }
 
-    /** Load images for given urls array.
-     * After all images are loaded the runnable will execute the makeThreadImage AsyncTask.*/
+    
+    
+    /** 
+     * Load images for given urls array.
+     * After all images are loaded the runnable will execute the makeThreadImage AsyncTask.
+     * * */
     private class LoadBitmapsForThreadImage implements Runnable {
 
         private LoadBitmapsForThreadImage(String[] urls) {
@@ -143,7 +150,6 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
                             loadedCount++;
 
                             dispatchFinishedIfDid();
-
                         }
                     }
 
@@ -154,7 +160,7 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
 
                         if (!errorUrls.contains(url))
                         {
-                            loadedCount++; //TODO make sure that this is not called more them once per error.
+                            loadedCount++; 
                             if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
                             errorUrls.add(url);
                             dispatchFinishedIfDid();
@@ -181,6 +187,10 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
 
     }
 
+    
+    
+    
+    
     public void setMultipleUserDefaultImg(){
         image.setImageResource(R.drawable.ic_users);
     }

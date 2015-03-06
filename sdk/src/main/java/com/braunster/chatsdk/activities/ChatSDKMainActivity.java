@@ -97,6 +97,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             startChatActivityForID(getIntent().getExtras().getLong(ChatSDKAbstractChatActivity.THREAD_ID));
             return;
         }
+
     }
 
     @Override
@@ -212,7 +213,9 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                         if (!getNetworkAdapter().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getOwnerThread())) {
                             // Checking if the message has a sender with a name, Also if the message was read.
                             if (message.getBUserSender().getMetaName() != null && !message.wasRead())
+                            {
                                 NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
+                            }
                         }
                     }
                 }
@@ -258,6 +261,11 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.android_settings) {
 
+            // FIXME Clearing the cache, Just for debug.
+            /*final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+            VolleyUtils.getBitmapCache().resize(1);
+            VolleyUtils.getBitmapCache().resize(maxMemory / 8);*/
             return true;
         }
         else   if (item.getItemId() == R.id.contact_developer) {

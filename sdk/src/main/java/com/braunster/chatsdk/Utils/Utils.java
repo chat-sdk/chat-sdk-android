@@ -32,7 +32,7 @@ import java.security.NoSuchAlgorithmException;
 public class Utils {
 
     static final String TAG = Utils.class.getSimpleName();
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     public static String getSHA(Activity activity, String packageInfo){
         if (DEBUG) Log.d(TAG, "PackageName: " + packageInfo);
@@ -96,14 +96,29 @@ public class Utils {
                 e.printStackTrace();
             }
         }
+        
+        String path;
+        try {
+            column_index = cursor.getColumnIndexOrThrow(proj[0]);
+            cursor.moveToFirst();
 
-        column_index = cursor.getColumnIndexOrThrow(proj[0]);
+            path = cursor.getString(column_index);
 
-        cursor.moveToFirst();
+            cursor.close();
+        } catch (NullPointerException e) {
+            
+            // Closing the cursor if he isn't null.
+            if (cursor != null) {
+                cursor.close();
+            }
 
-        String path = cursor.getString(column_index);
+            // If we cant get a cursor or there was an error we will try the uri default path.
+            path = uri.getPath();
+        }
 
-        cursor.close();
+
+        if (DEBUG) Log.d(TAG, "Path From URI: " + path);
+        
         return path;
     }
 

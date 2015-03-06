@@ -1,6 +1,5 @@
 package com.braunster.chatsdk.Utils;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
@@ -42,7 +42,6 @@ public class NotificationUtils {
     public static final String NOT_TAG = "tag";
 
     /** Create and alert notification that the connection has lost.*/
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
         createAlertNotification(context, id, resultIntent, data, android.R.drawable.ic_notification_overlay, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
@@ -93,6 +92,8 @@ public class NotificationUtils {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotifyMgr.notify(id, notification);
+
+        wakeScreen(context);
     }
 
     public static void createMessageNotification(Context context, BMessage message){
@@ -156,4 +157,31 @@ public class NotificationUtils {
         return data;
     }
 
+    /**
+     * Waking up the screen
+     * * * */
+    private static void wakeScreen(Context context){
+
+        // Waking the screen so the user will see the notification
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+
+
+        boolean isScreenOn;
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH)
+            isScreenOn = pm.isScreenOn();
+        else
+            isScreenOn = pm.isInteractive();
+
+        if(!isScreenOn)
+        {
+
+            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
+                    |PowerManager.ON_AFTER_RELEASE
+                    |PowerManager.ACQUIRE_CAUSES_WAKEUP, "MyLock");
+
+            wl.acquire(5000);
+            wl.release();
+        }
+    }
 }

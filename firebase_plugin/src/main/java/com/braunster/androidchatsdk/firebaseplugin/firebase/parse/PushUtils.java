@@ -21,7 +21,7 @@ import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 public class PushUtils {
 
     private static final String TAG = PushUtils.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static final String ACTION = "action";
     public static final String ALERT = "alert";

@@ -2,6 +2,7 @@ package com.braunster.chatsdk.object;
 
 import android.os.Handler;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -18,9 +19,10 @@ public class Batcher<T> {
     private long pulledTime = 0, interval = DEF_INTERVAL;
     private boolean pulled = false;
     private TimerTask timerTask;
-    private BatchedAction<T> batchedAction;
+    private 
+    BatchedAction<T> batchedAction;
     private Timer timer = new Timer();
-    private Handler handler;
+    private WeakReference<Handler> handler;
 
     private List<T> stash = new ArrayList<T>();
 
@@ -52,7 +54,9 @@ public class Batcher<T> {
 
     public Batcher(BatchedAction<T> action, long interval, final Handler handler){
         this.interval = interval;
-        this.handler = handler;
+        
+        if (handler != null)
+            this.handler = new WeakReference<Handler>(handler);
 
         timerTask = new TimerTask() {
             @Override
@@ -108,10 +112,10 @@ public class Batcher<T> {
     };
 
     private synchronized void trigger(){
-        if (handler != null)
+        if (handler != null && handler.get() != null)
         {
-            handler.removeCallbacks(triggerRunnable);
-            handler.post(triggerRunnable);
+            handler.get().removeCallbacks(triggerRunnable);
+            handler.get().post(triggerRunnable);
         }
         else triggerRunnable.run();
     }
@@ -128,6 +132,14 @@ public class Batcher<T> {
         this.batchedAction = batchedAction;
     }
 
+    public void kill(){
+        if (timer != null)
+            timer.cancel(); 
+        
+        if (timerTask != null)
+            timerTask.cancel();
+    }
+    
     public interface BatchedAction<T>{
         public void triggered(List<T> list);
     }

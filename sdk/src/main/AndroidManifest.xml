@@ -30,10 +30,11 @@
     <!--<uses-permission android:name="android.permission.READ_LOGS" />-->
 
 
+    
     <application android:allowBackup="true"
         android:largeHeap="true"
         android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher">
+        >
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_id"/>
@@ -55,7 +56,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.ThreadDetailsActivity"
+        <activity android:name=".activities.ChatSDKThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
@@ -114,7 +115,10 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <!--FIXME-->
+        <activity android:name="com.TestActivity"/>
 
     </application>
 
+    
 </manifest>

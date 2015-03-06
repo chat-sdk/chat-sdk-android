@@ -35,6 +35,7 @@ import com.soundcloud.android.crop.Crop;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,9 +95,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private int readCount = 0;
 
     private static final String TAG = ChatSDKChatHelper.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
-    private Activity activity;
+    private WeakReference<Activity> activity;
     private BThread thread;
     private ChatSDKUiHelper uiHelper;
     private ListView listMessages;
@@ -107,7 +108,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
 
     public ChatSDKChatHelper(Activity activity, BThread thread, ChatSDKUiHelper uiHelper) {
-        this.activity = activity;
+        this.activity = new WeakReference<Activity>(activity);
         this.thread = thread;
         this.uiHelper = uiHelper;
     }
@@ -222,6 +223,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             @Override
             public void run() {
 
+                if (collected())
+                    return;
+                
                 final int oldDataSize = messagesListAdapter.getCount();
 
                 List<BMessage> messages;
@@ -251,7 +255,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                 if (list.size() == 0)
                 {
-                    activity.runOnUiThread(new Runnable() {
+                    activity.get().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             progressBar.setVisibility(View.INVISIBLE);
@@ -261,7 +265,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     return;
                 }
 
-                activity.runOnUiThread(new Runnable() {
+                activity.get().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         messagesListAdapter.setListData(list);
@@ -318,7 +322,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public void scrollListTo(final int pos, final boolean smooth) {
-
+        if (collected())
+            return;
+        
         if (listMessages == null)
             return;
 
@@ -343,12 +349,15 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public void animateListView(){
 
+        if (collected())
+            return;
+        
         if (listMessages == null)
             return;
 
         if (DEBUG) Log.v(TAG, "animateListView");
 
-        listMessages.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.fade_in_expand));
+        listMessages.setAnimation(AnimationUtils.loadAnimation(activity.get(), R.anim.fade_in_expand));
         listMessages.getAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -379,6 +388,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public int handleResult(boolean send, int requestCode, int resultCode, Intent data) {
         if (DEBUG) Log.v(TAG, "onActivityResult");
+        
+        if (collected())
+            return NOT_HANDLED;
 
         if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
         {
@@ -410,13 +422,13 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     if (DEBUG) Log.d(TAG, "Result OK");
                     Uri uri = data.getData();
 
-                    Uri outputUri = Uri.fromFile(new File(this.activity.getCacheDir(), "cropped.jpg"));
+                    Uri outputUri = Uri.fromFile(new File(this.activity.get().getCacheDir(), "cropped.jpg"));
                     crop = new Cropper(uri);
 
-                    Intent cropIntent = crop.getAdjustIntent(this.activity, outputUri);
+                    Intent cropIntent = crop.getAdjustIntent(this.activity.get(), outputUri);
                     int request = Crop.REQUEST_CROP + PHOTO_PICKER_ID;
 
-                    activity.startActivityForResult(cropIntent, request);
+                    activity.get().startActivityForResult(cropIntent, request);
                     
                     return HANDELD;
                     
@@ -469,7 +481,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 Uri uri = Crop.getOutput(data);
 
                 if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
-                image = new File(this.activity.getCacheDir(), "cropped.jpg");
+                image = new File(this.activity.get().getCacheDir(), "cropped.jpg");
 
                 selectedFilePath = image.getPath();
 
@@ -577,6 +589,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public void restoreSavedInstance(Bundle savedInstanceState){
         if (savedInstanceState == null)
             return;
+        
+        if (collected())
+            return;
 
         selectedFilePath = savedInstanceState.getString(SELECTED_FILE_PATH);
         savedInstanceState.remove(SELECTED_FILE_PATH);
@@ -592,7 +607,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         savedInstanceState.remove(LNG);
         savedInstanceState.remove(LAT);
 
-        SuperCardToast.onRestoreState(savedInstanceState, activity);
+        SuperCardToast.onRestoreState(savedInstanceState, activity.get());
     }
 
     @Override
@@ -602,12 +617,19 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     @Override
     public void onLocationPressed() {
-        Intent intent = new Intent(activity, uiHelper.shareLocationActivity);
-        activity.startActivityForResult(intent, PICK_LOCATION);
+        if (collected())
+            return;
+        
+        Intent intent = new Intent(activity.get(), uiHelper.shareLocationActivity);
+        activity.get().startActivityForResult(intent, PICK_LOCATION);
     }
 
     @Override
     public void onTakePhotoPressed() {
+        
+        if (collected())
+            return;
+        
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
@@ -619,11 +641,15 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         }
 
         // start the image capture Intent
-        activity.startActivityForResult(intent, CAPTURE_IMAGE);
+        activity.get().startActivityForResult(intent, CAPTURE_IMAGE);
     }
 
     @Override
     public void onPickImagePressed() {
+        
+        if (collected())
+            return;
+        
         // TODO allow multiple pick of photos.
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -631,7 +657,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 //                intent.setAction(Intent.ACTION_GET_CONTENT);
 //                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 //                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        activity.startActivityForResult(Intent.createChooser(intent,
+        activity.get().startActivityForResult(Intent.createChooser(intent,
                 "Complete action using"), PHOTO_PICKER_ID);
     }
 
@@ -664,6 +690,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public void checkIfWantToShare(Intent intent){
         if (DEBUG) Log.v(TAG, "checkIfWantToShare");
 
+        if (collected())
+            return;
+        
         if (shared)
             return;
 
@@ -677,15 +706,25 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         {
             if (DEBUG) Log.i(TAG, "Want to share URI");
 
-            uiHelper.showProgressCard("Sending...");
+          
 
-            String path = Utils.getRealPathFromURI(activity, (Uri) intent.getExtras().get(SHARED_FILE_URI));
-            if (DEBUG) Log.d(TAG, "Path from uri: " + path);
+            try{
+                String path = Utils.getRealPathFromURI(activity.get(), (Uri) intent.getExtras().get(SHARED_FILE_URI));
 
+                if (DEBUG) Log.d(TAG, "Path from uri: " + path);
+                
+                uiHelper.showProgressCard("Sending...");
+                
+                sendImageMessage(path);
+            }
+            catch (NullPointerException e){
+                uiHelper.showAlertToast("unable to fetch image.");
+                
+                
+            }
+            
             // removing the key so we wont send again,
             intent.getExtras().remove(SHARED_FILE_URI);
-
-            sendImageMessage(path);
 
             intent.removeExtra(SHARED_FILE_URI);
 
@@ -784,5 +823,10 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public int getReadCount() {
         return readCount;
+    }
+    
+    public boolean collected(){
+        return  activity == null || activity.get() == null;
+        
     }
 }

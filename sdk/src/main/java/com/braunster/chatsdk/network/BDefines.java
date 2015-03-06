@@ -7,10 +7,10 @@ public class BDefines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    private static final String BRootPath = "v3_1_3TA/";
+    private static final String BRootPath = "v1_0/";
 
     /** The server url that is used to do all the API calls.*/
-    public static String ServerUrl = "https://chat-sdk.firebaseio.com/" + BRootPath;
+    public static String ServerUrl = "https://your-firebase-io.firebaseio.com/" + BRootPath;
 
     /**
      * The name of the app image directory that will be seen in the phone image galley
@@ -189,6 +189,11 @@ public class BDefines {
         public static final int Google = 3;
         public static final int Twitter = 4;
         public static final int Anonymous = 5;
+    }
+    
+    public static final class Options{
+        public static boolean LocationEnabled = true;
+        public static boolean GroupEnabled = true;
     }
     
     public static final int MESSAGE_NOTIFICATION_ID = 1001;

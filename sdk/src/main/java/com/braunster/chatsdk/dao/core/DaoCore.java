@@ -403,7 +403,7 @@ public class DaoCore {
         if (entity==null)
             return entity;
 
-        printEntity(entity);
+        if (DEBUG) printEntity(entity);
 
         daoSession.update(entity);
 

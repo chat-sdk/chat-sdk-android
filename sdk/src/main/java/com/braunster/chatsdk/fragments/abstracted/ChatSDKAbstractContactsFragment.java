@@ -610,12 +610,14 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                 @Override
                 public void triggered(List<String> list) {
                     if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
+
                     loadDataOnBackground();
                 }
             });
 
             if (StringUtils.isNotEmpty(eventTAG))
             {
+                getNetworkAdapter().getEventManager().removeEventByTag(eventTAG);
                 getNetworkAdapter().getEventManager().addEvent(userDetailsBatch);
             }
         }

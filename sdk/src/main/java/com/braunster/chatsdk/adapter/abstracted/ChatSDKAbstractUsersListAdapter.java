@@ -7,17 +7,16 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
@@ -63,6 +62,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     protected int textColor =-1991;
 
     protected ProfilePicClickListener profilePicClickListener;
+
+    protected UserListItemMaker<E> itemMaker = null;
 
     public class ViewHolder {
         public CircleImageView profilePicture;
@@ -118,7 +119,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         this.isMultiSelect = multiSelect;
     }
 
-    protected UserListItemMaker<E> itemMaker = null;
 
 
     @Override
@@ -141,76 +141,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return userItems.get(position).getType();
     }
 
-    @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
-        row = view;
-
-        final ViewHolder holder;
-        final AbstractUserListItem userItem = userItems.get(position);
-
-        // If the row is null or the View inside the row is not good for the current item.
-        if (row == null || userItem.getResourceID() != row.getId())
-        {
-            holder  = new ViewHolder();
-            row =  rowForType(holder, position);
-        }
-        else holder = (ViewHolder) row.getTag();
-
-        holder.textView.setText(userItem.getText());
-
-        if (getItemViewType(position) == TYPE_USER)
-        {
-
-
-            if (userItem.fromURL)
-            {
-                int size = holder.profilePicture.getHeight();
-
-                if (userItem.pictureThumbnailURL != null )
-                    VolleyUtils.getImageLoader().get(userItem.pictureThumbnailURL, new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            if (isImmediate && response.getBitmap() == null)
-                            {
-                                holder.profilePicture.setImageResource(R.drawable.ic_profile);
-                                return;
-                            }
-
-                            if (response.getBitmap() != null) {
-
-                                if (DEBUG) Log.i(TAG, "Loading profile picture from url");
-                                // load image into imageview
-                                holder.profilePicture.setImageBitmap(response.getBitmap());
-                            }
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
-                            holder.profilePicture.setImageResource(R.drawable.ic_profile);
-                        }
-                    },size, size);
-                else holder.profilePicture.setImageResource(R.drawable.ic_profile);
-            }
-            else
-            {
-                if (DEBUG) Log.i(TAG, "Loading profile picture from the db");
-
-                Bitmap bitmap = userItems.get(position).getPicture();
-                if (bitmap != null)
-                {
-                    holder.profilePicture.setImageBitmap(bitmap);
-                }
-                else
-                {
-                    holder.profilePicture.setImageResource(R.drawable.ic_profile);
-                }
-            }
-        }
-
-        return row;
-    }
-
     protected View rowForType(ViewHolder holder, final int position){
         View row =  ( (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(userItems.get(position).getResourceID(), null);
 
@@ -227,7 +157,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
                 holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        selectView(position, isChecked);
+                        setViewSelected(position, isChecked);
                     }
                 });
             }
@@ -300,7 +230,11 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return userItems;
     }
 
-    /** Clear the list.*/
+    /** 
+     *  Clear the list.
+     * 
+     *  Calls notifyDataSetChanged.
+     * * */
     public void clear(){
         userItems.clear();
         listData.clear();
@@ -416,11 +350,17 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         return listData;
     }
 
-    protected static String getHeaderWithSize(String header, int size){
-        return header + " (" + size + ")";
+    public List<E> getListData() {
+        return listData;
     }
 
-    /*Filtering option's of the list to make searches.*/
+
+
+    /**
+     * Filtering the user list by user name
+     *
+     * @param startWith the search input. This will be matched against user name in the listData.
+     * * */
     public void filterStartWith(String startWith){
         filtering = true;
 
@@ -452,10 +392,11 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         notifyDataSetChanged();
     }
 
-    public List<E> getListData() {
-        return listData;
-    }
-
+    /**
+     * Sorting a given list using the internal comparator.
+     * 
+     * This will be used each time after setting the user item
+     * * */
     protected void sortList(List<E> list){
         if (comparator!=null)
         {
@@ -464,80 +405,126 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
 
-    /*############################################*/
-    /*Selection*/
+    
+    
+    /**
+     * Toggle the selection state of a list item for a given position
+     * @param position the position in the list of the item that need to be toggled
+     *                 
+     * notifyDataSetChanged will be called.
+     * * */
     public boolean toggleSelection(int position){
-        boolean selected = selectView(position, !selectedUsersPositions.get(position));
+        boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
         notifyDataSetChanged();
         return selected;
     }
 
-    public boolean selectView(int position, boolean value){
-        if (value)
-            selectedUsersPositions.put(position, value);
+    /**
+     * Set the selection state of a list item for a given position and value
+     * @param position the position in the list of the item that need to be toggled.
+     * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
+     * * */
+    public boolean setViewSelected(int position, boolean selected){
+        if (selected)
+            selectedUsersPositions.put(position, true);
         else
             selectedUsersPositions.delete(position);
 
-        return value;
+        return selected;
     }
 
     public SparseBooleanArray getSelectedUsersPositions() {
         return selectedUsersPositions;
     }
 
+    /**
+     * Get the amount of selected users.
+     * * * */
     public int getSelectedCount(){
         return selectedUsersPositions.size();
     }
 
+    /**
+     * Select all users
+     * 
+     * notifyDataSetChanged will be called.
+     * * * *
+     * * * */
     public void selectAll(){
         for (int i = 0 ; i < userItems.size() ; i++){
-            selectView(i, true);
+            setViewSelected(i, true);
         }
 
         notifyDataSetChanged();
     }
 
+    /**
+     * Clear the selection of all users.
+     * 
+     * notifyDataSetChanged will be called.
+     * * * */
     public void clearSelection(){
         selectedUsersPositions = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 
 
+    
+    
 
-    /*Setters*/
-
+    /** 
+     * Set the item maker of the list, The item maker will be used for converting the Buser items to list Items.
+     * * * */
     public void setItemMaker(UserListItemMaker<E> itemMaker){
         this.itemMaker = itemMaker;
     }
 
-
+    /**
+     * Text color that should be used for text bubbles
+     * * * */
     public void setTextColor(int textColor) {
         this.textColor = textColor;
     }
 
+    /**
+     * Click listener for a click on a user profile image.
+     * 
+     * This is useful if you want to do different task like open different activities when an
+     * profile image or a user item is clicked.
+     * * * */
     public void setProfilePicClickListener(ProfilePicClickListener profilePicClickListener) {
         this.profilePicClickListener = profilePicClickListener;
     }
 
-    /*############################################*/
-    public interface UserListItemMaker<E>{
+
+    /**
+     * An interface that is used to convert the Buser objects to AbstractUserListItem or one of his descendants.
+     * 
+     * The maker also take care of making headers and converting a list of items to list with headers.
+     * * * */
+    protected interface UserListItemMaker<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> {
         public E fromBUser(BUser user);
         public E getHeader(String type);
         public List<E> getListWithHeaders(List<E> list);
     }
 
     public interface ProfilePicClickListener{
+        
+        /**
+         * @param profilePicView the profile pic view that was clicked
+         * @param user the user that own this profile pic
+         * */
         public void onClick(View profilePicView, BUser user);
     }
 
-    public abstract class AbstractProfilePicLoader implements ImageLoader.ImageListener{
+    protected abstract class AbstractProfilePicLoader implements ImageLoader.ImageListener{
         public abstract void kill();
         protected boolean killed = false;
     }
 
-    public class ProfilePicLoader extends AbstractProfilePicLoader{
+    protected class ProfilePicLoader extends AbstractProfilePicLoader{
 
-        private CircleImageView profilePic;
+        private ImageView profilePic;
 
         public ProfilePicLoader(CircleImageView profilePic) {
             this.profilePic = profilePic;
@@ -568,6 +555,17 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             killed = true;
         }
     }
-    /*############################################*/
-    public abstract void initMaker();
+
+
+    
+    
+    /**
+     * Initialize the item maker of the list, The item maker will be used for converting the Buser items to list Items.
+     * * * */
+    protected abstract void initMaker();
+
+
+    protected static String getHeaderWithSize(String header, int size){
+        return header + " (" + size + ")";
+    }
 }
