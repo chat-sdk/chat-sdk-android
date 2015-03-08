@@ -18,10 +18,7 @@ import java.util.List;
  */
 public abstract class BUserEntity extends Entity {
 
-    public boolean hasApp = false;
-    public boolean pictureExist = false;
     public String email ="";
-    public String pictureURL = "";
 
     public static String safeAuthenticationID(String aid, int type){
 
@@ -42,6 +39,9 @@ public abstract class BUserEntity extends Entity {
                 break;
             case BDefines.ProviderInt.Google:
                 prefix = "google";
+                break;
+            case BDefines.ProviderInt.Custom:
+                prefix = "custom";
                 break;
         }
 

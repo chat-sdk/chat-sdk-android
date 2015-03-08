@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
+import static com.braunster.chatsdk.network.BDefines.BAccountType.Custom;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Password;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Register;
@@ -232,9 +233,16 @@ public class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                             }
                         });
                 break;
+
             case Anonymous:
                 ref.authAnonymously(authResultHandler);
                 break;
+
+            case Custom:
+                ref.authWithCustomToken((String) details.get(Prefs.TokenKey), authResultHandler);
+                
+                break;
+
 
             default:
                 if (DEBUG) Log.d(TAG, "No login type was found");

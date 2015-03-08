@@ -130,6 +130,10 @@ public class FirebasePaths extends Firebase{
         {
             return BDefines.ProviderInt.Anonymous;
         }
+        else if (provider.equals(BDefines.ProviderString.Custom))
+        {
+            return BDefines.ProviderInt.Custom;
+        }
 
         throw new IllegalArgumentException("Np provider was found matching requested.");
     }
@@ -147,6 +151,8 @@ public class FirebasePaths extends Firebase{
                 return BDefines.ProviderString.Twitter;
             case BDefines.ProviderInt.Anonymous:
                 return BDefines.ProviderString.Anonymous;
+            case BDefines.ProviderInt.Custom:
+                return BDefines.ProviderString.Custom;
 
             default:
                 /*return ProviderString.Password;*/

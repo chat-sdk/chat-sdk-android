@@ -33,6 +33,7 @@ public class BDefines {
         public static final int Google = 3;
         public static final int Anonymous = 5;
         public static final int Register = 6;
+        public static final int Custom = 7;
     }
 
     /**
@@ -181,6 +182,7 @@ public class BDefines {
         public static final String Facebook = "facebook";
         public static final String Twitter = "twitter";
         public static final String Google = "google";
+        public static final String Custom = "custom";
     }
 
     public static final class ProviderInt{
@@ -189,6 +191,7 @@ public class BDefines {
         public static final int Google = 3;
         public static final int Twitter = 4;
         public static final int Anonymous = 5;
+        public static final int Custom = 6;
     }
     
     public static final class Options{
