@@ -1,9 +1,15 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -191,16 +198,24 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
     public void addRows(List<E> users){
-
         userItems.addAll(users);
 
         notifyDataSetChanged();
     }
 
+    public void addBUsersRows(List<BUser> users){
+        addRows(makeList(users, false, true));
+    }
+
+    public void setBUserItems(List<BUser> userItems, boolean sort) {
+        setUserItems(makeList(userItems, false, true), sort);
+    }
+
     public void setUserItems(List<E> userItems, boolean sort) {
         filtering = false;
 
-        if (DEBUG) Log.v(TAG, "setUserItems, size: " + (userItems==null?"NULL":userItems.size()) );
+        if (DEBUG) Timber.v("setUserItems, size: %s", (userItems == null ? "NULL" : userItems.size()));
+        
         this.userItems.clear();
         this.listData.clear();
 
@@ -325,8 +340,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
             if (deleteDuplicates && entitiesID.contains(user.getEntityID()))
             {
-                Log.d(TAG, "SkippedUser Name: " + user.getMetaName());
-//                    if (DEBUG) Log.d(TAG, "EntityExist");
                 continue;
             }
 
@@ -366,8 +379,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
         {
-            if (DEBUG) Log.v(TAG, "filterItems, Empty Filter");
-            if (DEBUG) Log.d(TAG, "User items size: " + userItems.size() + ", ListData: " + listData.size());
             this.userItems = listData;
         }
         else
@@ -387,7 +398,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         sortList(userItems);
 
-        if (DEBUG) Log.v(TAG, "filterItems, Filtered users amount: " + userItems.size());
+        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
 
         notifyDataSetChanged();
     }

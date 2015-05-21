@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.activities;
 
 import android.app.ActionBar;
@@ -6,7 +13,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -25,17 +31,18 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractContactsFragment;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
-import com.braunster.chatsdk.interfaces.SaveCompletedListener;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 import java.io.File;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 /**
  * Created by braunster on 24/11/14.
@@ -169,81 +176,46 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 showProgDialog("Opening thread.");
 
-                getNetworkAdapter().createThreadWithUsers("", new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError>() {
-
-                    BThread thread = null;
-
-                    @Override
-                    public boolean onMainFinised(BThread bThread, BError o) {
-                        if (o != null) {
-                            if (isOnMainThread())
-                            {
-                                showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                                dismissProgDialog();
-                            }
-                            else ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                                    dismissProgDialog();
-                                }
-                            });
-                            return true;
-                        }
-
-                        if (DEBUG) Log.d(TAG, "New thread is created.");
-
-                        thread = bThread;
-
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onItem(BUser item) {
-                        return false;
-                    }
-
-                    @Override
-                    public void onDone() {
-                        Log.d(TAG, "On done.");
-
-                        dismissProgDialog();
-
-                        if (thread == null)
-                            if (DEBUG) Log.e(TAG, "thread added is null");
-
-                        if (isOnMainThread()) {
-                            if (thread != null) {
-                                Log.d(TAG, "Stating chat for thread.");
-
-                                intent.putExtra(THREAD_ID, thread.getId());
-                                setResult(RESULT_OK, intent);
-                                finish();
-                            }
-                        } else ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                getNetworkAdapter().createThreadWithUsers("", contactsFragment.getAdapter().getItem(position).asBUser(), getNetworkAdapter().currentUserModel())
+                        .done(new DoneCallback<BThread>() {
                             @Override
-                            public void run() {
-                                if (thread != null) {
-                                    Log.d(TAG, "Stating chat for thread.");
+                            public void onDone(final BThread thread) {
+                                if (thread == null) {
+                                    if (DEBUG) Timber.e("thread added is null");
+                                    return;
+                                }
+
+                                if (isOnMainThread()) {
                                     intent.putExtra(THREAD_ID, thread.getId());
                                     setResult(RESULT_OK, intent);
                                     finish();
-                                }
+                                } else
+                                    ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            intent.putExtra(THREAD_ID, thread.getId());
+                                            setResult(RESULT_OK, intent);
+                                            finish();
+                                        }
+                                    });
+                            }
+                        })
+                        .fail(new FailCallback<BError>() {
+                            @Override
+                            public void onFail(BError error) {
+                                if (isOnMainThread()) {
+                                    showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                                    dismissProgDialog();
+                                } else
+                                    ChatSDKThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                                            dismissProgDialog();
+                                        }
+                                    });
                             }
                         });
-                    }
-
-                    @Override
-                    public void onItemError(BUser user, BError o) {
-                       
-                        dismissProgDialog();
-                        
-                        showAlertToast("Failed to open the thread.");
-                        /*if (DEBUG)
-                            Log.d(TAG, "Failed to add user to thread, User name: " + user.getName());*/
-                    }
-                }, contactsFragment.getAdapter().getItem(position).asBUser(), getNetworkAdapter().currentUser());
-
             }
         };
     }
@@ -262,7 +234,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
         super.onResume();
 
         // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(getNetworkAdapter().currentUser().getEntityID()))
+        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(getNetworkAdapter().currentUserModel().getEntityID()))
         {
             imageThread.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
 
@@ -275,11 +247,10 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                         @Override
                         public void onFinished(String s) {
                             txtThreadName.setText(s);
-                            thread.setDirty(true);
                             thread.setName(s);
                             DaoCore.updateEntity(thread);
 
-                            getNetworkAdapter().pushThreadWithCallback(thread, null);
+                            getNetworkAdapter().pushThread(thread);
                         }
                     });
 
@@ -311,18 +282,12 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (data == null)
-        {
-            if (DEBUG) Log.e(TAG, "onActivityResult, Intent is null");
-        }
-
-        if (DEBUG) Log.v(TAG, "onActivityResult");
+        if (DEBUG) Timber.v("onActivityResult");
 
         if (requestCode == THREAD_PIC)
         {
             if (resultCode == Activity.RESULT_OK)
             {
-                if (DEBUG) Log.d(TAG, "Result OK");
                 Uri uri = data.getData();
 
                 Uri outputUri = Uri.fromFile(new File(this.getCacheDir(), "cropped_thread_image.jpg"));
@@ -338,8 +303,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
         else  if (requestCode == Crop.REQUEST_CROP + THREAD_PIC) {
             if (resultCode == Crop.RESULT_ERROR)
             {
-                if (DEBUG) Log.e(TAG, "Result Error");
-                showAlertToast("Unable to fetch image");
+                showAlertToast(getString(R.string.unable_to_fetch_image));
             }
 
             try
@@ -347,7 +311,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                 File image;
                 Uri uri = Crop.getOutput(data);
 
-                if (DEBUG) Log.d(TAG, "Fetch image URI: " + uri.toString());
+                if (DEBUG) Timber.d("Fetch image URI: %s", uri.toString());
                 image = new File(this.getCacheDir(), "cropped_thread_image.jpg");
 
                 Bitmap b = ImageUtils.loadBitmapFromFile(image.getPath());
@@ -357,33 +321,34 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                     b = ImageUtils.loadBitmapFromFile(getCacheDir().getPath() + image.getPath());
                     if (b == null)
                     {
-                        showAlertToast("Unable to save file...");
-                        if (DEBUG) Log.e(TAG, "Cant save image to parse file path is invalid: " + getCacheDir().getPath() + image.getPath());
+                        showAlertToast(getString(R.string.unable_to_save_file));
+                        if (DEBUG) Timber.e("Cant save image to parse file path is invalid: %s", 
+                                getCacheDir().getPath() + image.getPath());
                         return;
                     }
                 }
 
                 imageThread.setImageBitmap(b);
 
-                getNetworkAdapter().saveImage(image.getPath(), new SaveCompletedListener() {
-                    @Override
-                    public void onSaved(BError error, String url) {
-                        if (error!=null)
-                        {
-                            showAlertToast("Unable to save file...");
-                        }
-                        else {
-                            thread.setImageUrl(url);
-                            thread.setDirty(true);
-                            DaoCore.updateEntity(thread);
-                            getNetworkAdapter().pushThreadWithCallback(thread, null);
-                        }
-                    }
-                });
+                getNetworkAdapter().saveImage(image.getPath())
+                        .done(new DoneCallback<String>() {
+                            @Override
+                            public void onDone(String s) {
+                                thread.setImageUrl(s);
+                                DaoCore.updateEntity(thread);
+                                getNetworkAdapter().pushThread(thread);
+                            }
+                        })
+                        .fail(new FailCallback<BError>() {
+                            @Override
+                            public void onFail(BError error) {
+                                showAlertToast(getString(R.string.unable_to_save_file));
+                            }
+                        });
             }
             catch (NullPointerException e){
-                if (DEBUG) Log.e(TAG, "Null pointer when getting file.");
-                showAlertToast("Unable to fetch image");
+                if (DEBUG) Timber.e("Null pointer when getting file.");
+                showAlertToast(getString(R.string.unable_to_fetch_image));
             }
         }
 

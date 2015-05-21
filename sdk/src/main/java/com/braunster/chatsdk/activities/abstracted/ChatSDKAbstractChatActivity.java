@@ -1,14 +1,21 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.activities.abstracted;
 
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,22 +44,25 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.network.events.MessageEventListener;
-import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Batcher;
+import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
 import com.braunster.chatsdk.view.ChatMessageBoxView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 
 /**
@@ -111,15 +121,12 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     /** Save the scroll state of the messages list.*/
     protected  boolean scrolling = false;
 
-
     private boolean created = true;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setEnableCardToast(true);
         super.onCreate(savedInstanceState);
-
-        if (DEBUG) Log.v(TAG, "onCreate");
 
         enableCheckOnlineOnResumed(true);
 
@@ -136,6 +143,11 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         }
 
         initActionBar();
+    }
+
+    @Override
+    protected Bitmap getTaskDescriptionBitmap() {
+        return super.getTaskDescriptionBitmap();
     }
 
     protected ActionBar readyActionBarToCustomView(){
@@ -158,7 +170,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     }
 
     protected void initActionBar(){
-        if (DEBUG) Log.d(TAG, "initActionBar");
+        if (DEBUG) Timber.d("initActionBar");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
             ActionBar ab = readyActionBarToCustomView();
@@ -171,6 +183,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
             TextView txtName = (TextView) actionBarView.findViewById(R.id.chat_sdk_name);
             changed = setThreadName(txtName);
+
 
             final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.chat_sdk_circle_image);
             final ImageView imageView = (ImageView) actionBarView.findViewById(R.id.chat_sdk_round_corner_image);
@@ -200,6 +213,9 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         if (txtName.getText() == null || !displayName.equals(txtName.getText().toString()))
         {
+            // Set the title of the screen, This is used for the label in the screen overview on lollipop devices.
+            setTitle(displayName);
+            
             txtName.setText(displayName);
             txtName.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -247,6 +263,9 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                                     circleImageView.setImageBitmap(response.getBitmap());
                                     circleImageView.setVisibility(View.VISIBLE);
 
+                                    // setting the task description again so the thread image will be seeing.
+                                    setTaskDescription(response.getBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
+                                    
                                     circleImageView.setOnClickListener(onClickListener);
 
                                     circleImageView.bringToFront();
@@ -304,33 +323,31 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (DEBUG) Log.d(TAG, "onRefreshStarted");
+                if (DEBUG) Timber.d("onRefreshStarted");
 
-                CompletionListenerWithData<BMessage[]> completionListener = new CompletionListenerWithData<BMessage[]>() {
-                    @Override
-                    public void onDone(BMessage[] messages) {
-                        if (DEBUG)
-                            Log.d(TAG, "New messages are loaded, Amount: " + (messages == null ? "No messages" : messages.length));
+                BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread)
+                        .done(new DoneCallback<List<BMessage>>() {
+                            @Override
+                            public void onDone(List<BMessage> bMessages) {
+                                if (DEBUG)
+                                    Timber.d("New messages are loaded, Amount: %s", (bMessages == null ? "No messages" : bMessages.size()));
 
-                        if (messages.length < 2)
-                            showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
-                        else {
-                            // Saving the position in the list so we could back to it after the update.
-                            chatSDKChatHelper.loadMessages(true, false, -1, messagesListAdapter.getCount() + messages.length);
-                        }
+                                if (bMessages.size() < 2)
+                                    showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
+                                else {
+                                    // Saving the position in the list so we could back to it after the update.
+                                    chatSDKChatHelper.loadMessages(true, false, -1, messagesListAdapter.getCount() + bMessages.size());
+                                }
 
-                        mSwipeRefresh.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onDoneWithError(BError error) {
-                        mSwipeRefresh.setRefreshing(false);
-                    }
-                };
-
-                if (messagesListAdapter.getCount() == 0)
-                    BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, completionListener);
-                else BNetworkManager.sharedManager().getNetworkAdapter().loadMoreMessagesForThread(thread, messagesListAdapter.getItem(0).asBMessage(), completionListener);
+                                mSwipeRefresh.setRefreshing(false);
+                            }
+                        })
+                        .fail(new FailCallback<Void>() {
+                            @Override
+                            public void onFail(Void aVoid) {
+                                mSwipeRefresh.setRefreshing(false);
+                            }
+                        });
             }
         });
 
@@ -339,7 +356,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         chatSDKChatHelper.setListMessages(listMessages);
 
         if (messagesListAdapter == null)
-            messagesListAdapter = new ChatSDKMessagesListAdapter(ChatSDKAbstractChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getId());
+            messagesListAdapter = new ChatSDKMessagesListAdapter(ChatSDKAbstractChatActivity.this, BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getId());
 
         listMessages.setAdapter(messagesListAdapter);
         chatSDKChatHelper.setMessagesListAdapter(messagesListAdapter);
@@ -355,38 +372,20 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         outState.putInt(LIST_POS, listMessages.getFirstVisiblePosition());
     }
-
     @Override
-    protected void onPause() {
-        super.onPause();
-        getNetworkAdapter().getEventManager().removeEventByTag(MessageListenerTAG + thread.getId());
-        getNetworkAdapter().getEventManager().removeEventByTag(ThreadListenerTAG + thread.getId());
-    }
+    protected void onStart() {
+        super.onStart();
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (DEBUG) Log.v(TAG, "onNewIntent");
-
-        if ( !getThread(intent.getExtras()) )
-            return;
-
-        created = true;
-
-        chatSDKChatHelper.setThread(thread);
-
-        if (messagesListAdapter != null)
-            messagesListAdapter.clear();
-
-        initActionBar();
-
-        chatSDKChatHelper.checkIfWantToShare(intent);
+        if (thread != null && thread.getType() == BThread.Type.Public)
+        {
+            getNetworkAdapter().addUsersToThread(thread, getNetworkAdapter().currentUserModel());
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (DEBUG) Log.v(TAG, "onResume");
+        if (DEBUG) Timber.v("onResume");
 
         if ( !getThread(data) )
             return;
@@ -414,7 +413,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         final MessageEventListener messageEventListener = new MessageEventListener(MessageListenerTAG + thread.getId(), thread.getEntityID()) {
             @Override
             public boolean onMessageReceived(BMessage message) {
-                if (DEBUG) Log.v(TAG, "onMessageReceived, EntityID: " + message.getEntityID());
+                if (DEBUG) Timber.v("onMessageReceived, EntityID: %s", message.getEntityID());
 
                 // Check that the message is relevant to the current thread.
                 if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue()) {
@@ -428,7 +427,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
                 // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                 if (message.getBUserSender().getEntityID().equals(
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()) )
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID()) )
                 {
                     if (isAdded)
                     {
@@ -453,7 +452,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         threadBatchedEvent.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
-                if (DEBUG) Log.v(TAG, "triggered, Users: " + list.size());
+                if (DEBUG) Timber.v("triggered, Users: %s", list.size());
                 updateChat();
             }
         });
@@ -462,13 +461,14 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             @Override
             public void run() {
 
-                getNetworkAdapter().getEventManager().handleMessages(thread.getEntityID());
+                getNetworkAdapter().getEventManager().messagesOn(thread.getEntityID(), null);
+                getNetworkAdapter().getEventManager().threadUsersAddedOn(thread.getEntityID());
 
                 // Making sure that this thread is handled by the EventManager so the user will get all the chat updates as he enters.
                 // If we are not listening then we add it the the manager.
                 if (!getNetworkAdapter().getEventManager().isListeningToThread(thread.getEntityID()))
                 {
-                    getNetworkAdapter().getEventManager().handleThread(thread.getEntityID());
+                    getNetworkAdapter().getEventManager().threadOn(thread.getEntityID(), null);
                 }
 
                 NotificationUtils.cancelNotification(ChatSDKAbstractChatActivity.this, BDefines.MESSAGE_NOTIFICATION_ID);
@@ -500,9 +500,68 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        getNetworkAdapter().getEventManager().removeEventByTag(MessageListenerTAG + thread.getId());
+        getNetworkAdapter().getEventManager().removeEventByTag(ThreadListenerTAG + thread.getId());
+    }
+
+    /**
+     * Sending a broadcast that the chat was closed, Only if there were new messages on this chat.
+     * This is used for example to update the thread list that messages has been read.
+     * */
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (chatSDKChatHelper.getReadCount() > 0)
+            sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
+
+        if (thread != null && thread.getType() == BThread.Type.Public)
+        {
+            getNetworkAdapter().removeUsersFromThread(thread, getNetworkAdapter().currentUserModel());
+        }
+    }
+
+    /**
+     * Not used, There is a piece of code here that could be used to clean all images that was loaded for this chat from cache.
+     * */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        /* Clear all the images that was loaded for this chat from the cache. Currently not used but may be useful some day or to someone.
+        for (String key : messagesListAdapter.getCacheKeys())
+            VolleyUtils.getBitmapCache().remove(key);*/
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (DEBUG) Timber.v("onNewIntent");
+
+        if ( !getThread(intent.getExtras()) )
+            return;
+
+        created = true;
+
+        chatSDKChatHelper.setThread(thread);
+
+        if (messagesListAdapter != null)
+            messagesListAdapter.clear();
+
+        initActionBar();
+
+        chatSDKChatHelper.checkIfWantToShare(intent);
+    }
+
+
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (DEBUG) Log.v(TAG, "onActivityResult");
+        if (DEBUG) Timber.v("onActivityResult");
 
         int result = chatSDKChatHelper.handleResult(requestCode, resultCode, data);
 
@@ -510,7 +569,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         {
             if (requestCode == ADD_USERS)
             {
-                if (DEBUG) Log.d(TAG, "ADD_USER_RETURN");
+                if (DEBUG) Timber.d("ADD_USER_RETURN");
                 if (resultCode == RESULT_OK)
                 {
                     updateChat();
@@ -518,7 +577,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             }
             else if (requestCode == SHOW_DETAILS)
             {
-                if (DEBUG) Log.d(TAG, "SHOW_DETAILS");
+                if (DEBUG) Timber.d("SHOW_DETAILS");
                 if (resultCode == RESULT_OK)
                 {
                     // Updating the selected chat id.
@@ -560,11 +619,16 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             item.setIcon(R.drawable.ic_plus);
         }
 
-        MenuItem itemThreadUsers =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_thread_details, 10, getString(R.string.chat_activity_show_thread_details));
-        itemThreadUsers.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        itemThreadUsers.setIcon(android.R.drawable.ic_menu_info_details);
+        if (BDefines.Options.ThreadDetailsEnabled)
+        {
 
+            MenuItem itemThreadUsers =
+                menu.add(Menu.NONE, R.id.action_chat_sdk_thread_details, 10, getString(R.string.chat_activity_show_thread_details));
+            
+            itemThreadUsers.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            itemThreadUsers.setIcon(android.R.drawable.ic_menu_info_details);
+        }
+        
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -647,33 +711,10 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     @Override
     public void onAuthenticated() {
         super.onAuthenticated();
-        if (DEBUG) Log.v(TAG, "onAuthenticated");
+        if (DEBUG) Timber.v("onAuthenticated");
         chatSDKChatHelper.loadMessagesAndRetainCurrentPos();
     }
 
-    /**
-     * Sending a broadcast that the chat was closed, Only if there were new messages on this chat.
-     * This is used for example to update the thread list that messages has been read.
-     * */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (chatSDKChatHelper.getReadCount() > 0)
-            sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
-    }
-
-    /**
-     * Not used, There is a piece of code here that could be used to clean all images that was loaded for this chat from cache.
-     * */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        if (DEBUG) Log.d(TAG, "onDestroy, CacheSize: " + VolleyUtils.getBitmapCache().size());
-
-        /* Clear all the images that was loaded for this chat from the cache. Currently not used but may be useful some day or to someone.
-        for (String key : messagesListAdapter.getCacheKeys())
-            VolleyUtils.getBitmapCache().remove(key);*/
-    }
 
     /**
      * Get the current thread from the bundle data, Thread could be in the getIntent or in onNewIntent.
@@ -682,14 +723,12 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         if (bundle != null && (bundle.containsKey(THREAD_ID) || bundle.containsKey(THREAD_ENTITY_ID)) )
         {
-            if (DEBUG) Log.d(TAG, "Saved instance bundle is not null");
             this.data = bundle;
         }
         else
         {
             if ( getIntent() == null || getIntent().getExtras() == null)
             {
-                if (DEBUG) Log.e(TAG, "No Extras");
                 finish();
                 return false;
             }
@@ -709,14 +748,14 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                     BThreadDao.Properties.EntityID,
                     this.data.getString(THREAD_ENTITY_ID));
         }else{
-            if (DEBUG) Log.e(TAG, "Thread id is empty");
+            if (DEBUG) Timber.e("Thread id is empty");
             finish();
             return false;
         }
 
         if (thread == null)
         {
-            if (DEBUG) Log.e(TAG, "No Thread found for given ID.");
+            if (DEBUG) Timber.e("No Thread found for given ID.");
             finish();
             return false;
         }
@@ -757,7 +796,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         // If the message was opend from a notification back button should lead us to the main activity.
         if (data.containsKey(FROM_PUSH))
         {
-            if (DEBUG) Log.d(TAG, "onBackPressed, From Push");
+            if (DEBUG) Timber.d("onBackPressed, From Push");
             data.remove(FROM_PUSH);
 
             chatSDKUiHelper.startMainActivity();
@@ -774,12 +813,14 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         // Pause disk cache access to ensure smoother scrolling
         if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
             VolleyUtils.getRequestQueue().stop();
+            ChatSDKImageMessagesThreadPool.getInstance().getThreadPool().pause();
             queueStopped = true;
         }
 
         // Pause disk cache access to ensure smoother scrolling
         if (queueStopped && !scrolling)
         {
+            ChatSDKImageMessagesThreadPool.getInstance().getThreadPool().resume();
             VolleyUtils.getRequestQueue().start();
             queueStopped = false;
         }

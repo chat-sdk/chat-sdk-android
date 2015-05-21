@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.Utils.helper;
 
 import android.content.Intent;
@@ -6,19 +13,6 @@ import android.os.Bundle;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 
-/**
- * This class is used in the ChatSDKMainActivity for detecting if the activity was open or got new intent
- * from a notification message in the notification drawer.
- *
- * One check is made in the main activity {@link android.app.Activity#onCreate(android.os.Bundle)}  onCreate} 
- * 
- * another is made in the activity {@link android.app.Activity#onNewIntent(android.content.Intent)}  onNewIntent}
- *
- * Also we need to call the {@link android.app.Activity#onSaveInstanceState(android.os.Bundle) onSaveInstanceState} 
- * so the value of the timestamp will be kept during activity life cycles changes.
- *
- * * Created by braunster on 06/02/15.
- */
 public class OpenFromPushChecker {
 
 

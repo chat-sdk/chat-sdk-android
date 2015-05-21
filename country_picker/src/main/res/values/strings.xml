@@ -1,0 +1,6 @@
+<resources>
+
+    <string name="app_name">CountryPicker</string>
+    <string name="search">Search&#8230;</string>
+
+</resources>

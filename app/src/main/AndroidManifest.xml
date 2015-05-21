@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.braunster.androidchatsdk.app"
-    android:versionName="@string/chat_sdk_version_name">
+    package="com.braunster.androidchatsdk.app">
 
     <!-- For Google Maps.-->
     <permission
@@ -13,8 +12,8 @@
         android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
 
-    <!--FIXME For contact import-->
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!--For contact import-->
+<!--    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
 
     <application
 

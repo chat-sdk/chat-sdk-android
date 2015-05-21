@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
+  ~ Created by Itzik Braun on 16/3/2015.
+  ~ Copyright (c) 2015 deluge. All rights reserved.
+  ~
+  ~ Last Modification at: 8/18/14 9:03 AM
+  -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha android:fromAlpha="0.0" android:toAlpha="0.5"
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:duration="@android:integer/config_shortAnimTime"/>
+
+    <scale android:fromXScale="0.0" android:fromYScale="0.0"
+        android:toXScale="1.0" android:toYScale="1.0"
+        android:pivotX="50%" android:pivotY="50%"
+        android:duration="@android:integer/config_shortAnimTime" android:fillBefore="false" />
+</set>

@@ -1,9 +1,15 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.fragments;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,18 +52,14 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        if (DEBUG) Log.d(TAG, "onCreateView");
-
         initViews(inflater);
 
         if (savedInstanceState != null)
         {
-            if (DEBUG) Log.d(TAG, "Saved instance is not null");
             setDetails(getLoginType(), savedInstanceState);
         }
         else
         {
-            if (DEBUG) Log.d(TAG, "Saved instance is null");
             loadData();
         }
 
@@ -77,14 +79,12 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
         // This will make sure (hopefully) there is enough space to show the views in landscape mode.
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE){
-            if (DEBUG) Log.d(TAG, "Landscape");
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
             layoutParams.weight = 3;
             mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
         }
         else
         {
-            if (DEBUG) Log.d(TAG, "Portrait");
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
             layoutParams.weight = 2;
             mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
@@ -132,9 +132,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (DEBUG) Log.v(TAG, "onSaveInstanceState");
-
-        if (DEBUG) Log.v(TAG, "onSaveInstanceState, saving from local data.");
+        
         outState.putString(S_I_D_NAME, etName.getText().toString());
         outState.putString(S_I_D_EMAIL, etMail.getText().toString());
         outState.putString(S_I_D_PHONE, etPhone.getText().toString());
@@ -158,7 +156,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
             return;
         }
 
-        BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+        BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
         etName.setText(user.getMetaName());
         etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
         etMail.setText(user.getMetaEmail());

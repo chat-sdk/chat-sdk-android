@@ -18,6 +18,10 @@
         android:title="@string/action_logout"
         android:orderInCategory="12" />
 
+    <item android:id="@+id/action_chat_sdk_edit"
+        android:title="@string/action_edit"
+        android:orderInCategory="13" />
+
     <item android:id="@+id/action_chat_sdk_thread_details"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"

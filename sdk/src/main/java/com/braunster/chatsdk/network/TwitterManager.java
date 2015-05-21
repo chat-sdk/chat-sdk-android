@@ -1,18 +1,25 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.network;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.object.BError;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.Deferred;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.impl.DeferredObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.scribe.builder.ServiceBuilder;
@@ -26,6 +33,8 @@ import org.scribe.oauth.OAuthService;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import timber.log.Timber;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
@@ -51,7 +60,7 @@ public class TwitterManager {
 
     private static OAuthService service;
     private static Token requestToken;
-    private static Token accessToken;
+    public static Token accessToken;
 
     public static Thread getAuthorizationURLThread(final Context context, final Handler handler){
         return new Thread(new Runnable() {
@@ -73,8 +82,6 @@ public class TwitterManager {
                     return;
                 }
 
-                if (DEBUG) Log.d(TAG, "Token, " + requestToken.getToken());
-
                 String authrizationURL =  service.getAuthorizationUrl(requestToken);
 
                 Message message = new Message();
@@ -85,17 +92,15 @@ public class TwitterManager {
         });
     }
 
-    public static Thread getVerifierThread(final Context context, final String ver, final CompletionListenerWithDataAndError<Object, BError> listener){
+    public static Thread getVerifierThread(final Context context, final String ver, final Deferred<Object, BError, Void> deferred){
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                if (DEBUG) Log.d(TAG, "Verifier: " + ver);
                 accessToken = verify(ver);
 
                 if (accessToken == null)
                 {
-                    if (listener != null)
-                        handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.ACCESS_TOKEN_REFUSED, "Access token is null")));
+                    handler.sendMessage(MessageObj.getErrorMessage(deferred, BError.getError(BError.Code.ACCESS_TOKEN_REFUSED, "Access token is null")));
                     return;
                 }
 
@@ -103,20 +108,36 @@ public class TwitterManager {
 
                 if (!response.isSuccessful())
                 {
-                    if (listener != null)
-                        handler.sendMessage(MessageObj.getErrorMessage(listener, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));
+                    handler.sendMessage(MessageObj.getErrorMessage(deferred, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));
                     return;
                 }
 
-                if (DEBUG) Log.d(TAG, "Header: " + response.getHeader("id"));
-                if (DEBUG) Log.d(TAG, "response" + ", Message" + response.getMessage() + ", Body" + response.getBody());
-
                 try {
                     JSONObject json = new JSONObject(response.getBody());
+
+                    if (DEBUG) Timber.d("Twitter Response: %s", json.toString());
+
                     userId = json.getLong("id");
+
                     profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
+
+                    if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
+
                     BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                            AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter), listener);
+                            AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter))
+                            .done(new DoneCallback<Object>() {
+                                @Override
+                                public void onDone(Object o) {
+                                    deferred.resolve(o);
+                                }
+                            })
+                            .fail(new FailCallback<BError>() {
+                                @Override
+                                public void onFail(BError bError) {
+                                    deferred.reject(bError);
+                                }
+                            });
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -159,9 +180,9 @@ public class TwitterManager {
     private static OAuthService createService(Context context){
         // If you choose to use a callback, "oauth_verifier" will be the return value by Twitter (request param)
         return service = new ServiceBuilder()
-                .provider(TwitterApi.SSL.class)
-                .apiKey(context.getString(R.string.twitter_access_token))
-                .apiSecret(context.getString(R.string.twitter_access_token_secret))
+                .provider(TwitterApi.class)
+                .apiKey(context.getString(R.string.twitter_consumer_key))
+                .apiSecret(context.getString(R.string.twitter_consumer_secret))
                 .callback("http://androidchatsdktwitter.com")
                 .debug()
                 .build();
@@ -193,8 +214,9 @@ public class TwitterManager {
         }
     }
 
-    static Handler handler = new Handler(Looper.getMainLooper()){
+    private static TwitterHandler handler = new TwitterHandler();
 
+    private static class TwitterHandler extends Handler{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -202,17 +224,19 @@ public class TwitterManager {
             switch (msg.what){
                 case 1:
                     MessageObj obj = (MessageObj) msg.obj;
-                    if (obj.listener instanceof CompletionListenerWithData)
+                    if (obj.listener instanceof Deferred)
                     {
-                        CompletionListenerWithData listenerWithData = ((CompletionListenerWithData) obj.listener);
+                        Deferred<Object, BError, Void> deferred= ((DeferredObject) obj.listener);
+
+
                         if (msg.arg1 == ERROR)
-                            listenerWithData.onDoneWithError(((BError) obj.data));
-                        else listenerWithData.onDone(obj.data);
+                            deferred.reject((BError) obj.data);
+                        else deferred.resolve(obj.data);
                     }
             }
         }
-    };
-
+    }
+    
     public static Map<String, Object> getMap(String[] keys,  Object...values){
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -226,4 +250,6 @@ public class TwitterManager {
         }
 
         return map;
-    }}
+    }
+}
+

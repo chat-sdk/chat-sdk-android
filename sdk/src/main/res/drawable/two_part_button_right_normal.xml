@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Created by Itzik Braun on 2/4/2015.
+  ~ Copyright (c) 2015 deluge. All rights reserved.
+  ~
+  ~ Last Modification at: 9/30/14 11:53 AM
+  -->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <solid android:color="@color/white"/>
+    <stroke android:color="@color/dark_gray" android:width="1dp"/>
+
+    <corners
+        android:radius="10dp"
+        android:bottomLeftRadius="0dp" android:topLeftRadius="0dp"/>
+
+</shape>

@@ -1,7 +1,13 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.network;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
 
@@ -27,7 +33,6 @@ public class BPath {
     }
 
     public BPath(String path){
-        if (DEBUG) Log.d(TAG, "Init path, Path: " + path);
 
         path = path .replace("%3A", ":").replace("%253A", ":");
         
@@ -35,7 +40,6 @@ public class BPath {
         if (BDefines.ServerUrl.length() < path.length())
         {
             this.path = path.substring(BDefines.ServerUrl.length());
-            if (DEBUG) Log.d(TAG, "Path after cut: " + this.path);
         }
 
         components = this.path.split("/");
@@ -48,9 +52,6 @@ public class BPath {
                 tokens.put(components[i], null);
 
             keys.add(components[i]);
-
-            if (DEBUG) Log.d(TAG, "Token: " + components[i] + ", Key: "
-                    + tokens.get( (components[i] == null ? "Null" : components[i]) ));
         }
     }
 
@@ -80,12 +81,10 @@ public class BPath {
     }
 
     private String getObjectIdentifier(){
-        if (DEBUG) Log.d(TAG, "getObjectIdentifier, Result: " + TextUtils.join("", keys));
         return TextUtils.join("", keys);
     }
 
     public BPath addPathComponent(String component, String uid){
-        if (DEBUG) Log.v(TAG, "addPathComponent, Component: " + component + ", UID: " + uid);
         keys.add(component);
 
         if (uid == null || uid.replace(" ", "").length() == 0){
@@ -103,7 +102,6 @@ public class BPath {
         for (String key : keys)
         {
             path = path.append(key).append("/");
-            if (DEBUG)  Log.v(TAG, "Key: " + key);
             String uid = tokens.get(key);
             if (uid != null)
                 path = path.append(uid).append("/");
@@ -111,7 +109,6 @@ public class BPath {
                 break;
         }
 
-        if (DEBUG) Log.i(TAG, "getBPath, Result: " + path.toString());
 
         // Remove the trailing slash and replacing the colon coding if necessary.
         return path.toString().substring(0, path.length() -1).replace("%3A", ":").replace("%253A", ":");
