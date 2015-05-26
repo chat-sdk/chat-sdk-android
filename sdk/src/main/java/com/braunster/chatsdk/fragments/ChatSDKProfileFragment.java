@@ -157,9 +157,9 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
         }
 
         BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
-        etName.setText(user.getMetaName());
+        etName.setText(user.getName());
         etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
-        etMail.setText(user.getMetaEmail());
+        etMail.setText(user.getEmail());
 
         chatSDKProfileHelper.loadProfilePic(loginType);
     }

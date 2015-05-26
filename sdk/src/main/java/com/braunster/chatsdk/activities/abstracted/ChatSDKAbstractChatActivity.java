@@ -44,7 +44,6 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -416,7 +415,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 if (DEBUG) Timber.v("onMessageReceived, EntityID: %s", message.getEntityID());
 
                 // Check that the message is relevant to the current thread.
-                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue()) {
+                if (!message.getThread().getEntityID().equals(thread.getEntityID()) || message.getThreadId() != thread.getId().intValue()) {
                     return false;
                 }
 
@@ -426,7 +425,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 boolean isAdded = messagesListAdapter.addRow(message);
 
                 // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                if (message.getBUserSender().getEntityID().equals(
+                if (message.getSender().getEntityID().equals(
                         BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID()) )
                 {
                     if (isAdded)

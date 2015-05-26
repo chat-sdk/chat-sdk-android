@@ -18,7 +18,7 @@ public class BDefines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    public static final String BRootPath = "v3_2_test/";
+    public static final String BRootPath = "tt_test_0_1/";
 
     /**
      * The version name of the app, Here we are using the name from the BuildConfig. 
@@ -100,6 +100,10 @@ public class BDefines {
      * */
     public static boolean EnableFollowers = true;
 
+    public static final class BUserStatus{
+        public static final String Owner = "owner", Invited = "invited", Member = "member", Closed = "closed";
+    }
+
     public static final class Defaults{
         public static final String MessageColor = "0.635294 0.552941 0.686275 1";
         public static final String BubbleDefaultColor = "#27ae60";
@@ -128,7 +132,7 @@ public class BDefines {
     }
 
     public static final class Keys{
-        /*Metadata*/
+
         public static final String BEmail = "email";
         public static final String BKey = "key";
         public static final String BValue = "value";
@@ -141,7 +145,7 @@ public class BDefines {
         public static final String BColor = "color";
         public static final String BName = "name";
         public static final String BNull = "null";
-        public static final String BCreationDate = "creation-date";
+        public static final String BCreationDate = "created";
         public static final String BPayload = "payload";
         public static final String BType = "type";
         public static final String BOnline = "online";
@@ -162,6 +166,19 @@ public class BDefines {
         public static final String BLocation = "location";
         public static final String BDateOfBirth= "date-of-birth";
         public static final String BStatus = "status";
+
+
+        public static final String BDescription = "description";
+        public static final String BUserCreated = "userCreated";
+        public static final String BIsPublic = "isPublic";
+        public static final String BUserName = "userName";
+        public static final String BTime = "time";
+        public static final String BRID = "rid";
+        public static final String BUID = "uid";
+        public static final String BToken = "apikey";
+        public static final String BAPIKey = "token";
+        public static final String BWeight= "weight";
+        public static final String BInvitesEnabled = "inviteEnabled";
 
         public static final class ThirdPartyData{
             public static final String ID = "id";
@@ -215,7 +232,7 @@ public class BDefines {
         /**
          * if true option to send location will be available, If the google maps key is empty it wont be available.
          **/
-        public static boolean LocationEnabled = true;
+        public static boolean LocationEnabled = false;
         
         /**
          * if true option to open group chats and add users to chat will be available.
@@ -225,7 +242,7 @@ public class BDefines {
         /**
          * if true the option to open the thread details would be visible in the chat activity.
          **/
-        public static boolean ThreadDetailsEnabled = true;
+        public static boolean ThreadDetailsEnabled = false;
 
         /**
          * If true images opened in the chat activity will be saved to the user image gallery
@@ -237,7 +254,7 @@ public class BDefines {
          *
          * @see #ImageDirName
          * */
-        public static boolean SaveImagesToDir = true;
+        public static boolean SaveImagesToDir = false;
         
         /**
          * The maximum amounts of lines that will be shown in the notification for incoming messages.

@@ -27,6 +27,7 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserConnection;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
@@ -159,7 +160,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                         pos = adapter.getSelectedUsersPositions().keyAt(i);
 
                     user = adapter.getUserItems().get(pos).asBUser();
-                    currentUser.addContact(user);
+                    currentUser.connectUser(user, BUserConnection.Type.Friend);
                     entitiesIDs[i] = user.getEntityID();
                 }
 
@@ -216,7 +217,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                             if (action.equals(ACTION_ADD_WHEN_FOUND)) {
                                 
                                 for (BUser u : users){
-                                    BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().addContact(u);
+                                    BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().connectUser(u, BUserConnection.Type.Friend);
                                     userIds.add(u.getEntityID());
                                 }
 

@@ -16,6 +16,7 @@ import android.telephony.TelephonyManager;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserConnection;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 
@@ -73,8 +74,8 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
                                     public void onDone(List<BUser> users) {
                                         for (BUser u : users)
                                         {
-                                            if (DEBUG) Timber.d("User found: %s", u.getMetaName());
-                                            BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().addContact(u);
+                                            if (DEBUG) Timber.d("User found: %s", u.getName());
+                                            BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().connectUser(u, BUserConnection.Type.Friend);
                                         }
                                     }
                                 });

@@ -402,7 +402,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                     .done(new DoneCallback<BThread>() {
                                         @Override
                                         public void onDone(BThread thread) {
-                                            showToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success)   + clickedUser.getMetaName());
+                                            showToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success)   + clickedUser.getName());
                                             
                                             if (contactListListener!= null)
                                                 contactListListener.onContactClicked(clickedUser);
@@ -422,7 +422,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                             break;
 
                         case CLICK_MODE_SHARE_CONTENT:
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, getNetworkAdapter().currentUserModel())
+                            createAndOpenThreadWithUsers(clickedUser.getName(), clickedUser, getNetworkAdapter().currentUserModel())
                                     .done(new DoneCallback<BThread>() {
                                         @Override
                                         public void onDone(BThread thread) {
@@ -462,7 +462,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                             break;
 
                         default:
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, getNetworkAdapter().currentUserModel())
+                            createAndOpenThreadWithUsers(clickedUser.getName(), clickedUser, getNetworkAdapter().currentUserModel())
                                 .done(new DoneCallback<BThread>() {
                                     @Override
                                     public void onDone(BThread thread) {
@@ -497,7 +497,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             switch (loadingMode) {
                 case MODE_LOAD_CONTACTS:
                     if (DEBUG) Timber.d("Mode - Contacts");
-                    sourceUsers = getNetworkAdapter().currentUserModel().getContacts();
+                    sourceUsers = getNetworkAdapter().friends();
                     break;
 
                 case MODE_LOAD_THREAD_USERS:
@@ -512,11 +512,21 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     break;
 
                 case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                    List<BUser> users1 = getNetworkAdapter().currentUserModel().getContacts();
+                    List<BUser> users1 = getNetworkAdapter().friends();
                     thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, extraData);
-                    List<BUser> threadUser = thread.getUsers();
-                    users1.removeAll(threadUser);
-                    sourceUsers = users1;
+
+                    if (thread == null)
+                    {
+                        sourceUsers = new ArrayList<>();
+
+                        Timber.e("MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD, Thread is null");
+                    }
+                    else
+                    {
+                        List<BUser> threadUser = thread.getUsers();
+                        users1.removeAll(threadUser);
+                        sourceUsers = users1;
+                    }
                     break;
 
                 case MODE_LOAD_FOLLOWERS:

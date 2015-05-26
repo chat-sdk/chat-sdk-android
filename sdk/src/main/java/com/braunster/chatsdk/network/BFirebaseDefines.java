@@ -30,18 +30,24 @@ public class BFirebaseDefines {
     public static final class Path{
         public static final char SEPARATOR = '/';
 
-        public static final String BUsersPath = "users";
-        public static final String BMessagesPath = "messages";
-        public static final String BThreadPath = "threads";
-        public static final String BPublicThreadPath = "public-threads";
-        public static final String BDetailsPath = "details";
-        public static final String BIndexPath = "searchIndex";
-        public static final String BOnlinePath = "online";
-        public static final String BMetaPath = "meta";
-        public static final String BFollowers = "followers";
-        public static final String BFollows = "follows";
-        public static final String BImage = "imaeg";
+        public static final String BUsers = "users";
+        public static final String BMessages = "messages";
+        public static final String BLastMessages = "lastMessages";
+        public static final String BThread = "rooms";
+        public static final String BPublicThread = "public-rooms";
+        public static final String BDetails = "details";
+        public static final String BIndex = "searchIndex";
+        public static final String BOnline = "online";
+        public static final String BMeta = "meta";
+        public static final String BImage = "image";
         public static final String BThumbnail = "thumbnail";
+        public static final String BState = "state";
+        public static final String BUsersMeta = "usersMeta";
+        public static final String BTyping = "typing";
+        public static final String BFollows = "follows";
+        public static final String BFollowers = "followers";
+        public static final String BBlocked = "blocked";
+        public static final String BFriends = "friends";
     }
 
 

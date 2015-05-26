@@ -10,7 +10,7 @@ package com.braunster.chatsdk.dao.entities;
 /**
  * Created by braunster on 25/06/14.
  */
-public class BLinkedAccountEntity extends Entity{
+public class BUserAccountEntity extends Entity{
 
     public static class Type{
         public static final int FACEBOOK = 0;

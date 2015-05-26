@@ -65,7 +65,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         user = getChild(groupPosition, childPosition);
-        final String childText = user.getMetaName();
+        final String childText = user.getName();
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.chat_sdk_row_contact, null);

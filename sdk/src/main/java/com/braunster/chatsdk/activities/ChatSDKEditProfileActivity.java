@@ -15,7 +15,6 @@ import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -108,7 +106,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
             loadCountryFlag(countryCode);
         }
         
-        String name = user.getMetaName();
+        String name = user.getName();
         String location = user.metaStringForKey(BDefines.Keys.BLocation);
         String dateOfBirth = user.metaStringForKey(BDefines.Keys.BDateOfBirth);
         String status = user.metaStringForKey(BDefines.Keys.BStatus);
@@ -141,7 +139,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
 
         if (!etName.getText().toString().isEmpty()) {
-            user.setMetaName(etName.getText().toString());
+            user.setName(etName.getText().toString());
         }
 
         user.setMetadataString(BDefines.Keys.BDateOfBirth, txtDateOfBirth.getText().toString());

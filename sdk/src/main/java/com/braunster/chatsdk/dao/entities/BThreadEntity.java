@@ -7,7 +7,7 @@
 
 package com.braunster.chatsdk.dao.entities;
 
-import android.support.annotation.IntDef;
+import android.support.annotation.StringDef;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
@@ -22,14 +22,20 @@ import java.util.List;
  */
 public abstract class BThreadEntity extends Entity{
 
-    @IntDef({Type.Private, Type.Public})
+    @StringDef({Type.OneToOne, Type.Public, Type.Group, Type.NoType})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ThreadType {}
     
     
     public static class Type{
-        public static final int Private = 0;
-        public static final int Public = 1;
+        /**
+         * This was added so we wont get warning from the system when placing an empty string for specifying no particular thread type.
+         *
+         * @see BUser#getThreads()*/
+        public static final String NoType = "no_type";
+        public static final String OneToOne = "1to1";
+        public static final String Public = "public";
+        public static final String Group = "group";
     }
 
     public abstract Date lastMessageAdded();
@@ -41,13 +47,13 @@ public abstract class BThreadEntity extends Entity{
 
 
     @ThreadType
-    public abstract void setType(@ThreadType Integer type);
+    public abstract void setType(@ThreadType String type);
     
     public abstract List<BUser> getUsers();
 
     public abstract String displayName();
 
-    public abstract Integer getType();
+    public abstract String getType();
 
 
 }

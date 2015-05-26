@@ -107,7 +107,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public, adapter.getItemMaker()));
+        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().publicThreadsItems(adapter.getItemMaker()));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Public, adapter.getItemMaker());
+                message.obj = BNetworkManager.sharedManager().getNetworkAdapter().publicThreadsItems(adapter.getItemMaker());
 
                 handler.sendMessageAtFrontOfQueue(message);
 

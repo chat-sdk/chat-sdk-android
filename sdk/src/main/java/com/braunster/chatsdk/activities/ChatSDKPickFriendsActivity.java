@@ -143,7 +143,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     }
 
     private void initList(){
-        final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getContacts();
+        final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().friends();
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
@@ -221,7 +221,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                             users[i] = listAdapter.getUserItems().get(pos).asBUser();
 
-                            if (DEBUG) Timber.d("Selected User[%s]: ", users[i].getMetaName());
+                            if (DEBUG) Timber.d("Selected User[%s]: ", users[i].getName());
 
                         }
 

@@ -121,7 +121,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker()));
+        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().privateThreadsItems(adapter.getItemMaker()));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker());
+                List list = BNetworkManager.sharedManager().getNetworkAdapter().privateThreadsItems(adapter.getItemMaker());
 
                 if (DEBUG) {
                     timings.addSplit("Loading threads");

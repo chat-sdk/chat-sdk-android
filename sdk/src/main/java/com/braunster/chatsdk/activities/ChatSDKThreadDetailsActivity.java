@@ -46,6 +46,8 @@ import timber.log.Timber;
 
 /**
  * Created by braunster on 24/11/14.
+ *
+ * This activity is not used in tapatalk
  */
 public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
@@ -93,8 +95,8 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
             if (admin!=null)
             {
-                if (StringUtils.isNotBlank(admin.getThumbnailPictureURL()))
-                    VolleyUtils.getImageLoader().get(admin.getThumbnailPictureURL(), new ImageLoader.ImageListener() {
+                if (StringUtils.isNotBlank(admin.getPictureThumbnail()))
+                    VolleyUtils.getImageLoader().get(admin.getPictureThumbnail(), new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             if (response.getBitmap() != null) {
@@ -108,7 +110,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                         }
                     });
 
-                txtAdminName.setText(admin.getMetaName());
+                txtAdminName.setText(admin.getName());
             }
         }
 
@@ -328,7 +330,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                     }
                 }
 
-                imageThread.setImageBitmap(b);
+                /*imageThread.setImageBitmap(b);
 
                 getNetworkAdapter().saveImage(image.getPath())
                         .done(new DoneCallback<String>() {
@@ -344,7 +346,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                             public void onFail(BError error) {
                                 showAlertToast(getString(R.string.unable_to_save_file));
                             }
-                        });
+                        });*/
             }
             catch (NullPointerException e){
                 if (DEBUG) Timber.e("Null pointer when getting file.");

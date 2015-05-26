@@ -27,10 +27,6 @@ public abstract class BMessageEntity extends Entity {
         public static final int TEXT = 0, IMAGE = 2, LOCATION = 1;
     }
 
-    public static final class Status{
-        public static final int NULL = 0, SENDING = 1, SENT = 2, FAILED = 3;
-    }
-
     public static final class Delivered{
         public static final int Yes = 0, No= 1;
     }

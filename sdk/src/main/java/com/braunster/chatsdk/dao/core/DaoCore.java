@@ -314,16 +314,16 @@ public class DaoCore {
     }
 
     public static void connectUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
+        if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         BLinkData linkData = new BLinkData();
-        linkData.setThreadID(thread.getId());
-        linkData.setUserID(user.getId());
+        linkData.setThreadId(thread.getId());
+        linkData.setUserId(user.getId());
         createEntity(linkData);
     }
 
     public static void breakUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, thread.getId(), user.getId());
+        if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
+        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.ThreadId, BLinkDataDao.Properties.UserId}, thread.getId(), user.getId());
         
         DaoCore.deleteEntity(linkData);
     }

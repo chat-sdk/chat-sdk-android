@@ -15,7 +15,6 @@ import com.braunster.chatsdk.network.BPath;
 
 import java.util.Calendar;
 
-import de.greenrobot.dao.DaoException;
 import timber.log.Timber;
 // KEEP INCLUDES END
 /**
@@ -27,15 +26,13 @@ public class BMessage extends BMessageEntity  {
     private String entityID;
     private java.util.Date date;
     private Boolean isRead;
-    private String resources;
     private String resourcesPath;
     private String text;
     private String imageDimensions;
     private Integer type;
-    private Integer status;
     private Integer delivered;
-    private Long OwnerThread;
-    private Long Sender;
+    private Long threadId;
+    private Long senderId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -43,11 +40,11 @@ public class BMessage extends BMessageEntity  {
     /** Used for active entity operations. */
     private transient BMessageDao myDao;
 
-    private BThread BThreadOwner;
-    private Long BThreadOwner__resolvedKey;
+    private BThread thread;
+    private Long thread__resolvedKey;
 
-    private BUser BUserSender;
-    private Long BUserSender__resolvedKey;
+    private BUser sender;
+    private Long sender__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -66,20 +63,18 @@ public class BMessage extends BMessageEntity  {
         this.id = id;
     }
 
-    public BMessage(Long id, String entityID, java.util.Date date, Boolean isRead, String resources, String resourcesPath, String text, String imageDimensions, Integer type, Integer status, Integer delivered, Long OwnerThread, Long Sender) {
+    public BMessage(Long id, String entityID, java.util.Date date, Boolean isRead, String resourcesPath, String text, String imageDimensions, Integer type, Integer delivered, Long threadId, Long senderId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
         this.isRead = isRead;
-        this.resources = resources;
         this.resourcesPath = resourcesPath;
         this.text = text;
         this.imageDimensions = imageDimensions;
         this.type = type;
-        this.status = status;
         this.delivered = delivered;
-        this.OwnerThread = OwnerThread;
-        this.Sender = Sender;
+        this.threadId = threadId;
+        this.senderId = senderId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -120,14 +115,6 @@ public class BMessage extends BMessageEntity  {
         this.isRead = isRead;
     }
 
-    public String getResources() {
-        return resources;
-    }
-
-    public void setResources(String resources) {
-        this.resources = resources;
-    }
-
     public String getResourcesPath() {
         return resourcesPath;
     }
@@ -160,14 +147,6 @@ public class BMessage extends BMessageEntity  {
         this.type = type;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
     public Integer getDelivered() {
         return delivered;
     }
@@ -176,69 +155,69 @@ public class BMessage extends BMessageEntity  {
         this.delivered = delivered;
     }
 
-    public Long getOwnerThread() {
-        return OwnerThread;
+    public Long getThreadId() {
+        return threadId;
     }
 
-    public void setOwnerThread(Long OwnerThread) {
-        this.OwnerThread = OwnerThread;
+    public void setThreadId(Long threadId) {
+        this.threadId = threadId;
     }
 
-    public Long getSender() {
-        return Sender;
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setSender(Long Sender) {
-        this.Sender = Sender;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
 
     /** To-one relationship, resolved on first access. */
-    public BThread getBThreadOwner() {
-        Long __key = this.OwnerThread;
-        if (BThreadOwner__resolvedKey == null || !BThreadOwner__resolvedKey.equals(__key)) {
+    public BThread getThread() {
+        Long __key = this.threadId;
+        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BThreadDao targetDao = daoSession.getBThreadDao();
-            BThread BThreadOwnerNew = targetDao.load(__key);
+            BThread threadNew = targetDao.load(__key);
             synchronized (this) {
-                BThreadOwner = BThreadOwnerNew;
-            	BThreadOwner__resolvedKey = __key;
+                thread = threadNew;
+            	thread__resolvedKey = __key;
             }
         }
-        return BThreadOwner;
+        return thread;
     }
 
-    public void setBThreadOwner(BThread BThreadOwner) {
+    public void setThread(BThread thread) {
         synchronized (this) {
-            this.BThreadOwner = BThreadOwner;
-            OwnerThread = BThreadOwner == null ? null : BThreadOwner.getId();
-            BThreadOwner__resolvedKey = OwnerThread;
+            this.thread = thread;
+            threadId = thread == null ? null : thread.getId();
+            thread__resolvedKey = threadId;
         }
     }
 
     /** To-one relationship, resolved on first access. */
-    public BUser getBUserSender() {
-        Long __key = this.Sender;
-        if (BUserSender__resolvedKey == null || !BUserSender__resolvedKey.equals(__key)) {
+    public BUser getSender() {
+        Long __key = this.senderId;
+        if (sender__resolvedKey == null || !sender__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BUserDao targetDao = daoSession.getBUserDao();
-            BUser BUserSenderNew = targetDao.load(__key);
+            BUser senderNew = targetDao.load(__key);
             synchronized (this) {
-                BUserSender = BUserSenderNew;
-            	BUserSender__resolvedKey = __key;
+                sender = senderNew;
+            	sender__resolvedKey = __key;
             }
         }
-        return BUserSender;
+        return sender;
     }
 
-    public void setBUserSender(BUser BUserSender) {
+    public void setSender(BUser sender) {
         synchronized (this) {
-            this.BUserSender = BUserSender;
-            Sender = BUserSender == null ? null : BUserSender.getId();
-            BUserSender__resolvedKey = Sender;
+            this.sender = sender;
+            senderId = sender == null ? null : sender.getId();
+            sender__resolvedKey = senderId;
         }
     }
 
@@ -269,12 +248,12 @@ public class BMessage extends BMessageEntity  {
     // KEEP METHODS - put your custom methods here
     @Override
     public BPath getBPath() {
-        if (getBThreadOwner() == null)
+        if (getThread() == null)
         {
             if (DEBUG) Timber.e("Owner Thread is null");
             return null;
         }
-        return getBThreadOwner().getBPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
+        return getThread().getBPath().addPathComponent(BFirebaseDefines.Path.BMessages, entityID);
     }
 
     @Override
@@ -303,19 +282,12 @@ public class BMessage extends BMessageEntity  {
     }
 
     public boolean isMine(){
-        return getBUserSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel());
+        return getSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel());
     }
 
     @Override
     public String color() {
-        return getBUserSender().getMessageColor();
-    }
-
-    public Integer getStatusOrNull(){
-        if (status == null)
-            status = BMessageEntity.Status.NULL;
-
-        return status;
+        return getSender().getMessageColor();
     }
     
     public int wasDelivered(){
@@ -330,9 +302,8 @@ public class BMessage extends BMessageEntity  {
 
     @Override
     public String toString() {
-        return String.format("BMessage, id: %s, type: %s, Sender: %s", id, type, getBUserSender());
+        return String.format("BMessage, id: %s, type: %s, Sender: %s", id, type, getSender());
     }
-
     // KEEP METHODS END
 
 }

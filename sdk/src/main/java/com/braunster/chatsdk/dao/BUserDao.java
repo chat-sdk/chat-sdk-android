@@ -1,12 +1,17 @@
 package com.braunster.chatsdk.dao;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
+import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BUser;
 
@@ -25,16 +30,15 @@ public class BUserDao extends AbstractDao<BUser, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property AuthenticationType = new Property(2, Integer.class, "AuthenticationType", false, "AUTHENTICATION_TYPE");
-        public final static Property MessageColor = new Property(3, String.class, "messageColor", false, "MESSAGE_COLOR");
-        public final static Property LastOnline = new Property(4, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
-        public final static Property LastUpdated = new Property(5, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
-        public final static Property Online = new Property(6, Boolean.class, "Online", false, "ONLINE");
-        public final static Property Metadata = new Property(7, String.class, "Metadata", false, "metadata");
+        public final static Property MessageColor = new Property(2, String.class, "messageColor", false, "MESSAGE_COLOR");
+        public final static Property Online = new Property(3, Boolean.class, "Online", false, "ONLINE");
+        public final static Property Metadata = new Property(4, String.class, "Metadata", false, "metadata");
+        public final static Property InstallationId = new Property(5, Long.class, "installationId", false, "INSTALLATION_ID");
     };
 
     private DaoSession daoSession;
 
+    private Query<BUser> bInstallation_UsersQuery;
 
     public BUserDao(DaoConfig config) {
         super(config);
@@ -51,12 +55,10 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         db.execSQL("CREATE TABLE " + constraint + "'BUSER' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ENTITY_ID' TEXT," + // 1: entityID
-                "'AUTHENTICATION_TYPE' INTEGER," + // 2: AuthenticationType
-                "'MESSAGE_COLOR' TEXT," + // 3: messageColor
-                "'LAST_ONLINE' INTEGER," + // 4: lastOnline
-                "'LAST_UPDATED' INTEGER," + // 5: lastUpdated
-                "'ONLINE' INTEGER," + // 6: Online
-                "'metadata' TEXT);"); // 7: Metadata
+                "'MESSAGE_COLOR' TEXT," + // 2: messageColor
+                "'ONLINE' INTEGER," + // 3: Online
+                "'metadata' TEXT," + // 4: Metadata
+                "'INSTALLATION_ID' INTEGER);"); // 5: installationId
     }
 
     /** Drops the underlying database table. */
@@ -80,34 +82,24 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindString(2, entityID);
         }
  
-        Integer AuthenticationType = entity.getAuthenticationType();
-        if (AuthenticationType != null) {
-            stmt.bindLong(3, AuthenticationType);
-        }
- 
         String messageColor = entity.getMessageColor();
         if (messageColor != null) {
-            stmt.bindString(4, messageColor);
-        }
- 
-        java.util.Date lastOnline = entity.getLastOnline();
-        if (lastOnline != null) {
-            stmt.bindLong(5, lastOnline.getTime());
-        }
- 
-        java.util.Date lastUpdated = entity.getLastUpdated();
-        if (lastUpdated != null) {
-            stmt.bindLong(6, lastUpdated.getTime());
+            stmt.bindString(3, messageColor);
         }
  
         Boolean Online = entity.getOnline();
         if (Online != null) {
-            stmt.bindLong(7, Online ? 1l: 0l);
+            stmt.bindLong(4, Online ? 1l: 0l);
         }
  
         String Metadata = entity.getMetadata();
         if (Metadata != null) {
-            stmt.bindString(8, Metadata);
+            stmt.bindString(5, Metadata);
+        }
+ 
+        Long installationId = entity.getInstallationId();
+        if (installationId != null) {
+            stmt.bindLong(6, installationId);
         }
     }
 
@@ -129,12 +121,10 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         BUser entity = new BUser( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
-            cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // AuthenticationType
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // messageColor
-            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastOnline
-            cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // lastUpdated
-            cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // Online
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // Metadata
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // messageColor
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // Online
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // Metadata
+            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5) // installationId
         );
         return entity;
     }
@@ -144,12 +134,10 @@ public class BUserDao extends AbstractDao<BUser, Long> {
     public void readEntity(Cursor cursor, BUser entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setAuthenticationType(cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2));
-        entity.setMessageColor(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setLastOnline(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
-        entity.setLastUpdated(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));
-        entity.setOnline(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
-        entity.setMetadata(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setMessageColor(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setOnline(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
+        entity.setMetadata(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setInstallationId(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
      }
     
     /** @inheritdoc */
@@ -175,4 +163,109 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "users" to-many relationship of BInstallation. */
+    public List<BUser> _queryBInstallation_Users(Long installationId) {
+        synchronized (this) {
+            if (bInstallation_UsersQuery == null) {
+                QueryBuilder<BUser> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.InstallationId.eq(null));
+                bInstallation_UsersQuery = queryBuilder.build();
+            }
+        }
+        Query<BUser> query = bInstallation_UsersQuery.forCurrentThread();
+        query.setParameter(0, installationId);
+        return query.list();
+    }
+
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getBInstallationDao().getAllColumns());
+            builder.append(" FROM BUSER T");
+            builder.append(" LEFT JOIN BINSTALLATION T0 ON T.'INSTALLATION_ID'=T0.'_id'");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected BUser loadCurrentDeep(Cursor cursor, boolean lock) {
+        BUser entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        BInstallation installation = loadCurrentOther(daoSession.getBInstallationDao(), cursor, offset);
+        entity.setInstallation(installation);
+
+        return entity;    
+    }
+
+    public BUser loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<BUser> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<BUser> list = new ArrayList<BUser>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<BUser> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<BUser> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

@@ -9,8 +9,6 @@ import de.greenrobot.dao.DaoException;
 import com.braunster.chatsdk.dao.entities.BFollowerEntity;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
-
-import de.greenrobot.dao.DaoException;
 // KEEP INCLUDES END
 /**
  * Entity mapped to table BFOLLOWER.
@@ -21,7 +19,7 @@ public class BFollower extends BFollowerEntity  {
     private String entityID;
     private Integer type;
     private Long OwnerId;
-    private Long BUserId;
+    private Long UserId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -46,12 +44,12 @@ public class BFollower extends BFollowerEntity  {
         this.id = id;
     }
 
-    public BFollower(Long id, String entityID, Integer type, Long OwnerId, Long BUserId) {
+    public BFollower(Long id, String entityID, Integer type, Long OwnerId, Long UserId) {
         this.id = id;
         this.entityID = entityID;
         this.type = type;
         this.OwnerId = OwnerId;
-        this.BUserId = BUserId;
+        this.UserId = UserId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -92,12 +90,12 @@ public class BFollower extends BFollowerEntity  {
         this.OwnerId = OwnerId;
     }
 
-    public Long getBUserId() {
-        return BUserId;
+    public Long getUserId() {
+        return UserId;
     }
 
-    public void setBUserId(Long BUserId) {
-        this.BUserId = BUserId;
+    public void setUserId(Long UserId) {
+        this.UserId = UserId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -127,7 +125,7 @@ public class BFollower extends BFollowerEntity  {
 
     /** To-one relationship, resolved on first access. */
     public BUser getUser() {
-        Long __key = this.BUserId;
+        Long __key = this.UserId;
         if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -145,8 +143,8 @@ public class BFollower extends BFollowerEntity  {
     public void setUser(BUser user) {
         synchronized (this) {
             this.user = user;
-            BUserId = user == null ? null : user.getId();
-            user__resolvedKey = BUserId;
+            UserId = user == null ? null : user.getId();
+            user__resolvedKey = UserId;
         }
     }
 
@@ -178,7 +176,7 @@ public class BFollower extends BFollowerEntity  {
 
     @Override
     public BPath getBPath() {
-        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, type == Type.FOLLOWER ? getUser().getEntityID() : getOwner().getEntityID())
+        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsers, type == Type.FOLLOWER ? getUser().getEntityID() : getOwner().getEntityID())
                 .addPathComponent(type == Type.FOLLOWER ? BFirebaseDefines.Path.BFollowers : BFirebaseDefines.Path.BFollows, type == Type.FOLLOWER ? getOwner().getEntityID() : getUser().getEntityID());
     }
     // KEEP METHODS END

@@ -180,27 +180,27 @@ public class NotificationUtils {
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getOwnerThread());
+        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getThreadId());
         resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
         resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
 
         String title = !StringUtils.isEmpty(
-                message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ";
+                message.getSender().getName()) ? message.getSender().getName() : " ";
 
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
+        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getName(), msgContent);
 
         getNotificationLines(context, message, data);
         
         Bitmap threadImage = null;
-        if (message.getBThreadOwner() != null)
+        if (message.getThread() != null)
         {
-            final String urls[] = message.getBThreadOwner().threadImageUrl().split(",");
+            final String urls[] = message.getThread().threadImageUrl().split(",");
 
             if (urls.length > 1)
             {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getBThreadOwner().getEntityID(), urls.length));
+                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getThread().getEntityID(), urls.length));
             }
             else if (urls.length == 1)
             {
@@ -208,10 +208,10 @@ public class NotificationUtils {
             }
             
             // Trying to load the sender image.
-            if (threadImage == null && message.getBUserSender() != null
-                    && StringUtils.isNotEmpty(message.getBUserSender().getMetaPictureUrl()))
+            if (threadImage == null && message.getSender() != null
+                    && StringUtils.isNotEmpty(message.getSender().getPictureUrl()))
             {
-                VolleyUtils.getImageLoader().get(message.getBUserSender().getMetaPictureUrl(), new ImageLoader.ImageListener() {
+                VolleyUtils.getImageLoader().get(message.getSender().getPictureUrl(), new ImageLoader.ImageListener() {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                         if (imageContainer.getBitmap() != null)
@@ -236,14 +236,14 @@ public class NotificationUtils {
  
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
-                message.getBUserSender().getMetaName(),
+                message.getSender().getName(),
                 message.getType() == TEXT ? message.getText()
                 : message.getType() == IMAGE ? context.getString(R.string.not_image_message)
                 : context.getString(R.string.not_location_message));
     }
  
     private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){
-        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getThreads(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().privateThreads();
 
         if (DEBUG) Timber.v("getNotification, Thread size: %s", threads == null ? "0" : threads.size());
 
@@ -294,7 +294,8 @@ public class NotificationUtils {
             // Adding summary, Total amount of unread messages.
             if (lines.size() > 3)
             {
-                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary), BNetworkManager.sharedManager().getNetworkAdapter().getUnreadMessagesAmount(false)));
+                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary),
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().unreadMessageCount()));
             }
         }
         
@@ -307,7 +308,7 @@ public class NotificationUtils {
         {
             lines.add(getMessageContent(context, message));
 
-            String senderName = message.getBUserSender().getMetaName();
+            String senderName = message.getSender().getName();
             if (!senders.contains(senderName))
                 senders.add(senderName);
 

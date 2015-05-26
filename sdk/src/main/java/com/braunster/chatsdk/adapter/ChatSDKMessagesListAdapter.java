@@ -514,8 +514,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         if (DEBUG) Timber.v("addRow, ID: %s, Delivered: %s", newItem.id, newItem.delivered);
 
         // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.entityId == null && (newItem.delivered != BMessage.Delivered.No
-                || newItem.status != BMessage.Status.SENDING))
+        if (newItem.entityId == null && (newItem.delivered != BMessage.Delivered.No))
         {
             if (DEBUG) Timber.d("Message has no entity and was sent.: ", newItem.text);
             return false;
@@ -531,7 +530,6 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             if (item.id == newItem.id)
             {
                 item.entityId = newItem.entityId;
-                item.status = newItem.status;
                 item.delivered = newItem.delivered;
                 item.url = newItem.url;
                 item.time = newItem.time;
@@ -665,7 +663,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * */
     public static class MessageListItem{
         public String entityId, profilePicUrl, time, text, resourcePath;
-        private int type, status, color, rowType;
+        private int type, color, rowType;
         private long sender, timeInMillis;
         private long id;
         private int[] dimensions = null;
@@ -673,13 +671,12 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         private int delivered = BMessage.Delivered.No;
         private String dimensionsString;
         
-        private MessageListItem(long id, String entityId, int type, int rowType, int status,
+        private MessageListItem(long id, String entityId, int type, int rowType,
                                 long senderID, String profilePicUrl, String time,
                                 String text, String color, long timeInMillis, int delivered, String resourcePath, String dimensionsString) {
             this.type = type;
             this.id = id;
             this.timeInMillis = timeInMillis;
-            this.status = status;
             this.sender = senderID;
             this.entityId = entityId;
             this.profilePicUrl = profilePicUrl;
@@ -702,15 +699,14 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             if (simpleDateFormat == null)
                 simpleDateFormat = getFormat(message);
 
-            BUser user = message.getBUserSender();
+            BUser user = message.getSender();
 
             MessageListItem msg = new MessageListItem( message.getId(),
                     message.getEntityID(),
                     message.getType(),
                     getRowType(message.getType(), user.getId(), userID),
-                    message.getStatusOrNull(),
                     user.getId(),
-                    user.getThumbnailPictureURL(),
+                    user.getPictureThumbnail(),
                     String.valueOf(simpleDateFormat.format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),

@@ -134,9 +134,9 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
             public AbstractUserListItem fromBUser(BUser user) {
                 return  new AbstractUserListItem(R.layout.chat_sdk_row_contact,
                         user.getEntityID(),
-                        user.getMetaName(),
-                        user.getThumbnailPictureURL(),
-                        user.getMetaPictureUrl(),
+                        user.getName(),
+                        user.getPictureThumbnail(),
+                        user.getPictureUrl(),
                         TYPE_USER,
                         user.getOnline() == null ? false : user.getOnline());
             }

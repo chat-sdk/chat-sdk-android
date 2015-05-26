@@ -32,15 +32,13 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
         public final static Property Date = new Property(2, java.util.Date.class, "date", false, "DATE");
         public final static Property IsRead = new Property(3, Boolean.class, "isRead", false, "IS_READ");
-        public final static Property Resources = new Property(4, String.class, "resources", false, "RESOURCES");
-        public final static Property ResourcesPath = new Property(5, String.class, "resourcesPath", false, "RESOURCES_PATH");
-        public final static Property Text = new Property(6, String.class, "text", false, "TEXT");
-        public final static Property ImageDimensions = new Property(7, String.class, "imageDimensions", false, "IMAGE_DIMENSIONS");
-        public final static Property Type = new Property(8, Integer.class, "type", false, "TYPE");
-        public final static Property Status = new Property(9, Integer.class, "status", false, "STATUS");
-        public final static Property Delivered = new Property(10, Integer.class, "delivered", false, "DELIVERED");
-        public final static Property OwnerThread = new Property(11, Long.class, "OwnerThread", false, "OWNER_THREAD");
-        public final static Property Sender = new Property(12, Long.class, "Sender", false, "SENDER");
+        public final static Property ResourcesPath = new Property(4, String.class, "resourcesPath", false, "RESOURCES_PATH");
+        public final static Property Text = new Property(5, String.class, "text", false, "TEXT");
+        public final static Property ImageDimensions = new Property(6, String.class, "imageDimensions", false, "IMAGE_DIMENSIONS");
+        public final static Property Type = new Property(7, Integer.class, "type", false, "TYPE");
+        public final static Property Delivered = new Property(8, Integer.class, "delivered", false, "DELIVERED");
+        public final static Property ThreadId = new Property(9, Long.class, "threadId", false, "THREAD_ID");
+        public final static Property SenderId = new Property(10, Long.class, "senderId", false, "SENDER_ID");
     };
 
     private DaoSession daoSession;
@@ -65,15 +63,13 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
                 "'ENTITY_ID' TEXT," + // 1: entityID
                 "'DATE' INTEGER," + // 2: date
                 "'IS_READ' INTEGER," + // 3: isRead
-                "'RESOURCES' TEXT," + // 4: resources
-                "'RESOURCES_PATH' TEXT," + // 5: resourcesPath
-                "'TEXT' TEXT," + // 6: text
-                "'IMAGE_DIMENSIONS' TEXT," + // 7: imageDimensions
-                "'TYPE' INTEGER," + // 8: type
-                "'STATUS' INTEGER," + // 9: status
-                "'DELIVERED' INTEGER," + // 10: delivered
-                "'OWNER_THREAD' INTEGER," + // 11: OwnerThread
-                "'SENDER' INTEGER);"); // 12: Sender
+                "'RESOURCES_PATH' TEXT," + // 4: resourcesPath
+                "'TEXT' TEXT," + // 5: text
+                "'IMAGE_DIMENSIONS' TEXT," + // 6: imageDimensions
+                "'TYPE' INTEGER," + // 7: type
+                "'DELIVERED' INTEGER," + // 8: delivered
+                "'THREAD_ID' INTEGER," + // 9: threadId
+                "'SENDER_ID' INTEGER);"); // 10: senderId
     }
 
     /** Drops the underlying database table. */
@@ -107,49 +103,39 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             stmt.bindLong(4, isRead ? 1l: 0l);
         }
  
-        String resources = entity.getResources();
-        if (resources != null) {
-            stmt.bindString(5, resources);
-        }
- 
         String resourcesPath = entity.getResourcesPath();
         if (resourcesPath != null) {
-            stmt.bindString(6, resourcesPath);
+            stmt.bindString(5, resourcesPath);
         }
  
         String text = entity.getText();
         if (text != null) {
-            stmt.bindString(7, text);
+            stmt.bindString(6, text);
         }
  
         String imageDimensions = entity.getImageDimensions();
         if (imageDimensions != null) {
-            stmt.bindString(8, imageDimensions);
+            stmt.bindString(7, imageDimensions);
         }
  
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(9, type);
-        }
- 
-        Integer status = entity.getStatus();
-        if (status != null) {
-            stmt.bindLong(10, status);
+            stmt.bindLong(8, type);
         }
  
         Integer delivered = entity.getDelivered();
         if (delivered != null) {
-            stmt.bindLong(11, delivered);
+            stmt.bindLong(9, delivered);
         }
  
-        Long OwnerThread = entity.getOwnerThread();
-        if (OwnerThread != null) {
-            stmt.bindLong(12, OwnerThread);
+        Long threadId = entity.getThreadId();
+        if (threadId != null) {
+            stmt.bindLong(10, threadId);
         }
  
-        Long Sender = entity.getSender();
-        if (Sender != null) {
-            stmt.bindLong(13, Sender);
+        Long senderId = entity.getSenderId();
+        if (senderId != null) {
+            stmt.bindLong(11, senderId);
         }
     }
 
@@ -173,15 +159,13 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // date
             cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // isRead
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resources
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // resourcesPath
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // text
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // imageDimensions
-            cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // type
-            cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9), // status
-            cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10), // delivered
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // OwnerThread
-            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12) // Sender
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resourcesPath
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // text
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // imageDimensions
+            cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // type
+            cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // delivered
+            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // threadId
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10) // senderId
         );
         return entity;
     }
@@ -193,15 +177,13 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setDate(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
         entity.setIsRead(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
-        entity.setResources(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setResourcesPath(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setText(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setImageDimensions(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setType(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
-        entity.setStatus(cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9));
-        entity.setDelivered(cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10));
-        entity.setOwnerThread(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
-        entity.setSender(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
+        entity.setResourcesPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setText(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setImageDimensions(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
+        entity.setDelivered(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
+        entity.setThreadId(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
+        entity.setSenderId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
      }
     
     /** @inheritdoc */
@@ -228,30 +210,30 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
     }
     
     /** Internal query to resolve the "messages" to-many relationship of BThread. */
-    public List<BMessage> _queryBThread_Messages(Long OwnerThread) {
+    public List<BMessage> _queryBThread_Messages(Long threadId) {
         synchronized (this) {
             if (bThread_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.OwnerThread.eq(null));
+                queryBuilder.where(Properties.ThreadId.eq(null));
                 bThread_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bThread_MessagesQuery.forCurrentThread();
-        query.setParameter(0, OwnerThread);
+        query.setParameter(0, threadId);
         return query.list();
     }
 
     /** Internal query to resolve the "messages" to-many relationship of BUser. */
-    public List<BMessage> _queryBUser_Messages(Long Sender) {
+    public List<BMessage> _queryBUser_Messages(Long senderId) {
         synchronized (this) {
             if (bUser_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Sender.eq(null));
+                queryBuilder.where(Properties.SenderId.eq(null));
                 bUser_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bUser_MessagesQuery.forCurrentThread();
-        query.setParameter(0, Sender);
+        query.setParameter(0, senderId);
         return query.list();
     }
 
@@ -266,8 +248,8 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
             builder.append(" FROM BMESSAGE T");
-            builder.append(" LEFT JOIN BTHREAD T0 ON T.'OWNER_THREAD'=T0.'_id'");
-            builder.append(" LEFT JOIN BUSER T1 ON T.'SENDER'=T1.'_id'");
+            builder.append(" LEFT JOIN BTHREAD T0 ON T.'THREAD_ID'=T0.'_id'");
+            builder.append(" LEFT JOIN BUSER T1 ON T.'SENDER_ID'=T1.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -278,12 +260,12 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         BMessage entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BThread BThreadOwner = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
-        entity.setBThreadOwner(BThreadOwner);
+        BThread thread = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
+        entity.setThread(thread);
         offset += daoSession.getBThreadDao().getAllColumns().length;
 
-        BUser BUserSender = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUserSender(BUserSender);
+        BUser sender = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
+        entity.setSender(sender);
 
         return entity;    
     }

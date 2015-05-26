@@ -101,9 +101,16 @@ public abstract class AbstractNetworkAdapter {
     /*** Send a request to the server to get the online status of the user. */
     public abstract Promise<Boolean, BError, Void> isOnline();
 
+    public abstract List<BUser> onlineUsers();
 
 
-    
+
+ /*
+
+    public abstract void startTypingOnThread(BThread thread, BUser user);
+
+    public abstract void finishTypingOnThread(BThread thread, BUser user);*/
+
     public abstract Promise<List<BUser>, BError, Void> getFollowers(String entityId);
 
     public abstract Promise<List<BUser>, BError, Void>  getFollows(String entityId);
@@ -132,10 +139,9 @@ public abstract class AbstractNetworkAdapter {
 
         final BMessage message = new BMessage();
         message.setText(text);
-        message.setOwnerThread(threadId);
+        message.setThreadId(threadId);
         message.setType(TEXT);
-        message.setBUserSender(currentUserModel());
-        message.setStatus(BMessageEntity.Status.SENDING);
+        message.setSender(currentUserModel());
         message.setDelivered(BMessageEntity.Delivered.No);
 
         final BMessage bMessage = DaoCore.createEntity(message);
@@ -144,9 +150,8 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThreadOwner().getLastMessageAdded();
-        if (date == null)
-            date = new Date();
+
+        Date date = message.getThread().lastMessageAdded();
         
         message.setDate( new Date(date.getTime() + 1) );
         
@@ -180,11 +185,10 @@ public abstract class AbstractNetworkAdapter {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setOwnerThread(threadId);
+        message.setThreadId(threadId);
         message.setType(LOCATION);
-        message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
-        message.setBUserSender(currentUserModel());
+        message.setSender(currentUserModel());
         message.setResourcesPath(filePath);
 
         DaoCore.createEntity(message);
@@ -193,11 +197,10 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThreadOwner().getLastMessageAdded();
-        if (date == null)
-            date = new Date();
 
-        message.setDate( new Date(date.getTime() + 1) );
+        Date date = message.getThread().lastMessageAdded();
+
+        message.setDate(new Date(date.getTime() + 1));
 
         DaoCore.updateEntity(message);
 
@@ -259,10 +262,9 @@ public abstract class AbstractNetworkAdapter {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setOwnerThread(threadId);
+        message.setThreadId(threadId);
         message.setType(IMAGE);
-        message.setBUserSender(currentUserModel());
-        message.setStatus(BMessageEntity.Status.SENDING);
+        message.setSender(currentUserModel());
         message.setDelivered(BMessageEntity.Delivered.No);
 
         DaoCore.createEntity(message);
@@ -271,9 +273,8 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThreadOwner().getLastMessageAdded();
-        if (date == null)
-            date = new Date();
+
+        Date date = message.getThread().lastMessageAdded();
 
         message.setDate( new Date(date.getTime() + 1) );
         
@@ -314,7 +315,6 @@ public abstract class AbstractNetworkAdapter {
         sendMessage(message).done(new DoneCallback<BMessage>() {
             @Override
             public void onDone(BMessage message) {
-                message.setStatus(BMessage.Status.SENT);
                 message = DaoCore.updateEntity(message);
 //                deferred.notify(message);
                 deferred.resolve(message);
@@ -322,7 +322,6 @@ public abstract class AbstractNetworkAdapter {
         }).fail(new FailCallback<BError>() {
             @Override
             public void onFail(BError bError) {
-                message.setStatus(BMessage.Status.FAILED);
 
                 deferred.reject(bError);
             }
@@ -332,30 +331,6 @@ public abstract class AbstractNetworkAdapter {
     }
 
     public abstract Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);
-
-    public int getUnreadMessagesAmount(boolean onePerThread){
-        List<BThread> threads = currentUserModel().getThreads(BThread.Type.Private);
-
-        int count = 0;
-        for (BThread t : threads)
-        {
-            if (onePerThread)
-            {
-                if(!t.isLastMessageWasRead())
-                {
-                    if (DEBUG) Timber.d("HasUnread, ThreadName: %s", t.displayName());
-                    count++;
-                }
-            }
-            else
-            {
-                count += t.getUnreadMessagesAmount();
-            }
-        }
-
-        return count;
-    }
-
 
 
     
@@ -392,141 +367,173 @@ public abstract class AbstractNetworkAdapter {
     public Promise<Void, BError, Void> deleteThread(BThread thread){
         return deleteThreadWithEntityID(thread.getEntityID());
     }
-    
-    public List<BThread> threadsWithType(int threadType) {
 
-        if (currentUserModel() == null) {
-            if (DEBUG) Timber.e("threadsWithType, Current user is null");
+    public abstract Promise<Void, BError, Void> joinThread(BThread thread);
+
+    public abstract Promise<Void, BError, Void> leaveThread(BThread thread);
+
+
+    public List<BThread> publicThreads(){
+        if (DEBUG) Timber.v("publicThreads");
+
+        BUser currentUser = currentUserModel();
+
+        if (currentUser == null) {
+            if (DEBUG) Timber.e("publicThreads, Current user is null");
             return new ArrayList<>();
         }
 
-        BUser currentUser = currentUserModel(), threadCreator;
+        List<BThread> threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, BThread.Type.Public);
+
+
+        if (DEBUG) Timber.d("publicThreads, Found on db: %s", threadsFromDB.size());
+
+        Collections.sort(threadsFromDB, new ThreadsSorter());
 
         // Get the thread list ordered desc by the last message added date.
-        List<BThread> threadsFromDB;
-        if (threadType == BThread.Type.Private)
-        {
-            if (DEBUG) Timber.d("threadItemsWithType, loading private.");
-            threadsFromDB = currentUserModel().getThreads(BThread.Type.Private);
+        return threadsFromDB;
+    }
+
+    public List<BThread> privateThreads(){
+        if (DEBUG) Timber.v("privateThreads");
+
+        BUser currentUser = currentUserModel(), threadCreator;
+
+        if (currentUser == null) {
+            if (DEBUG) Timber.e("publicThreads, Current user is null");
+            return new ArrayList<>();
         }
-        else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
+
+        // Get the thread list ordered desc by the last message added date.
+        List<BThread> threadsFromDB = currentUserModel().getThreads();
 
         List<BThread> threads = new ArrayList<BThread>();
 
-        if (threadType == BThread.Type.Public)
-        {
-            for (BThread thread : threadsFromDB)
-                if (thread.getTypeSafely() == BThread.Type.Public)
-                    threads.add(thread);
-        }
-        else {
-            for (BThread thread : threadsFromDB) {
-                if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s, Deleted: %s", thread.getId(), thread.getDeleted());
+        for (BThread thread : threadsFromDB) {
+            if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s", thread.getId());
 
-                if (thread.isDeleted())
-                    continue;
+            // Skipping deleted threads and public threads
+            if (thread.isDeleted() || thread.isPublic())
+                continue;
 
-                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
-                {
-                    threads.add(thread);
-                    continue;
-                }
+            if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+            {
+                threads.add(thread);
+                continue;
+            }
+            else if (DEBUG) Timber.e("threadItemsWithType, Thread has no messages.");
 
-                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
+            if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
+            {
+                threads.add(thread);
+            }
+            else
+            {
+                threadCreator = thread.getCreator();
+                if (threadCreator != null )
                 {
-                    threads.add(thread);
-                }
-                else
-                {
-                    threadCreator = thread.getCreator();
-                    if (threadCreator != null )
+                    if (DEBUG) Timber.d("thread has creator. Entity ID: %s", thread.getEntityID());
+                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
                     {
-                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
-                        {
-                            threads.add(thread);
-                        }
+                        if (DEBUG) Timber.d("Current user is the creator.");
+                        threads.add(thread);
                     }
                 }
             }
         }
 
-        if (DEBUG) Timber.d("threadsWithType, Type: %s, Found on db: %s, Threads List Size: %s" + threadType, threadsFromDB.size(), threads.size());
+        if (DEBUG) Timber.d("privateThreads, Found on db: %s, Threads List Size: %s", threadsFromDB.size(), threads.size());
 
         Collections.sort(threads, new ThreadsSorter());
 
         return threads;
     }
 
-    public <E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> List<E> threadItemsWithType(int threadType, ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker) {
-        if (DEBUG) Timber.v("threadItemsWithType, Type: %s", threadType);
+    public <E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> List<E> publicThreadsItems(ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker){
+        if (DEBUG) Timber.v("publicThreads");
 
-        if (currentUserModel() == null) {
-            if (DEBUG) Timber.e("threadItemsWithType, Current user is null");
-            return null;
+        BUser currentUser = currentUserModel();
+
+        if (currentUser == null) {
+            if (DEBUG) Timber.e("publicThreads, Current user is null");
+            return new ArrayList<>();
         }
+
+        List<BThread> threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, BThread.Type.Public);
+
+        List<E> threads = new ArrayList<>();
+
+        for (BThread t : threadsFromDB)
+            threads.add(itemMaker.fromBThread(t));
+
+        if (DEBUG) Timber.d("publicThreads, Found on db: %s", threadsFromDB.size());
+
+        Collections.sort(threads, new ThreadsItemSorter());
+
+        // Get the thread list ordered desc by the last message added date.
+        return threads;
+    }
+
+    public <E extends ChatSDKAbstractThreadsListAdapter.ThreadListItem> List<E> privateThreadsItems(ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker<E> itemMaker){
+        if (DEBUG) Timber.v("privateThreads");
 
         BUser currentUser = currentUserModel(), threadCreator;
 
+        if (currentUser == null) {
+            if (DEBUG) Timber.e("publicThreads, Current user is null");
+            return new ArrayList<>();
+        }
+
         // Get the thread list ordered desc by the last message added date.
-        List<BThread> threadsFromDB;
+        List<BThread> threadsFromDB = currentUserModel().getThreads();
 
-        if (threadType == BThread.Type.Private)
-        {
-            if (DEBUG) Timber.v("threadItemsWithType, loading private.");
-            threadsFromDB = currentUserModel().getThreads(BThread.Type.Private);
-        }
-        else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
+        List<E> threads = new ArrayList<>();
 
-        List<E> threads = new ArrayList<E>();
-        if (DEBUG) Timber.v("threadItemsWithType, size: " + threadsFromDB.size());
+        for (BThread thread : threadsFromDB) {
+            if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s", thread.getId());
 
-        if (threadType == BThread.Type.Public)
-        {
-            for (BThread thread : threadsFromDB)
-                if (thread.getTypeSafely() == BThread.Type.Public)
-                    threads.add(itemMaker.fromBThread(thread));
-        }
-        else {
-            for (BThread thread : threadsFromDB) {
-                if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s", thread.getId());
+            // Skipping deleted and public threads.
+            if (thread.isDeleted() || thread.isPublic())
+                continue;
 
-                if (thread.isDeleted())
-                    continue;
+            if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+            {
+                threads.add(itemMaker.fromBThread(thread));
+                continue;
+            }
+            else if (DEBUG) Timber.e("threadItemsWithType, Thread has no messages.");
 
-                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+            // Adding the thread if the current user is the creator of the thread.
+            if (StringUtils.isNotBlank(thread.getCreatorEntityId())
+                    && thread.getEntityID().equals(currentUser.getEntityID()))
+            {
+                threads.add(itemMaker.fromBThread(thread));
+            }
+            else
+            // Checking again if the current user is the creator
+            // via the creator that was set in the internal db
+            {
+                threadCreator = thread.getCreator();
+                if (threadCreator != null )
                 {
-                    threads.add(itemMaker.fromBThread(thread));
-                    continue;
-                }
-                else if (DEBUG) Timber.e("threadItemsWithType, Thread has no messages.");
-
-                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
-                {
-                    threads.add(itemMaker.fromBThread(thread));
-                }
-                else
-                {
-                    threadCreator = thread.getCreator();
-                    if (threadCreator != null )
+                    if (DEBUG) Timber.d("thread has creator. Entity ID: %s", thread.getEntityID());
+                    if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
                     {
-                        if (DEBUG) Timber.d("thread has creator. Entity ID: %s", thread.getEntityID());
-                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
-                        {
-                            if (DEBUG) Timber.d("Current user is the creator.");
-                            threads.add(itemMaker.fromBThread(thread));
-                        }
+                        if (DEBUG) Timber.d("Current user is the creator.");
+                        threads.add(itemMaker.fromBThread(thread));
                     }
                 }
             }
         }
 
-        if (DEBUG) Timber.v("threadItemsWithType, Type: %s, Found on db: &s, Threads List Size: %s",
-                threadType, threadsFromDB.size(), threads.size());
+        if (DEBUG) Timber.d("privateThreads, Found on db: %s, Threads List Size: %s", threadsFromDB.size(), threads.size());
 
         Collections.sort(threads, new ThreadsItemSorter());
 
         return threads;
     }
+
+
 
 
     /**
@@ -569,6 +576,9 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract String getServerURL();
 
+    public String token(){
+        return (String) getLoginInfo().get(BDefines.Prefs.TokenKey);
+    }
 
 
 
@@ -610,8 +620,6 @@ public abstract class AbstractNetworkAdapter {
         return authenticated;
     }
 
-    public abstract void setLastOnline(Date date);
-
     /**
      * Set the current status of the adapter to not authenticated.
      * The status can be retrieved by calling "isAuthenticated".
@@ -623,9 +631,19 @@ public abstract class AbstractNetworkAdapter {
     /** 
      * @return the current user contacts list.
      **/
-    public List<BUser> getContacs() {
-        return currentUserModel().getContacts();
-    }
+    public abstract List<BUser> friends();
+
+    public abstract List<BUser> followers();
+
+    public abstract List<BUser> blockedUsers();
+
+    public abstract  Promise<Void, BError, Void> addFriends(BUser user);
+
+    public abstract  Promise<Void, BError, Void> removeFriend(BUser user);
+
+    public abstract Promise<Void, BError, Void> blockUser(BUser user);
+
+    public abstract Promise unblockUser(BUser user);
 
     public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();

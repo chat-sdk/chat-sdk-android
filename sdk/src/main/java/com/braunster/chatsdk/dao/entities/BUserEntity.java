@@ -10,10 +10,13 @@ package com.braunster.chatsdk.dao.entities;
 import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserConnection;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,48 +56,85 @@ public abstract class BUserEntity extends Entity {
         return prefix;
     }
 
+
     @Override
     public BPath getBPath() {
-        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
+        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsers, getEntityID());
     }
-
-    public abstract String[] getCacheIDs();
 
     public abstract List<BThread> getThreads();
 
-    public abstract List<BThread> getThreads(int type);
+    public abstract List<BThread> getThreads(@BThreadEntity.ThreadType String type);
 
-    public abstract List<BThread> getThreads(int type, boolean allowDeleted);
+    public abstract List<BThread> getThreads(@BThreadEntity.ThreadType String type, boolean allowDeleted);
 
-    public abstract List<BUser> getContacts();
+    public int unreadMessageCount(){
+        List<BThread> threads = getThreads();
 
-    public abstract void addContact(BUser user);
+        int count = 0;
+        for (BThread t : threads)
+        {
+            count += t.getUnreadMessagesAmount();
+        }
+
+        return count;
+    }
+
+    public abstract Date dateOfBirth();
+
+    // Age calculation taken from here: http://stackoverflow.com/a/1116138/2568492
+    public int age(){
+        Calendar dob = Calendar.getInstance();
+        dob.setTime(dateOfBirth());
+        Calendar today = Calendar.getInstance();
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (today.get(Calendar.MONTH) < dob.get(Calendar.MONTH)) {
+            age--;
+        } else if (today.get(Calendar.MONTH) == dob.get(Calendar.MONTH)
+                && today.get(Calendar.DAY_OF_MONTH) < dob.get(Calendar.DAY_OF_MONTH)) {
+            age--;
+        }
+
+        return age;
+    }
+
+
+
+    /* User connections */
+
+    public abstract void disconnectUser(BUser user, @BUserConnection.ConnectionType int type);
+
+    public abstract List<BUser> connectionsWithType(@BUserConnection.ConnectionType int type);
+
+    public abstract void connectUser(BUser user, @BUserConnection.ConnectionType int type);
+
 
     public abstract BFollower fetchOrCreateFollower(BUser follower, int type);
-    
-    public abstract void setMetaPictureUrl(String imageUrl);
-
-    public abstract String getMetaPictureUrl();
-
-    public abstract void setMetaPictureThumbnail(String thumbnailUrl);
-    
-    public abstract void setMetaName(String name);
-
-    public abstract String getMetaName();
-
-    public abstract void setMetaEmail(String email);
-
-    public abstract String getMetaEmail();
-
-    public abstract String getThumbnailPictureURL();
 
     public abstract List<BUser> getFollowers();
 
     public abstract List<BUser> getFollows();
-/*    public abstract BMetadata fetchOrCreateMetadataForKey(String key, int type);*/
 
 
 
 
 
+
+    /* User metadata*/
+
+    public abstract void setPictureUrl(String imageUrl);
+
+    public abstract String getPictureUrl();
+
+    public abstract void setPictureThumbnail(String thumbnailUrl);
+    
+    public abstract void setName(String name);
+
+    public abstract String getName();
+
+    public abstract void setEmail(String email);
+
+    public abstract String getEmail();
+
+    public abstract String getPictureThumbnail();
 }

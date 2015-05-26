@@ -123,7 +123,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
 
         BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
 
-        String name = user.getMetaName();
+        String name = user.getName();
 
         if (StringUtils.isNotEmpty(name))
             ((TextView) mainView.findViewById(R.id.chat_sdk_txt_name)).setText(name);

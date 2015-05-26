@@ -29,8 +29,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property UserID = new Property(1, Long.class, "UserID", false, "USER_ID");
-        public final static Property ThreadID = new Property(2, Long.class, "ThreadID", false, "THREAD_ID");
+        public final static Property UserId = new Property(1, Long.class, "UserId", false, "USER_ID");
+        public final static Property ThreadId = new Property(2, Long.class, "threadId", false, "THREAD_ID");
     };
 
     private DaoSession daoSession;
@@ -52,8 +52,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BLINK_DATA' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
-                "'USER_ID' INTEGER," + // 1: UserID
-                "'THREAD_ID' INTEGER);"); // 2: ThreadID
+                "'USER_ID' INTEGER," + // 1: UserId
+                "'THREAD_ID' INTEGER);"); // 2: threadId
     }
 
     /** Drops the underlying database table. */
@@ -72,14 +72,14 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
             stmt.bindLong(1, id);
         }
  
-        Long UserID = entity.getUserID();
-        if (UserID != null) {
-            stmt.bindLong(2, UserID);
+        Long UserId = entity.getUserId();
+        if (UserId != null) {
+            stmt.bindLong(2, UserId);
         }
  
-        Long ThreadID = entity.getThreadID();
-        if (ThreadID != null) {
-            stmt.bindLong(3, ThreadID);
+        Long threadId = entity.getThreadId();
+        if (threadId != null) {
+            stmt.bindLong(3, threadId);
         }
     }
 
@@ -100,8 +100,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     public BLinkData readEntity(Cursor cursor, int offset) {
         BLinkData entity = new BLinkData( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // UserID
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // ThreadID
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // UserId
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // threadId
         );
         return entity;
     }
@@ -110,8 +110,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     @Override
     public void readEntity(Cursor cursor, BLinkData entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setUserID(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
-        entity.setThreadID(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setUserId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setThreadId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
      }
     
     /** @inheritdoc */
@@ -138,30 +138,30 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     }
     
     /** Internal query to resolve the "BLinkData" to-many relationship of BThread. */
-    public List<BLinkData> _queryBThread_BLinkData(Long ThreadID) {
+    public List<BLinkData> _queryBThread_BLinkData(Long threadId) {
         synchronized (this) {
             if (bThread_BLinkDataQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.ThreadID.eq(null));
+                queryBuilder.where(Properties.ThreadId.eq(null));
                 bThread_BLinkDataQuery = queryBuilder.build();
             }
         }
         Query<BLinkData> query = bThread_BLinkDataQuery.forCurrentThread();
-        query.setParameter(0, ThreadID);
+        query.setParameter(0, threadId);
         return query.list();
     }
 
     /** Internal query to resolve the "BLinkData" to-many relationship of BUser. */
-    public List<BLinkData> _queryBUser_BLinkData(Long UserID) {
+    public List<BLinkData> _queryBUser_BLinkData(Long UserId) {
         synchronized (this) {
             if (bUser_BLinkDataQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.UserID.eq(null));
+                queryBuilder.where(Properties.UserId.eq(null));
                 bUser_BLinkDataQuery = queryBuilder.build();
             }
         }
         Query<BLinkData> query = bUser_BLinkDataQuery.forCurrentThread();
-        query.setParameter(0, UserID);
+        query.setParameter(0, UserId);
         return query.list();
     }
 

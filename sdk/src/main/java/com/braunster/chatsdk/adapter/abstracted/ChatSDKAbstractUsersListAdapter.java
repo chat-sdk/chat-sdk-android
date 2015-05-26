@@ -335,7 +335,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         for (BUser user : users){
 
             // Not showing users that has no name.
-            if (StringUtils.isEmpty(user.getMetaName()))
+            if (StringUtils.isEmpty(user.getName()))
                 continue;
 
             if (deleteDuplicates && entitiesID.contains(user.getEntityID()))

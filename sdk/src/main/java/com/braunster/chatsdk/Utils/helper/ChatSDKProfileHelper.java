@@ -221,7 +221,7 @@ public class ChatSDKProfileHelper {
         if (StringUtils.isEmpty(url))
         {
             // Loading the user image from robohash.
-            String name = profileUser == null ? BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getMetaName() : profileUser.getMetaName();
+            String name = profileUser == null ? BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getName() : profileUser.getName();
             url = BDefines.getDefaultImageUrl("http://robohash.org/" + name,
                     BDefines.ImageProperties.INITIALS_IMAGE_SIZE, 
                     BDefines.ImageProperties.INITIALS_IMAGE_SIZE);
@@ -277,8 +277,8 @@ public class ChatSDKProfileHelper {
                         // Saving the image to parse.
                         final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
 
-                        currentUser.setMetaPictureUrl(data[0]);
-                        currentUser.setMetaPictureThumbnail(data[1]);
+                        currentUser.setPictureUrl(data[0]);
+                        currentUser.setPictureThumbnail(data[1]);
 
                         BNetworkManager.sharedManager().getNetworkAdapter().pushUser();
                     }
@@ -296,8 +296,8 @@ public class ChatSDKProfileHelper {
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl;
         if (profileUser==null)
-            imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getMetaPictureUrl();
-        else imageUrl = profileUser.getMetaPictureUrl();
+            imageUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getPictureUrl();
+        else imageUrl = profileUser.getPictureUrl();
 
         if (StringUtils.isNotEmpty(imageUrl))
             setProfilePicFromURL(imageUrl, false);
@@ -360,8 +360,8 @@ public class ChatSDKProfileHelper {
         String savedUrl;
 
         if (profileUser==null)
-            savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getMetaPictureUrl();
-        else savedUrl = profileUser.getMetaPictureUrl();
+            savedUrl = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getPictureUrl();
+        else savedUrl = profileUser.getPictureUrl();
 
         if (StringUtils.isNotEmpty(savedUrl))
             setProfilePicFromURL(savedUrl, false);
@@ -389,11 +389,11 @@ public class ChatSDKProfileHelper {
 
         String name;
         if (profileUser==null)
-            name = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getMetaName();
+            name = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getName();
         else{
             // We dont save initials image for other users.
             save = false;
-            name = profileUser.getMetaName();
+            name = profileUser.getName();
         }
 
         if (StringUtils.isEmpty(name))

@@ -613,8 +613,8 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         users.size(),
                         thread.getUnreadMessagesAmount(),
                         thread.getId(),
-                        thread.getLastMessageAdded(),
-                        thread.getTypeSafely() == BThread.Type.Private);
+                        thread.lastMessageAdded(),
+                        !thread.isPublic());
             }
 
             @Override

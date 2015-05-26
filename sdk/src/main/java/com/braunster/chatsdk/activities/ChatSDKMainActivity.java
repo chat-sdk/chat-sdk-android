@@ -176,12 +176,12 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         public boolean onMessageReceived(final BMessage message) {
 
             // Only notify for private threads.
-            if (message.getBThreadOwner().getTypeSafely() == BThread.Type.Public) {
+            if (message.getThread().getTypeSafely() == BThread.Type.Public) {
                 return false;
             }
 
             // Make sure the message that incoming is not the user message.
-            if (message.getBUserSender().getEntityID().equals(
+            if (message.getSender().getEntityID().equals(
                     BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID()))
                 return false;
 
@@ -197,9 +197,9 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                     if (!isKilled())
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
-                        if (!getNetworkAdapter().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getOwnerThread())) {
+                        if (!getNetworkAdapter().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getThreadId())) {
                             // Checking if the message has a sender with a name, Also if the message was read.
-                            if (message.getBUserSender().getMetaName() != null && !message.wasRead())
+                            if (message.getSender().getName() != null && !message.wasRead())
                             {
                                 NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
                             }
