@@ -16,7 +16,6 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
@@ -32,6 +31,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
 
@@ -296,13 +296,13 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             return;
 
         if (DEBUG) Timber.v("pushForMessage");
-        if (message.getBThreadOwner().getTypeSafely() == BThread.Type.Private) {
+        if (!message.getThread().isPublic()) {
 
             // Loading the message from firebase to get the timestamp from server.
-            FirebasePaths firebase = FirebasePaths.threadRef(
-                    message.getBThreadOwner().getEntityID())
-                    .appendPathComponent(BFirebaseDefines.Path.BMessagesPath)
-                    .appendPathComponent(message.getEntityID());
+            Firebase firebase = FirebasePaths.threadRef(
+                    message.getThread().getEntityID())
+                    .child(BFirebaseDefines.Path.BMessages)
+                    .child(message.getEntityID());
 
             firebase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -328,7 +328,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     BUser currentUser = currentUserModel();
                     List<BUser> users = new ArrayList<BUser>();
 
-                    for (BUser user : message.getBThreadOwner().getUsers())
+                    for (BUser user : message.getThread().getUsers())
                         if (!user.equals(currentUser))
                             if (user.getOnline() == null || !user.getOnline())
                             {
@@ -358,7 +358,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // send a push to a specific user if we know their user id.
         List<String> channels = new ArrayList<String>();
         for (BUser user : users)
-            channels.add(user.getPushChannel());
+            channels.add(user.pushChannel());
 
         PushUtils.sendMessage(message, channels);
     }
@@ -444,5 +444,24 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }
 
         return new BError(code, errorMessage, error);
+    }
+
+    //https://parse.com/docs/android/api/com/parse/ParseException.html
+    public static BError getParseError(ParseException exception){
+
+        String errorMessage = "";
+
+        int code = 0;
+
+        switch (exception.getCode())
+        {
+            case ParseException.OPERATION_FORBIDDEN:
+                code = BError.Code.PERMISSION_DENIED;
+                errorMessage = "Permission denied";
+                break;
+
+        }
+
+        return new BError(code, errorMessage, exception);
     }
 }

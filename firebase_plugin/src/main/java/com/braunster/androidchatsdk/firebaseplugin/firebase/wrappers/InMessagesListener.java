@@ -16,6 +16,7 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.firebase.client.DataSnapshot;
 
@@ -67,8 +68,9 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                     
                     // Checking for null sender and that the sender isn't the current user.
                     // This will make sure we wont notify user for his own messages.
-                    if (wrapper.model.getBUserSender() != null &&
-                            !wrapper.model.getBUserSender().isMe())
+                    BUser sender = wrapper.model.getSender();
+                    if (sender != null &&
+                            !sender.isMe())
                     {
                         // Set the message as new if was told from creator,
                         // Or if the date of the message is later then the creation of this object.
@@ -94,16 +96,12 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                         threadWrapper.recoverThread();
                     }
 
-                    // Mark the thead as having unread messages if this message
-                    // doesn't already exist on the thread
-                    if (wrapper.model.getBThreadOwner() == null)
-                        thread.setHasUnreadMessages(true);
 
                     // Update the thread
                     DaoCore.updateEntity(thread);
 
                     // Update the message.
-                    wrapper.model.setBThreadOwner(thread);
+                    wrapper.model.setThread(thread);
                     DaoCore.updateEntity(wrapper.model);
 
                     if (deferred != null &&  deferred.isPending())

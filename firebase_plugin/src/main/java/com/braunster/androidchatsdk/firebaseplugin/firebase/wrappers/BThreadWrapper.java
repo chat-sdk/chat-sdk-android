@@ -137,19 +137,15 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         BUser user = getNetworkAdapter().currentUserModel();
         
-        Firebase currentThreadUser = FirebasePaths.threadRef(entityId)
-                .child(BFirebaseDefines.Path.BUsersPath)
-                .child(user.getEntityID())
-                .child(BDefines.Keys.BDeleted);;
+        Firebase currentThreadUser = FirebasePaths.threadUserRef(entityId, user.getEntityID())
+                .child(BDefines.Keys.BDeleted);
         
         currentThreadUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.getValue() != null)
-                {
+                if (snapshot.getValue() != null) {
                     deferred.resolve((Long) snapshot.getValue());
-                }
-                else deferred.resolve(null);
+                } else deferred.resolve(null);
             }
 
             @Override
@@ -174,10 +170,10 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         
         BUser user = getNetworkAdapter().currentUserModel();
 
-        if (model.getTypeSafely() == BThreadEntity.Type.Private)
+        if (!model.isPublic())
         {
 
-            List<BMessage> messages = DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, model.getId());
+            List<BMessage> messages = DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.ThreadId, model.getId());
 
             for (BMessage m : messages)
                 DaoCore.deleteEntity(m);
@@ -206,13 +202,13 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         {
                             // Adding a leave value to the user on the thread path so other users will know this user has left.
                             Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                                    .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                                    .appendPathComponent(getNetworkAdapter().currentUserModel().getEntityID())
-                                    .appendPathComponent(BDefines.Keys.BLeaved);
+                                    .child(BFirebaseDefines.Path.BUsers)
+                                    .child(getNetworkAdapter().currentUserModel().getEntityID())
+                                    .child(BDefines.Keys.BLeaved);
                             
                             threadUserRef.setValue(true);
 
-                            List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.ThreadID, model.getId());
+                            List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.ThreadId, model.getId());
 
                             DaoCore.deleteEntity(model);
 
@@ -240,9 +236,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             else
             {
                 Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                        .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                        .appendPathComponent(getNetworkAdapter().currentUserModel().getEntityID())
-                        .appendPathComponent(BDefines.Keys.BDeleted);
+                        .child(BFirebaseDefines.Path.BUsers)
+                        .child(getNetworkAdapter().currentUserModel().getEntityID())
+                        .child(BDefines.Keys.BDeleted);
 
                 threadUserRef.setValue(ServerValue.TIMESTAMP);
 
@@ -265,9 +261,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         // Removing the deleted value from firebase.
         Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                .appendPathComponent(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID())
-                .appendPathComponent(BDefines.Keys.BDeleted);
+                .child(BFirebaseDefines.Path.BUsers)
+                .child(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID())
+                .child(BDefines.Keys.BDeleted);
 
         threadUserRef.removeValue();
 
@@ -302,7 +298,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         List<BMessage> list ;
 
         QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.OwnerThread.eq(model.getId()));
+        qb.where(BMessageDao.Properties.ThreadId.eq(model.getId()));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());
@@ -325,7 +321,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         {
             if (DEBUG) Timber.d("Loading messages from firebase");
 
-            Firebase messageRef = FirebasePaths.threadRef(model.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+            Firebase messageRef = FirebasePaths.threadRef(model.getEntityID()).child(BFirebaseDefines.Path.BMessages);
 
             // Get # messages ending at the end date
             // Limit to # defined in BFirebaseDefines
@@ -347,7 +343,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         {
                             msg = new BMessageWrapper(snapshot.child(key));
                          
-                            msg.model.setBThreadOwner(BThreadWrapper.this.model);
+                            msg.model.setThread(BThreadWrapper.this.model);
                             
                             DaoCore.updateEntity(msg.model);
                             
@@ -377,30 +373,27 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      **/
     Map<String, Object> serialize(){
 
-        Map<String , Object> value = new HashMap<String, Object>();
-        Map<String , Object> nestedMap = new HashMap<String, Object>();
+        Map<String , Object> data = new HashMap<String, Object>();
 
         // If the creation date is null we assume that the thread is now being created so we push the server timestamp with it.
         // Else we will push the saved creation date from the db.
         // No treating this as so can cause problems with firebase security rules.
         if (this.model.getCreationDate() == null)
-            nestedMap.put(BDefines.Keys.BCreationDate, BFirebaseDefines.getServerTimestamp());
+            data.put(BDefines.Keys.BCreationDate, ServerValue.TIMESTAMP);
         else
-            nestedMap.put(BDefines.Keys.BCreationDate, this.model.getCreationDate().getTime());
+            data.put(BDefines.Keys.BCreationDate, this.model.getCreationDate().getTime());
 
-        nestedMap.put(BDefines.Keys.BName, this.model.getName());
-        nestedMap.put(BDefines.Keys.BType, this.model.getType());
-
-        if (this.model.getLastMessageAdded() != null)
-            nestedMap.put(BDefines.Keys.BLastMessageAdded, this.model.getLastMessageAdded().getTime());
-
-        nestedMap.put(BDefines.Keys.BCreatorEntityId, this.model.getCreatorEntityId());
-
-        nestedMap.put(BDefines.Keys.BImageUrl, this.model.getImageUrl());
-
-        value.put(BFirebaseDefines.Path.BDetailsPath, nestedMap);
+        data.put(BDefines.Keys.BName, StringUtils.isNotBlank(this.model.getName()) ? this.model.getName() : "");
+        data.put(BDefines.Keys.BType, this.model.getType());
+        data.put(BDefines.Keys.BCreatorEntityId, this.model.getCreatorEntityId());
+        data.put(BDefines.Keys.BRID, model.getEntityID());
+        data.put(BDefines.Keys.BDescription, StringUtils.isNotBlank(model.getDescription()) ? model.getDescription() : "");
+        data.put(BDefines.Keys.BIsPublic, model.isPublic());
+        data.put(BDefines.Keys.BUserCreated, model.getUserCreated());
+        data.put(BDefines.Keys.BInvitesEnabled, model.getInvitesEnabled());
+        data.put(BDefines.Keys.BWeight, model.getWeight() != null ? model.getWeight() : 0);
                 
-        return value;
+        return data;
     }
 
     /**
@@ -432,34 +425,51 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             }
         }
 
-        long type;
+        if (value.containsKey(BDefines.Keys.BIsPublic))
+        {
+            if (((Boolean) value.get(BDefines.Keys.BIsPublic)))
+                this.model.setType(BThreadEntity.Type.Public);
+        }
+
+        String type;
         if (value.containsKey(BDefines.Keys.BType))
         {
-            type = (Long) value.get(BDefines.Keys.BType);
-            this.model.setType((int) type);
+            type = (String) value.get(BDefines.Keys.BType);
+            this.model.setType(type);
             if (DEBUG) Timber.d("Setting type to: %s, Id: %s", this.model.getType(), entityId);
         }
 
-        if (value.containsKey(BDefines.Keys.BName) && !value.get(BDefines.Keys.BName).equals(""))
-            this.model.setName((String) value.get(BDefines.Keys.BName));
-
-        Long lastMessageAdded = 0L;
-        Object o = value.get(BDefines.Keys.BLastMessageAdded);
-
-        if (o instanceof Long)
-            lastMessageAdded = (Long) o;
-
-        else if (o instanceof Double)
-            lastMessageAdded = ((Double) o).longValue();
-
-        if (lastMessageAdded != null && lastMessageAdded > 0)
+        if (value.containsKey(BDefines.Keys.BName))
         {
-            Date date = new Date(lastMessageAdded);
-            if (this.model.getLastMessageAdded() == null || date.getTime() > this.model.getLastMessageAdded() .getTime())
-                this.model.setLastMessageAdded(date);
+            String name = (String) value.get(BDefines.Keys.BName);
+
+            if (StringUtils.isNotBlank(name))
+                this.model.setName(name);
         }
 
-        this.model.setImageUrl((String) value.get(BDefines.Keys.BImageUrl));
+        if (value.containsKey(BDefines.Keys.BDescription))
+        {
+            String desc = (String) value.get(BDefines.Keys.BDescription);
+
+            if (StringUtils.isNotBlank(desc))
+                model.setDescription(desc);
+        }
+
+        if (value.containsKey(BDefines.Keys.BUserCreated))
+        {
+            model.setUserCreated((Boolean) value.get(BDefines.Keys.BUserCreated));
+        }
+
+        if (value.containsKey(BDefines.Keys.BInvitesEnabled))
+        {
+            model.setInvitesEnabled((Boolean) value.get(BDefines.Keys.BInvitesEnabled));
+        }
+
+        if (value.containsKey(BDefines.Keys.BWeight))
+        {
+            model.setWeight((Integer) value.get(BDefines.Keys.BWeight));
+        }
+
         this.model.setCreatorEntityId((String) value.get(BDefines.Keys.BCreatorEntityId));
         
         DaoCore.updateEntity(this.model);
@@ -493,11 +503,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         ref.updateChildren(serialize(), new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                if (firebaseError != null)
-                {
+                if (firebaseError != null) {
                     deferred.reject(getFirebaseError(firebaseError));
-                }
-                else deferred.resolve(model);
+                } else deferred.resolve(model);
             }
         });
         
@@ -512,7 +520,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
         
         Firebase ref = FirebasePaths.threadRef(this.entityId)
-                .child(BFirebaseDefines.Path.BUsersPath)
+                .child(BFirebaseDefines.Path.BUsers)
                 .child(entityId);
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
@@ -520,7 +528,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         Map<String, Object> values = new HashMap<String, Object>();
 
         // If metaname is null the data wont be saved so we have to do so.
-        values.put(BDefines.Keys.BName, (user.getMetaName() == null ? "no_name" : user.getMetaName()));
+        values.put(BDefines.Keys.BName, (user.getName() == null ? "no_name" : user.getName()));
         
         ref.setValue(values, new Firebase.CompletionListener() {
             @Override
@@ -544,7 +552,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
-        Firebase ref = FirebasePaths.threadRef(this.entityId).child(BFirebaseDefines.Path.BUsersPath).child(entityId);
+        Firebase ref = FirebasePaths.threadRef(this.entityId).child(BFirebaseDefines.Path.BUsers).child(entityId);
 
         ref.removeValue(new Firebase.CompletionListener() {
             @Override
@@ -570,7 +578,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             @Override
             public void onDone(BThread bThreadWrapper) {
 
-                if (model.getType() == BThread.Type.Private) {
+                if (!model.isPublic()) {
                     removeUserWithEntityID(user.entityId).done(new DoneCallback<BThread>() {
                         @Override
                         public void onDone(BThread thread) {
@@ -608,7 +616,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             public void onDone(BThread bThreadWrapper) {
 
                 // If the thread is private we are adding the thread to the user.
-                if (model.getTypeSafely() == BThread.Type.Private) {
+                if (!model.isPublic()) {
                     user.addThreadWithEntityId(model.getEntityID()).done(new DoneCallback<BUserWrapper>() {
                         @Override
                         public void onDone(BUserWrapper bUserWrapper) {
@@ -632,6 +640,71 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         
         return deferred.promise();
     }
-    
-    
+
+    public Promise<BThread, BError, Void> pushMeta(){
+
+        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
+
+        if (StringUtils.isBlank(model.getEntityID()))
+        {
+            model.setEntityID(FirebasePaths.threadRef().push().getKey());
+            model = DaoCore.updateEntity(model);
+        }
+
+        Firebase metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
+
+        metaRef.updateChildren(serialize(), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null) {
+                    deferred.resolve(model);
+
+                } else
+                    deferred.reject(getFirebaseError(firebaseError));
+            }
+        });
+        return deferred.promise();
+    }
+
+    public Promise<Void, BError, Void> serLastMessage(BMessage message){
+
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        Firebase ref = FirebasePaths.threadLastMessagesRef(model.getEntityID());
+
+        Map<String, Object> data = new BMessageWrapper(message).serialize();
+        data.put(BDefines.Keys.BUserName, message.getSender().getName());
+
+
+        ref.setValue(data, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null)
+                {
+                    deferred.resolve(null);
+                    updateStateWithKey(BFirebaseDefines.Path.BMeta);
+                }
+                else
+                    deferred.reject(getFirebaseError(firebaseError));
+
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public void startTyping(BUser user){
+        Firebase ref = FirebasePaths.threadTypingRef(model.getEntityID(), user.getEntityID());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(BDefines.Keys.BName, user.getName());
+
+        ref.setValue(data);
+        ref.onDisconnect().removeValue();
+    }
+
+    public void finishTyping(BUser user){
+        Firebase ref = FirebasePaths.threadTypingRef(model.getEntityID(), user.getEntityID());
+        ref.removeValue();
+    }
 }

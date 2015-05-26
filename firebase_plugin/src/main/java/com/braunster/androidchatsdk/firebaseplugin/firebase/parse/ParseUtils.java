@@ -10,6 +10,7 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase.parse;
 import android.graphics.Bitmap;
 import android.os.Handler;
 
+import com.braunster.androidchatsdk.firebaseplugin.firebase.BFirebaseNetworkAdapter;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
@@ -143,7 +144,7 @@ public class ParseUtils {
                 if (e != null)
                 {
                     if (DEBUG) Timber.e(e.getCause(), "Parse Exception while saving: %s", parseFile.getName());
-                    deferred.reject(new BError(BError.Code.PARSE_EXCEPTION, e));
+                    deferred.reject(BFirebaseNetworkAdapter.getParseError(e));
                     return;
                 }
 
@@ -171,7 +172,7 @@ public class ParseUtils {
                 if (e != null)
                 {
                     if (DEBUG) Timber.e(e.getCause(), "Parse Exception while saving: %s", parseFile.getName());
-                    deferred.reject(new BError(BError.Code.PARSE_EXCEPTION, e));
+                    deferred.reject((BFirebaseNetworkAdapter.getParseError(e)));
                 }
                 else thumnailFile.saveInBackground(new SaveCallback() {
                     @Override
@@ -179,7 +180,7 @@ public class ParseUtils {
                         if (e != null)
                         {
                             if (DEBUG) Timber.e(e.getCause(), "Parse Exception while saving: %s", thumnailFile.getName());
-                            deferred.reject(new BError(BError.Code.PARSE_EXCEPTION, e));
+                            deferred.reject(BFirebaseNetworkAdapter.getParseError(e));
                             return;
                         }
                         else deferred.resolve(new String[]{parseFile.getUrl(), thumnailFile.getUrl(), imageDimentions} );

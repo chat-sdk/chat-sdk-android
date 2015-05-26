@@ -41,9 +41,9 @@ public class BFirebaseInterface {
         if (DEBUG)Log.v(TAG, "objectFromSnapshot, Path: " + dataSnapshot.getRef().getPath().toString());
         BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
 
-         if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollowers))
+         if (path.isEqualToComponent(BFirebaseDefines.Path.BUsers, BFirebaseDefines.Path.BFollowers))
         {
-            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollowers");
+            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsers and BFollowers");
             String followerFirebaseID = path.idForIndex(1);
             String userFirebaseID = path.idForIndex(0);
 
@@ -55,9 +55,9 @@ public class BFirebaseInterface {
         }
         // ---------------
         // Follower Class Type.
-        else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollows))
+        else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsers, BFirebaseDefines.Path.BFollows))
         {
-            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollows");
+            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsers and BFollows");
             String followerFirebaseID = path.idForIndex(1);
             String userFirebaseID = path.idForIndex(0);
 

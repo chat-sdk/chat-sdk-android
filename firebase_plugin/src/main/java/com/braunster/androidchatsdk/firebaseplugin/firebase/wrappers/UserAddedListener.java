@@ -19,6 +19,7 @@ import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserConnection;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
@@ -123,7 +124,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         {
                             BLinkData data =
                                     DaoCore.fetchEntityWithProperties(BLinkData.class,
-                                            new Property[]{BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, thread.getId(), bUser.getId());
+                                            new Property[]{BLinkDataDao.Properties.ThreadId, BLinkDataDao.Properties.UserId}, thread.getId(), bUser.getId());
 
                             if (data != null)
                             {
@@ -133,7 +134,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         else
                         {
                             // Users that are members of threads are shown in contacts
-                            currentUser.addContact(bUser);
+                            currentUser.connectUser(bUser, BUserConnection.Type.Friend);
                         }
                     }
 

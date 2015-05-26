@@ -66,7 +66,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         values.put(BDefines.Keys.BPayload, model.getText());
         values.put(BDefines.Keys.BDate, ServerValue.TIMESTAMP);
         values.put(BDefines.Keys.BType, model.getType());
-        values.put(BDefines.Keys.BUserFirebaseId, model.getBUserSender().getEntityID());
+        values.put(BDefines.Keys.BUserFirebaseId, model.getSender().getEntityID());
 
         return values;
     }
@@ -107,7 +107,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
                 BUserWrapper.initWithModel(user).once();
             }
 
-            model.setBUserSender(user);
+            model.setSender(user);
         }
                 
         // Updating the db
@@ -145,7 +145,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
     public Promise<BMessage, BError, BMessage> send(){
         if (DEBUG) Timber.v("send");
         
-        if (model.getBThreadOwner() != null)
+        if (model.getThread() != null)
         {
             return push();
         }else
@@ -166,11 +166,11 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
     private Firebase ref(){
         if (StringUtils.isNotEmpty(model.getEntityID()))
         {
-            return FirebasePaths.threadMessagesRef(model.getBThreadOwner().getEntityID()).child(model.getEntityID());
+            return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
         }
         else
         {
-            return FirebasePaths.threadMessagesRef(model.getBThreadOwner().getEntityID()).push();
+            return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).push();
         }
     }
     

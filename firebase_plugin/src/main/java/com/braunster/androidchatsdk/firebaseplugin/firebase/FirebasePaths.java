@@ -51,55 +51,142 @@ public class FirebasePaths extends Firebase{
 
     /* Users */
     /** @return The users main ref.*/
-    public static FirebasePaths userRef(){
-        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BUsersPath);
+    public static Firebase userRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BUsers);
     }
    
     /** @return The user ref for given id.*/
-    public static FirebasePaths userRef(String firebaseId){
-        return userRef().appendPathComponent(firebaseId);
+    public static Firebase userRef(String firebaseId){
+        return userRef().child(firebaseId);
     }
 
     /** @return The user meta ref for given id.*/
-    public static FirebasePaths userMetaRef(String firebaseId){
-        return userRef().appendPathComponent(firebaseId).appendPathComponent(BFirebaseDefines.Path.BMetaPath);
+    public static Firebase userMetaRef(String firebaseId){
+        return userRef().child(firebaseId).child(BFirebaseDefines.Path.BMeta);
     }
 
-    public static FirebasePaths userOnlineRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BOnlinePath);
+    public static Firebase userOnlineRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BOnline);
     }
 
-    public static FirebasePaths userFollowsRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollows);
+    public static Firebase userFollowsRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BFollows);
     }
 
-    public static FirebasePaths userFollowersRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollowers);
+    public static Firebase userFollowersRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BFollowers);
+    }
+
+    public static Firebase userFollowsRef(String firebaseId, String uid){
+        return userFollowsRef(firebaseId).child(uid);
+    }
+
+    public static Firebase userFollowersRef(String firebaseId, String uid){
+        return userFollowersRef(firebaseId).child(uid);
+    }
+
+    public static Firebase userThreadRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BThread);
+    }
+
+    public static Firebase userThreadRef(String firebaseId, String tid){
+        return userThreadRef(firebaseId).child(tid);
+    }
+
+    public static Firebase userFriendsRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BFriends);
+    }
+
+    public static Firebase userFriendsRef(String firebaseId, String uid){
+        return userFriendsRef(firebaseId).child(uid);
+    }
+
+    public static Firebase userBlockedRef(String firebaseId){
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BBlocked);
+    }
+
+    public static Firebase userBlockedRef(String firebaseId, String uid){
+        return userBlockedRef(firebaseId).child(uid);
+    }
+
+
+    /* Online Users */
+    public static Firebase onlineUsersRef(String firebaseId){
+        return firebaseRef().child(BFirebaseDefines.Path.BOnline);
+    }
+
+    public static Firebase onlineUsersRef(String firebaseId, String uid){
+        return onlineUsersRef(firebaseId).child(uid);
     }
 
     /* Threads */
     /** @return The thread main ref.*/
-    public static FirebasePaths threadRef(){
-        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BThreadPath);
+    public static Firebase threadRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BThread);
     }
 
     /** @return The thread ref for given id.*/
-    public static FirebasePaths threadRef(String firebaseId){
-        return threadRef().appendPathComponent(firebaseId);
+    public static Firebase threadRef(String firebaseId){
+        return threadRef().child(firebaseId);
     }
 
-    public static FirebasePaths threadMessagesRef(String firebaseId){
-        return threadRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+    public static Firebase threadLastMessagesRef(String firebaseId){
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BLastMessages);
     }
-    
-    public static FirebasePaths publicThreadsRef(){
-        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);
+
+    public static Firebase threadMessagesRef(String firebaseId){
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BMessages);
+    }
+
+    public static Firebase threadMetaRef(String firebaseId){
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BMeta);
+    }
+
+    public static Firebase threadTypingRef(String firebaseId, String uid){
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BTyping).child(uid);
+    }
+
+    public static Firebase threadUserRef(String firebaseId){
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BUsersMeta);
+    }
+
+    public static Firebase threadUserRef(String firebaseId, String uid){
+        return threadUserRef(firebaseId).child(uid);
+    }
+
+
+
+    public static Firebase publicThreadsRef(){
+        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BPublicThread);
+    }
+
+    public static Firebase publicThreadRef(String firebaseId){
+        return publicThreadsRef().child(firebaseId);
     }
 
     /* Index */
-    public static FirebasePaths indexRef(){
-        return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BIndexPath);
+    public static Firebase searchIndexRef(){
+        return firebaseRef().child(BFirebaseDefines.Path.BIndex);
     }
+
+    public static Firebase searchIndexRef(String firebaseId){
+        return searchIndexRef().child(firebaseId);
+    }
+
+
+    /* State */
+    public static Firebase entityRef(String path, String entityId){
+        return firebaseRef().child(path).child(entityId);
+    }
+
+    public static Firebase entityStateRef(String path, String entityId,String key){
+        return entityRef(path, entityId).child(BFirebaseDefines.Path.BState).child(key);
+    }
+
+    public static Firebase entityKeyRef(String path, String entityId,String key){
+        return entityRef(path, entityId).child(key);
+    }
+
 
     public static Map<String, Object> getMap(String[] keys,  Object...values){
         Map<String, Object> map = new HashMap<String, Object>();
@@ -115,8 +202,6 @@ public class FirebasePaths extends Firebase{
 
         return map;
     }
-
-
 
 
     public static int providerToInt(String provider){

@@ -10,8 +10,8 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.BFirebaseNetworkAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserAccount;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
@@ -51,9 +51,16 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     public static BUserWrapper initWithModel(BUser user){
         return new BUserWrapper(user);
     }
-    
+
+    @SuppressWarnings("all")
     public static BUserWrapper initWithSnapshot(DataSnapshot snapshot){
-        return new BUserWrapper(snapshot);
+        BUser model = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, snapshot.getKey());
+        BUserWrapper userWrapper = new BUserWrapper(model);
+
+        if (snapshot.getValue() instanceof Map)
+            userWrapper.deserialize((Map<String, Object>) snapshot.getValue());
+
+        return userWrapper;
     }
 
     public static BUserWrapper initWithEntityId(String entityId){
@@ -87,35 +94,33 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private void updateUserFromAuthData(AuthData authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType(FirebasePaths.providerToInt(authData.getProvider()));
-
         model.setEntityID(authData.getUid());
        
         Map<String, Object> thirdPartyData = authData.getProviderData();
         String name = (String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.DisplayName);;
         String email = (String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.EMail);;
-        BLinkedAccount linkedAccount;
+        BUserAccount linkedAccount;
         
         switch (FirebasePaths.providerToInt(authData.getProvider()))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
+                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName()))
                 {
-                    model.setMetaName(name);
+                    model.setName(name);
                 }
 
                 // Setting the email.//
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
+                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getEmail()))
                 {
-                    model.setMetaEmail(email);
+                    model.setEmail(email);
                 }
 
-                linkedAccount = model.getAccountWithType(BLinkedAccount.Type.FACEBOOK);
+                linkedAccount = model.getAccountWithType(BUserAccount.Type.FACEBOOK);
                 if (linkedAccount == null)
                 {
-                    linkedAccount = new BLinkedAccount();
-                    linkedAccount.setType(BLinkedAccount.Type.FACEBOOK);
+                    linkedAccount = new BUserAccount();
+                    linkedAccount.setType(BUserAccount.Type.FACEBOOK);
                     linkedAccount.setUser(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
@@ -125,22 +130,22 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
             case BDefines.ProviderInt.Twitter:
                 // Setting the name
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
-                    model.setMetaName(name);
+                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName()))
+                    model.setName(name);
 
                 // Setting the email.//
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
+                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getEmail()))
                 {
-                    model.setMetaEmail(email);
+                    model.setEmail(email);
                 }
 
                 TwitterManager.userId = Long.parseLong((String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.ID));
 
-                linkedAccount = model.getAccountWithType(BLinkedAccount.Type.TWITTER);
+                linkedAccount = model.getAccountWithType(BUserAccount.Type.TWITTER);
                 if (linkedAccount == null)
                 {
-                    linkedAccount = new BLinkedAccount();
-                    linkedAccount.setType(BLinkedAccount.Type.TWITTER);
+                    linkedAccount = new BUserAccount();
+                    linkedAccount.setType(BUserAccount.Type.TWITTER);
                     linkedAccount.setUser(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
@@ -150,12 +155,12 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
             case BDefines.ProviderInt.Password:
                 // Setting the name
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
-                    model.setMetaName(name);
+                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName()))
+                    model.setName(name);
 
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
+                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getEmail()))
                 {
-                    model.setMetaEmail(email);
+                    model.setEmail(email);
                 }
                 break;
 
@@ -172,9 +177,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             else model.setMessageColor( BMessageEntity.colorToString(BMessageEntity.randomColor()) );
         }
 
-        if (StringUtils.isEmpty(model.getMetaName()))
+        if (StringUtils.isEmpty(model.getName()))
         {
-            model.setMetaName(BDefines.getDefaultUserName());
+            model.setName(BDefines.getDefaultUserName());
         }
         
         // Save the data
@@ -201,7 +206,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             @Override
             public void onCancelled(FirebaseError firebaseError) {
                 if (DEBUG) Timber.v("once, onCancelled");
-                deferred.reject(BFirebaseNetworkAdapter.getFirebaseError(firebaseError));
+                deferred.reject(getFirebaseError(firebaseError));
             }
         });
 
@@ -239,15 +244,19 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         
         if (value != null)
         {
-            if (value.containsKey(BDefines.Keys.BOnline) && !value.get(BDefines.Keys.BOnline).equals(""))
+            String uid = (String) value.get(BDefines.Keys.BUID);
+            if (StringUtils.isNoneBlank(uid))
+                model.setEntityID(uid);
+
+            if (value.containsKey(BDefines.Keys.BOnline) && StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BOnline)))
                 model.setOnline((Boolean) value.get(BDefines.Keys.BOnline));
 
-            if (value.containsKey(BDefines.Keys.BColor) && !value.get(BDefines.Keys.BColor).equals("")) {
+            if (value.containsKey(BDefines.Keys.BColor) && StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BColor))) {
                 model.setMessageColor((String) value.get(BDefines.Keys.BColor));
             }
 
             // The entity update is called in the deserializeMeta.
-            deserializeMeta((Map<String, Object>) value.get(BFirebaseDefines.Path.BMetaPath));
+            deserializeMeta((Map<String, Object>) value.get(BFirebaseDefines.Path.BMeta));
         }
     }
 
@@ -281,7 +290,6 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
         values.put(BDefines.Keys.BColor, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
         values.put(BDefines.Keys.BMeta, model.metaMap());
-        values.put(BDefines.Keys.BLastOnline, ServerValue.TIMESTAMP);
 
         return values;
     }
@@ -294,11 +302,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         ref().updateChildren(serialize(), new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                if (firebaseError == null)
-                {
+                if (firebaseError == null) {
                     deferred.resolve(model);
-                }
-                else deferred.reject(getFirebaseError(firebaseError));
+                } else deferred.reject(getFirebaseError(firebaseError));
             }
         });
         
@@ -318,18 +324,11 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     }
 
     private Firebase metaRef(){
-        return ref().child(BFirebaseDefines.Path.BMetaPath);
+        return ref().child(BFirebaseDefines.Path.BMeta);
     }
     
     public String pushChannel(){
-        String channel = USER_PREFIX + (model.getEntityID().replace(":", "_"));
-        
-        if (channel.contains("%3A"))
-            channel = channel.replace("%3A", "_");
-        if (channel.contains("%253A"))
-            channel = channel.replace("%253A", "_");
-        
-        return channel;
+        return model.pushChannel();
     }
     
     public Promise<BUserWrapper, FirebaseError, Void> addThreadWithEntityId(String entityId){
@@ -339,7 +338,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         // Getting the user ref.
         Firebase userThreadRef = ref();
 
-        userThreadRef = userThreadRef.child(BFirebaseDefines.Path.BThreadPath).child(entityId);
+        userThreadRef = userThreadRef.child(BFirebaseDefines.Path.BThread).child(entityId);
 
         userThreadRef.child(BDefines.Keys.BNull).setValue("", new Firebase.CompletionListener() {
             @Override
@@ -362,17 +361,14 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
         final Deferred<BUserWrapper, FirebaseError, Void> deferred = new DeferredObject<>();
 
-        Firebase userThreadRef = FirebasePaths.userRef(entityId).child(BFirebaseDefines.Path.BThreadPath).child(entityId);
+        Firebase userThreadRef = FirebasePaths.userRef(entityId).child(BFirebaseDefines.Path.BThread).child(entityId);
 
         userThreadRef.removeValue(new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                if (firebaseError == null)
-                {
+                if (firebaseError == null) {
                     deferred.resolve(BUserWrapper.this);
-                }
-                else
-                {
+                } else {
                     deferred.reject(firebaseError);
                 }
             }
@@ -388,8 +384,8 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
         Map<String, String> values = new HashMap<String, String>();
         
-        String name = model.getMetaName();
-        String email = model.getMetaEmail();
+        String name = model.getName();
+        String email = model.getEmail();
         String phoneNumber = model.metaStringForKey(BDefines.Keys.BPhone);
         
         values.put(BDefines.Keys.BName, StringUtils.isNotEmpty(name) ? AbstractNetworkAdapter.processForQuery(name) : "");
@@ -399,16 +395,14 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             values.put(BDefines.Keys.BPhone, AbstractNetworkAdapter.processForQuery(phoneNumber));
 
 
-        FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(entityId);
+        Firebase ref = FirebasePaths.searchIndexRef().child(entityId);
 
         ref.setValue(values, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                if (firebaseError==null)
-                {
+                if (firebaseError == null) {
                     deferred.resolve(null);
-                }
-                else{
+                } else {
                     deferred.reject(getFirebaseError(firebaseError));
                 }
             }
@@ -422,8 +416,8 @@ public class BUserWrapper extends EntityWrapper<BUser> {
      * Set the user online value to false.
      **/
     public void goOffline(){
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(entityId);
-        userOnlineRef.setValue(false);
+        Firebase userOnlineRef = FirebasePaths.userOnlineRef(entityId);
+        userOnlineRef.removeValue();
     }
     
     /**
@@ -432,11 +426,157 @@ public class BUserWrapper extends EntityWrapper<BUser> {
      * When firebase disconnect this will be auto change to false.
      **/
     public void goOnline(){
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(entityId);
+        Firebase userOnlineRef = FirebasePaths.userOnlineRef(entityId);
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.
-        userOnlineRef.setValue(true);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(BDefines.Keys.BUID, model.getEntityID());
+        data.put(BDefines.Keys.BTime, ServerValue.TIMESTAMP);
+
+        userOnlineRef.setValue(data);
         userOnlineRef.onDisconnect().setValue(false);
     }
+
+
+
+    public Promise<Void, BError, Void> addFriend(final BUser user){
+
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        final Deferred<Void, BError, Void> addFollowerDeferred = new DeferredObject<>();
+
+
+        final Firebase firebase = FirebasePaths.userFriendsRef(model.getEntityID(), user.getEntityID());
+
+        Map<String, Object> data = new HashMap<>();
+
+        data.put(BDefines.Keys.BUID, user.getEntityID());
+        firebase.setValue(data, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null)
+                    deferred.resolve(null);
+                else
+                    deferred.reject(BFirebaseNetworkAdapter.getFirebaseError(firebaseError));
+            }
+        });
+
+        deferred.then(
+                new DoneCallback<Void>() {
+                    @Override
+                    public void onDone(Void aVoid) {
+
+                        Firebase followerRef = FirebasePaths.userFollowersRef(user.getEntityID(), model.getEntityID());
+                        Map<String, Object> data = new HashMap<>();
+
+                        data.put(BDefines.Keys.BUID, model.getEntityID());
+
+                        followerRef.setValue(data, new Firebase.CompletionListener() {
+                            @Override
+                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                if (firebaseError == null)
+                                    addFollowerDeferred.resolve(null);
+                                else
+                                    addFollowerDeferred.reject(getFirebaseError(firebaseError));
+                            }
+                        });
+                    }
+                },
+                new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError error) {
+                        addFollowerDeferred.reject(error);
+                    }
+                });
+
+        return addFollowerDeferred.promise();
+    }
+
+    public Promise<Void, BError, Void> removeFriend(final BUser user){
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        final Deferred<Void, BError, Void> addFollowerDeferred = new DeferredObject<>();
+
+        final Firebase firebase = FirebasePaths.userFriendsRef(model.getEntityID(), user.getEntityID());
+
+        firebase.removeValue(new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null)
+                    deferred.resolve(null);
+                else
+                    deferred.reject(getFirebaseError(firebaseError));
+            }
+        });
+
+        deferred.then(
+                new DoneCallback<Void>() {
+                    @Override
+                    public void onDone(Void aVoid) {
+
+                        Firebase followerRef = FirebasePaths.userFollowersRef(user.getEntityID(), model.getEntityID());
+
+                        followerRef.removeValue(new Firebase.CompletionListener() {
+                            @Override
+                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                if (firebaseError == null)
+                                    addFollowerDeferred.resolve(null);
+                                else
+                                    addFollowerDeferred.reject(getFirebaseError(firebaseError));
+                            }
+                        });
+                    }
+                },
+                new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError error) {
+                        addFollowerDeferred.reject(error);
+                    }
+                });
+
+        return addFollowerDeferred.promise();
+    }
+
+    public Promise<Void, BError, Void> blockUser(final BUser user){
+
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        Firebase firebase = FirebasePaths.userBlockedRef(model.getEntityID(), user.getEntityID());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(BDefines.Keys.BUID, user.getEntityID());
+
+        firebase.setValue(data, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null)
+                    deferred.resolve(null);
+                else
+                    deferred.reject(getFirebaseError(firebaseError));
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<Void, BError, Void> unblockUser(final BUser user){
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        Firebase firebase = FirebasePaths.userBlockedRef(model.getEntityID(), user.getEntityID());
+
+        firebase.removeValue(new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null)
+                    deferred.resolve(null);
+                else
+                    deferred.reject(getFirebaseError(firebaseError));
+            }
+        });
+
+        return deferred.promise();
+    }
+
 }

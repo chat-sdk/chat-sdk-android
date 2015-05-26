@@ -13,6 +13,10 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 import com.firebase.client.FirebaseError;
 
+import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
+
 public class EntityWrapper<E>{
     
     protected E model;
@@ -21,6 +25,10 @@ public class EntityWrapper<E>{
 
     public E getModel() {
         return model;
+    }
+
+    public void setModel(E model) {
+        this.model = model;
     }
 
     public String getEntityId() {
@@ -34,5 +42,12 @@ public class EntityWrapper<E>{
     protected BError getFirebaseError(FirebaseError firebaseError){
         return BFirebaseNetworkAdapter.getFirebaseError(firebaseError);
         
+    }
+
+    protected Promise<Void, BError, Void> updateStateWithKey(String key){
+        Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+
+        return deferred.promise();
     }
 }

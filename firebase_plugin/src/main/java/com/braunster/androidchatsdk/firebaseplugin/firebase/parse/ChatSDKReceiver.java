@@ -95,7 +95,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             // If the push is not for the current user we ignore it.
             if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
                 BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
-                if (user != null && !channel.equals(user.getPushChannel()))
+                if (user != null && !channel.equals(user.pushChannel()))
                     return;
             }
 
@@ -145,8 +145,8 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
                 DaoCore.updateEntity(thread);
 
-                message.setBUserSender(sender);
-                message.setBThreadOwner(thread);
+                message.setSender(sender);
+                message.setThread(thread);
                 message = DaoCore.createEntity(message);
 
                 postMessageNotification(context, json, thread, message, true);
@@ -162,7 +162,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                             @Override
                             public void onDone(final BUser bUser) {
                                 // Adding the user as the sender.
-                                finalMessage.setBUserSender(bUser);
+                                finalMessage.setSender(bUser);
                                 
                                 if (thread == null)
                                 {
@@ -187,7 +187,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                                                     }
 
                                                     // Adding the thread to the message.
-                                                    finalMessage.setBThreadOwner(bThread);
+                                                    finalMessage.setThread(bThread);
 
                                                     // posting the notification. Also creating the new updated message.
                                                     postMessageNotification(context, json, bThread, DaoCore.createEntity(finalMessage), true);

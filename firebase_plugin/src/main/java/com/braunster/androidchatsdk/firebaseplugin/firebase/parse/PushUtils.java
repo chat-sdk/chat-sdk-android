@@ -52,7 +52,7 @@ public class PushUtils {
             text = "Location Message";
         else if (message.getType() == IMAGE)
             text = "Picture Message";
-        text = message.getBUserSender().getMetaName() + " " + text;
+        text = message.getSender().getName() + " " + text;
 
         JSONObject data = new JSONObject();
         try {
@@ -61,9 +61,9 @@ public class PushUtils {
 
             data.put(CONTENT, text);
             data.put(MESSAGE_ENTITY_ID, message.getEntityID());
-            data.put(THREAD_ENTITY_ID, message.getBThreadOwner().getEntityID());
+            data.put(THREAD_ENTITY_ID, message.getThread().getEntityID());
             data.put(MESSAGE_DATE, message.getDate().getTime());
-            data.put(MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
+            data.put(MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
             data.put(MESSAGE_TYPE, message.getType());
             data.put(MESSAGE_PAYLOAD, message.getText());
         } catch (JSONException e) {
