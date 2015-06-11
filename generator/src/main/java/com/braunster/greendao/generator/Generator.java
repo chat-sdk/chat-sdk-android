@@ -12,14 +12,13 @@ import de.greenrobot.daogenerator.ToOne;
  */
 public class Generator {
 
-    // TODO set not null attribute to the properties that needs it.
     private static String outputDir = "../sdk/src/main/java";
 
-    private static Entity user, linkedAccount, thread, message, threadUsers, userConnection, installation, follower;
+    private static Entity user, linkedAccount, thread, message, threadUsers, userConnection, installation;
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(50,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(52,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
@@ -30,9 +29,6 @@ public class Generator {
         addThread(schema);
         addThreadUsers(schema);
         addInstallation(schema);
-
-        // FIXME remove follower
-        addFollower(schema);
 
         setProperties();
 
@@ -49,7 +45,6 @@ public class Generator {
         user.addStringProperty(EntityProperties.EntityID);
         user.addStringProperty(EntityProperties.MessageColor);
         user.addBooleanProperty(EntityProperties.Online);
-        // TODO add state
         user.addStringProperty(EntityProperties.MetaData).columnName(EntityProperties.MetaData.toLowerCase());
     }
 
@@ -73,13 +68,6 @@ public class Generator {
         userConnection.addIdProperty();
         userConnection.addStringProperty(EntityProperties.EntityID);
         userConnection.addIntProperty(EntityProperties.Type);
-    }
-
-    private static void addFollower(Schema schema) {
-        follower = schema.addEntity(EntityProperties.BFollower);
-        follower.addIdProperty();
-        follower.addStringProperty(EntityProperties.EntityID);
-        follower.addIntProperty(EntityProperties.Type);
     }
 
     private static void addThread(Schema schema) {
@@ -184,8 +172,6 @@ public class Generator {
         ToMany contacts = user.addToMany(userConnection, userProp);
         contacts.setName(EntityProperties.BLinkedContacts);
 
-        ToMany followers = user.addToMany(follower, userProp);
-        followers.setName(EntityProperties.BFollowers);
 
         ToMany accounts = user.addToMany(linkedAccount, userProp2);
         accounts.setName(EntityProperties.BLinkedAccounts);
@@ -199,16 +185,6 @@ public class Generator {
         ToMany linkToThread = user.addToMany(threadUsers, userIdProp);
         linkToThread.setName(EntityProperties.BLinkData);
 //        // Users - END
-
-        //FIXME  remove this part
-        Property userPropOwner = follower.addLongProperty(EntityProperties.OwnerId).getProperty();
-        ToOne toOneUserPropOwner = follower.addToOne(user, userPropOwner);
-        toOneUserPropOwner.setName(EntityProperties.Owner);
-
-        Property userPropUser = follower.addLongProperty(EntityProperties.UserId).getProperty();
-        ToOne toOneUserPropUser = follower.addToOne(user, userPropUser);
-        toOneUserPropUser.setName(EntityProperties.User);
-
     }
 
     private static void setKeepSection(){
@@ -222,6 +198,5 @@ public class Generator {
         linkedAccount.setSuperclass("BUserAccountEntity");
         userConnection.setSuperclass("Entity");
         threadUsers.setSuperclass("Entity");
-        follower.setSuperclass("BFollowerEntity");
     }
 }

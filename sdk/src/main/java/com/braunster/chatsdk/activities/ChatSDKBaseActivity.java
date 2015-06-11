@@ -51,7 +51,6 @@ import timber.log.Timber;
  */
 public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivityInterface {
 
-    private static final String TAG = ChatSDKBaseActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.BaseActivity;
 
     public static final String FROM_LOGIN = "From_Login";

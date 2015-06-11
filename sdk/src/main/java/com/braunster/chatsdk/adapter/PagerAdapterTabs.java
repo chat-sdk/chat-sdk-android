@@ -17,21 +17,24 @@ import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
 import com.braunster.chatsdk.fragments.ChatSDKConversationsFragment;
 import com.braunster.chatsdk.fragments.ChatSDKThreadsFragment;
 import com.braunster.chatsdk.fragments.ChatcatProfileFragment;
+import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractContactsFragment;
 
 /**
  * Created by itzik on 6/16/2014.
  */
-public class PagerAdapterTabs extends AbstractChatSDKTabsAdapter implements PagerSlidingTabStrip.IconTabProvider {
+public class PagerAdapterTabs extends BaseChatSDKTabsAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
 
         fragments = new ChatSDKBaseFragment[] {ChatSDKConversationsFragment.newInstance(),
                 ChatSDKThreadsFragment.newInstance(),
-                ChatSDKContactsFragment.newInstance("ConvFragmentPage"),
+                ChatSDKContactsFragment.newInstance(ChatSDKAbstractContactsFragment.MODE_LOAD_ONLINE, ChatSDKAbstractContactsFragment.CLICK_MODE_SHOW_PROFILE, null, "Tab_Online"),
+                ChatSDKContactsFragment.friendsFragment("Tab_Friends"),
                 ChatcatProfileFragment.newInstance()};
 
-        icnns = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
+        icnns = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_online, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
+
     }
 
 }

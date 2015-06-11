@@ -7,7 +7,6 @@
 
 package com.braunster.chatsdk.network.events;
 
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.interfaces.AppEvents;
@@ -15,21 +14,14 @@ import com.braunster.chatsdk.interfaces.AppEvents;
 public class Event implements AppEvents{
 
     public enum Type{
-        AppEvent, ThreadEvent, ThreadAddedEvent, MessageEvent, UserDetailsEvent, FollwerEvent;
+        AppEvent, ThreadEvent, ThreadAddedEvent, MessageEvent, UserDetailsEvent, FollwerEvent, OnlineChangeEvent, FriendsChangeEvent, BlockedChangedEvent;
     }
 
     protected String tag = "";
     protected String entityId = "";
-    protected  Type type;
 
     public Event(String tag, String entityId) {
         this.tag = tag;
-        this.entityId = entityId;
-    }
-
-    public Event(String tag, String entityId, Type type) {
-        this.tag = tag;
-        this.type = type;
         this.entityId = entityId;
     }
 
@@ -49,13 +41,6 @@ public class Event implements AppEvents{
         return entityId;
     }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public Type getType() {
-        return type;
-    }
 
     /**
      * Kills the event.
@@ -65,7 +50,7 @@ public class Event implements AppEvents{
         
         
     }
-    
+
     @Override
     public boolean onUserDetailsChange(BUser user) {
         return false;
@@ -87,7 +72,7 @@ public class Event implements AppEvents{
     }
 
     @Override
-    public boolean onFollowerAdded(BFollower follower) {
+    public boolean onFollowerAdded(BUser follower) {
 
         return false;
     }
@@ -98,13 +83,23 @@ public class Event implements AppEvents{
     }
 
     @Override
-    public boolean onUserToFollowAdded(BFollower follower) {
+    public boolean onUserToFollowRemoved() {
         return false;
     }
 
     @Override
-    public boolean onUserToFollowRemoved() {
-        return false;
+    public void onOnlineUsersChanged() {
+
+    }
+
+    @Override
+    public void onFriendsChanged() {
+
+    }
+
+    @Override
+    public void onBlockedChanged() {
+
     }
 
     @Override

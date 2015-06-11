@@ -61,8 +61,17 @@ public abstract class AbstractEventManager {
 
     public abstract void threadOff(String threadId);
 
+    public abstract void onlineUsersOn();
 
+    public abstract void onlineUsersOff();
 
+    public abstract void blockedOn(BUser currentUser);
+
+    public abstract void friendsOn(BUser currentUser);
+
+    public abstract void blockedOff();
+
+    public abstract void friendsOff();
 
 
     public abstract boolean isListeningToThread(String entityID);

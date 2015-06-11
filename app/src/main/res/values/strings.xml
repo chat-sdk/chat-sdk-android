@@ -21,10 +21,10 @@
     <string name="twitter_access_token_secret"></string>
 
     <!--Parse-->
-    <string name="parse_app_id">oZsitstcYtm1yvwTkrMIpLtpE3SulFvdVb12rH8d</string>
-    <string name="parse_client_key">A1lZKXHQWKUQogcfCCIFBg1cPbJ0dtekh2ghV6He</string>
+    <string name="parse_app_id">s9gVb6lcutRI5fVBkc2gHG2mMYx4lVdHnWtYkBut</string>
+    <string name="parse_client_key">jc0rULnLLe2ERGnwdCf7ncyPDxdE09wUarwgbWcG</string>
 
     <!--BugSense-->
-    <string name="bug_sense_key">a83a219d</string>
+    <string name="bug_sense_key"></string>
 
 </resources>

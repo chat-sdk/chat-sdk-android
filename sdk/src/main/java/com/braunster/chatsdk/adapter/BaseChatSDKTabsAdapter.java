@@ -22,17 +22,21 @@ import com.braunster.chatsdk.fragments.ChatcatProfileFragment;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class AbstractChatSDKTabsAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
+public class BaseChatSDKTabsAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
     protected final String[] titles = {"Conversations", "Chat Rooms", "Contacts", "Profile"};
 
-    protected ChatSDKBaseFragment[] fragments = new ChatSDKBaseFragment[] {ChatSDKConversationsFragment.newInstance(), ChatSDKThreadsFragment.newInstance(), ChatSDKContactsFragment.newInstance("ConvFragmentPage"), ChatcatProfileFragment.newInstance()};
+    protected ChatSDKBaseFragment[] fragments = new ChatSDKBaseFragment[] {
+            ChatSDKConversationsFragment.newInstance(),
+            ChatSDKThreadsFragment.newInstance(),
+            ChatSDKContactsFragment.newInstance("ConvFragmentPage"),
+            ChatcatProfileFragment.newInstance()};
 
     protected int[] icnns = new int[] {R.drawable.ic_action_private, R.drawable.ic_action_public, R.drawable.ic_action_contacts, R.drawable.ic_action_user };
 
     public static final int Profile = 3, ChatRooms = 1, Contacts = 2, Conversations = 0;
 
-    public AbstractChatSDKTabsAdapter(FragmentManager fm) {
+    public BaseChatSDKTabsAdapter(FragmentManager fm) {
         super(fm);
     }
 
@@ -43,7 +47,7 @@ public class AbstractChatSDKTabsAdapter extends FragmentPagerAdapter implements 
 
     @Override
     public int getCount() {
-        return titles.length;
+        return fragments.length;
     }
 
     @Override

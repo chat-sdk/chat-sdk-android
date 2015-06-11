@@ -22,14 +22,14 @@ android {
     signingConfigs {
 
         debug {
-            storeFile file('/media/braunster/Code/Android/braunserkey')
+            storeFile file('/home/braunster/Android/KeyStore/braunserkey')
             keyAlias 'braunsteralias'
             keyPassword 'Itzikbraun1991'
             storePassword 'Itzikbraun1991'
         }
 
         release {
-            storeFile file('/media/braunster/Code/Android/braunserkey')
+            storeFile file('/home/braunster/Android/KeyStore/braunserkey')
             keyAlias 'braunsteralias'
             keyPassword 'Itzikbraun1991'
             storePassword 'Itzikbraun1991'

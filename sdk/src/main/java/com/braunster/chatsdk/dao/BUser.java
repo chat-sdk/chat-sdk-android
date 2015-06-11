@@ -18,6 +18,7 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
+import com.braunster.chatsdk.network.events.MessageEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -56,7 +57,6 @@ public class BUser extends BUserEntity  {
     private Long installation__resolvedKey;
 
     private List<BUserConnection> BLinkedContacts;
-    private List<BFollower> BFollowers;
     private List<BUserAccount> BLinkedAccounts;
     private List<BMessage> messages;
     private List<BThread> threadsCreated;
@@ -184,28 +184,6 @@ public class BUser extends BUserEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetBLinkedContacts() {
         BLinkedContacts = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BFollower> getBFollowers() {
-        if (BFollowers == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BFollowerDao targetDao = daoSession.getBFollowerDao();
-            List<BFollower> BFollowersNew = targetDao._queryBUser_BFollowers(id);
-            synchronized (this) {
-                if(BFollowers == null) {
-                    BFollowers = BFollowersNew;
-                }
-            }
-        }
-        return BFollowers;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBFollowers() {
-        BFollowers = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -493,7 +471,8 @@ public class BUser extends BUserEntity  {
 
     @Override
     public String getPictureThumbnail() {
-        return metaStringForKey(BDefines.Keys.BPictureURLThumbnail);
+        String thumbnail = metaStringForKey(BDefines.Keys.BPictureURLThumbnail);
+        return StringUtils.isEmpty(thumbnail) ? getPictureUrl() : thumbnail;
     }
 
     @Override
@@ -537,7 +516,8 @@ public class BUser extends BUserEntity  {
      * Setting the metadata, The Map will be converted to a Json String.
      **/
     public void setMetaMap(Map<String, Object> metadata){
-        metadata = updateMetaDataFormat(metadata);
+        // Notice i dont think that we need it as we only use the new sdk.
+//        metadata = updateMetaDataFormat(metadata);
         
         this.Metadata = new JSONObject(metadata).toString();
     }
@@ -611,16 +591,30 @@ public class BUser extends BUserEntity  {
         return channel;
     }
 
+    @Override
     public boolean isMe(){
         return getId().longValue()
                 == BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getId().longValue();
     }
 
     @Override
+    public boolean isFriend() {
+        return BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel()
+                .connectionsWithType(BUserConnection.Type.Friend).contains(this);
+
+    }
+
+    @Override
+    public boolean isBlocked() {
+        return BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel()
+                .connectionsWithType(BUserConnection.Type.Blocked).contains(this);
+    }
+
+    @Override
     public String toString() {
         return String.format("BUser, id: %s meta: %s", id, getMetadata());
     }
-
+/*
 
 
 
@@ -692,7 +686,7 @@ public class BUser extends BUserEntity  {
 
     public boolean follows(BUser user){
         return fetchFollower(user, BFollower.Type.FOLLOWS) != null;
-    }
+    }*/
     // KEEP METHODS END
 
 }

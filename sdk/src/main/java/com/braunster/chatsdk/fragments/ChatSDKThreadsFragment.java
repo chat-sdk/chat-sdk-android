@@ -210,11 +210,15 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                                             .done(new DoneCallback<BThread>() {
                                                 @Override
                                                 public void onDone(BThread thread) {
-                                                    dismissProgDialog();
                                                     adapter.addRow(thread);
+
                                                     showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
                                                             + s
                                                             + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
+
+                                                    dismissProgDialog();
+
+                                                    startChatActivityForID(thread.getId());
                                                 }
                                             });
                                 }
@@ -224,7 +228,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                                 public void onFail(BError bError) {
                                     showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
 
-                                    if (DEBUG) Timber.e("Error: %s", bError.message);
+                                    Timber.e("Error: %s", bError.message);
 
                                     dismissProgDialog();
                                 }
@@ -244,7 +248,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     public void onResume() {
         super.onResume();
 
-        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
+        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", handler);
 
         batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
             @Override

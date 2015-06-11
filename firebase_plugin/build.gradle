@@ -29,4 +29,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':sdk')
     compile files('libs/firebase-client-android-2.2.3.jar')
+    compile files('libs/firebase-client-android-2.3.0.jar')
 }

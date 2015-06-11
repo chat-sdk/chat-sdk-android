@@ -184,7 +184,7 @@ public class NotificationUtils {
         resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
         resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
 
-        String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
+        String msgContent = message.getTypeSafely() == TEXT ? message.getText() : message.getTypeSafely() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
 
         String title = !StringUtils.isEmpty(
                 message.getSender().getName()) ? message.getSender().getName() : " ";
@@ -237,8 +237,8 @@ public class NotificationUtils {
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
                 message.getSender().getName(),
-                message.getType() == TEXT ? message.getText()
-                : message.getType() == IMAGE ? context.getString(R.string.not_image_message)
+                message.getTypeSafely() == TEXT ? message.getText()
+                : message.getTypeSafely() == IMAGE ? context.getString(R.string.not_image_message)
                 : context.getString(R.string.not_location_message));
     }
  

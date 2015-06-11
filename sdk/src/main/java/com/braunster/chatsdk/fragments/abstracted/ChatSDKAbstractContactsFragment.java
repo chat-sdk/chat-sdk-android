@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.IntDef;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,6 +50,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +66,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     private static boolean DEBUG = Debug.ContactsFragment;
 
     /** Loading all the current user contacts.*/
-    public static final int MODE_LOAD_CONTACTS = 1991;
+    public static final int MODE_LOAD_FRIENDS = 1991;
 
     /** Loading all users for given thread id mode*/
     public static final int MODE_LOAD_THREAD_USERS = 1992;
@@ -75,7 +78,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     /** Using the users that was given to the fragment in to initializer;*/
     public static final int MODE_USE_SOURCE = 1995;
 
-    public static final int MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD = 1996;
+    public static final int MODE_LOAD_FRIENDS_THAT_NOT_IN_THREAD = 1996;
+
+    public static final int MODE_LOAD_ONLINE = 1997;
 
     /** When a user clicked he will be added to the current thread.*/
     public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
@@ -107,17 +112,27 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     /** Used when the fragment is shown as a dialog*/
     protected String title = "";
 
+    @IntDef({MODE_LOAD_FRIENDS_THAT_NOT_IN_THREAD, MODE_LOAD_FRIENDS,
+            MODE_LOAD_FOLLOWERS, MODE_LOAD_FOLLOWS, MODE_LOAD_ONLINE,
+            MODE_LOAD_THREAD_USERS, MODE_USE_SOURCE})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface LoadingMode{}
+
+    @IntDef({CLICK_MODE_ADD_USER_TO_THREAD, CLICK_MODE_NONE, CLICK_MODE_SHARE_CONTENT, CLICK_MODE_SHOW_PROFILE})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface ClickMode{}
+
     /** Determine which users will be loaded to this fragment.
      *
      * @see
-     *  #MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD,
-     *  #MODE_LOAD_CONTACTS
+     *  #MODE_LOAD_FRIENDS_THAT_NOT_IN_THREAD ,
+     *  #MODE_LOAD_FRIENDS
      *  #MODE_LOAD_FOLLOWERS
      *  #MODE_LOAD_FOLLOWS
      *  #MODE_LOAD_THREAD_USERS
      *  #MODE_USE_SOURCE
      *  */
-    protected int loadingMode;
+    protected @LoadingMode int loadingMode;
 
     /** Determine what happen after a user is clicked.
      *
@@ -125,7 +140,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
      * #CLICK_MODE_ADD_USER_TO_THREAD
      * #CLICK_MODE_SHARE_CONTENT
      * #CLICK_MODE_SHOW_PROFILE */
-    protected int clickMode;
+    protected @ClickMode int clickMode;
 
     /** Extra data for the loading mode/ click mode, for example this is used as thread id/entityID for loading mode {@link #CLICK_MODE_ADD_USER_TO_THREAD}
      *  Look in {@link #loadSourceUsers()} or in {@link #setListClickMode()} for more examples. */
@@ -171,7 +186,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         this.title = title;
     }
 
-    public void setLoadingMode(int loadingMode){
+    public void setLoadingMode(@LoadingMode  int loadingMode){
         this.loadingMode = loadingMode;
     }
 
@@ -179,7 +194,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         this.extraData = extraData;
     }
 
-    public void setClickMode(int clickMode) {
+    public void setClickMode(@ClickMode int clickMode) {
         this.clickMode = clickMode;
     }
 
@@ -187,6 +202,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         this.sourceUsers = sourceUsers;
     }
 
+    @SuppressWarnings("ResourceType")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -276,6 +292,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
     @Override
     public void loadData(){
+        if (DEBUG) Timber.v("loadData");
 
         if (mainView == null || getActivity() == null)
             return;
@@ -294,6 +311,8 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     @Override
     public void loadDataOnBackground(){
 
+        if (DEBUG) Timber.v("loadDataOnBackground, eventTag: %s", eventTAG);
+
         if (mainView == null || getActivity() == null)
         {
             return;
@@ -311,8 +330,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             isFirst = true;
             if (adapter != null && adapter.getUserItems().size() < 2)
             {
-                progressBar.setVisibility(View.VISIBLE);
-                listView.setVisibility(View.INVISIBLE);
+                showLoading();
             }
         }
 
@@ -329,7 +347,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = adapter.makeList(sourceUsers, withHeaders, removeDuplicates);
+                List<ChatSDKAbstractUsersListAdapter.AbstractUserListItem> items = adapter.makeList(sourceUsers, withHeaders, removeDuplicates);
+
+                message.obj = items;
 
                 handler.sendMessage(message);
 
@@ -337,7 +357,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             }
         };
 
-        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater, isFirst ? 0 : loadingMode == MODE_LOAD_CONTACTS ?  4 : 0);
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater, isFirst ? 0 : loadingMode == MODE_LOAD_FRIENDS ?  4 : 0);
     }
 
     @Override
@@ -356,6 +376,8 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+
+            if (DEBUG) Timber.v("handleMessage");
 
             switch (msg.what)
             {
@@ -403,7 +425,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                         @Override
                                         public void onDone(BThread thread) {
                                             showToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success)   + clickedUser.getName());
-                                            
+
                                             if (contactListListener!= null)
                                                 contactListListener.onContactClicked(clickedUser);
 
@@ -452,9 +474,13 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                     .fail(new FailCallback<BError>() {
                                         @Override
                                         public void onFail(BError error) {
-                                            
+
                                         }
                                     });
+                            break;
+
+                        case CLICK_MODE_SHOW_PROFILE:
+                            chatSDKUiHelper.startProfileActivity(clickedUser.getId());
                             break;
 
                         case CLICK_MODE_NONE:
@@ -466,7 +492,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                 .done(new DoneCallback<BThread>() {
                                     @Override
                                     public void onDone(BThread thread) {
-                                        if (contactListListener!= null)
+                                        if (contactListListener != null)
                                             contactListListener.onContactClicked(clickedUser);
 
                                         // This listener is used only because that if we dismiss the dialog before the thread creation has been done
@@ -478,7 +504,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                 .fail(new FailCallback<BError>() {
                                     @Override
                                     public void onFail(BError error) {
-                                        
+
                                     }
                                 });
                     }
@@ -492,11 +518,16 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     }
 
     private void loadSourceUsers(){
+
+
+        if (DEBUG) Timber.v("loadSourceUsers, Loading mode: %s", loadingMode);
+
         if (loadingMode!=MODE_USE_SOURCE)
             // If this is not a dialog we will load the contacts of the user.
             switch (loadingMode) {
-                case MODE_LOAD_CONTACTS:
-                    if (DEBUG) Timber.d("Mode - Contacts");
+
+
+                case MODE_LOAD_FRIENDS:
                     sourceUsers = getNetworkAdapter().friends();
                     break;
 
@@ -511,7 +542,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     sourceUsers = users;
                     break;
 
-                case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
+                case MODE_LOAD_FRIENDS_THAT_NOT_IN_THREAD:
                     List<BUser> users1 = getNetworkAdapter().friends();
                     thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, extraData);
 
@@ -519,7 +550,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     {
                         sourceUsers = new ArrayList<>();
 
-                        Timber.e("MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD, Thread is null");
+                        Timber.e("MODE_LOAD_FRIENDS_THAT_NOT_IN_THREAD, Thread is null");
                     }
                     else
                     {
@@ -529,72 +560,32 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     }
                     break;
 
-                case MODE_LOAD_FOLLOWERS:
-                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
-                    {
-                        sourceUsers = new ArrayList<BUser>();
-                        showLoading();
-                        getNetworkAdapter().getFollowers((String) extraData)
-                                .done(new DoneCallback<List<BUser>>() {
-                                    @Override
-                                    public void onDone(List<BUser> users) {
+                case MODE_LOAD_ONLINE:
 
-                                        users.remove(getNetworkAdapter().currentUserModel());
-                                        
-                                        hideLoading();
-                                        
-                                        sourceUsers = users;
-                                        
-                                        adapter.addBUsersRows(users);
+                    sourceUsers = getNetworkAdapter().onlineUsers();
 
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                })
-                                .fail(new FailCallback<BError>() {
-                                    @Override
-                                    public void onFail(BError error) {
-                                        //TODO handle error
-                                    }
-                                });
-                    }
-                    else
-                        sourceUsers = getNetworkAdapter().currentUserModel().getFollowers();
+                    sourceUsers.remove(getNetworkAdapter().currentUserModel());
+
                     break;
 
-                case MODE_LOAD_FOLLOWS:
-                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
-                    {
+                case MODE_LOAD_FOLLOWERS:
 
-                        sourceUsers = new ArrayList<BUser>();
-                        showLoading();
-                        getNetworkAdapter().getFollows((String) extraData)
-                                .done(new DoneCallback<List<BUser>>() {
-                                    @Override
-                                    public void onDone(List<BUser> users) {
-                                        users.remove(getNetworkAdapter().currentUserModel());
+                    sourceUsers = getNetworkAdapter().followers();
 
-                                        hideLoading();
+                    sourceUsers.remove(getNetworkAdapter().currentUserModel());
 
-                                        sourceUsers = users;
-
-                                        adapter.addBUsersRows(users);
-
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                    }
-                    else
-                        sourceUsers = getNetworkAdapter().currentUserModel().getFollows();
                     break;
             }
     }
 
     public void showLoading(){
+        if (DEBUG) Timber.v("showLoading, tag: %s", eventTAG);
         progressBar.setVisibility(View.VISIBLE);
         listView.setVisibility(View.INVISIBLE);
     }
 
     public void hideLoading(){
+        if (DEBUG) Timber.v("hideLoading, tag: %s", eventTAG);
         progressBar.setVisibility(View.INVISIBLE);
         listView.setVisibility(View.VISIBLE);
     }
@@ -604,7 +595,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
         super.onResume();
         if (withUpdates)
         {
-            BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserDetailsEvent, handler);
+            BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", handler);
             userDetailsBatch.setBatchedAction(Event.Type.UserDetailsEvent, 1000, new Batcher.BatchedAction<String>() {
                 @Override
                 public void triggered(List<String> list) {
@@ -612,11 +603,32 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                 }
             });
 
+            userDetailsBatch.setBatchedAction(Event.Type.OnlineChangeEvent, 1000, new Batcher.BatchedAction<String>() {
+                @Override
+                public void triggered(List<String> list) {
+                    Timber.i("online users updated.");
+                    loadDataOnBackground();
+                }
+            });
+
+            if (loadingMode == MODE_LOAD_FRIENDS){
+
+                userDetailsBatch.setBatchedAction(Event.Type.FriendsChangeEvent, 100, new Batcher.BatchedAction<String>() {
+                    @Override
+                    public void triggered(List<String> list) {
+                        Timber.i("friends updated.");
+                        loadDataOnBackground();
+                    }
+                });
+            }
+
             if (StringUtils.isNotEmpty(eventTAG))
             {
                 getNetworkAdapter().getEventManager().removeEventByTag(eventTAG);
                 getNetworkAdapter().getEventManager().addEvent(userDetailsBatch);
             }
+            else
+                if (DEBUG) Timber.e("Event tag is empty");
         }
     }
 

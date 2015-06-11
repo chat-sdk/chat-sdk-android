@@ -48,9 +48,9 @@ public class PushUtils {
 
         String text = message.getText();
 
-        if (message.getType() == LOCATION)
+        if (message.getTypeSafely() == LOCATION)
             text = "Location Message";
-        else if (message.getType() == IMAGE)
+        else if (message.getTypeSafely() == IMAGE)
             text = "Picture Message";
         text = message.getSender().getName() + " " + text;
 
@@ -64,7 +64,7 @@ public class PushUtils {
             data.put(THREAD_ENTITY_ID, message.getThread().getEntityID());
             data.put(MESSAGE_DATE, message.getDate().getTime());
             data.put(MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
-            data.put(MESSAGE_TYPE, message.getType());
+            data.put(MESSAGE_TYPE, message.getTypeSafely());
             data.put(MESSAGE_PAYLOAD, message.getText());
         } catch (JSONException e) {
             e.printStackTrace();

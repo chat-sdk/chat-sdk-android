@@ -13,19 +13,17 @@ import com.braunster.chatsdk.object.Batcher;
 
 import java.lang.ref.WeakReference;
 
-import static com.braunster.chatsdk.network.events.Event.Type.AppEvent;
-
 public class BatchedEvent extends Event{
 
-    private Batcher<String> appBatch, threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher, followerBatcher;
+    private Batcher<String> appBatch, onlineBatcher, friendsBatched, blockedBatcher,  threadBatch, threadAddedBatcher, userDetailsBatcher, MessageBatcher, followerBatcher;
     private WeakReference<Handler> handler;
 
-    public BatchedEvent(String tag, String entityId, Type type) {
-        super(tag, entityId, type);
+    public BatchedEvent(String tag, String entityId) {
+        super(tag, entityId);
     }
 
-    public BatchedEvent(String tag, String entityId, Type type, Handler handler) {
-        super(tag, entityId, type);
+    public BatchedEvent(String tag, String entityId, Handler handler) {
+        super(tag, entityId);
         
         if (handler != null)
             this.handler = new WeakReference<Handler>(handler);
@@ -40,27 +38,39 @@ public class BatchedEvent extends Event{
         switch (type){
 
             case AppEvent:
-                appBatch = new Batcher<String>(action, interval, handler != null ? handler.get() : null);
+                appBatch = getBatcher(action, interval);
                 break;
 
             case MessageEvent:
-                MessageBatcher = new Batcher(action, interval, handler != null ? handler.get() : null);
+                MessageBatcher = getBatcher(action, interval);
                 break;
 
             case ThreadAddedEvent:
-                threadAddedBatcher = new Batcher(action, interval, handler != null ? handler.get() : null);
+                threadAddedBatcher = getBatcher(action, interval);
                 break;
 
             case ThreadEvent:
-                threadBatch = new Batcher(action, interval, handler != null ? handler.get() : null);
+                threadBatch = getBatcher(action, interval);
                 break;
 
             case UserDetailsEvent:
-                userDetailsBatcher = new Batcher(action, interval, handler != null ? handler.get() : null);
+                userDetailsBatcher = getBatcher(action, interval);
                 break;
 
             case FollwerEvent:
-                followerBatcher = new Batcher(action, interval, handler != null ? handler.get() : null);
+                followerBatcher = getBatcher(action, interval);
+                break;
+
+            case OnlineChangeEvent:
+                onlineBatcher = getBatcher(action, interval);
+                break;
+
+            case FriendsChangeEvent:
+                friendsBatched = getBatcher(action, interval);
+                break;
+
+            case BlockedChangedEvent:
+                blockedBatcher = getBatcher(action, interval);
                 break;
         }
     }
@@ -78,17 +88,12 @@ public class BatchedEvent extends Event{
     }
 
     public void add(Type type, String entityID){
-        if (this.type == AppEvent)
-        {
-            if (appBatch!=null)
-                appBatch.add(entityID);
-            return;
-        }
-        else
-            if (type != this.type)
-                return;
+
+        if (appBatch != null)
+            appBatch.add(entityID);
 
         switch (type){
+
             case MessageEvent:
                 if (MessageBatcher==null)
                     return;
@@ -118,6 +123,28 @@ public class BatchedEvent extends Event{
                     return;
                 followerBatcher.add(entityID);
                 break;
+
+            case OnlineChangeEvent:
+                if (onlineBatcher ==null)
+                    return;
+                onlineBatcher.add(entityID);
+                break;
+
+
+            case FriendsChangeEvent:
+                if (friendsBatched ==null)
+                    return;
+                friendsBatched.add(entityID);
+                break;
+
+
+            case BlockedChangedEvent:
+                if (blockedBatcher ==null)
+                    return;
+                blockedBatcher.add(entityID);
+                break;
+
+
         }
     }
 
@@ -125,43 +152,24 @@ public class BatchedEvent extends Event{
     public void kill() {
         super.kill();
 
-        if (this.type == AppEvent)
-        {
-            if (appBatch!=null)
-                appBatch.kill();
-            return;
-        }
+        killBatch(appBatch);
 
-        switch (type){
-            case MessageEvent:
-                if (MessageBatcher==null)
-                    return;
-                MessageBatcher.kill();
-                break;
+        killBatch(MessageBatcher);
 
-            case ThreadAddedEvent:
-                if (threadAddedBatcher==null)
-                    return;
-                threadAddedBatcher.kill();
-                break;
+        killBatch(threadAddedBatcher);
+        killBatch(threadBatch);
+        killBatch(userDetailsBatcher);
+        killBatch(followerBatcher);
+        killBatch(onlineBatcher);
+        killBatch(friendsBatched);
+        killBatch(blockedBatcher);
+    }
 
-            case ThreadEvent:
-                if (threadBatch==null)
-                    return;
-                threadBatch.kill();
-                break;
-
-            case UserDetailsEvent:
-                if (userDetailsBatcher==null)
-                    return;
-                userDetailsBatcher.kill();
-                break;
-
-            case FollwerEvent:
-                if (followerBatcher==null)
-                    return;
-                followerBatcher.kill();
-                break;
-        }
+    private void killBatch(Batcher batchedEvent){
+        if (batchedEvent != null)
+            batchedEvent.kill();
+    }
+    private Batcher<String> getBatcher(Batcher.BatchedAction<String> action, long interval){
+        return new Batcher<>(action, interval, handler != null ? handler.get() : null);
     }
 }

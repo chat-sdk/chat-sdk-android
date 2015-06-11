@@ -74,7 +74,8 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
 
-        getActionBar().setHomeButtonEnabled(true);
+        if (getActionBar() != null)
+            getActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -217,7 +218,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                             if (action.equals(ACTION_ADD_WHEN_FOUND)) {
                                 
                                 for (BUser u : users){
-                                    BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().connectUser(u, BUserConnection.Type.Friend);
+//                                    BNetworkManager.sharedManager().getNetworkAdapter().addFriends(u);
                                     userIds.add(u.getEntityID());
                                 }
 

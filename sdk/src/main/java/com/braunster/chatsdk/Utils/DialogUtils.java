@@ -290,10 +290,15 @@ public class DialogUtils {
         if (!BDefines.Options.LocationEnabled || context.getString(R.string.google_maps_api_key).isEmpty()){
             popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
         }
+
+        if (!BDefines.Options.ImagesEnabled)
+        {
+            popupView.findViewById(R.id.chat_sdk_btn_choose_picture).setVisibility(View.GONE);
+            popupView.findViewById(R.id.chat_sdk_btn_take_picture).setVisibility(View.GONE);
+        }
         
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
-        // TODO fix popup size to wrap view size.
         optionPopup.setContentView(popupView);
         optionPopup.setBackgroundDrawable(new BitmapDrawable());
         optionPopup.setOutsideTouchable(true);

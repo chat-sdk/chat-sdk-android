@@ -49,7 +49,7 @@ public class UserMetaChangeListener extends FirebaseGeneralEvent {
                     if (snapshot.getValue() != null)
                     {
                         BUserWrapper user = BUserWrapper.initWithEntityId(userID);
-                        user.deserializeMeta((java.util.Map<String, Object>) snapshot.getValue());
+                        user.deserialize((java.util.Map<String, Object>) snapshot.getValue());
 
                         if (deferred != null && deferred.isPending())
                             deferred.resolve(null);

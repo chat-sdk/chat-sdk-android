@@ -32,10 +32,9 @@ public class BFirebaseDefines {
 
         public static final String BUsers = "users";
         public static final String BMessages = "messages";
-        public static final String BLastMessages = "lastMessages";
+        public static final String BLastMessage = "lastMessage";
         public static final String BThread = "rooms";
         public static final String BPublicThread = "public-rooms";
-        public static final String BDetails = "details";
         public static final String BIndex = "searchIndex";
         public static final String BOnline = "online";
         public static final String BMeta = "meta";

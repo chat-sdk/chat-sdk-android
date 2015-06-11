@@ -109,6 +109,8 @@
 
         </activity>
 
+        <activity android:name=".activities.ChatSDKViewProfileActivity"/>
+
         <!--Crop image-->
         <activity android:name="com.soundcloud.android.crop.CropImageActivity"
             />

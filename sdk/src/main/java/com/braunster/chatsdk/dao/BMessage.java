@@ -300,6 +300,9 @@ public class BMessage extends BMessageEntity  {
         return isRead==null || isRead;
     }
 
+    public int getTypeSafely(){
+        return type == null ? Type.TEXT : type;
+    }
     @Override
     public String toString() {
         return String.format("BMessage, id: %s, type: %s, Sender: %s", id, type, getSender());

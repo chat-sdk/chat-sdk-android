@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -37,6 +38,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.ProgressCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -101,23 +103,6 @@ public abstract class AbstractNetworkAdapter {
     /*** Send a request to the server to get the online status of the user. */
     public abstract Promise<Boolean, BError, Void> isOnline();
 
-    public abstract List<BUser> onlineUsers();
-
-
-
- /*
-
-    public abstract void startTypingOnThread(BThread thread, BUser user);
-
-    public abstract void finishTypingOnThread(BThread thread, BUser user);*/
-
-    public abstract Promise<List<BUser>, BError, Void> getFollowers(String entityId);
-
-    public abstract Promise<List<BUser>, BError, Void>  getFollows(String entityId);
-
-    public abstract Promise<Void, BError, Void> followUser(BUser userToFollow);
-
-    public abstract void unFollowUser(BUser userToUnfollow);
 
 
 
@@ -548,20 +533,9 @@ public abstract class AbstractNetworkAdapter {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
-    /**
-     * Remove given users list to the given thread.
-     */
-    public abstract Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
+    public abstract void startTypingOnThread(BThread thread, BUser user);
 
-    /**
-     * Remove given users list to the given thread.
-     */
-    public Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, BUser... users) {
-        return removeUsersFromThread(thread, Arrays.asList(users));
-    }
-
-    
-    public abstract Promise<BThread, BError, Void> pushThread(BThread thread);
+    public abstract void finishTypingOnThread(BThread thread, BUser user);
 
 
     public abstract Promise<String[], BError, SaveImageProgress> saveBMessageWithImage(BMessage message);
@@ -628,24 +602,37 @@ public abstract class AbstractNetworkAdapter {
         this.authenticated = authenticated;
     }
 
-    /** 
+
+
+    @NotNull
+    @NonNull public abstract List<BUser> onlineUsers();
+
+
+    /**
      * @return the current user contacts list.
      **/
-    public abstract List<BUser> friends();
+    @NotNull
+    @NonNull public abstract List<BUser> friends();
 
-    public abstract List<BUser> followers();
+    @NotNull
+    @NonNull public abstract List<BUser> followers();
 
-    public abstract List<BUser> blockedUsers();
+    @NotNull
+    @NonNull public abstract List<BUser> blockedUsers();
 
-    public abstract  Promise<Void, BError, Void> addFriends(BUser user);
+    @NotNull
+    @NonNull public abstract  Promise<Void, BError, Void> addFriends(BUser user);
 
-    public abstract  Promise<Void, BError, Void> removeFriend(BUser user);
+    @NotNull
+    @NonNull public abstract  Promise<Void, BError, Void> removeFriend(BUser user);
 
-    public abstract Promise<Void, BError, Void> blockUser(BUser user);
+    @NotNull
+    @NonNull public abstract Promise<Void, BError, Void> blockUser(BUser user);
 
-    public abstract Promise unblockUser(BUser user);
+    @NotNull
+    @NonNull public abstract Promise<Void, BError, Void> unblockUser(BUser user);
 
-    public Map<String, ?> getLoginInfo() {
+    @NonNull public Map<String, ?> getLoginInfo() {
         return BNetworkManager.preferences.getAll();
     }
 

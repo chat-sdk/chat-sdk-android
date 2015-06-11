@@ -252,7 +252,8 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                             thread.setName(s);
                             DaoCore.updateEntity(thread);
 
-                            getNetworkAdapter().pushThread(thread);
+                            // This method was removed from the adapter for this project.
+//                            getNetworkAdapter().pushThread(thread);
                         }
                     });
 

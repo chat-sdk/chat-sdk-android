@@ -14,11 +14,8 @@ import android.view.ViewGroup;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractContactsFragment;
-
-import java.util.List;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -31,7 +28,7 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
     /* Initializers.*/
     public static ChatSDKContactsFragment newInstance(String eventTAG) {
         ChatSDKContactsFragment f = new ChatSDKContactsFragment();
-        f.setLoadingMode(MODE_LOAD_CONTACTS);
+        f.setLoadingMode(MODE_LOAD_FRIENDS);
         f.setEventTAG(eventTAG);
         Bundle b = new Bundle();
         f.setArguments(b);
@@ -46,12 +43,21 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
         return f;
     }
 
-    public static ChatSDKContactsFragment newInstance(int loadingMode, int clickMode, List<BUser> sourceUsers, Object extraData) {
+    public static ChatSDKContactsFragment newInstance(int loadingMode, int clickMode, Object extraData, String eventTag) {
         ChatSDKContactsFragment f = new ChatSDKContactsFragment();
         f.setLoadingMode(loadingMode);
+        f.setEventTAG(eventTag);
         f.setClickMode(clickMode);
         f.setExtraData(extraData);
-        f.setSourceUsers(sourceUsers);
+        return f;
+    }
+
+    public static ChatSDKContactsFragment friendsFragment(String eventTag) {
+        ChatSDKContactsFragment f = new ChatSDKContactsFragment();
+        f.setLoadingMode(MODE_LOAD_FRIENDS);
+        f.setClickMode(CLICK_MODE_SHOW_PROFILE);
+        f.setEventTAG(eventTag);
+        f.withHeaders = true;
         return f;
     }
 

@@ -15,9 +15,9 @@ import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
@@ -25,7 +25,6 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.countrypicker.Country;
 import com.countrypicker.CountryPicker;
 import com.countrypicker.CountryPickerListener;
 
@@ -40,17 +39,18 @@ import timber.log.Timber;
  * Created by braunster on 02/04/15.
  */
 public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements OnClickListener {
-
-    public static final String Male = "male", Female ="female";
     
-    private TextView txtMale, txtFemale, txtDateOfBirth;
+    private TextView txtMale, txtFemale, txtEveryone, txtNobody, txtFriends;
     
     private EditText etName, etLocation, etStatus;
     
-    private ImageView imageCountryFlag;
-    
+//    private ImageView imageCountryFlag;
+
+    private Button btnSelectBirthday, btnSelectCountry;
+
     private boolean loggingOut = false;
-    
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(BDefines.Options.DateOfBirthFormat);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,13 +70,18 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
     private void initViews(){
         txtFemale = (TextView) findViewById(R.id.btn_female);
         txtMale = (TextView) findViewById(R.id.btn_male);
-        txtDateOfBirth = (TextView) findViewById(R.id.txt_date_of_birth);
+        txtEveryone = (TextView) findViewById(R.id.btn_everyone);
+        txtNobody = (TextView) findViewById(R.id.btn_nobody);
+        txtFriends= (TextView) findViewById(R.id.btn_friends);
         
         etName = (EditText) findViewById(R.id.chat_sdk_et_name);
         etLocation = (EditText) findViewById(R.id.chat_sdk_et_location);
         etStatus = (EditText) findViewById(R.id.chat_sdk_et_status);
 
-        imageCountryFlag = (ImageView) findViewById(R.id.chat_sdk_country_ic);
+        btnSelectBirthday = (Button)findViewById(R.id.chat_sdk_pick_birth_date_button);
+        btnSelectCountry = (Button) findViewById(R.id.chat_sdk_select_country_button);
+
+//        imageCountryFlag = (ImageView) findViewById(R.id.chat_sdk_country_ic);
     }
 
     /**
@@ -84,10 +89,10 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
      * */
     private void loadCurrentData(){
         BUser user = getNetworkAdapter().currentUserModel();
-        
+
+        // Setting up user gender, Default is male.
         String gender = user.metaStringForKey(BDefines.Keys.BGender);
-        
-        if (StringUtils.isEmpty(gender) || gender.equals(Male))
+        if (StringUtils.isEmpty(gender) || gender.equals(BDefines.Keys.BMale))
         {
             setSelected(txtFemale, false);
 
@@ -99,17 +104,37 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
             setSelected(txtFemale, true);
         }
-        
+
+        // Setting up the country code selected
         String countryCode = user.metaStringForKey(BDefines.Keys.BCountry);
-        
         if (StringUtils.isNotEmpty(countryCode)){
             loadCountryFlag(countryCode);
         }
-        
+
+        String allowInvites = user.metaStringForKey(BDefines.Keys.BAllowInvites);
+
+        if (StringUtils.isEmpty(allowInvites))
+            allowInvites = BDefines.Keys.BEveryone;
+
+        switch (allowInvites)
+        {
+            case BDefines.Keys.BFriends:
+                setSelected(txtFriends, true);
+                break;
+
+            case BDefines.Keys.BNobody:
+                setSelected(txtNobody, true);
+                break;
+
+            case BDefines.Keys.BEveryone:
+                setSelected(txtEveryone, true);
+                break;
+        }
+
         String name = user.getName();
-        String location = user.metaStringForKey(BDefines.Keys.BLocation);
+        String location = user.metaStringForKey(BDefines.Keys.BCity);
         String dateOfBirth = user.metaStringForKey(BDefines.Keys.BDateOfBirth);
-        String status = user.metaStringForKey(BDefines.Keys.BStatus);
+        String status = user.metaStringForKey(BDefines.Keys.BDescription);
 
        if (StringUtils.isNotEmpty(name))
            etName.setText(name);
@@ -118,15 +143,18 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
             etLocation.setText(location);
 
         if (StringUtils.isNotEmpty(dateOfBirth))
-            txtDateOfBirth.setText(dateOfBirth);
+            btnSelectBirthday.setText(simpleDateFormat.format(Long.parseLong(dateOfBirth)));
 
         if (StringUtils.isNotEmpty(status))
             etStatus.setText(status);
     }
     
     private void loadCountryFlag(String countryCode){
-        imageCountryFlag.setImageResource(Country.getResId(countryCode));
-        imageCountryFlag.setVisibility(View.VISIBLE);
+
+        btnSelectCountry.setText(countryCode);
+
+//        imageCountryFlag.setImageResource(Country.getResId(countryCode));
+//        imageCountryFlag.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -135,57 +163,41 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
     private void saveDetailsBeforeClose(){
         BUser user = getNetworkAdapter().currentUserModel();
 
-
-
-
         if (!etName.getText().toString().isEmpty()) {
             user.setName(etName.getText().toString());
         }
 
-        user.setMetadataString(BDefines.Keys.BDateOfBirth, txtDateOfBirth.getText().toString());
+        user.setMetadataString(BDefines.Keys.BDateOfBirth, (String) btnSelectBirthday.getTag());
 
-        user.setMetadataString(BDefines.Keys.BStatus, etStatus.getText().toString());
+        user.setMetadataString(BDefines.Keys.BDescription, etStatus.getText().toString());
 
-        user.setMetadataString(BDefines.Keys.BLocation, etLocation.getText().toString());
+        user.setMetadataString(BDefines.Keys.BCity, etLocation.getText().toString());
+
+        getNetworkAdapter().currentUserModel()
+                .setMetadataString(
+                        BDefines.Keys.BGender, txtMale.isSelected() ? BDefines.Keys.BMale : BDefines.Keys.BFemale);
+
+        getNetworkAdapter().currentUserModel()
+                .setMetadataString(
+                        BDefines.Keys.BAllowInvites, txtFriends.isSelected() ?
+                                BDefines.Keys.BFriends : txtEveryone.isSelected() ?
+                                BDefines.Keys.BEveryone : BDefines.Keys.BNobody);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        txtMale.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        txtMale.setOnClickListener(genderClickListener);
+        txtFemale.setOnClickListener(genderClickListener);
 
-                if (v.isSelected())
-                    return;
-
-                setSelected(txtFemale, false);
-
-                setSelected(txtMale, true);
-
-                getNetworkAdapter().currentUserModel().setMetadataString(BDefines.Keys.BGender, "male");
-            }
-        });
-
-        txtFemale.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (v.isSelected())
-                    return;
-
-                setSelected(txtMale, false);
-
-                setSelected(txtFemale, true);
-
-                getNetworkAdapter().currentUserModel().setMetadataString(BDefines.Keys.BGender, "female");
-            }
-        });
+        txtEveryone.setOnClickListener(invitesClickListener);
+        txtFriends.setOnClickListener(invitesClickListener);
+        txtNobody.setOnClickListener(invitesClickListener);
 
         findViewById(R.id.chat_sdk_logout_button).setOnClickListener(this);
         findViewById(R.id.chat_sdk_app_info_button).setOnClickListener(this);
-        findViewById(R.id.chat_sdk_select_country_button).setOnClickListener(this);
-        findViewById(R.id.chat_sdk_pick_birth_date_button).setOnClickListener(this);
+        btnSelectCountry.setOnClickListener(this);
+        btnSelectBirthday.setOnClickListener(this);
     }
 
     public void logout() {
@@ -237,6 +249,32 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
     }
 
 
+    private OnClickListener genderClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.isSelected())
+                return;
+
+            boolean male = v.equals(txtMale);
+
+            setSelected(txtMale, male);
+
+            setSelected(txtFemale, !male);
+        }
+    };
+
+    private OnClickListener invitesClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.isSelected())
+                return;
+
+            setSelected(txtFriends, v.equals(txtFriends));
+            setSelected(txtEveryone, v.equals(txtEveryone));
+            setSelected(txtNobody, v.equals(txtNobody));
+        }
+    };
+
     @Override
     public void onClick(View v) {
         int i = v.getId();
@@ -269,7 +307,9 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
                     calendar.set(year, monthOfYear, dayOfMonth);
 
-                    txtDateOfBirth.setText(new SimpleDateFormat(BDefines.Options.DateOfBirthFormat).format(calendar.getTime()));
+                    btnSelectBirthday.setTag(String.valueOf(calendar.getTime().getTime()));
+                    btnSelectBirthday.setText(simpleDateFormat.format(calendar.getTime()));
+
                 }
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 

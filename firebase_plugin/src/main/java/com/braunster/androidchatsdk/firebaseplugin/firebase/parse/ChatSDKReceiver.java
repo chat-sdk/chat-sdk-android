@@ -179,7 +179,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                                                     // Add the current user to the thread if needed.
 
                                                     if (!threadWrapper.getModel().hasUser(currentUser)) {
-                                                        threadWrapper.addUser(BUserWrapper.initWithModel(currentUser));
+//                                                        threadWrapper.addUser(BUserWrapper.initWithModel(currentUser));
 
                                                         // Connecting both users to the thread.
                                                         DaoCore.connectUserAndThread(currentUser, threadWrapper.getModel());

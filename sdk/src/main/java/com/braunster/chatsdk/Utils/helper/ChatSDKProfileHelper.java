@@ -93,9 +93,15 @@ public class ChatSDKProfileHelper {
 
     private boolean saveImageWhenLoaded = true;
 
-    /* UI */
+    /**
+     * Loading the profile image for given profile user.
+     * */
     public void loadProfilePic(){
-        loadProfilePic(getLoginType());
+
+        profileCircleImageView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+
+        setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
     }
 
     public void loadProfilePic(int loginType){
@@ -117,7 +123,8 @@ public class ChatSDKProfileHelper {
             case BDefines.BAccountType.Password:
                 if (profileUser==null)
                     setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().metaStringForKey(BDefines.Keys.BPictureURL), false);
-                else setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
+                else
+                    setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
                 break;
 
             case BDefines.BAccountType.Anonymous:

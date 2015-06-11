@@ -81,8 +81,6 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                     public void onFail(BError bError) {
                         dismissProgDialog();
                         if (DEBUG) Timber.d("Auth Failed");
-/*FIXME remove if not needed.                        if (bError.code != BError.Code.NO_LOGIN_INFO)
-                            showAlertToast(getString(R.string.login_activity_auth_failed));*/
                     }
                 });
             }

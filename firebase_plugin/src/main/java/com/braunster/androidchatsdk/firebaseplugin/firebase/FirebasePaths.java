@@ -62,11 +62,15 @@ public class FirebasePaths extends Firebase{
 
     /** @return The user meta ref for given id.*/
     public static Firebase userMetaRef(String firebaseId){
-        return userRef().child(firebaseId).child(BFirebaseDefines.Path.BMeta);
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BMeta);
+    }
+
+    public static Firebase userOnlineRef(){
+        return firebaseRef().child(BFirebaseDefines.Path.BOnline);
     }
 
     public static Firebase userOnlineRef(String firebaseId){
-        return userRef(firebaseId).child(BFirebaseDefines.Path.BOnline);
+        return userOnlineRef().child(firebaseId);
     }
 
     public static Firebase userFollowsRef(String firebaseId){
@@ -130,8 +134,9 @@ public class FirebasePaths extends Firebase{
         return threadRef().child(firebaseId);
     }
 
-    public static Firebase threadLastMessagesRef(String firebaseId){
-        return threadRef(firebaseId).child(BFirebaseDefines.Path.BLastMessages);
+    public static Firebase threadLastMessageRef(String firebaseId){
+        return threadRef(firebaseId)
+                .child(BFirebaseDefines.Path.BLastMessage);
     }
 
     public static Firebase threadMessagesRef(String firebaseId){

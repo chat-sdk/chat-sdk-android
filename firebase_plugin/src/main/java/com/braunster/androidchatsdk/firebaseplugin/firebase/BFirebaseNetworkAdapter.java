@@ -57,7 +57,7 @@ import static com.braunster.chatsdk.network.BDefines.BAccountType.Register;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Keys;
 
-public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
+public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter implements Pusher{
 
     private static final String TAG = BFirebaseNetworkAdapter.class.getSimpleName();
     private static boolean DEBUG = Debug.BFirebaseNetworkAdapter;
@@ -219,6 +219,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                                 
                                 //Authing the user after creating it.
                                 details.put(BDefines.Prefs.LoginTypeKey, Password);
+
                                 authenticateWithMap(details).done(new DoneCallback<Object>() {
                                     @Override
                                     public void onDone(Object o) {
@@ -309,9 +310,9 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 public void onDataChange(DataSnapshot snapshot) {
                     Long date = null;
                     try {
-                        date = (Long) snapshot.child(Keys.BDate).getValue();
+                        date = (Long) snapshot.child(Keys.BTime).getValue();
                     } catch (ClassCastException e) {
-                        date = (((Double)snapshot.child(Keys.BDate).getValue()).longValue());
+                        date = (((Double)snapshot.child(Keys.BTime).getValue()).longValue());
                     }
                     finally {
                         if (date != null)
@@ -363,6 +364,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         PushUtils.sendMessage(message, channels);
     }
 
+    @Override
     public void subscribeToPushChannel(String channel){
         if (!parseEnabled())
             return;
@@ -379,6 +381,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         }
     }
 
+    @Override
     public void unsubscribeToPushChannel(String channel){
         if (!parseEnabled())
             return;
@@ -459,6 +462,10 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 code = BError.Code.PERMISSION_DENIED;
                 errorMessage = "Permission denied";
                 break;
+
+            default:
+                code = BError.Code.EXCEPTION;
+                errorMessage = exception.getMessage();
 
         }
 

@@ -36,13 +36,10 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.object.Batcher;
+import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -140,7 +137,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         {
             isFirst = false;
             uiUpdater.setKilled(true);
-            ChatSDKAbstractConversationsFragmentChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
+            ChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
         }
         else
         {
@@ -184,7 +181,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             }
         };
 
-        ChatSDKAbstractConversationsFragmentChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 0);
+        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 0);
     }
 
     @Override
@@ -282,13 +279,14 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
 //        loadDataOnBackground();
 
-        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
+        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", handler);
         batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
                 loadDataOnBackground();
             }
         });
+
 
         getNetworkAdapter().getEventManager().removeEventByTag(APP_EVENT_TAG);
         getNetworkAdapter().getEventManager().addEvent(batchedEvents);
@@ -329,63 +327,5 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
     public ChatSDKAbstractThreadsListAdapter getAdapter() {
         return adapter;
-    }
-
-    /** FIXME not sure if needed.
-     * Created by braunster on 18/08/14.
-     */
-    private static class ChatSDKAbstractConversationsFragmentChatSDKThreadPool {
-        // Sets the amount of time an idle thread waits before terminating
-        private static final int KEEP_ALIVE_TIME = 3;
-        // Sets the Time Unit to seconds
-        private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-
-        private LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-        /*
-         * Gets the number of available cores
-         * (not always the same as the maximum number of cores)
-         */
-        private static int NUMBER_OF_CORES =
-                Runtime.getRuntime().availableProcessors();
-
-        private ThreadPoolExecutor threadPool;
-        private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-
-        private static ChatSDKAbstractConversationsFragmentChatSDKThreadPool instance;
-
-        public static ChatSDKAbstractConversationsFragmentChatSDKThreadPool getInstance() {
-            if (instance == null)
-                instance = new ChatSDKAbstractConversationsFragmentChatSDKThreadPool();
-            return instance;
-        }
-
-        private ChatSDKAbstractConversationsFragmentChatSDKThreadPool(){
-            
-            if (NUMBER_OF_CORES <= 0)
-                NUMBER_OF_CORES = 2;
-            
-            // Creates a thread pool manager
-            threadPool = new ThreadPoolExecutor(
-                    NUMBER_OF_CORES,       // Initial pool size
-                    5,       // Max pool size
-                    KEEP_ALIVE_TIME,
-                    KEEP_ALIVE_TIME_UNIT,
-                    workQueue);
-
-            scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(NUMBER_OF_CORES);
-
-        }
-
-        public void execute(Runnable runnable){
-            threadPool.execute(runnable);
-        }
-
-        public void scheduleExecute(Runnable runnable, long delay){
-            scheduledThreadPoolExecutor.schedule(runnable, delay, TimeUnit.SECONDS);
-        }
-
-        public boolean removeSchedule(Runnable runnable){
-            return scheduledThreadPoolExecutor.remove(runnable);
-        }
     }
 }

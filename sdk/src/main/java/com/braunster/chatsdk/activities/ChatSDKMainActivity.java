@@ -28,10 +28,9 @@ import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.helper.OpenFromPushChecker;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
-import com.braunster.chatsdk.adapter.AbstractChatSDKTabsAdapter;
+import com.braunster.chatsdk.adapter.BaseChatSDKTabsAdapter;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -50,7 +49,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     private ExitHelper exitHelper;
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
-    protected AbstractChatSDKTabsAdapter adapter;
+    protected BaseChatSDKTabsAdapter adapter;
 
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
     public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
@@ -158,7 +157,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
         if (adapter != null)
         {
-            ChatSDKBaseFragment pro = getFragment(AbstractChatSDKTabsAdapter.Profile), conv = getFragment(PagerAdapterTabs.Conversations);
+            ChatSDKBaseFragment pro = getFragment(BaseChatSDKTabsAdapter.Profile), conv = getFragment(PagerAdapterTabs.Conversations);
 
             if (conv!=null)
                 conv.refreshOnBackground();
@@ -176,7 +175,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         public boolean onMessageReceived(final BMessage message) {
 
             // Only notify for private threads.
-            if (message.getThread().getTypeSafely() == BThread.Type.Public) {
+            if (message.getThread().isPublic()) {
                 return false;
             }
 
@@ -250,7 +249,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.android_settings) {
 
-            // FIXME Clearing the cache, Just for debug.
             /*final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
             VolleyUtils.getBitmapCache().resize(1);
@@ -300,7 +298,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Action_Contacts_Added))
             {
-                ChatSDKBaseFragment contacts = getFragment(AbstractChatSDKTabsAdapter.Contacts);
+                ChatSDKBaseFragment contacts = getFragment(BaseChatSDKTabsAdapter.Contacts);
 
                 if (contacts != null)
                     contacts.refreshOnBackground();
@@ -334,23 +332,23 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             }
             else if (intent.getAction().equals(ChatSDKAbstractChatActivity.ACTION_CHAT_CLOSED))
             {
-                getFragment(AbstractChatSDKTabsAdapter.Conversations).loadDataOnBackground();
+                getFragment(BaseChatSDKTabsAdapter.Conversations).loadDataOnBackground();
             }
         }
     };
 
     private void clearData(){
-        ChatSDKBaseFragment contacts = getFragment(AbstractChatSDKTabsAdapter.Contacts);
+        ChatSDKBaseFragment contacts = getFragment(BaseChatSDKTabsAdapter.Contacts);
 
         if (contacts != null)
             contacts.clearData();
 
-        ChatSDKBaseFragment conv = getFragment(AbstractChatSDKTabsAdapter.Conversations);
+        ChatSDKBaseFragment conv = getFragment(BaseChatSDKTabsAdapter.Conversations);
 
         if (conv != null)
             conv.clearData();
 
-        ChatSDKBaseFragment pro = getFragment(AbstractChatSDKTabsAdapter.Profile);
+        ChatSDKBaseFragment pro = getFragment(BaseChatSDKTabsAdapter.Profile);
 
         if (pro != null)
             pro.clearData();

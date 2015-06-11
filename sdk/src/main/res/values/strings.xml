@@ -162,4 +162,34 @@
     <string name="chat_sdk_edit_profile_pick_birth_date">Select date of birth</string>
     <string name="app_info">App Info</string>
     <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>
+    <string name="opening_room">Opening room</string>
+    <string name="creating_room">Creating room</string>
+
+    <!--Allow invite options -->
+    <string name="nobody">Nobody</string>
+    <string name="friends">Friends</string>
+    <string name="everyone">Everyone</string>
+
+
+    <!--Edit profile headers-->
+    <string name="invites_options_header">ALLOW INVITES FROM</string>
+    <string name="utilities_header">UTILITIES</string>
+    <string name="account_header">ACCOUNT</string>
+    <string name="status_header">STATUS</string>
+    <string name="details_header">DETAILS</string>
+    <string name="country_header">COUNTRY</string>
+    <string name="friend_added">Friend was added</string>
+    <string name="error_adding_friend">Error occurred while adding friend</string>
+    <string name="user_blocked">User was blocked</string>
+    <string name="error_blocking_user">Error occurred while blocking user</string>
+    <string name="block_user_button">Block User</string>
+    <string name="unblock_user_button">Unblock User</string>
+    <string name="add_friend_button">Add Friend</string>
+    <string name="remove_friend_button">Remove Friend</string>
+    <string name="blocking_user_progress">Blocking user&#8230;</string>
+    <string name="unblocking_user_progress">Unblocking user&#8230;</string>
+    <string name="unfriending_user_progress">Removing Friend&#8230;</string>
+    <string name="adding_friend_progress">Adding Friend&#8230;</string>
+    <string name="unfriend_button">Remove Friend</string>
+    <string name="action_message">Send message</string>
 </resources>

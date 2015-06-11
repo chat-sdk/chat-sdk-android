@@ -29,9 +29,9 @@ import com.braunster.chatsdk.activities.ChatSDKPickFriendsActivity;
 import com.braunster.chatsdk.activities.ChatSDKSearchActivity;
 import com.braunster.chatsdk.activities.ChatSDKShareWithContactsActivity;
 import com.braunster.chatsdk.activities.ChatSDKThreadDetailsActivity;
+import com.braunster.chatsdk.activities.ChatSDKViewProfileActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
-import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractProfileActivity;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
@@ -118,7 +118,7 @@ public class ChatSDKUiHelper {
             shareWithFriendsActivity = ChatSDKShareWithContactsActivity.class,
             shareLocationActivity = ChatSDKLocationActivity.class,
             editProfileActivity= ChatSDKEditProfileActivity.class,
-            profileActivity = null,
+            profileActivity = ChatSDKViewProfileActivity.class,
             threadDetailsActivity = ChatSDKThreadDetailsActivity.class;
 
     public static ChatSDKUiHelper initDefault(){
@@ -228,22 +228,6 @@ public class ChatSDKUiHelper {
         startActivity(shareLocationActivity);
     }
 
-    public boolean startProfileActivity(String entityId){
-
-        if (colleted())
-            return false;
-        
-        if (profileActivity==null)
-            return false;
-
-        Intent intent = new Intent(context.get(), profileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ENTITY_ID, entityId);
-
-        startActivity(intent);
-
-        return true;
-    }
-
     public boolean startProfileActivity(long id){
 
         if (colleted())
@@ -253,14 +237,14 @@ public class ChatSDKUiHelper {
             return false;
 
         Intent intent = new Intent(context.get(), profileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
+        intent.putExtra(ChatSDKViewProfileActivity.USER_ID, id);
 
         startActivity(intent);
 
         return true;
     }
 
-    public void startEditProfileActivity(long id){
+    public void startEditProfileActivity(){
 
         if (colleted())
            return;
@@ -269,7 +253,6 @@ public class ChatSDKUiHelper {
             return;
 
         Intent intent = new Intent(context.get(), editProfileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
 
         startActivity(intent);
     }

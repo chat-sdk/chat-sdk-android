@@ -52,7 +52,7 @@ import de.greenrobot.dao.query.QueryBuilder;
 import timber.log.Timber;
 
 
-public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageSendListener{
+public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageBoxListener {
 
     public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDELD = 1993;
 
@@ -143,7 +143,13 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         this.messageBoxView = messageBoxView;
 
         if (autoSend)
-            messageBoxView.setMessageSendListener(this);
+            messageBoxView.setMessageBoxListener(this);
+
+        // If both location and images are disabled we dont show the option button.
+        if (!BDefines.Options.ImagesEnabled && !BDefines.Options.LocationEnabled)
+        {
+            messageBoxView.getOptionsButton().setVisibility(View.GONE);
+        }
 
         messageBoxView.setMessageBoxOptionsListener(this);
     }
@@ -583,6 +589,18 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     @Override
+    public void onTypingStart() {
+        if (thread != null)
+            BNetworkManager.sharedManager().getNetworkAdapter().startTypingOnThread(thread, null);
+    }
+
+    @Override
+    public void onTypingFinished() {
+        if (thread != null)
+            BNetworkManager.sharedManager().getNetworkAdapter().finishTypingOnThread(thread, null);
+    }
+
+    @Override
     public void onLocationPressed() {
         if (collected())
             return;
@@ -645,7 +663,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     /** Send text message
-     * FIXME the messages does not added to the row anymore because we are getting the date from firebase server. Need to find a different way, Maybe new item mode for the row that wont have any date.
      * @param text the text to send.
      * @param clearEditText if true clear the message edit text.*/
     public  void sentMessageWithText(String text, boolean clearEditText){
@@ -823,7 +840,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         }
         else if (intent.getExtras().containsKey(SHARE_LOCATION)){
             if (DEBUG) Timber.i("Want to share Location");
-            // FIXME pull text from string resource for language control
             uiHelper.showProgressCard(R.string.sending);
 
             BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(intent.getExtras().getString(SHARE_LOCATION, null),

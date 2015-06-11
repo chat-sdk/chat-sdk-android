@@ -30,7 +30,7 @@ import timber.log.Timber;
 public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<ChatSDKAbstractUsersListAdapter.AbstractUserListItem> {
 
     private static final String TAG = ChatSDKUsersListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
+    private static final boolean DEBUG = Debug.ChatSDKAbstractUsersListAdapter;
 
     public ChatSDKUsersListAdapter(Activity activity) {
         super(activity);
@@ -87,14 +87,14 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
             {
                 int size = holder.profilePicture.getHeight();
 
-                if (userItem.pictureThumbnailURL != null )
+                if (userItem.getPictureThumbnailURL() != null )
                 {
                     if (holder.profilePicLoader!=null)
                         holder.profilePicLoader.kill();
 
                     holder.profilePicLoader = new ProfilePicLoader(holder.profilePicture);
 
-                    VolleyUtils.getImageLoader().get(userItem.pictureThumbnailURL, holder.profilePicLoader, size, size);
+                    VolleyUtils.getImageLoader().get(userItem.getPictureThumbnailURL(), holder.profilePicLoader, size, size);
                 }
                 else holder.profilePicture.setImageResource(R.drawable.ic_profile);
             }
@@ -132,7 +132,9 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
         itemMaker = new UserListItemMaker<AbstractUserListItem>() {
             @Override
             public AbstractUserListItem fromBUser(BUser user) {
-                return  new AbstractUserListItem(R.layout.chat_sdk_row_contact,
+                return  new AbstractUserListItem(
+                        user.getId(),
+                        R.layout.chat_sdk_row_contact,
                         user.getEntityID(),
                         user.getName(),
                         user.getPictureThumbnail(),
@@ -159,7 +161,7 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
                 sortList(offlineUsers);
 
                 for (AbstractUserListItem user: list){
-                    if (user.online) {
+                    if (user.isOnline()) {
                         onlineUsers.add(user);
                     }
                     else offlineUsers.add(user);
@@ -168,23 +170,19 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
                 if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
                 {
                     listData.add(getHeader(H_NO_CONTACTS));
+                    return listData;
                 }
-                else if (onlineUsers.size() == 0){
-                    listData.add(getHeader(H_NO_ONLINE));
+
+                if (onlineUsers.size() > 0){
+                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                    listData.addAll(onlineUsers);
+                }
+
+                if (offlineUsers.size() > 0){
                     listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                     listData.addAll(offlineUsers);
                 }
-                else if (offlineUsers.size() == 0){
-                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                    listData.addAll(onlineUsers);
-                    listData.add(getHeader(H_NO_OFFLINE));
-                }
-                else {
-                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                    listData.addAll(onlineUsers);
-                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
-                    listData.addAll(offlineUsers);
-                }
+
 
                 return listData;
             }

@@ -375,9 +375,10 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     protected void onStart() {
         super.onStart();
 
-        if (thread != null && thread.getType() == BThread.Type.Public)
+        // Joining the thread id it was deleted or it is a public thread.
+        if (thread != null && ( thread.isPublic() || thread.isDeleted() ) )
         {
-            getNetworkAdapter().addUsersToThread(thread, getNetworkAdapter().currentUserModel());
+            getNetworkAdapter().joinThread(thread);
         }
     }
 
@@ -447,7 +448,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             }
         };
 
-        final BatchedEvent threadBatchedEvent = new BatchedEvent(ThreadListenerTAG + thread.getId(), thread.getEntityID(), Event.Type.ThreadEvent, handler);
+        final BatchedEvent threadBatchedEvent = new BatchedEvent(ThreadListenerTAG + thread.getId(), thread.getEntityID(), handler);
         threadBatchedEvent.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
@@ -516,9 +517,10 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         if (chatSDKChatHelper.getReadCount() > 0)
             sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
 
-        if (thread != null && thread.getType() == BThread.Type.Public)
+        // Leaving the thread if it's a public thread.
+        if (thread != null && ( thread.isPublic()) )
         {
-            getNetworkAdapter().removeUsersFromThread(thread, getNetworkAdapter().currentUserModel());
+            getNetworkAdapter().leaveThread(thread);
         }
     }
 

@@ -703,8 +703,8 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
             MessageListItem msg = new MessageListItem( message.getId(),
                     message.getEntityID(),
-                    message.getType(),
-                    getRowType(message.getType(), user.getId(), userID),
+                    message.getTypeSafely(),
+                    getRowType(message.getTypeSafely(), user.getId(), userID),
                     user.getId(),
                     user.getPictureThumbnail(),
                     String.valueOf(simpleDateFormat.format(message.getDate())),

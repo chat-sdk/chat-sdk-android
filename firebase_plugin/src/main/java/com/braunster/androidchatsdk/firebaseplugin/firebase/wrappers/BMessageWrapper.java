@@ -63,10 +63,11 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(BDefines.Keys.BPayload, model.getText());
-        values.put(BDefines.Keys.BDate, ServerValue.TIMESTAMP);
-        values.put(BDefines.Keys.BType, model.getType());
-        values.put(BDefines.Keys.BUserFirebaseId, model.getSender().getEntityID());
+        values.put(BDefines.Keys.BText, model.getText());
+        values.put(BDefines.Keys.BTime, ServerValue.TIMESTAMP);
+        values.put(BDefines.Keys.BType, model.getTypeSafely());
+        values.put(BDefines.Keys.BUID, model.getSender().getEntityID());
+        values.put(BDefines.Keys.BRID, model.getThread().getEntityID());
 
         return values;
     }
@@ -75,9 +76,10 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         
         if (DEBUG) Timber.v("deserialize, Value: %s", value);
         
-        if (value.containsKey(BDefines.Keys.BPayload) && !value.get(BDefines.Keys.BPayload).equals(""))
+        if (value.containsKey(BDefines.Keys.BText) &&
+                StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BText)))
         {
-            model.setText((String) value.get(BDefines.Keys.BPayload));
+            model.setText((String) value.get(BDefines.Keys.BText));
         }
 
         if (value.containsKey(BDefines.Keys.BType) && !value.get(BDefines.Keys.BType).equals(""))
@@ -89,12 +91,13 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
                     model.setType( ((Long) value.get(BDefines.Keys.BType)).intValue() );
         }
 
-        if (value.containsKey(BDefines.Keys.BDate) && !value.get(BDefines.Keys.BDate).equals(""))
-            model.setDate( new Date( (Long) value.get(BDefines.Keys.BDate) ) );
+        if (value.containsKey(BDefines.Keys.BTime) && !value.get(BDefines.Keys.BTime).equals(""))
+            model.setDate( new Date( (Long) value.get(BDefines.Keys.BTime) ) );
 
-        if (value.containsKey(BDefines.Keys.BUserFirebaseId) && !value.get(BDefines.Keys.BUserFirebaseId).equals(""))
+        if (value.containsKey(BDefines.Keys.BUID)
+                && StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BUID)))
         {
-            String userEntityId = (String) value.get(BDefines.Keys.BUserFirebaseId);
+            String userEntityId = (String) value.get(BDefines.Keys.BUID);
 
             BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, userEntityId);
 
@@ -103,8 +106,6 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
             if (user == null)
             {
                 user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userEntityId);
-
-                BUserWrapper.initWithModel(user).once();
             }
 
             model.setSender(user);
@@ -163,7 +164,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         model.setDelivered(delivered);
     }
     
-    private Firebase ref(){
+    public Firebase ref(){
         if (StringUtils.isNotEmpty(model.getEntityID()))
         {
             return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());

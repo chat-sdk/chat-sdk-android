@@ -18,6 +18,7 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.network.events.AppEventListener;
 import com.firebase.client.DataSnapshot;
 
 import org.jdeferred.Deferred;
@@ -45,13 +46,13 @@ public class InMessagesListener extends FirebaseGeneralEvent {
     }
 
     @Override
-    public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
+    public void onChildAdded(final DataSnapshot dataSnapshot, final String s) {
         if (DEBUG) Timber.v("Message has arrived, Alive: %s", isAlive());
         if (isAlive())
             FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (DEBUG) Timber.v("Message has arrived - execute, Alive: %s", isAlive());
+
                     Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                     
                     // Rejecting no value messages.
@@ -69,8 +70,8 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                     // Checking for null sender and that the sender isn't the current user.
                     // This will make sure we wont notify user for his own messages.
                     BUser sender = wrapper.model.getSender();
-                    if (sender != null &&
-                            !sender.isMe())
+
+                    if (!sender.isMe())
                     {
                         // Set the message as new if was told from creator,
                         // Or if the date of the message is later then the creation of this object.
@@ -82,7 +83,24 @@ public class InMessagesListener extends FirebaseGeneralEvent {
 
                     
                     BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadEntityId);
-                    
+
+                    Timber.d("New Message, MyMessage: %s, ThreadType: %s, ", sender.isMe(), thread.getType());
+
+                    // If the user is blocked and this is a private thread then we just return
+                    // don't let the message get through
+                    if (!sender.isMe() && thread.getType().equals(BThread.Type.OneToOne))
+                    {
+                        if (sender.isBlocked())
+                        {
+                            if (deferred != null &&  deferred.isPending())
+                                deferred.resolve(thread);
+
+                            // Deleting the message
+                            DaoCore.deleteEntity(wrapper.model);
+                            return;
+                        }
+                    }
+
                     // Checking to see if this thread was deleted.
                     if (thread.isDeleted())
                     {
@@ -108,7 +126,7 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                         deferred.resolve(thread);
                     
                     Message message = new Message();
-                    message.what = 1;
+                    message.what = AppEventListener.MESSAGE_RECEIVED;
                     message.obj = wrapper.model;
                     handler.sendMessageAtFrontOfQueue(message);
                 }

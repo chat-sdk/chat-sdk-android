@@ -43,7 +43,7 @@ import timber.log.Timber;
 public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> extends BaseAdapter {
 
     private static final String TAG = ChatSDKAbstractUsersListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
+    private static final boolean DEBUG = Debug.ChatSDKAbstractUsersListAdapter;
 
     protected Activity mActivity;
 
@@ -262,19 +262,21 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
     public static class AbstractUserListItem implements Serializable{
-        public String entityID;
-        public String text;
-        public Bitmap picture;
-        public String pictureURL;
-        public String pictureThumbnailURL;
-        public boolean online;
+        Long id;
+        String entityID;
+        String text;
+        Bitmap picture;
+        String pictureURL;
+        String pictureThumbnailURL;
+        boolean online;
 
 
         public boolean fromURL = false;
 
         public int type, resourceID;
 
-        public AbstractUserListItem(int resourceID, String entityID, String text, String pictureThumbnailURL, String pictureURL, int type, boolean online) {
+        public AbstractUserListItem(Long id, int resourceID, String entityID, String text, String pictureThumbnailURL, String pictureURL, int type, boolean online) {
+            this.id = id;
             this.text = text;
             this.online = online;
             this.pictureURL = pictureURL;
@@ -315,8 +317,24 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             return fromURL;
         }
 
+        public Long getId() {
+            return id;
+        }
+
         public BUser asBUser(){
             return DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
+        }
+
+        public String getPictureThumbnailURL() {
+            return pictureThumbnailURL;
+        }
+
+        public String getPictureURL() {
+            return pictureURL;
+        }
+
+        public boolean isOnline() {
+            return online;
         }
     }
 
@@ -325,7 +343,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
      * @param  deleteDuplicates If true any duplicate entity(share same entity id) will be skipped.
      * @return a list with all tge user item for the adapter.*/
     public List<E> makeList(List<BUser> users, boolean withHeaders, boolean deleteDuplicates){
-//        if (DEBUG) Log.v(TAG, "makeList" + (withHeaders?", With Headers" : "" )+ (deleteDuplicates? ", Delete duplicates." :".") );
+        if (DEBUG) Timber.v("makeList" + (withHeaders ? ", With Headers" : "") + (deleteDuplicates ? ", Delete duplicates." : "."));
         if (users == null)
             return new ArrayList<E>();
 
@@ -514,9 +532,9 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
      * The maker also take care of making headers and converting a list of items to list with headers.
      * * * */
     protected interface UserListItemMaker<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> {
-        public E fromBUser(BUser user);
-        public E getHeader(String type);
-        public List<E> getListWithHeaders(List<E> list);
+        E fromBUser(BUser user);
+        E getHeader(String type);
+        List<E> getListWithHeaders(List<E> list);
     }
 
     public interface ProfilePicClickListener{

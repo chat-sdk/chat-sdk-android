@@ -43,7 +43,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private static final boolean DEBUG = Debug.BUser;
     
     private static final String USER_PREFIX = "user";
-    
+
     public static BUserWrapper initWithAuthData(AuthData authData){
         return new BUserWrapper(authData);
     }
@@ -72,26 +72,36 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         model = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, authData.getUid());
 
         entityId = model.getEntityID();
-        
+
+        initPath();
+
         updateUserFromAuthData(authData);
     }
 
     private BUserWrapper(BUser model) {
         this.model = model;
         entityId = model.getEntityID();
+
+        initPath();
     }
     
     private BUserWrapper(DataSnapshot snapshot){
         model = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, snapshot.getKey());
         entityId = model.getEntityID();
-        
+
+        initPath();
+
         deserialize((Map<String, Object>) snapshot.getValue());
     }
-    
+
+    private void initPath(){
+        path = BFirebaseDefines.Path.BUsers;
+    }
+
     /**
      * Note - Change was removing of online values as set online and online time.
      * * * * */
-    private void updateUserFromAuthData(AuthData authData){
+    public void updateUserFromAuthData(AuthData authData){
         Timber.v("updateUserFromAuthData");
 
         model.setEntityID(authData.getUid());
@@ -183,7 +193,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         }
         
         // Save the data
-        DaoCore.updateEntity(model);
+        model = DaoCore.updateEntity(model);
     }
 
     public Promise<BUser, BError, Void> once(){
@@ -227,11 +237,54 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return promise;
     }
 
+    public Promise<BUser, BError, Void> metaOnce(){
+        if (DEBUG) Timber.v("push");
+
+        final Deferred<BUser, BError, Void> deferred = new DeferredObject<>();
+
+
+        final Deferred<DataSnapshot, BError, Void> snapshotDef = new DeferredObject<>();
+
+        Firebase ref = FirebasePaths.userMetaRef(model.getEntityID());
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                snapshotDef.resolve(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                snapshotDef.reject(getFirebaseError(firebaseError));
+            }
+        });
+
+        snapshotDef.then(
+                new DoneCallback<DataSnapshot>() {
+                    @Override
+                    public void onDone(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null)
+                            deserialize((Map<String, Object>) dataSnapshot.getValue());
+
+                        deferred.resolve(model);
+                    }
+                },
+                new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError error) {
+                        deferred.reject(error);
+                    }
+                });
+
+        return deferred.promise();
+    }
+
+
     public void metaOff(){
         getNetworkAdapter().getEventManager().userMetaOff(entityId);
     }
 
-    public Promise metaOn(){
+    public Promise<Void, Void, Void> metaOn(){
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
 
         getNetworkAdapter().getEventManager().userMetaOn(entityId, deferred);
@@ -240,7 +293,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     }
     
     void deserialize(Map<String, Object> value){
-        if (DEBUG) Timber.v("deserialize, Value is null? %s", value == null);
+        if (DEBUG) Timber.v("deserialize, Value: %s", value);
         
         if (value != null)
         {
@@ -248,38 +301,30 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             if (StringUtils.isNoneBlank(uid))
                 model.setEntityID(uid);
 
-            if (value.containsKey(BDefines.Keys.BOnline) && StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BOnline)))
-                model.setOnline((Boolean) value.get(BDefines.Keys.BOnline));
-
             if (value.containsKey(BDefines.Keys.BColor) && StringUtils.isNotBlank((CharSequence) value.get(BDefines.Keys.BColor))) {
                 model.setMessageColor((String) value.get(BDefines.Keys.BColor));
             }
 
-            // The entity update is called in the deserializeMeta.
-            deserializeMeta((Map<String, Object>) value.get(BFirebaseDefines.Path.BMeta));
-        }
-    }
-
-    void deserializeMeta(Map<String, Object> value){
-        if (DEBUG) Timber.v("deserializeMeta, Value: %s", value);
-        
-        if (value != null)
-        {
+            // Updating the metadata
             Map<String, Object> oldData = model.metaMap();
             Map<String, Object> newData = value;
 
-            if (DEBUG) Timber.v("deserializeMeta, OldDataMap: %s", oldData);
-            
+            if (DEBUG) Timber.v("deserialize, EntityId: %s, OldDataMap: %s, NewMetaMap: %s",entityId, oldData, newData);
+
             // Updating the old data
             for (String key : newData.keySet())
             {
                 if (DEBUG) Timber.d("key: %s, Value: %s", key, newData.get(key));
-                
+
                 if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key)))
+                {
+                    if (DEBUG) Timber.d("Updating meta, Key: %s, Value: %s", key, newData.get(key));
                     oldData.put(key, newData.get(key));
+                }
             }
 
             model.setMetaMap(oldData);
+
 
             model = DaoCore.updateEntity(model);
         }
@@ -288,32 +333,41 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(BDefines.Keys.BColor, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
-        values.put(BDefines.Keys.BMeta, model.metaMap());
+
+        Map<String , Object> meta = model.metaMap();
+        meta.put(BDefines.Keys.BColor, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
+        meta.put(BDefines.Keys.BUID, entityId);
+
+        values.put(BDefines.Keys.BMeta, meta);
 
         return values;
     }
-    
-    public Promise<BUser, BError, Void> push(){
+
+    public Promise<BUser, BError, Void> pushMeta(){
         if (DEBUG) Timber.v("push");
-        
+
         final Deferred<BUser, BError, Void> deferred = new DeferredObject<>();
-        
+
         ref().updateChildren(serialize(), new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                 if (firebaseError == null) {
-                    deferred.resolve(model);
+                    {
+                        deferred.resolve(model);
+                        updateStateWithKey(BFirebaseDefines.Path.BMeta);
+                    }
                 } else deferred.reject(getFirebaseError(firebaseError));
             }
         });
-        
+
         return deferred.promise();
     }
-    
-    private Firebase ref(){
+
+    public Firebase ref(){
         return FirebasePaths.userRef(entityId);
     }
+
+
 
     private Firebase imageRef(){
         return ref().child(BFirebaseDefines.Path.BImage);
@@ -411,7 +465,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         
         return deferred.promise();
     }
-    
+
+
+
     /**
      * Set the user online value to false.
      **/
@@ -436,7 +492,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         data.put(BDefines.Keys.BTime, ServerValue.TIMESTAMP);
 
         userOnlineRef.setValue(data);
-        userOnlineRef.onDisconnect().setValue(false);
+        userOnlineRef.onDisconnect().removeValue();
     }
 
 

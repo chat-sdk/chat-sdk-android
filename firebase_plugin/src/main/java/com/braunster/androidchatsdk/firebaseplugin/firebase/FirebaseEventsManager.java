@@ -13,12 +13,13 @@ import android.os.Message;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BlockedUserListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.InMessagesListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.ThreadUpdateChangeListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserAddedListener;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserFriendsListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserMetaChangeListener;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -48,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -69,6 +71,9 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     private static final String MSG_PREFIX = "msg_";
     private static final String USER_PREFIX = "user_";
     private static final String USER_META_PREFIX = "user_meta_";
+    private static final String BLOCKED_PREFIX = "blocker_";
+    private static final String FRIENDS_PREFIX = "friends_";
+    private static final String ONLINE_PREFIX = "online_";
 
     private ConcurrentHashMap<String, Event> events = new ConcurrentHashMap<String, Event>();
 
@@ -81,6 +86,13 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
     public ConcurrentHashMap<String, FirebaseEventCombo> listenerAndRefs = new ConcurrentHashMap<String, FirebaseEventCombo>();
 
+    private String observedUserEntityID = "";
+
+    private Firebase onlineRef = null;
+    private BlockedUserListener blockedUserListener = null;
+    private UserFriendsListener userFriendsListener = null;
+
+
     public static FirebaseEventsManager getInstance(){
         if (instance == null)
             instance = new FirebaseEventsManager();
@@ -88,13 +100,8 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         return instance;
     }
 
-    private final EventHandler handlerThread = new EventHandler(this);
-    private final EventHandler handlerMessages = new EventHandler(this);
-    private final EventHandler handlerUserDetails = new EventHandler(this);
-    private final EventHandler handlerUserAdded = new EventHandler(this);
+    private final EventHandler eventHandler = new EventHandler(this);
 
-    private String observedUserEntityID = "";
-    
     private FirebaseEventsManager(){
         threadsIds = Collections.synchronizedList(threadsIds);
         handledAddedUsersToThreadIDs = Collections.synchronizedList(handledAddedUsersToThreadIDs);;
@@ -114,47 +121,41 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            if (!notNull())
+                return;
 
             switch (msg.what)
             {
                 case AppEvents.USER_DETAILS_CHANGED:
-                    if (notNull())
                         manager.get().onUserDetailsChange((BUser) msg.obj);
                     break;
 
                 case AppEvents.MESSAGE_RECEIVED:
-                    if (notNull())
                         manager.get().onMessageReceived((BMessage) msg.obj);
                     break;
 
                 case AppEvents.THREAD_DETAILS_CHANGED:
-                    if (notNull())
                         manager.get().onThreadDetailsChanged((String) msg.obj);
                     break;
 
                 case AppEvents.USER_ADDED_TO_THREAD:
-                    if (notNull())
                         manager.get().onUserAddedToThread(msg.getData().getString(THREAD_ID), msg.getData().getString(USER_ID));
                     break;
 
                 case AppEvents.FOLLOWER_ADDED:
-                    if (notNull())
-                        manager.get().onFollowerAdded((BFollower) msg.obj);
+                        manager.get().onFollowerAdded((BUser) msg.obj);
                     break;
 
                 case AppEvents.FOLLOWER_REMOVED:
-                    if (notNull())
-                        manager.get().onFollowerRemoved();
+                    manager.get().onFollowerRemoved();
                     break;
 
-                case AppEvents.USER_TO_FOLLOW_ADDED:
-                    if (notNull())
-                        manager.get().onUserToFollowAdded((BFollower) msg.obj);
+                case AppEvents.BLOCKED_CHANGED:
+                    manager.get().onBlockedChanged();
                     break;
 
-                case AppEvents.USER_TO_FOLLOW_REMOVED:
-                    if (notNull())
-                        manager.get().onUserToFollowRemoved();
+                case AppEvents.FRIENDS_CHANGED:
+                    manager.get().onFriendsChanged();
                     break;
             }
         }
@@ -187,7 +188,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     }
 
     @Override
-    public boolean onFollowerAdded(final BFollower follower) {
+    public boolean onFollowerAdded(final BUser follower) {
 
         if (follower!=null)
             for (Event  e : events.values())
@@ -196,7 +197,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                     continue;
 
                 if(e instanceof BatchedEvent)
-                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
+                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getEntityID());
 
                 e.onFollowerAdded(follower);
             }
@@ -205,33 +206,15 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
     @Override
     public boolean onFollowerRemoved() {
-        for ( Event  e : events.values())
-        {
-            if (e == null )
+        for (Event e : events.values()) {
+            if (e == null)
                 continue;
 
-            if(e instanceof BatchedEvent)
+            if (e instanceof BatchedEvent)
                 ((BatchedEvent) e).add(Event.Type.FollwerEvent);
 
             e.onFollowerRemoved();
         }
-        return false;
-    }
-
-    @Override
-    public boolean onUserToFollowAdded(final BFollower follower) {
-
-        if (follower!=null)
-            for (Event e : events.values())
-            {
-                if (e == null)
-                    continue;
-
-                if(e instanceof BatchedEvent)
-                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
-
-                e.onUserToFollowAdded(follower);
-            }
         return false;
     }
 
@@ -345,6 +328,57 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         return false;
     }
 
+    @Override
+    public void onOnlineUsersChanged() {
+
+        if (DEBUG) Timber.i("onOnlineUsersChanged");
+
+        for (Event e : events.values())
+        {
+
+            if (e == null)
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.OnlineChangeEvent);
+
+            e.onOnlineUsersChanged();
+        }
+    }
+
+    @Override
+    public void onFriendsChanged() {
+        if (DEBUG) Timber.i("onFriendsChanged");
+
+        for (Event e : events.values())
+        {
+
+            if (e == null)
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.FriendsChangeEvent);
+
+            e.onFriendsChanged();
+        }
+    }
+
+    @Override
+    public void onBlockedChanged() {
+        if (DEBUG) Timber.i("onBlockedChanged");
+
+        for (Event e : events.values())
+        {
+
+            if (e == null)
+                continue;
+
+            if(e instanceof BatchedEvent)
+                ((BatchedEvent) e).add(Event.Type.BlockedChangedEvent);
+
+            e.onBlockedChanged();
+        }
+    }
 
     /*##########################################################################################*/
 
@@ -359,10 +393,9 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                 .child(BFirebaseDefines.Path.BThread)
                 .addChildEventListener(threadAddedListener);
 
-        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollowers).addChildEventListener(followerEventListener);
-        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
-
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
+
+        onlineUsersOn();
 
         post(new Runnable() {
             @Override
@@ -372,12 +405,22 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             }
         });
 
+        if (BNetworkManager.sharedManager().getNetworkAdapter() instanceof Pusher)
+            ((Pusher) BNetworkManager.sharedManager().getNetworkAdapter()).
+                subscribeToPushChannel(BUserWrapper.initWithModel(user).pushChannel());
+
+        blockedOn(user);
+        friendsOn(user);
     }
 
     @Override
     public void userOff(final BUser user){
         if (DEBUG) Timber.v("userOff, EntityID: $s", user.getEntityID());
-        
+
+        onlineUsersOff();
+        blockedOff();
+        friendsOff();
+
         BThreadWrapper wrapper;
         for (BThread thread : user.getThreads())
         {
@@ -396,13 +439,17 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             }
         });
 
+        if (BNetworkManager.sharedManager().getNetworkAdapter() instanceof Pusher)
+            ((Pusher) BNetworkManager.sharedManager().getNetworkAdapter()).
+                    unsubscribeToPushChannel(BUserWrapper.initWithModel(user).pushChannel());
+
         removeAll();
     }
 
     /**
      * Handle user meta change.
      **/
-    public void userMetaOn(String userID, Deferred<Void, Void, Void> promise){
+    public void userMetaOn(String userID, Deferred<Void, Void, Void> deferred){
 
         if (userID.equals(getCurrentUserId()))
         {
@@ -413,6 +460,8 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         if (hadnledUsersMetaIds.contains(userID))
         {
             if (DEBUG) Timber.d("handleUsersDetailsChange, Listening.");
+
+            if (deferred != null) deferred.resolve(null);
             return;
         }
 
@@ -422,7 +471,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         if (DEBUG) Timber.v("handleUsersDetailsChange, User Ref: %s", userRef.getRef().toString());
 
-        UserMetaChangeListener userMetaChangeListener = new UserMetaChangeListener(userID, promise, handlerUserDetails);
+        UserMetaChangeListener userMetaChangeListener = new UserMetaChangeListener(userID, deferred, eventHandler);
 
         FirebaseEventCombo combo = getCombo(USER_META_PREFIX  + userID, userRef.toString(), userMetaChangeListener);
 
@@ -435,7 +484,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     public void userMetaOff(String userID){
         if (DEBUG) Timber.v("userMetaOff, UserId: %s", userID);
 
-        FirebaseEventCombo c = listenerAndRefs.get(USER_META_PREFIX  + userID);
+        FirebaseEventCombo c = listenerAndRefs.get(USER_META_PREFIX + userID);
         
         if (c != null)
             c.breakCombo();
@@ -454,9 +503,9 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         // Also listen to the thread users
         // This will allow us to update the users in the database
-        Firebase threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsers);
+        Firebase threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsersMeta);
 
-        UserAddedListener userAddedToThreadListener= UserAddedListener.getNewInstance(observedUserEntityID, threadId, handlerUserAdded);
+        UserAddedListener userAddedToThreadListener= UserAddedListener.getNewInstance(observedUserEntityID, threadId, eventHandler);
 
         FirebaseEventCombo combo = getCombo(USER_PREFIX + threadId, threadUsers.toString(), userAddedToThreadListener);
 
@@ -481,7 +530,10 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         
         // Check if handled.
         if (handledMessagesThreadsID.contains(threadId))
+        {
+            if (deferred != null) deferred.resolve(null);
             return;
+        }
 
         handledMessagesThreadsID.add(threadId);
 
@@ -492,7 +544,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         final List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
-        final InMessagesListener incomingMessagesListener = new InMessagesListener(handlerMessages, threadId, deferred);
+        final InMessagesListener incomingMessagesListener = new InMessagesListener(eventHandler, threadId, deferred);
 
         /**
          * If the thread was deleted or has no message we first check for his deletion date.
@@ -594,13 +646,17 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
             // Add an observer to the thread details so we get
             // updated when the thread details change
-            Firebase detailsRef = threadRef.child(BFirebaseDefines.Path.BDetails);
+            Firebase detailsRef = threadRef.child(BFirebaseDefines.Path.BMeta);
 
-            FirebaseEventCombo combo = getCombo(threadId, detailsRef.toString(), new ThreadUpdateChangeListener(threadId, handlerThread, deferred));
+            FirebaseEventCombo combo = getCombo(threadId, detailsRef.toString(), new ThreadUpdateChangeListener(threadId, eventHandler, deferred));
 
             detailsRef.addValueEventListener(combo.getListener());
         }
-        else if (DEBUG) Timber.e("Thread is already handled..");
+        else{
+            if (deferred != null) deferred.resolve(null);
+
+            if (DEBUG) Timber.e("Thread is already handled..");
+        }
 
     }
     
@@ -616,8 +672,149 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         threadsIds.remove(threadId);
     }
-    
-    
+
+
+
+    private ChildEventListener onlineUsersListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            if (DEBUG) Timber.v("onChildAdded");
+            if (dataSnapshot.getValue() != null)
+            {
+                BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, (String) dataSnapshot.getValue(Map.class).get(BDefines.Keys.BUID));
+
+                user.setOnline(true);
+
+                DaoCore.updateEntity(user);
+
+                BUserWrapper.initWithModel(user).metaOn().then(new DoneCallback() {
+                    @Override
+                    public void onDone(Object o) {
+                        onOnlineUsersChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            if (DEBUG) Timber.v("onChildRemoved");
+            BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, (String) dataSnapshot.getValue(Map.class).get(BDefines.Keys.BUID));
+
+            if (user != null)
+            {
+                user.setOnline(false);
+
+                DaoCore.updateEntity(user);
+
+                BUserWrapper.initWithModel(user).metaOff();
+
+                onOnlineUsersChanged();
+            }
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(FirebaseError firebaseError) {
+
+        }
+    };
+
+    @Override
+    public void onlineUsersOn() {
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                for (BUser user : DaoCore.daoSession.loadAll(BUser.class))
+                {
+                    user.setOnline(false);
+                    DaoCore.updateEntity(user);
+                }
+            }
+        });
+
+        if (onlineRef != null)
+        {
+            // Done attach another listener if the online ref isn't null.
+            // When we call onlineUsersOff() we set the onlineRef to null.
+            return;
+        }
+
+        onlineRef = FirebasePaths.userOnlineRef();
+
+        onlineRef.addChildEventListener(onlineUsersListener);
+    }
+
+    @Override
+    public void onlineUsersOff() {
+        if (onlineRef != null)
+        {
+            onlineRef.removeEventListener(onlineUsersListener);
+
+            onlineRef = null;
+        }
+    }
+
+
+
+    @Override
+    public void blockedOn(final BUser currentUser) {
+        if (blockedUserListener == null)
+        {
+            blockedUserListener = new BlockedUserListener(currentUser, eventHandler);
+
+            Firebase ref = FirebasePaths.userBlockedRef(currentUser.getEntityID());
+
+            FirebaseEventCombo combo = getCombo(BLOCKED_PREFIX.concat(currentUser.getEntityID()), ref.toString(), blockedUserListener);
+
+            ref.addChildEventListener(combo.getListener());
+        }
+    }
+
+    @Override
+    public void blockedOff() {
+        FirebaseEventCombo combo = listenerAndRefs.get(BLOCKED_PREFIX.concat(getCurrentUserId()));
+
+        if (combo != null)
+            combo.breakCombo();
+
+        blockedUserListener = null;
+    }
+
+    @Override
+    public void friendsOff() {
+        FirebaseEventCombo combo = listenerAndRefs.get(FRIENDS_PREFIX.concat(getCurrentUserId()));
+
+        if (combo != null)
+            combo.breakCombo();
+
+        userFriendsListener = null;
+    }
+
+    @Override
+    public void friendsOn(BUser currentUser) {
+        if (userFriendsListener == null)
+        {
+            userFriendsListener = new UserFriendsListener(currentUser, eventHandler);
+
+            Firebase ref = FirebasePaths.userFriendsRef(currentUser.getEntityID());
+
+            FirebaseEventCombo combo = getCombo(FRIENDS_PREFIX.concat(currentUser.getEntityID()), ref.toString(), userFriendsListener);
+
+            ref.addChildEventListener(combo.getListener());
+        }
+    }
+
     private ChildEventListener threadAddedListener = new ChildEventListener() {
         @Override
         public void onChildAdded(final DataSnapshot snapshot, String s) {
@@ -650,11 +847,11 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                         BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
 
                         // Add the current user to the thread if needed. Only if not public.
-                        if (!publicThread &&
-                                !wrapper.getModel().hasUser(currentUser))
-                        {
-                            wrapper.addUser(BUserWrapper.initWithModel(currentUser));
-                        }
+//                        if (!publicThread &&
+//                                !wrapper.getModel().hasUser(currentUser))
+//                        {
+//                            wrapper.addUser(BUserWrapper.initWithModel(currentUser));
+//                        }
                         
                         // Triggering thread added events.
                         onThreadIsAdded(threadFirebaseID);
@@ -686,7 +883,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         //endregion
     };
 
-    private ChildEventListener followerEventListener = new ChildEventListener() {
+    /*private ChildEventListener followerEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(final DataSnapshot snapshot, String s) {
             post(new Runnable() {
@@ -723,7 +920,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         public void onCancelled(FirebaseError firebaseError) {
 
         }
-    };
+    };*/
 
     /** Check to see if the given thread id is already handled by this class.
      * @return true if handled.*/
@@ -741,7 +938,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     
     
     
-
+/*
     private ChildEventListener followsEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(final DataSnapshot snapshot, String s) {
@@ -778,7 +975,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         public void onCancelled(FirebaseError firebaseError) {
 
         }
-    };
+    };*/
 
     /** Remove listeners from thread id. The listener's are The thread details, messages and added users.*/
     public void stopListeningToThread(String threadID){
@@ -871,8 +1068,8 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                 .child(BFirebaseDefines.Path.BThread)
                 .removeEventListener(threadAddedListener);
 
-        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
-        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
+//        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
+//        FirebasePaths.userRef(observedUserEntityID).child(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
 
         observedUserEntityID = "";
 

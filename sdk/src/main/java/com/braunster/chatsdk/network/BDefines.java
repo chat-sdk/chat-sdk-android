@@ -18,7 +18,7 @@ public class BDefines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    public static final String BRootPath = "tt_test_0_1/";
+    public static final String BRootPath = "823f4dfeb01a109d4f36486ccfa166b3bd9dc601/";
 
     /**
      * The version name of the app, Here we are using the name from the BuildConfig. 
@@ -137,24 +137,16 @@ public class BDefines {
         public static final String BKey = "key";
         public static final String BValue = "value";
         public static final String BPhone = "phone";
-        public static final String BPictureURL = "pictureURL";
-        public static final String BPictureURLThumbnail = "pictureURLThumbnail";
+        public static final String BPictureURL = "image";
+        public static final String BPictureURLThumbnail = "imageThumbnail";
 
-        public static final String BLastMessageAdded = "last-message-added";
-        public static final String BUserFirebaseId = "user-firebase-id";
         public static final String BColor = "color";
         public static final String BName = "name";
         public static final String BNull = "null";
         public static final String BCreationDate = "created";
-        public static final String BPayload = "payload";
         public static final String BType = "type";
-        public static final String BOnline = "online";
-        public static final String BDate = "date";
-        public static final String BLastOnline = "last-online";
         public static final String BVersion = "version";
         public static final String BMeta = "meta";
-
-        public static final String BImageUrl = "image-url";
         public static final String BCreatorEntityId = "creator-firebase-id";
         public static final String BDeleted = "deleted";
         public static final String BLeaved = "leaved";
@@ -163,11 +155,15 @@ public class BDefines {
         // User details
         public static final String BGender = "gender";
         public static final String BCountry = "country";
-        public static final String BLocation = "location";
-        public static final String BDateOfBirth= "date-of-birth";
+        public static final String BCity = "city";
+        public static final String BDateOfBirth= "yearOfBirth";
         public static final String BStatus = "status";
 
 
+        public static final String BAllowInvites= "allowInvites";
+        public static final String BText = "text";
+        public static final String BInvitedBy = "invitedBy";
+        public static final String BUsers = "users";
         public static final String BDescription = "description";
         public static final String BUserCreated = "userCreated";
         public static final String BIsPublic = "isPublic";
@@ -175,10 +171,17 @@ public class BDefines {
         public static final String BTime = "time";
         public static final String BRID = "rid";
         public static final String BUID = "uid";
-        public static final String BToken = "apikey";
-        public static final String BAPIKey = "token";
+        public static final String BToken = "token";
+        public static final String BAPIKey = "apiKey";
         public static final String BWeight= "weight";
         public static final String BInvitesEnabled = "inviteEnabled";
+
+        public static final String BFriends = "Friends";
+        public static final String BEveryone= "Everyone";
+        public static final String BNobody = "Nobody";
+
+        public static final String BMale = "M";
+        public static final String BFemale= "F";
 
         public static final class ThirdPartyData{
             public static final String ID = "id";
@@ -233,6 +236,11 @@ public class BDefines {
          * if true option to send location will be available, If the google maps key is empty it wont be available.
          **/
         public static boolean LocationEnabled = false;
+
+        /**
+         * if true option to send image will be available this also affect takin a picture using the camera.
+         **/
+        public static boolean ImagesEnabled = false;
         
         /**
          * if true option to open group chats and add users to chat will be available.

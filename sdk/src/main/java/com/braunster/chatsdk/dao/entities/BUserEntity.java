@@ -7,7 +7,6 @@
 
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.BUserConnection;
@@ -109,15 +108,13 @@ public abstract class BUserEntity extends Entity {
     public abstract void connectUser(BUser user, @BUserConnection.ConnectionType int type);
 
 
-    public abstract BFollower fetchOrCreateFollower(BUser follower, int type);
-
-    public abstract List<BUser> getFollowers();
-
-    public abstract List<BUser> getFollows();
 
 
+    public abstract boolean isMe();
 
+    public abstract boolean isFriend();
 
+    public abstract boolean isBlocked();
 
 
     /* User metadata*/

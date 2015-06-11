@@ -102,7 +102,6 @@ public class ChatSDKLocationActivity extends FragmentActivity {
                     selectedLocation = null;
                 }
 
-                // TODO show the adress of that position http://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
                 selectedLocation = map.addMarker(new MarkerOptions().position(latLng).title("Selected Location"));
             }
         });

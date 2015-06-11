@@ -19,7 +19,6 @@ import com.braunster.chatsdk.dao.BLinkData;
 import com.braunster.chatsdk.dao.BLinkDataDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.BUserConnection;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
@@ -70,6 +69,21 @@ public class UserAddedListener extends FirebaseGeneralEvent {
         doLogic(dataSnapshot);
     }
 
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+        super.onChildRemoved(dataSnapshot);
+
+        // Find the user entity id.
+        BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
+        final String userFirebaseID = path.idForIndex(1);
+
+        BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadID);
+
+        BUser bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userFirebaseID);
+
+        DaoCore.breakUserAndThread(bUser, thread);
+    }
+
     private void doLogic(final DataSnapshot dataSnapshot){
         if (isAlive())
             FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
@@ -117,7 +131,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         return;
                     }
 
-                    if (thread.getTypeSafely() != BThread.Type.Public) {
+                    if (!thread.isPublic()) {
 
                         // Check to see if the user has left this thread. If so we unlink it from the thread.
                         if (values != null &&  values.containsKey(BDefines.Keys.BLeaved))
@@ -134,7 +148,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         else
                         {
                             // Users that are members of threads are shown in contacts
-                            currentUser.connectUser(bUser, BUserConnection.Type.Friend);
+//                            BNetworkManager.sharedManager().getNetworkAdapter().addFriends(bUser);
                         }
                     }
 

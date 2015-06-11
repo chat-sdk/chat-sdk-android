@@ -8,19 +8,30 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 
+import android.support.annotation.IntDef;
+
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListener {
 
     public static final int ValueEvent = 0;
     public static final int ChildEvent = 1;
 
-    private int type = -1;
+    @IntDef({ValueEvent, ChildEvent})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EventType{}
+
+    private @EventType int type = -1;
+
     private boolean alive = true;
 
+    @EventType
     public int getType(){
         return type;
     }
@@ -37,7 +48,7 @@ public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListe
         return alive;
     }
 
-    public FirebaseGeneralEvent(int type){
+    public FirebaseGeneralEvent(@EventType int type){
         this.type = type;
     }
 

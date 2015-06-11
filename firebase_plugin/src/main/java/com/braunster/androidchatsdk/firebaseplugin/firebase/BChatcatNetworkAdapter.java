@@ -9,14 +9,11 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.content.Context;
 
-import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BMessageWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.UsersSorter;
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -32,7 +29,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -47,15 +43,23 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MasterDeferredObject;
 import org.jdeferred.multiple.MasterProgress;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import de.greenrobot.dao.query.QueryBuilder;
+import jdeferred.android.AndroidDeferredObject;
+import jdeferred.android.AndroidExecutionScope;
 import timber.log.Timber;
 
 import static com.braunster.chatsdk.network.BDefines.Keys;
@@ -91,50 +95,45 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             // Flag that the user has been authenticated
             setAuthenticated(true);
 
-            String token = (String) authData.getProviderData().get(Keys.ThirdPartyData.AccessToken);
-
-            String aid = authData.getUid();
+            String token = authData.getToken();
+            String uid = authData.getUid();
 
             // Save the authentication ID for the current user
             // Set the current user
             final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
-            loginInfoMap.put(Prefs.AuthenticationID, aid);
+            loginInfoMap.put(Prefs.AuthenticationID, uid);
             loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProvider()));
             loginInfoMap.put(Prefs.TokenKey, token);
 
             setLoginInfo(loginInfoMap);
-            resetAuth();
 
             // Doint a once() on the user to push its details to firebase.
-            final BUserWrapper wrapper = BUserWrapper.initWithAuthData(authData);
+            final BUserWrapper wrapper = BUserWrapper.initWithEntityId(uid);
             
-            wrapper.once().then(new DoneCallback<BUser>() {
+            wrapper.metaOnce().then(new DoneCallback<BUser>() {
                 @Override
                 public void onDone(BUser bUser) {
-                    
+
                     if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
-                    DaoCore.updateEntity(bUser);
+
+                    wrapper.updateUserFromAuthData(authData);
 
                     getEventManager().userOn(bUser);
-                    
-                    // TODO push a default image of the user to the cloud.
 
-                    subscribeToPushChannel(wrapper.pushChannel());
-                    
-                    goOnline();
-                    
-                    wrapper.push().done(new DoneCallback<BUser>() {
+                    wrapper.pushMeta().done(new DoneCallback<BUser>() {
                         @Override
                         public void onDone(BUser u) {
-
                             if (DEBUG) Timber.v("OnDone, user was pushed from firebase.");
                             resetAuth();
+
+                            goOnline();
                             deferred.resolve(u);
                         }
                     }).fail(new FailCallback<BError>() {
                         @Override
                         public void onFail(BError error) {
                             resetAuth();
+
                             deferred.reject(error);
                         }
                     });
@@ -249,7 +248,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     @Override
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public Promise<BUser, BError, Void> pushUser() {
-        return currentUser().push();
+        return currentUser().pushMeta();
     }
 
     @Override
@@ -280,16 +279,14 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         BUser user = currentUserModel();
 
+        Firebase.goOffline();
+
         /* No need to logout from facebook due to the fact that the logout from facebook event will trigger this event.
         *  The logout from fb is taking care of by the fb login button.*/
         setAuthenticated(false);
 
         // Stop listening to user related alerts. (added message or thread.)
         getEventManager().userOff(user);
-        
-        // Removing the push channel
-        if (user != null)
-            unsubscribeToPushChannel(user.pushChannel());
 
         // Obtaining the simple login object from the ref.
         FirebasePaths ref = FirebasePaths.firebaseRef();
@@ -338,7 +335,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
 
-                deferred.resolve((Boolean) snapshot.getValue());
+                deferred.resolve(snapshot.getValue() != null);
             }
 
             @Override
@@ -361,11 +358,11 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         return new BMessageWrapper(message).send().done(new DoneCallback<BMessage>() {
             @Override
             public void onDone(BMessage message) {
-                // Setting the time stamp for the last message added to the thread.
-                Firebase threadRef = FirebasePaths.threadRef(message.getThread().getEntityID());
-                threadRef = threadRef.child(BFirebaseDefines.Path.BDetails);
 
-                threadRef.updateChildren(FirebasePaths.getMap(new String[]{Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
+                BThreadWrapper threadWrapper = new BThreadWrapper(message.getThread());
+
+                threadWrapper.setLastMessage(message);
+                threadWrapper.updateStateWithKey(BFirebaseDefines.Path.BMessages);
 
                 // Pushing the message to all offline users. we cant push it before the message was
                 // uploaded as the date is saved by the firebase server using the timestamp.
@@ -515,32 +512,6 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     }
 
     @Override
-    public List<BUser> onlineUsers() {
-        List<BUser> onlineUsers;
-        QueryBuilder<BUser> query = DaoCore.daoSession.queryBuilder(BUser.class);
-
-        query.where(BUserDao.Properties.Online.isNotNull());
-        query.where(BUserDao.Properties.Online.eq(true));
-
-        onlineUsers = query.list();
-
-
-        // Removing the current user if exist in the list.
-        BUser u, curUser = currentUserModel();
-        while (onlineUsers.iterator().hasNext())
-        {
-            u = onlineUsers.iterator().next();
-
-            if (u.getEntityID().equals(curUser.getEntityID()))
-                onlineUsers.iterator().remove();
-        }
-
-        Collections.sort(onlineUsers, new UsersSorter());
-
-        return onlineUsers;
-    }
-
-    @Override
     public Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread) {
         return new BThreadWrapper(thread).loadMoreMessages(BFirebaseDefines.NumberOfMessagesPerBatch);
     }
@@ -559,46 +530,40 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         thread.setCreatorEntityId(curUser.getEntityID());
         thread.setType(BThread.Type.Public);
         thread.setName(name);
+        thread.setUserCreated(true);
+        thread.setInvitesEnabled(true);
+        thread.setWeight(0);
+        thread.setCreationDate(new Date());
+        thread.setEntityID(FirebasePaths.threadRef().push().getKey());
 
         // Save the entity to the local db.
         DaoCore.createEntity(thread);
 
-        BThreadWrapper wrapper = new BThreadWrapper(thread);
-        
-        wrapper.push()
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(final BThread thread) {
-                        DaoCore.updateEntity(thread);
+        Map<String, Object> data = new HashMap<>();
+        data.put(Keys.BToken, token());
+        data.put(Keys.BAPIKey, BDefines.BRootPath);
+        data.put(BDefines.Keys.BName, name);
+        data.put(BDefines.Keys.BType, thread.getType());
+        data.put(BDefines.Keys.BCreatorEntityId, thread.getCreatorEntityId());
+        data.put(BDefines.Keys.BRID, thread.getEntityID());
+        data.put(BDefines.Keys.BDescription, "");
+        data.put(BDefines.Keys.BUserCreated, thread.getUserCreated());
+        data.put(BDefines.Keys.BInvitesEnabled, thread.getInvitesEnabled());
+        data.put(BDefines.Keys.BWeight, thread.getWeight());
 
-                        if (DEBUG) Timber.d("public thread is pushed and saved.");
+        ParseCloud.callFunctionInBackground("createRoom", data, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object o, ParseException e) {
+                if (e == null) {
+                    if (DEBUG) Timber.d("public thread is pushed and saved.");
 
-                        // Add the thread to the list of public threads
-                        Firebase publicThreadRef = FirebasePaths.publicThreadsRef().child(thread.getEntityID()).child("null");
-                        publicThreadRef.setValue("", new Firebase.CompletionListener() {
-
-                            @Override
-                            public void onComplete(FirebaseError error, Firebase firebase) {
-                                if (error == null)
-                                    deferred.resolve(thread);
-                                else {
-                                    if (DEBUG)
-                                        Timber.e("Unable to add thread to public thread ref.");
-                                    DaoCore.deleteEntity(thread);
-                                    deferred.reject(getFirebaseError(error));
-                                }
-                            }
-                        });
-                    }
-                })
-                .fail(new FailCallback<BError>() {
-                    @Override
-                    public void onFail(BError error) {
-                        if (DEBUG) Timber.e("Failed to push thread to ref.");
-                        DaoCore.deleteEntity(thread);
-                        deferred.reject(error);
-                    }
-                });
+                    deferred.resolve(thread);
+                } else {
+                    DaoCore.deleteEntity(thread);
+                    deferred.reject(getParseError(e));
+                }
+            }
+        });
 
         return deferred.promise();
     }
@@ -627,6 +592,8 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                 userToCheck = users.get(1);
             else userToCheck = users.get(0);
 
+            if (DEBUG) Timber.d("UserToCheck: %s", userToCheck.getEntityID());
+
             BThread deletedThreadFound = null;
             for (BThread t : currentUser.getThreads(BThreadEntity.Type.NoType, true))
             {
@@ -641,7 +608,6 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
                         // If the thread is deleted we will look for other thread with the user. 
                         // if nothing found we will use the deleted thread and un delete it
-                        
                         if (t.isDeleted())
                         {
                             deletedThreadFound = t;
@@ -665,45 +631,59 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         thread.setCreator(currentUser);
         thread.setCreatorEntityId(currentUser.getEntityID());
+        thread.setEntityID(FirebasePaths.threadRef().push().getKey());
+        thread.setUserCreated(true);
+        thread.setInvitesEnabled(true);
+        thread.setWeight(0);
+        thread.setCreationDate(new Date());
 
         // If we're assigning users then the thread is always going to be private or a group
-        thread.setType(users.size() == 2 ? BThreadEntity.Type.OneToOne : BThreadEntity.Type.Group);
+        thread.setType(users.size() < 3 ? BThreadEntity.Type.OneToOne : BThreadEntity.Type.Group);
+
+        Timber.d("Creating new thread, UserAmount: %s, BThread: %s", users.size(), thread);
 
         // Save the thread to the database.
         DaoCore.createEntity(thread);
 
-        new BThreadWrapper(thread).push()
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(BThread thread) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(Keys.BToken, token());
+        data.put(Keys.BAPIKey, BDefines.BRootPath);
+        data.put(BDefines.Keys.BRID, thread.getEntityID());
+        data.put(BDefines.Keys.BType, thread.getType());
+        data.put(BDefines.Keys.BName, "");
+        data.put(BDefines.Keys.BDescription, "");
+        data.put(BDefines.Keys.BUserCreated, thread.getUserCreated());
+        data.put(BDefines.Keys.BInvitesEnabled, thread.getInvitesEnabled());
+        data.put(BDefines.Keys.BWeight, thread.getWeight());
+        data.put(BDefines.Keys.BCreatorEntityId, thread.getCreatorEntityId());
 
-                        // Save the thread to the local db.
-                        DaoCore.updateEntity(thread);
+        ParseCloud.callFunctionInBackground("createRoom", data, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object o, ParseException e) {
+                if (e == null) {
+                    if (DEBUG) Timber.d("parse function finished.");
 
-                        // Add users, For each added user the listener passed here will get a call.
-                        addUsersToThread(thread, users).done(new DoneCallback<BThread>() {
-                            @Override
-                            public void onDone(BThread thread) {
-                                deferred.resolve(thread);
-                            }
-                        })
-                        .fail(new FailCallback<BError>() {
-                            @Override
-                            public void onFail(BError error) {
-                                deferred.reject(error);
-                            }
-                        });
-                    }
-                })
-                .fail(new FailCallback<BError>() {
-                    @Override
-                    public void onFail(BError error) {
-                        // Delete the thread if failed to push
-                        DaoCore.deleteEntity(thread);
+                    // Add users, For each added user the listener passed here will get a call.
+                    addUsersToThread(thread, users)
+                            .done(new DoneCallback<BThread>() {
+                                @Override
+                                public void onDone(BThread thread) {
+                                    deferred.resolve(thread);
+                                }
+                            })
+                            .fail(new FailCallback<BError>() {
+                                @Override
+                                public void onFail(BError error) {
+                                    deferred.reject(error);
+                                }
+                            });
 
-                        deferred.reject(error);
-                    }
-                });
+                } else {
+                    DaoCore.deleteEntity(thread);
+                    deferred.reject(getParseError(e));
+                }
+            }
+        });
 
         return deferred.promise();
     }
@@ -714,56 +694,11 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
      * When all users are added the system will call the "onDone" method.*/
     @Override
     public Promise<BThread, BError, Void> addUsersToThread(final BThread thread, final List<BUser> users) {
-        
+
+        // FIXME run on a background thread.
         final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
-                
-        if (thread == null)
-        {
-            if (DEBUG) Timber.e("addUsersToThread, Thread is null" );
-            return deferred.reject(new BError(BError.Code.NULL, "Thread is null"));
-        }
 
-        if (DEBUG) Timber.d("Users Amount: %s", users.size());
-
-        Promise[] promises = new Promise[users.size()];
-        
-        BThreadWrapper threadWrapper = new BThreadWrapper(thread);
-        
-        int count = 0;
-        for (BUser user : users){
-            
-            // Add the user to the thread
-            if (!user.hasThread(thread))
-            {
-                DaoCore.connectUserAndThread(user, thread);
-            }
-            
-            promises[count] = threadWrapper.addUser(BUserWrapper.initWithModel(user));
-            count++;
-        }
-        
-        MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-        
-        masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-            @Override
-            public void onProgress(MasterProgress masterProgress) {
-                if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal()) {
-                    // Reject the promise if all promisses failed.
-                    if (masterProgress.getFail() == masterProgress.getTotal()) {
-                        deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
-                    } else
-                        deferred.resolve(thread);
-                }
-            }
-        });
-        
-        
-        return deferred.promise();
-    }
-
-    @Override
-    public Promise<BThread, BError, Void> removeUsersFromThread(final BThread thread, List<BUser> users) {
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+        final AndroidDeferredObject<BThread, BError, Void> androidDeferredObject = new AndroidDeferredObject<BThread, BError, Void>(deferred, AndroidExecutionScope.BACKGROUND);
 
         if (thread == null)
         {
@@ -771,54 +706,70 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             return deferred.reject(new BError(BError.Code.NULL, "Thread is null"));
         }
 
-        if (DEBUG) Timber.d("Users Amount: %s", users.size());
-
-        Promise[] promises = new Promise[users.size()];
-
-        BThreadWrapper threadWrapper = new BThreadWrapper(thread);
-
-        int count = 0;
-        for (BUser user : users){
-
-            // Breaking the connection in the internal database between the thread and the user.
-            DaoCore.breakUserAndThread(user, thread);
-
-            promises[count] = threadWrapper.removeUser(BUserWrapper.initWithModel(user));
-            count++;
+        JSONArray usersStatuses = new JSONArray();
+        JSONObject jsonObject;
+        for (BUser u : users)
+        {
+            jsonObject = new JSONObject();
+            try {
+                jsonObject.put(Keys.BUID, u.getEntityID());
+                jsonObject.put(Keys.BStatus, u.equals(currentUserModel()) ? BDefines.BUserStatus.Owner : BDefines.BUserStatus.Member);
+                usersStatuses.put(jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
-        MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
+        Map<String, Object> data = new HashMap<>();
 
-        masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
+        data.put(Keys.BToken, token());
+        data.put(Keys.BAPIKey, BDefines.BRootPath);
+        data.put(Keys.BUsers, usersStatuses);
+        data.put(Keys.BInvitedBy, currentUserModel().getEntityID());
+        data.put(Keys.BRID, thread.getEntityID());
+
+        if (DEBUG) Timber.d("Users Amount: %s", users.size());
+
+        ParseCloud.callFunctionInBackground("addUsersToRoom", data, new FunctionCallback<Object>() {
             @Override
-            public void onProgress(MasterProgress masterProgress) {
-                if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal())
-                {
-                    // Reject the promise if all promisses failed.
-                    if (masterProgress.getFail() == masterProgress.getTotal())
-                    {
-                        deferred.reject(null);
-                    }
-                    else
-                        deferred.resolve(thread);
-                }
+            public void done(Object o, ParseException e) {
+                if (e == null) {
+                    Timber.d("addUsersToRoom, Done.");
+                    deferred.resolve(thread);
+                } else
+                    deferred.reject(getParseError(e));
             }
         });
         
-        return deferred.promise();
-    }
-
-    @Override
-    public Promise<BThread, BError, Void>  pushThread(BThread thread) {
-        return new BThreadWrapper(thread).push();
+        
+        return androidDeferredObject.promise();
     }
 
     @Override
     public Promise<Void, BError, Void> deleteThreadWithEntityID(final String entityID) {
 
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(Keys.BRID, entityID);
+        data.put(Keys.BUID, currentUserModel().getEntityID());
+        data.put(Keys.BToken, token());
+        data.put(Keys.BAPIKey, BDefines.BRootPath);
+
         final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
         
-        return new BThreadWrapper(thread).deleteThread();
+        new BThreadWrapper(thread).deleteThread();
+
+        ParseCloud.callFunctionInBackground("leaveRoom", data, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object o, ParseException e) {
+                if (e == null) {
+                    deferred.resolve(null);
+                } else
+                    deferred.reject(getParseError(e));
+            }
+        });
+        return deferred.promise();
     }
 
     @Override
@@ -840,7 +791,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                 if (e == null)
                 {
                     // If it's a public thread then add the on-disconnect listener
-                    if (thread.getType() == BThread.Type.Public)
+                    if (thread.getType().equals(BThread.Type.Public))
                     {
                         Firebase threadUserRef = FirebasePaths.threadUserRef(thread.getEntityID(), currentUserModel().getEntityID());
                         threadUserRef.onDisconnect().removeValue();
@@ -888,258 +839,94 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         return deferred.promise();
     }
 
+    @Override
+    public void startTypingOnThread(BThread thread, BUser user) {
+        if (user == null)
+            user = currentUserModel();
+
+        if (user != null)
+            new BThreadWrapper(thread).startTyping(user);
+    }
+
+    @Override
+    public void finishTypingOnThread(BThread thread, BUser user) {
+        if (user == null)
+            user = currentUserModel();
+
+        if (user != null)
+            new BThreadWrapper(thread).finishTyping(user);
+    }
+
+    @NotNull
+    @Override
+    public List<BUser> onlineUsers() {
+        List<BUser> onlineUsers;
+        QueryBuilder<BUser> query = DaoCore.daoSession.queryBuilder(BUser.class);
+
+        query.where(BUserDao.Properties.Online.isNotNull(), BUserDao.Properties.Online.eq(true));
+
+        onlineUsers = query.list();
 
 
+        if (onlineUsers == null)
+            return new ArrayList<>();
 
+        // Removing the current user if exist in the list.
+        BUser u, curUser = currentUserModel();
+        for (Iterator<BUser> iterator = onlineUsers.iterator(); iterator.hasNext();)
+        {
+            u = iterator.next();
+
+            if (u.getEntityID().equals(curUser.getEntityID()))
+                iterator.remove();
+        }
+
+        Collections.sort(onlineUsers, new UsersSorter());
+
+        return onlineUsers;
+    }
+
+    @NotNull
     @Override
     public List<BUser> friends() {
         return currentUserModel().connectionsWithType(BUserConnection.Type.Friend);
     }
 
+    @NotNull
     @Override
     public List<BUser> blockedUsers() {
         return currentUserModel().connectionsWithType(BUserConnection.Type.Blocked);
     }
 
+    @NotNull
     @Override
     public List<BUser> followers() {
         return currentUserModel().connectionsWithType(BUserConnection.Type.Follower);
     }
 
+    @NotNull
     @Override
     public  Promise<Void, BError, Void> addFriends(BUser user) {
         return currentUser().addFriend(user);
     }
 
+    @NotNull
     @Override
     public  Promise<Void, BError, Void> removeFriend(BUser user) {
         return currentUser().removeFriend(user);
     }
 
+    @NotNull
     @Override
     public Promise<Void, BError, Void> blockUser(BUser user) {
-        return null;
+        return currentUser().blockUser(user);
     }
 
+    @NotNull
     @Override
-    public Promise unblockUser(BUser user) {
-        return null;
+    public Promise<Void, BError, Void> unblockUser(BUser user) {
+        return currentUser().unblockUser(user);
     }
 
-    @Override
-    public Promise<Void, BError, Void> followUser(final BUser userToFollow) {
-
-        if (!BDefines.EnableFollowers)
-            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
-
-        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
-        
-        final BUser user = currentUserModel();
-
-        // Add the current user to the userToFollow "followers" path
-        Firebase userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID()).child(BFirebaseDefines.Path.BFollowers).child(user.getEntityID());
-        if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
-
-        userToFollowRef.setValue("null", new Firebase.CompletionListener() {
-            @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                if (firebaseError!=null)
-                {
-                    deferred.reject(getFirebaseError(firebaseError));
-                }
-                else
-                {
-                    BFollower follows = user.fetchOrCreateFollower(userToFollow, BFollower.Type.FOLLOWS);
-
-                    user.connectUser(userToFollow, BUserConnection.Type.Follower);
-
-                    // Add the user to follow to the current user follow
-                    FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getBPath().getPath());
-                    if (DEBUG) Timber.d("followUser, curUserFollowsRef: %s", curUserFollowsRef.toString());
-                    curUserFollowsRef.setValue("null", new Firebase.CompletionListener() {
-                        @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-
-                            // Send a push to the user that is now followed.
-                            PushUtils.sendFollowPush(userToFollow.pushChannel(), user.getName() + " " + context.getString(R.string.not_follower_content));
-
-                            deferred.resolve(null);
-                        }
-                    });
-                }
-            }
-        });
-
-        return deferred.promise();
-    }
-
-    @Override
-    public void unFollowUser(BUser userToUnfollow) {
-        if (!BDefines.EnableFollowers)
-            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
-
-
-        final BUser user = currentUserModel();
-
-        // Remove the current user to the userToFollow "followers" path
-        Firebase userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID()).child(BFirebaseDefines.Path.BFollowers).child(user.getEntityID());
-
-        userToFollowRef.removeValue();
-
-        BFollower follows = user.fetchOrCreateFollower(userToUnfollow, BFollower.Type.FOLLOWS);
-
-        // Add the user to follow to the current user follow
-        FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getBPath().getPath());
-
-        curUserFollowsRef.removeValue();
-
-        DaoCore.deleteEntity(follows);
-    }
-
-    @Override
-    public Promise<List<BUser>, BError, Void> getFollowers(String entityId){
-        if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
-
-        final Deferred<List<BUser>, BError, Void> deferred = new DeferredObject<>();
-        
-        if (StringUtils.isEmpty(entityId))
-        {
-            return deferred.reject(BError.getError(BError.Code.NULL, "Entity id is empty"));
-        }
-
-        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
-
-        Firebase followersRef = FirebasePaths.userFollowersRef(entityId);
-
-        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-
-                final List<BUser> followers = new ArrayList<BUser>();
-
-                for (DataSnapshot snap : snapshot.getChildren())
-                {
-                    String followingUserID = snap.getKey();
-
-                    if (StringUtils.isNotEmpty(followingUserID))
-                    {
-                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
-
-                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWER);
-
-                        followers.add(follwer);
-                    } else if (DEBUG) Timber.e("Follower id is empty");
-                }
-
-                Promise[] promises= new Promise[followers.size()];
-                
-                int count = 0;
-                for (BUser u : followers)
-                {
-                    promises[count] = BUserWrapper.initWithModel(u).once();
-
-                    count++;
-                }
-                
-                MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-                masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-                    @Override
-                    public void onProgress(MasterProgress masterProgress) {
-
-                        if (DEBUG) Timber.d("MasterDeferredProgress, done: %s, failed: %s, total: %s", masterProgress.getDone(), masterProgress.getFail(), masterProgress.getTotal());
-
-                        // Reject the promise if all promisses failed.
-                        if (masterProgress.getFail() == masterProgress.getTotal())
-                        {
-                            deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
-                        }
-                        else
-                            deferred.resolve(followers);
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
-            }
-        });
-
-        
-        return deferred.promise();
-    }
-
-    @Override
-    public Promise<List<BUser>, BError, Void>  getFollows(String entityId){
-        if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
-
-        final Deferred<List<BUser>, BError, Void> deferred = new DeferredObject<>();
-
-        if (StringUtils.isEmpty(entityId))
-        {
-            return deferred.reject(BError.getError(BError.Code.NULL, "Entity id is empty"));
-        }
-
-        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
-
-        Firebase followersRef = FirebasePaths.userFollowsRef(entityId);
-
-        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                final List<BUser> followers = new ArrayList<BUser>();
-
-                for (DataSnapshot snap : snapshot.getChildren())
-                {
-                    String followingUserID = snap.getKey();
-
-                    if (StringUtils.isNotEmpty(followingUserID))
-                    {
-                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
-
-                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWS);
-
-                        followers.add(follwer);
-                    }
-                }
-
-                Promise[] promises= new Promise[followers.size()];
-
-                int count = 0;
-                for (BUser u : followers)
-                {
-                    promises[count] = BUserWrapper.initWithModel(u).once();
-
-                    count++;
-                }
-
-                MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-                masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-                    @Override
-                    public void onProgress(MasterProgress masterProgress) {
-
-                        if (DEBUG) Timber.d("MasterDeferredProgress, done: %s, failed: %s, total: %s", masterProgress.getDone(), masterProgress.getFail(), masterProgress.getTotal());
-
-                        // Reject the promise if all promisses failed.
-                        if (masterProgress.getFail() == masterProgress.getTotal())
-                        {
-                            deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
-                        }
-                        else
-                            deferred.resolve(followers);
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
-            }
-        });
-
-        return deferred.promise();
-    }
 
 }

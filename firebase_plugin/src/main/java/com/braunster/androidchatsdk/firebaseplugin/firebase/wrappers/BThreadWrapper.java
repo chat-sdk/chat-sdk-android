@@ -55,10 +55,16 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     public BThreadWrapper(BThread thread){
         this.model = thread;
         this.entityId = thread.getEntityID();
+
+        initPath();
     }
     
     public BThreadWrapper(String entityId){
         this(DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, entityId));
+    }
+
+    private void initPath(){
+        path = BFirebaseDefines.Path.BThread;
     }
 
     /**
@@ -326,7 +332,6 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             // Get # messages ending at the end date
             // Limit to # defined in BFirebaseDefines
             // We add one becase we'll also be returning the last message again
-            // FIXME not sure if to use limitToFirst or limitToLast
             Query msgQuery = messageRef.endAt(messageDate.getTime()).limitToLast(numberOffMessages + 1);
 
             msgQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -467,7 +472,12 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         if (value.containsKey(BDefines.Keys.BWeight))
         {
-            model.setWeight((Integer) value.get(BDefines.Keys.BWeight));
+            Object o = value.get(BDefines.Keys.BWeight);
+
+            if (o instanceof Integer)
+                model.setWeight((Integer) o);
+            else
+                model.setWeight( ((Long) o).intValue() );
         }
 
         this.model.setCreatorEntityId((String) value.get(BDefines.Keys.BCreatorEntityId));
@@ -515,7 +525,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     /**
      * Add the thread from the given user threads ref.
      **/
-    public Promise<BThread, BError, Void> addUserWithEntityID(String entityId){
+/*    public Promise<BThread, BError, Void> addUserWithEntityID(String entityId){
 
         final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
         
@@ -541,7 +551,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         });
         
         return deferred.promise();
-    }
+    }*/
 
     /**
      *Remove the thread from the given user threads ref.
@@ -607,7 +617,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      * Adding a user to the thread. 
      * If the thread is private the thread will be added to the user thread ref.
      **/
-    public Promise<BThread, BError, Void> addUser(final BUserWrapper user){
+/*    public Promise<BThread, BError, Void> addUser(final BUserWrapper user){
         final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
 
         // Adding the user.
@@ -639,7 +649,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         });
         
         return deferred.promise();
-    }
+    }*/
 
     public Promise<BThread, BError, Void> pushMeta(){
 
@@ -659,6 +669,8 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                 if (firebaseError == null) {
                     deferred.resolve(model);
 
+                    updateStateWithKey(BFirebaseDefines.Path.BMeta);
+
                 } else
                     deferred.reject(getFirebaseError(firebaseError));
             }
@@ -666,15 +678,15 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         return deferred.promise();
     }
 
-    public Promise<Void, BError, Void> serLastMessage(BMessage message){
+    public Promise<Void, BError, Void> setLastMessage(BMessage message){
 
         final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
 
-        Firebase ref = FirebasePaths.threadLastMessagesRef(model.getEntityID());
+        Firebase ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
 
         Map<String, Object> data = new BMessageWrapper(message).serialize();
         data.put(BDefines.Keys.BUserName, message.getSender().getName());
-
+        data.remove(BDefines.Keys.BType);
 
         ref.setValue(data, new Firebase.CompletionListener() {
             @Override

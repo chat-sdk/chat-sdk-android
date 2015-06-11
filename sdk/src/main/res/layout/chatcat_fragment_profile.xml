@@ -17,15 +17,25 @@
         android:layout_width="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/chat_sdk_root_view"
-        android:paddingTop="10dp"
+        android:padding="10dp"
         android:layout_height="match_parent">
 
+        <!--Country Icon-->
         <ImageView
-            style="@style/CountryIconStyle"
+            style="@style/ProfileTopIconStyle"
             android:id="@+id/chat_sdk_country_ic"
             android:layout_margin="5dp"
             android:visibility="invisible"/>
 
+        <!--Gender Icon-->
+        <ImageView
+            style="@style/ProfileTopIconStyle"
+            android:id="@+id/chat_sdk_ic_gender"
+            android:layout_margin="5dp"
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"/>
+
+        <!--ProfileImage-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="120dp"
@@ -53,8 +63,8 @@
                 android:layout_gravity="center"/>
         </LinearLayout>
 
+        <!--Name-->
         <TextView
-
             style="@style/ProfileViewTextViewStyle"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/frame_profile_image_container"
@@ -62,56 +72,142 @@
             android:layout_marginTop="10dp"
             android:text="No name"/>
 
+        <!--Status Header-->
+        <TextView
+            style="@style/ProfileViewHeaderTextViewStyle"
+            android:text="@string/status_header"
+            android:layout_below="@id/chat_sdk_txt_name"
+            android:id="@+id/chat_sdk_txt_status_header"/>
+
+        <!--Status text-->
         <TextView
             style="@style/ProfileViewTextViewStyle"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/chat_sdk_txt_name"
-            android:text="@string/status"
-            android:id="@+id/chat_sdk_txt_status_header"
-            android:layout_marginTop="10dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:maxLines="5"
             android:ellipsize="end"
-            android:padding="5dp"
+            android:text="status"
+            android:paddingLeft="10dp"
+            android:layout_alignLeft="@+id/chat_sdk_txt_status_header"
             android:layout_below="@id/chat_sdk_txt_status_header"
             android:id="@+id/chat_sdk_txt_status"/>
 
+        <!-- Details -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:id="@+id/linear"
-            android:layout_margin="5dp"
+            android:id="@+id/linear_details"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
             android:layout_below="@id/chat_sdk_txt_status"
             android:gravity="center">
 
+            <!--Location-->
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:id="@+id/relative_location"
+                android:layout_marginTop="15dp"
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/ic_phone"
-                    android:id="@+id/chat_sdk_ic_phone"
+                    android:layout_width="@dimen/chat_sdk_profile_icons_size"
+                    android:layout_height="@dimen/chat_sdk_profile_icons_size"
+                    android:src="@drawable/ic_location"
+                    android:id="@+id/chat_sdk_ic_location"
                     android:layout_centerVertical="true"/>
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/ProfileViewTextViewStyle"
                     android:layout_marginTop="5dp"
+                    android:text="location"
                     android:id="@+id/chat_sdk_txt_location"
                     android:layout_marginLeft="5dp"
-                    android:layout_toRightOf="@+id/chat_sdk_ic_phone"
+                    android:layout_toRightOf="@+id/chat_sdk_ic_location"
+                    android:layout_centerVertical="true"/>
+
+            </RelativeLayout>
+
+            <!--Age-->
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:id="@+id/relative_age"
+                android:layout_marginTop="15dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="@dimen/chat_sdk_profile_icons_size"
+                    android:layout_height="@dimen/chat_sdk_profile_icons_size"
+                    android:src="@drawable/ic_birthday"
+                    android:id="@+id/chat_sdk_ic_age"
+                    android:layout_centerVertical="true"/>
+
+                <TextView
+                    style="@style/ProfileViewTextViewStyle"
+                    android:text="birthday"
+                    android:id="@+id/chat_sdk_txt_age"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/chat_sdk_ic_age"
                     android:layout_centerVertical="true"/>
 
             </RelativeLayout>
 
         </LinearLayout>
+
+        <!--Add As a friend-->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:id="@+id/relative_add_friend"
+            android:layout_below="@id/linear_details"
+            android:layout_marginTop="15dp"
+            android:layout_margin="5dp"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_plus"
+                android:id="@+id/chat_sdk_ic_add_friend"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/txt_friend"
+                android:text="@string/add_friend_button"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/chat_sdk_ic_add_friend"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <!--Block user-->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:id="@+id/relative_block"
+            android:layout_below="@id/relative_add_friend"
+            android:layout_margin="5dp"
+            android:layout_marginTop="15dp"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_plus"
+                android:id="@+id/chat_sdk_ic_block"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/txt_block"
+                android:text="@string/block_user_button"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/chat_sdk_ic_block"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
 
     </RelativeLayout>
 

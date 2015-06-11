@@ -509,25 +509,20 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
 //            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
 
-            if (messages.get(0).getType() == null)
-                data[0] = "Bad Data";
-            else
-                switch (messages.get(0).getType())
-                {
-                    case TEXT:
-                        // TODO cut string if needed.
-                        //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
-                        data[0] = messages.get(0).getText();
-                        break;
+            switch (messages.get(0).getTypeSafely())
+            {
+                case TEXT:
+                    data[0] = messages.get(0).getText();
+                    break;
 
-                    case IMAGE:
-                        data[0] = "Image message";
-                        break;
+                case IMAGE:
+                    data[0] = "Image message";
+                    break;
 
-                    case LOCATION:
-                        data[0] = "Location message";
-                        break;
-                }
+                case LOCATION:
+                    data[0] = "Location message";
+                    break;
+            }
 
             data[1] = simpleDateFormat.format(messages.get(0).getDate());
 

@@ -15,9 +15,9 @@ public class Debug {
     public static final boolean BFacebookManager = false;
     public static final boolean BNetworkManager = false;
     public static final boolean TwitterManager = true;
-    public static final boolean EventManager = false;
+    public static final boolean EventManager = true;
     public static final boolean BPath = false;
-    public static final boolean BFirebaseNetworkAdapter = false;
+    public static final boolean BFirebaseNetworkAdapter = true;
 
     /*Fragments*/
     private static final boolean FRAGMENTS = false;
@@ -31,12 +31,12 @@ public class Debug {
     public static final boolean DaoCore = false;
     public static final boolean BMessage = false;
     public static final boolean BUser = false;
-    public static final boolean BThread = false;
+    public static final boolean BThread = true;
 
     /*Adapters*/
     public static final boolean MessagesListAdapter = false;
     public static final boolean ThreadsListAdapter = false;
-    public static final boolean UsersWithStatusListAdapter = false;
+    public static final boolean ChatSDKAbstractUsersListAdapter = false;
 
     /*Activities*/
     public static final boolean BaseActivity = false;
@@ -61,7 +61,7 @@ public class Debug {
 
     /*Firebase - Listeners */
     public static final boolean IncomingMessagesListener = false;
-    public static final boolean ThreadDetailsChangeListener = false;
+    public static final boolean ThreadDetailsChangeListener = true;
     public static final boolean UserAddedToThreadListener = false;
     public static final boolean UserDetailsChangeListener = false;
     public static final boolean FollowerAddedListener = false;
@@ -72,5 +72,5 @@ public class Debug {
 
 
 
-    public static final boolean NotificationUtils = true;
+    public static final boolean NotificationUtils = false;
 }
