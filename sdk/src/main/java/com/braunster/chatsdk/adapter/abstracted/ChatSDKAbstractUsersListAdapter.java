@@ -56,8 +56,6 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
 
-    protected static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
-
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
     protected List<AbstractUserListItem> online = new ArrayList<AbstractUserListItem>(), offline = new ArrayList<AbstractUserListItem>();
     //View

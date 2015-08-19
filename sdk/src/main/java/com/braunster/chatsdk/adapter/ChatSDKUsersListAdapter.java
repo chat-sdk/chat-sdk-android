@@ -169,17 +169,17 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
 
                 if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
                 {
-                    listData.add(getHeader(H_NO_CONTACTS));
+                    listData.add(getHeader(mActivity.getString(R.string.chat_sdk_no_friends_header)));
                     return listData;
                 }
 
                 if (onlineUsers.size() > 0){
-                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                    listData.add(getHeader(getHeaderWithSize(mActivity.getString(R.string.chat_sdk_online_header), onlineUsers.size())));
                     listData.addAll(onlineUsers);
                 }
 
                 if (offlineUsers.size() > 0){
-                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
+                    listData.add(getHeader(getHeaderWithSize(mActivity.getString(R.string.chat_sdk_offline_header), offlineUsers.size())));
                     listData.addAll(offlineUsers);
                 }
 
