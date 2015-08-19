@@ -31,7 +31,7 @@
             android:ellipsize="end"
             android:padding="10dp"
             android:isScrollContainer="true"
-            android:inputType="textShortMessage|textMultiLine"
+            android:inputType="textShortMessage|textMultiLine|textCapSentences"
             android:maxLength="@integer/chat_sdk_max_status_length"
             android:id="@+id/chat_sdk_et_status"/>
 
@@ -164,13 +164,30 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:orientation="horizontal"
+            android:id="@+id/chat_sdk_linear_select_country"
             android:layout_height="wrap_content">
 
-            <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:paddingLeft="10dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/chat_sdk_edit_profile_select_country"/>
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginRight="10dp"
+                android:id="@+id/chat_sdk_ic_country"
+                android:layout_gravity="center_vertical"
+                android:layout_centerVertical="true"/>
+
+<!--            <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/chat_sdk_edit_profile_select_country"
-                android:id="@+id/chat_sdk_select_country_button"/>
+                android:id="@+id/chat_sdk_select_country_button"/>-->
         </LinearLayout>
 
         <LinearLayout

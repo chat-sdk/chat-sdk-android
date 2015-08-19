@@ -152,7 +152,7 @@
         jar="/home/braunster/Code/Android/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/sdk/unspecified/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="cb1fd0684fdbceee8f84b6430a9c9adca4b0ab8f">
+        sha1="ff7a26e9e8ce0d0958b6121d44e5b8be2f2b6015">
         <dex dex="/home/braunster/Code/Android/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-8acbaf74e18685945002bd540ebb795bcb258be9.jar" />
     </item>
     <item
@@ -208,7 +208,7 @@
         jar="/home/braunster/Code/Android/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/exploded-aar/AndroidChatSDK/firebase_plugin/unspecified/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="6402256e8618b29e8521e216ee08abb56cb77776">
+        sha1="a9c3d823cc840e539eed81dfb1c394f0c3835ab6">
         <dex dex="/home/braunster/Code/Android/AndroidChatSDK/AndroidChatSDK/app/build/intermediates/pre-dexed/debug/classes-f39240bdadbf4cfbb83b585ad5904a593333527a.jar" />
     </item>
 

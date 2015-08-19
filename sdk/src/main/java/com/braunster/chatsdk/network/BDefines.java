@@ -156,7 +156,7 @@ public class BDefines {
         public static final String BGender = "gender";
         public static final String BCountry = "country";
         public static final String BCity = "city";
-        public static final String BDateOfBirth= "yearOfBirth";
+        public static final String BDateOfBirth= "dateOfBirth";
         public static final String BStatus = "status";
 
 

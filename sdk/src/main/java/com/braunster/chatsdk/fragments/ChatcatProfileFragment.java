@@ -94,7 +94,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment imple
     public void loadData() {
         super.loadData();
 
-        setDetails((Integer) BNetworkManager.sharedManager().getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+        setDetails();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment imple
     }
 
     /** Fetching the user details from the user's metadata.*/
-    private void setDetails(int loginType){
+    private void setDetails(){
         if (mainView == null || getActivity() == null)
         {
             return;
@@ -207,7 +207,6 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment imple
             View block = getBlockView();
             block.setVisibility(View.VISIBLE);
             block.setOnClickListener(this);
-
 
             setIsBlocked(getNetworkAdapter().blockedUsers().contains(profileUser), false);
             setIsFriend(getNetworkAdapter().friends().contains(profileUser), false);

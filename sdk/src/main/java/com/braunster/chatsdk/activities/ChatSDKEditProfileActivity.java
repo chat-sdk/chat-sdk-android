@@ -18,6 +18,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
@@ -25,6 +27,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.countrypicker.Country;
 import com.countrypicker.CountryPicker;
 import com.countrypicker.CountryPickerListener;
 
@@ -44,9 +47,11 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
     
     private EditText etName, etLocation, etStatus;
     
-//    private ImageView imageCountryFlag;
+    private ImageView imageCountryFlag;
 
-    private Button btnSelectBirthday, btnSelectCountry;
+    private Button btnSelectBirthday;
+
+    private LinearLayout btnSelectCountry;
 
     private boolean loggingOut = false;
 
@@ -79,9 +84,9 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         etStatus = (EditText) findViewById(R.id.chat_sdk_et_status);
 
         btnSelectBirthday = (Button)findViewById(R.id.chat_sdk_pick_birth_date_button);
-        btnSelectCountry = (Button) findViewById(R.id.chat_sdk_select_country_button);
+        btnSelectCountry = (LinearLayout) findViewById(R.id.chat_sdk_linear_select_country);
 
-//        imageCountryFlag = (ImageView) findViewById(R.id.chat_sdk_country_ic);
+        imageCountryFlag = (ImageView) findViewById(R.id.chat_sdk_ic_country);
     }
 
     /**
@@ -143,18 +148,19 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
             etLocation.setText(location);
 
         if (StringUtils.isNotEmpty(dateOfBirth))
+        {
+
+            btnSelectBirthday.setTag(String.valueOf(Long.parseLong(dateOfBirth)));
             btnSelectBirthday.setText(simpleDateFormat.format(Long.parseLong(dateOfBirth)));
+        }
 
         if (StringUtils.isNotEmpty(status))
             etStatus.setText(status);
     }
     
     private void loadCountryFlag(String countryCode){
-
-        btnSelectCountry.setText(countryCode);
-
-//        imageCountryFlag.setImageResource(Country.getResId(countryCode));
-//        imageCountryFlag.setVisibility(View.VISIBLE);
+        imageCountryFlag.setImageResource(Country.getResId(countryCode));
+        imageCountryFlag.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -315,7 +321,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
             datePickerDialog.show();
         }
-        else if (i == R.id.chat_sdk_select_country_button) {
+        else if (i == R.id.chat_sdk_linear_select_country) {
             final CountryPicker picker = new CountryPicker();
 
             picker.setListener(new CountryPickerListener() {

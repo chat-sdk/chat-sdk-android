@@ -614,79 +614,7 @@ public class BUser extends BUserEntity  {
     public String toString() {
         return String.format("BUser, id: %s meta: %s", id, getMetadata());
     }
-/*
 
-
-
-
-
-
-    private BFollower fetchFollower(BUser follower, int type){
-        return DaoCore.fetchEntityWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.UserId, BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
-                follower.getId(), getId(),  type);
-    }
-
-    @Override
-    public List<BUser> getFollowers() {
-        List<BUser> users = new ArrayList<BUser>();
-
-        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
-                getId(), BFollower.Type.FOLLOWER);
-
-        for (BFollower f : followers)
-        {
-            if (f!=null)
-                users.add(f.getUser());
-        }
-
-        return users;
-    }
-
-    @Override
-    public List<BUser> getFollows() {
-        List<BUser> users = new ArrayList<BUser>();
-
-        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
-                getId(), BFollower.Type.FOLLOWS);
-
-        for (BFollower f : followers)
-        {
-            if (f!=null)
-                users.add(f.getUser());
-        }
-
-        return users;
-    }
-
-    @Override
-    public BFollower fetchOrCreateFollower(BUser follower, int type) {
-
-        BFollower follows = fetchFollower(follower, type);
-
-        if (follows== null)
-        {
-            follows = new BFollower();
-
-            follows.setOwner(this);
-            follows.setUser(follower);
-            follows.setType(type);
-
-            follows = DaoCore.createEntity(follows);
-        }
-
-        return follows;
-    }
-
-    public boolean isFollowing(BUser user){
-        return fetchFollower(user, BFollower.Type.FOLLOWER) != null;
-    }
-
-    public boolean follows(BUser user){
-        return fetchFollower(user, BFollower.Type.FOLLOWS) != null;
-    }*/
     // KEEP METHODS END
 
 }

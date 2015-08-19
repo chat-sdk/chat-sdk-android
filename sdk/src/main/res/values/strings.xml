@@ -192,4 +192,7 @@
     <string name="adding_friend_progress">Adding Friend&#8230;</string>
     <string name="unfriend_button">Remove Friend</string>
     <string name="action_message">Send message</string>
+    <string name="chat_sdk_online_header">ONLINE</string>
+    <string name="chat_sdk_offline_header">OFFLINE</string>
+    <string name="chat_sdk_no_friends_header">No Friends</string>
 </resources>

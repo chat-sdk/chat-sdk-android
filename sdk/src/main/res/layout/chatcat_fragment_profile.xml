@@ -67,8 +67,10 @@
         <TextView
             style="@style/ProfileViewTextViewStyle"
             android:layout_centerHorizontal="true"
+            android:paddingLeft="0dp"
             android:layout_below="@id/frame_profile_image_container"
             android:id="@+id/chat_sdk_txt_name"
+            android:gravity="center"
             android:layout_marginTop="10dp"
             android:text="No name"/>
 
@@ -159,26 +161,25 @@
             android:id="@+id/relative_add_friend"
             android:layout_below="@id/linear_details"
             android:layout_marginTop="15dp"
-            android:layout_margin="5dp"
             android:visibility="gone"
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ic_plus"
+                android:layout_width="@dimen/chat_sdk_profile_icons_size"
+                android:layout_height="@dimen/chat_sdk_profile_icons_size"
+                android:src="@drawable/add_friend_selector"
                 android:id="@+id/chat_sdk_ic_add_friend"
                 android:layout_centerVertical="true"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ProfileViewTextViewStyle"
                 android:layout_marginTop="5dp"
                 android:id="@+id/txt_friend"
                 android:text="@string/add_friend_button"
                 android:layout_marginLeft="5dp"
                 android:layout_toRightOf="@+id/chat_sdk_ic_add_friend"
                 android:layout_centerVertical="true"/>
+
         </RelativeLayout>
 
         <!--Block user-->
@@ -186,21 +187,19 @@
             android:layout_width="fill_parent"
             android:id="@+id/relative_block"
             android:layout_below="@id/relative_add_friend"
-            android:layout_margin="5dp"
             android:layout_marginTop="15dp"
             android:visibility="gone"
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ic_plus"
+                android:layout_width="@dimen/chat_sdk_profile_icons_size"
+                android:layout_height="@dimen/chat_sdk_profile_icons_size"
+                android:src="@drawable/block_selector"
                 android:id="@+id/chat_sdk_ic_block"
                 android:layout_centerVertical="true"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/ProfileViewTextViewStyle"
                 android:layout_marginTop="5dp"
                 android:id="@+id/txt_block"
                 android:text="@string/block_user_button"

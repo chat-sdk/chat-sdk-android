@@ -1,4 +1,4 @@
-package com.braunster.androidchatsdk.app;
+package com.braunster.tapatalk.app;
 
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;

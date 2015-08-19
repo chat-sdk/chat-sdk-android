@@ -16,9 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -55,8 +53,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     private ListView listContacts;
     private ChatSDKUsersListAdapter listAdapter;
     private Button btnStartChat;
-    private TextView txtSearch;
-    private ImageView imgSearch;
+//    private TextView txtSearch;
+//    private ImageView imgSearch;
     private CheckBox chSelectAll;
 
     /** Default value - MODE_NEW_CONVERSATION*/
@@ -127,8 +125,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
-        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
-        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
+//        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
+//        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
 
@@ -273,15 +271,15 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
             }
         });
 
-        View.OnClickListener searchClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chatSDKUiHelper.startSearchActivity();
-            }
-        };
+//        View.OnClickListener searchClickListener = new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                chatSDKUiHelper.startSearchActivity();
+//            }
+//        };
 
-        txtSearch.setOnClickListener(searchClickListener);
-        imgSearch.setOnClickListener(searchClickListener);
+//        txtSearch.setOnClickListener(searchClickListener);
+//        imgSearch.setOnClickListener(searchClickListener);
 
 
         chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
