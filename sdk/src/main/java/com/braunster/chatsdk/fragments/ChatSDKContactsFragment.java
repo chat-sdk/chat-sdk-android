@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.fragments;
 
 import android.os.Bundle;
@@ -14,8 +7,11 @@ import android.view.ViewGroup;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractContactsFragment;
+
+import java.util.List;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -28,7 +24,7 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
     /* Initializers.*/
     public static ChatSDKContactsFragment newInstance(String eventTAG) {
         ChatSDKContactsFragment f = new ChatSDKContactsFragment();
-        f.setLoadingMode(MODE_LOAD_FRIENDS);
+        f.setLoadingMode(MODE_LOAD_CONTACTS);
         f.setEventTAG(eventTAG);
         Bundle b = new Bundle();
         f.setArguments(b);
@@ -43,21 +39,12 @@ public class ChatSDKContactsFragment extends ChatSDKAbstractContactsFragment {
         return f;
     }
 
-    public static ChatSDKContactsFragment newInstance(int loadingMode, int clickMode, Object extraData, String eventTag) {
+    public static ChatSDKContactsFragment newInstance(int loadingMode, int clickMode, List<BUser> sourceUsers, Object extraData) {
         ChatSDKContactsFragment f = new ChatSDKContactsFragment();
         f.setLoadingMode(loadingMode);
-        f.setEventTAG(eventTag);
         f.setClickMode(clickMode);
         f.setExtraData(extraData);
-        return f;
-    }
-
-    public static ChatSDKContactsFragment friendsFragment(String eventTag) {
-        ChatSDKContactsFragment f = new ChatSDKContactsFragment();
-        f.setLoadingMode(MODE_LOAD_FRIENDS);
-        f.setClickMode(CLICK_MODE_SHOW_PROFILE);
-        f.setEventTAG(eventTag);
-        f.withHeaders = true;
+        f.setSourceUsers(sourceUsers);
         return f;
     }
 

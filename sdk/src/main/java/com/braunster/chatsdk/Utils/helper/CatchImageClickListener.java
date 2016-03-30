@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
@@ -20,6 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
+/**
+ * Created by braunster on 26/09/14.
+ */
 public class CatchImageClickListener implements View.OnClickListener{
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String SELECTED_FILE_PATH = "captured_photo_path";

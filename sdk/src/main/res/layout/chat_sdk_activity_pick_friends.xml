@@ -11,7 +11,6 @@
         android:textSize="20sp"
         android:layout_alignParentTop="true"
         android:padding="10dp"
-        android:visibility="gone"
         android:id="@+id/textView" />
 
     <ImageView
@@ -20,7 +19,6 @@
         android:src="@drawable/ic_search"
         android:layout_below="@id/textView"
         android:layout_alignParentLeft="true"
-        android:visibility="gone"
         android:layout_marginLeft="10dp"
         android:id="@+id/chat_sdk_search_image"/>
 
@@ -30,7 +28,6 @@
         android:id="@+id/chat_sdk_et_search"
         android:text="@string/search"
         android:textSize="19sp"
-        android:visibility="gone"
         android:layout_marginLeft="12dp"
         android:layout_toRightOf="@id/chat_sdk_search_image"
         android:layout_below="@id/textView"

@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.activities;
 
 import android.content.BroadcastReceiver;
@@ -13,10 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -25,12 +20,11 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ExitHelper;
 import com.braunster.chatsdk.Utils.NotificationUtils;
-import com.braunster.chatsdk.Utils.Utils;
 import com.braunster.chatsdk.Utils.helper.OpenFromPushChecker;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractChatActivity;
-import com.braunster.chatsdk.adapter.BaseChatSDKTabsAdapter;
 import com.braunster.chatsdk.adapter.PagerAdapterTabs;
 import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -40,16 +34,20 @@ import com.braunster.chatsdk.object.UIUpdater;
 
 import org.apache.commons.lang3.StringUtils;
 
-import timber.log.Timber;
+import java.io.File;
 
 
 public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
+    // TODO add option to save up app in external storage. http://developer.android.com/guide/topics/data/install-location.html
+    // TODO stack notification like whatsapp and gamil http://developer.android.com/reference/android/app/Notification.InboxStyle.html
+
+    private static final String TAG = ChatSDKMainActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.MainActivity;
     private ExitHelper exitHelper;
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
-    protected BaseChatSDKTabsAdapter adapter;
+    private PagerAdapterTabs adapter;
 
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
     public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
@@ -57,6 +55,9 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
     public static final String Action_clear_data = "com.braunster.androidchatsdk.action.logged_out";
     public static final String Action_Refresh_Fragment = "com.braunster.androidchatsdk.action.refresh_fragment";
+
+    private static final String LAST_MSG_TIMESTAMP = "last_open_msg_timestamp";
+    private long msgTimestamp = 0;
 
     private int pageAdapterPos = -1;
 
@@ -75,6 +76,8 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             return;
         }
 
+        if (DEBUG) Log.v(TAG, "onCreate");
+
         setContentView(R.layout.chat_sdk_activity_view_pager);
 
         firstTimeInApp();
@@ -84,6 +87,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
         if (!fromLoginActivity && savedInstanceState != null)
         {
+            if (DEBUG) Log.v(TAG, "Saved Instance is not null, "  + savedInstanceState.getInt(PAGE_ADAPTER_POS));
             pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
         }
 
@@ -97,8 +101,16 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (DEBUG) Log.v(TAG, "onPause");
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        if (DEBUG) Log.v(TAG, "onResume");
 
         ChatSDKThreadPool.getInstance().execute(new Runnable() {
             @Override
@@ -119,7 +131,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                     @Override
                     public void onPageSelected(int position) {
                         if (DEBUG)
-                            Timber.v("onPageSelected, Pos: %s, Last: %s", position, lastPage);
+                            Log.v(TAG, "onPageSelected, Pos: " + position + ", Last: " + lastPage);
 
                         pageAdapterPos = position;
 
@@ -145,7 +157,8 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        
+        if (DEBUG) Log.v(TAG, "onNewIntent");
+
         if (mOpenFromPushChecker == null)
             mOpenFromPushChecker = new OpenFromPushChecker();
         
@@ -157,7 +170,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
         if (adapter != null)
         {
-            ChatSDKBaseFragment pro = getFragment(BaseChatSDKTabsAdapter.Profile), conv = getFragment(PagerAdapterTabs.Conversations);
+            ChatSDKBaseFragment pro = getFragment(PagerAdapterTabs.Profile), conv = getFragment(PagerAdapterTabs.Conversations);
 
             if (conv!=null)
                 conv.refreshOnBackground();
@@ -168,20 +181,21 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     }
 
     private AppEventListener appEventListener = new AppEventListener("MainActivity") {
-        private final int  messageDelay = 3000;
+        private final int uiUpdateDelay = 1000, messageDelay = 3000;
         private UIUpdater uiUpdaterMessages;
 
         @Override
         public boolean onMessageReceived(final BMessage message) {
+            if (DEBUG) Log.v(TAG, "onMessageReceived");
 
             // Only notify for private threads.
-            if (message.getThread().isPublic()) {
+            if (message.getBThreadOwner().getTypeSafely() == BThread.Type.Public) {
                 return false;
             }
 
             // Make sure the message that incoming is not the user message.
-            if (message.getSender().getEntityID().equals(
-                    BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID()))
+            if (message.getBUserSender().getEntityID().equals(
+                    BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getEntityID()))
                 return false;
 
             if (uiUpdaterMessages != null)
@@ -196,9 +210,9 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                     if (!isKilled())
                     {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
-                        if (!getNetworkAdapter().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getThreadId())) {
+                        if (!getNetworkAdapter().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getOwnerThread())) {
                             // Checking if the message has a sender with a name, Also if the message was read.
-                            if (message.getSender().getName() != null && !message.wasRead())
+                            if (message.getBUserSender().getMetaName() != null && !message.wasRead())
                             {
                                 NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
                             }
@@ -227,9 +241,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 
-        // Only creates the adapter if it wasn't initiated already
-        if (adapter == null)
-            adapter = new PagerAdapterTabs(getFragmentManager());
+        adapter = new PagerAdapterTabs(getFragmentManager());
 
         pager.setAdapter(adapter);
 
@@ -249,6 +261,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.android_settings) {
 
+            // FIXME Clearing the cache, Just for debug.
             /*final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
             VolleyUtils.getBitmapCache().resize(1);
@@ -272,19 +285,27 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // If the register did not had a chance to register due to orientation change.
+
+        // If the register did not had a chance to register due to ordination change.
         try{
             unregisterReceiver(mainReceiver);
         }catch (IllegalArgumentException e){
-            // No need to handle the exception.
+
         }
     }
 
     private void firstTimeInApp(){
+        //TODO handle no SDCARD!
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(FIRST_TIME_IN_APP, true))
         {
-            // Creating the images directory if not exist.
-            Utils.ImageSaver.getAlbumStorageDir(this, BDefines.ImageDirName);
+            if (DEBUG) Log.d(TAG, "First time in app");
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                if (DEBUG) Log.d(TAG, "No SDCARD");
+            } else {
+                File directory = new File(Environment.getExternalStorageDirectory()+ File.separator+"AndroidChatSDK");
+                if (DEBUG) Log.d(TAG, "Creating app directory");
+                    directory.mkdirs();
+            }
 
             PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(FIRST_TIME_IN_APP, false).apply();
         }
@@ -298,7 +319,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Action_Contacts_Added))
             {
-                ChatSDKBaseFragment contacts = getFragment(BaseChatSDKTabsAdapter.Contacts);
+                ChatSDKBaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
 
                 if (contacts != null)
                     contacts.refreshOnBackground();
@@ -307,7 +328,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                 {
                     String[] ids = intent.getStringArrayExtra(ChatSDKSearchActivity.USER_IDS_LIST);
                     for (String id : ids)
-                        getNetworkAdapter().getEventManager().userMetaOn(id, null);
+                        getNetworkAdapter().getEventManager().handleUsersDetailsChange(id);
                 }
             }
             else if (intent.getAction().equals(Action_clear_data))
@@ -332,23 +353,23 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             }
             else if (intent.getAction().equals(ChatSDKAbstractChatActivity.ACTION_CHAT_CLOSED))
             {
-                getFragment(BaseChatSDKTabsAdapter.Conversations).loadDataOnBackground();
+                getFragment(PagerAdapterTabs.Conversations).loadDataOnBackground();
             }
         }
     };
 
     private void clearData(){
-        ChatSDKBaseFragment contacts = getFragment(BaseChatSDKTabsAdapter.Contacts);
+        ChatSDKBaseFragment contacts = getFragment(PagerAdapterTabs.Contacts);
 
         if (contacts != null)
             contacts.clearData();
 
-        ChatSDKBaseFragment conv = getFragment(BaseChatSDKTabsAdapter.Conversations);
+        ChatSDKBaseFragment conv = getFragment(PagerAdapterTabs.Conversations);
 
         if (conv != null)
             conv.clearData();
 
-        ChatSDKBaseFragment pro = getFragment(BaseChatSDKTabsAdapter.Profile);
+        ChatSDKBaseFragment pro = getFragment(PagerAdapterTabs.Profile);
 
         if (pro != null)
             pro.clearData();

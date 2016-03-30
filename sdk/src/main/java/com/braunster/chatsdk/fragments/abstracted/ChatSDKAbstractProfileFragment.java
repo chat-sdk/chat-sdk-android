@@ -1,14 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.fragments.abstracted;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,8 +17,10 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKProfileHelper;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
+import com.braunster.chatsdk.interfaces.CompletionListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Cropper;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -59,6 +55,9 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        if (DEBUG) Log.d(TAG, "onCreateView");
+
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         return mainView;
@@ -76,6 +75,7 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
 
     @Override
     public void onResume() {
+        if (DEBUG) Log.d(TAG, "onResume");
         super.onResume();
 
         // Long click will open the gallery so the user can change is picture.
@@ -115,7 +115,7 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_logout, 12, "Logout");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_cancel);
+        item.setIcon(R.drawable.icon_light_exit);
     }
 
     @Override
@@ -137,14 +137,26 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         this.clickableProfilePic = clickableProfilePic;
     }
 
+    /*############################################*/
     public abstract void logout();
 
     public void enableActionBarItems(boolean enableActionBarItems) {
         this.enableActionBarItems = enableActionBarItems;
     }
 
+    /*############################################*/
     protected void indexUser(final BUser user){
-        getNetworkAdapter().updateIndexForUser(user);
+        getNetworkAdapter().updateIndexForUser(user, new CompletionListener() {
+            @Override
+            public void onDone() {
+
+            }
+
+            @Override
+            public void onDoneWithError(BError error) {
+
+            }
+        });
     }
 
 

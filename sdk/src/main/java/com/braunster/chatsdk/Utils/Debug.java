@@ -1,12 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.Utils;
 
+/**
+ * Created by braunster on 10/08/14.
+ */
 public class Debug {
 
     /*Network*/
@@ -14,7 +10,7 @@ public class Debug {
     public static final boolean AbstractNetworkAdapter = false;
     public static final boolean BFacebookManager = false;
     public static final boolean BNetworkManager = false;
-    public static final boolean TwitterManager = true;
+    public static final boolean TwitterManager = false;
     public static final boolean EventManager = true;
     public static final boolean BPath = false;
     public static final boolean BFirebaseNetworkAdapter = true;
@@ -31,12 +27,13 @@ public class Debug {
     public static final boolean DaoCore = false;
     public static final boolean BMessage = false;
     public static final boolean BUser = false;
-    public static final boolean BThread = true;
+    public static final boolean BThread = false;
 
     /*Adapters*/
+    public static final boolean FBFriendsListVolleyAdapter = false;
     public static final boolean MessagesListAdapter = false;
     public static final boolean ThreadsListAdapter = false;
-    public static final boolean ChatSDKAbstractUsersListAdapter = false;
+    public static final boolean UsersWithStatusListAdapter = false;
 
     /*Activities*/
     public static final boolean BaseActivity = false;
@@ -53,24 +50,16 @@ public class Debug {
     /*Utils*/
     public static final boolean ImageUtils = false;
     public static final boolean UiUtils = false;
-    public static final boolean DialogUtils = false;
 
     /*Views*/
     public static final boolean ChatBubbleImageView = false;
-    public static final boolean ChatMessageBoxView = false;
+    public static final boolean ChatBubbleTextView = false;
 
     /*Firebase - Listeners */
     public static final boolean IncomingMessagesListener = false;
-    public static final boolean ThreadDetailsChangeListener = true;
+    public static final boolean ThreadDetailsChangeListener = false;
     public static final boolean UserAddedToThreadListener = false;
     public static final boolean UserDetailsChangeListener = false;
     public static final boolean FollowerAddedListener = false;
     public static final boolean UserToFollowAddedListener = false;
-    
-    /*Receiver*/
-    public static final boolean ChatSDKReceiver = false;
-
-
-
-    public static final boolean NotificationUtils = false;
 }

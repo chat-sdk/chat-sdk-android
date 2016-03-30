@@ -1,15 +1,9 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +29,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import timber.log.Timber;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -43,7 +36,7 @@ import timber.log.Timber;
 public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> extends BaseAdapter {
 
     private static final String TAG = ChatSDKAbstractUsersListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = Debug.ChatSDKAbstractUsersListAdapter;
+    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
 
     protected Activity mActivity;
 
@@ -55,6 +48,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
     public static final int TYPE_USER = 1991;
     public static final int TYPE_HEADER = 1992;
+
+    protected static final String H_ONLINE = "ONLINE", H_OFFLINE = "OFFLINE", H_NO_ONLINE = "NO ONLINE CONTACTS", H_NO_OFFLINE = "NO OFFLINE CONTACTS", H_NO_CONTACTS = "NO CONTACTS";
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
     protected List<AbstractUserListItem> online = new ArrayList<AbstractUserListItem>(), offline = new ArrayList<AbstractUserListItem>();
@@ -196,24 +191,16 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
     public void addRows(List<E> users){
+
         userItems.addAll(users);
 
         notifyDataSetChanged();
     }
 
-    public void addBUsersRows(List<BUser> users){
-        addRows(makeList(users, false, true));
-    }
-
-    public void setBUserItems(List<BUser> userItems, boolean sort) {
-        setUserItems(makeList(userItems, false, true), sort);
-    }
-
     public void setUserItems(List<E> userItems, boolean sort) {
         filtering = false;
 
-        if (DEBUG) Timber.v("setUserItems, size: %s", (userItems == null ? "NULL" : userItems.size()));
-        
+        if (DEBUG) Log.v(TAG, "setUserItems, size: " + (userItems==null?"NULL":userItems.size()) );
         this.userItems.clear();
         this.listData.clear();
 
@@ -260,21 +247,19 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
     }
 
     public static class AbstractUserListItem implements Serializable{
-        Long id;
-        String entityID;
-        String text;
-        Bitmap picture;
-        String pictureURL;
-        String pictureThumbnailURL;
-        boolean online;
+        public String entityID;
+        public String text;
+        public Bitmap picture;
+        public String pictureURL;
+        public String pictureThumbnailURL;
+        public boolean online;
 
 
         public boolean fromURL = false;
 
         public int type, resourceID;
 
-        public AbstractUserListItem(Long id, int resourceID, String entityID, String text, String pictureThumbnailURL, String pictureURL, int type, boolean online) {
-            this.id = id;
+        public AbstractUserListItem(int resourceID, String entityID, String text, String pictureThumbnailURL, String pictureURL, int type, boolean online) {
             this.text = text;
             this.online = online;
             this.pictureURL = pictureURL;
@@ -315,24 +300,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
             return fromURL;
         }
 
-        public Long getId() {
-            return id;
-        }
-
         public BUser asBUser(){
             return DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
-        }
-
-        public String getPictureThumbnailURL() {
-            return pictureThumbnailURL;
-        }
-
-        public String getPictureURL() {
-            return pictureURL;
-        }
-
-        public boolean isOnline() {
-            return online;
         }
     }
 
@@ -341,7 +310,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
      * @param  deleteDuplicates If true any duplicate entity(share same entity id) will be skipped.
      * @return a list with all tge user item for the adapter.*/
     public List<E> makeList(List<BUser> users, boolean withHeaders, boolean deleteDuplicates){
-        if (DEBUG) Timber.v("makeList" + (withHeaders ? ", With Headers" : "") + (deleteDuplicates ? ", Delete duplicates." : "."));
+//        if (DEBUG) Log.v(TAG, "makeList" + (withHeaders?", With Headers" : "" )+ (deleteDuplicates? ", Delete duplicates." :".") );
         if (users == null)
             return new ArrayList<E>();
 
@@ -351,11 +320,13 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         for (BUser user : users){
 
             // Not showing users that has no name.
-            if (StringUtils.isEmpty(user.getName()))
+            if (StringUtils.isEmpty(user.getMetaName()))
                 continue;
 
             if (deleteDuplicates && entitiesID.contains(user.getEntityID()))
             {
+                Log.d(TAG, "SkippedUser Name: " + user.getMetaName());
+//                    if (DEBUG) Log.d(TAG, "EntityExist");
                 continue;
             }
 
@@ -395,6 +366,8 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
         {
+            if (DEBUG) Log.v(TAG, "filterItems, Empty Filter");
+            if (DEBUG) Log.d(TAG, "User items size: " + userItems.size() + ", ListData: " + listData.size());
             this.userItems = listData;
         }
         else
@@ -414,7 +387,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
 
         sortList(userItems);
 
-        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
+        if (DEBUG) Log.v(TAG, "filterItems, Filtered users amount: " + userItems.size());
 
         notifyDataSetChanged();
     }
@@ -530,9 +503,9 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
      * The maker also take care of making headers and converting a list of items to list with headers.
      * * * */
     protected interface UserListItemMaker<E extends ChatSDKAbstractUsersListAdapter.AbstractUserListItem> {
-        E fromBUser(BUser user);
-        E getHeader(String type);
-        List<E> getListWithHeaders(List<E> list);
+        public E fromBUser(BUser user);
+        public E getHeader(String type);
+        public List<E> getListWithHeaders(List<E> list);
     }
 
     public interface ProfilePicClickListener{

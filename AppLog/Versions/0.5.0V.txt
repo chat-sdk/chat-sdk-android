@@ -1,0 +1,27 @@
+##########################
+        V: 0.5.0
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Support loading images from hangouts, facebook etc... directories.
+# Better messages scrolling.
+# Ui Fixes.
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# DIDNT OCCUR FOR A LONG TIME - Parcelable protocol requires the CREATOR object to be static on class com.github.johnpersano.supertoasts.SuperCardToast$ReferenceHolder
+# DIDNT OCCUR FOR A LONG TIME - Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# DIDNT OCCUR FOR A LONG TIME - Facebook is not logged out sometimes, Maybe related to null get activity session - Now checking for null and we will see if it happens again.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app.
+
+
+

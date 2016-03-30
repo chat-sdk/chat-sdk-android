@@ -1,37 +1,22 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:34 PM
- */
-
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
-
-import android.support.annotation.IntDef;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
+/**
+ * Created by braunster on 30/06/14.
+ */
 public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListener {
 
     public static final int ValueEvent = 0;
     public static final int ChildEvent = 1;
 
-    @IntDef({ValueEvent, ChildEvent})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface EventType{}
-
-    private @EventType int type = -1;
-
+    private int type = -1;
     private boolean alive = true;
 
-    @EventType
     public int getType(){
         return type;
     }
@@ -48,7 +33,7 @@ public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListe
         return alive;
     }
 
-    public FirebaseGeneralEvent(@EventType int type){
+    public FirebaseGeneralEvent(int type){
         this.type = type;
     }
 

@@ -1,23 +1,21 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.dao.core;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BLinkData;
-import com.braunster.chatsdk.dao.BLinkDataDao;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.BUserDao;
 import com.braunster.chatsdk.dao.DaoMaster;
 import com.braunster.chatsdk.dao.DaoSession;
 import com.braunster.chatsdk.dao.entities.Entity;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +26,6 @@ import java.util.Random;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.async.AsyncSession;
 import de.greenrobot.dao.query.QueryBuilder;
-import timber.log.Timber;
 
 
 /**
@@ -46,8 +43,6 @@ public class DaoCore {
     private static Context context;
 
     private static DaoMaster.DevOpenHelper helper;
-
-    @SuppressWarnings("all")
     private static SQLiteDatabase db;
     public static DaoMaster daoMaster;
     public static DaoSession daoSession;
@@ -61,6 +56,7 @@ public class DaoCore {
     public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
 
     public static void init(Context ctx) {
+        if (DEBUG) Log.i(TAG, "Initialized");
         dbName = DB_NAME;
         context = ctx;
 
@@ -93,14 +89,48 @@ public class DaoCore {
 
 
     /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
-    public static <T extends Entity> T fetchEntityWithEntityID(Class<T> c, Object entityID){
+    public static <T extends Entity> T fetchEntityWithEntityID(Class c, Object entityID){
         return fetchEntityWithProperty(c, EntityID, entityID);
     }
 
+ /*   private static QueryBuilder<BUser> userWithAuthQuery = null;
+    private static String lastAuthID = "";*/
+    /** Fetch Buser object For given AuthenticationID, If more then one found the first will be returned.*/
+    public static BUser fetchUserWithAuthID(String authId){
+
+        /*if (!lastAuthID.equals(authId) || userWithAuthQuery == null)
+        {
+            lastAuthID = authId;*/
+        QueryBuilder<BUser> userWithAuthQuery = daoSession.queryBuilder(BUser.class);
+        userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
+//        }
+
+     /*   try {
+            return userWithAuthQuery.uniqueOrThrow();
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Not unique");
+        }*/
+
+//        lastAuthID = authId;
+        userWithAuthQuery = daoSession.queryBuilder(BUser.class);
+        userWithAuthQuery.where(BUserDao.Properties.AuthenticationId.eq(authId));
+
+        List<BUser> list = userWithAuthQuery.list();
+        if (list != null && list.size()>0)
+            return list.get(0) ;
+        else return null;
+    }
+
     /** Fetch an entity for given property and value. If more then one found the first will be returned.*/
-    public static <T extends Entity> T fetchEntityWithProperty(Class<T> c, Property property,Object value){
-        QueryBuilder<T> qb = daoSession.queryBuilder(c);
+    public static <T extends Entity> T fetchEntityWithProperty(Class c, Property property,Object value){
+        QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
+
+/*        try {
+            return (T) qb.uniqueOrThrow();
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Not unique");
+        }*/
 
         List<T> list = qb.list();
         if (list != null && list.size()>0)
@@ -108,7 +138,7 @@ public class DaoCore {
         else return null;
     }
 
-    public static <T extends Entity> T fetchEntityWithProperties(Class<T> c, Property properties[],Object... values){
+    public static <T extends Entity> T fetchEntityWithProperties(Class c, Property properties[],Object... values){
         List<T> list = fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
 
         if (list == null || list.size() == 0)
@@ -118,23 +148,23 @@ public class DaoCore {
     }
 
     /** Fetch a list of entities for a given property and value.*/
-    public static <T extends Entity> List<T> fetchEntitiesWithProperty(Class<T> c, Property property, Object value){
-        QueryBuilder<T> qb = daoSession.queryBuilder(c);
+    public static <T extends Entity> List<T> fetchEntitiesWithProperty(Class c, Property property, Object value){
+        QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
         return qb.list();
     }
 
     /** Fetch a list of entities for a given properties and values.*/
-    public static <T extends Entity> List<T> fetchEntitiesWithProperties(Class<T> c, Property properties[], Object... values){
+    public static <T extends Entity> List<T> fetchEntitiesWithProperties(Class c, Property properties[], Object... values){
         return fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
     }
 
     /** Fetch a list of entities for a given property and value. Entities are arrange by given order.*/
-    public static <T extends Entity> List<T> fetchEntitiesWithPropertyAndOrder(Class<T> c, Property whereOrder, int order, Property property, Object value){
+    public static <T extends Entity> List<T> fetchEntitiesWithPropertyAndOrder(Class c, Property whereOrder, int order, Property property, Object value){
         return fetchEntitiesWithPropertiesAndOrder(c, whereOrder, order, new Property[]{property}, value);
     }
 
-    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrder(Class<T> c, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrder(Class c, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -142,7 +172,7 @@ public class DaoCore {
         if (values.length != properties.length)
             throw new IllegalArgumentException("Values size should match properties size");
 
-        QueryBuilder<T> qb = daoSession.queryBuilder(c);
+        QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(properties[0].eq(values[0]));
 
         for (int i = 0 ; i < values.length ; i++)
@@ -163,7 +193,7 @@ public class DaoCore {
         return qb.list();
     }
 
-    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class<T> c, int limit, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T extends Entity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class c, int limit, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -171,7 +201,7 @@ public class DaoCore {
         if (values.length != properties.length)
             throw new IllegalArgumentException("Values size should match properties size");
 
-        QueryBuilder<T> qb = daoSession.queryBuilder(c);
+        QueryBuilder qb = daoSession.queryBuilder(c);
         qb.where(properties[0].eq(values[0]));
 
         if (values.length > 1)
@@ -196,10 +226,88 @@ public class DaoCore {
         return qb.listLazy();
     }
 
-    public static <T extends Entity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
-        if (DEBUG) Timber.v("fetchOrCreateEntityWithEntityID, EntityID: %s", entityId);
+    public static BUser fetchOrCreateUserWithEntityAndAutID(String entityId, String authenticationID){
+        if(DEBUG) Log.v(TAG, "fetchOrCreateUserWithEntityAndAutID, AuthID: " + authenticationID + ", EntityID: " + entityId);
 
-        T entity = fetchEntityWithEntityID(c, entityId);
+        List<BUser> users = null;
+
+        if (StringUtils.isNotEmpty(entityId )&& StringUtils.isNotEmpty(authenticationID)){
+
+            // Try fetching with auth id if can't try with entityID.
+            users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.AuthenticationId, authenticationID);
+            if ( users == null || users.size() == 0)
+                users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.EntityID, entityId);
+        }
+        else
+        {
+            if (entityId != null && !entityId.equals(""))
+            {
+                if (DEBUG) Log.d(TAG, "Fetching based on entityID");
+                users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.EntityID, entityId);
+            }
+            else if (authenticationID != null && !authenticationID.equals(""))
+            {
+                if (DEBUG) Log.d(TAG, "Fetching based on facebookID");
+                users = fetchEntitiesWithProperty(BUser.class, BUserDao.Properties.AuthenticationId, authenticationID);
+            }
+        }
+
+        BUser user = null;
+
+        if (DEBUG) Log.d(TAG, "fetchOrCreateUserWithEntityAndAutID, UsersAmount: " + (users != null ? users.size() : "No User Found."));
+
+        if (users == null || users.size() == 0)
+        {
+            if (DEBUG) Log.d(TAG, "creating new entity");
+            user = new BUser();
+            user.setEntityID(entityId);
+            user.setAuthenticationId(authenticationID);
+            createEntity(user);
+            return user;
+        }
+        // updating the entity with the given authId and EntityId
+        else
+        {
+            users.get(0).setEntityID(entityId);
+            users.get(0).setAuthenticationId(authenticationID);
+            updateEntity(users.get(0));
+            final List<BUser> finalUsers = users;
+            daoSession.runInTx(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 1; i < finalUsers.size(); i++)
+                    {
+                        DaoCore.deleteEntity(finalUsers.get(i));
+                    }
+                }
+            });
+        }
+
+        // It's possible that we could get multiple user records some registered
+        // with a Facebook ID and some with a Firebase ID so we'll merge the records here
+        return users.get(0);
+    }
+
+    public static BUser fetchOrCreateUserWithAuthenticationID(String authinticationID){
+        if (authinticationID == null)
+            return null;
+
+        BUser user = fetchUserWithAuthID(authinticationID);
+
+        if (user == null)
+        {
+            user = new BUser();
+            user.setAuthenticationId(authinticationID);
+            createEntity(user);
+        }
+
+        return user;
+    }
+
+    public static <T extends Entity> T fetchOrCreateEntityWithEntityID(Class c, String entityId){
+        if (DEBUG) Log.v(TAG, "fetchOrCreateEntityWithEntityID, EntityID: " + entityId);
+
+        Entity entity = fetchEntityWithEntityID(c, entityId);
 
         if (entity == null)
         {
@@ -210,7 +318,7 @@ public class DaoCore {
             entity = createEntity(entity);
         }
 
-        return entity;
+        return (T) entity;
     }
 
     /** Fetch an Entity for given property and class.
@@ -220,42 +328,41 @@ public class DaoCore {
      *
      * @return and object that Extends the Entity object.
      * The object will be created from the given class.*/
-
-
-    @SuppressWarnings("unchecked") private static <T extends Entity> T fetchOrCreateEntityWithProperty(Class<T> c, Property property, Object value){
-        if (DEBUG) Timber.v("fetchOrCreateEntityWithProperty, Value: %s", value);
-        T entity = fetchEntityWithProperty(c, property, value);
+    private static <T extends Entity> T fetchOrCreateEntityWithProperty(Class c, Property property, Object value){
+        if (DEBUG) Log.v(TAG, "fetchOrCreateEntityWithProperty, Value: " + value);
+        Entity entity = fetchEntityWithProperty(c, property, value);
 
         if (entity != null)
-            return entity;
+            return (T) entity;
 
         // Create the new entity.
-        Class<T> clazz = null;
-        T o = null;
+        Class<?> clazz = null;
+        Object o = null;
         try {
-            clazz = (Class<T>) Class.forName(c.getName());
-            Constructor<T> ctor =  clazz.getConstructor(c);
-            o = (T) ctor.newInstance();
+            clazz = Class.forName(c.getName());
+            Constructor<?> ctor = clazz.getConstructor();
+            o = ctor.newInstance();
         } catch (ClassNotFoundException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("ClassNotFoundException");
+            if (DEBUG) Log.e(TAG, "ClassNotFoundException");
         } catch (NoSuchMethodException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("NoSuchMethodException");
+            if (DEBUG) Log.e(TAG, "NoSuchMethodException");
         } catch (InvocationTargetException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InvocationTargetException");
+            if (DEBUG) Log.e(TAG, "InvocationTargetException");
         } catch (InstantiationException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InstantiationException");
+            if (DEBUG) Log.e(TAG, "InstantiationException");
         } catch (IllegalAccessException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("IllegalAccessException");
+            if (DEBUG) Log.e(TAG, "IllegalAccessException");
         }
 
         if (o != null)
         {
-            return createEntity(o);
+            if (DEBUG) Log.d(TAG, "Returning new entity");
+            return (T) createEntity((Entity) o);
         }
 
         return null;
@@ -263,10 +370,11 @@ public class DaoCore {
 
     /* Update, Create and Delete*/
     public static  <T extends Entity> T createEntity(T entity){
-        if (DEBUG) Timber.v("createEntity");
+        if (DEBUG) Log.v(TAG, "createEntity");
 
         if (entity == null)
         {
+            if (DEBUG) Log.e(TAG, "Entity is null");
             return null;
         }
 
@@ -278,14 +386,7 @@ public class DaoCore {
     }
 
     public static <T extends Entity> T deleteEntity(T entity){
-        if (DEBUG) Timber.v("deleteEntity");
-
-        if (entity == null)
-        {
-            if (DEBUG) Timber.e("Entity is null");
-            return null;
-        }
-
+        if (DEBUG) Log.v(TAG, "deleteEntity");
 
         if(DEBUG) printEntity(entity);
 
@@ -297,10 +398,10 @@ public class DaoCore {
     }
 
     public static <T extends Entity> T updateEntity(T entity){
-        if (DEBUG) Timber.v("updateEntity");
+        if (DEBUG) Log.v(TAG, "updateEntity");
 
         if (entity==null)
-            return null;
+            return entity;
 
         if (DEBUG) printEntity(entity);
 
@@ -309,50 +410,91 @@ public class DaoCore {
         return entity;
     }
 
+    /* Helpers */
     public static void printEntity(Entity entity){
+        if (!DEBUG)
+            return;
 
+        Log.v(TAG, "printEntity");
+
+        Log.i(TAG, "id:" + entity.getId());
+        Log.i(TAG, "Entity id:" + (entity.getEntityID() != null ? entity.getEntityID() : "null") );
+        Log.i(TAG, "Entity Class:" + entity.getClass());
+
+        try {
+            // Print user details.
+            if (entity.getClass().equals(BUser.class))
+            {
+                Log.i(TAG, "Auth ID: " + ((BUser) entity).getAuthenticationId());
+                Log.i(TAG, "Name: " + ((BUser) entity).getMetaName());
+                Log.i(TAG, "Online: " + ((BUser) entity).getOnline());
+                Log.i(TAG, "FontName: " + ((BUser) entity).getFontName());
+                Log.i(TAG, "FontSize: " + ((BUser) entity).getFontSize());
+                Log.i(TAG, "MessageColor: " + ((BUser) entity).getMessageColor());
+                Log.i(TAG, "TextColor: " + ((BUser) entity).getTextColor());
+            }
+            else if (entity.getClass().equals(BMetadata.class))
+            {
+                Log.i(TAG, "Owner ID: " + ((BMetadata) entity).getOwnerID());
+                Log.i(TAG, "Key: " + ((BMetadata) entity).getKey());
+                Log.i(TAG, "Value: " + ((BMetadata) entity).getValue());
+                Log.i(TAG, "Type: " + ((BMetadata) entity).getType());
+            }
+            else if (entity.getClass().equals(BThread.class))
+            {
+                Log.i(TAG, "Name: " + ((BThread) entity).getName());
+                Log.i(TAG, "Display Name: " + ((BThread) entity).displayName());
+                Log.i(TAG, "Creation Date: " + ((BThread)entity).getCreationDate().getTime());
+                Log.i(TAG, "Type: " + ( ((BThread) entity).getTypeSafely() == 1 ? "Public" : "Private"));
+                Log.i(TAG, "Messages Amount: " + ((BThread) entity).getMessages().size());
+            }
+            else if (entity.getClass().equals(BMessage.class))
+            {
+                Log.i(TAG, "Text: " + ((BMessage) entity).getText());
+                Log.i(TAG, "Thread id: " + ((BMessage) entity).getOwnerThread());
+                Log.i(TAG, "Sender id: " + ((BMessage) entity).getSender());
+                Log.i(TAG, "Thread Entity Id: " + ((BMessage) entity).getBThreadOwner().getEntityID());
+                Log.i(TAG, "Sender Entity Id: " + ((BMessage) entity).getBUserSender().getEntityID());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
     }
 
     public static void connectUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
+        if (DEBUG) Log.v(TAG, "connectUserAndThread, User ID: " + user.getId() + ", Name: " + user.getMetaName() + ", Thread ID: " + thread.getId());
         BLinkData linkData = new BLinkData();
-        linkData.setThreadId(thread.getId());
-        linkData.setUserId(user.getId());
+        linkData.setThreadID(thread.getId());
+        linkData.setUserID(user.getId());
         createEntity(linkData);
     }
 
-    public static void breakUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
-        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.ThreadId, BLinkDataDao.Properties.UserId}, thread.getId(), user.getId());
-        
-        DaoCore.deleteEntity(linkData);
-    }
-
-    @SuppressWarnings("unchecked") private static <T extends Entity> T getEntityForClass(Class<T> c){
+    private static Entity getEntityForClass(Class c){
         // Create the new entity.
-        Class<T> clazz = null;
-        T o = null;
+        Class<?> clazz = null;
+        Object o = null;
         try {
-            clazz = (Class<T>) Class.forName(c.getName());
-            Constructor<T> ctor = clazz.getConstructor();
+            clazz = Class.forName(c.getName());
+            Constructor<?> ctor = clazz.getConstructor();
             o = ctor.newInstance();
         } catch (ClassNotFoundException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("ClassNotFoundException");
+            if (DEBUG) Log.e(TAG, "ClassNotFoundException");
         } catch (NoSuchMethodException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("NoSuchMethodException");
+            if (DEBUG) Log.e(TAG, "NoSuchMethodException");
         } catch (InvocationTargetException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InvocationTargetException");
+            if (DEBUG) Log.e(TAG, "InvocationTargetException");
         } catch (InstantiationException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InstantiationException");
+            if (DEBUG) Log.e(TAG, "InstantiationException");
         } catch (IllegalAccessException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("IllegalAccessException");
+            if (DEBUG) Log.e(TAG, "IllegalAccessException");
         }
 
-        return o;
+        return (Entity) o;
     }
 }

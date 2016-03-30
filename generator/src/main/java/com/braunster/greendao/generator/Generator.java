@@ -12,23 +12,25 @@ import de.greenrobot.daogenerator.ToOne;
  */
 public class Generator {
 
+    // TODO set not null attribute to the properties that needs it.
     private static String outputDir = "../sdk/src/main/java";
 
-    private static Entity user, linkedAccount, thread, message, threadUsers, userConnection, installation;
+    private static Entity user, linkedAccount, thread, message, threadUsers, linkedContact, metaData, follower;
 
     public static void main(String args[]) throws Exception{
 //        System.out.print("Generating... " + args[0].toString());
-        Schema schema = new Schema(52,"com.braunster.chatsdk.dao");
+        Schema schema = new Schema(42,"com.braunster.chatsdk.dao");
 
         schema.enableKeepSectionsByDefault();
 
         addUser(schema);
         addLinkedAccounts(schema);
         addLinkedContact(schema);
+        addMetaData(schema);
         addMessages(schema);
         addThread(schema);
         addThreadUsers(schema);
-        addInstallation(schema);
+        addFollower(schema);
 
         setProperties();
 
@@ -43,31 +45,49 @@ public class Generator {
         user = schema.addEntity(EntityProperties.BUser);
         user.addIdProperty();
         user.addStringProperty(EntityProperties.EntityID);
+        user.addStringProperty(EntityProperties.AuthenticationID);
+        user.addIntProperty(EntityProperties.AuthenticationType);
         user.addStringProperty(EntityProperties.MessageColor);
+        user.addBooleanProperty(EntityProperties.Dirty);
+        user.addStringProperty(EntityProperties.Name);
+        user.addDateProperty(EntityProperties.LastOnline);
+        user.addDateProperty(EntityProperties.LastUpdated);
         user.addBooleanProperty(EntityProperties.Online);
-        user.addStringProperty(EntityProperties.MetaData).columnName(EntityProperties.MetaData.toLowerCase());
+        user.addIntProperty(EntityProperties.FontSize);
+        user.addStringProperty(EntityProperties.FontName);
+        user.addStringProperty(EntityProperties.TextColor);
     }
 
     private static void addLinkedAccounts(Schema schema) {
-        linkedAccount = schema.addEntity(EntityProperties.BUserAccount);
+        linkedAccount = schema.addEntity(EntityProperties.BLinkedAccount);
         linkedAccount.addIdProperty();
         linkedAccount.addStringProperty(EntityProperties.Token);
         linkedAccount.addIntProperty(EntityProperties.Type);
     }
 
-
-    private static void addInstallation(Schema schema) {
-        installation = schema.addEntity(EntityProperties.BInstallation);
-        installation.addIdProperty();
-        installation.addStringProperty(EntityProperties.ApiKey).columnName(EntityProperties.C_ApiKey);
-        installation.addStringProperty(EntityProperties.RootPath).columnName(EntityProperties.C_RootPath);
+    private static void addLinkedContact(Schema schema) {
+        linkedContact = schema.addEntity(EntityProperties.BLinkedContact);
+        linkedContact.addIdProperty();
+        linkedContact.addStringProperty(EntityProperties.EntityID);
+        linkedContact.addStringProperty(EntityProperties.AuthenticationID);
     }
 
-    private static void addLinkedContact(Schema schema) {
-        userConnection = schema.addEntity(EntityProperties.BUserConnection);
-        userConnection.addIdProperty();
-        userConnection.addStringProperty(EntityProperties.EntityID);
-        userConnection.addIntProperty(EntityProperties.Type);
+    private static void addFollower(Schema schema) {
+        follower = schema.addEntity(EntityProperties.BFollower);
+        follower.addIdProperty();
+        follower.addStringProperty(EntityProperties.EntityID);
+        follower.addIntProperty(EntityProperties.Type);
+    }
+
+    private static void addMetaData(Schema schema) {
+        metaData = schema.addEntity(EntityProperties.BMetaData);
+        metaData.addIdProperty();
+        metaData.addStringProperty(EntityProperties.EntityID);
+        metaData.addStringProperty(EntityProperties.AuthenticationID);
+        metaData.addBooleanProperty(EntityProperties.Dirty);
+        metaData.addIntProperty(EntityProperties.Type);
+        metaData.addStringProperty(EntityProperties.Key);
+        metaData.addStringProperty(EntityProperties.Value);
     }
 
     private static void addThread(Schema schema) {
@@ -75,15 +95,14 @@ public class Generator {
         thread.addIdProperty();
         thread.addStringProperty(EntityProperties.EntityID);
         thread.addDateProperty(EntityProperties.CreationDate);
+        thread.addBooleanProperty(EntityProperties.Dirty);
+        thread.addBooleanProperty(EntityProperties.HasUnreadMessaged);
         thread.addBooleanProperty(EntityProperties.BDeleted);
         thread.addStringProperty(EntityProperties.Name);
+        thread.addDateProperty(EntityProperties.LastMessageAdded);
+        thread.addIntProperty(EntityProperties.Type);
         thread.addStringProperty(EntityProperties.CreatorEntityID);
-
-        thread.addStringProperty(EntityProperties.Type);
-        thread.addBooleanProperty(EntityProperties.UserCreated);
-        thread.addBooleanProperty(EntityProperties.InvitesEnabled);
-        thread.addStringProperty(EntityProperties.Description);
-        thread.addIntProperty(EntityProperties.Weight);
+        thread.addStringProperty(EntityProperties.BThreadImageUrl);
     }
 
     private static void addThreadUsers(Schema schema){
@@ -96,62 +115,50 @@ public class Generator {
         message.addIdProperty();
         message.addStringProperty(EntityProperties.EntityID);
         message.addDateProperty(EntityProperties.Date);
+        message.addBooleanProperty(EntityProperties.Dirty);
         message.addBooleanProperty(EntityProperties.isRead);
+        message.addStringProperty(EntityProperties.Resource);
         message.addStringProperty(EntityProperties.ResourcePath);
         message.addStringProperty(EntityProperties.Text);
-        message.addStringProperty(EntityProperties.ImageDimensions);
         message.addIntProperty(EntityProperties.Type);
-        message.addIntProperty(EntityProperties.Delivered);
+        message.addIntProperty(EntityProperties.Status);
     }
     //endregion
 
     private static void setProperties(){
+        Property userPropOwner = follower.addLongProperty(EntityProperties.OwnerId).getProperty();
+        ToOne toOneUserPropOwner = follower.addToOne(user, userPropOwner);
+        toOneUserPropOwner.setName(EntityProperties.Owner);
 
-        // Adding a link between user connection and the user
-        Property userProp = userConnection.addLongProperty(EntityProperties.OwnerId).getProperty();
-        ToOne toOneUserProp = userConnection.addToOne(user, userProp);
-        toOneUserProp.setName(EntityProperties.Owner);
+        Property userPropUser = follower.addLongProperty(EntityProperties.BUserId).getProperty();
+        ToOne toOneUserPropUser = follower.addToOne(user, userPropUser);
+        toOneUserPropUser.setName(EntityProperties.User);
 
-        // Adding a link between user account and the user.
+        // LinkedContact, LinkedAccount and MetaData - START
+        Property userProp = linkedContact.addLongProperty(EntityProperties.Owner).getProperty();
+        ToOne toOneUserProp = linkedContact.addToOne(user, userProp);
+        toOneUserProp.setName("Contact");
+
         Property userProp2 = linkedAccount.addLongProperty(EntityProperties.User).getProperty();
         linkedAccount.addToOne(user, userProp2);
 
-        // Adding a link between user and installation
-        Property installationIdUser = user.addLongProperty(EntityProperties.InstallationId).getProperty();
-        ToOne installationToOneUser = user.addToOne(installation, installationIdUser);
-        installationToOneUser.setName(EntityProperties.Installation);
+        Property userProp3 = metaData.addLongProperty(EntityProperties.Owner_ID).getProperty();
+        ToOne one5 = metaData.addToOne(user, userProp3);
+        one5.setName(EntityProperties.Owner);
 
-        // Adding link between thread and installation
-        Property installationIdThread = thread.addLongProperty(EntityProperties.InstallationId).getProperty();
-        ToOne installationToOneThread = thread.addToOne(installation, installationIdThread);
-        installationToOneThread.setName(EntityProperties.Installation);
-
-        // Adding a link between installation and user
-        ToMany usersToInstallation = installation.addToMany(user, installationIdUser);
-        usersToInstallation.setName(EntityProperties.Users);
-
-        // Adding a link between installation and thread
-        ToMany threadsToInstallation = installation.addToMany(thread, installationIdThread);
-        threadsToInstallation.setName(EntityProperties.Threads);
-
-        // Adding a link to the thread
-        Property threadIDProp = message.addLongProperty(EntityProperties.ThreadId).getProperty();
+        // Add a thread owner to the message
+        Property threadIDProp = message.addLongProperty("OwnerThread").getProperty();
         ToOne one1 = message.addToOne(thread, threadIDProp);
-        one1.setName(EntityProperties.Thread);
+        one1.setName("BThreadOwner");
 
-        // Adding a link to the message sender
-        Property senderIDProp = message.addLongProperty(EntityProperties.SenderId).getProperty();
+        // The sender ID
+        Property senderIDProp = message.addLongProperty("Sender").getProperty();
         ToOne one = message.addToOne(user, senderIDProp);
-        one.setName(EntityProperties.Sender);
-
-
-
-
-
+        one.setName("BUserSender");
 
         // Link data for user and thread.
-        Property userIdProp = threadUsers.addLongProperty(EntityProperties.UserId).getProperty();
-        Property threadIdProp = threadUsers.addLongProperty(EntityProperties.ThreadId).getProperty();
+        Property userIdProp = threadUsers.addLongProperty("UserID").getProperty();
+        Property threadIdProp = threadUsers.addLongProperty("ThreadID").getProperty();
         threadUsers.addToOne(user, userIdProp);
         threadUsers.addToOne(thread, threadIdProp);
         //LinkedContact, LinkedAccount and MetaData - END
@@ -169,12 +176,17 @@ public class Generator {
         // Threads - END
 
 //      // Users - START
-        ToMany contacts = user.addToMany(userConnection, userProp);
+        ToMany contacts = user.addToMany(linkedContact, userProp);
         contacts.setName(EntityProperties.BLinkedContacts);
 
+        ToMany followers = user.addToMany(follower, userProp);
+        followers.setName(EntityProperties.BFollowers);
 
         ToMany accounts = user.addToMany(linkedAccount, userProp2);
         accounts.setName(EntityProperties.BLinkedAccounts);
+
+        ToMany metadata = user.addToMany(metaData, userProp3);
+        metadata.setName(EntityProperties.MetaData);
 
         ToMany messagesForUser = user.addToMany(message, senderIDProp);
         messagesForUser.setName(EntityProperties.Messages);
@@ -185,6 +197,7 @@ public class Generator {
         ToMany linkToThread = user.addToMany(threadUsers, userIdProp);
         linkToThread.setName(EntityProperties.BLinkData);
 //        // Users - END
+
     }
 
     private static void setKeepSection(){
@@ -195,8 +208,10 @@ public class Generator {
         user.setSuperclass("BUserEntity");
         message.setSuperclass("BMessageEntity");
         thread.setSuperclass("BThreadEntity");
-        linkedAccount.setSuperclass("BUserAccountEntity");
-        userConnection.setSuperclass("Entity");
+        linkedAccount.setSuperclass("BLinkedAccountEntity");
+        linkedContact.setSuperclass("Entity");
+        metaData.setSuperclass("BMetadataEntity");
         threadUsers.setSuperclass("Entity");
+        follower.setSuperclass("BFollowerEntity");
     }
 }

@@ -1,17 +1,7 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.dao.entities;
 
 import android.graphics.Color;
-import android.support.annotation.IntDef;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Random;
 
 /**
@@ -19,24 +9,21 @@ import java.util.Random;
  */
 public abstract class BMessageEntity extends Entity {
 
-    @IntDef({Type.TEXT, Type.IMAGE, Type.LOCATION})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface MessageType{}
-    
     public static final class Type{
         public static final int TEXT = 0, IMAGE = 2, LOCATION = 1;
     }
 
-    public static final class Delivered{
-        public static final int Yes = 0, No= 1;
+    public static final class Status{
+        public static final int NULL = 0, SENDING = 1, SENT = 2, SENT_FAILED = 3;
     }
 
-    public abstract void setType(@MessageType Integer type);
-    
-    @MessageType
-    public abstract Integer getType();
-    
     public abstract String color();
+
+    public abstract String textColor();
+
+    public abstract int fontSize();
+
+    public abstract String fontName();
 
     public static String colorToString(int color){
         return Integer.toHexString(color);
@@ -81,4 +68,39 @@ public abstract class BMessageEntity extends Entity {
         return 0;
     }
 
+    /*-(float) getTextHeightWithFont: (UIFont *) font withWidth: (float) width {
+        return [self.text sizeWithFont:font constrainedToSize:CGSizeMake(width, 999999)].height;
+    }
+
+    +(NSString *) colorToString: (UIColor *) color {
+        return [CIColor colorWithCGColor:color.CGColor].stringRepresentation;
+    }
+
+    +(UIColor *) stringToColor: (NSString *) color {
+        return [UIColor colorWithCIColor:[CIColor colorWithString:color]];
+    }*/
+    /*-(UIImage *) thumbnail {
+        if (self.type.intValue != bMessageTypeImage) {
+            return Nil;
+        }
+
+        UIImage * thumbnail = objc_getAssociatedObject(self, bThumbnailKey);
+        if(!thumbnail) {
+            UIImage * image = [self textAsImage];
+            thumbnail = [image resizedImage:CGSizeMake(bMaxMessageWidth, bMaxMessageWidth * image.size.height / image.size.width)
+            interpolationQuality:kCGInterpolationHigh];
+            objc_setAssociatedObject(self, bThumbnailKey, thumbnail, OBJC_ASSOCIATION_RETAIN);
+        }
+        return thumbnail;
+    }*/
+/*
+    (UIFont *) fontWithName: (NSString *) name size: (float) size {
+        if ([name isEqualToString:bSystemFont]) {
+            return [UIFont systemFontOfSize:size];
+        }
+        else {
+            return [UIFont fontWithName:name size:size];
+        }
+    }
+*/
 }

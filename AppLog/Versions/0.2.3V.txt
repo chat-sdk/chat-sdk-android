@@ -1,0 +1,28 @@
+#########################
+        V: 0.2.3
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Login screen UI upgrade.
+# Logout button for firebase.
+# better control of thread adding.
+# option to see thread users and see all contacts from chat activity.
+
+##########################
+        BUG FIX
+--------------------------
+# Public thread appear in private thread list.
+# Keyboard hides edit text in profile fragment.
+# Thread listening problem.
+
+##########################
+        BUG REPORT
+--------------------------
+# Some time images cause the db to break.
+# When adding  a public thread the user details change and we load and refresh all users.
+# User is not set to offline after logout.
+# Messages listener does not get removed by the event manager.
+# Cancel login to facebook option.
+##########################

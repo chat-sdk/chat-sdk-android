@@ -1,22 +1,18 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
@@ -26,16 +22,12 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -53,8 +45,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     private ListView listContacts;
     private ChatSDKUsersListAdapter listAdapter;
     private Button btnStartChat;
-//    private TextView txtSearch;
-//    private ImageView imgSearch;
+    private TextView txtSearch;
+    private ImageView imgSearch;
     private CheckBox chSelectAll;
 
     /** Default value - MODE_NEW_CONVERSATION*/
@@ -125,8 +117,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
     private void initViews() {
         listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
-//        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
-//        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
+        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
+        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
 
@@ -141,7 +133,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     }
 
     private void initList(){
-        final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().friends();
+        final List<BUser> list = BNetworkManager.sharedManager().getNetworkAdapter().currentUser().getContacts();
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
@@ -165,7 +157,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                     listAdapter.toggleSelection(position);
                 else
                 {
-                    createAndOpenThreadWithUsers("", getNetworkAdapter().currentUserModel(), listAdapter.getItem(position).asBUser());
+                    createAndOpenThreadWithUsers("", getNetworkAdapter().currentUser(), listAdapter.getItem(position).asBUser());
                 }
             }
         });
@@ -185,6 +177,8 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         btnStartChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (DEBUG) Log.d(TAG, "selected count: " + listAdapter.getSelectedCount());
 
                 if (listAdapter.getSelectedCount() == 0)
                 {
@@ -219,67 +213,69 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                             users[i] = listAdapter.getUserItems().get(pos).asBUser();
 
-                            if (DEBUG) Timber.d("Selected User[%s]: ", users[i].getName());
+                            Log.d(TAG, "Selected User[" + i + "]: " + users[i].getMetaName());
 
                         }
 
                         if (mode == MODE_NEW_CONVERSATION)
                         {
-                            users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+                            users[users.length - 1] = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
                             createAndOpenThreadWithUsers("", users);
-                            
-                            chSelectAll.setSelected(false);
                         }
                         else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                            getNetworkAdapter().addUsersToThread(thread, users)
-                                    .done(new DoneCallback<BThread>() {
+                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, BError>() {
+                                @Override
+                                public boolean onItem(BUser user) {
+                                    return false;
+                                }
+
+                                @Override
+                                public void onDone() {
+                                    ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
                                         @Override
-                                        public void onDone(BThread thread) {
-                                            ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
+                                        public void run() {
 
-                                                    setResult(Activity.RESULT_OK);
+                                            setResult(Activity.RESULT_OK);
 
-                                                    dismissProgDialog();
+                                            dismissProgDialog();
 
-                                                    finish();
+                                            finish();
 
-                                                    if (animateExit)
-                                                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .fail(new FailCallback<BError>() {
-                                        @Override
-                                        public void onFail(BError error) {
-                                            ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    dismissProgDialog();
-                                                    setResult(Activity.RESULT_CANCELED);
-                                                    finish();
-                                                }
-                                            });
+                                            if (animateExit)
+                                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
                                         }
                                     });
+                                }
+
+                                @Override
+                                public void onItemError(BUser user, BError o) {
+                                    ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dismissProgDialog();
+                                            setResult(Activity.RESULT_CANCELED);
+                                            finish();
+                                        }
+                                    });
+
+                                }
+                            }, users );
                         }
                     }
                 }).start();
             }
         });
 
-//        View.OnClickListener searchClickListener = new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                chatSDKUiHelper.startSearchActivity();
-//            }
-//        };
+        View.OnClickListener searchClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chatSDKUiHelper.startSearchActivity();
+            }
+        };
 
-//        txtSearch.setOnClickListener(searchClickListener);
-//        imgSearch.setOnClickListener(searchClickListener);
+        txtSearch.setOnClickListener(searchClickListener);
+        imgSearch.setOnClickListener(searchClickListener);
 
 
         chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

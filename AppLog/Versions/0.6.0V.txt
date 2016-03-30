@@ -1,0 +1,35 @@
+##########################
+        V: 0.6.0
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Option to crop user profile image.
+# Better support for manipulating Activities and Fragments, Work in progress.
+# Naming of activities and fragment so they wont confuse developers.
+# UiHelper created so developer could replace activities and the system will use his instead of SDK defaults.
+  Class contains Main, Login, Chat, Search, Location, PickFriend, Share with friend. Work in progress.
+  Some activity for result use default for now until i will abstract there patent activities.
+# App Structure fixes.
+# Exit helper added to help implementing a double tap on back pressed or showing a dialog when user tries to exit the main activity.
+# Ui Helpers added to the SDK for easier creation of screen that use SDK tools, i.e Chat helper for sending messages and handling the list movement, Profile helper for stuff realted to user profile.
+# Some editable parts was added to the messages list adapter.
+# Added is read indicator to message object. ThreadAdapter adapt to that to show how much messags was unread in this thead.
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# DIDNT OCCUR FOR A LONG TIME - Parcelable protocol requires the CREATOR object to be static on class com.github.johnpersano.supertoasts.SuperCardToast$ReferenceHolder
+# DIDNT OCCUR FOR A LONG TIME - Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# DIDNT OCCUR FOR A LONG TIME - Facebook is not logged out sometimes, Maybe related to null get activity session - Now checking for null and we will see if it happens again.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app.
+
+
+

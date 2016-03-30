@@ -1,15 +1,9 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,13 +21,10 @@ import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.BUserConnection;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
-
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +65,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
 
-        if (getActionBar() != null)
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
 
     }
 
@@ -137,7 +127,93 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
             }
         });
 
-        btnSearch.setOnClickListener(searchOnClickListener);
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (etInput.getText().toString().isEmpty())
+                {
+                    showAlertToast(getString(R.string.search_activity_no_text_input_toast));
+                    return;
+                }
+
+                final ProgressDialog dialog = new ProgressDialog(ChatSDKSearchActivity.this);
+                dialog.setMessage(getString(R.string.search_activity_prog_dialog_init_message));
+                dialog.show();
+
+                adapter.clear();
+
+                BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BName, etInput.getText().toString(), new RepetitiveCompletionListener<BUser>() {
+                    private int usersFoundCount = 0;
+                    private List<String> userIds = new ArrayList<String>();
+
+                    @Override
+                    public boolean onItem(BUser item) {
+                        if (DEBUG) Log.d(TAG, "User found name: " + item.getMetaName());
+                        usersFoundCount++;
+                        dialog.setMessage(getString(R.string.search_activity_prog_dialog_before_count_message) + usersFoundCount);
+
+                        adapter.addRow(item);
+
+                        if (action.equals(ACTION_ADD_WHEN_FOUND))
+                        {
+                            BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(item);
+                            userIds.add(item.getEntityID());
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void onDone() {
+                        dialog.dismiss();
+
+                        if (usersFoundCount == 0)
+                        {
+                            showAlertToast(getString(R.string.search_activity_no_user_found_toast));
+                            chSelectAll.setEnabled(false);
+                            return;
+                        }
+
+                        chSelectAll.setEnabled(true);
+
+                        if (action.equals(ACTION_ADD_WHEN_FOUND))
+                        {
+
+                            Intent resultIntent = new Intent();
+                            if (usersFoundCount == 0)
+                            {
+                                setResult(RESULT_CANCELED, resultIntent);
+                                finish();
+                            }
+
+                            String ids[] = userIds.toArray(new String[userIds.size()]);
+                            Bundle extras = new Bundle();
+                            extras.putStringArray(USER_IDS_LIST, ids);
+                            resultIntent.putExtras(extras);
+                            setResult(RESULT_OK, resultIntent);
+                            finish();
+                        }
+
+                        hideSoftKeyboard(ChatSDKSearchActivity.this);
+                    }
+
+                    @Override
+                    public void onItemError(BError object) {
+                        onDone();
+                    }
+                });
+            }
+        });
+
+/*        listResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Adding the picked user as a contact to the current user.
+                BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(adapter.getItem(position).asBUser());
+                createThreadWithUsers(adapter.getItem(position).getText(),
+                        BNetworkManager.sharedManager().getNetworkAdapter().currentUser(), adapter.getItem(position).asBUser());
+            }
+        });*/
 
         btnAddContacts.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,7 +228,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                     return;
                 }
 
-                BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+                BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
                 String[] entitiesIDs = new String[adapter.getSelectedCount()];
                 BUser user;
                 for (int i = 0; i < adapter.getSelectedCount(); i++) {
@@ -161,7 +237,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                         pos = adapter.getSelectedUsersPositions().keyAt(i);
 
                     user = adapter.getUserItems().get(pos).asBUser();
-                    currentUser.connectUser(user, BUserConnection.Type.Friend);
+                    currentUser.addContact(user);
                     entitiesIDs[i] = user.getEntityID();
                 }
 
@@ -184,77 +260,4 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
             }
         });
     }
-    
-    private View.OnClickListener searchOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (etInput.getText().toString().isEmpty())
-            {
-                showAlertToast(getString(R.string.search_activity_no_text_input_toast));
-                return;
-            }
-
-            final ProgressDialog dialog = new ProgressDialog(ChatSDKSearchActivity.this);
-            dialog.setMessage(getString(R.string.search_activity_prog_dialog_init_message));
-            dialog.show();
-
-            adapter.clear();
-
-            final List<String> userIds = new ArrayList<String>();
-
-            BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BName, etInput.getText().toString())
-                    
-                    .done(new DoneCallback<List<BUser>>() {
-                        @Override
-                        public void onDone(List<BUser> users) {
-                            dialog.dismiss();
-
-                            if (users.size() == 0)
-                            {
-                                showAlertToast(getString(R.string.search_activity_no_user_found_toast));
-                                return;
-                            }
-                            
-                            if (action.equals(ACTION_ADD_WHEN_FOUND)) {
-                                
-                                for (BUser u : users){
-//                                    BNetworkManager.sharedManager().getNetworkAdapter().addFriends(u);
-                                    userIds.add(u.getEntityID());
-                                }
-
-                                Intent resultIntent = new Intent();
-
-                                String ids[] = userIds.toArray(new String[userIds.size()]);
-                                Bundle extras = new Bundle();
-                                extras.putStringArray(USER_IDS_LIST, ids);
-                                resultIntent.putExtras(extras);
-                                setResult(RESULT_OK, resultIntent);
-                                finish();
-                            }
-                            
-                            else adapter.setBUserItems(users, true);
-
-                            chSelectAll.setEnabled(true);
-
-                            hideSoftKeyboard(ChatSDKSearchActivity.this);
-                        }
-                    })
-                    .fail(new FailCallback<BError>() {
-                        @Override
-                        public void onFail(BError bError) {
-                            if (bError.code == BError.Code.NO_USER_FOUND) {
-                                showAlertToast(getString(R.string.search_activity_no_user_found_toast));
-                                dialog.dismiss();
-                                
-                                chSelectAll.setEnabled(false);
-
-                                if (action.equals(ACTION_ADD_WHEN_FOUND)) {
-                                    setResult(RESULT_CANCELED, new Intent());
-                                    finish();
-                                }
-                            }
-                        }
-                    });
-        }
-    };
 }

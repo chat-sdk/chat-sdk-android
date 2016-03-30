@@ -1,0 +1,47 @@
+##########################
+        V: 0.2.4
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# More flex design of the profile and login screen so it would look ok on small screen size - Not 100% tested!
+# Deleting threads.
+# A workaround is added so even if the listener from ref is not removed the event manager wont be triggered.
+  Also the added data wont be parsed.
+# Another design for contacts list, Not expandable, but a list with headers.
+# Delete contact - Deleting the contact dosent delete the thread with that contact.
+  If user send message to this former contact he will be added again to the contact list. - Not 100% tested!
+# New Icons for profile fragment.
+# New icons for the tab page adapter.
+# Profile picture is now saved as a file to parse and the url is saved in the metadata.
+# Volley image loading for the user profile pic in the profile fragment and in the adapters.
+# Auto auth for firebase.
+##########################
+        BUG FIX
+--------------------------
+# User is not set to offline after logout.
+# UI in Login screen on small is not good.
+# catching details change with onClick not always working. - Using TextWatcher to get text changes
+# Messages listener does not get removed by the event manager. - A workaround is made
+# MERGED  Some time images cause the db to break. out of memory error while decoding picture from file in profile fragment. - With high quality pictures.
+# Removing an index can some time remove the wrong index.
+# Chat activity opens twice when notification is pressed.
+# chat activity is not always updated when app is paused.
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# Some old messages create notification when entering the app.
+# Event manager listen to current user details change.
+-----------OLD------------
+# When adding  a public thread the user details change and we load and refresh all users.
+# Cancel login to facebook after login process already started option.
+
+##########################
+          ISSUE
+--------------------------
+# Cache images from thread and contacts so decoding from Base64 wont be slow.
+# Should user details have their own path so it wont be called for added thread and stuff like that.
+# Listeners not always removed. For now there is a workaround that solve that.
+# Push notification received for wrong user due to multiple connection to more then one user on the same device.

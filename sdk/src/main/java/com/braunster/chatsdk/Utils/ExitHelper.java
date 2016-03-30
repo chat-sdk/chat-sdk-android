@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
@@ -19,6 +12,8 @@ import com.github.johnpersano.supertoasts.SuperToast;
 import java.util.concurrent.Callable;
 
 /**
+ * Created by braunster on 10/09/14.
+ *
  * Helper to create special exit to your app.
  * See {@link com.braunster.chatsdk.network.BDefines.Exit} for setting the app exit action.
  *

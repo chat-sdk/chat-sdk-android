@@ -1,0 +1,28 @@
+##########################
+        V: 0.4.3
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+
+##########################
+        BUG FIX
+--------------------------
+# Loaction activity now shows current position.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# Parcelable protocol requires the CREATOR object to be static on class com.github.johnpersano.supertoasts.SuperCardToast$ReferenceHolder
+# User does not auto login in the next session after registering to app, The user is not authenticated.
+# Catch user close facebook dialog and not show toast indicating that we failed to connect to fb.
+# Facebook is not logged out sometimes, Maybe related to null get activity session - Now checking for null and we will see if it happens again.
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app.
+
+
+

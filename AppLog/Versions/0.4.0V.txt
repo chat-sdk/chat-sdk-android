@@ -1,0 +1,36 @@
+##########################
+        V: 0.4.0
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Better listview scrolling
+# Design fixes from assembla
+# multiline message supported
+# Sending image/location indicator changed.
+# Contact Headers inside the list is now diabled form clicks and not showing highlight.
+# Keyboard is not dismissed in the chat activity when scrolling or flinging.
+# Image message loading indicator is now on top of the bubble background.
+# Messages now appear on top even if all messages dosent fill the screen.
+# Message adapter upgrade.
+
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# Parcelable protocol requires the CREATOR object to be static on class com.github.johnpersano.supertoasts.SuperCardToast$ReferenceHolder
+-----------OLD------------
+# User does not auto login in the next session after registering to app, The user is not authenticated.
+# Catch user close facebook dialog and not show toast indicating that we failed to connect to fb.
+# Facebook is not logged out sometimes, Maybe related to null get activity session - Now checking for null and we will see if it happens again.
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

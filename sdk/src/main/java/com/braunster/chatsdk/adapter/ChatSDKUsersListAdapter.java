@@ -1,14 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,15 +16,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * Created by itzik on 6/16/2014.
  */
 public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<ChatSDKAbstractUsersListAdapter.AbstractUserListItem> {
 
     private static final String TAG = ChatSDKUsersListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = Debug.ChatSDKAbstractUsersListAdapter;
+    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
 
     public ChatSDKUsersListAdapter(Activity activity) {
         super(activity);
@@ -87,20 +79,20 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
             {
                 int size = holder.profilePicture.getHeight();
 
-                if (userItem.getPictureThumbnailURL() != null )
+                if (userItem.pictureThumbnailURL != null )
                 {
                     if (holder.profilePicLoader!=null)
                         holder.profilePicLoader.kill();
 
                     holder.profilePicLoader = new ProfilePicLoader(holder.profilePicture);
 
-                    VolleyUtils.getImageLoader().get(userItem.getPictureThumbnailURL(), holder.profilePicLoader, size, size);
+                    VolleyUtils.getImageLoader().get(userItem.pictureThumbnailURL, holder.profilePicLoader, size, size);
                 }
                 else holder.profilePicture.setImageResource(R.drawable.ic_profile);
             }
             else
             {
-                if (DEBUG) Timber.i("Loading profile picture from the db");
+                if (DEBUG) Log.i(TAG, "Loading profile picture from the db");
 
                 Bitmap bitmap = userItems.get(position).getPicture();
                 if (bitmap != null)
@@ -132,13 +124,11 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
         itemMaker = new UserListItemMaker<AbstractUserListItem>() {
             @Override
             public AbstractUserListItem fromBUser(BUser user) {
-                return  new AbstractUserListItem(
-                        user.getId(),
-                        R.layout.chat_sdk_row_contact,
+                return  new AbstractUserListItem(R.layout.chat_sdk_row_contact,
                         user.getEntityID(),
-                        user.getName(),
-                        user.getPictureThumbnail(),
-                        user.getPictureUrl(),
+                        user.getMetaName(),
+                        user.getThumbnailPictureURL(),
+                        user.getMetaPictureUrl(),
                         TYPE_USER,
                         user.getOnline() == null ? false : user.getOnline());
             }
@@ -161,7 +151,7 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
                 sortList(offlineUsers);
 
                 for (AbstractUserListItem user: list){
-                    if (user.isOnline()) {
+                    if (user.online) {
                         onlineUsers.add(user);
                     }
                     else offlineUsers.add(user);
@@ -169,20 +159,24 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
 
                 if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
                 {
-                    listData.add(getHeader(mActivity.getString(R.string.chat_sdk_no_friends_header)));
-                    return listData;
+                    listData.add(getHeader(H_NO_CONTACTS));
                 }
-
-                if (onlineUsers.size() > 0){
-                    listData.add(getHeader(getHeaderWithSize(mActivity.getString(R.string.chat_sdk_online_header), onlineUsers.size())));
-                    listData.addAll(onlineUsers);
-                }
-
-                if (offlineUsers.size() > 0){
-                    listData.add(getHeader(getHeaderWithSize(mActivity.getString(R.string.chat_sdk_offline_header), offlineUsers.size())));
+                else if (onlineUsers.size() == 0){
+                    listData.add(getHeader(H_NO_ONLINE));
+                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
                     listData.addAll(offlineUsers);
                 }
-
+                else if (offlineUsers.size() == 0){
+                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                    listData.addAll(onlineUsers);
+                    listData.add(getHeader(H_NO_OFFLINE));
+                }
+                else {
+                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
+                    listData.addAll(onlineUsers);
+                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
+                    listData.addAll(offlineUsers);
+                }
 
                 return listData;
             }

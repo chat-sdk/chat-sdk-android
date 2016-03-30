@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.view;
 
 import android.content.Context;
@@ -20,34 +13,38 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.ref.WeakReference;
 
-import timber.log.Timber;
 
+/**
+ * Created by braunster on 04/07/14.
+ */
 public class ChatBubbleImageView extends ImageView /*implements View.OnTouchListener */{
 
+
+    public static final String TAG = ChatBubbleImageView.class.getSimpleName();
     public static final boolean DEBUG = Debug.ChatBubbleImageView;
 
     private WeakReference<Bitmap>image;
 
     private Loader loader = new Loader();
     private LoadDone loadDone ;
+
+    /** The max size that we would use for the image.*/
+    public final float MAX_WIDTH = 200 * getResources().getDisplayMetrics().density;
 
     /** The size in pixels of the chat bubble point. i.e the the start of the bubble.*/
     private float tipSize = 4.2f * getResources().getDisplayMetrics().density;
@@ -58,8 +55,6 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     private boolean pressed = false;
 
-    private boolean fromUrl = true;
-    
     public static final int GRAVITY_LEFT = 0;
     public static final int GRAVITY_RIGHT = 1;
 
@@ -72,15 +67,9 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     private Drawable bubbleBackground = null;
 
-    public static final String URL_FIX = "fix";
-
-    private String bubbleImageUrl = "";
-    private int imgWidth, imgHeight;
-    
-    private LoadAndFixImageFromFileTask loadAndFixImageFromFileTask;
-    
     public ChatBubbleImageView(Context context) {
         super(context);
+
         init();
     }
 
@@ -99,7 +88,6 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         // Note style not supported.
     }
 
-    
     public interface LoadDone{
         public void onDone();
         public void immediate(boolean immediate);
@@ -176,10 +164,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
         if (image == null || image.get() == null)
         {
-            if (fromUrl)
-                loadFromUrl(bubbleImageUrl, loadDone, imgWidth, imgHeight);
-            else
-                loadFromPath(bubbleImageUrl, loadDone, imgWidth, imgHeight);
+            loadFromUrl(bubbleImageUrl, loadDone, imgWidth, imgHeight);
             return;
         }
 
@@ -200,6 +185,12 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         if (!showClickIndication)
             return;
 
+        if (DEBUG) Log.v(TAG, "drawableStateChanged, "
+                + (isPressed()?"Pressed":"Not Pressed")
+                + ", " + (isFocused()?"Focused":"Not Focused")
+                + ", " + (isEnabled()?"Enabled":"Not Enabled")
+                + ".");
+
         if (!pressed && isPressed())
         {
             pressed = true;
@@ -214,19 +205,17 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
     public void clearCanvas(){
         image = null;
+        if (DEBUG) Log.i(TAG, "Clearing canvas");
         init();
     }
 
-    
-    
+    public static final String URL_FIX = "fix";
+
+    private String bubbleImageUrl = "";
+    private int imgWidth, imgHeight;
     public void loadFromUrl(String url, final LoadDone loadDone, int width, int height){
-      
         boolean isCachedWithSize = StringUtils.isNotEmpty(url) && VolleyUtils.getImageLoader().isCached(url + URL_FIX, 0, 0);
 
-        if (DEBUG) Timber.v("loadFromUrl, Url: %s, Width: %s, Height: %s", url, width, height);
-        
-        fromUrl = true;
-        
         if (isCachedWithSize)
             url += URL_FIX;
 
@@ -311,109 +300,9 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         @Override
         public void onErrorResponse(VolleyError error) {
             if (DEBUG){
-                Timber.e("Image Load Error: %s", error.getMessage());
+                Log.e(TAG, "Image Load Error: " + error.getMessage());
                 error.printStackTrace();
             }
-        }
-    }
-
-    
-    public void loadFromPath(String path, final LoadDone loadDone, int width, int height){
-        if (DEBUG) Timber.v("loadFromPath, Path: %s, Width: %s, Height: %s", path, width, height);
-
-        fromUrl = false;
-        
-        this.bubbleImageUrl = path;
-        this.imgHeight = height;
-        this.imgWidth = width;
-        this.loadDone = loadDone;
-
-        if (loader != null)
-            loader.setKilled(true);
-
-        loadImageFromFile(path, loadDone, width, height);
-    }
-
-    private void loadImageFromFile(final String path, final LoadDone loadDone, int width, int height){
-
-        if (DEBUG) Timber.v("loadImageFromFile, Path: %s", path);
-
-        image = new WeakReference<Bitmap>(VolleyUtils.getBitmapCache().getBitmap(
-                VolleyUtils.BitmapCache.getCacheKey(path + URL_FIX)));
-        
-        if (image.get() != null)
-        {
-            if (loadDone != null)
-            {
-                invalidate();
-
-                loadDone.immediate(true);
-
-                loadDone.onDone();
-            }
-
-            return;
-        }
-        else if (loadDone != null)
-            loadDone.immediate(false);
-
-        // Cancelling the old task.
-        if (loadAndFixImageFromFileTask != null)
-            loadAndFixImageFromFileTask.isKilled = true;
-
-        loadAndFixImageFromFileTask = new LoadAndFixImageFromFileTask(path, loadDone, width, height);
-        ChatSDKImageMessagesThreadPool.getInstance().execute(loadAndFixImageFromFileTask);
-    }
-
-    private class LoadAndFixImageFromFileTask implements Runnable{
-        private boolean isKilled = false;
-        
-        private LoadDone loadDone;
-        private FixImageAsyncTask fixImageAsyncTask;
-        private int width, height;
-        private String path;
-
-        private LoadAndFixImageFromFileTask (String path, LoadDone loadDone, int width, int height) {
-            this.loadDone = loadDone;
-            this.height = height;
-            this.width = width;
-            this.path = path;
-        }
-        
-        @Override
-        public void run() {
-
-            Bitmap b;
-            if (!VolleyUtils.getBitmapCache().contains(VolleyUtils.BitmapCache.getCacheKey(path)))
-            {
-                b = ImageUtils.getCompressed(path,
-                        BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-                        BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
-
-                if (b != null)
-                    VolleyUtils.getBitmapCache().put(VolleyUtils.BitmapCache.getCacheKey(path), b);
-            }
-            else b =  VolleyUtils.getBitmapCache().getBitmap(VolleyUtils.BitmapCache.getCacheKey(path));
-
-            if (b == null)
-            {
-                if (loadDone != null)
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadDone.onDone();
-                        }
-                    });
-
-                return;
-            }
-
-            if (isKilled)
-                return;
-
-            // Create a new task to fix the image size.
-            fixImageAsyncTask = new FixImageAsyncTask(loadDone, path, width, height, false);
-            fixImageAsyncTask.execute(b);
         }
     }
 
@@ -434,33 +323,31 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
 
         @Override
         protected WeakReference<Bitmap> doInBackground(Bitmap... params) {
-            Bitmap img;
-            
+            WeakReference<Bitmap> img;
+
+            if (DEBUG) Log.d(TAG, "New making");
             // scaling the image to the needed width.
             // rounding the corners of the image.
-            img = getRoundedCornerBitmap(Bitmap.createScaledBitmap(params[0], width, height, true),
-                    cornerRadius);
+            img = new WeakReference<Bitmap>(
+                    getRoundedCornerBitmap(Bitmap.createScaledBitmap(params[0], width, height, true),
+                    cornerRadius));
 
-            if (img == null)
-                return null;
-            
             // Out with the old
-            VolleyUtils.getBitmapCache().remove(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl));
-            
+            VolleyUtils.getBitmapCache().remove(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl, 0, 0));
             // In with the new.
-            VolleyUtils.getBitmapCache().put(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl + URL_FIX), img);
+            VolleyUtils.getBitmapCache().put(VolleyUtils.BitmapCache.getCacheKey(this.imageUrl + URL_FIX, 0, 0), img.get());
 
-            return new WeakReference<Bitmap>(img);
+            return img;
         }
 
         @Override
         protected void onPostExecute(WeakReference<Bitmap> bitmap) {
             super.onPostExecute(bitmap);
-
+            if (DEBUG) Log.v(TAG, "onPostExecute");
             // Validating the data so we wont show the wrong image.
             if (isCancelled() || bitmap == null || killed || !imageUrl.equals(bubbleImageUrl))
             {
-                if (DEBUG) Timber.d("Async task is dead? %s", isCancelled());
+                if (DEBUG) Log.d(TAG, "Async task is dead, " + isCancelled());
                 return;
             }
 
@@ -471,7 +358,7 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
                 loadDone.onDone();
         }
     }
-    
+
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float pixels) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
                 .getHeight(), Bitmap.Config.ARGB_8888);
@@ -493,7 +380,8 @@ public class ChatBubbleImageView extends ImageView /*implements View.OnTouchList
         return output;
     }
 
-
+    
+    
   
     
     

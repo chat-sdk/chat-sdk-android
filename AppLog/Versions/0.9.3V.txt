@@ -1,0 +1,29 @@
+##########################
+        V: 0.9.3
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+- Added helper to handle message notification clicks for main activity. OpenFromPushChecker.
+- Screen now wakes up when receiving a notification. Tested on 4.3 - 5.0.1
+- Removed ActionBarPullToRefresh library, Now using the android stock view SwipeToRefresh
+- Better memory handling.
+- Added option to disable sending of location messages, Also if the google maps key is missing the option wont be visible.
+- Added option to cancel group conversation, The user wont be able to add users to the chat
+  nor creating conversation with more then one user using the pic friends activity
+##########################
+        BUG FIX
+--------------------------
+- Fixed names overlap in thread list.
+- Fixed some bugs related to lollipop.
+- Added a fix to support more possible shares intent received.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+
+
+

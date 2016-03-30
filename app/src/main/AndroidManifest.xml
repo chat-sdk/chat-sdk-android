@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.braunster.tapatalk.app">
+    package="com.braunster.androidchatsdk.app"
+    android:versionName="@string/chat_sdk_version_name">
 
     <!-- For Google Maps.-->
     <permission
@@ -12,8 +13,8 @@
         android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
 
-    <!--For contact import-->
-<!--    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
+    <!--FIXME For contact import-->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
 

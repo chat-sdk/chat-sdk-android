@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.adapter;
 
 /**
@@ -65,7 +58,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         user = getChild(groupPosition, childPosition);
-        final String childText = user.getName();
+        final String childText = user.getMetaName();
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.chat_sdk_row_contact, null);
@@ -76,6 +69,29 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
         txtContactName.setText(childText);
 
+/*        // TODO delete this only for testing the contact icon
+        user.pictureURL = "http://www.wandake.com/blog/wp-content/uploads/2011/07/bender-289x300.jpg";
+        user.pictureExist = true;
+        // TODO delete this only for testing the contact icon*/
+/*FIXME need to work with url
+        Bitmap bitmap = user.getMetaPicture();
+        if (bitmap != null)
+        {
+            imgPicture.setImageBitmap(bitmap);
+        }*/
+/*        else if (user.pictureExist)
+        {
+//            imgPicture.setImageResource(0);
+//            imageLoader.DisplayImage(user.pictureURL, imgPicture);
+            VolleyUtills.getImageLoader().get(user.pictureURL,
+                                VolleyUtills.getImageLoader().getImageListener(imgPicture,
+                                        R.drawable.ic_user, android.R.drawable.stat_notify_error));
+        }*/
+       /* else
+        {
+            imgPicture.setImageResource(R.drawable.ic_user);
+        }
+*/
         return convertView;
     }
 

@@ -1,0 +1,29 @@
+##########################
+        V: 0.3.3
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Parse Receiver now check if user is authenticated, If so the result intent will direct the user when pressed on the notification to  the chat fot this chat.
+  If the user is not authenticated the user will be directed to the LoginActivity.
+  Currently if the user or thread does not exist in the db i will ignore the message.
+  Also ignoring message for other users and ones that already on the db indicating that they are already seen by the user.
+  All the data of the message is passed on a json with the parse push.
+
+##########################
+        BUG FIX
+--------------------------
+# Need to Handle push notification for a message that already received.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

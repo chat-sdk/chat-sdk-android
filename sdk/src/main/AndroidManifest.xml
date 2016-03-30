@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.braunster.chatsdk">
+    package="com.braunster.chatsdk"
+    android:versionName="@string/chat_sdk_version_name">
 
     <!--For image capturing-->
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
@@ -84,10 +85,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.ChatSDKEditProfileActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
-        
         <activity android:name=".activities.ChatSDKShareWithContactsActivity"
             android:theme="@style/ChatSDKTheme"
             android:noHistory="true">
@@ -109,8 +106,6 @@
 
         </activity>
 
-        <activity android:name=".activities.ChatSDKViewProfileActivity"/>
-
         <!--Crop image-->
         <activity android:name="com.soundcloud.android.crop.CropImageActivity"
             />
@@ -119,6 +114,9 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <!--FIXME-->
+        <activity android:name="com.TestActivity"/>
 
     </application>
 

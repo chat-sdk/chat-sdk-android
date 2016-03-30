@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.Utils;
 
 import android.app.Notification;
@@ -12,37 +5,28 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.util.Log;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.asynctask.MakeThreadImage;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.MissingResourceException;
-
-import timber.log.Timber;
 
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
+/**
+ * Created by braunster on 01/07/14.
+ */
 public class NotificationUtils {
 
 
@@ -50,24 +34,22 @@ public class NotificationUtils {
     public static final int NOTIFICATION_ALERT_ID = 1990;
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
-    private static final boolean DEBUG = Debug.NotificationUtils;
+    private static final boolean DEBUG = true;
 
     public static final String TITLE = "title";
     public static final String TICKER = "ticker";
     public static final String CONTENT = "content";
-    public static final String LINES = "lines";
-    public static final String SUMMARY= "summary";
     public static final String NOT_TAG = "tag";
 
-
-    private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, int smallIconResID, Uri soundUri, int number){
-       createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
+    /** Create and alert notification that the connection has lost.*/
+    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
+        createAlertNotification(context, id, resultIntent, data, android.R.drawable.ic_notification_overlay, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
 
-    private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, Bitmap bitmap, int smallIconResID, Uri soundUri, int number){
+    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, int smallIconResID, Uri soundUri, int number){
         String title, content;
 
-        if (DEBUG) Timber.i("createAlertNotification, ID: %s, Number: %s", id, number);
+        if (DEBUG) Log.i(TAG, "createAlertNotification, ID: " + id + ", Number: " + number);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -86,9 +68,9 @@ public class NotificationUtils {
 
         Notification.Builder mBuilder =
                 new Notification.Builder(context)
+                        .setSmallIcon(smallIconResID)
                         .setContentTitle(title)
                         .setContentText(content)
-                        .setSmallIcon(smallIconResID)
                         .setLights(0xFF0000FF, 500, 3000)
                         .setVibrate(new long[]{0, 250, 100, 250})
                         .setSound(soundUri)
@@ -98,55 +80,11 @@ public class NotificationUtils {
         if (data.getString(TICKER) != null)
             mBuilder.setTicker(data.getString(TICKER));
 
-        if (bitmap != null)
-        {
-            if (Build.VERSION.SDK_INT >= 16)
-            {
-                Notification.InboxStyle style = new Notification.InboxStyle()
-                        .setBigContentTitle(title)
-                        .setSummaryText(content);
-
-
-                // Adding the lines to the notification
-                if (data.containsKey(LINES))
-                {
-                    ArrayList<String> list = data.getStringArrayList(LINES);
-
-                    if (list != null && list.size()>0) {
-
-                        if (DEBUG) Timber.d("Contains lines: %s, listSize: %s", data.containsKey(LINES), list.size());
-
-                        for (String s : list)
-                        {
-                            if (DEBUG) Timber.d("Line Added: %s", s);
-                            style.addLine(s);
-                        }
-                    }
-                }
-
-                // ADding notification summary
-                if (data.containsKey(SUMMARY))
-                    style.setSummaryText(data.getString(SUMMARY));
-                
-                mBuilder.setStyle(style);
-            }
-            
-            mBuilder.setLargeIcon(ImageUtils.scaleImage(bitmap, (int) (context.getResources().getDisplayMetrics().density * 48)));
-
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            mBuilder.setColor(context.getResources().getColor(R.color.accent_material_dark));
-        }
-
         Notification notification;
         if (Build.VERSION.SDK_INT < 16)
             notification = mBuilder.getNotification();
-        else {
-            mBuilder.setPriority(Notification.PRIORITY_HIGH);
+        else
             notification = mBuilder.build();
-        }
 
         notification.flags = Notification.FLAG_AUTO_CANCEL ;
 
@@ -158,175 +96,32 @@ public class NotificationUtils {
         wakeScreen(context);
     }
 
-
-
-
-    /** Create and alert notification that the connection has lost.*/
-    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
-        createAlertNotification(context, id, resultIntent, data, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
-    }
-
-
-
     public static void createMessageNotification(Context context, BMessage message){
-        createMessageNotification(context, message, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
+        createMessageNotification(context, message, android.R.drawable.ic_notification_overlay, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
-    
+
     public static void createMessageNotification(Context context, BMessage message, int smallIconResID, Uri soundUri, int number){
         createMessageNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
     }
 
-    public static void createMessageNotification(final Context context, final int id, BMessage message, final int smallIconResID, final Uri soundUri, final int number){
-        if (DEBUG) Timber.v("createMessageNotification");
+    public static void createMessageNotification(Context context, int id, BMessage message, int smallIconResID, Uri soundUri, int number){
+        if (DEBUG) Log.v(TAG, "createMessageNotification");
 
-        final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getThreadId());
+        Intent resultIntent = getChatResultIntent(context);
+        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getOwnerThread());
         resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
         resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
 
-        String msgContent = message.getTypeSafely() == TEXT ? message.getText() : message.getTypeSafely() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
+        String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? "Image" : "Location";
 
         String title = !StringUtils.isEmpty(
-                message.getSender().getName()) ? message.getSender().getName() : " ";
+                message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ";
 
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getName(), msgContent);
+        Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
 
-        getNotificationLines(context, message, data);
-        
-        Bitmap threadImage = null;
-        if (message.getThread() != null)
-        {
-            final String urls[] = message.getThread().threadImageUrl().split(",");
-
-            if (urls.length > 1)
-            {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getThread().getEntityID(), urls.length));
-            }
-            else if (urls.length == 1)
-            {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(VolleyUtils.BitmapCache.getCacheKey(urls[0]));
-            }
-            
-            // Trying to load the sender image.
-            if (threadImage == null && message.getSender() != null
-                    && StringUtils.isNotEmpty(message.getSender().getPictureUrl()))
-            {
-                VolleyUtils.getImageLoader().get(message.getSender().getPictureUrl(), new ImageLoader.ImageListener() {
-                    @Override
-                    public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                        if (imageContainer.getBitmap() != null)
-                            createAlertNotification(context, id, resultIntent, data, imageContainer.getBitmap(), smallIconResID, soundUri, number);
-                    }
-
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
-                    }
-                });
-                
-                return;
-            }
-
-            createAlertNotification(context, id, resultIntent, data,threadImage, smallIconResID, soundUri, number);
-        }
-        
-        
+        createAlertNotification(context, id, resultIntent, data, smallIconResID, soundUri, number);
     }
-    
- 
-    private static String getMessageContent(Context context, BMessage message){
-        return String.format("%s: %s",
-                message.getSender().getName(),
-                message.getTypeSafely() == TEXT ? message.getText()
-                : message.getTypeSafely() == IMAGE ? context.getString(R.string.not_image_message)
-                : context.getString(R.string.not_location_message));
-    }
- 
-    private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){
-        List<BThread> threads = BNetworkManager.sharedManager().getNetworkAdapter().privateThreads();
 
-        if (DEBUG) Timber.v("getNotification, Thread size: %s", threads == null ? "0" : threads.size());
-
-        if (threads == null)
-            return new ArrayList<>();
-
-        ArrayList<String> lines = new ArrayList<>();
-        ArrayList<String> senders = new ArrayList<>();
-        
-        int linesCount = 0;
-        List<BMessage> m;
-
-        // Getting the lines to use for this message notification
-        // A max of three lines could be added from each thread.
-        // There is also a max amount of lines to use defined in BDefines.MaxInboxNotificationLines.
-        for (BThread t : threads)
-        {
-            m = t.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-
-            if (DEBUG) Timber.v("getNotification, Thread messages size: %s", m.size());
-
-            // Max of three lines from each thread.
-            for (int i = 0 ; i < 3; i++){
-                if ( validateLinesAndMessagesSize(m, i, lines) )
-                {
-                    addLine(context, m.get(i), lines, senders);
-                }
-                else break;
-            }
-            
-            // Checking to see that we are still under the max amount of lines to use.
-            if (linesCount >= BDefines.Options.MaxInboxNotificationLines)
-                break;
-        }
-
-        // Creating the title for the notification
-        if (senders.size() > 1)
-        {
-            data.putString(TITLE, StringUtils.join(senders, ", "));
-        }
-        
-        // Adding the lines data
-        if (lines.size() > 0)
-        {
-            data.putStringArrayList(LINES, lines);
-            
-            // Adding summary, Total amount of unread messages.
-            if (lines.size() > 3)
-            {
-                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary),
-                        BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().unreadMessageCount()));
-            }
-        }
-        
-        return lines;
-    }
-    
-    private static boolean addLine(Context context, BMessage message, ArrayList<String> lines, ArrayList<String> senders){
-
-        if(message != null && !message.wasRead())
-        {
-            lines.add(getMessageContent(context, message));
-
-            String senderName = message.getSender().getName();
-            if (!senders.contains(senderName))
-                senders.add(senderName);
-
-            return true;
-        }
-        else if (DEBUG)
-            Timber.i("addLine, message was read? %s, payload: %s",
-                    message == null? "message is null" : message.wasRead(), message == null ? "null" : message.getText());
-        
-        return false;
-    }
-  
-    private static boolean validateLinesAndMessagesSize(List<BMessage> m, int minMessagesSize, ArrayList<String> lines){
-        return m.size() > minMessagesSize && lines.size() < BDefines.Options.MaxInboxNotificationLines;
-    }
-  
-    
-    
     private static Intent getChatResultIntent(Context context){
         return new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
     }

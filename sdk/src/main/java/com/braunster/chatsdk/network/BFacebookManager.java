@@ -1,16 +1,13 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.network;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.interfaces.CompletionListener;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.FacebookRequestError;
@@ -21,16 +18,11 @@ import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 
-import org.jdeferred.Deferred;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
@@ -51,59 +43,70 @@ public class BFacebookManager {
     private static Context ctx;
 
     public static void init(String id, Context context) {
+        if (DEBUG) Log.i(TAG, "Initialized");
         facebookAppID = id;
         ctx = context;
     }
 
-    public static Promise<Object, BError, Void> loginWithFacebook() {
-        return BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook));
+    public static void loginWithFacebook(final CompletionListener completionListener) {
+        if (DEBUG) Log.v(TAG, "loginWithFacebook");
+        BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
+                AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook),
+                new CompletionListenerWithDataAndError<Object, BError>() {
+                    @Override
+                    public void onDone(Object authData) {
+                        if (DEBUG) Log.i(TAG, "Logged to firebase");
+                        completionListener.onDone();
+                    }
+
+                    @Override
+                    public void onDoneWithError(Object authData, BError o) {
+                        if (DEBUG) Log.e(TAG, "Log to firebase failed");
+                        completionListener.onDoneWithError(null);
+                    }
+                });
     }
 
     /** Re authenticate after session state changed.*/
-    public static Promise<Object, BError, Void> onSessionStateChange(Session session, SessionState state, Exception exception) {
-        if (DEBUG) Timber.i("Session changed state");
+    public static void onSessionStateChange(Session session, SessionState state, Exception exception,final  CompletionListener completionListener) {
+        if (DEBUG) Log.i(TAG, "Session changed state");
 
-        // If we can start the login process with no errors this promise wont be used. 
-        // The returned promise will be from the loginWithFacebook.
-        Deferred<Object, BError, Void> deferred = new DeferredObject<>();
-        
         if (exception != null)
         {
             exception.printStackTrace();
             if (exception instanceof FacebookOperationCanceledException)
             {
-                deferred.reject(new BError(BError.Code.EXCEPTION, exception));
-                return deferred.promise();
+                if (DEBUG) Log.d(TAG, "Canceled");
+                return;
             }
         }
 
         if (state.isOpened()) {
-            if (DEBUG) Timber.i("Session is open.");
+            if (DEBUG) Log.i(TAG, "Session is open.");
 
             // We will need this session later to make request.
             userFacebookAccessToken = Session.getActiveSession().getAccessToken();
 
-            return loginWithFacebook();
+            loginWithFacebook(completionListener);
 
         } else if (state.isClosed()) {
             // Logged out of Facebook
-            if (DEBUG) Timber.i("Session is closed.");
-            deferred.reject(new BError(BError.Code.SESSION_CLOSED, "Facebook session is closed."));
+            if (DEBUG) Log.i(TAG, "Session is closed.");
+            completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED, "Facebook session is closed."));
         }
-        
-        
-        return deferred.promise();
+        else
+        {
+//            completionListener.onDoneWithError();
+            if (DEBUG) Log.i(TAG, "ELSE" + session.getApplicationId());
+        }
     }
 
     public static boolean isAuthenticated() {
         return  userFacebookAccessToken != null;
     }
 
-    public static Promise<GraphObject, BError, Void> getUserDetails(){
-
-        final Deferred<GraphObject, BError, Void> deferred = new DeferredObject<>();
-        
+    public static void getUserDetails(final CompletionListenerWithData<GraphUser> listenerWithData){
+        if (DEBUG) Log.v(TAG, "getUserDetails, Sessios State: " + Session.getActiveSession().getState().isOpened() + " isAuth: " + isAuthenticated());
         if (Session.getActiveSession().getState().isOpened())
         {
             // Request user data and show the results
@@ -116,50 +119,45 @@ public class BFacebookManager {
                     {
                         try
                         {
-                            deferred.resolve(user);
+                            listenerWithData.onDone(user);
                         }
                         catch (Exception e)
                         {
-                            deferred.reject(BError.getExceptionError(e));
+                            listenerWithData.onDoneWithError(BError.getExceptionError(e));
                         }
 
                     }
                 }
             }).executeAsync();
-        } else deferred.reject(new BError(BError.Code.SESSION_CLOSED));
-        
-        return deferred.promise();
+        } else listenerWithData.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
     }
 
     /*
     * No need for access token in SDK V3
     * Get the friend list from facebook that is using the app.*/
-    public static  Promise<List<GraphUser>, BError, Void>  getUserFriendList(){
-
-        final Deferred<List<GraphUser>, BError, Void> deferred = new DeferredObject<>();
-
-        
+    public static void getUserFriendList(final CompletionListenerWithData completionListener){
         if (!Session.getActiveSession().getState().isOpened())
         {
-            return deferred.reject(new BError(BError.Code.SESSION_CLOSED));
+            completionListener.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
+            return;
         }
         Request req = Request.newMyFriendsRequest(Session.getActiveSession(), new Request.GraphUserListCallback() {
             @Override
             public void onCompleted(List<GraphUser> users, Response response) {
-                deferred.resolve(users);
+//                if (DEBUG) Log.d(TAG, "Completed: " + response.getRawResponse());
+                for (GraphUser u : users)
+                    if (DEBUG) Log.d(TAG, "User Name: " + u.getName());
+
+                completionListener.onDone(users);
             }
         });
 
         req.executeAsync();
-        
-        return deferred.promise();
     }
 
     /** Does not work if your app dosent have facebook game app privileges.*/
-    public static Promise<List<JSONObject>, BError, Void> getInvitableFriendsList(){
+    public static void getInvitableFriendsList(final CompletionListenerWithData completionListenerWithData){
 
-        final Deferred<List<JSONObject>, BError, Void> deferred = new DeferredObject<>();
-        
         final Session session = Session.getActiveSession();
         if (session != null && session.isOpened()) {
 
@@ -172,8 +170,8 @@ public class BFacebookManager {
 
                             FacebookRequestError error = response.getError();
                             if (error != null) {
-                                if (DEBUG) Timber.e(error.toString());
-                                deferred.reject(new BError(BError.Code.TAGGED, "Error while fetching invitable friends.", error));
+                                Log.e(TAG, error.toString());
+                                completionListenerWithData.onDoneWithError(new BError(BError.Code.TAGGED, "Error while fetching invitable friends.", error));
                             } else if (session == Session.getActiveSession()) {
                                 if (response != null) {
                                     // Get the result
@@ -188,7 +186,7 @@ public class BFacebookManager {
                                             invitableFriends.add(dataArray.optJSONObject(i));
                                         }
                                     }
-                                    deferred.resolve(invitableFriends);
+                                    completionListenerWithData.onDone(invitableFriends);
                                 }
                             }
                         }
@@ -202,11 +200,9 @@ public class BFacebookManager {
         }
         else
         {
-            if (DEBUG) Timber.d("Session is closed");
-            deferred.reject(new BError(BError.Code.SESSION_CLOSED));
+            if (DEBUG) Log.d(TAG, "Session is closed");
+            completionListenerWithData.onDoneWithError(new BError(BError.Code.SESSION_CLOSED));
         }
-        
-        return deferred.promise();
 
     }
 
@@ -228,7 +224,7 @@ public class BFacebookManager {
         }
         else
         {
-            if (DEBUG) Timber.e("getActiveSessionIsNull");
+            if (DEBUG) Log.e(TAG, "getActiveSessionIsNull");
             Session session = Session.openActiveSessionFromCache(ctx);
 
             if (session != null)

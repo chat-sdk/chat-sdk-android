@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="firebase-client-android-2.3.0">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/firebase_plugin/libs/firebase-client-android-2.3.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

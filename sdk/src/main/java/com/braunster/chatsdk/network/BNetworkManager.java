@@ -1,17 +1,9 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.network;
 
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.braunster.chatsdk.BuildConfig;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
@@ -46,13 +38,14 @@ public class BNetworkManager {
         VolleyUtils.init(ctx);
         DaoCore.init(ctx);
 
+
+
         BFacebookManager.init(context.getString(R.string.facebook_id), ctx);
 
-        
         //Bug Sense
         if (BNetworkManager.BUGSENSE_ENABLED && StringUtils.isNotEmpty( context.getString(R.string.bug_sense_key) )) {
             BugSenseHandler.initAndStartSession(ctx, context.getString(R.string.bug_sense_key));
-            BugSenseHandler.addCrashExtraData("Version", BuildConfig.VERSION_NAME);
+            BugSenseHandler.addCrashExtraData("Version", ctx.getResources().getString(R.string.chat_sdk_version_name));
         }
     }
 
@@ -77,6 +70,6 @@ public class BNetworkManager {
     }
     /** Safe to call after login.*/
     public static SharedPreferences getCurrentUserPrefs(){
-        return context.getSharedPreferences(sharedManager().getNetworkAdapter().currentUserModel().getEntityID(), Context.MODE_PRIVATE);
+        return context.getSharedPreferences(sharedManager().getNetworkAdapter().currentUser().getEntityID(), Context.MODE_PRIVATE);
     }
 }

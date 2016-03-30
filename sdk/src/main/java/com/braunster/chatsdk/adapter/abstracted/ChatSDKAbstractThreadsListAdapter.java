@@ -1,14 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.adapter.abstracted;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.util.TimingLogger;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import timber.log.Timber;
 
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
@@ -199,7 +192,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
                 // Set the response to the image.
                 if (response.getBitmap() != null) {
-                    if (DEBUG) Timber.i("Loading thread picture from url");
+                    if (DEBUG) Log.i(TAG, "Loading thread picture from url");
 
                     // load image into imageview
                     imgIcon.setImageBitmap(response.getBitmap());
@@ -208,7 +201,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (DEBUG) Timber.e("Image Load Error: %s", error.getMessage());
+                if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
 
                 if (killed)
                     return;
@@ -238,7 +231,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
         // Check if the url isn't empty and if only contains one url. If so we load the image using volley.
         if (StringUtils.isNotEmpty(getItem(position).getImageUrl()) && urls.length == 1)
-            VolleyUtils.getImageLoader().get(getItem(position).getImageUrl(), holder.picLoader);
+            VolleyUtils.getImageLoader().get(getItem(position).getImageUrl(), holder.picLoader, size, size);
         else {
 //            if (DEBUG) Log.d(TAG, "UrlsString: " + thread.getImageUrl() + ", Urls length: " + urls.length);
 
@@ -254,7 +247,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         public void run() {
                             int size = holder.imgIcon.getHeight();
 
-                            if (DEBUG) Timber.d("Making thread image.");
+                            if (DEBUG) Log.d(TAG, "Making thread image.");
                             //Default image while loading
                             holder.setMultipleUserDefaultImg();
 
@@ -263,7 +256,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                     });
                 else
                 {
-                    if (DEBUG) Timber.d("Making thread image.");
+                    if (DEBUG) Log.d(TAG, "Making thread image.");
                     //Default image while loading
                     holder.setMultipleUserDefaultImg();
 
@@ -315,6 +308,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
         if (StringUtils.isBlank(text) || StringUtils.isEmpty(text))
         {
+            if (DEBUG) Log.v(TAG, "filterItems, Empty Filter");
             this.threadItems = listData;
             filtering = false;
         }
@@ -380,7 +374,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
             threadItems.add(itemMaker.fromBThread(thread));
 
         if (replaced || !exist) {
-            if (DEBUG) Timber.d("Notify!, %s", (replaced ? "Replaced": !exist ? "Not Exist":""));
+            if (DEBUG) Log.d(TAG, "Notify!, " + (replaced?"Replaced":!exist?"Not Exist":""));
             sort();
             notifyDataSetChanged();
         }
@@ -471,21 +465,25 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                 return true;
 
             if (newThread.getLastMessageDate().getTime() > oldThread.getLastMessageDate().getTime()) {
+                if (DEBUG) Log.d(TAG, "compare, Date");
                 return true;
             }
 
             if (!newThread.name.equals(oldThread.name))
             {
+                if (DEBUG) Log.d(TAG, "compare, Name");
                 return true;
             }
 
             if (newThread.getUsersAmount() != oldThread.getUsersAmount())
             {
+                if (DEBUG) Log.d(TAG, "compare, Users");
                 return true;
             }
 
             if (StringUtils.isEmpty(newThread.imageUrl) && StringUtils.isEmpty(oldThread.imageUrl))
             {
+                if (DEBUG) Log.d(TAG, "compare false, Empty");
                 return false;
             }
 
@@ -509,20 +507,25 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 
 //            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
 
-            switch (messages.get(0).getTypeSafely())
-            {
-                case TEXT:
-                    data[0] = messages.get(0).getText();
-                    break;
+            if (messages.get(0).getType() == null)
+                data[0] = "Bad Data";
+            else
+                switch (messages.get(0).getType())
+                {
+                    case TEXT:
+                        // TODO cut string if needed.
+                        //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
+                        data[0] = messages.get(0).getText();
+                        break;
 
-                case IMAGE:
-                    data[0] = "Image message";
-                    break;
+                    case IMAGE:
+                        data[0] = "Image message";
+                        break;
 
-                case LOCATION:
-                    data[0] = "Location message";
-                    break;
-            }
+                    case LOCATION:
+                        data[0] = "Location message";
+                        break;
+                }
 
             data[1] = simpleDateFormat.format(messages.get(0).getDate());
 
@@ -608,8 +611,8 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         users.size(),
                         thread.getUnreadMessagesAmount(),
                         thread.getId(),
-                        thread.lastMessageAdded(),
-                        !thread.isPublic());
+                        thread.getLastMessageAdded(),
+                        thread.getTypeSafely() == BThread.Type.Private);
             }
 
             @Override

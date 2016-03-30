@@ -1,14 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.braunster.chatsdk.R;
@@ -19,8 +13,6 @@ import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
-
-import timber.log.Timber;
 
 /**
  * Created by braunster on 24/11/14.
@@ -87,6 +79,7 @@ public class ChatSDKBaseThreadActivity extends ChatSDKBaseActivity {
     private void getDataFromBundle(Bundle bundle){
         if (bundle == null)
         {
+            if (DEBUG) Log.d(TAG, "bundle is null");
             return;
         }
 
@@ -110,7 +103,7 @@ public class ChatSDKBaseThreadActivity extends ChatSDKBaseActivity {
 
         if (thread == null)
         {
-            if (DEBUG) Timber.e("Thread is null");
+            if (DEBUG) Log.e(TAG, "Thread is null");
             finish();
         }
     }

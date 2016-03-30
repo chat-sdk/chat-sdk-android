@@ -1,0 +1,30 @@
+##########################
+        V: 0.3.5
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# New buttons icons is added, FB, Google, Twitter, Options, User, Users.
+# Now showing pickfriends activity when addign a new user to thread, With enter and exit animations.
+# App now shoes user initials if does not have a picture.
+# New bubbles for chat
+# New app icon.
+# touch to dismiss keyboard is added to LoginActivity.
+
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# Facebook is not logged out sometimes, Maybe releted to null get activity session.
+-----------OLD------------
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

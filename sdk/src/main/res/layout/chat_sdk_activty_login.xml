@@ -150,7 +150,8 @@
                 android:id="@+id/chat_sdk_version_name"
                 android:layout_marginTop="5dp"
                 android:layout_toRightOf="@+id/chat_sdk_txt_version"
-                android:layout_alignTop="@+id/chat_sdk_txt_version"/>
+                android:layout_alignTop="@+id/chat_sdk_txt_version"
+                android:text="@string/chat_sdk_version_name"/>
 
         </LinearLayout>
     </RelativeLayout>

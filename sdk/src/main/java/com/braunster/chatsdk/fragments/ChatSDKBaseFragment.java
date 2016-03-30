@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.fragments;
 
 import android.app.AlertDialog;
@@ -12,7 +5,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.StringRes;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,15 +16,16 @@ import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.entities.Entity;
+import com.braunster.chatsdk.interfaces.CompletionListener;
+import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
+import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BNetworkManager;
+import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
 
 import java.util.concurrent.Callable;
 
@@ -140,16 +134,6 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
         chatSDKUiHelper.getAlertToast().show();
     }
 
-    protected void showToast(@StringRes int resourceId){
-        showToast(getString(resourceId));
-    }
-
-    protected void showAlertToast(@StringRes int resourceId){
-        showAlertToast(getString(resourceId));
-    }
-
-
-
     /** Start the chat activity for the given thread id.
      * @param id is the long value of local db id.*/
     public void startChatActivityForID(long id){
@@ -188,44 +172,63 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
     }
 
     /** Create or fetch chat for users, Opens the chat when done.*/
-    protected Promise<BThread, BError, Void>  createAndOpenThreadWithUsers(String name, BUser...users){
-        return createThreadWithUsers(name, true, users);
+    protected void createAndOpenThreadWithUsers(String name, final CompletionListenerWithData doneListener, BUser...users){
+        createThreadWithUsers(name, doneListener, true, users);
     }
     /** Create or fetch chat for users. Opens the chat if wanted.*/
-    protected Promise<BThread, BError, Void>  createThreadWithUsers(String name, final boolean openChatWhenDone, BUser... users) {
+    protected void createThreadWithUsers(String name, final CompletionListenerWithData doneListener, final boolean openChatWhenDone, BUser... users){
+        BNetworkManager.sharedManager().getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError>() {
 
+            BThread thread = null;
 
-        showProgDialog(getString(openChatWhenDone ? R.string.opening_room : R.string.creating_room));
-
-        return getNetworkAdapter().createThreadWithUsers(name, users)
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(BThread thread) {
-                        if (thread != null) {
-                            if (openChatWhenDone)
-                                startChatActivityForID(thread.getId());
+            @Override
+            public boolean onMainFinised(BThread bThread, BError o) {
+                if (o != null)
+                {
+                    if (isOnMainThread())
+                        showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                    else getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAlertToast( getString(R.string.create_thread_with_users_fail_toast) );
                         }
+                    });
+                    return true;
+                }
 
-                        dismissProgDialog();
-                    }
-                })
-                .fail(new FailCallback<BError>() {
-                    @Override
-                    public void onFail(BError error) {
+                if (DEBUG) Log.d(TAG, "New thread is created.");
 
-                        dismissProgDialog();
+                thread = bThread;
 
-                        if (isOnMainThread())
-                            showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                        else getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                            }
-                        });
-                    }
-                });
+                return false;
+            }
+
+            @Override
+            public boolean onItem(BUser item) {
+                return false;
+            }
+
+            @Override
+            public void onDone() {
+                Log.d(TAG, "On done.");
+                if (thread != null)
+                {
+                    if (openChatWhenDone)
+                        startChatActivityForID(thread.getId());
+
+                    if (doneListener != null)
+                        doneListener.onDone(thread);
+                }
+            }
+
+            @Override
+            public void onItemError(BUser user, BError o) {
+                if (DEBUG) Log.d(TAG, "Failed to add user to thread, User name: " +user.getName());
+            }
+        }, users);
     }
+
+
 
     protected void showProgDialog(String message){
         if (progressDialog == null)
@@ -237,12 +240,18 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
             progressDialog.setMessage(message);
             progressDialog.show();
         }
-        // updating the existing
-        else progressDialog.setMessage(message);
     }
 
-    protected void showProgDialog(@StringRes int messageResource){
-        showProgDialog(getString(messageResource));
+    protected void showOrUpdateProgDialog(String message){
+        if (progressDialog == null)
+            progressDialog = new ProgressDialog(getActivity());
+
+        if (!progressDialog.isShowing())
+        {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(message);
+            progressDialog.show();
+        } else progressDialog.setMessage(message);
     }
 
     protected void dismissProgDialog(){
@@ -267,7 +276,7 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
         // set title if not null
-        if (StringUtils.isNotBlank(title))
+        if (title != null && !title.equals(""))
             alertDialogBuilder.setTitle(title);
 
         // set dialog message
@@ -316,21 +325,18 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
 
         @Override
         public Object call() throws Exception {
-            getNetworkAdapter().deleteThreadWithEntityID(threadID)
-                    .done(new DoneCallback<Void>() {
-                        @Override
-                        public void onDone(Void aVoid) {
-                            showToast( getString(R.string.delete_thread_success_toast) );
-                            refreshOnBackground();
-                        }
-                    })
-                    .fail(new FailCallback<BError>() {
-                        @Override
-                        public void onFail(BError error) {
-                            showAlertToast(  getString(R.string.delete_thread_fail_toast)  );
-                        }
-                    });
+            getNetworkAdapter().deleteThreadWithEntityID(threadID, new CompletionListener() {
+                @Override
+                public void onDone() {
+                    showToast( getString(R.string.delete_thread_success_toast) );
+                    refreshOnBackground();
+                }
 
+                @Override
+                public void onDoneWithError(BError error) {
+                    showAlertToast(  getString(R.string.delete_thread_fail_toast)  );
+                }
+            });
             return null;
         }
     }
@@ -341,8 +347,8 @@ public abstract class ChatSDKBaseFragment extends android.app.DialogFragment imp
     }
 
     /** Authenticates the current user.*/
-    public Promise<BUser, BError, Void> authenticate(){
-        return getNetworkAdapter().checkUserAuthenticated();
+    public void authenticate(AuthListener listener){
+        getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
     }
 
     public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {

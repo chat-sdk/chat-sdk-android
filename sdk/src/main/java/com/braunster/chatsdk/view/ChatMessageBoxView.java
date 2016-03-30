@@ -1,16 +1,8 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.view;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -22,18 +14,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.Utils;
 import com.github.johnpersano.supertoasts.SuperToast;
 
+/**
+ * Created by braunster on 19/09/14.
+ */
 public class ChatMessageBoxView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{
 
     public static final String TAG = ChatMessageBoxView.class.getSimpleName();
-    public static final boolean DEBUG = Debug.ChatMessageBoxView;
+    public static final boolean DEBUG = true;
 
     protected MessageBoxOptionsListener messageBoxOptionsListener;
-    protected MessageBoxListener messageBoxListener;
+    protected MessageSendListener messageSendListener;
     protected TextView btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
@@ -82,62 +76,14 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
         etMessage.setOnEditorActionListener(this);
         etMessage.setOnKeyListener(this);
 
-        etMessage.addTextChangedListener(new TextWatcher() {
 
-            private int delayBeforeTypingStops = 2500;
-
-            boolean isTyping = false;
-
-            Runnable stoppedTypingRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    isTyping = false;
-
-                    dispatchFinishedTyping();
-                }
-            };
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!isTyping)
-                {
-                    dispatchStartedTyping();
-
-                    isTyping = true;
-
-                    postDelayed(stoppedTypingRunnable, delayBeforeTypingStops);
-                }
-                else
-                {
-                    // Remove the old callback and start a new buying us more time of typing
-                    removeCallbacks(stoppedTypingRunnable);
-                    postDelayed(stoppedTypingRunnable, delayBeforeTypingStops);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        dispatchFinishedTyping();
     }
 
     /** Show the message option popup, From here the user can send images and location messages.*/
     public void showOptionPopup(){
         if (optionPopup!= null && optionPopup.isShowing())
         {
+            if (DEBUG) Log.d(TAG, "Tying to show option popup when already showing");
             return;
         }
 
@@ -156,7 +102,8 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
         int id= v.getId();
 
         if (id == R.id.chat_sdk_btn_chat_send_message) {
-            dispatchMessageSent();
+            if (messageSendListener!=null)
+                messageSendListener.onSendPressed(getMessageText());
         }
         else if (id == R.id.chat_sdk_btn_options){
             boolean b = false;
@@ -197,9 +144,8 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND)
-        {
-            dispatchMessageSent();
-        }
+            if (messageSendListener!=null)
+                messageSendListener.onSendPressed(getMessageText());
 
         return false;
     }
@@ -219,8 +165,8 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
         this.messageBoxOptionsListener = messageBoxOptionsListener;
     }
 
-    public void setMessageBoxListener(MessageBoxListener messageBoxListener) {
-        this.messageBoxListener = messageBoxListener;
+    public void setMessageSendListener(MessageSendListener messageSendListener) {
+        this.messageSendListener = messageSendListener;
     }
 
     public String getMessageText(){
@@ -229,10 +175,6 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
 
     public void clearText(){
         etMessage.getText().clear();
-    }
-
-    public ImageButton getOptionsButton() {
-        return btnOptions;
     }
 
     /*Getters and Setters*/
@@ -249,23 +191,6 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
 
 
 
-    private void dispatchMessageSent(){
-        if (messageBoxListener !=null)
-            messageBoxListener.onSendPressed(getMessageText());
-
-        dispatchFinishedTyping();
-    }
-
-    private void dispatchStartedTyping(){
-        if (messageBoxListener != null)
-            messageBoxListener.onTypingStart();
-    }
-
-    private void dispatchFinishedTyping(){
-        if (messageBoxListener != null)
-            messageBoxListener.onTypingFinished();
-    }
-
     public interface MessageBoxOptionsListener{
         public void onLocationPressed();
         public void onTakePhotoPressed();
@@ -273,14 +198,9 @@ public class ChatMessageBoxView extends LinearLayout implements View.OnClickList
 
         /** Invoked when the option button pressed, If returned true the system wont show the option popup.*/
         public boolean onOptionButtonPressed();
-
     }
 
-    public interface MessageBoxListener {
+    public interface MessageSendListener {
         public void onSendPressed(String text);
-
-        void onTypingStart();
-
-        void onTypingFinished();
     }
 }

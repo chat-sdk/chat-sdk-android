@@ -97,31 +97,4 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
-    <style name="ProfileViewTextViewStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:lines">1</item>
-        <item name="android:textSize">@dimen/chat_sdk_profile_text_size</item>
-        <item name="android:gravity">left|center_vertical</item>
-    </style>
-
-    <style name="ProfileViewHeaderTextViewStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">20dp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingBottom">5dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:lines">1</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:gravity">left|center_vertical</item>
-    </style>
-
-    <style name="ProfileTopIconStyle">
-        <item name="android:layout_height">32dp</item>
-        <item name="android:layout_width">32dp</item>
-    </style>
-
 </resources>

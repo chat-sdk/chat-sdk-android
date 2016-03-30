@@ -1,1 +1,1 @@
-include ':app', ':facebook', ':generator', ':firebase_plugin', ':sdk', ':country_picker'
+include ':app', ':facebook', ':generator', ':firebase_plugin', ':sdk'

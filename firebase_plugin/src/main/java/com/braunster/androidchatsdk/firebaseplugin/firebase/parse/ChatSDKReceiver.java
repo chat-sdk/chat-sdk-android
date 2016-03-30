@@ -1,45 +1,33 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:35 PM
- */
-
 package com.braunster.androidchatsdk.firebaseplugin.firebase.parse;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.NotificationUtils;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
+import com.braunster.chatsdk.activities.ChatSDKChatActivity;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 
-import timber.log.Timber;
-
 /**
+ * Created by braunster on 09/07/14.
  *
  * The receiver is the sole object to handle push notification from parse server.
  *
- * The receiver will only notify for the currentUserModel() incoming messages any message for other user will be <b>ignored</b>.
+ * The receiver will only notify for the currentUser() incoming messages any message for other user will be <b>ignored</b>.
  * This behavior is due to multiple connection from the same phone.
  *
  * Then the receiver will check to see if the message is already on the db, if the message exist it will be <b>ignored</b>.
@@ -53,7 +41,7 @@ import timber.log.Timber;
 public class ChatSDKReceiver extends BroadcastReceiver {
 
     private static final String TAG = ChatSDKReceiver.class.getSimpleName();
-    private static final boolean DEBUG = Debug.ChatSDKReceiver;
+    private static final boolean DEBUG = true;
 
     public static final String ACTION_MESSAGE = "com.braunster.chatsdk.parse.MESSAGE_RECEIVED";
     public static final String ACTION_FOLLOWER_ADDED = "com.braunster.chatsdk.parse.FOLLOWER_ADDED";
@@ -68,218 +56,116 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
         if (action.equals(ACTION_MESSAGE))
         {
-            // Getting the push channel used.
-            String channel = intent.getExtras().getString("com.parse.Channel");
-            
-            if (DEBUG) Timber.d("got action: %s, on channel: %s ", action , channel);
-            
-            createMessageNotification(context, intent, channel);
+            try {
+                if (DEBUG) Log.v(TAG, "onReceive");
+
+                String channel = intent.getExtras().getString("com.parse.Channel");
+                final JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
+
+                if (DEBUG) Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
+
+                // If the push is not for the current user we ignore it.
+                if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
+                    BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUser();
+                    if (user != null && !channel.equals(user.getPushChannel()))
+                        return;
+                }
+
+                // Extracting the message data from the push json.
+                String entityID = json.getString(PushUtils.MESSAGE_ENTITY_ID);
+                final String threadEntityID = json.getString(PushUtils.THREAD_ENTITY_ID);
+                final Long dateLong =json.getLong(PushUtils.MESSAGE_DATE);
+                final Date date = new Date(dateLong);
+                final String senderEntityId = json.getString(PushUtils.MESSAGE_SENDER_ENTITY_ID);
+                final Integer type = json.getInt(PushUtils.MESSAGE_TYPE);
+                final String messagePayload = (json.getString(PushUtils.MESSAGE_PAYLOAD));
+
+                if (DEBUG) Log.d(TAG, "Pushed message entity id: " + entityID);
+                if (DEBUG) Log.d(TAG, "Pushed message thread entity id: " + threadEntityID);
+
+                BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, entityID);
+
+                if (message != null)
+                {
+                    Log.d(TAG, "Message already exist");
+                    return;
+                }
+
+                message = new BMessage();
+
+                message.setDate(date);
+                message.setType(type);
+                message.setText(messagePayload);
+                message.setEntityID(entityID);
+                message.setIsRead(false);
+                BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
+                BThread thread =DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
+
+                boolean messageIsValid = true;
+                if (sender != null && thread != null)
+                {
+                    message.setBUserSender(sender);
+                    message.setBThreadOwner(thread);
+                    message = DaoCore.createEntity(message);
+                } else messageIsValid = false;
+
+                if (DEBUG) Log.v(TAG, "messageIsValid, " + messageIsValid);
+
+                Intent resultIntent;
+
+                if (FirebasePaths.firebaseRef().getAuth() == null)
+                {
+                    if (DEBUG) Log.v(TAG, "no auth user");
+                    resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
+
+                    // Posting the notification.
+                    try {
+                        NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
+                                NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
+                                        context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSONException: " + e.getMessage());
+                    }
+                }
+                else
+                {
+                    if (DEBUG) Log.v(TAG, "user is authenticated");
+                    // If the message is valid(Sender and Thread exist in the db) we should lead the user to the chat.
+                    if (messageIsValid)
+                    {
+                        resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+                        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID, thread.getId());
+                        resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
+                        resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
+                    }
+                    // Open main activity
+                    else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+
+                    // Posting the notification.
+                    try {
+                        NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
+                                NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
+                                        context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSONException: " + e.getMessage());
+                    }
+                }
+            } catch (JSONException e) {
+                Log.d(TAG, "JSONException: " + e.getMessage());
+            }
         }
-        // Follower added action
         else if (action.equals(ACTION_FOLLOWER_ADDED))
         {
-            createFollowerNotification(context, intent);
-        }
-    }
-    
-    @SuppressWarnings("all")// For supressing the BMessasge setType(int type) warning.
-    private void createMessageNotification(final Context context, Intent intent, String channel){
-        try {
-            if (DEBUG) Timber.v("onReceive");
-
-
-
-            // The data saved for this push message.
-            final JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
-
-            // If the push is not for the current user we ignore it.
-            if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
-                BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
-                if (user != null && !channel.equals(user.pushChannel()))
-                    return;
-            }
-
-            // Extracting the message data from the push json.
-            String entityID = json.getString(PushUtils.MESSAGE_ENTITY_ID);
-            final String threadEntityID = json.getString(PushUtils.THREAD_ENTITY_ID);
-            final String senderEntityId = json.getString(PushUtils.MESSAGE_SENDER_ENTITY_ID);
-
-            // Getting the sender and the thread.
-            BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
-            final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
-
-            final Long dateLong =json.getLong(PushUtils.MESSAGE_DATE);
-            final Date date = new Date(dateLong);
-            final Integer type = json.getInt(PushUtils.MESSAGE_TYPE);
-            final String messagePayload = (json.getString(PushUtils.MESSAGE_PAYLOAD));
-
-            if (DEBUG) Timber.d("Pushed message entity id: %s", entityID);
-            if (DEBUG) Timber.d("Pushed message thread entity id: %s", threadEntityID);
-
-            BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, entityID);
-
-            // If the message isn't null that means the user already got notification for this message,
-            // So we are ignoring it.
-            if (message != null)
-            {
-                if (DEBUG) Timber.d("Message already exist");
-                return;
-            }
-
-            // Creating the new message.
-            message = new BMessage();
-
-            message.setDate(date);
-            message.setType(type);
-            message.setText(messagePayload);
-            message.setEntityID(entityID);
-            message.setIsRead(false);
-
-            // If we dont have the sender and thread we wont open the
-            // chat activity when the notification is pressed.
-            // Else we are setting the thread and sender to the message.
-            if (sender != null && thread != null)
-            {
-                // Marking the thread as not deleted.
-                thread.setDeleted(false);
-
-                DaoCore.updateEntity(thread);
-
-                message.setSender(sender);
-                message.setThread(thread);
-                message = DaoCore.createEntity(message);
-
-                postMessageNotification(context, json, thread, message, true);
-            } else {
-                
-                if (DEBUG) Timber.d("Entity is null,Is null? Sender: %s, Thread: %s", sender== null, thread==null);
-                
-                // Getting the user and the thread from firebase
-                final BMessage finalMessage = message;
-                BUserWrapper.initWithEntityId(senderEntityId)
-                        .once()
-                        .then(new DoneCallback<BUser>() {
-                            @Override
-                            public void onDone(final BUser bUser) {
-                                // Adding the user as the sender.
-                                finalMessage.setSender(bUser);
-                                
-                                if (thread == null)
-                                {
-                                    final BThreadWrapper threadWrapper =
-                                    new BThreadWrapper(threadEntityID);
-                                    
-                                    threadWrapper
-                                            .on()
-                                            .then(new DoneCallback<BThread>() {
-                                                @Override
-                                                public void onDone(BThread bThread) {
-
-                                                    BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
-                                                    // Add the current user to the thread if needed.
-
-                                                    if (!threadWrapper.getModel().hasUser(currentUser)) {
-//                                                        threadWrapper.addUser(BUserWrapper.initWithModel(currentUser));
-
-                                                        // Connecting both users to the thread.
-                                                        DaoCore.connectUserAndThread(currentUser, threadWrapper.getModel());
-                                                        DaoCore.connectUserAndThread(bUser, threadWrapper.getModel());
-                                                    }
-
-                                                    // Adding the thread to the message.
-                                                    finalMessage.setThread(bThread);
-
-                                                    // posting the notification. Also creating the new updated message.
-                                                    postMessageNotification(context, json, bThread, DaoCore.createEntity(finalMessage), true);
-
-                                                    threadWrapper.off();
-                                                }
-                                            })
-                                            .fail(new FailCallback() {
-                                                @Override
-                                                public void onFail(Object o) {
-                                                    if (DEBUG) Timber.d("Failed to get thread.");
-                                                    postMessageNotification(context, json, thread, finalMessage, false);
-
-                                                    threadWrapper.off();
-                                                }
-                                            });
-                                }
-                                else postMessageNotification(context, json, thread, finalMessage, true);
-                            }
-                        }, new FailCallback<BError>() {
-                            @Override
-                            public void onFail(BError error) {
-                                if (DEBUG) Timber.d("Failed to get user.");
-                                postMessageNotification(context, json, thread, finalMessage, false);
-                            }
-                        });
-            }
-        } catch (JSONException e) {
-            if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
-        }
-    }
-    
-    private void postMessageNotification(Context context, JSONObject json, BThread thread, BMessage message, boolean messageIsValid){
-
-        if (DEBUG) Timber.v("postMessageNotification: messageIsValid: %s", messageIsValid);
-        
-        Intent resultIntent;
-
-        // If the user isn't authenticated press on the push will lead him to the
-        // Login activity.
-        if (FirebasePaths.firebaseRef().getAuth() == null)
-        {
-            if (DEBUG) Timber.d("no auth user");
-            resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
-
-            // Posting the notification.
+            final JSONObject json;
             try {
-                NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
-                        NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
+                Intent resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+                NotificationUtils.createAlertNotification(context, BDefines.FOLLOWER_NOTIFICATION_ID, resultIntent,
+                        NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
+                                json.getString(PushUtils.CONTENT)));
             } catch (JSONException e) {
-                if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
+                Log.e(TAG, "JSONException: " + e.getMessage());
             }
-        }
-        else
-        {
-            if (DEBUG) Timber.i("user is authenticated");
-            // If the message is valid(Sender and Thread exist in the db)
-            // we should lead the user to the chat.
-            if (messageIsValid)
-            {
-                NotificationUtils.createMessageNotification(context, message);
-                return;
-            }
-            // Open main activity
-            else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
-
-            // Posting the notification.
-            try {
-                NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
-                        NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
-            } catch (JSONException e) {
-                if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
-            }
-        }
-        
-    }
-
-
-
-
-    private void createFollowerNotification(Context context, Intent intent){
-        final JSONObject json;
-        try {
-            json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
-            Intent resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
-            NotificationUtils.createAlertNotification(context, BDefines.FOLLOWER_NOTIFICATION_ID, resultIntent,
-                    NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
-                            json.getString(PushUtils.CONTENT)));
-        } catch (JSONException e) {
-            if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }
     }
 }

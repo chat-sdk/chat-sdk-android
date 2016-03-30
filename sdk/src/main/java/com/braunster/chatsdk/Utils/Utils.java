@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
@@ -19,6 +12,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.network.BDefines;
@@ -32,15 +26,16 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import timber.log.Timber;
-
-
+/**
+ * Created by itzik on 6/9/2014.
+ */
 public class Utils {
 
+    static final String TAG = Utils.class.getSimpleName();
     static final boolean DEBUG = false;
 
     public static String getSHA(Activity activity, String packageInfo){
-        if (DEBUG) Timber.d("PackageName: %s", packageInfo);
+        if (DEBUG) Log.d(TAG, "PackageName: " + packageInfo);
         // Add code to print out the key hash
         try {
             PackageInfo info = activity.getPackageManager().getPackageInfo(
@@ -49,7 +44,7 @@ public class Utils {
             for (Signature signature : info.signatures) {
                 MessageDigest md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
-                if (DEBUG) Timber.d(Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                if (DEBUG) Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
                 return Base64.encodeToString(md.digest(), Base64.DEFAULT);
             }
         } catch (PackageManager.NameNotFoundException e) {
@@ -122,7 +117,7 @@ public class Utils {
         }
 
 
-        if (DEBUG) Timber.d("Path From URI: %s", path);
+        if (DEBUG) Log.d(TAG, "Path From URI: " + path);
         
         return path;
     }
@@ -150,15 +145,20 @@ public class Utils {
         public static final String IMG_FILE_ENDING = ".jpg";
 
         static boolean isExternalStorageWritable() {
-            return Environment.MEDIA_MOUNTED.equals( Environment.getExternalStorageState() );
+            String state = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(state)) {
+                return true;
+            }
+            return false;
         }
 
         public static boolean createInternalDirIfNotExists(Context context, String name) {
-
+            if (DEBUG) Log.v(TAG, "createAppDirIfNotExists");
             boolean ret = true;
             File mydir = context.getDir(name, Context.MODE_PRIVATE);
 
             if (!mydir.exists()) {
+                Log.e(Utils.TAG, "Problem creating Image folder");
                 ret = false;
             }
 
@@ -169,6 +169,7 @@ public class Utils {
             File mydir = context.getDir(name, Context.MODE_PRIVATE);
 
             if (!mydir.exists()) {
+                Log.e(Utils.TAG, "Problem creating Image folder");
                 return null;
             }
 
@@ -181,6 +182,16 @@ public class Utils {
 
         private static File saveFile(File dir, String name, String type, Bitmap image, Bitmap.CompressFormat compressFormat, boolean external) {
 
+            if (external) {
+                if (!isExternalStorageWritable()) {
+                    if (Utils.DEBUG) Log.d(Utils.TAG, "No External storage.");
+                    return null;
+                }
+            }
+            // TODO check for internal dir
+//            else if (!createAppDirIfNotExists(path, name))
+//                return null;
+
             OutputStream stream = null;
             try {
                 if (dir == null) {
@@ -188,7 +199,7 @@ public class Utils {
                 }
 
                 String filePath = dir.getPath() + File.separator + name + type;
-                if (DEBUG) Timber.d("FilePath: %s", filePath);
+                if (DEBUG) Log.d(TAG, "FilePath: " + filePath);
 
                 File file = new File(filePath);
                 if (file.createNewFile()) {
@@ -199,15 +210,15 @@ public class Utils {
                     stream.close();
                     return file;
                 }
-                if (DEBUG) Timber.e("Unable to create file.");
+                if (DEBUG) Log.e(TAG, "Unable to create file.");
                 return null;
 
             } catch (FileNotFoundException e) {
-                if (Utils.DEBUG) Timber.d("Unable to save file.");
+                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
                 e.printStackTrace();
                 return null;
             } catch (IOException e) {
-                if (Utils.DEBUG) Timber.d("Unable to save file.");
+                if (Utils.DEBUG) Log.d(Utils.TAG, "Unable to save file.");
                 e.printStackTrace();
                 return null;
             }
@@ -217,50 +228,30 @@ public class Utils {
             return getInternalDir(context, name).getPath();
         }
 
-        public static File getAlbumStorageDir(Context context, String albumName) {
-            if (isExternalStorageWritable()) {
-//              Get the directory for the user's public pictures directory.
-                
-                File file = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES), albumName);
+        public static File getAlbumStorageDir(String albumName) {
+            if (!isExternalStorageWritable()) {
+                if (Utils.DEBUG) Log.e(Utils.TAG, "External Storage is not writable.");
+                return null;
+            }
 
-                if (file.exists()) {
-                    return file;
-                }
-                if (!file.mkdirs()) {
-                    return null;
-                } else if (!file.isDirectory()) {
-                    return null;
-                }
+            // Get the directory for the user's public pictures directory.
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), albumName);
 
+            if (file.exists()) {
+                if (Utils.DEBUG) Log.e(Utils.TAG, "public picture album exist");
                 return file;
             }
-            else
-            {
-                File storage;
-                
-                // Try to get the image directory anyway, 
-                // If fails try to create a directory path with a given name in the external storage.
-                storage = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES), albumName);;
-
-                if (!storage.exists()) {
-                    if (!storage.mkdirs()) {
-
-                        storage =new File(Environment.getExternalStorageDirectory(), albumName);
-                        
-                        if (!storage.exists()) {
-                            if (!storage.mkdirs()) {
-                                return null;
-                            }
-                            else return storage;
-                        }
-                        return storage;
-                    }
-                    else return storage;
-                }
-                return storage;
+            if (!file.mkdirs()) {
+                if (Utils.DEBUG) Log.e(Utils.TAG, "Directory not created");
+                return null;
+            } else if (!file.isDirectory()) {
+                if (Utils.DEBUG) Log.e(Utils.TAG, "saveImage, getAlbumDir file is not a Directory");
+                return null;
             }
+            if (Utils.DEBUG) Log.d(Utils.TAG, "Album dir fetched successfully.");
+
+            return file;
         }
     }
 

@@ -1,0 +1,47 @@
+##########################
+        V: 0.2.7
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# User profile pic in chat activity will be shown only for first message if the user send more then one in a row.
+# added new ToastStyle.
+# Taken pictures are saved inside an app folder inside the user image directory, i.e "Image/AndroidChatSDK/IMAGENAME.jpg"
+
+##########################
+        BUG FIX
+--------------------------
+# EventManager stop listening to events after app in the background for a long time.
+# Sometimes a double auth process is going on due to the checkAuthOnResumed in the base activity
+# Message are not added to chat in the chat activity after the screen change orientation.
+# message image can be huge when phone is on landscape mode.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# Need to Handle push notification for a message that already received.
+
+-----------OLD------------
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+# Cancel login to facebook after login process already started option.
+
+##########################
+          ISSUE
+--------------------------
+# Once a user delete a thread he wont receive any new messages i this thread.
+  The other user will have to delete the old one and start a new if he wants to send him a new message.
+  If the user that deleted the thread send a new message it will appear as a new thread at the other user application.
+
+-----------SOLVED----------
+
+##########################
+          TODO
+--------------------------
+# How to change the message details(color, textColor, textSize etc...
+# Add a dialog or something like that when sending a message so the user will know that its processed and sent.
+  Currently the user has a delay until he see the message in the chat. - Maybe add a loading icon in the action bar for Unread messages.
+# Fix the the ListView problem with the imageBubbleSize causing LisvView to be sketchy.
+# Fix ChatBubbleImage view click show popup when pressed outside the bubble. The reason is that that the bubble is smaller then the size of the view.

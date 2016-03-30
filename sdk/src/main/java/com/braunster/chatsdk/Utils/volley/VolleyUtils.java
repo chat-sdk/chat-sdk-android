@@ -1,4 +1,3 @@
-
 package com.braunster.chatsdk.Utils.volley;
 
 
@@ -107,15 +106,6 @@ public class VolleyUtils {
         public static String getCacheKey(String url, int maxWidth, int maxHeight) {
             return new StringBuilder(url.length() + 12).append("#W").append(maxWidth)
                     .append("#H").append(maxHeight).append(url).toString();
-        }
-
-        /**
-         * Creates a cache key for use with the L1 cache.
-         * @param url The URL of the request.
-         */
-        public static String getCacheKey(String url) {
-            return new StringBuilder(url.length() + 12).append("#W").append(0)
-                    .append("#H").append(0).append(url).toString();
         }
 
         /**

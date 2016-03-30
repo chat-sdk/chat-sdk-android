@@ -1,0 +1,25 @@
+##########################
+        V: 0.4.6
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+
+##########################
+        BUG FIX
+--------------------------
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+-----------OLD------------
+# Parcelable protocol requires the CREATOR object to be static on class com.github.johnpersano.supertoasts.SuperCardToast$ReferenceHolder
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+# Facebook is not logged out sometimes, Maybe related to null get activity session - Now checking for null and we will see if it happens again.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app.
+
+
+

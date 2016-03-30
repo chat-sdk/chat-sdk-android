@@ -1,0 +1,34 @@
+##########################
+        V: 0.3.1
+--------------------------
+
+##########################
+        NEW FEATURES
+--------------------------
+# Load more message by pull is supported.
+# Text Messages support status indicator,
+  So when they the user submit the message it would immediately add to the list in a grey color and change its color when finished sent.
+# Contacts list point out no offline/online contacts or no contacts at all.
+# Listening to user details change right after the user is added as a contact.
+# Some dialogs added for user feedback when creating stuff.
+# Border added to the message options.
+
+##########################
+        BUG FIX
+--------------------------
+# App thinks its still authing
+# Null last message added cause threads sort crash.
+# Threads fragment can show the loading indicator for the whole login process need to be fixed.
+
+##########################
+        BUG REPORT
+--------------------------
+-----------NEW------------
+# Maybe problem with scribe service crashes with bad response.(Only on emulator and RARE).
+-----------OLD------------
+# Need to Handle push notification for a message that already received.
+# User details are not indexed until the metadata is changed in the profile fragment.
+# Some old messages create notification when entering the app. and when opening the app after a push has been received.
+
+
+

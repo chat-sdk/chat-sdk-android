@@ -1,10 +1,3 @@
-/*
- * Created by Itzik Braun on 12/3/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 3/12/15 4:27 PM
- */
-
 package com.braunster.chatsdk.fragments.abstracted;
 
 import android.content.BroadcastReceiver;
@@ -15,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.TimingLogger;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,10 +30,13 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
 import com.braunster.chatsdk.object.Batcher;
-import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -88,6 +85,8 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
+                            + ", ID: " + adapter.getItem(position).getEntityId() );
                     startChatActivityForID(adapter.getItem(position).getId());
                 }
             };
@@ -100,6 +99,10 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (DEBUG)
+                        Log.i(TAG, "Thread Long Selected: " + adapter.getItem(position).getName()
+                                + ", ID: " + adapter.getItem(position).getEntityId());
+
                     showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                             getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
 
@@ -118,17 +121,22 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().privateThreadsItems(adapter.getItemMaker()));
+        adapter.setThreadItems(BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker()));
     }
 
     @Override
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
 
+        if (DEBUG) Log.d(TAG, "isLoggable: " + Log.isLoggable(TAG.substring(0, 21), Log.VERBOSE));
+
         if (DEBUG) timings = new TimingLogger(TAG.substring(0, 21), "loadDataOnBackground");
+
+        if (DEBUG) Log.v(TAG.substring(0, 21), "loadDataOnBackground");
 
         if (mainView == null)
         {
+            if (DEBUG) Log.e(TAG.substring(0, 21), "Main view is null");
             return;
         }
 
@@ -137,7 +145,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         {
             isFirst = false;
             uiUpdater.setKilled(true);
-            ChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
+            ChatSDKAbstractConversationsFragmentChatSDKThreadPool.getInstance().removeSchedule(uiUpdater);
         }
         else
         {
@@ -148,14 +156,19 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
         if (isFirst && !hasItems) {
             loadData();
+//            if (DEBUG) Log.v(TAG, "loadDataOnBackground, hiding list.");
+//            listThreads.setVisibility(View.INVISIBLE);
+//            progressBar.setVisibility(View.VISIBLE);
         }
 
         uiUpdater = new UIUpdater() {
             @Override
             public void run() {
+                if (DEBUG) Log.d(TAG, "Run, " + isFirst + ", " + hasItems + ", " + isKilled());
 
                 if (isKilled() && !isFirst && hasItems)
                 {
+                    if (DEBUG) Log.v(TAG, "uiUpdater, is killed.");
                     return;
 
                 }
@@ -164,9 +177,10 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List list = BNetworkManager.sharedManager().getNetworkAdapter().privateThreadsItems(adapter.getItemMaker());
+                List list = BNetworkManager.sharedManager().getNetworkAdapter().threadItemsWithType(BThread.Type.Private, adapter.getItemMaker());
 
                 if (DEBUG) {
+                    Log.d(TAG, "Thread Loaded, Size: " + list.size());
                     timings.addSplit("Loading threads");
                 }
 
@@ -181,7 +195,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             }
         };
 
-        ChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 0);
+        ChatSDKAbstractConversationsFragmentChatSDKThreadPool.getInstance().scheduleExecute(uiUpdater,isFirst ? 1 : 0);
     }
 
     @Override
@@ -210,13 +224,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         }
     }
 
-    private class UpdateHandler extends Handler{
-        
-        public UpdateHandler(Looper mainLooper) {
-            super(mainLooper);
-        }
-
-        @SuppressWarnings("unchecked")
+    private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -224,6 +232,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             switch (msg.what)
             {
                 case 1:
+                    if (DEBUG) Log.d(TAG, "UpdateUI " + ((List<ChatSDKThreadsListAdapter.ThreadListItem>) msg.obj).size());
                     adapter.setThreadItems((List<ChatSDKThreadsListAdapter.ThreadListItem>) msg.obj);
                     if (progressBar.getVisibility() == View.VISIBLE)
                     {
@@ -238,10 +247,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     break;
             }
         }
-
-    }
-    
-    private UpdateHandler handler = new UpdateHandler(Looper.getMainLooper());
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -279,17 +285,21 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
 //        loadDataOnBackground();
 
-        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", handler);
+        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
         batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
+                if (DEBUG) Log.d(TAG, "Triggered " + list.size());
                 loadDataOnBackground();
             }
         });
 
-
         getNetworkAdapter().getEventManager().removeEventByTag(APP_EVENT_TAG);
         getNetworkAdapter().getEventManager().addEvent(batchedEvents);
+    }
+
+    public void setAdapter(ChatSDKAbstractThreadsListAdapter adapter) {
+        this.adapter = adapter;
     }
 
     @Override
@@ -301,20 +311,6 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         }
     }
 
-
-    public void setAdapter(ChatSDKAbstractThreadsListAdapter adapter) {
-        this.adapter = adapter;
-    }
-
-    public void setInflateMenuItems(boolean inflateMenuItems) {
-        this.inflateMenuItems = inflateMenuItems;
-    }
-
-    public void filterThreads(String text){
-        adapter.filterItems(text);
-    }
-
-
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -325,7 +321,65 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         }
     };
 
+    public void filterThreads(String text){
+        adapter.filterItems(text);
+    }
+
     public ChatSDKAbstractThreadsListAdapter getAdapter() {
         return adapter;
+    }
+
+    /** FIXME not sure if needed.
+     * Created by braunster on 18/08/14.
+     */
+    private static class ChatSDKAbstractConversationsFragmentChatSDKThreadPool {
+        // Sets the amount of time an idle thread waits before terminating
+        private static final int KEEP_ALIVE_TIME = 3;
+        // Sets the Time Unit to seconds
+        private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+
+        private LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
+        /*
+         * Gets the number of available cores
+         * (not always the same as the maximum number of cores)
+         */
+        private static int NUMBER_OF_CORES =
+                Runtime.getRuntime().availableProcessors();
+
+        private ThreadPoolExecutor threadPool;
+        private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+
+        private static ChatSDKAbstractConversationsFragmentChatSDKThreadPool instance;
+
+        public static ChatSDKAbstractConversationsFragmentChatSDKThreadPool getInstance() {
+            if (instance == null)
+                instance = new ChatSDKAbstractConversationsFragmentChatSDKThreadPool();
+            return instance;
+        }
+
+        private ChatSDKAbstractConversationsFragmentChatSDKThreadPool(){
+            // Creates a thread pool manager
+            threadPool = new ThreadPoolExecutor(
+                    NUMBER_OF_CORES,       // Initial pool size
+                    5,       // Max pool size
+                    KEEP_ALIVE_TIME,
+                    KEEP_ALIVE_TIME_UNIT,
+                    workQueue);
+
+            scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(NUMBER_OF_CORES);
+
+        }
+
+        public void execute(Runnable runnable){
+            threadPool.execute(runnable);
+        }
+
+        public void scheduleExecute(Runnable runnable, long delay){
+            scheduledThreadPoolExecutor.schedule(runnable, delay, TimeUnit.SECONDS);
+        }
+
+        public boolean removeSchedule(Runnable runnable){
+            return scheduledThreadPoolExecutor.remove(runnable);
+        }
     }
 }
