@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.fragments.abstracted;
 
 import android.app.Activity;
@@ -7,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,9 +37,6 @@ import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ChatSDKBaseFragment;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
@@ -43,9 +46,13 @@ import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -130,7 +137,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
     /** This is passed to the list adapter, If true the list will be with headers.
      * @see com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractUsersListAdapter*/
-    protected boolean withHeaders = true;
+    protected boolean withHeaders = false;
 
     /** If true the fragent will listen to users details change and updates.*/
     protected boolean withUpdates = true;
@@ -200,8 +207,6 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (DEBUG) Log.d(TAG, "onCreateView");
-
         if (isDialog)
         {
             if(title.equals(""))
@@ -271,7 +276,6 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
     @Override
     public void loadData(){
-        if (DEBUG) Log.v(TAG, "loadData");
 
         if (mainView == null || getActivity() == null)
             return;
@@ -284,16 +288,14 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
             setListClickMode();
         }
-        else if (DEBUG) Log.e(TAG, "NetworkAdapter is null");
+
     }
 
     @Override
     public void loadDataOnBackground(){
-        if (DEBUG) Log.v(TAG, "loadDataOnBackground");
 
         if (mainView == null || getActivity() == null)
         {
-            if (DEBUG) Log.e(TAG, "main view or activity is null");
             return;
         }
 
@@ -320,7 +322,6 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
                 if (isKilled())
                 {
-                    if (DEBUG) Log.v(TAG, "Killed");
                     return;
                 }
 
@@ -341,7 +342,6 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
     @Override
     public void clearData() {
-        if (DEBUG) Log.d(TAG, "ClearData");
         if (adapter != null)
         {
             if (uiUpdater != null)
@@ -373,7 +373,6 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     };
 
     private void setListClickMode(){
-        if (DEBUG) Log.v(TAG, "Set List, " + ( adapter == null ? "Adapter is null" : adapter.getUserItems().size()));
 
         if (onItemClickListener!=null)
         {
@@ -399,66 +398,63 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                             else
                                 thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
 
-                            getNetworkAdapter().addUsersToThread(thread, new RepetitiveCompletionListenerWithError<BUser, BError>() {
-                                @Override
-                                public boolean onItem(BUser user) {
-                                    showToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success)   + clickedUser.getMetaName());
-                                    if (isDialog)
-                                    {
-                                        if (contactListListener!= null)
-                                            contactListListener.onContactClicked(clickedUser);
+                            getNetworkAdapter().addUsersToThread(thread, clickedUser)
+                                    .done(new DoneCallback<BThread>() {
+                                        @Override
+                                        public void onDone(BThread thread) {
+                                            showToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success)   + clickedUser.getMetaName());
+                                            
+                                            if (contactListListener!= null)
+                                                contactListListener.onContactClicked(clickedUser);
 
-                                        getDialog().dismiss();
-                                    }
-                                    return false;
-                                }
-
-                                @Override
-                                public void onDone() {
-                                    if (!isDialog)
-                                        if (contactListListener!= null)
-                                            contactListListener.onContactClicked(clickedUser);
-                                }
-
-                                @Override
-                                public void onItemError(BUser user, BError o) {
-                                    chatSDKUiHelper.showAlertToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail) );
-                                }
-                            }, clickedUser);
+                                            if (isDialog)
+                                            {
+                                                getDialog().dismiss();
+                                            }
+                                        }
+                                    })
+                                    .fail(new FailCallback<BError>() {
+                                        @Override
+                                        public void onFail(BError error) {
+                                            chatSDKUiHelper.showAlertToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail) );
+                                        }
+                                    });
                             break;
 
                         case CLICK_MODE_SHARE_CONTENT:
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
-                                @Override
-                                public void onDone(BThread thread) {
-                                    Intent intent = new Intent(getActivity(), chatSDKUiHelper.chatActivity);
-                                    intent.putExtra(ChatSDKChatActivity.THREAD_ID, thread.getId());
+                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, getNetworkAdapter().currentUserModel())
+                                    .done(new DoneCallback<BThread>() {
+                                        @Override
+                                        public void onDone(BThread thread) {
+                                            Intent intent = new Intent(getActivity(), chatSDKUiHelper.chatActivity);
+                                            intent.putExtra(ChatSDKChatActivity.THREAD_ID, thread.getId());
 
-                                    // Checking the kind of the instace data
-                                    // Uri is used for images
-                                    if (extraData instanceof Uri)
-                                        intent.putExtra(ChatSDKChatHelper.SHARED_FILE_URI, ((Uri) extraData));
-                                        // String is for text.
-                                    else if (extraData instanceof  String)
-                                        intent.putExtra(ChatSDKChatHelper.SHARED_TEXT, ((String) extraData));
-                                    else
-                                    {
-                                        showToast(getString(R.string.abstract_contact_fragment_share_with_contact_toast_fail_unknown_type));
-                                        return;
-                                    }
+                                            // Checking the kind of the instace data
+                                            // Uri is used for images
+                                            if (extraData instanceof Uri)
+                                                intent.putExtra(ChatSDKChatHelper.SHARED_FILE_URI, ((Uri) extraData));
+                                                // String is for text.
+                                            else if (extraData instanceof  String)
+                                                intent.putExtra(ChatSDKChatHelper.SHARED_TEXT, ((String) extraData));
+                                            else
+                                            {
+                                                showToast(getString(R.string.abstract_contact_fragment_share_with_contact_toast_fail_unknown_type));
+                                                return;
+                                            }
 
-                                    if (contactListListener!= null)
-                                        contactListListener.onContactClicked(clickedUser);
+                                            if (contactListListener!= null)
+                                                contactListListener.onContactClicked(clickedUser);
 
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                                    startActivity(intent);
-                                }
-
-                                @Override
-                                public void onDoneWithError(BError error) {
-
-                                }
-                            }, clickedUser, getNetworkAdapter().currentUser());
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                            startActivity(intent);
+                                        }
+                                    })
+                                    .fail(new FailCallback<BError>() {
+                                        @Override
+                                        public void onFail(BError error) {
+                                            
+                                        }
+                                    });
                             break;
 
                         case CLICK_MODE_NONE:
@@ -466,23 +462,25 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                             break;
 
                         default:
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), new CompletionListenerWithData<BThread>() {
-                                @Override
-                                public void onDone(BThread  thread) {
-                                    if (contactListListener!= null)
-                                        contactListListener.onContactClicked(clickedUser);
+                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, getNetworkAdapter().currentUserModel())
+                                .done(new DoneCallback<BThread>() {
+                                    @Override
+                                    public void onDone(BThread thread) {
+                                        if (contactListListener!= null)
+                                            contactListListener.onContactClicked(clickedUser);
 
-                                    // This listener is used only because that if we dismiss the dialog before the thread creation has been done
-                                    // The contact dialog could not open the new chat activity because getActivity() will be null.
-                                    if (isDialog)
-                                        getDialog().dismiss();
-                                }
-
-                                @Override
-                                public void onDoneWithError(BError error) {
-
-                                }
-                            }, clickedUser, getNetworkAdapter().currentUser());
+                                        // This listener is used only because that if we dismiss the dialog before the thread creation has been done
+                                        // The contact dialog could not open the new chat activity because getActivity() will be null.
+                                        if (isDialog)
+                                            getDialog().dismiss();
+                                    }
+                                })
+                                .fail(new FailCallback<BError>() {
+                                    @Override
+                                    public void onFail(BError error) {
+                                        
+                                    }
+                                });
                     }
                 }
             });
@@ -498,23 +496,23 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             // If this is not a dialog we will load the contacts of the user.
             switch (loadingMode) {
                 case MODE_LOAD_CONTACTS:
-                    if (DEBUG) Log.d(TAG, "Mode - Contacts");
-                    sourceUsers = getNetworkAdapter().currentUser().getContacts();
+                    if (DEBUG) Timber.d("Mode - Contacts");
+                    sourceUsers = getNetworkAdapter().currentUserModel().getContacts();
                     break;
 
                 case MODE_LOAD_THREAD_USERS:
-                    if (DEBUG) Log.d(TAG, "Mode - Thread Users");
+                    if (DEBUG) Timber.d("Mode - Thread Users");
                     BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
 
                     // Remove the current user from the list.
                     List<BUser> users = thread.getUsers();
-                    users.remove(getNetworkAdapter().currentUser());
+                    users.remove(getNetworkAdapter().currentUserModel());
 
                     sourceUsers = users;
                     break;
 
                 case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                    List<BUser> users1 = getNetworkAdapter().currentUser().getContacts();
+                    List<BUser> users1 = getNetworkAdapter().currentUserModel().getContacts();
                     thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, extraData);
                     List<BUser> threadUser = thread.getUsers();
                     users1.removeAll(threadUser);
@@ -526,31 +524,31 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     {
                         sourceUsers = new ArrayList<BUser>();
                         showLoading();
-                        getNetworkAdapter().getFollowers((String) extraData, new RepetitiveCompletionListener<BUser>() {
-                            @Override
-                            public boolean onItem(BUser item) {
-                                if (getNetworkAdapter().currentUser().getId() == item.getId())
-                                    return false;
+                        getNetworkAdapter().getFollowers((String) extraData)
+                                .done(new DoneCallback<List<BUser>>() {
+                                    @Override
+                                    public void onDone(List<BUser> users) {
 
-                                sourceUsers.add(item);
-                                hideLoading();
-                                adapter.addRow(item);
-                                return false;
-                            }
+                                        users.remove(getNetworkAdapter().currentUserModel());
+                                        
+                                        hideLoading();
+                                        
+                                        sourceUsers = users;
+                                        
+                                        adapter.addBUsersRows(users);
 
-                            @Override
-                            public void onDone() {
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onItemError(BError object) {
-                                //TODO handle error
-                            }
-                        });
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                })
+                                .fail(new FailCallback<BError>() {
+                                    @Override
+                                    public void onFail(BError error) {
+                                        //TODO handle error
+                                    }
+                                });
                     }
                     else
-                        sourceUsers = getNetworkAdapter().currentUser().getFollowers();
+                        sourceUsers = getNetworkAdapter().currentUserModel().getFollowers();
                     break;
 
                 case MODE_LOAD_FOLLOWS:
@@ -559,31 +557,24 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
                         sourceUsers = new ArrayList<BUser>();
                         showLoading();
-                        getNetworkAdapter().getFollows((String) extraData, new RepetitiveCompletionListener<BUser>() {
-                            @Override
-                            public boolean onItem(BUser item) {
-                                if (getNetworkAdapter().currentUser().getId() == item.getId())
-                                    return false;
+                        getNetworkAdapter().getFollows((String) extraData)
+                                .done(new DoneCallback<List<BUser>>() {
+                                    @Override
+                                    public void onDone(List<BUser> users) {
+                                        users.remove(getNetworkAdapter().currentUserModel());
 
-                                hideLoading();
-                                sourceUsers.add(item);
-                                adapter.addRow(item);
-                                return false;
-                            }
+                                        hideLoading();
 
-                            @Override
-                            public void onDone() {
+                                        sourceUsers = users;
 
-                            }
+                                        adapter.addBUsersRows(users);
 
-                            @Override
-                            public void onItemError(BError object) {
-                                //TODO handle errror
-                            }
-                        });
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
                     }
                     else
-                        sourceUsers = getNetworkAdapter().currentUser().getFollows();
+                        sourceUsers = getNetworkAdapter().currentUserModel().getFollows();
                     break;
             }
     }
@@ -601,16 +592,12 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (DEBUG) Log.v(TAG, "onResume, TAG: " + eventTAG);
-
         if (withUpdates)
         {
             BatchedEvent userDetailsBatch = new BatchedEvent(eventTAG, "", Event.Type.UserDetailsEvent, handler);
             userDetailsBatch.setBatchedAction(Event.Type.UserDetailsEvent, 1000, new Batcher.BatchedAction<String>() {
                 @Override
                 public void triggered(List<String> list) {
-                    if (DEBUG) Log.d(TAG, "OnUserDetailsChanged");
-
                     loadDataOnBackground();
                 }
             });

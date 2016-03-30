@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.fragments;
 
 import android.app.FragmentManager;
@@ -5,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,11 +27,7 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.adapter.ChatSDKThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.entities.Entity;
-import com.braunster.chatsdk.interfaces.ActivityListener;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithError;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
@@ -34,14 +36,17 @@ import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
-
-    //TODO add selection of thread type to see.
 
     private static final String TAG = ChatSDKThreadsFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ThreadsFragment;
@@ -49,7 +54,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
     private ListView listThreads;
     private ChatSDKThreadsListAdapter adapter;
-    private ActivityListener activityListener;
     private ProgressBar progressBar;
     private UIUpdater uiUpdater;
 
@@ -91,10 +95,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                if (DEBUG) Log.i(TAG, "Thread Selected: " + adapter.getItem(position).getName()
-                        + ", ID: " + adapter.getItem(position).getEntityId());
-
                 startChatActivityForID(adapter.getItem(position).getId());
             }
         });
@@ -113,8 +113,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     @Override
     public void loadDataOnBackground() {
         super.loadDataOnBackground();
-
-        if (DEBUG) Log.v(TAG, "loadDataOnBackground");
 
         if (mainView == null)
             return;
@@ -201,48 +199,36 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
             dialog.setTitleAndListen( getString(R.string.add_public_chat_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
                 public void onFinished(final String s) {
-                    if (DEBUG) Log.v(TAG, "onFinished, Thread Name: " + s);
 
                     showProgDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                    BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s, new CompletionListenerWithDataAndError<BThread, BError>() {
-                        @Override
-                        public void onDone(final BThread bThread) {
-
-                            // Add the current user to the thread.
-                            BNetworkManager.sharedManager().getNetworkAdapter().addUsersToThread(bThread,
-                                    new RepetitiveCompletionListenerWithError<BUser, BError>() {
+                    BNetworkManager.sharedManager().getNetworkAdapter().createPublicThreadWithName(s)
+                            .done(new DoneCallback<BThread>() {
                                 @Override
-                                public boolean onItem(BUser user) {
-
-                                    return false;
+                                public void onDone(final BThread thread) {
+                                    // Add the current user to the thread.
+                                    getNetworkAdapter().addUsersToThread(thread, BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel())
+                                            .done(new DoneCallback<BThread>() {
+                                                @Override
+                                                public void onDone(BThread thread) {
+                                                    dismissProgDialog();
+                                                    adapter.addRow(thread);
+                                                    showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
+                                                            + s
+                                                            + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
+                                                }
+                                            });
                                 }
-
+                            })
+                            .fail(new FailCallback<BError>() {
                                 @Override
-                                public void onDone() {
+                                public void onFail(BError bError) {
+                                    showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
+
+                                    if (DEBUG) Timber.e("Error: %s", bError.message);
+
                                     dismissProgDialog();
-                                    adapter.addRow(bThread);
-                                    showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
-                                            + s
-                                            + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
                                 }
-
-                                @Override
-                                public void onItemError(BUser user, BError o) {
-
-                                }
-                            }, BNetworkManager.sharedManager().getNetworkAdapter().currentUser());
-
-                        }
-
-                        @Override
-                        public void onDoneWithError(BThread bThread, BError o) {
-                            showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
-                            
-                            Log.e(TAG, "Error: " + o.message);
-                            
-                            dismissProgDialog();
-                        }
-                    });
+                            });
                 }
             });
 
@@ -263,7 +249,6 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
             @Override
             public void triggered(List<String> list) {
-                if (DEBUG) Log.d(TAG, "Triggered");
                 loadDataOnBackground();
             }
         });

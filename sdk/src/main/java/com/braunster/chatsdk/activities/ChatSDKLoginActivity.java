@@ -1,7 +1,13 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.activities;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -10,9 +16,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.braunster.chatsdk.BuildConfig;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.abstracted.ChatSDKAbstractLoginActivity;
+import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.network.BDefines;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 
@@ -36,10 +48,12 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
         setExitOnBackPressed(true);
 
         View view = findViewById(R.id.chat_sdk_root_view);
-        if (DEBUG) Log.d(TAG, "View is: " + (view == null ? "null" : "not null"));
+        
         setupTouchUIToDismissKeyboard(view);
 
         initViews();
+
+        ((TextView) findViewById(R.id.chat_sdk_txt_version)).setText(String.valueOf(BuildConfig.VERSION_NAME));
     }
 
     @Override
@@ -99,6 +113,23 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
     @Override
     protected void afterLogin(){
         super.afterLogin();
+
+        // Updating the version name.
+        BUser curUser = getNetworkAdapter().currentUserModel();
+        
+        String version = BDefines.BAppVersion,
+                metaVersion = curUser.metaStringForKey(BDefines.Keys.BVersion);
+        
+        if (StringUtils.isNotEmpty(version))
+        {
+            if (StringUtils.isEmpty(metaVersion) || !metaVersion.equals(version))
+            {
+                curUser.setMetadataString(BDefines.Keys.BVersion, version);
+            }
+
+            DaoCore.updateEntity(curUser);
+        }
+        
         startMainActivity();
     }
 

@@ -1,12 +1,14 @@
-package com.braunster.chatsdk.Utils.asynctask;
-
-/**
- * Created by braunster on 04/11/14.
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
  */
+
+package com.braunster.chatsdk.Utils.asynctask;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,6 +24,8 @@ import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapte
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /** Async task that craet mix images bitmap for the thread image.
  *
@@ -145,7 +149,6 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
                             return;
 
                         if (response.getBitmap() != null) {
-                            if (DEBUG) Log.i(TAG, "Loading thread picture from url");
                             bitmaps.add(response.getBitmap());
                             loadedCount++;
 
@@ -161,7 +164,7 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
                         if (!errorUrls.contains(url))
                         {
                             loadedCount++; 
-                            if (DEBUG) Log.e(TAG, "Image Load Error: " + error.getMessage());
+                            if (DEBUG) Timber.e("Image Load Error: %s", error.getMessage());
                             errorUrls.add(url);
                             dispatchFinishedIfDid();
                         }
@@ -195,7 +198,7 @@ public class MakeThreadImage extends AsyncTask<Bitmap, Void, Bitmap> {
         image.setImageResource(R.drawable.ic_users);
     }
 
-    private static String getCacheKey(String key, int size){
+    public static String getCacheKey(String key, int size){
         return key + "S" + size;
     }
 

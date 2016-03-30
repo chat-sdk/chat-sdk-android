@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:23 PM
+ */
+
 package com.braunster.chatsdk.Utils.asynctask;
 
 import android.content.ContentResolver;
@@ -6,23 +13,18 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListener;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
 
-/**
- * Created by braunster on 17/12/14.
- *
- * This class imports users contact list and try to find other users with this phone number using indexing.
- *
- * The country code is added to a number if it does not have any other country code starting with '+'.
- *
- */
+import org.jdeferred.DoneCallback;
+
+import java.util.List;
+
+import timber.log.Timber;
+
 public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
 
     public static final String TAG = ImportPhoneContactTask.class.getSimpleName();
@@ -38,7 +40,7 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         String countryCode = "+" + getCountryCode();
 
-        if (DEBUG) Log.d(TAG, "CountryCode: " + countryCode);
+        if (DEBUG) Timber.d("CountryCode: %s", countryCode);
 
         ContentResolver cr = context.getContentResolver();
 
@@ -63,26 +65,19 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
                         if (!phoneNo.startsWith(countryCode) && !phoneNo.startsWith("+"))
                             phoneNo = countryCode + phoneNo;
 
-                        if (DEBUG) Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
+                        if (DEBUG) Timber.d("Name: %s, Phone Number: %s", name, phoneNo);
 
-                        BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BPhone, phoneNo, new RepetitiveCompletionListener<BUser>() {
-                            @Override
-                            public boolean onItem(BUser item) {
-                                if (DEBUG) Log.d(TAG, "User found: " + item.getMetaName());
-                                BNetworkManager.sharedManager().getNetworkAdapter().currentUser().addContact(item);
-                                return false;
-                            }
-
-                            @Override
-                            public void onDone() {
-
-                            }
-
-                            @Override
-                            public void onItemError(BError object) {
-
-                            }
-                        });
+                        BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BPhone, phoneNo)
+                                .done(new DoneCallback<List<BUser>>() {
+                                    @Override
+                                    public void onDone(List<BUser> users) {
+                                        for (BUser u : users)
+                                        {
+                                            if (DEBUG) Timber.d("User found: %s", u.getMetaName());
+                                            BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().addContact(u);
+                                        }
+                                    }
+                                });
                     }
                     pCur.close();
                 }

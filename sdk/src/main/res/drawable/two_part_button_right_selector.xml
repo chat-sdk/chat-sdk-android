@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Created by Itzik Braun on 2/4/2015.
+  ~ Copyright (c) 2015 deluge. All rights reserved.
+  ~
+  ~ Last Modification at: 4/2/15 3:50 PM
+  -->
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true" android:drawable="@drawable/two_part_button_right_pressed"/>
+    <item android:state_selected="true" android:drawable="@drawable/two_part_button_right_pressed"/>
+    <item android:state_selected="false" android:drawable="@drawable/two_part_button_right_normal"/>
+</selector>

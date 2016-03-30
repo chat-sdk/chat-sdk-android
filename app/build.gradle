@@ -1,29 +1,38 @@
 apply plugin: 'com.android.application'
 
+def versionMajor = 0
+def versionMinor = 9
+def versionPatch = 6
+def versionBuild = 1 // bump for dogfood builds, public betas, etc.
+
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-
+  
     defaultConfig {
         multiDexEnabled = false
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+
+        versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
 
     signingConfigs {
 
         debug {
-            storeFile file('path/to/key')
-            keyAlias 'keyAlias'
-            keyPassword 'keyPassword'
-            storePassword 'storePassword'
+            storeFile file('/media/braunster/Code/Android/braunserkey')
+            keyAlias 'braunsteralias'
+            keyPassword 'Itzikbraun1991'
+            storePassword 'Itzikbraun1991'
         }
 
         release {
-            storeFile file('path/to/key')
-            keyAlias 'keyAlias'
-            keyPassword 'keyPassword'
-            storePassword 'storePassword'
+            storeFile file('/media/braunster/Code/Android/braunserkey')
+            keyAlias 'braunsteralias'
+            keyPassword 'Itzikbraun1991'
+            storePassword 'Itzikbraun1991'
         }
     }
 
@@ -57,6 +66,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    
     compile project(':firebase_plugin')
 
     compile 'com.android.support:multidex:1.0.0'

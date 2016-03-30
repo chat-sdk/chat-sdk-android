@@ -1,6 +1,11 @@
-package com.braunster.androidchatsdk.firebaseplugin.firebase.parse;
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:35 PM
+ */
 
-import android.util.Log;
+package com.braunster.androidchatsdk.firebaseplugin.firebase.parse;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.parse.ParseInstallation;
@@ -15,24 +20,29 @@ import java.util.Collection;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 
-/**
- * Created by itzik on 6/3/2014.
- */
 public class PushUtils {
 
-    private static final String TAG = PushUtils.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    static final String ACTION = "action";
+    static final String ALERT = "alert";
+    static final String BADGE = "badge", INCREMENT = "Increment";
+    static final String CONTENT = "text";
+    static final String MESSAGE_ENTITY_ID = "message_entity_id";
+    static final String THREAD_ENTITY_ID = "thread_entity_id";
+    static final String MESSAGE_DATE ="message_date";
+    static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
+    static final String MESSAGE_TYPE = "message_type";
+    static final String MESSAGE_PAYLOAD= "message_payload";
 
-    public static final String ACTION = "action";
-    public static final String ALERT = "alert";
-    public static final String BADGE = "badge", INCREMENT = "Increment";
-    public static final String CONTENT = "text";
-    public static final String MESSAGE_ENTITY_ID = "message_entity_id";
-    public static final String THREAD_ENTITY_ID = "thread_entity_id";
-    public static final String MESSAGE_DATE ="message_date";
-    public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
-    public static final String MESSAGE_TYPE = "message_type";
-    public static final String MESSAGE_PAYLOAD= "message_payload";
+    static final String SOUND = "sound";
+    static final String Default = "default";
+
+    static final String DeviceType = "deviceType";
+    static final String iOS = "ios";
+    static final String Android = "android";
+
+    static final String Channels = "channels";
+    static final String Channel = "channel";
+
 
     public static void sendMessage(BMessage message, Collection<String> channels){
 
@@ -43,8 +53,6 @@ public class PushUtils {
         else if (message.getType() == IMAGE)
             text = "Picture Message";
         text = message.getBUserSender().getMetaName() + " " + text;
-
-        if (DEBUG) Log.v(TAG, "sendMessage, Content: " +  text);
 
         JSONObject data = new JSONObject();
         try {
@@ -58,21 +66,47 @@ public class PushUtils {
             data.put(MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
             data.put(MESSAGE_TYPE, message.getType());
             data.put(MESSAGE_PAYLOAD, message.getText());
-
-            //For iOS
-            data.put(BADGE, INCREMENT);
-//            data.put(ALERT, text);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
-        ParsePush push = new ParsePush();
-        push.setQuery(parseQuery);
-        push.setChannels(channels);
-        push.setData(data);
-        push.sendInBackground();
+
+        ParseQuery<ParseInstallation> androidQuery = ParseInstallation.getQuery();
+        androidQuery.whereEqualTo(DeviceType, Android);
+        androidQuery.whereContainedIn(Channels, channels);
+
+        ParsePush androidPush = new ParsePush();
+        androidPush.setQuery(androidQuery);
+        androidPush.setData(data);
+        androidPush.sendInBackground();
+
+        //For iOS
+        try {
+            data.put(BADGE, INCREMENT);
+            data.put(ALERT, text);
+            // For making sound in iOS
+            data.put(SOUND, Default);
+
+            ParseQuery<ParseInstallation> iosQuery = ParseInstallation.getQuery();
+            iosQuery.whereEqualTo(DeviceType, iOS);
+            iosQuery.whereContainedIn(Channels, channels);
+
+            ParsePush iOSPush = new ParsePush();
+            iOSPush.setQuery(iosQuery);
+            iOSPush.setData(data);
+            iOSPush.sendInBackground();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
+
+
+
+
+
+
+
 
     /** @param channel The channel to push to.
      * @param content The follow notification content.*/
@@ -82,19 +116,38 @@ public class PushUtils {
 
             data.put(ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
             data.put(CONTENT, content);
-
-            //For iOS
-            data.put(BADGE, INCREMENT);
-//            data.put(ALERT, content);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
-        ParsePush push = new ParsePush();
-        push.setQuery(parseQuery);
-        push.setChannel(channel);
-        push.setData(data);
-        push.sendInBackground();
+        ParseQuery<ParseInstallation> androidQuery = ParseInstallation.getQuery();
+        androidQuery.whereEqualTo(DeviceType, Android);
+        androidQuery.whereEqualTo(Channel, channel);
+
+        ParsePush androidPush = new ParsePush();
+        androidPush.setQuery(androidQuery);
+        androidPush.setData(data);
+        androidPush.sendInBackground();
+
+
+        //For iOS
+        try {
+            data.put(BADGE, INCREMENT);
+            data.put(ALERT, content);
+            // For making sound in iOS
+            data.put(SOUND, Default);
+
+            ParseQuery<ParseInstallation> iosQuery = ParseInstallation.getQuery();
+            iosQuery.whereEqualTo(DeviceType, iOS);
+            iosQuery.whereEqualTo(Channel, channel);
+
+            ParsePush iOSPush = new ParsePush();
+            iOSPush.setQuery(iosQuery);
+            iOSPush.setData(data);
+            iOSPush.sendInBackground();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

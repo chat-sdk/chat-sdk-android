@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:34 PM
+ */
+
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import com.braunster.chatsdk.network.BDefines;
@@ -11,9 +18,6 @@ import java.util.Map;
 
 import static com.braunster.chatsdk.network.BDefines.ServerUrl;
 
-/**
- * Created by itzik on 6/8/2014.
- */
 public class FirebasePaths extends Firebase{
 
     private StringBuilder builder = new StringBuilder();
@@ -50,9 +54,27 @@ public class FirebasePaths extends Firebase{
     public static FirebasePaths userRef(){
         return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BUsersPath);
     }
+   
     /** @return The user ref for given id.*/
     public static FirebasePaths userRef(String firebaseId){
         return userRef().appendPathComponent(firebaseId);
+    }
+
+    /** @return The user meta ref for given id.*/
+    public static FirebasePaths userMetaRef(String firebaseId){
+        return userRef().appendPathComponent(firebaseId).appendPathComponent(BFirebaseDefines.Path.BMetaPath);
+    }
+
+    public static FirebasePaths userOnlineRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BOnlinePath);
+    }
+
+    public static FirebasePaths userFollowsRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollows);
+    }
+
+    public static FirebasePaths userFollowersRef(String firebaseId){
+        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollowers);
     }
 
     /* Threads */
@@ -66,29 +88,17 @@ public class FirebasePaths extends Firebase{
         return threadRef().appendPathComponent(firebaseId);
     }
 
+    public static FirebasePaths threadMessagesRef(String firebaseId){
+        return threadRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+    }
+    
     public static FirebasePaths publicThreadsRef(){
         return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);
     }
 
-    /** @return The public threads ref .*/
-    public Firebase publicThreadRef(){
-        return appendPathComponent(BFirebaseDefines.Path.BPublicThreadPath);
-    }
-
+    /* Index */
     public static FirebasePaths indexRef(){
         return firebaseRef().appendPathComponent(BFirebaseDefines.Path.BIndexPath);
-    }
-
-    public static FirebasePaths userOnlineRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BOnlinePath);
-    }
-
-    public static FirebasePaths userFollowsRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollows);
-    }
-
-    public static FirebasePaths userFollowersRef(String firebaseId){
-        return userRef(firebaseId).appendPathComponent(BFirebaseDefines.Path.BFollowers);
     }
 
     public static Map<String, Object> getMap(String[] keys,  Object...values){

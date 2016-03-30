@@ -9,7 +9,6 @@ public class EntityProperties {
     public static final String BUser = "BUser";
     public static final String BMessage = "BMessage";
     public static final String BThread = "BThread";
-    public static final String BThreadCreated = "BThreadCreated";
     public static final String BMetaData = "BMetadata";
     public static final String BLinkedAccount = "BLinkedAccount";
     public static final String BLinkedContact = "BLinkedContact";
@@ -30,7 +29,6 @@ public class EntityProperties {
 
     /* User*/
     public static final String Dirty = "dirty";
-    public static final String AuthenticationID = "authenticationId";
     public static final String LastOnline = "lastOnline";
     public static final String Online = "Online";
     public static final String AuthenticationType = "AuthenticationType";
@@ -42,16 +40,14 @@ public class EntityProperties {
 
     /* Message*/
     public static final String Date = "date";
-    public static final String FontSize = "fontSize";
-    public static final String FontName = "fontName";
     public static final String Resource= "resources";
     public static final String ResourcePath = "resourcesPath";
     public static final String Text = "text";
-    public static final String TextColor = "textColor";
-    public static final String Thread = "thread";
+    public static final String ImageDimensions= "imageDimensions";
     public static final String User = "user";
     public static final String Status = "status";
     public static final String isRead = "isRead";
+    public static final String Delivered = "delivered";
 
     /* Thread */
     public static final String CreationDate = "creationDate";
@@ -62,10 +58,12 @@ public class EntityProperties {
     public static final String CreatorEntityID = "creatorEntityId";
     public static final String BDeleted = "deleted";
     public static final String BThreadImageUrl = "imageUrl";
+    public static final String RootKey= "rootKey";
+    public static final String ApiKey = "apiKey";
+    public static final String C_RootKey= "root_key";
+    public static final String C_ApiKey = "api_key";
 
     /* Metadata*/
-    public static final String Key = "Key";
-    public static final String Value = "Value";
     public static final String MetaData = "Metadata";
 
     /*Contact*/

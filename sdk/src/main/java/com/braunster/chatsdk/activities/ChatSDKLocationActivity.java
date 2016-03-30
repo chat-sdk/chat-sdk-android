@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.activities;
 
 import android.content.Intent;
@@ -5,13 +12,13 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -20,9 +27,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.commons.lang3.RandomUtils;
-
 import java.io.File;
+
+import timber.log.Timber;
 
 /**
  * Created by braunster on 19/06/14.
@@ -108,7 +115,8 @@ public class ChatSDKLocationActivity extends FragmentActivity {
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            File savedFile = File.createTempFile("LocationImage" + RandomUtils.nextInt(0, 10), ".jpg", ChatSDKLocationActivity.this.getCacheDir());
+                            File savedFile = File.createTempFile(DaoCore.generateEntity(), ".jpg", ChatSDKLocationActivity.this.getCacheDir());
+
                             ImageUtils.saveBitmapToFile(savedFile, bitmapLocation);
 //                            File savedFile = Utils.LocationImageHandler.saveLocationImage(ChatSDKLocationActivity.this, bitmapLocation, null);
                             if ( savedFile == null)
@@ -127,7 +135,7 @@ public class ChatSDKLocationActivity extends FragmentActivity {
     }
 
     private void reportError(String error){
-        if (DEBUG) Log.e(TAG, "Failed");
+        if (DEBUG) Timber.e("Failed");
         Intent intent = new Intent();
         intent.putExtra(ERROR, error);
         setResult(RESULT_CANCELED, intent);

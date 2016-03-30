@@ -1,8 +1,14 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +21,7 @@ import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapte
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -62,7 +69,7 @@ public class ChatSDKThreadsListAdapter extends ChatSDKAbstractThreadsListAdapter
         holder.txtLastMsg.setText(thread.getLastMessageText());
 
         int unreadMsg = thread.getUnreadMessagesAmount();
-        if (DEBUG) Log.d(TAG, "Unread messages amount: " + unreadMsg);
+        if (DEBUG) Timber.d("Unread messages amount: %s", unreadMsg);
         if (unreadMsg!=0 &&  thread.isPrivate)
         {
             holder.txtUnreadMessagesAmount.setText(String.valueOf(unreadMsg));

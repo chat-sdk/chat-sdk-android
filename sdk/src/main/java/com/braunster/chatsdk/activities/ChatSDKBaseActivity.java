@@ -1,11 +1,23 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:32 PM
+ */
+
 package com.braunster.chatsdk.activities;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -15,13 +27,9 @@ import com.braunster.chatsdk.Utils.DialogUtils;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.CompletionListener;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithData;
-import com.braunster.chatsdk.interfaces.RepetitiveCompletionListenerWithMainTaskAndError;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.listeners.AuthListener;
 import com.braunster.chatsdk.object.BError;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -30,8 +38,13 @@ import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
 
 import java.util.concurrent.Callable;
+
+import timber.log.Timber;
 
 /**
  * Created by braunster on 18/06/14.
@@ -84,7 +97,7 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
 
         if (getIntent() != null && getIntent().getExtras() != null)
         {
-            if (DEBUG) Log.d(TAG, "From login");
+            if (DEBUG) Timber.d("From login");
             fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
             // So we wont encounter this flag again.
             getIntent().removeExtra(FROM_LOGIN);
@@ -98,14 +111,51 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
             SuperCardToast.onRestoreState(savedInstanceState, ChatSDKBaseActivity.this);
         }
 
+        // Setting the default task description.
+        setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        
+    }
+
+    /**
+     * @return the bitmap that will be used for the screen overview also called the recents apps.
+     **/
+    protected Bitmap getTaskDescriptionBitmap(){
+        return BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+    }
+
+    protected int getTaskDescriptionColor(){
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getTheme();
+        theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        return typedValue.data;
+    }
+
+    protected String getTaskDescriptionLabel(){
+        return (String) getTitle();
+    }
+    
+    protected void setTaskDescription(Bitmap bm, String label, int color){
+        // Color the app topbar label and icon in the overview screen
+        //http://www.bignerdranch.com/blog/polishing-your-Android-overview-screen-entry/
+        // Placed in the post create so it would be called after the action bar is initialized and we have a title.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityManager.TaskDescription td = new ActivityManager.TaskDescription(label, bm, color);
+
+            setTaskDescription(td);
+        }
+    }
+    
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (intent != null && intent.getExtras() != null)
         {
-            if (DEBUG) Log.d(TAG, "From login");
+            if (DEBUG) Timber.d("From login");
             fromLoginActivity = intent.getExtras().getBoolean(FROM_LOGIN, false);
             // So we wont encounter this flag again.
             intent.removeExtra(FROM_LOGIN);
@@ -126,55 +176,47 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
         if (enableCardToast)
             chatSDKUiHelper.initCardToast();
 
-        if (DEBUG) Log.v(TAG, "onResumed, From login: " + fromLoginActivity +", Check online: " + checkOnlineOnResumed);
+        if (DEBUG) Timber.v("onResumed, From login: %s, Check online: %s", fromLoginActivity, checkOnlineOnResumed);
 
         if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onResume();
 
         if (checkOnlineOnResumed && !fromLoginActivity)
         {
-            if(DEBUG) Log.d(TAG, "Check online on resumed");
+            if(DEBUG) Timber.d("Check online on resumed");
             getWindow().getDecorView().post(new Runnable() {
                 @Override
                 public void run() {
-                    getNetworkAdapter().isOnline(new CompletionListenerWithData<Boolean>() {
+                    getNetworkAdapter().isOnline()
+                    .done(new DoneCallback<Boolean>() {
                         @Override
                         public void onDone(Boolean online) {
                             if (online == null) return;
 
-                            if(DEBUG) Log.d(TAG, "Check done, " + online);
+                            if(DEBUG) Timber.d("Check done, ", online);
 
                             if (!online)
                             {
-                                authenticate(new AuthListener() {
+                                authenticate().done(new DoneCallback<BUser>() {
                                     @Override
-                                    public void onCheckDone(boolean isAuthenticated) {
-                                        if (!isAuthenticated)
-                                        {
-                                            onAuthenticationFailed();
-
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onLoginDone() {
-                                        if (DEBUG) Log.d(TAG, "Authenticated!");
+                                    public void onDone(BUser bUser) {
+                                        if (DEBUG) Timber.d("Authenticated!");
                                         onAuthenticated();
                                     }
-
+                                }).fail(new FailCallback<BError>() {
                                     @Override
-                                    public void onLoginFailed(BError error) {
-                                        if (DEBUG) Log.d(TAG, "Authenticated Failed!");
+                                    public void onFail(BError bError) {
+                                        if (DEBUG) Timber.d("Authenticated Failed!");
                                         onAuthenticationFailed();
                                     }
                                 });
                             }
-
                         }
-
+                    })
+                    .fail(new FailCallback<BError>() {
                         @Override
-                        public void onDoneWithError(BError error) {
-                            if (DEBUG) Log.d(TAG, "Check online failed!");
+                        public void onFail(BError error) {
+                            if (DEBUG) Timber.e("Check online failed!, Error message: %s", error.message);
                             onAuthenticationFailed();
                         }
                     });
@@ -270,78 +312,47 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
     }
 
     /** Authenticates the current user.*/
-    public void authenticate(AuthListener listener){
-        getNetworkAdapter().checkUserAuthenticatedWithCallback(listener);
+    public Promise<BUser, BError, Void> authenticate(){
+        return getNetworkAdapter().checkUserAuthenticated();
     }
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
     protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        getNetworkAdapter().createThreadWithUsers(name, new RepetitiveCompletionListenerWithMainTaskAndError<BThread, BUser, BError>() {
-
-            BThread thread = null;
-
-            @Override
-            public boolean onMainFinised(BThread bThread, BError o) {
-                if (o != null)
-                {
-                    if (isOnMainThread())
-                        showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                    else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showAlertToast( getString(R.string.create_thread_with_users_fail_toast) );
-                        }
-                    });
-                    return true;
-                }
-
-                if (DEBUG) Log.d(TAG, "New thread is created.");
-
-                thread = bThread;
-
-                return false;
-            }
-
-            @Override
-            public boolean onItem(BUser item) {
-                return false;
-            }
-
-            @Override
-            public void onDone() {
-                Log.d(TAG, "On done.");
-
-                dismissProgDialog();
-
-                if (thread == null)
-                    if (DEBUG) Log.e(TAG, "thread added is null");
-
-                if (isOnMainThread())
-                {
-                    if (thread != null)
-                    {
-                        Log.d(TAG, "Stating chat for thread.");
-                        startChatActivityForID(thread.getId());
-                    }
-                }
-                else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+        getNetworkAdapter().createThreadWithUsers(name, users)
+                .done(new DoneCallback<BThread>() {
                     @Override
-                    public void run() {
+                    public void onDone(final BThread thread) {
 
-                        if (thread != null)
-                        {
-                            Log.d(TAG, "Stating chat for thread.");
-                            startChatActivityForID(thread.getId());
+                        dismissProgDialog();
+
+                        if (thread == null) {
+                            if (DEBUG) Timber.e("thread added is null");
+                            return;
                         }
+
+                        if (isOnMainThread()) {
+                            startChatActivityForID(thread.getId());
+                        } else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                startChatActivityForID(thread.getId());
+                            }
+                        });
+                    }
+                })
+                .fail(new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError error) {
+                        if (isOnMainThread())
+                            showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                        else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
+                            }
+                        });
                     }
                 });
-            }
-
-            @Override
-            public void onItemError(BUser user, BError o) {
-                if (DEBUG) Log.d(TAG, "Failed to add user to thread, User name: " +user.getName());
-            }
-        }, users);
     }
 
     /** Start the chat activity for the given thread id.
@@ -419,26 +430,23 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
     }
 
     protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
-        BFacebookManager.onSessionStateChange(session, state, exception, new CompletionListener() {
-            @Override
-            public void onDone() {
-                if (DEBUG) Log.i(TAG, "onDone");
-            }
-
-            @Override
-            public void onDoneWithError(BError error) {
-                if (DEBUG) Log.e(TAG, "onDoneWithError. Error: " + error.message);
-                // Facebook session is closed so we need to disconnect from firebase.
-                getNetworkAdapter().logout();
-                startLoginActivity(true);
-            }
-        });
+        BFacebookManager.onSessionStateChange(session, state, exception)
+                .fail(new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError bError) {
+                        if (DEBUG) Timber.e("onDoneWithError. Error: %s", bError.message);
+                        // Facebook session is closed so we need to disconnect from firebase.
+                        getNetworkAdapter().logout();
+                        startLoginActivity(true);
+                    }
+                });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(DEBUG) Log.v(TAG, "onActivityResult");
+        if(DEBUG) Timber.v("onActivityResult");
+        
         if (integratedWithFacebook && getNetworkAdapter().facebookEnabled())
             uiHelper.onActivityResult(requestCode, resultCode, data);
     }

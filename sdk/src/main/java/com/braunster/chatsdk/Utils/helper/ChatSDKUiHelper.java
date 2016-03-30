@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.Utils.helper;
 
 import android.app.Activity;
@@ -5,7 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
-import android.util.Log;
+import android.support.annotation.StringRes;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -14,6 +21,7 @@ import android.widget.EditText;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.activities.ChatSDKChatActivity;
+import com.braunster.chatsdk.activities.ChatSDKEditProfileActivity;
 import com.braunster.chatsdk.activities.ChatSDKLocationActivity;
 import com.braunster.chatsdk.activities.ChatSDKLoginActivity;
 import com.braunster.chatsdk.activities.ChatSDKMainActivity;
@@ -32,9 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by braunster on 11/08/14.
- */
 public class ChatSDKUiHelper {
 
     public static final String TAG = ChatSDKUiHelper.class.getSimpleName();
@@ -46,7 +51,7 @@ public class ChatSDKUiHelper {
     }
 
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, Integer... exceptIDs) {
-        if (DEBUG) Log.v(TAG, "setupTouchUIToDismissKeyboard");
+
         List<Integer> ids = new ArrayList<Integer>();
         if (exceptIDs != null)
             ids = Arrays.asList(exceptIDs);
@@ -56,7 +61,6 @@ public class ChatSDKUiHelper {
 
             if (!ids.isEmpty() && ids.contains(view.getId()))
             {
-                if (DEBUG) Log.d(TAG, "Skipping View, ID: " + view.getId());
                 return;
             }
 
@@ -113,6 +117,7 @@ public class ChatSDKUiHelper {
             pickFriendsActivity = ChatSDKPickFriendsActivity.class,
             shareWithFriendsActivity = ChatSDKShareWithContactsActivity.class,
             shareLocationActivity = ChatSDKLocationActivity.class,
+            editProfileActivity= ChatSDKEditProfileActivity.class,
             profileActivity = null,
             threadDetailsActivity = ChatSDKThreadDetailsActivity.class;
 
@@ -243,7 +248,7 @@ public class ChatSDKUiHelper {
 
         if (colleted())
             return false;
-        
+
         if (profileActivity==null)
             return false;
 
@@ -255,6 +260,23 @@ public class ChatSDKUiHelper {
         return true;
     }
 
+    public void startEditProfileActivity(long id){
+
+        if (colleted())
+           return;
+
+        if (editProfileActivity==null)
+            return;
+
+        Intent intent = new Intent(context.get(), editProfileActivity);
+        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
+
+        startActivity(intent);
+    }
+
+    
+    
+    
     public interface ChatSDKUiHelperInterface{
         /** Start the chat activity for given thread id.*/
         public void startChatActivityForID(long id);
@@ -344,10 +366,10 @@ public class ChatSDKUiHelper {
 
     /** You should pass שמ Activity and not a context if you want to use this.*/
     public void showProgressCard(String text){
-        
+
         if (colleted())
             return;
-        
+
         if (context.get() instanceof Activity) {
 
             initCardToast();
@@ -368,15 +390,34 @@ public class ChatSDKUiHelper {
         }
     }
 
+    /** You should pass שמ Activity and not a context if you want to use this.*/
+    public void showProgressCard(@StringRes int resourceId){
+        showProgressCard(context.get().getString(resourceId));
+    }
+
     /*Getters and Setters*/
     public void showAlertToast(String text){
         alertToast.setText(text);
         alertToast.show();
     }
 
+    public void showAlertToast(@StringRes int resourceId){
+        if (context.get() == null)
+            return;
+        
+        showAlertToast(context.get().getString(resourceId));
+    }
+
     public void showToast(String text){
         toast.setText(text);
         toast.show();
+    }
+
+    public void showToast(@StringRes int resourceId){
+        if (context.get() == null)
+            return;
+
+        showToast(context.get().getString(resourceId));
     }
 
     public void setAlertToast(SuperToast alertToast) {

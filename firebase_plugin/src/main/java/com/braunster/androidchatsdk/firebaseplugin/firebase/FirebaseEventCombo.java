@@ -1,19 +1,17 @@
-package com.braunster.androidchatsdk.firebaseplugin.firebase;
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:34 PM
+ */
 
-import android.util.Log;
+package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.Firebase;
 import com.firebase.client.ValueEventListener;
 
-
-/**
- * Created by braunster on 30/06/14.
- */
 public class FirebaseEventCombo {
-
-    private static final String TAG = FirebaseEventCombo.class.getSimpleName();
-    private static final boolean DEBUG = false;
 
     private FirebaseGeneralEvent listener;
     private String ref;
@@ -52,19 +50,16 @@ public class FirebaseEventCombo {
 
     /** Remove the saved listener from the saved ref.*/
     public void breakCombo(){
-        if (DEBUG) Log.d(TAG, "Ref Path: " + ref);
         Firebase comboRef = new Firebase(ref);
 
         listener.killEvent();
 
         if (listener.getType() == FirebaseGeneralEvent.ChildEvent)
         {
-            if (DEBUG) Log.d(TAG, "Removing ChildEvent");
             comboRef.removeEventListener((ChildEventListener) listener);
         }
         else if (listener.getType() == FirebaseGeneralEvent.ValueEvent)
         {
-            if (DEBUG) Log.d(TAG, "Removing ValueEvent.");
             comboRef.removeEventListener((ValueEventListener) listener);
         }
     }

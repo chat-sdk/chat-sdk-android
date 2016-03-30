@@ -83,19 +83,26 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="support-v13-21.0.3" level="project" />
-    <orderEntry type="library" exported="" name="bugsense-3.6.1" level="project" />
     <orderEntry type="library" exported="" name="greendao-1.3.7" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-21.0.0" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-21.0.0" level="project" />
+    <orderEntry type="library" exported="" name="timber-2.7.1" level="project" />
+    <orderEntry type="library" exported="" name="bugsense-3.6.1" level="project" />
     <orderEntry type="library" exported="" name="android-crop-0.9.10" level="project" />
-    <orderEntry type="library" exported="" name="supertoasts-1.3.4" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-1.7.10-sources" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-6.5.87" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-6.5.87" level="project" />
-    <orderEntry type="library" exported="" name="scribe-1.3.5" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.3.2" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-android-1.7.10-sources" level="project" />
+    <orderEntry type="library" exported="" name="support-v13-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-android-1.7.10" level="project" />
+    <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-1.7.10" level="project" />
+    <orderEntry type="library" exported="" name="supertoasts-1.3.4" level="project" />
+    <orderEntry type="library" exported="" name="jdeferred-core-1.2.3" level="project" />
+    <orderEntry type="library" exported="" name="scribe-1.3.7" level="project" />
     <orderEntry type="library" exported="" name="library-aar-1.0.1" level="project" />
+    <orderEntry type="module" module-name="country_picker" exported="" />
     <orderEntry type="module" module-name="facebook" exported="" />
   </component>
 </module>

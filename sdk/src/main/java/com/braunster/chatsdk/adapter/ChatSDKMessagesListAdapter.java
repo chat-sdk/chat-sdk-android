@@ -1,3 +1,10 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
@@ -8,7 +15,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +46,7 @@ import com.braunster.chatsdk.view.ChatBubbleImageView;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/5/2014.
@@ -57,7 +65,11 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     private static final String TAG = ChatSDKMessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
-    /* Row types */
+    /* Row types
+     * 
+     * User type should always be even number and friend and odd one 
+     * * so it would be easy to check if current user is the sender.
+     **/
     private static final int TYPE_TEXT_USER = 0;
     private static final int TYPE_TEXT_FRIEND = 1;
     private static final int TYPE_IMAGE_USER = 2;
@@ -176,7 +188,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
             row = inflateRow(holder);
 
-            inflateDefaults(holder, row, sender);
+            inflateDefaults(holder, row, sender, message);
 
             row.setTag(holder);
         }
@@ -188,7 +200,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         // Load the message data.
         loadMessageData(holder, message);
 
-        loadDefaults(holder, position, message, sender);
+        loadDefaults(row, holder, position, message, sender);
 
         return row;
     }
@@ -264,10 +276,11 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * You can also add your own defaults here.
      *
      * */
-    protected void inflateDefaults(ViewHolder holder, View row, boolean sender){
+    protected void inflateDefaults(ViewHolder holder, View row, boolean sender, MessageListItem message){
         // Load profile picture.
         holder.profilePicImage = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.txtTime = (TextView) row.findViewById(R.id.txt_time);
+   
     }
 
     /**
@@ -292,7 +305,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 if (textColor != -1991)
                     holder.txtContent.setTextColor(textColor);
 
-                animateContent((View) holder.txtContent.getParent(), null);
+                animateContent((View) holder.txtContent.getParent(), null, message.delivered != BMessage.Delivered.No);
 
                 break;
 
@@ -302,7 +315,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 getBubbleImageViewFromRow(holder.image, holder.progressBar, message);
 
                 // Show the image in a dialog on click.
-                holder.image.setOnClickListener(new showImageDialogClickListener(message.entityId, message.text.split(BDefines.DIVIDER)[0]));
+                holder.image.setOnClickListener(new showImageDialogClickListener(message));
 
                 break;
 
@@ -325,7 +338,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * For example load online status for each user.
      *
      * */
-    protected void loadDefaults(ViewHolder holder, int position, MessageListItem message, boolean sender){
+    protected void loadDefaults(View row, ViewHolder holder, int position, MessageListItem message, boolean sender){
         // Load profile picture.
         // If we want to hide multiple images we check to see that it is not the first image,
         // And that it is from the same sender as the previous message sender.
@@ -336,6 +349,18 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         // Set the time of the sending.
         holder.txtTime.setText(message.time);
         animateSides(holder.txtTime, sender, null);
+
+
+        switch (message.delivered)
+        {
+            case BMessage.Delivered.Yes:
+                row.setAlpha(1.0f);
+                break;
+
+            case BMessage.Delivered.No:
+                row.setAlpha(0.5f);
+                break;
+        }
     }
 
     /** Load profile picture for given url and image view.*/
@@ -402,6 +427,8 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
     /** Get a ready image view for row position. The picture will be loaded to the bubble image view in the background using Volley. */
     private ChatBubbleImageView getBubbleImageViewFromRow(final ChatBubbleImageView image, final ProgressBar progressBar, final MessageListItem message){
+        if (DEBUG) Timber.v("getBubbleImageViewFromRow");
+        
         // Save the message text to the image tag so it could be found on the onClick.
         image.setTag(message.text);
 
@@ -422,7 +449,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                         progressBar.setVisibility(View.INVISIBLE);
                     }
 
-                    animateContent(image, null);
+                    animateContent(image, null, message.delivered != BMessage.Delivered.No);
                 }
                 else
                 {
@@ -442,12 +469,24 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             params.height = message.dimensions[1] + image.getImagePadding();
             image.setLayoutParams(params);
 
-            // Saving the url so we could remove it later on.
-            if (saveCacheKeys)
-                saveCacheKey(message.url + ChatBubbleImageView.URL_FIX);
-            
-            image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
+            if (StringUtils.isNotEmpty(message.resourcePath) && new File(message.resourcePath).exists())
+            {
+                // Saving the url so we could remove it later on.
+                if (saveCacheKeys)
+                    saveCacheKey(message.resourcePath + ChatBubbleImageView.URL_FIX);
+                
+                image.loadFromPath(message.resourcePath, loadDone, message.dimensions[0], message.dimensions[1]);
+            }
+            else
+            {
+                // Saving the url so we could remove it later on.
+                if (saveCacheKeys)
+                    saveCacheKey(message.url + ChatBubbleImageView.URL_FIX);
+
+                image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
+            }
         }
+        else if (DEBUG) Timber.d("ImageMessage dimensions is null");
 
         return image;
     }
@@ -468,26 +507,40 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * @return true if the item is added to the list.
      * */
     public boolean addRow(MessageListItem newItem){
-        if (DEBUG) Log.d(TAG, "AddRow");
-
         // Bad data.
         if (newItem == null)
             return false;
+        
+        if (DEBUG) Timber.v("addRow, ID: %s, Delivered: %s", newItem.id, newItem.delivered);
 
         // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.entityId == null && newItem.status != BMessage.Status.SENDING)
+        if (newItem.entityId == null && (newItem.delivered != BMessage.Delivered.No
+                || newItem.status != BMessage.Status.SENDING))
         {
-            if (DEBUG) Log.d(TAG, "Entity id is null, Message text: "  + newItem.text);
+            if (DEBUG) Timber.d("Message has no entity and was sent.: ", newItem.text);
             return false;
         }
 
+
+        Timber.d("Checking if exist");
         // Check for duplicates, And update the message status if its already exist.
         for (MessageListItem item : listData)
         {
-            if (item.entityId != null && item.entityId.equals(newItem.entityId) || item.id == newItem.id)
+            Timber.d("OldId: %s, NewId: %s", item.id, newItem.id);
+            
+            if (item.id == newItem.id)
             {
+                item.entityId = newItem.entityId;
                 item.status = newItem.status;
+                item.delivered = newItem.delivered;
+                item.url = newItem.url;
+                item.time = newItem.time;
+                item.dimensions = newItem.getDimensions(maxWidth);
+                
+                Timber.d("Updating old item");
+                
                 notifyDataSetChanged();
+                
                 return false;
             }
         }
@@ -524,38 +577,44 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      *  */
     public class showImageDialogClickListener implements View.OnClickListener{
 
-        private String messageEntityID;
-        private String imageUrl;
+        private MessageListItem message;
 
-        public showImageDialogClickListener(String messageEntityID, String imageUrl) {
-            this.messageEntityID = messageEntityID;
-            this.imageUrl = imageUrl;
+        public showImageDialogClickListener(MessageListItem message) {
+            this.message = message;
         }
 
         @Override
         public void onClick(View v) {
             ChatSDKUiHelper.hideSoftKeyboard(mActivity);
 
-            if (DEBUG) Log.v(TAG, "OnClick - Location");
-
-            // Show the location image.
-            if (StringUtils.isNotBlank(imageUrl))
+            if (StringUtils.isNotBlank(message.resourcePath))
             {
-                // Saving the url so we could remove it later on.
-                saveCacheKey(imageUrl);
-
                 PopupWindow popupWindow;
-
-                if (!BDefines.SaveImagesToDir)
-                    popupWindow = DialogUtils.getImageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
-                else
-                    popupWindow = DialogUtils.getImageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL, messageEntityID);
+            
+                popupWindow = DialogUtils.getImageDialog(mActivity, message.resourcePath, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_PATH);
 
                 if (popupWindow == null)
                     chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_load_image_fail));
                 else popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
             }
+            else if (StringUtils.isNotBlank(message.text))
+            {
+                String imageUrl = message.text.split(BDefines.DIVIDER)[0];
+                // Saving the url so we could remove it later on.
+                saveCacheKey(imageUrl);
 
+                PopupWindow popupWindow;
+
+                // Telling the popup window to save the image after it was open.
+                if (!BDefines.Options.SaveImagesToDir)
+                    popupWindow = DialogUtils.getImageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
+                else
+                    popupWindow = DialogUtils.getImageMessageDialog(mActivity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL, message);
+
+                if (popupWindow == null)
+                    chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_load_image_fail));
+                else popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+            }
             else
             {
                 chatSDKUiHelper.showAlertToast(mActivity.getString(R.string.message_adapter_load_image_fail));
@@ -569,6 +628,9 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     public class openGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
+            if (v.getTag() == null)
+                return;
+
             String[] loc = ((String)v.getTag()).split(BDefines.DIVIDER);
 
             openLocationInGoogleMaps(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
@@ -602,16 +664,18 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * The MessageListItem holds the BMessage object so we wont need to query data about the message each time we inflate a row.
      * */
     public static class MessageListItem{
-        private String entityId, profilePicUrl, time, text, textColor;
+        public String entityId, profilePicUrl, time, text, resourcePath;
         private int type, status, color, rowType;
         private long sender, timeInMillis;
         private long id;
         private int[] dimensions = null;
         private String url;
-
+        private int delivered = BMessage.Delivered.No;
+        private String dimensionsString;
+        
         private MessageListItem(long id, String entityId, int type, int rowType, int status,
                                 long senderID, String profilePicUrl, String time,
-                                String text, String color, String textColor, long timeInMillis) {
+                                String text, String color, long timeInMillis, int delivered, String resourcePath, String dimensionsString) {
             this.type = type;
             this.id = id;
             this.timeInMillis = timeInMillis;
@@ -622,9 +686,11 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             this.time = time;
             this.text = text;
             this.color = setColor(color);
-            this.textColor = textColor;
             this.rowType = rowType;
-
+            this.delivered = delivered;
+            this.resourcePath = resourcePath;
+            this.dimensionsString = dimensionsString;
+            
             if (type == BMessage.Type.IMAGE || type == BMessage.Type.LOCATION)
                 url = getUrl(text, type);
         }
@@ -648,8 +714,10 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                     String.valueOf(simpleDateFormat.format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),
-                    user.getTextColor(),
-                    message.getDate().getTime());
+                    message.getDate().getTime(), 
+                    message.wasDelivered(),
+                    message.getResourcesPath(), 
+                    message.getImageDimensions());
 
             msg.setDimension(maxWidth);
 
@@ -657,26 +725,30 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         }
 
         public static List<MessageListItem> makeList(Activity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
+            if (DEBUG) Timber.v("makeList, messagesSize: %s, ", messages.size());
+            
             List<MessageListItem> list = new ArrayList<MessageListItem>();
 
             int maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
 
             MessageListItem i;
             for (BMessage message : messages)
-                if (message.getEntityID() != null)
-                {
-                    i = fromBMessage(message, userID, maxWidth, simpleDateFormat);
+            {
+                i = fromBMessage(message, userID, maxWidth, simpleDateFormat);
 
                     /*Fixme Due to old data*/
-                    if (i.type != BMessage.Type.TEXT && i.dimensions == null)
-                        continue;
+                if (i.type != BMessage.Type.TEXT && i.dimensions == null)
+                {
+                    Timber.d("Cant find dimensions, path: %s, dimensionsString: %s", i.resourcePath, i.dimensionsString);
+                    continue;
+                }
 
                     /*Skip messages with no date.*/
-                    if (message.getDate() == null)
-                        continue;
+                if (message.getDate() == null)
+                    continue;
 
-                    list.add(i);
-                }
+                list.add(i);
+            }
 
             // We need to reverse the list so the newest data would be on the top again.
             Collections.reverse(list);
@@ -695,17 +767,17 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 // More then a year
                 if (interval > 3600 * 24 * 365)
                 {
-                    simpleDateFormat.applyPattern("MM/yy");
+                    simpleDateFormat.applyPattern(BDefines.MessageDateFormat.YearOldMessageFormat);
                     return simpleDateFormat;
                 }
                 else {
-                    simpleDateFormat.applyPattern("MMM dd");
+                    simpleDateFormat.applyPattern(BDefines.MessageDateFormat.DayOldFormat);
                     return simpleDateFormat;
                 }
             }
             else
             {
-                simpleDateFormat.applyPattern("HH:mm");
+                simpleDateFormat.applyPattern(BDefines.MessageDateFormat.LessThenDayFormat);
                 return simpleDateFormat;
             }
         }
@@ -736,7 +808,6 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 if (bubbleColor == -1)
                 {
                     bubbleColor = getColorFromDec(color);
-                    if (DEBUG) Log.d(TAG, "Color: " + bubbleColor);
                 }
             }
             else bubbleColor = BMessage.randomColor();
@@ -771,13 +842,14 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                     type = -1;
             }
 
-            if (DEBUG) Log.d(TAG, "getRowType, RowType: " + type + ", Msg type: " + messageType + ", SenderID: " + senderId + ", userID: " + curUserID);
-
             return type;
         }
 
         private static String getUrl(String text, int type){
-            /*FIXME because of old data we need to do some testing adn extra checking*/
+            
+            if (StringUtils.isBlank(text))
+                return "";
+            
             String url = "";
             String [] urls = text.split(BDefines.DIVIDER);
             if (type == BMessageEntity.Type.IMAGE)
@@ -806,23 +878,42 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         }
 
         private void setDimension(int maxWidth){
-            try {
-                String[] data = text.split(BDefines.DIVIDER);
-                dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
-                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
-
-                if (dimensions.length != 2)
-                    dimensions = null;
-
-                if (DEBUG) Log.d(TAG, "dim: " + dimensions[0] + ", " + dimensions[1]);
-            }catch (Exception e){  dimensions = null;}
+            dimensions = getDimensions(maxWidth);
         }
 
-        private int getColor(){
-            if (status == BMessageEntity.Status.SENDING)
-                return Color.parseColor(BDefines.Defaults.MessageSendingColor);
+        private int[] getDimensions(int maxWidth){
 
-            return color;
+            if (StringUtils.isNotEmpty(text))
+            {
+//                if (DEBUG) Timber.d("Getting dimensions from url");
+
+                try {
+                    String[] data = text.split(BDefines.DIVIDER);
+                    dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
+                    dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+
+                    if (dimensions.length != 2)
+                        dimensions = null;
+
+                }catch (Exception e){  dimensions = null;}
+
+            }
+            else if (StringUtils.isNotEmpty(dimensionsString))
+            {
+//                if (DEBUG) Timber.d("Getting dimensions from dimensionsString");
+                dimensions = ImageUtils.getDimensionsFromString(dimensionsString);
+                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+
+//                if (DEBUG) Timber.d("dimensions[0]: %s, dimensions[1]: %s", dimensions[0], dimensions[1]);
+            }
+            else if (VolleyUtils.getBitmapCache().contains(VolleyUtils.BitmapCache.getCacheKey(resourcePath)))
+            {
+                dimensionsString = ImageUtils.getDimensionAsString(VolleyUtils.getBitmapCache().getBitmap(VolleyUtils.BitmapCache.getCacheKey(resourcePath)));
+                dimensions = ImageUtils.getDimensionsFromString(dimensionsString);
+                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+            }
+
+            return dimensions;
         }
 
         public long getTimeInMillis() {
@@ -853,6 +944,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * Set the messages list data.
      * */
     public void setListData(List<MessageListItem> listData) {
+        if (DEBUG) Timber.v("setListData, Size: %s", listData == null ? "null" : listData.size());
         this.listData = listData;
         notifyDataSetChanged();
     }
@@ -909,11 +1001,11 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     /**
      *  Animating the center part of the row, For example the image in an image message or the text in text message.
      * */
-    private void animateContent(View view, Animation.AnimationListener animationListener){
+    private void animateContent(View view, Animation.AnimationListener animationListener, boolean showFull){
         if (!isScrolling)
             return;
 
-        view.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fade_in_expand));
+        view.setAnimation(AnimationUtils.loadAnimation(mActivity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
         view.getAnimation().setAnimationListener(animationListener);
         view.animate();
     }

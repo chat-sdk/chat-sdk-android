@@ -84,9 +84,10 @@
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="greendao-1.3.7" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-21.0.0" level="project" />
-    <orderEntry type="library" exported="" name="firebase-client-android-2.0.3" level="project" />
     <orderEntry type="library" exported="" name="Parse-1.5.0" level="project" />
+    <orderEntry type="library" exported="" name="firebase-client-android-2.2.3" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="scribe-1.3.7" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.3.2" level="project" />
     <orderEntry type="module" module-name="sdk" exported="" />
   </component>

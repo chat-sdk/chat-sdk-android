@@ -1,17 +1,22 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -27,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -38,28 +44,31 @@ import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.Utils.volley.VolleyUtils;
-import com.braunster.chatsdk.interfaces.CompletionListenerWithDataAndError;
+import com.braunster.chatsdk.adapter.ChatSDKMessagesListAdapter;
+import com.braunster.chatsdk.dao.BMessage;
+import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.github.johnpersano.supertoasts.SuperToast;
 import com.ortiz.touch.TouchImageView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
 
 import java.io.File;
 import java.util.concurrent.Callable;
 
-/**
- * Created by braunster on 19/06/14.
- */
+import timber.log.Timber;
+
 public class DialogUtils {
 
     public static final String TAG = DialogUtils.class.getSimpleName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = Debug.DialogUtils;
 
     /** A dialog that contain editText, Response from dialog is received through the interface.*/
     public static class ChatSDKEditTextDialog extends DialogFragment implements TextView.OnEditorActionListener {
@@ -147,7 +156,7 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private CompletionListenerWithDataAndError<Object, BError> listener;
+        private Deferred<Object, BError, Void> deferred = new DeferredObject<>();
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -157,17 +166,9 @@ public class DialogUtils {
             return dialog;
         }
 
-        // TODO add check option for each user and return the list when done.
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             final View view = inflater.inflate(R.layout.chat_sdk_dialog_twitter_login, null);
-
-            if (!BNetworkManager.sharedManager().getNetworkAdapter().twitterEnabled())
-            {
-                listener.onDoneWithError(null, BError.getError(BError.Code.OPERATION_FAILED, "Twitter is disabled."));
-                dismiss();
-                return null;
-            }
 
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
@@ -176,8 +177,6 @@ public class DialogUtils {
             display.getSize(size);
             int width = size.x;
             int height = size.y;
-
-            int padding = (int) (20 * getActivity().getResources().getDisplayMetrics().density);
 
             view.findViewById(R.id.content).setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 
@@ -190,15 +189,22 @@ public class DialogUtils {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
-                    if (DEBUG) Log.v(TAG, "shouldOverrideUrlLoading, Url: " + url );
+                    if (DEBUG) Timber.v("shouldOverrideUrlLoading, Url: %s", url);
 
-                    if (!url.startsWith("http://androidchatsdktwitter.com/?oauth_token"))
+                    if (url.startsWith(getString(R.string.twitter_callback_url) + "?denied"))
+                    {
+                        deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "Cancelled."));
+                        dismiss();
+                        return false;
+                    }
+
+                    if (!url.startsWith(getString(R.string.twitter_callback_url) + "?oauth_token"))
                         return false;
 
                     Uri uri = Uri.parse(url);
                     String ver = uri.getQueryParameter("oauth_verifier");
 
-                    TwitterManager.getVerifierThread(getActivity(), ver, listener).start();
+                    TwitterManager.getVerifierThread(getActivity(), ver, deferred).start();
 
                     ((TextView) progressBar.findViewById(R.id.chat_sdk_progressbar_text)).setText(getActivity().getResources().getString(R.string.connecting));
                     webView.setVisibility(View.INVISIBLE);
@@ -212,7 +218,7 @@ public class DialogUtils {
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
-                    if (DEBUG) Log.v(TAG, "onPageFinished, Url: " + url );
+                    if (DEBUG) Timber.v("onPageFinished, Url: %s", url );
 
                     if (loginIn)
                         return;
@@ -229,7 +235,7 @@ public class DialogUtils {
                         if (etPin.getText().toString().isEmpty())
                             return true;
 
-                        TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), listener).start();
+                        TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), deferred).start();
                     }
                     return false;
                 }
@@ -238,7 +244,7 @@ public class DialogUtils {
             view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), listener).start();
+                    TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), deferred).start();
                 }
             });
 
@@ -254,8 +260,7 @@ public class DialogUtils {
                 switch (msg.what)
                 {
                     case TwitterManager.ERROR:
-                        if (listener != null)
-                            listener.onDoneWithError(null, ((BError) msg.obj));
+                        deferred.reject((BError) msg.obj);
 
                         break;
 
@@ -266,8 +271,8 @@ public class DialogUtils {
             }
         };
 
-        public void setListener(CompletionListenerWithDataAndError<Object, BError> listener) {
-            this.listener = listener;
+        public Promise<Object, BError, Void> promise(){
+            return deferred.promise();
         }
 
 
@@ -302,12 +307,11 @@ public class DialogUtils {
         return getImageDialog(context, data, loadingType, false, "");
     }
 
-    public static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType, String imageName){
-        return getImageDialog(context, data, loadingType, true, imageName);
+    public static ImagePopupWindow getImageMessageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType, ChatSDKMessagesListAdapter.MessageListItem message){
+        return getImageDialog(context, data, loadingType, true, message.entityId);
     }
 
     private static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType, boolean saveAfterLoad, String imageName){
-        if (DEBUG) Log.v(TAG, "getImageDialog");
 
         if (StringUtils.isEmpty(data))
             return null;
@@ -349,7 +353,7 @@ public class DialogUtils {
 
         /** Type indicate from where to load the file.*/
         public enum LoadTypes{
-            LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_BASE64, LOAD_FROM_LRU_CACHE;
+            LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_LRU_CACHE;
         }
 
         public ImagePopupWindow(Context ctx, View popupView, int width, int height, boolean focusable) {
@@ -376,16 +380,9 @@ public class DialogUtils {
 
             switch (loadingType)
             {
-                case LOAD_FROM_BASE64:
-                    if (DEBUG) Log.i(TAG, "Image is Base64");
-                    progressBar.setVisibility(View.GONE);
-                    imageView.setVisibility(View.VISIBLE);
-                    imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                    imageView.setImageBitmap(ImageUtils.decodeFrom64(data.getBytes()));
-                    break;
 
                 case LOAD_FROM_URL:
-                    if (DEBUG) Log.i(TAG, "Image from URL");
+                    if (DEBUG) Timber.d("load from url");
                     VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
@@ -399,40 +396,33 @@ public class DialogUtils {
 
                                 if (saveToDir)
                                 {
-                                    File file, dir = Utils.ImageSaver.getAlbumStorageDir(Utils.ImageSaver.IMAGE_DIR_NAME);
+                                    File file, dir = Utils.ImageSaver.getAlbumStorageDir(context, Utils.ImageSaver.IMAGE_DIR_NAME);
                                     if (dir != null)
                                         if(dir.exists()) {
                                             file = new File(dir, imageName + ".jpg");
 
                                             if (!file.exists())
                                             {
-                                                if(DEBUG) Log.d(TAG, "Saving image to image dir");
                                                 ImageUtils.saveBitmapToFile(file, response.getBitmap());
 
-                                                galleryAddPic(file.getPath());
+                                                ImageUtils.scanFilePathForGallery(context, file.getPath());
+                                                
+                                                // If the message name is equal to a message entity id we 
+                                                // save the image path to the message object so we could use it instead of downloading images.
+                                                BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, imageName);
+                                                
+                                                if (message != null)
+                                                {
+                                                    message.setResourcesPath(file.getPath());
+                                                    DaoCore.updateEntity(message);
+                                                }
+                                                
                                             }
-                                            else if (DEBUG) Log.d(TAG, "Image is already saved in image dir");
+                                            else if (DEBUG) Timber.d("Image is already saved in image dir");
                                         }
                                 }
 
-                                if (DEBUG) Log.i(TAG, "response");
-                                imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                                imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                                    @Override
-                                    public void onAnimationStart(Animation animation) {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-
-                                    @Override
-                                    public void onAnimationEnd(Animation animation) {
-                                        imageView.setVisibility(View.VISIBLE);
-                                    }
-
-                                    @Override
-                                    public void onAnimationRepeat(Animation animation) {
-
-                                    }
-                                });
+                                animateIn(imageView, progressBar);
                             }
                         }
 
@@ -440,7 +430,7 @@ public class DialogUtils {
                         public void onErrorResponse(VolleyError error) {
                             progressBar.setVisibility(View.GONE);
 
-                            chatSDKUiHelper.showAlertToast("Error while loading");
+                            chatSDKUiHelper.showAlertToast(R.string.unable_to_fetch_image);
 
                             dismiss();
                         }
@@ -448,39 +438,36 @@ public class DialogUtils {
                     break;
 
                 case LOAD_FROM_PATH:
-                    if (DEBUG) Log.i(TAG, "Image from path");
-                    progressBar.setVisibility(View.GONE);
+                    if (DEBUG) Timber.d("load from path");
                     imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
+                    animateIn(imageView, progressBar);
                     break;
 
                 case LOAD_FROM_LRU_CACHE:
+                    if (DEBUG) Timber.d("load from cache");
                     imageView.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(data));
-                    imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-                    imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            imageView.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
+                    animateIn(imageView, progressBar);
             }
         }
 
-        private void galleryAddPic(String path) {
-            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            File f = new File(path);
-            Uri contentUri = Uri.fromFile(f);
-            mediaScanIntent.setData(contentUri);
-            context.sendBroadcast(mediaScanIntent);
+        private void animateIn(final ImageView imageView, final ProgressBar progressBar){
+            imageView.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
+            imageView.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    progressBar.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    imageView.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
         }
 
         public void saveToImageDir(boolean saveToDir) {

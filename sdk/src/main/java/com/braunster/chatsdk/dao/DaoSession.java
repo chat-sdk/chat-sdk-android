@@ -21,7 +21,6 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig bUserDaoConfig;
     private final DaoConfig bLinkedAccountDaoConfig;
     private final DaoConfig bLinkedContactDaoConfig;
-    private final DaoConfig bMetadataDaoConfig;
     private final DaoConfig bMessageDaoConfig;
     private final DaoConfig bThreadDaoConfig;
     private final DaoConfig bLinkDataDaoConfig;
@@ -30,7 +29,6 @@ public class DaoSession extends AbstractDaoSession {
     private final BUserDao bUserDao;
     private final BLinkedAccountDao bLinkedAccountDao;
     private final BLinkedContactDao bLinkedContactDao;
-    private final BMetadataDao bMetadataDao;
     private final BMessageDao bMessageDao;
     private final BThreadDao bThreadDao;
     private final BLinkDataDao bLinkDataDao;
@@ -49,9 +47,6 @@ public class DaoSession extends AbstractDaoSession {
         bLinkedContactDaoConfig = daoConfigMap.get(BLinkedContactDao.class).clone();
         bLinkedContactDaoConfig.initIdentityScope(type);
 
-        bMetadataDaoConfig = daoConfigMap.get(BMetadataDao.class).clone();
-        bMetadataDaoConfig.initIdentityScope(type);
-
         bMessageDaoConfig = daoConfigMap.get(BMessageDao.class).clone();
         bMessageDaoConfig.initIdentityScope(type);
 
@@ -67,7 +62,6 @@ public class DaoSession extends AbstractDaoSession {
         bUserDao = new BUserDao(bUserDaoConfig, this);
         bLinkedAccountDao = new BLinkedAccountDao(bLinkedAccountDaoConfig, this);
         bLinkedContactDao = new BLinkedContactDao(bLinkedContactDaoConfig, this);
-        bMetadataDao = new BMetadataDao(bMetadataDaoConfig, this);
         bMessageDao = new BMessageDao(bMessageDaoConfig, this);
         bThreadDao = new BThreadDao(bThreadDaoConfig, this);
         bLinkDataDao = new BLinkDataDao(bLinkDataDaoConfig, this);
@@ -76,7 +70,6 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(BUser.class, bUserDao);
         registerDao(BLinkedAccount.class, bLinkedAccountDao);
         registerDao(BLinkedContact.class, bLinkedContactDao);
-        registerDao(BMetadata.class, bMetadataDao);
         registerDao(BMessage.class, bMessageDao);
         registerDao(BThread.class, bThreadDao);
         registerDao(BLinkData.class, bLinkDataDao);
@@ -87,7 +80,6 @@ public class DaoSession extends AbstractDaoSession {
         bUserDaoConfig.getIdentityScope().clear();
         bLinkedAccountDaoConfig.getIdentityScope().clear();
         bLinkedContactDaoConfig.getIdentityScope().clear();
-        bMetadataDaoConfig.getIdentityScope().clear();
         bMessageDaoConfig.getIdentityScope().clear();
         bThreadDaoConfig.getIdentityScope().clear();
         bLinkDataDaoConfig.getIdentityScope().clear();
@@ -104,10 +96,6 @@ public class DaoSession extends AbstractDaoSession {
 
     public BLinkedContactDao getBLinkedContactDao() {
         return bLinkedContactDao;
-    }
-
-    public BMetadataDao getBMetadataDao() {
-        return bMetadataDao;
     }
 
     public BMessageDao getBMessageDao() {

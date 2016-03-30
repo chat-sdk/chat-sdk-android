@@ -8,7 +8,6 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://D:/Android/extras/android/m2repository/com/android/support/support-v13/21.0.3/support-v13-21.0.3-sources.jar!/" />
-      <root url="jar://D:/../sdk/extras/android/m2repository/com/android/support/support-v13/21.0.3/support-v13-21.0.3-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

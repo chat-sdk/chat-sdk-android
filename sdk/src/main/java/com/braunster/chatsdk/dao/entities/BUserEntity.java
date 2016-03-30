@@ -1,16 +1,19 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.dao.entities;
 
-import android.graphics.Bitmap;
-
 import com.braunster.chatsdk.dao.BFollower;
-import com.braunster.chatsdk.dao.BMetadata;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -61,22 +64,14 @@ public abstract class BUserEntity extends Entity {
 
     public abstract List<BThread> getThreads(int type);
 
+    public abstract List<BThread> getThreads(int type, boolean allowDeleted);
+
     public abstract List<BUser> getContacts();
 
     public abstract void addContact(BUser user);
 
     public abstract BFollower fetchOrCreateFollower(BUser follower, int type);
-
-    public abstract void addMetaDataObject(BMetadata metadata);
-
-    public abstract Bitmap getThumnail();
-
-    public abstract void setMetaPicture(Bitmap bitmap);
-
-    public abstract void setMetaPicture(String base64);
-
-    public abstract void setMetaPicture(File image);
-
+    
     public abstract void setMetaPictureUrl(String imageUrl);
 
     public abstract String getMetaPictureUrl();

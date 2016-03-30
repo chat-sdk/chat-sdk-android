@@ -1,0 +1,14 @@
+<!--
+  ~ Created by Itzik Braun on 2/4/2015.
+  ~ Copyright (c) 2015 deluge. All rights reserved.
+  ~
+  ~ Last Modification at: 4/2/15 3:01 PM
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.countrypicker">
+
+    <application android:allowBackup="true" android:label="@string/app_name">
+
+    </application>
+
+</manifest>

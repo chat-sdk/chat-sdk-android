@@ -1,8 +1,14 @@
+/*
+ * Created by Itzik Braun on 12/3/2015.
+ * Copyright (c) 2015 deluge. All rights reserved.
+ *
+ * Last Modification at: 3/12/15 4:27 PM
+ */
+
 package com.braunster.chatsdk.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,6 +21,8 @@ import com.braunster.chatsdk.dao.BUser;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -92,7 +100,7 @@ public class ChatSDKUsersListAdapter extends ChatSDKAbstractUsersListAdapter<Cha
             }
             else
             {
-                if (DEBUG) Log.i(TAG, "Loading profile picture from the db");
+                if (DEBUG) Timber.i("Loading profile picture from the db");
 
                 Bitmap bitmap = userItems.get(position).getPicture();
                 if (bitmap != null)

@@ -15,6 +15,7 @@
             <string name="twitter_consumer_secret"></string>
             <string name="twitter_access_token"></string>
             <string name="twitter_access_token_secret"></string>
+            <string name="twitter_callback_url"></string>
 
             <!--Parse-->
             <string name="parse_app_id"></string>
@@ -51,7 +52,6 @@
     <string name="message_adapter_load_image_fail">Can\'t show image</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk_version_name">0.9.3</string>
     <string name="chat_sdk_version">Version:</string>
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>
@@ -139,4 +139,27 @@
     <string name="not_follower_title">New Follower</string>
     <string name="not_follower_ticker">You got a new follower</string>
     <string name="not_follower_content">is following you!</string>
+    <string name="not_image_message">Image message</string>
+    <string name="not_location_message">Location message</string>
+    
+    <!--Error-->
+    <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
+    <string name="unable_to_save_file">Unable to save file&#8230;</string>
+    <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>
+    <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
+    <string name="unable_to_send_message">unable to send message&#8230;</string>
+    
+    <!--State-->
+    <string name="sending">Sending&#8230;</string>
+    <string name="not_messages_summary">%s unread messages</string>
+    <string name="unable_to_catch_image">Unable to catch image</string>
+    <string name="status">Status</string>
+    <string name="location_hint">Location</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="action_edit">Edit</string>
+    <string name="chat_sdk_edit_profile_select_country">Select Country</string>
+    <string name="chat_sdk_edit_profile_pick_birth_date">Select date of birth</string>
+    <string name="app_info">App Info</string>
+    <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>
 </resources>
