@@ -2,74 +2,11 @@
 <items version="2" >
 
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.soundcloud.android\android-crop\0.9.10\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.soundcloud.android-android-crop-0.9.10_8cc5b826c2759110b6a6857cd422b447bfa71d00.jar" />
-    </item>
-    <item
-        jar="C:\Users\Erk\.gradle\caches\modules-2\files-2.1\de.greenrobot\greendao\1.3.7\dda08161d004c4df96938da6909f1c2b96cd33c8\greendao-1.3.7.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\greendao-1.3.7_0f0c76d39483bd93f2ba9e2ffdac3ac68d07fe58.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\facebook\unspecified\jars\libs\bolts.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="946cff012be59220d908da1167bcde18af9a7835">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\bolts_5d1e8559a159ea1ded651718ce8f1c23732dec52.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\libs\Parse-1.5.0.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="68740cc047f6ce97209ce77b8d7f69042c8ad7c6">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Parse-1.5.0_5c4579f1c343c5f0ef75e182c45a7e94e73d64a3.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\6.5.87\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="a75b29dc51b364df032af8bcfcad7e54ccfda28d">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-maps-6.5.87_83e59fd034478958a4a7bbe13f67a53587968593.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\libs\firebase-client-android-2.2.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="ed300821121ef16e8846511823adb252871447d9">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\firebase-client-android-2.2.3_11394bcc4a6047dbc7b203ac1129f8b4644a728e.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.github.johnpersano\supertoasts\1.3.4\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="2e58dce1ec89cd4706295d355aaf920aee3d91c5">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.github.johnpersano-supertoasts-1.3.4_db554859ec0770bfe209f7046a8670449830f2fd.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\multidex\1.0.0\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="6666dd525c3da197e7d07f4f23ef5fc7881a697b">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.android.support-multidex-1.0.0_bf539d918d586834f9984fe58c470d8ea7d651ad.jar" />
-    </item>
-    <item
         jar="D:\Android\extras\android\m2repository\com\android\support\support-annotations\22.2.0\support-annotations-22.2.0.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="66b42a1f3eb7676070b7ef7f14b603483aecbee1">
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\support-annotations-22.2.0_4caaef5e0844c70e28c9361d5b6884023375e6ad.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\country_picker\unspecified\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="9467802491c3a01abe4e73f58b9517c3b66496f9">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-country_picker-unspecified_89275c18a6d283540d447d0ce90246c0c01c4fe7.jar" />
     </item>
     <item
         jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\jars\classes.jar"
@@ -79,46 +16,11 @@
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v13-21.0.3_de9d00b0b046c1802f5e2f02b9436cdbc340b543.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\classes.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\libs\firebase-client-android-2.2.3.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="ba505504f72ebeaaffb2557583e0a834c016b2fb">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-firebase_plugin-unspecified_8fc63cac7ba2286f85c9c12edeae1d42b55abfeb.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\libs\internal_impl-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3_aa2abde0fdee0cc9d48c67310d0a8ef3ca2d7e20.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\facebook\unspecified\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="013a18d9bf0c587def585e826973432ecd2d89dd">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-facebook-unspecified_3f49ed6d01cb074accd6c3f3548786243634c6ec.jar" />
-    </item>
-    <item
-        jar="C:\Users\Erk\.gradle\caches\modules-2\files-2.1\org.scribe\scribe\1.3.7\583921bed46635d9f529ef5f14f7c9e83367bc6e\scribe-1.3.7.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="583921bed46635d9f529ef5f14f7c9e83367bc6e">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\scribe-1.3.7_88ec5bc1e046b1ce4b702d90b92e9bde53d16bff.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\6.5.87\jars\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="95482e7c792a7c0d5a9d5461e97726bd54fe9549">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-base-6.5.87_eb79418774e85f12530f9b58b838d3ad4df2db19.jar" />
-    </item>
-    <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\bugsense-3.6.1.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="c141672925cbfb749af2e34c6aa017285203df5c">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\bugsense-3.6.1_ece3e2f61afc258c7ea1a9973edec574c103695a.jar" />
+        sha1="8953f47fda80f8d42fef8787dfc4b5eb3541bd74">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\firebase-client-android-2.2.3_11394bcc4a6047dbc7b203ac1129f8b4644a728e.jar" />
     </item>
     <item
         jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.mcxiaoke.volley\library-aar\1.0.1\jars\classes.jar"
@@ -128,11 +30,46 @@
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.mcxiaoke.volley-library-aar-1.0.1_0a26b19af02a20fed82094fbad83ed939e1ce059.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\slf4j-android-1.7.10.jar"
+        jar="C:\Users\Erk\.gradle\caches\modules-2\files-2.1\de.greenrobot\greendao\1.3.7\dda08161d004c4df96938da6909f1c2b96cd33c8\greendao-1.3.7.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="d71ff2f71e7142b8ac9e58600e4258397c1c9372">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\slf4j-android-1.7.10_083ab05789386c9b820192036d3e7b8d450e7d1c.jar" />
+        sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\greendao-1.3.7_0f0c76d39483bd93f2ba9e2ffdac3ac68d07fe58.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.github.johnpersano\supertoasts\1.3.4\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2e58dce1ec89cd4706295d355aaf920aee3d91c5">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.github.johnpersano-supertoasts-1.3.4_db554859ec0770bfe209f7046a8670449830f2fd.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3_aa2abde0fdee0cc9d48c67310d0a8ef3ca2d7e20.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\country_picker\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="fdc250fe4b4e1d7a8f66d69159343abaee0c65ce">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-country_picker-unspecified_89275c18a6d283540d447d0ce90246c0c01c4fe7.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\multidex\1.0.0\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="6666dd525c3da197e7d07f4f23ef5fc7881a697b">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.android.support-multidex-1.0.0_bf539d918d586834f9984fe58c470d8ea7d651ad.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\jdeferred-core-1.2.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="daf2088daa6212a2de4a12f2413f7b5aa6f7a142">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\jdeferred-core-1.2.3_b23d8e276a65a333ab4939390286e48c885ae80e.jar" />
     </item>
     <item
         jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\jars\classes.jar"
@@ -142,18 +79,32 @@
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.android.support-appcompat-v7-21.0.3_c89540cc632e2ed06b89ee79a1975d86f56f80db.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\jdeferred-core-1.2.3.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\bugsense-3.6.1.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="ee5c713a9317dd88b278335095939be5fa73c92e">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\jdeferred-core-1.2.3_b23d8e276a65a333ab4939390286e48c885ae80e.jar" />
+        sha1="56f24f816b018820526d79cddf29456980437884">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\bugsense-3.6.1_ece3e2f61afc258c7ea1a9973edec574c103695a.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\timber-2.7.1.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="96348a2eb61c0b4dab3e573c2adb348b0cd62905">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\timber-2.7.1_6053268ae7f8ea21530ae3386c4abfd5b8c2efd2.jar" />
+        sha1="b662a45f7896256b0b4935b4ac5ad565390c0820">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-firebase_plugin-unspecified_8fc63cac7ba2286f85c9c12edeae1d42b55abfeb.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="9baa487a94271ccab722a1fca52cb7809d30574c">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-sdk-unspecified_06940c0b633dbaf906e764941f105205a0a3f069.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\6.5.87\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a75b29dc51b364df032af8bcfcad7e54ccfda28d">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-maps-6.5.87_83e59fd034478958a4a7bbe13f67a53587968593.jar" />
     </item>
     <item
         jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\jars\libs\internal_impl-21.0.3.jar"
@@ -163,25 +114,25 @@
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3_a2816c2c646cac6cd6e48f43220ab8c0f9ca7f9a.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\slf4j-api-1.7.10.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\6.5.87\jars\classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="bd6c9bee2f2cc3e651c14869cdede349727a5990">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\slf4j-api-1.7.10_22b0937fec10d177c15adbeceb6739bff4091c38.jar" />
+        sha1="95482e7c792a7c0d5a9d5461e97726bd54fe9549">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-base-6.5.87_eb79418774e85f12530f9b58b838d3ad4df2db19.jar" />
     </item>
     <item
-        jar="C:\Users\Erk\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.3.2\90a3822c38ec8c996e84c16a3477ef632cbc87a3\commons-lang3-3.3.2.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.soundcloud.android\android-crop\0.9.10\jars\classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="90a3822c38ec8c996e84c16a3477ef632cbc87a3">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\commons-lang3-3.3.2_6bfd5b7b06f2e669782674171289f591ae12375e.jar" />
+        sha1="745b8b723976a3ff95ecc84e60d90acbf82130b4">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.soundcloud.android-android-crop-0.9.10_8cc5b826c2759110b6a6857cd422b447bfa71d00.jar" />
     </item>
     <item
-        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\classes.jar"
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\timber-2.7.1.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="be5f5a7dca8f3fcd0c10bbb488cdaf0098bee176">
-        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-sdk-unspecified_06940c0b633dbaf906e764941f105205a0a3f069.jar" />
+        sha1="354e9c89aa72241b58d0383ccdfae74c5a71e0fa">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\timber-2.7.1_6053268ae7f8ea21530ae3386c4abfd5b8c2efd2.jar" />
     </item>
     <item
         jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\classes.jar"
@@ -189,6 +140,55 @@
         revision="21.1.2"
         sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
         <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-21.0.3_3eb923033cd7ce56995a671b604aae80437abf1a.jar" />
+    </item>
+    <item
+        jar="C:\Program Files\Android\Android Studio\gradle\m2repository\org\apache\commons\commons-lang3\3.3.2\commons-lang3-3.3.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="90a3822c38ec8c996e84c16a3477ef632cbc87a3">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\commons-lang3-3.3.2_4314d5c387d123a62f2e97084dd070725c126438.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\facebook\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="46bd8dad7ef648f2395c702806d3a6eef3d31e0b">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Chatcat-Android-facebook-unspecified_3f49ed6d01cb074accd6c3f3548786243634c6ec.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\firebase_plugin\unspecified\jars\libs\Parse-1.5.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="511f1d8fc841111e0bbd25a97243bf68f2e22655">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\Parse-1.5.0_5c4579f1c343c5f0ef75e182c45a7e94e73d64a3.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\slf4j-api-1.7.10.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="68b7358c6344046dc008d0bc8e13bcfa694fcd18">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\slf4j-api-1.7.10_22b0937fec10d177c15adbeceb6739bff4091c38.jar" />
+    </item>
+    <item
+        jar="C:\Users\Erk\.gradle\caches\modules-2\files-2.1\org.scribe\scribe\1.3.7\583921bed46635d9f529ef5f14f7c9e83367bc6e\scribe-1.3.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="583921bed46635d9f529ef5f14f7c9e83367bc6e">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\scribe-1.3.7_88ec5bc1e046b1ce4b702d90b92e9bde53d16bff.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\sdk\unspecified\jars\libs\slf4j-android-1.7.10.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01b2fd034a9591147fe9c7f01a6960547e1fb11e">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\slf4j-android-1.7.10_083ab05789386c9b820192036d3e7b8d450e7d1c.jar" />
+    </item>
+    <item
+        jar="D:\Chatcat\Chatcat-Android\app\build\intermediates\exploded-aar\Chatcat-Android\facebook\unspecified\jars\libs\bolts.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="21750403e9292379f30e5a8b2647b990edc5be0d">
+        <dex dex="D:\Chatcat\Chatcat-Android\app\build\intermediates\pre-dexed\debug\bolts_5d1e8559a159ea1ded651718ce8f1c23732dec52.jar" />
     </item>
 
 </items>

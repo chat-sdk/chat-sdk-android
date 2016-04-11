@@ -23,8 +23,8 @@
     <string name="twitter_access_token_secret"></string>
 
     <!--Parse-->
-    <string name="parse_app_id"></string>
-    <string name="parse_client_key"></string>
+    <string name="parse_app_id">o29mp2pjjsTjxT8pn0xVetApNwXGwLkTfR4J6bIi</string>
+    <string name="parse_client_key">yZ8NrZvFoFHyErPbm7KAX91uXX1ggHHm5MDScpng</string>
 
     <!--BugSense-->
     <string name="bug_sense_key"></string>
