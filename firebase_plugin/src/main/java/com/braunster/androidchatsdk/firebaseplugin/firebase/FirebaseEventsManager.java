@@ -32,11 +32,11 @@ import com.braunster.chatsdk.network.BPath;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
@@ -355,12 +355,12 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         
         observedUserEntityID = user.getEntityID();
 
-        FirebasePaths.userRef(observedUserEntityID)
-                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
-                .addChildEventListener(threadAddedListener);
+        DatabaseReference userRef = FirebasePaths.userRef(observedUserEntityID);
 
-        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollowers).addChildEventListener(followerEventListener);
-        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BThreadPath).addChildEventListener(threadAddedListener);
+
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BFollowers).addChildEventListener(followerEventListener);
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
 
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
 
@@ -418,7 +418,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         hadnledUsersMetaIds.add(userID);
 
-        final FirebasePaths userRef = FirebasePaths.userMetaRef(userID);
+        final DatabaseReference userRef = FirebasePaths.userMetaRef(userID);
 
         if (DEBUG) Timber.v("handleUsersDetailsChange, User Ref: %s", userRef.getRef().toString());
 
@@ -454,7 +454,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         // Also listen to the thread users
         // This will allow us to update the users in the database
-        Firebase threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsersPath);
+        DatabaseReference threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsersPath);
 
         UserAddedListener userAddedToThreadListener= UserAddedListener.getNewInstance(observedUserEntityID, threadId, handlerUserAdded);
 
@@ -485,8 +485,8 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         handledMessagesThreadsID.add(threadId);
 
-        final FirebasePaths threadRef = FirebasePaths.threadRef(threadId);
-        Query messagesQuery = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+        final DatabaseReference threadRef = FirebasePaths.threadRef(threadId);
+        Query messagesQuery = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BMessagesPath);
 
         final BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadId);
 
@@ -513,7 +513,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             wrapper.threadDeletedDate().done(new DoneCallback<Long>() {
                 @Override
                 public void onDone(Long aLong) {
-                    Query query = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+                    Query query = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BMessagesPath);
 
                     // Not deleted
                     if (aLong==null)
@@ -534,11 +534,11 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                     query.addChildEventListener(combo.getListener());
                 }
             })
-            .fail(new FailCallback<FirebaseError>() {
+            .fail(new FailCallback<DatabaseError>() {
                 @Override
-                public void onFail(FirebaseError firebaseError) {
+                public void onFail(DatabaseError firebaseError) {
                     // Default behavior if failed.
-                    Query query = threadRef.appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+                    Query query = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BMessagesPath);
                     query = query.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
 
                     FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), query.getRef().toString(), incomingMessagesListener);
@@ -590,11 +590,11 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         {
             threadsIds.add(threadId);
 
-            final FirebasePaths threadRef = FirebasePaths.threadRef(threadId);
+            final DatabaseReference threadRef = FirebasePaths.threadRef(threadId);
 
             // Add an observer to the thread details so we get
             // updated when the thread details change
-            FirebasePaths detailsRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BDetailsPath);
+            DatabaseReference detailsRef = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BDetailsPath);
 
             FirebaseEventCombo combo = getCombo(threadId, detailsRef.toString(), new ThreadUpdateChangeListener(threadId, handlerThread, deferred));
 
@@ -680,7 +680,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         }
 
         @Override
-        public void onCancelled(FirebaseError error) {
+        public void onCancelled(DatabaseError error) {
 
         }
         //endregion
@@ -720,7 +720,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
 
         }
     };
@@ -775,7 +775,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
 
         }
     };
@@ -867,12 +867,12 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
      **/
     public void removeAll(){
 
-        FirebasePaths.userRef(observedUserEntityID)
-                .appendPathComponent(BFirebaseDefines.Path.BThreadPath)
-                .removeEventListener(threadAddedListener);
+        DatabaseReference userRef = FirebasePaths.userRef(observedUserEntityID);
 
-        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
-        FirebasePaths.userRef(observedUserEntityID).appendPathComponent(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BThreadPath).removeEventListener(threadAddedListener);
+
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
+        FirebasePaths.appendPathComponent(userRef, BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
 
         observedUserEntityID = "";
 

@@ -11,7 +11,7 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.BFirebaseNetworkAdap
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.FirebaseError;
+import com.google.firebase.database.DatabaseError;
 
 public class EntityWrapper<E>{
     
@@ -31,7 +31,7 @@ public class EntityWrapper<E>{
         return BNetworkManager.sharedManager().getNetworkAdapter();
     }
     
-    protected BError getFirebaseError(FirebaseError firebaseError){
+    protected BError getFirebaseError(DatabaseError firebaseError){
         return BFirebaseNetworkAdapter.getFirebaseError(firebaseError);
         
     }

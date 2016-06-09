@@ -8,6 +8,7 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
@@ -24,13 +25,16 @@ import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ServerValue;
-import com.firebase.client.ValueEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
@@ -63,7 +67,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         super(context);
     }
 
-    public Promise<BUser, BError, Void> handleFAUser(final AuthData authData){
+    public Promise<BUser, BError, Void> handleFAUser(final FirebaseUser authData){
         if (DEBUG) Timber.v("handleFAUser");
 
         final Deferred<BUser, BError, Void> deferred = new DeferredObject<>();
@@ -89,7 +93,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             // Set the current user
             final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
             loginInfoMap.put(Prefs.AuthenticationID, aid);
-            loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProvider()));
+            loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProviderId()));
             loginInfoMap.put(Prefs.TokenKey, token);
 
             setLoginInfo(loginInfoMap);
@@ -165,11 +169,11 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                 deferred.reject(new BError(BError.Code.NO_LOGIN_INFO));
             }
 
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-            Firebase ref = FirebasePaths.firebaseRef();
-            if (ref.getAuth()!=null)
+            if (user!=null)
             {
-                handleFAUser(ref.getAuth()).done(new DoneCallback<BUser>() {
+                handleFAUser(user).done(new DoneCallback<BUser>() {
                     @Override
                     public void onDone(BUser bUser) {
                         resetAuth();
@@ -196,42 +200,45 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     public Promise<Void, BError, Void> changePassword(String email, String oldPassword, String newPassword){
         
         final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
-        
-        Firebase.ResultHandler resultHandler = new Firebase.ResultHandler(){
 
-            @Override
-            public void onSuccess() {
-                deferred.resolve(null);
-            }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+        OnCompleteListener<Void> resultHandler = new OnCompleteListener<Void>() {
             @Override
-            public void onError(FirebaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    deferred.resolve(null);
+                } else {
+                    deferred.reject(getFirebaseError(DatabaseError.fromException(task.getException())));
+
+                }
             }
         };
 
-        FirebasePaths.firebaseRef().changePassword(email, oldPassword, newPassword, resultHandler);
+        user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
 
         return deferred.promise();
     }
 
     @Override
     public Promise<Void, BError, Void> sendPasswordResetMail(String email){
-        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
-        
-        Firebase.ResultHandler resultHandler = new Firebase.ResultHandler(){
-            @Override
-            public void onSuccess() {
-                deferred.resolve(null);
-            }
 
+        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+
+        OnCompleteListener<Void> resultHandler = new OnCompleteListener<Void>() {
             @Override
-            public void onError(FirebaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    if(DEBUG) Timber.v("Email sent");
+                    deferred.resolve(null);
+                } else {
+                    deferred.reject(getFirebaseError(DatabaseError.fromException(task.getException())));
+
+                }
             }
         };
 
-        FirebasePaths.firebaseRef().resetPassword(email, resultHandler);
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
         
         return deferred.promise();
     }
@@ -282,16 +289,16 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             unsubscribeToPushChannel(user.getPushChannel());
 
         // Obtaining the simple login object from the ref.
-        FirebasePaths ref = FirebasePaths.firebaseRef();
+        DatabaseReference ref = FirebasePaths.firebaseRef();
 
         // Login out
         if (user != null)
         {
-            FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
+            DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
             userOnlineRef.setValue(false);
         }
 
-        ref.unauth();
+        FirebaseAuth.getInstance().signOut();
     }
 
     @Override
@@ -305,12 +312,12 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
     @Override
     public void goOffline() {
-        Firebase.goOffline();
+        DatabaseReference.goOffline();
     }
 
     @Override
     public void goOnline() {
-        Firebase.goOnline();
+        DatabaseReference.goOnline();
         
         setUserOnline();
     }
@@ -334,7 +341,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 deferred.reject(getFirebaseError(firebaseError));
             }
         });
@@ -354,8 +361,8 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             @Override
             public void onDone(BMessage message) {
                 // Setting the time stamp for the last message added to the thread.
-                FirebasePaths threadRef = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID());
-                threadRef = threadRef.appendPathComponent(BFirebaseDefines.Path.BDetailsPath);
+                DatabaseReference threadRef = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID());
+                threadRef = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BDetailsPath);
 
                 threadRef.updateChildren(FirebasePaths.getMap(new String[]{Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
 
@@ -492,7 +499,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
             
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 deferred.reject(getFirebaseError(firebaseError));
             }
         });
@@ -546,11 +553,13 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                         if (DEBUG) Timber.d("public thread is pushed and saved.");
 
                         // Add the thread to the list of public threads
-                        FirebasePaths publicThreadRef = FirebasePaths.publicThreadsRef().appendPathComponent(thread.getEntityID()).appendPathComponent("null");
-                        publicThreadRef.setValue("", new Firebase.CompletionListener() {
+                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef();
+                        publicThreadRef = FirebasePaths.appendPathComponent(publicThreadRef, thread.getEntityID());
+                        publicThreadRef = FirebasePaths.appendPathComponent(publicThreadRef, "null");
+                        publicThreadRef.setValue("", new DatabaseReference.CompletionListener() {
 
                             @Override
-                            public void onComplete(FirebaseError error, Firebase firebase) {
+                            public void onComplete(DatabaseError error, DatabaseReference firebase) {
                                 if (error == null)
                                     deferred.resolve(thread);
                                 else {
@@ -851,12 +860,14 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         final BUser user = currentUserModel();
 
         // Add the current user to the userToFollow "followers" path
-        FirebasePaths userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BFollowers).appendPathComponent(user.getEntityID());
+        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID());
+        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, BFirebaseDefines.Path.BFollowers);
+        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, user.getEntityID());
         if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
 
-        userToFollowRef.setValue("null", new Firebase.CompletionListener() {
+        userToFollowRef.setValue("null", new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError!=null)
                 {
                     deferred.reject(getFirebaseError(firebaseError));
@@ -868,11 +879,12 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     user.addContact(userToFollow);
 
                     // Add the user to follow to the current user follow
-                    FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getBPath().getPath());
+                    DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef();
+                    curUserFollowsRef = FirebasePaths.appendPathComponent(curUserFollowsRef, follows.getBPath().getPath());
                     if (DEBUG) Timber.d("followUser, curUserFollowsRef: %s", curUserFollowsRef.toString());
-                    curUserFollowsRef.setValue("null", new Firebase.CompletionListener() {
+                    curUserFollowsRef.setValue("null", new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
 
                             // Send a push to the user that is now followed.
                             PushUtils.sendFollowPush(userToFollow.getPushChannel(), user.getMetaName() + " " + context.getString(R.string.not_follower_content));
@@ -896,14 +908,17 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         final BUser user = currentUserModel();
 
         // Remove the current user to the userToFollow "followers" path
-        FirebasePaths userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BFollowers).appendPathComponent(user.getEntityID());
+        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID());
+        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, BFirebaseDefines.Path.BFollowers);
+        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, user.getEntityID());
 
         userToFollowRef.removeValue();
 
         BFollower follows = user.fetchOrCreateFollower(userToUnfollow, BFollower.Type.FOLLOWS);
 
         // Add the user to follow to the current user follow
-        FirebasePaths curUserFollowsRef = FirebasePaths.firebaseRef().appendPathComponent(follows.getBPath().getPath());
+        DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef();
+        curUserFollowsRef = FirebasePaths.appendPathComponent(curUserFollowsRef, follows.getBPath().getPath());
 
         curUserFollowsRef.removeValue();
 
@@ -923,7 +938,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
-        FirebasePaths followersRef = FirebasePaths.userFollowersRef(entityId);
+        DatabaseReference followersRef = FirebasePaths.userFollowersRef(entityId);
 
         followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -975,7 +990,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 deferred.reject(getFirebaseError(firebaseError));
             }
         });
@@ -997,7 +1012,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
-        FirebasePaths followersRef = FirebasePaths.userFollowsRef(entityId);
+        DatabaseReference followersRef = FirebasePaths.userFollowsRef(entityId);
 
         followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -1048,7 +1063,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 deferred.reject(getFirebaseError(firebaseError));
             }
         });

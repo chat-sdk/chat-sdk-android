@@ -7,9 +7,10 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.Firebase;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class FirebaseEventCombo {
 
@@ -50,7 +51,7 @@ public class FirebaseEventCombo {
 
     /** Remove the saved listener from the saved ref.*/
     public void breakCombo(){
-        Firebase comboRef = new Firebase(ref);
+        DatabaseReference comboRef = FirebaseDatabase.getInstance().getReferenceFromUrl(ref);
 
         listener.killEvent();
 

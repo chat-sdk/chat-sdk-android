@@ -24,7 +24,7 @@ import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
-import com.firebase.client.DataSnapshot;
+import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;

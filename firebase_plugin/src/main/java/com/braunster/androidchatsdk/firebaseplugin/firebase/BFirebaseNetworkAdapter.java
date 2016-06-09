@@ -9,6 +9,7 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.ParseUtils;
@@ -26,11 +27,19 @@ import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.SaveImageProgress;
-import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.TwitterAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DatabaseError;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
@@ -41,6 +50,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
+import java.security.AuthProvider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,7 +74,6 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     public BFirebaseNetworkAdapter(Context context){
         super(context);
-        Firebase.setAndroidContext(context);
 
         // Adding the manager that will handle all the incoming events.
         FirebaseEventsManager eventManager = FirebaseEventsManager.getInstance();
@@ -148,11 +157,11 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         authingStatus = AuthStatus.AUTH_WITH_MAP;
 
-        Firebase ref = FirebasePaths.firebaseRef();
-        
-        Firebase.AuthResultHandler authResultHandler = new Firebase.AuthResultHandler() {
+        DatabaseReference ref = FirebasePaths.firebaseRef();
+
+        /*Firebase.AuthResultHandler authResultHandler = new Firebase.AuthResultHandler() {
             @Override
-            public void onAuthenticated(final AuthData authData) {
+            public void onAuthenticated(final FirebaseUser authData) {
                 handleFAUser(authData).then(new DoneCallback<BUser>() {
                     @Override
                     public void onDone(BUser bUser) {
@@ -170,83 +179,91 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             }
 
             @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
+            public void onAuthenticationError(DatabaseError firebaseError) {
                 if (DEBUG) Timber.e("Error login in, Name: %s", firebaseError.getMessage());
                 resetAuth();
                 deferred.reject(getFirebaseError(firebaseError));
             }
+        };*/
+
+        OnCompleteListener<AuthResult> resultHandler = new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                resetAuth();
+
+                if(task.isSuccessful()) {
+                    deferred.resolve(task.getResult().getUser());
+                    resetAuth();
+                } else {
+                    deferred.reject(BError.getExceptionError(task.getException()));
+                }
+            }
         };
+
+        AuthCredential credential = null;
 
         switch ((Integer)details.get(BDefines.Prefs.LoginTypeKey))
         {
             case Facebook:
 
                 if (DEBUG) Timber.d(TAG, "authing with fb, AccessToken: %s", BFacebookManager.userFacebookAccessToken);
-                ref.authWithOAuthToken("facebook", BFacebookManager.userFacebookAccessToken, authResultHandler);
+
+                credential = FacebookAuthProvider.getCredential(BFacebookManager.userFacebookAccessToken);
+                FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
+
                 break;
 
             case Twitter:
 
-                Long userId;
-                if (details.get(Keys.UserId) instanceof Integer)
-                    userId = new Long((Integer) details.get(Keys.UserId));
-                else userId = (Long) details.get(Keys.UserId);
+                if (DEBUG) Timber.d("authing with twitter, AccessToken: %s", TwitterManager.accessToken.getToken());
 
-                Map<String, String> options = new HashMap<String, String>();
+                credential = TwitterAuthProvider.getCredential(TwitterManager.accessToken.getToken(), TwitterManager.accessToken.getSecret());
+                FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
 
-                options.put("oauth_token", TwitterManager.accessToken.getToken());
-                options.put("oauth_token_secret", TwitterManager.accessToken.getSecret());
-
-                options.put("user_id", String.valueOf(userId));
-
-                if (DEBUG) Timber.d("authing with twitter. id: %s", userId);
-
-                ref.authWithOAuthToken("twitter", options, authResultHandler);
                 break;
 
             case Password:
-                ref.authWithPassword((String) details.get(BDefines.Prefs.LoginEmailKey),
-                        (String) details.get(BDefines.Prefs.LoginPasswordKey), authResultHandler);
+                FirebaseAuth.getInstance().signInWithEmailAndPassword((String) details.get(BDefines.Prefs.LoginEmailKey),
+                        (String) details.get(BDefines.Prefs.LoginPasswordKey)).addOnCompleteListener(resultHandler);
                 break;
             case  Register:
-                ref.createUser((String) details.get(BDefines.Prefs.LoginEmailKey),
-                        (String) details.get(BDefines.Prefs.LoginPasswordKey), new Firebase.ResultHandler() {
+                FirebaseAuth.getInstance().createUserWithEmailAndPassword((String) details.get(BDefines.Prefs.LoginEmailKey),
+                        (String) details.get(BDefines.Prefs.LoginPasswordKey)).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
-                            public void onSuccess() {
+                            public void onComplete(@NonNull Task<AuthResult> task) {
                                 
                                 // Resetting so we could auth again.
                                 resetAuth();
-                                
-                                //Authing the user after creating it.
-                                details.put(BDefines.Prefs.LoginTypeKey, Password);
-                                authenticateWithMap(details).done(new DoneCallback<Object>() {
-                                    @Override
-                                    public void onDone(Object o) {
-                                        deferred.resolve(o);
-                                    }
-                                }).fail(new FailCallback<BError>() {
-                                    @Override
-                                    public void onFail(BError bError) {
-                                        deferred.reject(bError);
-                                    }
-                                });
-                            }
 
-                            @Override
-                            public void onError(FirebaseError firebaseError) {
-                                if (DEBUG) Timber.e("Error login in, Name: %s", firebaseError.getMessage());
-                                resetAuth();
-                                deferred.reject(getFirebaseError(firebaseError));
+                                if(task.isSuccessful()) {
+                                    //Authing the user after creating it.
+                                    details.put(BDefines.Prefs.LoginTypeKey, Password);
+                                    authenticateWithMap(details).done(new DoneCallback<Object>() {
+                                        @Override
+                                        public void onDone(Object o) {
+                                            deferred.resolve(o);
+                                        }
+                                    }).fail(new FailCallback<BError>() {
+                                        @Override
+                                        public void onFail(BError bError) {
+                                            deferred.reject(bError);
+                                        }
+                                    });
+                                } else {
+                                    if (DEBUG) Timber.e("Error login in, Name: %s", task.getException().getMessage());
+                                    resetAuth();
+                                    deferred.reject(getFirebaseError(DatabaseError.fromException(task.getException())));
+                                }
                             }
                         });
                 break;
 
             case Anonymous:
-                ref.authAnonymously(authResultHandler);
+                FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(resultHandler);
                 break;
 
             case Custom:
-                ref.authWithCustomToken((String) details.get(BDefines.Prefs.TokenKey), authResultHandler);
+                FirebaseAuth.getInstance().signInWithCustomToken((String) details.get(BDefines.Prefs.TokenKey)).addOnCompleteListener(resultHandler);
 
                 break;
 
@@ -261,7 +278,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         return deferred.promise();
     }
 
-    public abstract Promise<BUser, BError, Void> handleFAUser(final AuthData authData);
+    public abstract Promise<BUser, BError, Void> handleFAUser(final FirebaseUser authData);
 
 
     @Override
@@ -299,10 +316,10 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         if (message.getBThreadOwner().getTypeSafely() == BThread.Type.Private) {
 
             // Loading the message from firebase to get the timestamp from server.
-            FirebasePaths firebase = FirebasePaths.threadRef(
-                    message.getBThreadOwner().getEntityID())
-                    .appendPathComponent(BFirebaseDefines.Path.BMessagesPath)
-                    .appendPathComponent(message.getEntityID());
+            DatabaseReference firebase = FirebasePaths.threadRef(
+                    message.getBThreadOwner().getEntityID());
+            firebase = FirebasePaths.appendPathComponent(firebase, BFirebaseDefines.Path.BMessagesPath);
+            firebase = FirebasePaths.appendPathComponent(firebase, message.getEntityID());
 
             firebase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -339,7 +356,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 }
 
                 @Override
-                public void onCancelled(FirebaseError firebaseError) {
+                public void onCancelled(DatabaseError firebaseError) {
 
                 }
             });
@@ -388,54 +405,54 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
 
     /** Convert the firebase error to a {@link com.braunster.chatsdk.object.BError BError} object. */
-    public static BError getFirebaseError(FirebaseError error){
+    public static BError getFirebaseError(DatabaseError error){
         String errorMessage = "";
 
         int code = 0;
 
         switch (error.getCode())
         {
-            case FirebaseError.EMAIL_TAKEN:
+            case DatabaseError.EMAIL_TAKEN:
                 code = BError.Code.EMAIL_TAKEN;
                 errorMessage = "Email is taken.";
                 break;
 
-            case FirebaseError.INVALID_EMAIL:
+            case DatabaseError.INVALID_EMAIL:
                 code = BError.Code.INVALID_EMAIL;
                 errorMessage = "Invalid Email.";
                 break;
 
-            case FirebaseError.INVALID_PASSWORD:
+            case DatabaseError.INVALID_PASSWORD:
                 code = BError.Code.INVALID_PASSWORD;
                 errorMessage = "Invalid Password";
                 break;
 
-            case FirebaseError.USER_DOES_NOT_EXIST:
+            case DatabaseError.USER_DOES_NOT_EXIST:
                 code = BError.Code.USER_DOES_NOT_EXIST;
                 errorMessage = "Account not found.";
                 break;
 
-            case FirebaseError.NETWORK_ERROR:
+            case DatabaseError.NETWORK_ERROR:
                 code = BError.Code.NETWORK_ERROR;
                 errorMessage = "Network Error.";
                 break;
 
-            case FirebaseError.INVALID_CREDENTIALS:
+            case DatabaseError.INVALID_CREDENTIALS:
                 code = BError.Code.INVALID_CREDENTIALS;
                 errorMessage = "Invalid credentials.";
                 break;
 
-            case FirebaseError.EXPIRED_TOKEN:
+            case DatabaseError.EXPIRED_TOKEN:
                 code = BError.Code.EXPIRED_TOKEN;
                 errorMessage = "Expired Token.";
                 break;
 
-            case FirebaseError.OPERATION_FAILED:
+            case DatabaseError.OPERATION_FAILED:
                 code = BError.Code.OPERATION_FAILED;
                 errorMessage = "Operation failed";
                 break;
 
-            case FirebaseError.PERMISSION_DENIED:
+            case DatabaseError.PERMISSION_DENIED:
                 code = BError.Code.PERMISSION_DENIED;
                 errorMessage = "Permission denied";
                 break;

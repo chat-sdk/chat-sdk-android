@@ -8,10 +8,10 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListener {
 
@@ -67,7 +67,7 @@ public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListe
     }
 
     @Override
-    public void onCancelled(FirebaseError firebaseError) {
+    public void onCancelled(DatabaseError firebaseError) {
 
     }
 }

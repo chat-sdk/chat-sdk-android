@@ -15,7 +15,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
-import com.firebase.client.DataSnapshot;
+import com.google.firebase.database.DataSnapshot;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,7 +38,7 @@ public class BFirebaseInterface {
             return null;
         }
 
-        if (DEBUG)Log.v(TAG, "objectFromSnapshot, Path: " + dataSnapshot.getRef().getPath().toString());
+        if (DEBUG)Log.v(TAG, "objectFromSnapshot, Path: " + dataSnapshot.getRef().toString());
         BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
 
          if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollowers))

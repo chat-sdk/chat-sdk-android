@@ -13,10 +13,10 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ServerValue;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ServerValue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
@@ -120,14 +120,14 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
         
         // Getting the message ref. Will be created if not exist.
-        Firebase ref = ref();
+        DatabaseReference ref = ref();
         model.setEntityID(ref.getKey());
 
         DaoCore.updateEntity(model);
 
-        ref.setValue(serialize(), ServerValue.TIMESTAMP, new Firebase.CompletionListener() {
+        ref.setValue(serialize(), ServerValue.TIMESTAMP, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
 
                 if (DEBUG) Timber.v("push message, onDone");
 
@@ -163,7 +163,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         model.setDelivered(delivered);
     }
     
-    private Firebase ref(){
+    private DatabaseReference ref(){
         if (StringUtils.isNotEmpty(model.getEntityID()))
         {
             return FirebasePaths.threadMessagesRef(model.getBThreadOwner().getEntityID()).child(model.getEntityID());

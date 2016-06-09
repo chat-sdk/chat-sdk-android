@@ -28,5 +28,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':sdk')
-    compile files('libs/firebase-client-android-2.2.3.jar')
+
+    compile 'com.google.firebase:firebase-core:9.0.2'
+    compile 'com.google.firebase:firebase-database:9.0.2'
+    compile 'com.google.firebase:firebase-auth:9.0.2'
 }
+
+apply plugin: 'com.google.gms.google-services'

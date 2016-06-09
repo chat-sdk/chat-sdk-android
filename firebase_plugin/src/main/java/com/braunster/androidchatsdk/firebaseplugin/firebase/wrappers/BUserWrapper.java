@@ -19,12 +19,13 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ServerValue;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
@@ -44,7 +45,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     
     private static final String USER_PREFIX = "user";
     
-    public static BUserWrapper initWithAuthData(AuthData authData){
+    public static BUserWrapper initWithAuthData(FirebaseUser authData){
         return new BUserWrapper(authData);
     }
 
@@ -61,7 +62,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return initWithModel(model);
     }
     
-    private BUserWrapper(AuthData authData){
+    private BUserWrapper(FirebaseUser authData){
         model = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, authData.getUid());
 
         entityId = model.getEntityID();
@@ -84,10 +85,10 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     /**
      * Note - Change was removing of online values as set online and online time.
      * * * * */
-    private void updateUserFromAuthData(AuthData authData){
+    private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType(FirebasePaths.providerToInt(authData.getProvider()));
+        model.setAuthenticationType(FirebasePaths.providerToInt(authData.getProviderId()));
 
         model.setEntityID(authData.getUid());
        
@@ -96,7 +97,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         String email = (String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.EMail);;
         BLinkedAccount linkedAccount;
         
-        switch (FirebasePaths.providerToInt(authData.getProvider()))
+        switch (FirebasePaths.providerToInt(authData.getProviderId()))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
@@ -187,9 +188,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
         final Deferred<BUser, BError, Void> promise = new DeferredObject<>();
 
-        Firebase ref = ref();
+        DatabaseReference ref = ref();
 
-        if (DEBUG) Timber.v("once, EntityID: %s, Ref Path: %s", entityId, ref.getPath());
+        if (DEBUG) Timber.v("once, EntityID: %s, Ref Path: %s", entityId, ref.toString());
         
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -199,7 +200,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 if (DEBUG) Timber.v("once, onCancelled");
                 deferred.reject(BFirebaseNetworkAdapter.getFirebaseError(firebaseError));
             }
@@ -291,9 +292,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         
         final Deferred<BUser, BError, Void> deferred = new DeferredObject<>();
         
-        ref().updateChildren(serialize(), new Firebase.CompletionListener() {
+        ref().updateChildren(serialize(), new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError == null)
                 {
                     deferred.resolve(model);
@@ -305,19 +306,19 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return deferred.promise();
     }
     
-    private Firebase ref(){
+    private DatabaseReference ref(){
         return FirebasePaths.userRef(entityId);
     }
 
-    private Firebase imageRef(){
+    private DatabaseReference imageRef(){
         return ref().child(BFirebaseDefines.Path.BImage);
     }
 
-    private Firebase thumbnailRef(){
+    private DatabaseReference thumbnailRef(){
         return ref().child(BFirebaseDefines.Path.BThumbnail);
     }
 
-    private Firebase metaRef(){
+    private DatabaseReference metaRef(){
         return ref().child(BFirebaseDefines.Path.BMetaPath);
     }
     
@@ -332,18 +333,18 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return channel;
     }
     
-    public Promise<BUserWrapper, FirebaseError, Void> addThreadWithEntityId(String entityId){
+    public Promise<BUserWrapper, DatabaseError, Void> addThreadWithEntityId(String entityId){
 
-        final Deferred<BUserWrapper, FirebaseError, Void> deferred = new DeferredObject<>();
+        final Deferred<BUserWrapper, DatabaseError, Void> deferred = new DeferredObject<>();
 
         // Getting the user ref.
-        Firebase userThreadRef = ref();
+        DatabaseReference userThreadRef = ref();
 
         userThreadRef = userThreadRef.child(BFirebaseDefines.Path.BThreadPath).child(entityId);
 
-        userThreadRef.child(BDefines.Keys.BNull).setValue("", new Firebase.CompletionListener() {
+        userThreadRef.child(BDefines.Keys.BNull).setValue("", new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError == null)
                 {
                     deferred.resolve(BUserWrapper.this);
@@ -358,15 +359,15 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return deferred.promise();
     }
     
-    public Promise<BUserWrapper, FirebaseError, Void> removeThreadWithEntityId(String entityId){
+    public Promise<BUserWrapper, DatabaseError, Void> removeThreadWithEntityId(String entityId){
 
-        final Deferred<BUserWrapper, FirebaseError, Void> deferred = new DeferredObject<>();
+        final Deferred<BUserWrapper, DatabaseError, Void> deferred = new DeferredObject<>();
 
-        Firebase userThreadRef = FirebasePaths.userRef(entityId).child(BFirebaseDefines.Path.BThreadPath).child(entityId);
+        DatabaseReference userThreadRef = FirebasePaths.userRef(entityId).child(BFirebaseDefines.Path.BThreadPath).child(entityId);
 
-        userThreadRef.removeValue(new Firebase.CompletionListener() {
+        userThreadRef.removeValue(new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError == null)
                 {
                     deferred.resolve(BUserWrapper.this);
@@ -399,11 +400,12 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             values.put(BDefines.Keys.BPhone, AbstractNetworkAdapter.processForQuery(phoneNumber));
 
 
-        FirebasePaths ref = FirebasePaths.indexRef().appendPathComponent(entityId);
+        DatabaseReference ref = FirebasePaths.indexRef();
+        ref = FirebasePaths.appendPathComponent(ref, entityId);
 
-        ref.setValue(values, new Firebase.CompletionListener() {
+        ref.setValue(values, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError==null)
                 {
                     deferred.resolve(null);
@@ -422,7 +424,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
      * Set the user online value to false.
      **/
     public void goOffline(){
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(entityId);
+        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(entityId);
         userOnlineRef.setValue(false);
     }
     
@@ -432,7 +434,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
      * When firebase disconnect this will be auto change to false.
      **/
     public void goOnline(){
-        FirebasePaths userOnlineRef = FirebasePaths.userOnlineRef(entityId);
+        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(entityId);
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.

@@ -14,8 +14,8 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManage
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.interfaces.AppEvents;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.FirebaseError;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import org.jdeferred.Deferred;
 
@@ -64,7 +64,7 @@ public class UserMetaChangeListener extends FirebaseGeneralEvent {
     }
 
     @Override
-    public void onCancelled(FirebaseError firebaseError) {
+    public void onCancelled(DatabaseError firebaseError) {
 
     }
 }

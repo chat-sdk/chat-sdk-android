@@ -25,6 +25,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -228,7 +229,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
         // If the user isn't authenticated press on the push will lead him to the
         // Login activity.
-        if (FirebasePaths.firebaseRef().getAuth() == null)
+        if (FirebaseAuth.getInstance().getCurrentUser() == null)
         {
             if (DEBUG) Timber.d("no auth user");
             resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);

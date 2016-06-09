@@ -22,12 +22,12 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ServerValue;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
@@ -132,12 +132,12 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      * Get the date when the thread was deleted
      * @return Promise On success return the date or Nil if the thread hasn't been deleted
      **/
-    public Promise<Long, FirebaseError, Void> threadDeletedDate(){
-        final Deferred<Long, FirebaseError, Void> deferred = new DeferredObject<>();
+    public Promise<Long, DatabaseError, Void> threadDeletedDate(){
+        final Deferred<Long, DatabaseError, Void> deferred = new DeferredObject<>();
 
         BUser user = getNetworkAdapter().currentUserModel();
         
-        Firebase currentThreadUser = FirebasePaths.threadRef(entityId)
+        DatabaseReference currentThreadUser = FirebasePaths.threadRef(entityId)
                 .child(BFirebaseDefines.Path.BUsersPath)
                 .child(user.getEntityID())
                 .child(BDefines.Keys.BDeleted);;
@@ -153,7 +153,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 deferred.reject(firebaseError);
             }
         });
@@ -187,10 +187,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             if (model.getUsers().size() > 2)
             {
                 // Removing the thread from the current user thread ref.
-                FirebasePaths userThreadRef = FirebasePaths.firebaseRef();
-                userThreadRef = userThreadRef
-                        .appendPathComponent(user.getBPath().getPath())
-                        .appendPathComponent(model.getBPath().getPath());
+                DatabaseReference userThreadRef = FirebasePaths.firebaseRef();
+                userThreadRef = FirebasePaths.appendPathComponent(userThreadRef, user.getBPath().getPath());
+                userThreadRef = FirebasePaths.appendPathComponent(userThreadRef, model.getBPath().getPath());
 
                 // Stop listening to thread events, Details change, User added and incoming messages.
                 off();
@@ -198,17 +197,17 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                 usersOff();
 
                 // Removing the thread from the user threads list.
-                userThreadRef.removeValue(new Firebase.CompletionListener() {
+                userThreadRef.removeValue(new DatabaseReference.CompletionListener() {
                     @Override
-                    public void onComplete(FirebaseError error, Firebase firebase) {
+                    public void onComplete(DatabaseError error, DatabaseReference firebase) {
                         // Delete the thread if no error occurred when deleting from firebase.
                         if (error == null)
                         {
                             // Adding a leave value to the user on the thread path so other users will know this user has left.
-                            Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                                    .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                                    .appendPathComponent(getNetworkAdapter().currentUserModel().getEntityID())
-                                    .appendPathComponent(BDefines.Keys.BLeaved);
+                            DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId);
+                            threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BFirebaseDefines.Path.BUsersPath);
+                            threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, getNetworkAdapter().currentUserModel().getEntityID());
+                            threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BDefines.Keys.BLeaved);
                             
                             threadUserRef.setValue(true);
 
@@ -239,10 +238,10 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
             }
             else
             {
-                Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                        .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                        .appendPathComponent(getNetworkAdapter().currentUserModel().getEntityID())
-                        .appendPathComponent(BDefines.Keys.BDeleted);
+                DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId);
+                threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BFirebaseDefines.Path.BUsersPath);
+                threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, getNetworkAdapter().currentUserModel().getEntityID());
+                threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BDefines.Keys.BDeleted);
 
                 threadUserRef.setValue(ServerValue.TIMESTAMP);
 
@@ -264,10 +263,10 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
 
         // Removing the deleted value from firebase.
-        Firebase threadUserRef = FirebasePaths.threadRef(entityId)
-                .appendPathComponent(BFirebaseDefines.Path.BUsersPath)
-                .appendPathComponent(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID())
-                .appendPathComponent(BDefines.Keys.BDeleted);
+        DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId);
+        threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BFirebaseDefines.Path.BUsersPath);
+        threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID());
+        threadUserRef = FirebasePaths.appendPathComponent(threadUserRef, BDefines.Keys.BDeleted);
 
         threadUserRef.removeValue();
 
@@ -325,7 +324,8 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         {
             if (DEBUG) Timber.d("Loading messages from firebase");
 
-            Firebase messageRef = FirebasePaths.threadRef(model.getEntityID()).appendPathComponent(BFirebaseDefines.Path.BMessagesPath);
+            DatabaseReference messageRef = FirebasePaths.threadRef(model.getEntityID());
+            messageRef = FirebasePaths.appendPathComponent(messageRef, BFirebaseDefines.Path.BMessagesPath);
 
             // Get # messages ending at the end date
             // Limit to # defined in BFirebaseDefines
@@ -363,7 +363,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                 }
 
                 @Override
-                public void onCancelled(FirebaseError firebaseError) {
+                public void onCancelled(DatabaseError firebaseError) {
                     deferred.reject(null);
                 }
             });
@@ -474,7 +474,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         
         final DeferredObject<BThread, BError, Void> deferred = new DeferredObject<>();
         
-        Firebase ref = null;
+        DatabaseReference ref = null;
         if (StringUtils.isNotEmpty(model.getEntityID()))
         {
             ref = FirebasePaths.threadRef(model.getEntityID());
@@ -490,9 +490,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         }
         
         
-        ref.updateChildren(serialize(), new Firebase.CompletionListener() {
+        ref.updateChildren(serialize(), new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError != null)
                 {
                     deferred.reject(getFirebaseError(firebaseError));
@@ -511,7 +511,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
         
-        Firebase ref = FirebasePaths.threadRef(this.entityId)
+        DatabaseReference ref = FirebasePaths.threadRef(this.entityId)
                 .child(BFirebaseDefines.Path.BUsersPath)
                 .child(entityId);
 
@@ -522,9 +522,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         // If metaname is null the data wont be saved so we have to do so.
         values.put(BDefines.Keys.BName, (user.getMetaName() == null ? "no_name" : user.getMetaName()));
         
-        ref.setValue(values, new Firebase.CompletionListener() {
+        ref.setValue(values, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError == null)
                     deferred.resolve(BThreadWrapper.this.model);
                 else
@@ -544,11 +544,11 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
-        Firebase ref = FirebasePaths.threadRef(this.entityId).child(BFirebaseDefines.Path.BUsersPath).child(entityId);
+        DatabaseReference ref = FirebasePaths.threadRef(this.entityId).child(BFirebaseDefines.Path.BUsersPath).child(entityId);
 
-        ref.removeValue(new Firebase.CompletionListener() {
+        ref.removeValue(new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                 if (firebaseError == null)
                     deferred.resolve(BThreadWrapper.this.model);
                 else
@@ -614,9 +614,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         public void onDone(BUserWrapper bUserWrapper) {
                             deferred.resolve(BThreadWrapper.this.model);
                         }
-                    }).fail(new FailCallback<FirebaseError>() {
+                    }).fail(new FailCallback<DatabaseError>() {
                         @Override
-                        public void onFail(FirebaseError firebaseError) {
+                        public void onFail(DatabaseError firebaseError) {
                             deferred.reject(getFirebaseError(firebaseError));
                         }
                     });
