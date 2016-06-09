@@ -48,7 +48,7 @@ public class ChatSDKThreadPool {
         // Creates a thread pool manager
         threadPool = new ThreadPoolExecutor(
                 NUMBER_OF_CORES,       // Initial pool size
-                5,       // Max pool size
+                NUMBER_OF_CORES,       // Max pool size
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
                 workQueue);
