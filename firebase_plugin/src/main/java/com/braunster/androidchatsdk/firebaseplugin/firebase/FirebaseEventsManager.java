@@ -996,7 +996,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             // Creates a thread pool manager
             threadPool = new ThreadPoolExecutor(
                     NUMBER_OF_CORES,       // Initial pool size
-                    MAX_THREADS,       // Max pool size
+                    NUMBER_OF_CORES,       // Max pool size
                     KEEP_ALIVE_TIME,
                     KEEP_ALIVE_TIME_UNIT,
                     workQueue);
