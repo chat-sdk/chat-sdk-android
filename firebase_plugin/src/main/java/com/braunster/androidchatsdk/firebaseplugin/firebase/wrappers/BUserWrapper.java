@@ -21,6 +21,7 @@ import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -35,6 +36,7 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -88,16 +90,18 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType(FirebasePaths.providerToInt(authData.getProviderId()));
+        model.setAuthenticationType((Integer) getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
-       
-        Map<String, Object> thirdPartyData = authData.getProviderData();
-        String name = (String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.DisplayName);;
-        String email = (String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.EMail);;
+
+        String name = authData.getDisplayName();
+        String email = authData.getEmail();
+        String token = getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.TokenKey).toString();
+        String uid = authData.getUid();
+
         BLinkedAccount linkedAccount;
         
-        switch (FirebasePaths.providerToInt(authData.getProviderId()))
+        switch ((Integer) (getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey)))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
@@ -120,7 +124,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                     linkedAccount.setUser(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.AccessToken));
+                linkedAccount.setToken(token);
 
                 break;
 
@@ -135,7 +139,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                     model.setMetaEmail(email);
                 }
 
-                TwitterManager.userId = Long.parseLong((String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.ID));
+                TwitterManager.userId = Long.parseLong(uid);
 
                 linkedAccount = model.getAccountWithType(BLinkedAccount.Type.TWITTER);
                 if (linkedAccount == null)
@@ -145,7 +149,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                     linkedAccount.setUser(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
-                linkedAccount.setToken((String) thirdPartyData.get(BDefines.Keys.ThirdPartyData.AccessToken));
+                linkedAccount.setToken(token);
 
                 break;
 

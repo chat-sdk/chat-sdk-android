@@ -11,6 +11,8 @@ android {
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
   
     defaultConfig {
+        applicationId "com.braunster.androidchatsdk.app"
+
         multiDexEnabled = false
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)

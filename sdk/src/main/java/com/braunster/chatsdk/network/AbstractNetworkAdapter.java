@@ -64,6 +64,9 @@ public abstract class AbstractNetworkAdapter {
 
     private boolean authenticated = false;
 
+    public static String provider = "";
+    public static String token = "";
+
     protected Context context;
 
     private AbstractEventManager eventManager;

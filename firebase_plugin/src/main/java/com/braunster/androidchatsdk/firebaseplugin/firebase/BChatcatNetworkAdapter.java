@@ -22,6 +22,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
+import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.object.BError;
@@ -85,15 +86,26 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             // Flag that the user has been authenticated
             setAuthenticated(true);
 
-            String token = (String) authData.getProviderData().get(Keys.ThirdPartyData.AccessToken);
-
-            String aid = authData.getUid();
-
             // Save the authentication ID for the current user
             // Set the current user
             final Map<String, Object> loginInfoMap = new HashMap<String, Object>();
+
+            String aid = authData.getUid();
+            Timber.v("Uid: " + aid);
             loginInfoMap.put(Prefs.AuthenticationID, aid);
-            loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(authData.getProviderId()));
+
+            String provider = AbstractNetworkAdapter.provider;
+            if(provider.equals("")) {
+                provider = getLoginInfo().get(Prefs.AccountTypeKey).toString();
+                loginInfoMap.put(Prefs.AccountTypeKey, (Integer.getInteger(provider)));
+            } else {
+                loginInfoMap.put(Prefs.AccountTypeKey, FirebasePaths.providerToInt(provider));
+            }
+            Timber.v("Provider: " + provider);
+
+            String token = AbstractNetworkAdapter.token;
+            if(getLoginInfo().get(Prefs.TokenKey) != null && token.equals("")) token = getLoginInfo().get(Prefs.TokenKey).toString();
+            Timber.v("Token: " + token);
             loginInfoMap.put(Prefs.TokenKey, token);
 
             setLoginInfo(loginInfoMap);

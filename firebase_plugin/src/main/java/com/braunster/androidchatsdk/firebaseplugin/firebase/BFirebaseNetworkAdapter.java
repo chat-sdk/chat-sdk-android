@@ -157,44 +157,27 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         authingStatus = AuthStatus.AUTH_WITH_MAP;
 
-        DatabaseReference ref = FirebasePaths.firebaseRef();
-
-        /*Firebase.AuthResultHandler authResultHandler = new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(final FirebaseUser authData) {
-                handleFAUser(authData).then(new DoneCallback<BUser>() {
-                    @Override
-                    public void onDone(BUser bUser) {
-                        resetAuth();
-                        deferred.resolve(authData);
-                        resetAuth();
-                    }
-                }, new FailCallback<BError>() {
-                    @Override
-                    public void onFail(BError bError) {
-                        resetAuth();
-                        deferred.reject(bError);
-                    }
-                });
-            }
-
-            @Override
-            public void onAuthenticationError(DatabaseError firebaseError) {
-                if (DEBUG) Timber.e("Error login in, Name: %s", firebaseError.getMessage());
-                resetAuth();
-                deferred.reject(getFirebaseError(firebaseError));
-            }
-        };*/
-
         OnCompleteListener<AuthResult> resultHandler = new OnCompleteListener<AuthResult>() {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                resetAuth();
-
-                if(task.isSuccessful()) {
-                    deferred.resolve(task.getResult().getUser());
-                    resetAuth();
+            public void onComplete(@NonNull final Task<AuthResult> task) {
+                if(task.isComplete() && task.isSuccessful()) {
+                    handleFAUser(task.getResult().getUser()).then(new DoneCallback<BUser>() {
+                        @Override
+                        public void onDone(BUser bUser) {
+                            resetAuth();
+                            deferred.resolve(task.getResult().getUser());
+                            resetAuth();
+                        }
+                    }, new FailCallback<BError>() {
+                        @Override
+                        public void onFail(BError bError) {
+                            resetAuth();
+                            deferred.reject(bError);
+                        }
+                    });
                 } else {
+                    if (DEBUG) Timber.e("Error login in, Name: %s", task.getException().getMessage());
+                    resetAuth();
                     deferred.reject(BError.getExceptionError(task.getException()));
                 }
             }
@@ -208,6 +191,9 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 if (DEBUG) Timber.d(TAG, "authing with fb, AccessToken: %s", BFacebookManager.userFacebookAccessToken);
 
+                AbstractNetworkAdapter.provider = BDefines.ProviderString.Facebook;
+                AbstractNetworkAdapter.token = BFacebookManager.userFacebookAccessToken;
+
                 credential = FacebookAuthProvider.getCredential(BFacebookManager.userFacebookAccessToken);
                 FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
 
@@ -217,12 +203,18 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                 if (DEBUG) Timber.d("authing with twitter, AccessToken: %s", TwitterManager.accessToken.getToken());
 
+                AbstractNetworkAdapter.provider = BDefines.ProviderString.Twitter;
+                AbstractNetworkAdapter.token = TwitterManager.accessToken.getToken();
+
                 credential = TwitterAuthProvider.getCredential(TwitterManager.accessToken.getToken(), TwitterManager.accessToken.getSecret());
                 FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
 
                 break;
 
             case Password:
+
+                AbstractNetworkAdapter.provider = BDefines.ProviderString.Password;
+
                 FirebaseAuth.getInstance().signInWithEmailAndPassword((String) details.get(BDefines.Prefs.LoginEmailKey),
                         (String) details.get(BDefines.Prefs.LoginPasswordKey)).addOnCompleteListener(resultHandler);
                 break;
@@ -259,10 +251,16 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 break;
 
             case Anonymous:
+
+                AbstractNetworkAdapter.provider = BDefines.ProviderString.Anonymous;
+
                 FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(resultHandler);
                 break;
 
             case Custom:
+
+                AbstractNetworkAdapter.provider = BDefines.ProviderString.Custom;
+
                 FirebaseAuth.getInstance().signInWithCustomToken((String) details.get(BDefines.Prefs.TokenKey)).addOnCompleteListener(resultHandler);
 
                 break;
@@ -412,7 +410,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
         switch (error.getCode())
         {
-            case DatabaseError.EMAIL_TAKEN:
+            /*case DatabaseError.EMAIL_TAKEN:
                 code = BError.Code.EMAIL_TAKEN;
                 errorMessage = "Email is taken.";
                 break;
@@ -432,14 +430,14 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 errorMessage = "Account not found.";
                 break;
 
-            case DatabaseError.NETWORK_ERROR:
-                code = BError.Code.NETWORK_ERROR;
-                errorMessage = "Network Error.";
-                break;
-
             case DatabaseError.INVALID_CREDENTIALS:
                 code = BError.Code.INVALID_CREDENTIALS;
                 errorMessage = "Invalid credentials.";
+                break;*/
+
+            case DatabaseError.NETWORK_ERROR:
+                code = BError.Code.NETWORK_ERROR;
+                errorMessage = "Network Error.";
                 break;
 
             case DatabaseError.EXPIRED_TOKEN:

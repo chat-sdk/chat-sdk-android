@@ -5,17 +5,17 @@
 
     <!--Api-Keys-->
             <!--Facebook-->
-            <string name="facebook_id"></string>
+            <string name="facebook_id">966932090008976</string>
     
             <!--Google Maps-->
             <string name="google_maps_api_key"></string>
 
             <!--Twitter-->
-            <string name="twitter_consumer_key"></string>
-            <string name="twitter_consumer_secret"></string>
-            <string name="twitter_access_token"></string>
-            <string name="twitter_access_token_secret"></string>
-            <string name="twitter_callback_url"></string>
+            <string name="twitter_consumer_key">sQ4jMDsA2735WyzE6D9NLgRrO</string>
+            <string name="twitter_consumer_secret">5BmQFtS1GIg1fI9eHVkFQapKAxqxz1dz0VkQ7QzFEGHnb0uEcz</string>
+            <string name="twitter_access_token">1187489798-VGseg1K3s7vlzCXuFP82tTLNQ2oJDVAmMWR33oD</string>
+            <string name="twitter_access_token_secret">jaCeAEWTv3h1RBXyq1uF3Z8JtSYWy8W3Fe4GVMzrWI965</string>
+            <string name="twitter_callback_url">http://placeholder.com</string>
 
             <!--Parse-->
             <string name="parse_app_id">o29mp2pjjsTjxT8pn0xVetApNwXGwLkTfR4J6bIi</string>

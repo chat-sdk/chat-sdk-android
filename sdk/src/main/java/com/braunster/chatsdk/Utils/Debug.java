@@ -17,7 +17,7 @@ public class Debug {
     public static final boolean TwitterManager = true;
     public static final boolean EventManager = false;
     public static final boolean BPath = false;
-    public static final boolean BFirebaseNetworkAdapter = false;
+    public static final boolean BFirebaseNetworkAdapter = true;
 
     /*Fragments*/
     private static final boolean FRAGMENTS = false;
@@ -42,7 +42,7 @@ public class Debug {
     public static final boolean BaseActivity = false;
     public static final boolean ChatActivity = false;
     public static final boolean LocationActivity = false;
-    public static final boolean LoginActivity = false;
+    public static final boolean LoginActivity = true;
     public static final boolean MainActivity = false;
     public static final boolean PickFriendsActivity = false;
     public static final boolean SearchActivity = false;

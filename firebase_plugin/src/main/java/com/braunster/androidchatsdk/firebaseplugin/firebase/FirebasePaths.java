@@ -146,7 +146,7 @@ public class FirebasePaths{
             return BDefines.ProviderInt.Custom;
         }
 
-        throw new IllegalArgumentException("Np provider was found matching requested.");
+        throw new IllegalArgumentException("No provider was found matching requested. Provider: " + provider);
     }
 
     public static String providerToString(int provider){
