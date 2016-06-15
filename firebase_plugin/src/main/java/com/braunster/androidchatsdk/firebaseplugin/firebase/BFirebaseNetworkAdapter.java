@@ -455,6 +455,51 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                 errorMessage = "Permission denied";
                 break;
 
+            case DatabaseError.DISCONNECTED:
+                code = BError.Code.DISCONNECTED;
+                errorMessage = "Disconnected.";
+                break;
+
+            case DatabaseError.INVALID_TOKEN:
+                code = BError.Code.INVALID_TOKEN;
+                errorMessage = "Invalid token.";
+                break;
+
+            case DatabaseError.MAX_RETRIES:
+                code = BError.Code.MAX_RETRIES;
+                errorMessage = "Max retries.";
+                break;
+
+            case DatabaseError.OVERRIDDEN_BY_SET:
+                code = BError.Code.OVERRIDDEN_BY_SET;
+                errorMessage = "Overridden by set.";
+                break;
+
+            case DatabaseError.UNAVAILABLE:
+                code = BError.Code.UNAVAILABLE;
+                errorMessage = "Unavailable.";
+                break;
+
+            case DatabaseError.UNKNOWN_ERROR:
+                code = BError.Code.UNKNOWN_ERROR;
+                errorMessage = "Unknown error.";
+                break;
+
+            case DatabaseError.USER_CODE_EXCEPTION:
+                code = BError.Code.USER_CODE_EXCEPTION;
+
+                String[] stacktrace = error.toException().getMessage().split(": ");
+
+                String[] message = stacktrace[2].split("\\.");
+
+                errorMessage = message[0];
+                break;
+
+            case DatabaseError.WRITE_CANCELED:
+                code = BError.Code.WRITE_CANCELED;
+                errorMessage = "Write canceled.";
+                break;
+
             default: errorMessage = "An Error Occurred.";
         }
 

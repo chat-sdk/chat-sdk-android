@@ -73,6 +73,14 @@ public class BError {
         public static final int INVALID_CREDENTIALS = 22;
         public static final int OPERATION_FAILED = 23;
         public static final int PERMISSION_DENIED = 24;
+        public static final int DISCONNECTED = 25;
+        public static final int INVALID_TOKEN = 26;
+        public static final int MAX_RETRIES = 27;
+        public static final int OVERRIDDEN_BY_SET = 28;
+        public static final int UNAVAILABLE = 29;
+        public static final int UNKNOWN_ERROR = 30;
+        public static final int USER_CODE_EXCEPTION = 31;
+        public static final int WRITE_CANCELED = 32;
 
         // Login Errors
         public static final int USER_ALREADY_EXIST = 100;
