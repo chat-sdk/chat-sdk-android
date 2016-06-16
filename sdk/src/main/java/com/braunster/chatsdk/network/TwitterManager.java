@@ -51,7 +51,7 @@ public class TwitterManager {
 
     public static final int ERROR = 10, SUCCESS = 20;
 
-    public static Long userId = -1L;
+    public static String userId = "-1L";
 
     public static String profileImageUrl = "";
 
@@ -117,7 +117,7 @@ public class TwitterManager {
 
                     if (DEBUG) Timber.d("Twitter Response: %s", json.toString());
 
-                    userId = json.getLong("id");
+                    userId = json.getString("id");
 
                     profileImageUrl = json.getString(BDefines.Keys.ThirdPartyData.ImageURL);
 

@@ -139,7 +139,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                     model.setMetaEmail(email);
                 }
 
-                TwitterManager.userId = Long.parseLong(uid);
+                TwitterManager.userId = uid;
 
                 linkedAccount = model.getAccountWithType(BLinkedAccount.Type.TWITTER);
                 if (linkedAccount == null)
