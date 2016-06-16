@@ -17,7 +17,7 @@
     <!--Twitter-->
     <string name="twitter_consumer_key">sQ4jMDsA2735WyzE6D9NLgRrO</string>
     <string name="twitter_consumer_secret">5BmQFtS1GIg1fI9eHVkFQapKAxqxz1dz0VkQ7QzFEGHnb0uEcz</string>
-    <string name="twitter_callback_url">http://androidchatsdktwitter.com</string>
+    <string name="twitter_callback_url">https://chatcatsdk.firebaseapp.com/__/auth/handler</string>
 
     <string name="twitter_access_token">1187489798-VGseg1K3s7vlzCXuFP82tTLNQ2oJDVAmMWR33oD</string>
     <string name="twitter_access_token_secret">jaCeAEWTv3h1RBXyq1uF3Z8JtSYWy8W3Fe4GVMzrWI965</string>

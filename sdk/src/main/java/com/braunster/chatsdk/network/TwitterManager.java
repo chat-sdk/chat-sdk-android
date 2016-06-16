@@ -183,7 +183,7 @@ public class TwitterManager {
                 .provider(TwitterApi.class)
                 .apiKey(context.getString(R.string.twitter_consumer_key))
                 .apiSecret(context.getString(R.string.twitter_consumer_secret))
-                .callback("http://androidchatsdktwitter.com")
+                .callback(context.getString(R.string.twitter_callback_url))
                 .debug()
                 .build();
     }
