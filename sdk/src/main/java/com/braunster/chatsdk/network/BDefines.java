@@ -18,7 +18,7 @@ public class BDefines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    public static final String BRootPath = "firebase3/";
+    public static final String BRootPath = "chat-sdk-v3/";
 
     /**
      * The version name of the app, Here we are using the name from the BuildConfig.
@@ -28,7 +28,7 @@ public class BDefines {
     public static String BAppVersion = BuildConfig.VERSION_NAME;
 
     /** The server url that is used to do all the API calls.*/
-    public static String ServerUrl = "https://chatcatsdk.firebaseio.com/" + BRootPath;
+    public static String ServerUrl = "https://chat-sdk-v3.firebaseio.com/" + BRootPath;
 
     /**
      * The name of the app image directory that will be seen in the phone image galley
