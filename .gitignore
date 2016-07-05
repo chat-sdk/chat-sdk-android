@@ -1,4 +1,26 @@
-.gradle
+# Local configuration files
 /local.properties
 /.idea/workspace.xml
 .DS_Store
+
+# Generated files
+**bin/
+**gen/
+**out/
+**/build/
+
+#Gradle files
+.gradle/
+build/
+
+# Files for the Dalvik VM
+*.dex
+
+# Intellij
+*.iml
+.idea
+/out/
+/captures
+
+# Java .class files
+**/*.class
