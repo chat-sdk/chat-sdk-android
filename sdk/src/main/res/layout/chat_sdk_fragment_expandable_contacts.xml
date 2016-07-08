@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+
+    <ExpandableListView
+        android:id="@+id/exp_list_contacts"
+        android:layout_height="match_parent"
+        android:groupIndicator="@null"
+        android:layout_width="match_parent"
+        />
+
+</LinearLayout>

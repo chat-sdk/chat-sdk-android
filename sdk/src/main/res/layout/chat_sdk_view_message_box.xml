@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/send_message_border"
+    android:id="@+id/linear">
+
+    <ImageButton
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_options"
+        android:background="@android:color/transparent"
+        android:layout_gravity="bottom"
+        android:id="@+id/chat_sdk_btn_options"
+        android:padding="10dp"
+        android:contentDescription="@string/acces_message_option_button" />
+
+    <FrameLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_gravity="center_vertical"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat_sdk_et_message_to_send"
+            android:hint="Message"
+            android:gravity="bottom"
+            android:maxLines="@integer/chat_sdk_max_message_lines"
+            android:isScrollContainer="true"
+            android:inputType="textShortMessage|textMultiLine"/>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:text="@string/send"
+        android:textColor="@color/chat_sdk_theme_color"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textSize="18sp"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="5dp"
+        android:id="@+id/chat_sdk_btn_chat_send_message"/>
+
+</LinearLayout>

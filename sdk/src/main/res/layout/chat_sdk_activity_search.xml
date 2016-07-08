@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/chat_sdk_search_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/chat_sdk_et_search_input"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:text="@string/search"
+            android:src="@drawable/ic_search"
+            android:id="@+id/chat_sdk_btn_search"
+            android:layout_gravity="right" />
+    </LinearLayout>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chat_sdk_search_linear"
+        android:id="@+id/chat_sdk_chk_select_all"
+        android:enabled="false"
+        android:layout_alignParentRight="true"
+        android:paddingRight="8dp"
+        android:text="@string/select_all"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chat_sdk_chk_select_all"
+        android:layout_above="@id/chat_sdk_btn_add_contacts"
+        android:id="@+id/chat_sdk_list_search_results"
+        android:layout_gravity="center_horizontal"
+        android:scrollbars="none"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_contacts"
+        android:id="@+id/chat_sdk_btn_add_contacts"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

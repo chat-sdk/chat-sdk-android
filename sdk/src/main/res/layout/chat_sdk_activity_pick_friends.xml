@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/search_upper_case"
+        android:textSize="20sp"
+        android:layout_alignParentTop="true"
+        android:padding="10dp"
+        android:id="@+id/textView" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_search"
+        android:layout_below="@id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/chat_sdk_search_image"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_et_search"
+        android:text="@string/search"
+        android:textSize="19sp"
+        android:layout_marginLeft="12dp"
+        android:layout_toRightOf="@id/chat_sdk_search_image"
+        android:layout_below="@id/textView"
+        android:gravity="center_vertical"
+        android:layout_alignBottom="@id/chat_sdk_search_image"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invite More Friends"
+        android:visibility="gone"
+        android:textSize="20sp"
+        android:padding="10dp"
+        android:id="@+id/textView1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FB"
+            android:id="@+id/chat_sdk_btn_invite_from_fb"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invite from facebook"
+            android:textSize="20sp"
+            android:padding="10dp"
+            android:id="@+id/textView2" />
+        </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/chat_sdk_search_image"
+        android:id="@id/linear">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/contacts_upper_case"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/textView3"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/chat_sdk_chk_select_all"
+            android:paddingRight="8dp"
+            android:enabled="false"
+            android:text="@string/select_all"/>
+        </RelativeLayout>
+
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/chat_sdk_list_contacts"
+        android:layout_below="@id/linear"
+        android:scrollbars="none"
+        android:layout_above="@+id/chat_sdk_btn_add_contacts"
+        android:visibility="visible"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_btn_add_contacts"
+        android:layout_alignParentBottom="true"
+        android:text="@string/start_chat"/>
+</RelativeLayout>
