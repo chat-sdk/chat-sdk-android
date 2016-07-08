@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- TODO maybe change the size back to 48dp -->
+    <com.braunster.chatsdk.Utils.volley.RoundedCornerNetworkImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_profile"
+        android:id="@+id/img_profile_picture"
+        android:padding="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Contact Name"
+
+        style="@style/TextViewStyle"
+        android:id="@+id/chat_sdk_txt"
+        android:layout_gravity="center" />
+</LinearLayout>

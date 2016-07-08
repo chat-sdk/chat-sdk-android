@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Created by Itzik Braun on 2/4/2015.
+  ~ Copyright (c) 2015 deluge. All rights reserved.
+  ~
+  ~ Last Modification at: 8/19/14 3:10 PM
+  -->
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/chat_sdk_root_view"
+        android:paddingTop="10dp"
+        android:layout_height="match_parent">
+
+        <ImageView
+            style="@style/CountryIconStyle"
+            android:id="@+id/chat_sdk_country_ic"
+            android:layout_margin="5dp"
+            android:visibility="invisible"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="120dp"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/frame_profile_image_container"
+            android:layout_weight="1">
+
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:id="@id/chat_sdk_progressbar"
+                android:visibility="visible"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_profile"
+                style="@style/CircleIconStyle"
+                android:id="@+id/chat_sdk_circle_ing_profile_pic"
+                app:border_color="@android:color/black"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <TextView
+
+            style="@style/ProfileViewTextViewStyle"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/frame_profile_image_container"
+            android:id="@+id/chat_sdk_txt_name"
+            android:layout_marginTop="10dp"
+            android:text="No name"/>
+
+        <TextView
+            style="@style/ProfileViewTextViewStyle"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/chat_sdk_txt_name"
+            android:text="@string/status"
+            android:id="@+id/chat_sdk_txt_status_header"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="5"
+            android:ellipsize="end"
+            android:padding="5dp"
+            android:layout_below="@id/chat_sdk_txt_status_header"
+            android:id="@+id/chat_sdk_txt_status"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/linear"
+            android:layout_margin="5dp"
+            android:layout_below="@id/chat_sdk_txt_status"
+            android:gravity="center">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:id="@+id/relative_location"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_phone"
+                    android:id="@+id/chat_sdk_ic_phone"
+                    android:layout_centerVertical="true"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/chat_sdk_txt_location"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/chat_sdk_ic_phone"
+                    android:layout_centerVertical="true"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</ScrollView>

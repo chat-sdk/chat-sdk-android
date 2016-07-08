@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/RowStyle"
+    android:id="@+id/chat_sdk_root_view_image_friend">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        style="@style/CircleIconStyle"
+        android:id="@+id/img_user_image"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_profile"
+        android:layout_margin="5dp"
+        android:layout_alignParentLeft="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_time"
+        android:text="Time"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:padding="3dp"
+        android:gravity="center_horizontal"
+        style="@style/MessageDateStyle"/>
+
+    <!-- DO not change this ImageView id the id is used in all message layouts!-->
+    <com.braunster.chatsdk.view.ChatBubbleImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_image"
+        android:layout_toRightOf="@id/img_user_image"
+        app:bubble_gravity="left"
+        app:bubble_with_click_indicator="false"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        android:visibility="visible"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/img_user_image"
+        android:layout_centerVertical="true"
+        android:layout_alignRight="@id/chat_sdk_image"
+        android:id="@+id/chat_sdk_progress_bar"/>
+
+    <!--<ImageView-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:id="@+id/chat_sdk_image"-->
+
+        <!--android:background="@drawable/bubble_left_2"-->
+        <!--android:layout_gravity="left"-->
+        <!--/>-->
+
+</RelativeLayout>

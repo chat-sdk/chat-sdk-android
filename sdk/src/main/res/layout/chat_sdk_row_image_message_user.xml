@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="right"
+    style="@style/RowStyle"
+    android:id="@+id/chat_sdk_root_view_image_user">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        style="@style/CircleIconStyle"
+        android:id="@+id/img_user_image"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_profile"
+        android:layout_margin="5dp"
+        android:layout_alignParentRight="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_time"
+        android:text="time"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:padding="3dp"
+        android:gravity="center_horizontal"
+        style="@style/MessageDateStyle"/>
+
+    <!--android:layout_toRightOf="@id/txt_time"-->
+    <!-- DO not change this ImageView id the id is used in all message layouts!-->
+    <com.braunster.chatsdk.view.ChatBubbleImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_image"
+        android:layout_toLeftOf="@id/img_user_image"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        app:bubble_with_click_indicator="false"
+        app:bubble_gravity="right"
+        android:visibility="visible"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/chat_sdk_image"
+        android:layout_toLeftOf="@id/img_user_image"
+        android:id="@id/chat_sdk_progress_bar"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>

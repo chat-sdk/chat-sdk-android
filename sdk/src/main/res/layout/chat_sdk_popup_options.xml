@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp"
+    android:divider="?android:dividerHorizontal"
+    android:showDividers="middle"
+    android:dividerPadding="10dp"
+
+    android:background="@drawable/message_options_border">
+
+    <Button
+        style="@style/MessageOptionButtonStyle"
+        android:text="Take Picture"
+        android:id="@+id/chat_sdk_btn_take_picture"/>
+
+    <Button
+        style="@style/MessageOptionButtonStyle"
+        android:text="Choose Picture"
+        android:id="@+id/chat_sdk_btn_choose_picture"/>
+
+    <Button
+        style="@style/MessageOptionButtonStyle"
+        android:text="Location"
+        android:id="@+id/chat_sdk_btn_location"/>
+
+</LinearLayout>
