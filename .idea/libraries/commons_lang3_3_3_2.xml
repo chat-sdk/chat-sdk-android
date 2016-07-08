@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="commons-lang3-3.3.2">
-    <CLASSES>
-      <root url="jar://$APPLICATION_HOME_DIR$/gradle/m2repository/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

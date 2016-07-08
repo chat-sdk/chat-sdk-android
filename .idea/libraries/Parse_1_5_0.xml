@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Parse-1.5.0">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/firebase_plugin/libs/Parse-1.5.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
