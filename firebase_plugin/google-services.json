@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "251724064995",
-    "firebase_url": "https://chat-sdk-v3.firebaseio.com",
-    "project_id": "chat-sdk-v3",
-    "storage_bucket": "chat-sdk-v3.appspot.com"
+    "project_number": "143096327367",
+    "firebase_url": "https://chatcatv3test.firebaseio.com",
+    "project_id": "chatcatv3test",
+    "storage_bucket": "chatcatv3test.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:251724064995:android:2f90496f1e628df1",
+        "mobilesdk_app_id": "1:143096327367:android:a47e5a4c00163c12",
         "android_client_info": {
-          "package_name": "com.braunster.androidchatsdk.app"
+          "package_name": "com.braunster.chatsdk"
         }
       },
       "oauth_client": [
         {
-          "client_id": "251724064995-ei79l1274db408al5hjn877mqg159310.apps.googleusercontent.com",
+          "client_id": "143096327367-u768kjn0o449vcjng6nn7cj5rsfr4gdn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBqAlKeBJFH78q5WDPVkrxfC6JcNJ_fP4c"
+          "current_key": "AIzaSyDhk2BmGnhRY5YunvYWCEs0r-aq4X32TO8"
         }
       ],
       "services": {
@@ -39,20 +39,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:251724064995:android:55b96633bb34c794",
+        "mobilesdk_app_id": "1:143096327367:android:55b96633bb34c794",
         "android_client_info": {
           "package_name": "com.braunster.androidchatsdk.firebaseplugin"
         }
       },
       "oauth_client": [
         {
-          "client_id": "251724064995-ei79l1274db408al5hjn877mqg159310.apps.googleusercontent.com",
+          "client_id": "143096327367-u768kjn0o449vcjng6nn7cj5rsfr4gdn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBqAlKeBJFH78q5WDPVkrxfC6JcNJ_fP4c"
+          "current_key": "AIzaSyDhk2BmGnhRY5YunvYWCEs0r-aq4X32TO8"
         }
       ],
       "services": {
