@@ -16,6 +16,7 @@ import android.os.Looper;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
 import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
@@ -25,6 +26,8 @@ import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
+import com.braunster.chatsdk.interfaces.BPushHandler;
+import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.SaveImageProgress;
@@ -70,6 +73,9 @@ public abstract class AbstractNetworkAdapter {
     protected Context context;
 
     private AbstractEventManager eventManager;
+
+    public BUploadHandler uploadHandler;
+    public BPushHandler pushHandler;
     
     public AbstractNetworkAdapter(Context context){
         this.context = context;
@@ -283,8 +289,16 @@ public abstract class AbstractNetworkAdapter {
         message.setResourcesPath(filePath);
 
         DaoCore.updateEntity(message);
+
+        Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
+
+        Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+
+        message.setImageDimensions(ImageUtils.getDimensionAsString(image));
         
-        saveBMessageWithImage(message)
+        uploadImage(image, thumbnail)
                 .progress(new ProgressCallback<SaveImageProgress>() {
                     @Override
                     public void onProgress(SaveImageProgress saveImageProgress) {
@@ -294,7 +308,7 @@ public abstract class AbstractNetworkAdapter {
                 .done(new DoneCallback<String[]>() {
                     @Override
                     public void onDone(String[] url) {
-                        message.setText(url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + url[2]);
+                        message.setText(url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + message.getImageDimensions());
 
                         DaoCore.updateEntity(message);
 
@@ -606,6 +620,14 @@ public abstract class AbstractNetworkAdapter {
         return eventManager;
     }
 
+    public void setUploadHandler(BUploadHandler uploadHandler) {
+        this.uploadHandler = uploadHandler;
+    }
+
+    public BUploadHandler getUploadHandler() {
+        return uploadHandler;
+    }
+
     /**
      * Indicator that the current user in the adapter is authenticated.
      */
@@ -688,5 +710,45 @@ public abstract class AbstractNetworkAdapter {
         }
 
         return map;
+    }
+
+
+
+    public Promise<String[], BError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail) {
+        final Deferred<String[], BError, SaveImageProgress> deferred = new DeferredObject<String[], BError, SaveImageProgress>();
+
+        final String[] urls = new String[2];
+
+        uploadHandler.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg")
+            .done(new DoneCallback<String>() {
+                @Override
+                public void onDone(String url) {
+                    urls[0] = url;
+
+                    uploadHandler.uploadFile(ImageUtils.getImageByteArray(thumbnail), "thumbnail.jpg", "image/jpeg")
+                            .done(new DoneCallback<String>() {
+                                @Override
+                                public void onDone(String url) {
+                                    urls[1] = url;
+
+                                    deferred.resolve(urls);
+                                }
+                            })
+                            .fail(new FailCallback<BError>() {
+                                @Override
+                                public void onFail(BError error) {
+                                    deferred.reject(error);
+                                }
+                            });
+                }
+            })
+            .fail(new FailCallback<BError>() {
+                @Override
+                public void onFail(BError error) {
+                    deferred.reject(error);
+                }
+            });
+
+        return deferred.promise();
     }
 }

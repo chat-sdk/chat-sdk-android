@@ -30,6 +30,9 @@ public class BDefines {
     /** The server url that is used to do all the API calls.*/
     public static String ServerUrl = "https://chatcatv3test.firebaseio.com/" + BRootPath;
 
+    /** The url that is used for the file uploads.*/
+    public static String FirebaseStoragePath = "gs://chatcatv3test.appspot.com";
+
     /**
      * The name of the app image directory that will be seen in the phone image galley
      * */

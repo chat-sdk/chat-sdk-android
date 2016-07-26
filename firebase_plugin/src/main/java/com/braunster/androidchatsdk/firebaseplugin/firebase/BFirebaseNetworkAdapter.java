@@ -79,6 +79,9 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         FirebaseEventsManager eventManager = FirebaseEventsManager.getInstance();
         setEventManager(eventManager);
 
+        // Setting the upload handler
+        setUploadHandler(new BFirebaseUploadHandler());
+
         // Parse init
         Parse.initialize(context, context.getString(R.string.parse_app_id), context.getString(R.string.parse_client_key));
         ParseInstallation.getCurrentInstallation().saveInBackground();

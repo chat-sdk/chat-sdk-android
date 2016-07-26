@@ -25,6 +25,7 @@ import com.braunster.chatsdk.network.BDefines;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -406,6 +407,18 @@ public class ImageUtils {
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         context.sendBroadcast(mediaScanIntent);
+    }
+
+
+    public static byte[] getImageByteArray(Bitmap bitmap){
+        return getImageByteArray(bitmap, 50);
+    }
+
+    public static byte[] getImageByteArray(Bitmap bitmap, int quality){
+        // Converting file to a JPEG and then to byte array.
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
+        return stream.toByteArray();
     }
 }
 
