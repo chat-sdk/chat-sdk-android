@@ -8,11 +8,9 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.ParseUtils;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
@@ -26,7 +24,6 @@ import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
-import com.braunster.chatsdk.object.SaveImageProgress;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -39,7 +36,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.DatabaseError;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
@@ -50,10 +46,8 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
-import java.security.AuthProvider;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -281,26 +275,6 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     public abstract Promise<BUser, BError, Void> handleFAUser(final FirebaseUser authData);
 
-
-    @Override
-    public Promise<String[], BError, SaveImageProgress> saveBMessageWithImage(BMessage message) {
-        return ParseUtils.saveBMessageWithImage(message);
-    }
-
-    @Override
-    public Promise<String[], BError, SaveImageProgress> saveImageWithThumbnail(String path, int thumbnailSize) {
-        return ParseUtils.saveImageFileToParseWithThumbnail(path, thumbnailSize);
-    }
-
-    @Override
-    public Promise<String, BError, SaveImageProgress> saveImage(String path) {
-        return ParseUtils.saveImageToParse(path);
-    }
-
-    @Override
-    public Promise<String, BError, SaveImageProgress> saveImage(Bitmap b, int size) {
-        return ParseUtils.saveImageToParse(b, size);
-    }
 
     @Override
     public String getServerURL() {

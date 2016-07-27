@@ -240,7 +240,7 @@ public class BDefines {
          *
          * @see #ImageDirName
          * */
-        public static boolean SaveImagesToDir = true;
+        public static boolean SaveImagesToDir = false;
 
         /**
          * The maximum amounts of lines that will be shown in the notification for incoming messages.

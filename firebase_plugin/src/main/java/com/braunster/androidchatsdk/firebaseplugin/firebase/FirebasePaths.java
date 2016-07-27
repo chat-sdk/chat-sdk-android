@@ -39,6 +39,9 @@ public class FirebasePaths{
 
     /** @return Firebase object for give url.*/
     private static DatabaseReference fb (String url){
+        if(url.startsWith("/")) {
+            url = url.split("(?=http)")[1];
+        }
         return FirebaseDatabase.getInstance().getReferenceFromUrl(url);
     }
     /** @return Firebase object for the base path of firebase + the component given..*/

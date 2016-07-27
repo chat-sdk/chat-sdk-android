@@ -19,6 +19,7 @@ import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
 import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
+import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -210,7 +211,15 @@ public abstract class AbstractNetworkAdapter {
 
         DaoCore.updateEntity(message);
 
-        saveBMessageWithImage(message)
+        Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
+
+        Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+
+        message.setImageDimensions(ImageUtils.getDimensionAsString(image));
+
+        uploadImage(image, thumbnail)
                 .progress(new ProgressCallback<SaveImageProgress>() {
                     @Override
                     public void onProgress(SaveImageProgress saveImageProgress) {
@@ -297,6 +306,10 @@ public abstract class AbstractNetworkAdapter {
                 BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         message.setImageDimensions(ImageUtils.getDimensionAsString(image));
+
+        VolleyUtils.getBitmapCache().put(
+                VolleyUtils.BitmapCache.getCacheKey(message.getResourcesPath()),
+                thumbnail);
         
         uploadImage(image, thumbnail)
                 .progress(new ProgressCallback<SaveImageProgress>() {
@@ -574,16 +587,6 @@ public abstract class AbstractNetworkAdapter {
     public abstract Promise<BThread, BError, Void> pushThread(BThread thread);
 
 
-    public abstract Promise<String[], BError, SaveImageProgress> saveBMessageWithImage(BMessage message);
-    
-    public abstract Promise<String[], BError, SaveImageProgress> saveImageWithThumbnail(String path, int thumbnailSize);
-
-    public abstract Promise<String, BError, SaveImageProgress> saveImage(String path);
-
-    public abstract Promise<String, BError, SaveImageProgress> saveImage(Bitmap b, int size);
-
-
-
     public abstract String getServerURL();
 
 
@@ -715,6 +718,9 @@ public abstract class AbstractNetworkAdapter {
 
 
     public Promise<String[], BError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail) {
+
+        if(image == null || thumbnail == null) return rejectMultiple();
+
         final Deferred<String[], BError, SaveImageProgress> deferred = new DeferredObject<String[], BError, SaveImageProgress>();
 
         final String[] urls = new String[2];
@@ -750,5 +756,36 @@ public abstract class AbstractNetworkAdapter {
             });
 
         return deferred.promise();
+    }
+
+    public Promise<String, BError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image) {
+
+        if(image == null) return reject();
+
+        final Deferred<String, BError, SaveImageProgress> deferred = new DeferredObject<String, BError, SaveImageProgress>();
+
+        uploadHandler.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg")
+                .done(new DoneCallback<String>() {
+                    @Override
+                    public void onDone(String url) {
+                        deferred.resolve(url);
+                    }
+                })
+                .fail(new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError error) {
+                        deferred.reject(error);
+                    }
+                });
+
+        return deferred.promise();
+    }
+
+    private static Promise<String, BError, SaveImageProgress> reject(){
+        return new DeferredObject<String, BError, SaveImageProgress>().reject(new BError(BError.Code.NULL, "Image Is Null"));
+    }
+
+    private static Promise<String[], BError, SaveImageProgress> rejectMultiple(){
+        return new DeferredObject<String[], BError, SaveImageProgress>().reject(new BError(BError.Code.NULL, "Image Is Null"));
     }
 }

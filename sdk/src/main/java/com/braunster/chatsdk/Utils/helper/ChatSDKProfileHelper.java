@@ -269,8 +269,14 @@ public class ChatSDKProfileHelper {
 
     /** Only for current user.*/
     public Promise<String[], BError, SaveImageProgress> saveProfilePicToServer(String path){
-        return BNetworkManager.sharedManager().getNetworkAdapter().saveImageWithThumbnail(
-                path, BDefines.ImageProperties.PROFILE_PIC_THUMBNAIL_SIZE)
+        Bitmap image = ImageUtils.getCompressed(path);
+
+        Bitmap thumbnail = ImageUtils.getCompressed(path,
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+
+        return BNetworkManager.sharedManager().getNetworkAdapter().uploadImage(
+                image, thumbnail)
                 .done(new DoneCallback<String[]>() {
                     @Override
                     public void onDone(String[] data) {

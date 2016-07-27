@@ -31,6 +31,7 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.fragments.ChatSDKContactsFragment;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractContactsFragment;
+import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.object.BError;
 import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
@@ -330,7 +331,9 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 imageThread.setImageBitmap(b);
 
-                getNetworkAdapter().saveImage(image.getPath())
+                Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
+
+                getNetworkAdapter().uploadImageWithoutThumbnail(imageBitmap)
                         .done(new DoneCallback<String>() {
                             @Override
                             public void onDone(String s) {
