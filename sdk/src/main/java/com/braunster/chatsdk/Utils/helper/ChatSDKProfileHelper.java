@@ -259,7 +259,7 @@ public class ChatSDKProfileHelper {
             if (b == null)
             {
                 uiHelper.showAlertToast(R.string.unable_to_save_file);
-                if (DEBUG) Timber.e("Cant save image to parse file path is invalid: " + activity.getCacheDir().getPath() + path);
+                if (DEBUG) Timber.e("Cant save image to backendless file path is invalid: " + activity.getCacheDir().getPath() + path);
                 return;
             }
         }
@@ -280,7 +280,7 @@ public class ChatSDKProfileHelper {
                 .done(new DoneCallback<String[]>() {
                     @Override
                     public void onDone(String[] data) {
-                        // Saving the image to parse.
+                        // Saving the image to backendless.
                         final BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
 
                         currentUser.setMetaPictureUrl(data[0]);
@@ -293,7 +293,7 @@ public class ChatSDKProfileHelper {
                     @Override
                     public void onFail(BError error) {
                         if (DEBUG)
-                            Timber.e("Parse Exception while saving profile pic, message: %s", error.message);
+                            Timber.e("Backendless Exception while saving profile pic, message: %s", error.message);
                     }
                 });
     }

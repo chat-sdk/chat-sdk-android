@@ -11,7 +11,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BMessageWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
@@ -46,6 +46,8 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MasterDeferredObject;
 import org.jdeferred.multiple.MasterProgress;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -125,7 +127,9 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     
                     // TODO push a default image of the user to the cloud.
 
-                    subscribeToPushChannel(wrapper.pushChannel());
+                    if(!pushHandler.subscribeToPushChannel(wrapper.pushChannel())) {
+                        deferred.reject(new BError(BError.Code.BACKENDLESS_EXCEPTION));
+                    }
                     
                     goOnline();
                     
@@ -298,7 +302,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         
         // Removing the push channel
         if (user != null)
-            unsubscribeToPushChannel(user.getPushChannel());
+            pushHandler.unsubscribeToPushChannel(user.getPushChannel());
 
         // Obtaining the simple login object from the ref.
         DatabaseReference ref = FirebasePaths.firebaseRef();
@@ -899,7 +903,23 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                         public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
 
                             // Send a push to the user that is now followed.
-                            PushUtils.sendFollowPush(userToFollow.getPushChannel(), user.getMetaName() + " " + context.getString(R.string.not_follower_content));
+                            if (DEBUG) Timber.v("pushutils sendfollowpush");
+                            JSONObject data = new JSONObject();
+                            try {
+                                data.put(BDefines.Keys.ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
+                                data.put(BDefines.Keys.CONTENT, user.getMetaName() + " " + context.getString(R.string.not_follower_content));
+                                // For iOS
+                                data.put(BDefines.Keys.BADGE, BDefines.Keys.INCREMENT);
+                                data.put(BDefines.Keys.ALERT, user.getMetaName() + " " + context.getString(R.string.not_follower_content));
+                                // For making sound in iOS
+                                data.put(BDefines.Keys.SOUND, BDefines.Keys.Default);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            List<String> channels = new ArrayList<String>();
+                            channels.add(userToFollow.getPushChannel());
+                            pushHandler.pushToChannels(channels, data);
 
                             deferred.resolve(null);
                         }

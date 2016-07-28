@@ -79,6 +79,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 
+    // Backendless
+    compile('com.backendless:backendless:3.0.11')
 
     compile 'com.android.support:support-annotations:22.2.0'
 

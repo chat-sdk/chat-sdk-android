@@ -323,7 +323,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                     if (b == null)
                     {
                         showAlertToast(getString(R.string.unable_to_save_file));
-                        if (DEBUG) Timber.e("Cant save image to parse file path is invalid: %s", 
+                        if (DEBUG) Timber.e("Cant save image to backendless file path is invalid: %s",
                                 getCacheDir().getPath() + image.getPath());
                         return;
                     }

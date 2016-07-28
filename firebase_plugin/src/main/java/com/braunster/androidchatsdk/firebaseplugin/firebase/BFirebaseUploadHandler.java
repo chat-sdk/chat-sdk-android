@@ -44,14 +44,13 @@ public class BFirebaseUploadHandler implements BUploadHandler {
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (DEBUG) Timber.e(e.getCause(), "Firebase storage exception while saving");
-                deferred.reject(new BError(BError.Code.PARSE_EXCEPTION, e));
+                deferred.reject(new BError(BError.Code.FIREBASE_STORAGE_EXCEPTION, e));
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 deferred.resolve(taskSnapshot.getDownloadUrl().toString());
-                // deferred.resolve(new String[]{parseFile.getUrl(), thumnailFile.getUrl(), imageDimentions} );
             }
         });
 

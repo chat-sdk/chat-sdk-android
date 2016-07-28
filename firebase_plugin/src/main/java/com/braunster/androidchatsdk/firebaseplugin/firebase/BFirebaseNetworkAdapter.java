@@ -11,9 +11,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.parse.PushUtils;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -36,15 +35,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.PushService;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +51,8 @@ import java.util.Map;
 
 import timber.log.Timber;
 
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
+import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Anonymous;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Custom;
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
@@ -76,10 +76,17 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         // Setting the upload handler
         setUploadHandler(new BFirebaseUploadHandler());
 
-        // Parse init
-        Parse.initialize(context, context.getString(R.string.parse_app_id), context.getString(R.string.parse_client_key));
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        // Setting the push handler
+        BBackendlessHandler backendlessPushHandler = new BBackendlessHandler();
+        backendlessPushHandler.setContext(context);
+        setPushHandler(backendlessPushHandler);
 
+        // Parse init
+        /*Parse.initialize(context, context.getString(R.string.parse_app_id), context.getString(R.string.parse_client_key));
+        ParseInstallation.getCurrentInstallation().saveInBackground();*/
+
+        backendlessPushHandler.initWithAppKey(context.getString(R.string.backendless_app_id),
+                            context.getString(R.string.backendless_secret_key), context.getString(R.string.backendless_app_version));
     }
 
 
@@ -284,7 +291,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     
     
     protected void pushForMessage(final BMessage message){
-        if (!parseEnabled())
+        if (!backendlessEnabled())
             return;
 
         if (DEBUG) Timber.v("pushForMessage");
@@ -322,8 +329,11 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
                     for (BUser user : message.getBThreadOwner().getUsers())
                         if (!user.equals(currentUser))
-                            if (user.getOnline() == null || !user.getOnline())
-                            {
+                            if (!user.equals(currentUser)) {
+                                // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
+                                // sends push notification regardless of receiver online status
+                                // TODO: add observer to online status
+                                // if (user.getOnline() == null || !user.getOnline())
                                 users.add(user);
                             }
 
@@ -341,41 +351,50 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
     protected void pushToUsers(BMessage message, List<BUser> users){
         if (DEBUG) Timber.v("pushToUsers");
 
-        if (!parseEnabled() || users.size() == 0)
+        if (!backendlessEnabled() || users.size() == 0)
             return;
 
         // We're identifying each user using push channels. This means that
-        // when a user signs up, they register with parse on a particular
+        // when a user signs up, they register with backendless on a particular
         // channel. In this case user_[user id] this means that we can
         // send a push to a specific user if we know their user id.
         List<String> channels = new ArrayList<String>();
         for (BUser user : users)
             channels.add(user.getPushChannel());
 
-        PushUtils.sendMessage(message, channels);
-    }
+        if (DEBUG) Timber.v("pushutils sendmessage");
+        String messageText = message.getText();
 
-    public void subscribeToPushChannel(String channel){
-        if (!parseEnabled())
-            return;
+        if (message.getType() == LOCATION)
+            messageText = "Location Message";
+        else if (message.getType() == IMAGE)
+            messageText = "Picture Message";
 
+        String sender = message.getBUserSender().getMetaName();
+        String fullText = sender + " " + messageText;
+
+        JSONObject data = new JSONObject();
         try {
-            PushService.subscribe(context, channel, ChatSDKUiHelper.getInstance().mainActivity);
-        } catch (IllegalArgumentException e) {
+            data.put(BDefines.Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+
+            data.put(BDefines.Keys.CONTENT, fullText);
+            data.put(BDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
+            data.put(BDefines.Keys.THREAD_ENTITY_ID, message.getBThreadOwner().getEntityID());
+            data.put(BDefines.Keys.MESSAGE_DATE, message.getDate().getTime());
+            data.put(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
+            data.put(BDefines.Keys.MESSAGE_SENDER_NAME, message.getBUserSender().getMetaName());
+            data.put(BDefines.Keys.MESSAGE_TYPE, message.getType());
+            data.put(BDefines.Keys.MESSAGE_PAYLOAD, message.getText());
+            //For iOS
+            data.put(BDefines.Keys.BADGE, BDefines.Keys.INCREMENT);
+            data.put(BDefines.Keys.ALERT, fullText);
+            // For making sound in iOS
+            data.put(BDefines.Keys.SOUND, BDefines.Keys.Default);
+        } catch (JSONException e) {
             e.printStackTrace();
-
-            if (channel.contains("%3A"))
-                PushService.subscribe(context, channel.replace("%3A", "_"), ChatSDKUiHelper.getInstance().mainActivity);
-            else if (channel.contains("%253A"))
-                PushService.subscribe(context, channel.replace("%253A", "_"), ChatSDKUiHelper.getInstance().mainActivity);
         }
-    }
 
-    public void unsubscribeToPushChannel(String channel){
-        if (!parseEnabled())
-            return;
-
-        PushService.unsubscribe(context, channel);
+        pushHandler.pushToChannels(channels, data);
     }
 
 

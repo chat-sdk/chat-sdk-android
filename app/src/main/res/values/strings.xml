@@ -23,8 +23,14 @@
     <string name="twitter_access_token_secret">jaCeAEWTv3h1RBXyq1uF3Z8JtSYWy8W3Fe4GVMzrWI965</string>
 
     <!--Parse-->
-    <string name="parse_app_id">o29mp2pjjsTjxT8pn0xVetApNwXGwLkTfR4J6bIi</string>
-    <string name="parse_client_key">yZ8NrZvFoFHyErPbm7KAX91uXX1ggHHm5MDScpng</string>
+    <!--<string name="parse_app_id">o29mp2pjjsTjxT8pn0xVetApNwXGwLkTfR4J6bIi</string>
+    <string name="parse_client_key">yZ8NrZvFoFHyErPbm7KAX91uXX1ggHHm5MDScpng</string>-->
+
+    <!--Backendless-->
+    <string name="backendless_app_id">1C9AB22A-D442-4D0C-FFB6-403D71FBA800</string>
+    <string name="backendless_secret_key">DDCC204E-A921-127D-FFFC-B3EAF04B9000</string>
+
+    <string name="google_project_number">143096327367</string>
 
     <!--BugSense-->
     <string name="bug_sense_key"></string>

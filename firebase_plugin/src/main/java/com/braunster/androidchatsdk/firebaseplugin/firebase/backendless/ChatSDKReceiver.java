@@ -5,14 +5,13 @@
  * Last Modification at: 3/12/15 4:35 PM
  */
 
-package com.braunster.androidchatsdk.firebaseplugin.firebase.parse;
+package com.braunster.androidchatsdk.firebaseplugin.firebase.backendless;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 import com.braunster.chatsdk.Utils.Debug;
@@ -38,7 +37,7 @@ import timber.log.Timber;
 
 /**
  *
- * The receiver is the sole object to handle push notification from parse server.
+ * The receiver is the sole object to handle push notification from backendless server.
  *
  * The receiver will only notify for the currentUserModel() incoming messages any message for other user will be <b>ignored</b>.
  * This behavior is due to multiple connection from the same phone.
@@ -51,7 +50,7 @@ import timber.log.Timber;
  * Then the receiver will check if the user is authenticated, If he his the notification will lead him to the ChatActivity else he will be directed to the LoginActivity.
  *
  */
-public class ChatSDKReceiver extends BroadcastReceiver {
+public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
     private static final String TAG = ChatSDKReceiver.class.getSimpleName();
     private static final boolean DEBUG = Debug.ChatSDKReceiver;
@@ -60,38 +59,45 @@ public class ChatSDKReceiver extends BroadcastReceiver {
     public static final String ACTION_FOLLOWER_ADDED = "com.braunster.chatsdk.parse.FOLLOWER_ADDED";
 
     @Override
-    public void onReceive(final Context context, Intent intent) {
+    public boolean onMessage(final Context context, Intent intent) {
 
         if (!BNetworkManager.preferences.getBoolean(BDefines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
-            return;
+            return false;
 
-        String action = intent.getAction();
+        try {
+            final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
-        if (action.equals(ACTION_MESSAGE))
-        {
-            // Getting the push channel used.
-            String channel = intent.getExtras().getString("com.parse.Channel");
-            
-            if (DEBUG) Timber.d("got action: %s, on channel: %s ", action , channel);
-            
-            createMessageNotification(context, intent, channel);
+            String action = json.getString(BDefines.Keys.ACTION);
+
+            if (action.equals(ACTION_MESSAGE))
+            {
+                // Getting the push channel used.
+                String channel = json.getString(BDefines.Keys.Channel);
+
+                if (DEBUG) Timber.d("got action: %s, on channel: %s ", action , channel);
+
+                createMessageNotification(context, intent, channel);
+            }
+            // Follower added action
+            else if (action.equals(ACTION_FOLLOWER_ADDED))
+            {
+                createFollowerNotification(context, intent);
+            }
+        } catch (JSONException e) {
+            if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }
-        // Follower added action
-        else if (action.equals(ACTION_FOLLOWER_ADDED))
-        {
-            createFollowerNotification(context, intent);
-        }
+
+        return false;
     }
-    
+
     @SuppressWarnings("all")// For supressing the BMessasge setType(int type) warning.
     private void createMessageNotification(final Context context, Intent intent, String channel){
+        if(DEBUG) Timber.v("receiver create message notification");
         try {
             if (DEBUG) Timber.v("onReceive");
 
-
-
             // The data saved for this push message.
-            final JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
+            final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
             if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
@@ -101,18 +107,18 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             }
 
             // Extracting the message data from the push json.
-            String entityID = json.getString(PushUtils.MESSAGE_ENTITY_ID);
-            final String threadEntityID = json.getString(PushUtils.THREAD_ENTITY_ID);
-            final String senderEntityId = json.getString(PushUtils.MESSAGE_SENDER_ENTITY_ID);
+            String entityID = json.getString(BDefines.Keys.MESSAGE_ENTITY_ID);
+            final String threadEntityID = json.getString(BDefines.Keys.THREAD_ENTITY_ID);
+            final String senderEntityId = json.getString(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID);
 
             // Getting the sender and the thread.
             BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
             final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
 
-            final Long dateLong =json.getLong(PushUtils.MESSAGE_DATE);
+            final Long dateLong =json.getLong(BDefines.Keys.MESSAGE_DATE);
             final Date date = new Date(dateLong);
-            final Integer type = json.getInt(PushUtils.MESSAGE_TYPE);
-            final String messagePayload = (json.getString(PushUtils.MESSAGE_PAYLOAD));
+            final Integer type = json.getInt(BDefines.Keys.MESSAGE_TYPE);
+            final String messagePayload = (json.getString(BDefines.Keys.MESSAGE_PAYLOAD));
 
             if (DEBUG) Timber.d("Pushed message entity id: %s", entityID);
             if (DEBUG) Timber.d("Pushed message thread entity id: %s", threadEntityID);
@@ -152,9 +158,9 @@ public class ChatSDKReceiver extends BroadcastReceiver {
 
                 postMessageNotification(context, json, thread, message, true);
             } else {
-                
+
                 if (DEBUG) Timber.d("Entity is null,Is null? Sender: %s, Thread: %s", sender== null, thread==null);
-                
+
                 // Getting the user and the thread from firebase
                 final BMessage finalMessage = message;
                 BUserWrapper.initWithEntityId(senderEntityId)
@@ -164,12 +170,12 @@ public class ChatSDKReceiver extends BroadcastReceiver {
                             public void onDone(final BUser bUser) {
                                 // Adding the user as the sender.
                                 finalMessage.setBUserSender(bUser);
-                                
+
                                 if (thread == null)
                                 {
                                     final BThreadWrapper threadWrapper =
-                                    new BThreadWrapper(threadEntityID);
-                                    
+                                            new BThreadWrapper(threadEntityID);
+
                                     threadWrapper
                                             .on()
                                             .then(new DoneCallback<BThread>() {
@@ -220,11 +226,11 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }
     }
-    
-    private void postMessageNotification(Context context, JSONObject json, BThread thread, BMessage message, boolean messageIsValid){
 
+    private void postMessageNotification(Context context, JSONObject json, BThread thread, BMessage message, boolean messageIsValid){
+        Timber.v("receiver postmessage notification");
         if (DEBUG) Timber.v("postMessageNotification: messageIsValid: %s", messageIsValid);
-        
+
         Intent resultIntent;
 
         // If the user isn't authenticated press on the push will lead him to the
@@ -238,7 +244,7 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             try {
                 NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(BDefines.Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
@@ -260,25 +266,25 @@ public class ChatSDKReceiver extends BroadcastReceiver {
             try {
                 NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(PushUtils.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(BDefines.Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
         }
-        
     }
 
 
 
 
     private void createFollowerNotification(Context context, Intent intent){
+        if(DEBUG) Timber.v("receiver create follower notification");
         final JSONObject json;
         try {
-            json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
+            json = new JSONObject(intent.getExtras().getString("message"));
             Intent resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
             NotificationUtils.createAlertNotification(context, BDefines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
-                            json.getString(PushUtils.CONTENT)));
+                            json.getString(BDefines.Keys.CONTENT)));
         } catch (JSONException e) {
             if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }

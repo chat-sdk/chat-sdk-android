@@ -159,6 +159,29 @@ public class BDefines {
         public static final String BLeaved = "leaved";
         public static final String UserId = "user-id";
 
+        // For pushes
+        public static final String ACTION = "action";
+        public static final String ALERT = "alert";
+        public static final String BADGE = "badge", INCREMENT = "Increment";
+        public static final String CONTENT = "text";
+        public static final String MESSAGE_ENTITY_ID = "message_entity_id";
+        public static final String THREAD_ENTITY_ID = "thread_entity_id";
+        public static final String MESSAGE_DATE ="message_date";
+        public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
+        public static final String MESSAGE_SENDER_NAME ="message_sender_name";
+        public static final String MESSAGE_TYPE = "message_type";
+        public static final String MESSAGE_PAYLOAD= "message_payload";
+
+        public static final String SOUND = "sound";
+        public static final String Default = "default";
+
+        public static final String DeviceType = "deviceType";
+        public static final String iOS = "ios";
+        public static final String Android = "android";
+
+        public static final String Channels = "channels";
+        public static final String Channel = "channel";
+
         // User details
         public static final String BGender = "gender";
         public static final String BCountry = "country";
