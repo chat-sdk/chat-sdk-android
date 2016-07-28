@@ -39,70 +39,60 @@ public class FirebasePaths{
 
     /** @return Firebase object for give url.*/
     private static DatabaseReference fb (String url){
-        if(url.startsWith("/")) {
-            url = url.split("(?=http)")[1];
-        }
         return FirebaseDatabase.getInstance().getReferenceFromUrl(url);
-    }
-    /** @return Firebase object for the base path of firebase + the component given..*/
-    public static DatabaseReference appendPathComponent(DatabaseReference database, String component){
-        /* Im pretty sure that this is what you wanted*/
-        builder.setLength(0);
-        builder.append(database.toString()).append("/").append(component);
-        return fb(builder.toString().replace("%3A", ":").replace("%253A", ":"));
     }
 
     /* Users */
     /** @return The users main ref.*/
     public static DatabaseReference userRef(){
-        return appendPathComponent(firebaseRef(), BFirebaseDefines.Path.BUsersPath);
+        return firebaseRef().child(BFirebaseDefines.Path.BUsersPath);
     }
    
     /** @return The user ref for given id.*/
     public static DatabaseReference userRef(String firebaseId){
-        return appendPathComponent(userRef(), firebaseId);
+        return userRef().child(firebaseId);
     }
 
     /** @return The user meta ref for given id.*/
     public static DatabaseReference userMetaRef(String firebaseId){
-        DatabaseReference userMetaRef = appendPathComponent(userRef(), firebaseId);
-        return appendPathComponent(userMetaRef, BFirebaseDefines.Path.BMetaPath);
+        DatabaseReference userMetaRef = userRef().child(firebaseId);
+        return userMetaRef.child(BFirebaseDefines.Path.BMetaPath);
     }
 
     public static DatabaseReference userOnlineRef(String firebaseId){
-        return appendPathComponent(userRef(firebaseId), BFirebaseDefines.Path.BOnlinePath);
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BOnlinePath);
     }
 
     public static DatabaseReference userFollowsRef(String firebaseId){
-        return appendPathComponent(userRef(firebaseId), BFirebaseDefines.Path.BFollows);
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BFollows);
     }
 
     public static DatabaseReference userFollowersRef(String firebaseId){
-        return appendPathComponent(userRef(firebaseId), BFirebaseDefines.Path.BFollowers);
+        return userRef(firebaseId).child(BFirebaseDefines.Path.BFollowers);
     }
 
     /* Threads */
     /** @return The thread main ref.*/
     public static DatabaseReference threadRef(){
-        return appendPathComponent(firebaseRef(), BFirebaseDefines.Path.BThreadPath);
+        return firebaseRef().child(BFirebaseDefines.Path.BThreadPath);
     }
 
     /** @return The thread ref for given id.*/
     public static DatabaseReference threadRef(String firebaseId){
-        return appendPathComponent(threadRef(), firebaseId);
+        return threadRef().child(firebaseId);
     }
 
     public static DatabaseReference threadMessagesRef(String firebaseId){
-        return appendPathComponent(threadRef(firebaseId), BFirebaseDefines.Path.BMessagesPath);
+        return threadRef(firebaseId).child(BFirebaseDefines.Path.BMessagesPath);
     }
     
     public static DatabaseReference publicThreadsRef(){
-        return appendPathComponent(firebaseRef(), BFirebaseDefines.Path.BPublicThreadPath);
+        return firebaseRef().child(BFirebaseDefines.Path.BPublicThreadPath);
     }
 
     /* Index */
     public static DatabaseReference indexRef(){
-        return appendPathComponent(firebaseRef(), BFirebaseDefines.Path.BIndexPath);
+        return firebaseRef().child(BFirebaseDefines.Path.BIndexPath);
     }
 
     public static Map<String, Object> getMap(String[] keys,  Object...values){

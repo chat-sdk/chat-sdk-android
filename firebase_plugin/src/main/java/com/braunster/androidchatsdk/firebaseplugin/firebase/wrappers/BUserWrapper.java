@@ -404,8 +404,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             values.put(BDefines.Keys.BPhone, AbstractNetworkAdapter.processForQuery(phoneNumber));
 
 
-        DatabaseReference ref = FirebasePaths.indexRef();
-        ref = FirebasePaths.appendPathComponent(ref, entityId);
+        DatabaseReference ref = FirebasePaths.indexRef().child(entityId);
 
         ref.setValue(values, new DatabaseReference.CompletionListener() {
             @Override

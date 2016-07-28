@@ -377,8 +377,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             @Override
             public void onDone(BMessage message) {
                 // Setting the time stamp for the last message added to the thread.
-                DatabaseReference threadRef = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID());
-                threadRef = FirebasePaths.appendPathComponent(threadRef, BFirebaseDefines.Path.BDetailsPath);
+                DatabaseReference threadRef = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID()).child(BFirebaseDefines.Path.BDetailsPath);
 
                 threadRef.updateChildren(FirebasePaths.getMap(new String[]{Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
 
@@ -569,11 +568,11 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                         if (DEBUG) Timber.d("public thread is pushed and saved.");
 
                         // Add the thread to the list of public threads
-                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef();
-                        publicThreadRef = FirebasePaths.appendPathComponent(publicThreadRef, thread.getEntityID());
-                        publicThreadRef = FirebasePaths.appendPathComponent(publicThreadRef, "null");
-                        publicThreadRef.setValue("", new DatabaseReference.CompletionListener() {
+                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
+                            .child(thread.getEntityID())
+                            .child("null");
 
+                        publicThreadRef.setValue("", new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError error, DatabaseReference firebase) {
                                 if (error == null)
@@ -876,9 +875,9 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         final BUser user = currentUserModel();
 
         // Add the current user to the userToFollow "followers" path
-        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID());
-        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, BFirebaseDefines.Path.BFollowers);
-        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, user.getEntityID());
+        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID())
+            .child(BFirebaseDefines.Path.BFollowers)
+            .child(user.getEntityID());
         if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
 
         userToFollowRef.setValue("null", new DatabaseReference.CompletionListener() {
@@ -895,8 +894,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     user.addContact(userToFollow);
 
                     // Add the user to follow to the current user follow
-                    DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef();
-                    curUserFollowsRef = FirebasePaths.appendPathComponent(curUserFollowsRef, follows.getBPath().getPath());
+                    DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
                     if (DEBUG) Timber.d("followUser, curUserFollowsRef: %s", curUserFollowsRef.toString());
                     curUserFollowsRef.setValue("null", new DatabaseReference.CompletionListener() {
                         @Override
@@ -940,17 +938,16 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         final BUser user = currentUserModel();
 
         // Remove the current user to the userToFollow "followers" path
-        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID());
-        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, BFirebaseDefines.Path.BFollowers);
-        userToFollowRef = FirebasePaths.appendPathComponent(userToFollowRef, user.getEntityID());
+        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID())
+            .child(BFirebaseDefines.Path.BFollowers)
+            .child(user.getEntityID());
 
         userToFollowRef.removeValue();
 
         BFollower follows = user.fetchOrCreateFollower(userToUnfollow, BFollower.Type.FOLLOWS);
 
         // Add the user to follow to the current user follow
-        DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef();
-        curUserFollowsRef = FirebasePaths.appendPathComponent(curUserFollowsRef, follows.getBPath().getPath());
+        DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
 
         curUserFollowsRef.removeValue();
 

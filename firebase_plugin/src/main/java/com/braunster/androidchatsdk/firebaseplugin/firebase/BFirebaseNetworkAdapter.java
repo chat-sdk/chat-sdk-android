@@ -11,6 +11,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BBackendlessHandler;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BMessage;
@@ -298,10 +299,9 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         if (message.getBThreadOwner().getTypeSafely() == BThread.Type.Private) {
 
             // Loading the message from firebase to get the timestamp from server.
-            DatabaseReference firebase = FirebasePaths.threadRef(
-                    message.getBThreadOwner().getEntityID());
-            firebase = FirebasePaths.appendPathComponent(firebase, BFirebaseDefines.Path.BMessagesPath);
-            firebase = FirebasePaths.appendPathComponent(firebase, message.getEntityID());
+            DatabaseReference firebase = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID())
+                    .child(BFirebaseDefines.Path.BMessagesPath)
+                    .child(message.getEntityID());
 
             firebase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

@@ -1,4 +1,4 @@
-package com.braunster.androidchatsdk.firebaseplugin.firebase;
+package com.braunster.androidchatsdk.firebaseplugin.firebase.backendless;
 
 import android.content.Context;
 
@@ -109,7 +109,7 @@ public class BBackendlessHandler implements BPushHandler, BUploadHandler {
         // Only push to android devices
         DeliveryOptions deliveryOptions = new DeliveryOptions();
         deliveryOptions.setPushPolicy(PushPolicyEnum.ONLY);
-        deliveryOptions.setPushBroadcast(PushBroadcastMask.ANDROID);
+        deliveryOptions.setPushBroadcast(PushBroadcastMask.ALL);
 
         // Publish a push notification to each channel
         for(final String channel : channels) {
