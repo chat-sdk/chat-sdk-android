@@ -235,7 +235,7 @@ public abstract class AbstractNetworkAdapter {
                                 + String.valueOf(location.longitude)
                                 + BDefines.DIVIDER + url[0]
                                 + BDefines.DIVIDER + url[1]
-                                + BDefines.DIVIDER + url[2]);
+                                + BDefines.DIVIDER + message.getImageDimensions());
 
                         DaoCore.updateEntity(message);
 
