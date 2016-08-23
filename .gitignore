@@ -4,9 +4,9 @@
 .DS_Store
 
 # Generated files
-**bin/
-**gen/
-**out/
+**/bin/
+**/gen/
+**/out/
 **/build/
 
 #Gradle files
