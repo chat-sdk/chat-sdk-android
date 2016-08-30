@@ -308,7 +308,7 @@ public class BThread extends BThreadEntity  {
     public List<BUser> getUsers(){
         /* Getting the users list by getBLinkData can be out of date so we get the data from the database*/
 
-        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.ThreadID, getId());
+        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.BThreadDaoId, getId());
 
         if (DEBUG) Timber.d("BThread, getUsers, Amount: %s", (list == null ? "null" : list.size()));
 
@@ -440,7 +440,7 @@ public class BThread extends BThreadEntity  {
         List<BMessage> list ;/*= DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, getId());*/
 
         QueryBuilder<BMessage> qb = daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.OwnerThread.eq(getId()));
+        qb.where(BMessageDao.Properties.BThreadDaoId.eq(getId()));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());
@@ -459,7 +459,7 @@ public class BThread extends BThreadEntity  {
 
         com.braunster.chatsdk.dao.BLinkData data =
                 DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.BLinkData.class,
-                        new Property[]{BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, getId(), user.getId());
+                        new Property[]{BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, getId(), user.getId());
 
 /*        for (BUser u : getUsers())
         {

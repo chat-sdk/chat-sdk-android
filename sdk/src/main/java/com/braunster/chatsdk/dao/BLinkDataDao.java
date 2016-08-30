@@ -29,14 +29,14 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property UserID = new Property(1, Long.class, "UserID", false, "USER_ID");
-        public final static Property ThreadID = new Property(2, Long.class, "ThreadID", false, "THREAD_ID");
+        public final static Property BUserDaoId = new Property(1, Long.class, "BUserDaoId", false, "BUSER_DAO_ID");
+        public final static Property BThreadDaoId = new Property(2, Long.class, "BThreadDaoId", false, "BTHREAD_DAO_ID");
     };
 
     private DaoSession daoSession;
 
-    private Query<BLinkData> bThread_BLinkDataQuery;
     private Query<BLinkData> bUser_BLinkDataQuery;
+    private Query<BLinkData> bThread_BLinkDataQuery;
 
     public BLinkDataDao(DaoConfig config) {
         super(config);
@@ -52,8 +52,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'BLINK_DATA' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
-                "'USER_ID' INTEGER," + // 1: UserID
-                "'THREAD_ID' INTEGER);"); // 2: ThreadID
+                "'BUSER_DAO_ID' INTEGER," + // 1: BUserDaoId
+                "'BTHREAD_DAO_ID' INTEGER);"); // 2: BThreadDaoId
     }
 
     /** Drops the underlying database table. */
@@ -72,14 +72,14 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
             stmt.bindLong(1, id);
         }
  
-        Long UserID = entity.getUserID();
-        if (UserID != null) {
-            stmt.bindLong(2, UserID);
+        Long BUserDaoId = entity.getBUserDaoId();
+        if (BUserDaoId != null) {
+            stmt.bindLong(2, BUserDaoId);
         }
  
-        Long ThreadID = entity.getThreadID();
-        if (ThreadID != null) {
-            stmt.bindLong(3, ThreadID);
+        Long BThreadDaoId = entity.getBThreadDaoId();
+        if (BThreadDaoId != null) {
+            stmt.bindLong(3, BThreadDaoId);
         }
     }
 
@@ -100,8 +100,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     public BLinkData readEntity(Cursor cursor, int offset) {
         BLinkData entity = new BLinkData( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // UserID
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // ThreadID
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // BUserDaoId
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // BThreadDaoId
         );
         return entity;
     }
@@ -110,8 +110,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
     @Override
     public void readEntity(Cursor cursor, BLinkData entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setUserID(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
-        entity.setThreadID(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setBUserDaoId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setBThreadDaoId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
      }
     
     /** @inheritdoc */
@@ -137,31 +137,31 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkData" to-many relationship of BThread. */
-    public List<BLinkData> _queryBThread_BLinkData(Long ThreadID) {
-        synchronized (this) {
-            if (bThread_BLinkDataQuery == null) {
-                QueryBuilder<BLinkData> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.ThreadID.eq(null));
-                bThread_BLinkDataQuery = queryBuilder.build();
-            }
-        }
-        Query<BLinkData> query = bThread_BLinkDataQuery.forCurrentThread();
-        query.setParameter(0, ThreadID);
-        return query.list();
-    }
-
     /** Internal query to resolve the "BLinkData" to-many relationship of BUser. */
-    public List<BLinkData> _queryBUser_BLinkData(Long UserID) {
+    public List<BLinkData> _queryBUser_BLinkData(Long BUserDaoId) {
         synchronized (this) {
             if (bUser_BLinkDataQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.UserID.eq(null));
+                queryBuilder.where(Properties.BUserDaoId.eq(null));
                 bUser_BLinkDataQuery = queryBuilder.build();
             }
         }
         Query<BLinkData> query = bUser_BLinkDataQuery.forCurrentThread();
-        query.setParameter(0, UserID);
+        query.setParameter(0, BUserDaoId);
+        return query.list();
+    }
+
+    /** Internal query to resolve the "BLinkData" to-many relationship of BThread. */
+    public List<BLinkData> _queryBThread_BLinkData(Long BThreadDaoId) {
+        synchronized (this) {
+            if (bThread_BLinkDataQuery == null) {
+                QueryBuilder<BLinkData> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.BThreadDaoId.eq(null));
+                bThread_BLinkDataQuery = queryBuilder.build();
+            }
+        }
+        Query<BLinkData> query = bThread_BLinkDataQuery.forCurrentThread();
+        query.setParameter(0, BThreadDaoId);
         return query.list();
     }
 
@@ -176,8 +176,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T1", daoSession.getBThreadDao().getAllColumns());
             builder.append(" FROM BLINK_DATA T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.'USER_ID'=T0.'_id'");
-            builder.append(" LEFT JOIN BTHREAD T1 ON T.'THREAD_ID'=T1.'_id'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'BUSER_DAO_ID'=T0.'_id'");
+            builder.append(" LEFT JOIN BTHREAD T1 ON T.'BTHREAD_DAO_ID'=T1.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }

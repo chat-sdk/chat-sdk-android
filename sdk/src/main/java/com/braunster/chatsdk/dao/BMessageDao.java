@@ -39,8 +39,8 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         public final static Property Type = new Property(8, Integer.class, "type", false, "TYPE");
         public final static Property Status = new Property(9, Integer.class, "status", false, "STATUS");
         public final static Property Delivered = new Property(10, Integer.class, "delivered", false, "DELIVERED");
-        public final static Property OwnerThread = new Property(11, Long.class, "OwnerThread", false, "OWNER_THREAD");
-        public final static Property Sender = new Property(12, Long.class, "Sender", false, "SENDER");
+        public final static Property Sender = new Property(11, Long.class, "Sender", false, "SENDER");
+        public final static Property BThreadDaoId = new Property(12, Long.class, "BThreadDaoId", false, "BTHREAD_DAO_ID");
     };
 
     private DaoSession daoSession;
@@ -71,8 +71,8 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
                 "'TYPE' INTEGER," + // 8: type
                 "'STATUS' INTEGER," + // 9: status
                 "'DELIVERED' INTEGER," + // 10: delivered
-                "'OWNER_THREAD' INTEGER," + // 11: OwnerThread
-                "'SENDER' INTEGER);"); // 12: Sender
+                "'SENDER' INTEGER," + // 11: Sender
+                "'BTHREAD_DAO_ID' INTEGER);"); // 12: BThreadDaoId
     }
 
     /** Drops the underlying database table. */
@@ -141,14 +141,14 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             stmt.bindLong(11, delivered);
         }
  
-        Long OwnerThread = entity.getOwnerThread();
-        if (OwnerThread != null) {
-            stmt.bindLong(12, OwnerThread);
-        }
- 
         Long Sender = entity.getSender();
         if (Sender != null) {
-            stmt.bindLong(13, Sender);
+            stmt.bindLong(12, Sender);
+        }
+ 
+        Long BThreadDaoId = entity.getBThreadDaoId();
+        if (BThreadDaoId != null) {
+            stmt.bindLong(13, BThreadDaoId);
         }
     }
 
@@ -179,8 +179,8 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // type
             cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9), // status
             cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10), // delivered
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // OwnerThread
-            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12) // Sender
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // Sender
+            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12) // BThreadDaoId
         );
         return entity;
     }
@@ -199,8 +199,8 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         entity.setType(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
         entity.setStatus(cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9));
         entity.setDelivered(cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10));
-        entity.setOwnerThread(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
-        entity.setSender(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
+        entity.setSender(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setBThreadDaoId(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
      }
     
     /** @inheritdoc */
@@ -227,16 +227,16 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
     }
     
     /** Internal query to resolve the "messages" to-many relationship of BThread. */
-    public List<BMessage> _queryBThread_Messages(Long OwnerThread) {
+    public List<BMessage> _queryBThread_Messages(Long BThreadDaoId) {
         synchronized (this) {
             if (bThread_MessagesQuery == null) {
                 QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.OwnerThread.eq(null));
+                queryBuilder.where(Properties.BThreadDaoId.eq(null));
                 bThread_MessagesQuery = queryBuilder.build();
             }
         }
         Query<BMessage> query = bThread_MessagesQuery.forCurrentThread();
-        query.setParameter(0, OwnerThread);
+        query.setParameter(0, BThreadDaoId);
         return query.list();
     }
 
@@ -247,12 +247,12 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getBThreadDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getBThreadDao().getAllColumns());
             builder.append(" FROM BMESSAGE T");
-            builder.append(" LEFT JOIN BTHREAD T0 ON T.'OWNER_THREAD'=T0.'_id'");
-            builder.append(" LEFT JOIN BUSER T1 ON T.'SENDER'=T1.'_id'");
+            builder.append(" LEFT JOIN BUSER T0 ON T.'SENDER'=T0.'_id'");
+            builder.append(" LEFT JOIN BTHREAD T1 ON T.'BTHREAD_DAO_ID'=T1.'_id'");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -263,12 +263,12 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         BMessage entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BThread BThreadOwner = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
-        entity.setBThreadOwner(BThreadOwner);
-        offset += daoSession.getBThreadDao().getAllColumns().length;
-
         BUser BUserSender = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
         entity.setBUserSender(BUserSender);
+        offset += daoSession.getBUserDao().getAllColumns().length;
+
+        BThread BThread = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
+        entity.setBThread(BThread);
 
         return entity;    
     }

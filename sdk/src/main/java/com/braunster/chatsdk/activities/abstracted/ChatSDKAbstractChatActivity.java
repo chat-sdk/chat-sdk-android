@@ -416,7 +416,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 if (DEBUG) Timber.v("onMessageReceived, EntityID: %s", message.getEntityID());
 
                 // Check that the message is relevant to the current thread.
-                if (!message.getBThreadOwner().getEntityID().equals(thread.getEntityID()) || message.getOwnerThread() != thread.getId().intValue()) {
+                if (!message.getBThread().getEntityID().equals(thread.getEntityID()) || message.getBThreadDaoId() != thread.getId().intValue()) {
                     return false;
                 }
 

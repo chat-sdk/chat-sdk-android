@@ -16,8 +16,8 @@ import de.greenrobot.dao.DaoException;
 public class BLinkData extends Entity  {
 
     private Long id;
-    private Long UserID;
-    private Long ThreadID;
+    private Long BUserDaoId;
+    private Long BThreadDaoId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -42,10 +42,10 @@ public class BLinkData extends Entity  {
         this.id = id;
     }
 
-    public BLinkData(Long id, Long UserID, Long ThreadID) {
+    public BLinkData(Long id, Long BUserDaoId, Long BThreadDaoId) {
         this.id = id;
-        this.UserID = UserID;
-        this.ThreadID = ThreadID;
+        this.BUserDaoId = BUserDaoId;
+        this.BThreadDaoId = BThreadDaoId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -62,25 +62,25 @@ public class BLinkData extends Entity  {
         this.id = id;
     }
 
-    public Long getUserID() {
-        return UserID;
+    public Long getBUserDaoId() {
+        return BUserDaoId;
     }
 
-    public void setUserID(Long UserID) {
-        this.UserID = UserID;
+    public void setBUserDaoId(Long BUserDaoId) {
+        this.BUserDaoId = BUserDaoId;
     }
 
-    public Long getThreadID() {
-        return ThreadID;
+    public Long getBThreadDaoId() {
+        return BThreadDaoId;
     }
 
-    public void setThreadID(Long ThreadID) {
-        this.ThreadID = ThreadID;
+    public void setBThreadDaoId(Long BThreadDaoId) {
+        this.BThreadDaoId = BThreadDaoId;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getBUser() {
-        Long __key = this.UserID;
+        Long __key = this.BUserDaoId;
         if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -98,14 +98,14 @@ public class BLinkData extends Entity  {
     public void setBUser(BUser bUser) {
         synchronized (this) {
             this.bUser = bUser;
-            UserID = bUser == null ? null : bUser.getId();
-            bUser__resolvedKey = UserID;
+            BUserDaoId = bUser == null ? null : bUser.getId();
+            bUser__resolvedKey = BUserDaoId;
         }
     }
 
     /** To-one relationship, resolved on first access. */
     public BThread getBThread() {
-        Long __key = this.ThreadID;
+        Long __key = this.BThreadDaoId;
         if (bThread__resolvedKey == null || !bThread__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -123,8 +123,8 @@ public class BLinkData extends Entity  {
     public void setBThread(BThread bThread) {
         synchronized (this) {
             this.bThread = bThread;
-            ThreadID = bThread == null ? null : bThread.getId();
-            bThread__resolvedKey = ThreadID;
+            BThreadDaoId = bThread == null ? null : bThread.getId();
+            bThread__resolvedKey = BThreadDaoId;
         }
     }
 

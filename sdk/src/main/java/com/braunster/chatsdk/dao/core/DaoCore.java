@@ -316,14 +316,14 @@ public class DaoCore {
     public static void connectUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
         BLinkData linkData = new BLinkData();
-        linkData.setThreadID(thread.getId());
-        linkData.setUserID(user.getId());
+        linkData.setBThreadDaoId(thread.getId());
+        linkData.setBUserDaoId(user.getId());
         createEntity(linkData);
     }
 
     public static void breakUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, thread.getId(), user.getId());
+        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, thread.getId(), user.getId());
         
         DaoCore.deleteEntity(linkData);
     }

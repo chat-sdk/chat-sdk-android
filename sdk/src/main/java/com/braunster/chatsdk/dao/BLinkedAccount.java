@@ -22,7 +22,7 @@ public class BLinkedAccount extends BLinkedAccountEntity  {
     private Long id;
     private String Token;
     private Integer type;
-    private Long user;
+    private Long BUserDaoId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -30,8 +30,8 @@ public class BLinkedAccount extends BLinkedAccountEntity  {
     /** Used for active entity operations. */
     private transient BLinkedAccountDao myDao;
 
-    private BUser bUser;
-    private Long bUser__resolvedKey;
+    private BUser BUser;
+    private Long BUser__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -44,11 +44,11 @@ public class BLinkedAccount extends BLinkedAccountEntity  {
         this.id = id;
     }
 
-    public BLinkedAccount(Long id, String Token, Integer type, Long user) {
+    public BLinkedAccount(Long id, String Token, Integer type, Long BUserDaoId) {
         this.id = id;
         this.Token = Token;
         this.type = type;
-        this.user = user;
+        this.BUserDaoId = BUserDaoId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -81,36 +81,36 @@ public class BLinkedAccount extends BLinkedAccountEntity  {
         this.type = type;
     }
 
-    public Long getUser() {
-        return user;
+    public Long getBUserDaoId() {
+        return BUserDaoId;
     }
 
-    public void setUser(Long user) {
-        this.user = user;
+    public void setBUserDaoId(Long BUserDaoId) {
+        this.BUserDaoId = BUserDaoId;
     }
 
     /** To-one relationship, resolved on first access. */
     public BUser getBUser() {
-        Long __key = this.user;
-        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
+        Long __key = this.BUserDaoId;
+        if (BUser__resolvedKey == null || !BUser__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BUserDao targetDao = daoSession.getBUserDao();
-            BUser bUserNew = targetDao.load(__key);
+            BUser BUserNew = targetDao.load(__key);
             synchronized (this) {
-                bUser = bUserNew;
-            	bUser__resolvedKey = __key;
+                BUser = BUserNew;
+            	BUser__resolvedKey = __key;
             }
         }
-        return bUser;
+        return BUser;
     }
 
-    public void setBUser(BUser bUser) {
+    public void setBUser(BUser BUser) {
         synchronized (this) {
-            this.bUser = bUser;
-            user = bUser == null ? null : bUser.getId();
-            bUser__resolvedKey = user;
+            this.BUser = BUser;
+            BUserDaoId = BUser == null ? null : BUser.getId();
+            BUser__resolvedKey = BUserDaoId;
         }
     }
 

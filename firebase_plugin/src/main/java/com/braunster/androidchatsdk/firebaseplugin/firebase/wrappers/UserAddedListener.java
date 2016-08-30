@@ -123,7 +123,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         {
                             BLinkData data =
                                     DaoCore.fetchEntityWithProperties(BLinkData.class,
-                                            new Property[]{BLinkDataDao.Properties.ThreadID, BLinkDataDao.Properties.UserID}, thread.getId(), bUser.getId());
+                                            new Property[]{BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, thread.getId(), bUser.getId());
 
                             if (data != null)
                             {

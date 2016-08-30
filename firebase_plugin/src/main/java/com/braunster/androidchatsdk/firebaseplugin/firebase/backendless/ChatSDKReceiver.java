@@ -153,7 +153,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                 DaoCore.updateEntity(thread);
 
                 message.setBUserSender(sender);
-                message.setBThreadOwner(thread);
+                message.setBThread(thread);
                 message = DaoCore.createEntity(message);
 
                 postMessageNotification(context, json, thread, message, true);
@@ -194,7 +194,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                                                     }
 
                                                     // Adding the thread to the message.
-                                                    finalMessage.setBThreadOwner(bThread);
+                                                    finalMessage.setBThread(bThread);
 
                                                     // posting the notification. Also creating the new updated message.
                                                     postMessageNotification(context, json, bThread, DaoCore.createEntity(finalMessage), true);

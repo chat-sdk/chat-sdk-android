@@ -377,7 +377,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
             @Override
             public void onDone(BMessage message) {
                 // Setting the time stamp for the last message added to the thread.
-                DatabaseReference threadRef = FirebasePaths.threadRef(message.getBThreadOwner().getEntityID()).child(BFirebaseDefines.Path.BDetailsPath);
+                DatabaseReference threadRef = FirebasePaths.threadRef(message.getBThread().getEntityID()).child(BFirebaseDefines.Path.BDetailsPath);
 
                 threadRef.updateChildren(FirebasePaths.getMap(new String[]{Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
 

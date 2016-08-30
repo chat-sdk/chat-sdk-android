@@ -121,7 +121,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                 {
                     linkedAccount = new BLinkedAccount();
                     linkedAccount.setType(BLinkedAccount.Type.FACEBOOK);
-                    linkedAccount.setUser(model.getId());
+                    linkedAccount.setBUserDaoId(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
                 linkedAccount.setToken(token);
@@ -146,7 +146,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                 {
                     linkedAccount = new BLinkedAccount();
                     linkedAccount.setType(BLinkedAccount.Type.TWITTER);
-                    linkedAccount.setUser(model.getId());
+                    linkedAccount.setBUserDaoId(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
                 linkedAccount.setToken(token);
