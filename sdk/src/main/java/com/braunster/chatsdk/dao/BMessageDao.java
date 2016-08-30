@@ -46,7 +46,6 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
     private DaoSession daoSession;
 
     private Query<BMessage> bThread_MessagesQuery;
-    private Query<BMessage> bUser_MessagesQuery;
 
     public BMessageDao(DaoConfig config) {
         super(config);
@@ -238,20 +237,6 @@ public class BMessageDao extends AbstractDao<BMessage, Long> {
         }
         Query<BMessage> query = bThread_MessagesQuery.forCurrentThread();
         query.setParameter(0, OwnerThread);
-        return query.list();
-    }
-
-    /** Internal query to resolve the "messages" to-many relationship of BUser. */
-    public List<BMessage> _queryBUser_Messages(Long Sender) {
-        synchronized (this) {
-            if (bUser_MessagesQuery == null) {
-                QueryBuilder<BMessage> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Sender.eq(null));
-                bUser_MessagesQuery = queryBuilder.build();
-            }
-        }
-        Query<BMessage> query = bUser_MessagesQuery.forCurrentThread();
-        query.setParameter(0, Sender);
         return query.list();
     }
 

@@ -332,7 +332,6 @@ public class BMessage extends BMessageEntity  {
     public String toString() {
         return String.format("BMessage, id: %s, type: %s, Sender: %s", id, type, getBUserSender());
     }
-
     // KEEP METHODS END
 
 }

@@ -10,8 +10,6 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
-import de.greenrobot.dao.query.Query;
-import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BThread;
 
@@ -45,7 +43,6 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
 
     private DaoSession daoSession;
 
-    private Query<BThread> bUser_ThreadsCreatedQuery;
 
     public BThreadDao(DaoConfig config) {
         super(config);
@@ -226,20 +223,6 @@ public class BThreadDao extends AbstractDao<BThread, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "threadsCreated" to-many relationship of BUser. */
-    public List<BThread> _queryBUser_ThreadsCreated(Long creator_ID) {
-        synchronized (this) {
-            if (bUser_ThreadsCreatedQuery == null) {
-                QueryBuilder<BThread> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Creator_ID.eq(null));
-                bUser_ThreadsCreatedQuery = queryBuilder.build();
-            }
-        }
-        Query<BThread> query = bUser_ThreadsCreatedQuery.forCurrentThread();
-        query.setParameter(0, creator_ID);
-        return query.list();
-    }
-
     private String selectDeep;
 
     protected String getSelectDeep() {

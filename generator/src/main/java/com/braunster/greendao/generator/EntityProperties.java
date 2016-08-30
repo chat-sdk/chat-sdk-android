@@ -20,7 +20,6 @@ public class EntityProperties {
     public static final String EntityID = "entityID";
     public static final String Owner = "Owner";
     public static final String OwnerId = "OwnerId";
-    public static final String Owner_ID = "OwnerID";
     public static final String Name = "name";
     public static final String BUserId = "BUserId";
     public static final String Type = "type";
@@ -32,7 +31,6 @@ public class EntityProperties {
     public static final String LastOnline = "lastOnline";
     public static final String Online = "Online";
     public static final String AuthenticationType = "AuthenticationType";
-    public static final String ThreadsCreated = "threadsCreated";
     public static final String MessageColor = "messageColor";
     public static final String BLinkedContacts = "BLinkedContacts";
     public static final String BLinkedAccounts = "BLinkedAccounts";

@@ -13,7 +13,7 @@ import de.greenrobot.daogenerator.ToOne;
 public class Generator {
 
     // TODO set not null attribute to the properties that needs it.
-    private static String outputDir = "../sdk/src/main/java";
+    private static String outputDir = "sdk/src/main/java";
 
     private static Entity user, linkedAccount, thread, message, threadUsers, linkedContact, follower;
 
@@ -70,6 +70,14 @@ public class Generator {
         follower.addIdProperty();
         follower.addStringProperty(EntityProperties.EntityID);
         follower.addIntProperty(EntityProperties.Type);
+        
+        Property followerPropOwner = follower.addLongProperty(EntityProperties.OwnerId).getProperty();
+        ToOne toOneUserPropOwner = follower.addToOne(user, followerPropOwner);
+        toOneUserPropOwner.setName(EntityProperties.Owner);
+
+        Property followerPropUser = follower.addLongProperty(EntityProperties.BUserId).getProperty();
+        ToOne toOneUserPropUser = follower.addToOne(user, followerPropUser);
+        toOneUserPropUser.setName(EntityProperties.User);
     }
 
     private static void addThread(Schema schema) {
@@ -110,71 +118,68 @@ public class Generator {
     //endregion
 
     private static void setProperties(){
-        Property userPropOwner = follower.addLongProperty(EntityProperties.OwnerId).getProperty();
-        ToOne toOneUserPropOwner = follower.addToOne(user, userPropOwner);
-        toOneUserPropOwner.setName(EntityProperties.Owner);
 
-        Property userPropUser = follower.addLongProperty(EntityProperties.BUserId).getProperty();
-        ToOne toOneUserPropUser = follower.addToOne(user, userPropUser);
-        toOneUserPropUser.setName(EntityProperties.User);
 
         // LinkedContact, LinkedAccount and MetaData - START
-        Property userProp = linkedContact.addLongProperty(EntityProperties.Owner).getProperty();
-        ToOne toOneUserProp = linkedContact.addToOne(user, userProp);
-        toOneUserProp.setName("Contact");
+        Property linkedContactPropUser = linkedContact.addLongProperty(EntityProperties.Owner).getProperty();
+        ToOne linkedContactToOneUser = linkedContact.addToOne(user, linkedContactPropUser);
+        linkedContactToOneUser.setName("Contact");
 
-        Property userProp2 = linkedAccount.addLongProperty(EntityProperties.User).getProperty();
-        linkedAccount.addToOne(user, userProp2);
+        Property linkedAccountPropUser2 = linkedAccount.addLongProperty(EntityProperties.User).getProperty();
+        linkedAccount.addToOne(user, linkedAccountPropUser2);
 
-        // Add a thread owner to the message
-        Property threadIDProp = message.addLongProperty("OwnerThread").getProperty();
-        ToOne one1 = message.addToOne(thread, threadIDProp);
-        one1.setName("BThreadOwner");
+        {
+            // Add a thread owner to the message
+            Property messagePropOwnerThread = message.addLongProperty("OwnerThread").getProperty();
+            ToOne messageToOneOwnerThread = message.addToOne(thread, messagePropOwnerThread);
+            messageToOneOwnerThread.setName("BThreadOwner");
 
-        // The sender ID
-        Property senderIDProp = message.addLongProperty("Sender").getProperty();
-        ToOne one = message.addToOne(user, senderIDProp);
-        one.setName("BUserSender");
+            // The sender ID
+            Property messagePropSender = message.addLongProperty("Sender").getProperty();
+            ToOne messageToOneSender = message.addToOne(user, messagePropSender);
+            messageToOneSender.setName("BUserSender");
 
-        // Link data for user and thread.
-        Property userIdProp = threadUsers.addLongProperty("UserID").getProperty();
-        Property threadIdProp = threadUsers.addLongProperty("ThreadID").getProperty();
-        threadUsers.addToOne(user, userIdProp);
-        threadUsers.addToOne(thread, threadIdProp);
-        //LinkedContact, LinkedAccount and MetaData - END
+            ToMany threadPropMessages = thread.addToMany(message, messagePropOwnerThread);
+            threadPropMessages.setName(EntityProperties.Messages);
+        }
+        {
+            // Link data for user and thread.
+            Property threadUsersPropUserId = threadUsers.addLongProperty("UserID").getProperty();
+            Property threadUsersPropThreadId = threadUsers.addLongProperty("ThreadID").getProperty();
+            threadUsers.addToOne(user, threadUsersPropUserId);
+            threadUsers.addToOne(thread, threadUsersPropThreadId);
 
+            ToMany linkToThread = user.addToMany(threadUsers, threadUsersPropUserId);
+            linkToThread.setName(EntityProperties.BLinkData);
+
+            ToMany threadPropUsers = thread.addToMany(threadUsers, threadUsersPropThreadId);
+            threadPropUsers.setName(EntityProperties.BLinkData);
+            //LinkedContact, LinkedAccount and MetaData - END
+        }
         // Threads - START
-        Property creatorProp = thread.addLongProperty(EntityProperties.CreatorID).getProperty();
-        ToOne one2 = thread.addToOne(user, creatorProp);
-        one2.setName(EntityProperties.Creator);
+        {
+            Property threadPropCreator = thread.addLongProperty(EntityProperties.CreatorID).getProperty();
+            ToOne threadToOneCreator = thread.addToOne(user, threadPropCreator);
+            threadToOneCreator.setName(EntityProperties.Creator);
 
-        ToMany messagesProp = thread.addToMany(message, threadIDProp);
-        messagesProp.setName(EntityProperties.Messages);
 
-        ToMany linkToUsers = thread.addToMany(threadUsers, threadIdProp);
-        linkToUsers.setName(EntityProperties.BLinkData);
+
+
+        }
         // Threads - END
-
+        {
 //      // Users - START
-        ToMany contacts = user.addToMany(linkedContact, userProp);
-        contacts.setName(EntityProperties.BLinkedContacts);
+            ToMany contacts = user.addToMany(linkedContact, linkedContactPropUser);
+            contacts.setName(EntityProperties.BLinkedContacts);
 
-        ToMany followers = user.addToMany(follower, userProp);
-        followers.setName(EntityProperties.BFollowers);
+            ToMany followers = user.addToMany(follower, linkedContactPropUser);
+            followers.setName(EntityProperties.BFollowers);
 
-        ToMany accounts = user.addToMany(linkedAccount, userProp2);
-        accounts.setName(EntityProperties.BLinkedAccounts);
+            ToMany accounts = user.addToMany(linkedAccount, linkedAccountPropUser2);
+            accounts.setName(EntityProperties.BLinkedAccounts);
 
-        ToMany messagesForUser = user.addToMany(message, senderIDProp);
-        messagesForUser.setName(EntityProperties.Messages);
-
-        ToMany threadsCreatedForUser = user.addToMany(thread, creatorProp);
-        threadsCreatedForUser.setName(EntityProperties.ThreadsCreated);
-
-        ToMany linkToThread = user.addToMany(threadUsers, userIdProp);
-        linkToThread.setName(EntityProperties.BLinkData);
 //        // Users - END
-
+        }
     }
 
     private static void setKeepSection(){
