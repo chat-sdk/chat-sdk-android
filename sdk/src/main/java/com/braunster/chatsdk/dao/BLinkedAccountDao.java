@@ -179,8 +179,8 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, Long> {
         BLinkedAccount entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BUser BUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUser(BUser);
+        BUser BUserObj = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
+        entity.setBUserObj(BUserObj);
 
         return entity;    
     }

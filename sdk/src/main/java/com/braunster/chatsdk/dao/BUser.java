@@ -52,10 +52,10 @@ public class BUser extends BUserEntity  {
     /** Used for active entity operations. */
     private transient BUserDao myDao;
 
-    private List<BLinkData> BLinkData;
+    private List<BLinkedAccount> BLinkedAccounts;
+    private List<BLinkData> BLinkDataObj;
     private List<BLinkedContact> BLinkedContacts;
     private List<BFollower> BFollowers;
-    private List<BLinkedAccount> BLinkedAccounts;
 
     // KEEP FIELDS - put your custom fields here
     private static final String TAG = BUser.class.getSimpleName();
@@ -153,25 +153,47 @@ public class BUser extends BUserEntity  {
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkData() {
-        if (BLinkData == null) {
+    public List<BLinkedAccount> getBLinkedAccounts() {
+        if (BLinkedAccounts == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            BLinkedAccountDao targetDao = daoSession.getBLinkedAccountDao();
+            List<BLinkedAccount> BLinkedAccountsNew = targetDao._queryBUser_BLinkedAccounts(id);
+            synchronized (this) {
+                if(BLinkedAccounts == null) {
+                    BLinkedAccounts = BLinkedAccountsNew;
+                }
+            }
+        }
+        return BLinkedAccounts;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetBLinkedAccounts() {
+        BLinkedAccounts = null;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<BLinkData> getBLinkDataObj() {
+        if (BLinkDataObj == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> BLinkDataNew = targetDao._queryBUser_BLinkData(id);
+            List<BLinkData> BLinkDataObjNew = targetDao._queryBUser_BLinkDataObj(id);
             synchronized (this) {
-                if(BLinkData == null) {
-                    BLinkData = BLinkDataNew;
+                if(BLinkDataObj == null) {
+                    BLinkDataObj = BLinkDataObjNew;
                 }
             }
         }
-        return BLinkData;
+        return BLinkDataObj;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkData() {
-        BLinkData = null;
+    public synchronized void resetBLinkDataObj() {
+        BLinkDataObj = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -216,28 +238,6 @@ public class BUser extends BUserEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetBFollowers() {
         BFollowers = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkedAccount> getBLinkedAccounts() {
-        if (BLinkedAccounts == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BLinkedAccountDao targetDao = daoSession.getBLinkedAccountDao();
-            List<BLinkedAccount> BLinkedAccountsNew = targetDao._queryBUser_BLinkedAccounts(id);
-            synchronized (this) {
-                if(BLinkedAccounts == null) {
-                    BLinkedAccounts = BLinkedAccountsNew;
-                }
-            }
-        }
-        return BLinkedAccounts;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkedAccounts() {
-        BLinkedAccounts = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */

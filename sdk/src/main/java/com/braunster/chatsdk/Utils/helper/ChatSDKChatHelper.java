@@ -265,7 +265,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         List<BMessage> list ;
 
         QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.BThreadDaoId.eq(id));
+        qb.where(BMessageDao.Properties.ThreadDaoId.eq(id));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());

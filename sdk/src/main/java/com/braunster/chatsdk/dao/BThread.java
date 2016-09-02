@@ -59,7 +59,7 @@ public class BThread extends BThreadEntity  {
     private Long creator__resolvedKey;
 
     private List<BMessage> messages;
-    private List<BLinkData> BLinkData;
+    private List<BLinkData> BLinkDataObj;
 
     // KEEP FIELDS - put your custom fields here
     private static final boolean DEBUG = Debug.BThread;
@@ -246,25 +246,25 @@ public class BThread extends BThreadEntity  {
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkData() {
-        if (BLinkData == null) {
+    public List<BLinkData> getBLinkDataObj() {
+        if (BLinkDataObj == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> BLinkDataNew = targetDao._queryBThread_BLinkData(id);
+            List<BLinkData> BLinkDataObjNew = targetDao._queryBThread_BLinkDataObj(id);
             synchronized (this) {
-                if(BLinkData == null) {
-                    BLinkData = BLinkDataNew;
+                if(BLinkDataObj == null) {
+                    BLinkDataObj = BLinkDataObjNew;
                 }
             }
         }
-        return BLinkData;
+        return BLinkDataObj;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkData() {
-        BLinkData = null;
+    public synchronized void resetBLinkDataObj() {
+        BLinkDataObj = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
@@ -440,7 +440,7 @@ public class BThread extends BThreadEntity  {
         List<BMessage> list ;/*= DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.OwnerThread, getId());*/
 
         QueryBuilder<BMessage> qb = daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.BThreadDaoId.eq(getId()));
+        qb.where(BMessageDao.Properties.ThreadDaoId.eq(getId()));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());

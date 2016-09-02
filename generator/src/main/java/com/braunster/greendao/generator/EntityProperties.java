@@ -35,6 +35,7 @@ public class EntityProperties {
     public static final String BLinkedContacts = "BLinkedContacts";
     public static final String BLinkedAccounts = "BLinkedAccounts";
     public static final String BFollowers = "BFollowers";
+    public static final String Thread = "thread";
 
     /* Message*/
     public static final String Date = "date";

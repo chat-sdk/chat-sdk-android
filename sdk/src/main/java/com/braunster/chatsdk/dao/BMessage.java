@@ -35,7 +35,7 @@ public class BMessage extends BMessageEntity  {
     private Integer status;
     private Integer delivered;
     private Long Sender;
-    private Long BThreadDaoId;
+    private Long threadDaoId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -46,8 +46,8 @@ public class BMessage extends BMessageEntity  {
     private BUser BUserSender;
     private Long BUserSender__resolvedKey;
 
-    private BThread BThread;
-    private Long BThread__resolvedKey;
+    private BThread thread;
+    private Long thread__resolvedKey;
 
 
     // KEEP FIELDS - put your custom fields here
@@ -66,7 +66,7 @@ public class BMessage extends BMessageEntity  {
         this.id = id;
     }
 
-    public BMessage(Long id, String entityID, java.util.Date date, Boolean isRead, String resources, String resourcesPath, String text, String imageDimensions, Integer type, Integer status, Integer delivered, Long Sender, Long BThreadDaoId) {
+    public BMessage(Long id, String entityID, java.util.Date date, Boolean isRead, String resources, String resourcesPath, String text, String imageDimensions, Integer type, Integer status, Integer delivered, Long Sender, Long threadDaoId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -79,7 +79,7 @@ public class BMessage extends BMessageEntity  {
         this.status = status;
         this.delivered = delivered;
         this.Sender = Sender;
-        this.BThreadDaoId = BThreadDaoId;
+        this.threadDaoId = threadDaoId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -184,12 +184,12 @@ public class BMessage extends BMessageEntity  {
         this.Sender = Sender;
     }
 
-    public Long getBThreadDaoId() {
-        return BThreadDaoId;
+    public Long getThreadDaoId() {
+        return threadDaoId;
     }
 
-    public void setBThreadDaoId(Long BThreadDaoId) {
-        this.BThreadDaoId = BThreadDaoId;
+    public void setThreadDaoId(Long threadDaoId) {
+        this.threadDaoId = threadDaoId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -218,27 +218,27 @@ public class BMessage extends BMessageEntity  {
     }
 
     /** To-one relationship, resolved on first access. */
-    public BThread getBThread() {
-        Long __key = this.BThreadDaoId;
-        if (BThread__resolvedKey == null || !BThread__resolvedKey.equals(__key)) {
+    public BThread getThread() {
+        Long __key = this.threadDaoId;
+        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BThreadDao targetDao = daoSession.getBThreadDao();
-            BThread BThreadNew = targetDao.load(__key);
+            BThread threadNew = targetDao.load(__key);
             synchronized (this) {
-                BThread = BThreadNew;
-            	BThread__resolvedKey = __key;
+                thread = threadNew;
+            	thread__resolvedKey = __key;
             }
         }
-        return BThread;
+        return thread;
     }
 
-    public void setBThread(BThread BThread) {
+    public void setThread(BThread thread) {
         synchronized (this) {
-            this.BThread = BThread;
-            BThreadDaoId = BThread == null ? null : BThread.getId();
-            BThread__resolvedKey = BThreadDaoId;
+            this.thread = thread;
+            threadDaoId = thread == null ? null : thread.getId();
+            thread__resolvedKey = threadDaoId;
         }
     }
 
@@ -269,12 +269,12 @@ public class BMessage extends BMessageEntity  {
     // KEEP METHODS - put your custom methods here
     @Override
     public BPath getBPath() {
-        if (getBThread() == null)
+        if (getThread() == null)
         {
             if (DEBUG) Timber.e("Owner Thread is null");
             return null;
         }
-        return getBThread().getBPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
+        return getThread().getBPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
     }
 
     @Override

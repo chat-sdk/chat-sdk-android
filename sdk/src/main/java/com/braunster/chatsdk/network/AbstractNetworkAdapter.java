@@ -142,7 +142,7 @@ public abstract class AbstractNetworkAdapter {
 
         final BMessage message = new BMessage();
         message.setText(text);
-        message.setBThreadDaoId(threadId);
+        message.setThreadDaoId(threadId);
         message.setType(TEXT);
         message.setBUserSender(currentUserModel());
         message.setStatus(BMessageEntity.Status.SENDING);
@@ -154,7 +154,7 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThread().getLastMessageAdded();
+        Date date = message.getThread().getLastMessageAdded();
         if (date == null)
             date = new Date();
         
@@ -190,7 +190,7 @@ public abstract class AbstractNetworkAdapter {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setBThreadDaoId(threadId);
+        message.setThreadDaoId(threadId);
         message.setType(LOCATION);
         message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
@@ -203,7 +203,7 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThread().getLastMessageAdded();
+        Date date = message.getThread().getLastMessageAdded();
         if (date == null)
             date = new Date();
 
@@ -277,7 +277,7 @@ public abstract class AbstractNetworkAdapter {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setBThreadDaoId(threadId);
+        message.setThreadDaoId(threadId);
         message.setType(IMAGE);
         message.setBUserSender(currentUserModel());
         message.setStatus(BMessageEntity.Status.SENDING);
@@ -289,7 +289,7 @@ public abstract class AbstractNetworkAdapter {
         // was added to the thread.
         // Using this method we are avoiding time differences between the server time and the
         // device local time.
-        Date date = message.getBThread().getLastMessageAdded();
+        Date date = message.getThread().getLastMessageAdded();
         if (date == null)
             date = new Date();
 

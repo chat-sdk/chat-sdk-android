@@ -145,7 +145,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
     public Promise<BMessage, BError, BMessage> send(){
         if (DEBUG) Timber.v("send");
         
-        if (model.getBThread() != null)
+        if (model.getThread() != null)
         {
             return push();
         }else
@@ -166,11 +166,11 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
     private DatabaseReference ref(){
         if (StringUtils.isNotEmpty(model.getEntityID()))
         {
-            return FirebasePaths.threadMessagesRef(model.getBThread().getEntityID()).child(model.getEntityID());
+            return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
         }
         else
         {
-            return FirebasePaths.threadMessagesRef(model.getBThread().getEntityID()).push();
+            return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).push();
         }
     }
     

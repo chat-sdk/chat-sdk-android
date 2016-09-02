@@ -287,9 +287,9 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
             // We check to see if the listener specified a specific thread that he wants to listen to.
             // If we could find and match the data we ignore it.
-            if (StringUtils.isNotEmpty(e.getEntityId()) && message.getBThread() != null
-                    && message.getBThread().getEntityID() != null
-                    && !message.getBThread().getEntityID().equals(e.getEntityId()))
+            if (StringUtils.isNotEmpty(e.getEntityId()) && message.getThread() != null
+                    && message.getThread().getEntityID() != null
+                    && !message.getThread().getEntityID().equals(e.getEntityId()))
                     continue;
 
 

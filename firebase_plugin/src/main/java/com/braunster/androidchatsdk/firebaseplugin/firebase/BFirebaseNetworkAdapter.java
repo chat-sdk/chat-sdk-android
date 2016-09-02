@@ -296,10 +296,10 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
             return;
 
         if (DEBUG) Timber.v("pushForMessage");
-        if (message.getBThread().getTypeSafely() == BThread.Type.Private) {
+        if (message.getThread().getTypeSafely() == BThread.Type.Private) {
 
             // Loading the message from firebase to get the timestamp from server.
-            DatabaseReference firebase = FirebasePaths.threadRef(message.getBThread().getEntityID())
+            DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
                     .child(BFirebaseDefines.Path.BMessagesPath)
                     .child(message.getEntityID());
 
@@ -327,7 +327,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                     BUser currentUser = currentUserModel();
                     List<BUser> users = new ArrayList<BUser>();
 
-                    for (BUser user : message.getBThread().getUsers())
+                    for (BUser user : message.getThread().getUsers())
                         if (!user.equals(currentUser))
                             if (!user.equals(currentUser)) {
                                 // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
@@ -379,7 +379,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
             data.put(BDefines.Keys.CONTENT, fullText);
             data.put(BDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
-            data.put(BDefines.Keys.THREAD_ENTITY_ID, message.getBThread().getEntityID());
+            data.put(BDefines.Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
             data.put(BDefines.Keys.MESSAGE_DATE, message.getDate().getTime());
             data.put(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
             data.put(BDefines.Keys.MESSAGE_SENDER_NAME, message.getBUserSender().getMetaName());

@@ -153,7 +153,7 @@ public class Generator {
     private static void setBidirectionalRelationships(){
 
         {
-            setBidirectionalToMany(thread, message, null, EntityProperties.Messages);
+            setBidirectionalToMany(thread, message, EntityProperties.Thread, EntityProperties.Messages);
             setBidirectionalToMany(user, linkedAccount, null, EntityProperties.BLinkedAccounts);
             // Link data for user and thread.
             setManyToMany(threadUsers, user, thread);
@@ -199,13 +199,17 @@ public class Generator {
     private static void setBidirectionalToMany(Entity oneEntity, Entity manyEntity,
                                                String toOnePropertyName,
                                                String toManyPropertyName){
-
-        Property manyIdProp = manyEntity.addLongProperty(oneEntity.getClassName()+"DaoId").getProperty();
+        Property manyIdProp;
+        if (toOnePropertyName == null) {
+            manyIdProp = manyEntity.addLongProperty(oneEntity.getClassName() + "DaoId").getProperty();
+        }else{
+            manyIdProp = manyEntity.addLongProperty(toOnePropertyName + "DaoId").getProperty();
+        }
         ToOne toOne = manyEntity.addToOne(oneEntity, manyIdProp);
         ToMany toMany = oneEntity.addToMany(manyEntity, manyIdProp);
 
-        toOne.setName(oneEntity.getClassName());
-        toMany.setName(manyEntity.getClassName());
+        toOne.setName(oneEntity.getClassName()+"Obj");
+        toMany.setName(manyEntity.getClassName()+"Obj");
 
         if(toOnePropertyName != null) toOne.setName(toOnePropertyName);
         if(toManyPropertyName != null) toMany.setName(toManyPropertyName);
@@ -218,10 +222,10 @@ public class Generator {
         linkEntity.addToOne(entityTwo, entityTwoProp);
 
         ToMany linkToThread = entityOne.addToMany(linkEntity, entityOneProp);
-        linkToThread.setName(linkEntity.getClassName());
+        linkToThread.setName(linkEntity.getClassName()+"Obj");
 
         ToMany threadPropUsers = entityTwo.addToMany(linkEntity, entityTwoProp);
-        threadPropUsers.setName(linkEntity.getClassName());
+        threadPropUsers.setName(linkEntity.getClassName()+"Obj");
     }
 
     private static void setKeepSection(){

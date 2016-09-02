@@ -180,7 +180,7 @@ public class NotificationUtils {
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getBThreadDaoId());
+        resultIntent.putExtra(ChatSDKChatActivity.THREAD_ID,  message.getThreadDaoId());
         resultIntent.putExtra(ChatSDKChatActivity.FROM_PUSH, true);
         resultIntent.putExtra(ChatSDKChatActivity.MSG_TIMESTAMP, message.getDate().getTime());
 
@@ -194,13 +194,13 @@ public class NotificationUtils {
         getNotificationLines(context, message, data);
         
         Bitmap threadImage = null;
-        if (message.getBThread() != null)
+        if (message.getThread() != null)
         {
-            final String urls[] = message.getBThread().threadImageUrl().split(",");
+            final String urls[] = message.getThread().threadImageUrl().split(",");
 
             if (urls.length > 1)
             {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getBThread().getEntityID(), urls.length));
+                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getThread().getEntityID(), urls.length));
             }
             else if (urls.length == 1)
             {

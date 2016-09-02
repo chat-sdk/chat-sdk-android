@@ -96,14 +96,14 @@ public class InMessagesListener extends FirebaseGeneralEvent {
 
                     // Mark the thead as having unread messages if this message
                     // doesn't already exist on the thread
-                    if (wrapper.model.getBThread() == null)
+                    if (wrapper.model.getThread() == null)
                         thread.setHasUnreadMessages(true);
 
                     // Update the thread
                     DaoCore.updateEntity(thread);
 
                     // Update the message.
-                    wrapper.model.setBThread(thread);
+                    wrapper.model.setThread(thread);
                     DaoCore.updateEntity(wrapper.model);
 
                     if (deferred != null &&  deferred.isPending())
