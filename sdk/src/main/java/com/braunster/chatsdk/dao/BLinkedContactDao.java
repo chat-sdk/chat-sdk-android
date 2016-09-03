@@ -10,8 +10,6 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
 import de.greenrobot.dao.internal.DaoConfig;
-import de.greenrobot.dao.query.Query;
-import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BLinkedContact;
 
@@ -35,7 +33,6 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
 
     private DaoSession daoSession;
 
-    private Query<BLinkedContact> bUser_BLinkedContactsQuery;
 
     public BLinkedContactDao(DaoConfig config) {
         super(config);
@@ -136,20 +133,6 @@ public class BLinkedContactDao extends AbstractDao<BLinkedContact, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkedContacts" to-many relationship of BUser. */
-    public List<BLinkedContact> _queryBUser_BLinkedContacts(Long Owner) {
-        synchronized (this) {
-            if (bUser_BLinkedContactsQuery == null) {
-                QueryBuilder<BLinkedContact> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Owner.eq(null));
-                bUser_BLinkedContactsQuery = queryBuilder.build();
-            }
-        }
-        Query<BLinkedContact> query = bUser_BLinkedContactsQuery.forCurrentThread();
-        query.setParameter(0, Owner);
-        return query.list();
-    }
-
     private String selectDeep;
 
     protected String getSelectDeep() {

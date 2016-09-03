@@ -55,6 +55,11 @@ public class Generator {
         user.addBooleanProperty(EntityProperties.Online);
         user.addStringProperty(EntityProperties.MetaData).columnName(EntityProperties.MetaData.toLowerCase());
 
+        Property userPropContacts =  user.addLongProperty(EntityProperties.Contacts + "DaoId")
+                .getProperty();
+        ToMany contacts = user.addToMany(user, userPropContacts);
+        contacts.setName(EntityProperties.Contacts + "List");
+
         return userId;
     }
 
@@ -164,9 +169,6 @@ public class Generator {
             Property linkedContactPropUser = linkedContact.addLongProperty(EntityProperties.Owner).getProperty();
             ToOne linkedContactToOneUser = linkedContact.addToOne(user, linkedContactPropUser);
             linkedContactToOneUser.setName("Contact");
-
-            ToMany contacts = user.addToMany(linkedContact, linkedContactPropUser);
-            contacts.setName(EntityProperties.BLinkedContacts);
 
             ToMany followers = user.addToMany(follower, linkedContactPropUser);
             followers.setName(EntityProperties.BFollowers);

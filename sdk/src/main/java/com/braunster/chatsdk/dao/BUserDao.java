@@ -1,5 +1,6 @@
 package com.braunster.chatsdk.dao;
 
+import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -7,6 +8,8 @@ import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import com.braunster.chatsdk.dao.BUser;
 
@@ -31,10 +34,12 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         public final static Property LastUpdated = new Property(5, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
         public final static Property Online = new Property(6, Boolean.class, "Online", false, "ONLINE");
         public final static Property Metadata = new Property(7, String.class, "Metadata", false, "metadata");
+        public final static Property ContactsDaoId = new Property(8, Long.class, "contactsDaoId", false, "CONTACTS_DAO_ID");
     };
 
     private DaoSession daoSession;
 
+    private Query<BUser> bUser_ContactsListQuery;
 
     public BUserDao(DaoConfig config) {
         super(config);
@@ -56,7 +61,8 @@ public class BUserDao extends AbstractDao<BUser, Long> {
                 "'LAST_ONLINE' INTEGER," + // 4: lastOnline
                 "'LAST_UPDATED' INTEGER," + // 5: lastUpdated
                 "'ONLINE' INTEGER," + // 6: Online
-                "'metadata' TEXT);"); // 7: Metadata
+                "'metadata' TEXT," + // 7: Metadata
+                "'CONTACTS_DAO_ID' INTEGER);"); // 8: contactsDaoId
     }
 
     /** Drops the underlying database table. */
@@ -109,6 +115,11 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         if (Metadata != null) {
             stmt.bindString(8, Metadata);
         }
+ 
+        Long contactsDaoId = entity.getContactsDaoId();
+        if (contactsDaoId != null) {
+            stmt.bindLong(9, contactsDaoId);
+        }
     }
 
     @Override
@@ -134,7 +145,8 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastOnline
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // lastUpdated
             cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // Online
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // Metadata
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // Metadata
+            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8) // contactsDaoId
         );
         return entity;
     }
@@ -150,6 +162,7 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         entity.setLastUpdated(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));
         entity.setOnline(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
         entity.setMetadata(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setContactsDaoId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
      }
     
     /** @inheritdoc */
@@ -175,4 +188,18 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "contactsList" to-many relationship of BUser. */
+    public List<BUser> _queryBUser_ContactsList(Long contactsDaoId) {
+        synchronized (this) {
+            if (bUser_ContactsListQuery == null) {
+                QueryBuilder<BUser> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.ContactsDaoId.eq(null));
+                bUser_ContactsListQuery = queryBuilder.build();
+            }
+        }
+        Query<BUser> query = bUser_ContactsListQuery.forCurrentThread();
+        query.setParameter(0, contactsDaoId);
+        return query.list();
+    }
+
 }

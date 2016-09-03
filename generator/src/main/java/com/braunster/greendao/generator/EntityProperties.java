@@ -32,7 +32,7 @@ public class EntityProperties {
     public static final String Online = "Online";
     public static final String AuthenticationType = "AuthenticationType";
     public static final String MessageColor = "messageColor";
-    public static final String BLinkedContacts = "BLinkedContacts";
+    public static final String Contacts = "contacts";
     public static final String BLinkedAccounts = "BLinkedAccounts";
     public static final String BFollowers = "BFollowers";
     public static final String Thread = "thread";

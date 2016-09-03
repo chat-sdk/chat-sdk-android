@@ -45,6 +45,7 @@ public class BUser extends BUserEntity  {
     private java.util.Date lastUpdated;
     private Boolean Online;
     private String Metadata;
+    private Long contactsDaoId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -52,9 +53,9 @@ public class BUser extends BUserEntity  {
     /** Used for active entity operations. */
     private transient BUserDao myDao;
 
+    private List<BUser> contactsList;
     private List<BLinkedAccount> BLinkedAccounts;
     private List<BLinkData> bLinkDataList;
-    private List<BLinkedContact> BLinkedContacts;
     private List<BFollower> BFollowers;
 
     // KEEP FIELDS - put your custom fields here
@@ -71,7 +72,7 @@ public class BUser extends BUserEntity  {
         this.id = id;
     }
 
-    public BUser(Long id, String entityID, Integer AuthenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, String Metadata) {
+    public BUser(Long id, String entityID, Integer AuthenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, String Metadata, Long contactsDaoId) {
         this.id = id;
         this.entityID = entityID;
         this.AuthenticationType = AuthenticationType;
@@ -80,6 +81,7 @@ public class BUser extends BUserEntity  {
         this.lastUpdated = lastUpdated;
         this.Online = Online;
         this.Metadata = Metadata;
+        this.contactsDaoId = contactsDaoId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -152,6 +154,36 @@ public class BUser extends BUserEntity  {
         this.Metadata = Metadata;
     }
 
+    public Long getContactsDaoId() {
+        return contactsDaoId;
+    }
+
+    public void setContactsDaoId(Long contactsDaoId) {
+        this.contactsDaoId = contactsDaoId;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<BUser> getContactsList() {
+        if (contactsList == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            BUserDao targetDao = daoSession.getBUserDao();
+            List<BUser> contactsListNew = targetDao._queryBUser_ContactsList(id);
+            synchronized (this) {
+                if(contactsList == null) {
+                    contactsList = contactsListNew;
+                }
+            }
+        }
+        return contactsList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetContactsList() {
+        contactsList = null;
+    }
+
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
     public List<BLinkedAccount> getBLinkedAccounts() {
         if (BLinkedAccounts == null) {
@@ -194,28 +226,6 @@ public class BUser extends BUserEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetBLinkDataList() {
         bLinkDataList = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkedContact> getBLinkedContacts() {
-        if (BLinkedContacts == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BLinkedContactDao targetDao = daoSession.getBLinkedContactDao();
-            List<BLinkedContact> BLinkedContactsNew = targetDao._queryBUser_BLinkedContacts(id);
-            synchronized (this) {
-                if(BLinkedContacts == null) {
-                    BLinkedContacts = BLinkedContactsNew;
-                }
-            }
-        }
-        return BLinkedContacts;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkedContacts() {
-        BLinkedContacts = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -341,28 +351,10 @@ public class BUser extends BUserEntity  {
 
     @Override
     public List<BUser> getContacts() {
-        /* Getting the contact list by getBLinkedContacts can be out of date so we get the data from the database*/
-        List<BUser> contacts = new ArrayList<BUser>();
 
-        List<BLinkedContact> list =  DaoCore.fetchEntitiesWithProperty(BLinkedContact.class, BLinkedContactDao.Properties.Owner, getId());
-
-        if (DEBUG) Timber.d(TAG, "BUser, getContacts, Amount: %s",(list==null?"null":list.size()) );
-
-        for (BLinkedContact contact : list)
-        {
-            BUser user = null;
-
-            if (contact.getEntityID() != null)
-            {
-                user = DaoCore.<BUser>fetchEntityWithEntityID(BUser.class, contact.getEntityID());
-            }
-
-            if (user != null)
-                contacts.add(user);
-        }
-
-        return contacts;
-
+        // Freshen up contacts list before retrieving from Dao
+        resetContactsList();
+        return getContactsList();
     }
 
     @Override
@@ -370,23 +362,16 @@ public class BUser extends BUserEntity  {
         if (user.equals(this))
             return;
 
-        BLinkedContact contact;
-
-        if (StringUtils.isNotEmpty(user.getEntityID()))
-            contact = DaoCore.fetchEntityWithProperties(BLinkedContact.class, new Property[]{BLinkedContactDao.Properties.Owner, BLinkedContactDao.Properties.EntityID}, getId(), user.getEntityID());
-
-        else return;
-        
-        boolean exist = contact != null;
-
-        if (!exist)
-        {
-            BLinkedContact linkedContact = new BLinkedContact();
-            linkedContact.setEntityID(user.getEntityID());
-            // This is the bind value between the LinkedContact to this user.
-            linkedContact.setOwner(getId());
-            DaoCore.createEntity(linkedContact);
+        // Retrieve contacts
+        List<BUser> contacts = getContacts();
+        // Check if user is already in contact list
+        for ( BUser contact : contacts){
+            if(user.getEntityID().equals(contact.getEntityID())) return;
         }
+
+        // add user to contacts list, the user should already be persisted, so insert is not needed
+        // greenDao updates the DB with the add method call . . . not pretty, I know -_-
+        contacts.add(user);
     }
 
    
