@@ -35,8 +35,8 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
 
     private DaoSession daoSession;
 
-    private Query<BLinkData> bUser_BLinkDataObjQuery;
-    private Query<BLinkData> bThread_BLinkDataObjQuery;
+    private Query<BLinkData> bUser_BLinkDataListQuery;
+    private Query<BLinkData> bThread_BLinkDataListQuery;
 
     public BLinkDataDao(DaoConfig config) {
         super(config);
@@ -137,30 +137,30 @@ public class BLinkDataDao extends AbstractDao<BLinkData, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkDataObj" to-many relationship of BUser. */
-    public List<BLinkData> _queryBUser_BLinkDataObj(Long BUserDaoId) {
+    /** Internal query to resolve the "bLinkDataList" to-many relationship of BUser. */
+    public List<BLinkData> _queryBUser_BLinkDataList(Long BUserDaoId) {
         synchronized (this) {
-            if (bUser_BLinkDataObjQuery == null) {
+            if (bUser_BLinkDataListQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.BUserDaoId.eq(null));
-                bUser_BLinkDataObjQuery = queryBuilder.build();
+                bUser_BLinkDataListQuery = queryBuilder.build();
             }
         }
-        Query<BLinkData> query = bUser_BLinkDataObjQuery.forCurrentThread();
+        Query<BLinkData> query = bUser_BLinkDataListQuery.forCurrentThread();
         query.setParameter(0, BUserDaoId);
         return query.list();
     }
 
-    /** Internal query to resolve the "BLinkDataObj" to-many relationship of BThread. */
-    public List<BLinkData> _queryBThread_BLinkDataObj(Long BThreadDaoId) {
+    /** Internal query to resolve the "bLinkDataList" to-many relationship of BThread. */
+    public List<BLinkData> _queryBThread_BLinkDataList(Long BThreadDaoId) {
         synchronized (this) {
-            if (bThread_BLinkDataObjQuery == null) {
+            if (bThread_BLinkDataListQuery == null) {
                 QueryBuilder<BLinkData> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.BThreadDaoId.eq(null));
-                bThread_BLinkDataObjQuery = queryBuilder.build();
+                bThread_BLinkDataListQuery = queryBuilder.build();
             }
         }
-        Query<BLinkData> query = bThread_BLinkDataObjQuery.forCurrentThread();
+        Query<BLinkData> query = bThread_BLinkDataListQuery.forCurrentThread();
         query.setParameter(0, BThreadDaoId);
         return query.list();
     }

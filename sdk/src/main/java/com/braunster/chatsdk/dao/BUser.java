@@ -53,7 +53,7 @@ public class BUser extends BUserEntity  {
     private transient BUserDao myDao;
 
     private List<BLinkedAccount> BLinkedAccounts;
-    private List<BLinkData> BLinkDataObj;
+    private List<BLinkData> bLinkDataList;
     private List<BLinkedContact> BLinkedContacts;
     private List<BFollower> BFollowers;
 
@@ -175,25 +175,25 @@ public class BUser extends BUserEntity  {
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkDataObj() {
-        if (BLinkDataObj == null) {
+    public List<BLinkData> getBLinkDataList() {
+        if (bLinkDataList == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> BLinkDataObjNew = targetDao._queryBUser_BLinkDataObj(id);
+            List<BLinkData> bLinkDataListNew = targetDao._queryBUser_BLinkDataList(id);
             synchronized (this) {
-                if(BLinkDataObj == null) {
-                    BLinkDataObj = BLinkDataObjNew;
+                if(bLinkDataList == null) {
+                    bLinkDataList = bLinkDataListNew;
                 }
             }
         }
-        return BLinkDataObj;
+        return bLinkDataList;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkDataObj() {
-        BLinkDataObj = null;
+    public synchronized void resetBLinkDataList() {
+        bLinkDataList = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -307,45 +307,36 @@ public class BUser extends BUserEntity  {
     }
 
     /**
+     * Method updated by Kyle
+     *
      * @param type the type of the threads to get, Pass -1 to get all types.
-     * @param allowDeleted if true deleted thread will be returned in the result list
+     * @param allowDeleted if true deleted threads will be included in the result list
      * @return a list with all the threads.
      ** */
     @Override
     public List<BThread> getThreads(int type, boolean allowDeleted){
-        /* Getting the thread list by getBLinkData can be out of date so we get the data from the database*/
+        List<BThread> bThreads = new ArrayList<>();
 
-        List<BThread> threads = new ArrayList<>();
-        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.BThreadDaoId, getId());
+        // Freshen up the data by calling reset before getting the list
+        resetBLinkDataList();
+        List<BLinkData> bLinkDataList = getBLinkDataList();
+        // In case the list is empty
+        if (bLinkDataList == null) return null;
+        // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
+        for (BLinkData bLinkData : bLinkDataList ){
+            if(bLinkData.getBThread() == null) continue;
+            // Do not retrieve deleted threads unless otherwise specified
+            if(bLinkData.getBThread().getDeleted() && !allowDeleted) continue;
+            // If the thread type was specified, only add this type
+            // TODO: find out why some threads have null types, getTypeSafely should not be needed
+            if(bLinkData.getBThread().getTypeSafely() != type && type != -1) continue;
 
-        if (DEBUG) Timber.d("BUser, getThreads, Amount: %s", (list == null ? "null" : list.size()));
-
-        if (list == null) return null;
-
-        BThread thread;
-        boolean checkType = (type == BThreadEntity.Type.Private || type == BThreadEntity.Type.Public);
-        for (BLinkData data : list)
-        {
-
-            thread = data.getBThread();
-            if (thread == null) continue;
-            if (!allowDeleted && thread.isDeleted()) {
-                if (DEBUG) Timber.
-                        i("Thread, name: %s, deleted: %s", thread.getName(), thread.getDeleted());
-                continue;
-            }
-
-            if (!checkType) {
-                threads.add(thread);
-            } else if (thread.getType() != null && type == thread.getType()) {
-                threads.add(thread);
-            }
+            bThreads.add(bLinkData.getBThread());
         }
 
-        // Sort the threads in default order.
-        Collections.sort(threads, new ThreadsSorter());
-        
-        return threads;
+        // Sort the threads list before returning
+        Collections.sort(bThreads, new ThreadsSorter());
+        return bThreads;
     }
 
     @Override

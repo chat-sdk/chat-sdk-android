@@ -317,7 +317,9 @@ public class DaoCore {
         if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
         BLinkData linkData = new BLinkData();
         linkData.setBThreadDaoId(thread.getId());
+        linkData.setBThread(thread);
         linkData.setBUserDaoId(user.getId());
+        linkData.setBUser(user);
         createEntity(linkData);
     }
 

@@ -59,7 +59,7 @@ public class BThread extends BThreadEntity  {
     private Long creator__resolvedKey;
 
     private List<BMessage> messages;
-    private List<BLinkData> BLinkDataObj;
+    private List<BLinkData> bLinkDataList;
 
     // KEEP FIELDS - put your custom fields here
     private static final boolean DEBUG = Debug.BThread;
@@ -246,25 +246,25 @@ public class BThread extends BThreadEntity  {
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkDataObj() {
-        if (BLinkDataObj == null) {
+    public List<BLinkData> getBLinkDataList() {
+        if (bLinkDataList == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> BLinkDataObjNew = targetDao._queryBThread_BLinkDataObj(id);
+            List<BLinkData> bLinkDataListNew = targetDao._queryBThread_BLinkDataList(id);
             synchronized (this) {
-                if(BLinkDataObj == null) {
-                    BLinkDataObj = BLinkDataObjNew;
+                if(bLinkDataList == null) {
+                    bLinkDataList = bLinkDataListNew;
                 }
             }
         }
-        return BLinkDataObj;
+        return bLinkDataList;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkDataObj() {
-        BLinkDataObj = null;
+    public synchronized void resetBLinkDataList() {
+        bLinkDataList = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */

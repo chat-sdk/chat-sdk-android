@@ -208,11 +208,20 @@ public class Generator {
         ToOne toOne = manyEntity.addToOne(oneEntity, manyIdProp);
         ToMany toMany = oneEntity.addToMany(manyEntity, manyIdProp);
 
-        toOne.setName(oneEntity.getClassName()+"Obj");
-        toMany.setName(manyEntity.getClassName()+"Obj");
+        if(toOnePropertyName == null){
+            toOnePropertyName = oneEntity.getClassName();
+            toOnePropertyName = toOnePropertyName.substring(0, 1).toLowerCase() +
+                    toOnePropertyName.substring(1);
+        }
 
-        if(toOnePropertyName != null) toOne.setName(toOnePropertyName);
-        if(toManyPropertyName != null) toMany.setName(toManyPropertyName);
+        if(toManyPropertyName == null){
+            toManyPropertyName = oneEntity.getClassName();
+            toManyPropertyName = toManyPropertyName.substring(0, 1).toLowerCase() +
+                    toManyPropertyName.substring(1) + "List";
+        }
+
+        toOne.setName(toOnePropertyName);
+        toMany.setName(toManyPropertyName);
     }
 
     private static void setManyToMany(Entity linkEntity, Entity entityOne, Entity entityTwo){
@@ -221,11 +230,16 @@ public class Generator {
         linkEntity.addToOne(entityOne, entityOneProp);
         linkEntity.addToOne(entityTwo, entityTwoProp);
 
-        ToMany linkToThread = entityOne.addToMany(linkEntity, entityOneProp);
-        linkToThread.setName(linkEntity.getClassName()+"Obj");
 
-        ToMany threadPropUsers = entityTwo.addToMany(linkEntity, entityTwoProp);
-        threadPropUsers.setName(linkEntity.getClassName()+"Obj");
+        String linkEntityName = linkEntity.getClassName();
+        linkEntityName = linkEntityName.substring(0, 1).toLowerCase() +
+                linkEntityName.substring(1) + "List";
+
+        ToMany linkFromEntityOne = entityOne.addToMany(linkEntity, entityOneProp);
+        linkFromEntityOne.setName(linkEntityName);
+
+        ToMany linkFromEntityTwo = entityTwo.addToMany(linkEntity, entityTwoProp);
+        linkFromEntityTwo.setName(linkEntityName);
     }
 
     private static void setKeepSection(){
