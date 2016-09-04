@@ -7,9 +7,9 @@
 
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
@@ -70,7 +70,7 @@ public abstract class BUserEntity extends Entity {
 
     public abstract void addContact(BUser user);
 
-    public abstract BFollower fetchOrCreateFollower(BUser follower, int type);
+    public abstract FollowerLink fetchOrCreateFollower(BUser follower, int type);
     
     public abstract void setMetaPictureUrl(String imageUrl);
 

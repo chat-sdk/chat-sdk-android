@@ -10,18 +10,21 @@ public class EntityProperties {
     public static final String BMessage = "BMessage";
     public static final String BThread = "BThread";
     public static final String BMetaData = "BMetadata";
+
+    /* Link Entities */
+
+    // Connection to accounts
     public static final String BLinkedAccount = "BLinkedAccount";
-    public static final String BLinkedContact = "BLinkedContact";
-    public static final String BLinkData = "BLinkData";
-    public static final String BFollower = "BFollower";
+    // Connection between Users and Threads
+    public static final String UserThreadLink = "UserThreadLink";
+    // Linkage entity that contains information about the contact connection
+    public static final String ContactLink = "ContactLink";
+    public static final String FollowerLink = "FollowerLink";
 
     /* General*/
 
     public static final String EntityID = "entityID";
-    public static final String Owner = "Owner";
-    public static final String OwnerId = "OwnerId";
     public static final String Name = "name";
-    public static final String BUserId = "BUserId";
     public static final String Type = "type";
     public static final String LastUpdated = "lastUpdated";
     public static final String Messages = "messages";
@@ -32,10 +35,7 @@ public class EntityProperties {
     public static final String Online = "Online";
     public static final String AuthenticationType = "AuthenticationType";
     public static final String MessageColor = "messageColor";
-    public static final String Contacts = "contacts";
     public static final String BLinkedAccounts = "BLinkedAccounts";
-    public static final String BFollowers = "BFollowers";
-    public static final String Thread = "thread";
 
     /* Message*/
     public static final String Date = "date";
@@ -43,10 +43,10 @@ public class EntityProperties {
     public static final String ResourcePath = "resourcesPath";
     public static final String Text = "text";
     public static final String ImageDimensions= "imageDimensions";
-    public static final String User = "user";
     public static final String Status = "status";
     public static final String isRead = "isRead";
     public static final String Delivered = "delivered";
+    public static final String Thread = "thread";
 
     /* Thread */
     public static final String CreationDate = "creationDate";

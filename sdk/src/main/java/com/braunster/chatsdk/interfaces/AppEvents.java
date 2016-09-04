@@ -7,7 +7,7 @@
 
 package com.braunster.chatsdk.interfaces;
 
-import com.braunster.chatsdk.dao.BFollower;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
 
@@ -37,8 +37,8 @@ public interface AppEvents {
     public boolean onUserAddedToThread(String threadId, String userId);
 
 
-    public boolean onFollowerAdded(BFollower follower);
+    public boolean onFollowerAdded(FollowerLink follower);
     public boolean onFollowerRemoved();
-    public boolean onUserToFollowAdded(BFollower follower);
+    public boolean onUserToFollowAdded(FollowerLink follower);
     public boolean onUserToFollowRemoved();
 }

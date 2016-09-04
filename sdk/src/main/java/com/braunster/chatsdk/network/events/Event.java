@@ -7,9 +7,9 @@
 
 package com.braunster.chatsdk.network.events;
 
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.interfaces.AppEvents;
 
 public class Event implements AppEvents{
@@ -87,7 +87,7 @@ public class Event implements AppEvents{
     }
 
     @Override
-    public boolean onFollowerAdded(BFollower follower) {
+    public boolean onFollowerAdded(FollowerLink follower) {
 
         return false;
     }
@@ -98,7 +98,7 @@ public class Event implements AppEvents{
     }
 
     @Override
-    public boolean onUserToFollowAdded(BFollower follower) {
+    public boolean onUserToFollowAdded(FollowerLink follower) {
         return false;
     }
 

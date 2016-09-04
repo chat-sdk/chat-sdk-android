@@ -38,7 +38,7 @@ public class BFirebaseDefines {
         public static final String BIndexPath = "searchIndex";
         public static final String BOnlinePath = "online";
         public static final String BMetaPath = "meta";
-        public static final String BFollowers = "followers";
+        public static final String FollowerLinks = "followers";
         public static final String BFollows = "follows";
         public static final String BImage = "imaeg";
         public static final String BThumbnail = "thumbnail";

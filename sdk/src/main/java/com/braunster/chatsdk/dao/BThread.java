@@ -58,8 +58,8 @@ public class BThread extends BThreadEntity  {
     private BUser creator;
     private Long creator__resolvedKey;
 
+    private List<UserThreadLink> userThreadLinks;
     private List<BMessage> messages;
-    private List<BLinkData> bLinkDataList;
 
     // KEEP FIELDS - put your custom fields here
     private static final boolean DEBUG = Debug.BThread;
@@ -224,6 +224,28 @@ public class BThread extends BThreadEntity  {
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<UserThreadLink> getUserThreadLinks() {
+        if (userThreadLinks == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserThreadLinkDao targetDao = daoSession.getUserThreadLinkDao();
+            List<UserThreadLink> userThreadLinksNew = targetDao._queryBThread_UserThreadLinks(id);
+            synchronized (this) {
+                if(userThreadLinks == null) {
+                    userThreadLinks = userThreadLinksNew;
+                }
+            }
+        }
+        return userThreadLinks;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetUserThreadLinks() {
+        userThreadLinks = null;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
     public List<BMessage> getMessages() {
         if (messages == null) {
             if (daoSession == null) {
@@ -243,28 +265,6 @@ public class BThread extends BThreadEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetMessages() {
         messages = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkDataList() {
-        if (bLinkDataList == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> bLinkDataListNew = targetDao._queryBThread_BLinkDataList(id);
-            synchronized (this) {
-                if(bLinkDataList == null) {
-                    bLinkDataList = bLinkDataListNew;
-                }
-            }
-        }
-        return bLinkDataList;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkDataList() {
-        bLinkDataList = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
@@ -306,9 +306,9 @@ public class BThread extends BThreadEntity  {
     }
 
     public List<BUser> getUsers(){
-        /* Getting the users list by getBLinkData can be out of date so we get the data from the database*/
+        /* Getting the users list by getUserThreadLink can be out of date so we get the data from the database*/
 
-        List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.BThreadDaoId, getId());
+        List<UserThreadLink> list =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.BThreadDaoId, getId());
 
         if (DEBUG) Timber.d("BThread, getUsers, Amount: %s", (list == null ? "null" : list.size()));
 
@@ -318,7 +318,7 @@ public class BThread extends BThreadEntity  {
             return users;
         }
 
-        for (BLinkData data : list)
+        for (UserThreadLink data : list)
             if (data.getBUser() != null && !users.contains(data.getBUser()))
                 users.add(data.getBUser());
 
@@ -457,9 +457,9 @@ public class BThread extends BThreadEntity  {
 
     public boolean hasUser(BUser user){
 
-        com.braunster.chatsdk.dao.BLinkData data =
-                DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.BLinkData.class,
-                        new Property[]{BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, getId(), user.getId());
+        com.braunster.chatsdk.dao.UserThreadLink data =
+                DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.UserThreadLink.class,
+                        new Property[]{UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, getId(), user.getId());
 
 /*        for (BUser u : getUsers())
         {

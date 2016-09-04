@@ -68,7 +68,7 @@ public class FirebasePaths{
     }
 
     public static DatabaseReference userFollowersRef(String firebaseId){
-        return userRef(firebaseId).child(BFirebaseDefines.Path.BFollowers);
+        return userRef(firebaseId).child(BFirebaseDefines.Path.FollowerLinks);
     }
 
     /* Threads */

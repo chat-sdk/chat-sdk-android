@@ -20,6 +20,8 @@ android {
             minifyEnabled false
             proguardFile 'proguard-rules.txt'
             zipAlignEnabled true
+            debuggable true
+            jniDebuggable true
         }
     }
 
@@ -33,58 +35,42 @@ android {
 }
 
 dependencies {
-
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     // Facebook SDK
     compile project(':facebook')
-
     compile project(':country_picker')
-    
     // Used for StringUtils
     compile 'org.apache.commons:commons-lang3:3.3.2@jar'
-    
     // Bug tracking
     compile files('libs/bugsense-3.6.1.jar')
-
-    compile ('com.google.android.gms:play-services-maps:9.0.0')
-            {
-                exclude group: 'com.google.android', module: 'support-v4'
-            }
-    
+    compile('com.google.android.gms:play-services-maps:9.0.0') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
     // Support Library.
     compile 'com.android.support:support-v13:21.0.3@aar'
-    
     compile('com.android.support:appcompat-v7:21.0.3@aar') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
-    
     // Volley - Networking library from google.
     compile('com.mcxiaoke.volley:library-aar:1.0.1@aar') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
-
     // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
     compile('de.greenrobot:greendao:1.3.7@jar') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
-    
     // Super Toast
     compile('com.github.johnpersano:supertoasts:1.3.4@aar') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
-    
     // Croping images
     compile('com.soundcloud.android:android-crop:0.9.10@aar') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
-
     // Backendless
-    compile('com.backendless:backendless:3.0.11')
-
+    compile 'com.backendless:backendless:3.0.11'
     compile 'com.android.support:support-annotations:22.2.0'
-
-    compile ('org.scribe:scribe:1.3.7');
+    compile 'org.scribe:scribe:1.3.7'
 }
 
 

@@ -45,7 +45,6 @@ public class BUser extends BUserEntity  {
     private java.util.Date lastUpdated;
     private Boolean Online;
     private String Metadata;
-    private Long contactsDaoId;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -53,10 +52,10 @@ public class BUser extends BUserEntity  {
     /** Used for active entity operations. */
     private transient BUserDao myDao;
 
-    private List<BUser> contactsList;
+    private List<ContactLink> contactLinks;
+    private List<UserThreadLink> userThreadLinks;
+    private List<FollowerLink> followerLinks;
     private List<BLinkedAccount> BLinkedAccounts;
-    private List<BLinkData> bLinkDataList;
-    private List<BFollower> BFollowers;
 
     // KEEP FIELDS - put your custom fields here
     private static final String TAG = BUser.class.getSimpleName();
@@ -72,7 +71,7 @@ public class BUser extends BUserEntity  {
         this.id = id;
     }
 
-    public BUser(Long id, String entityID, Integer AuthenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, String Metadata, Long contactsDaoId) {
+    public BUser(Long id, String entityID, Integer AuthenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated, Boolean Online, String Metadata) {
         this.id = id;
         this.entityID = entityID;
         this.AuthenticationType = AuthenticationType;
@@ -81,7 +80,6 @@ public class BUser extends BUserEntity  {
         this.lastUpdated = lastUpdated;
         this.Online = Online;
         this.Metadata = Metadata;
-        this.contactsDaoId = contactsDaoId;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -154,34 +152,70 @@ public class BUser extends BUserEntity  {
         this.Metadata = Metadata;
     }
 
-    public Long getContactsDaoId() {
-        return contactsDaoId;
-    }
-
-    public void setContactsDaoId(Long contactsDaoId) {
-        this.contactsDaoId = contactsDaoId;
-    }
-
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BUser> getContactsList() {
-        if (contactsList == null) {
+    public List<ContactLink> getContactLinks() {
+        if (contactLinks == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BUserDao targetDao = daoSession.getBUserDao();
-            List<BUser> contactsListNew = targetDao._queryBUser_ContactsList(id);
+            ContactLinkDao targetDao = daoSession.getContactLinkDao();
+            List<ContactLink> contactLinksNew = targetDao._queryBUser_ContactLinks(id);
             synchronized (this) {
-                if(contactsList == null) {
-                    contactsList = contactsListNew;
+                if(contactLinks == null) {
+                    contactLinks = contactLinksNew;
                 }
             }
         }
-        return contactsList;
+        return contactLinks;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetContactsList() {
-        contactsList = null;
+    public synchronized void resetContactLinks() {
+        contactLinks = null;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<UserThreadLink> getUserThreadLinks() {
+        if (userThreadLinks == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserThreadLinkDao targetDao = daoSession.getUserThreadLinkDao();
+            List<UserThreadLink> userThreadLinksNew = targetDao._queryBUser_UserThreadLinks(id);
+            synchronized (this) {
+                if(userThreadLinks == null) {
+                    userThreadLinks = userThreadLinksNew;
+                }
+            }
+        }
+        return userThreadLinks;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetUserThreadLinks() {
+        userThreadLinks = null;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public List<FollowerLink> getFollowerLinks() {
+        if (followerLinks == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            FollowerLinkDao targetDao = daoSession.getFollowerLinkDao();
+            List<FollowerLink> followerLinksNew = targetDao._queryBUser_FollowerLinks(id);
+            synchronized (this) {
+                if(followerLinks == null) {
+                    followerLinks = followerLinksNew;
+                }
+            }
+        }
+        return followerLinks;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetFollowerLinks() {
+        followerLinks = null;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -204,50 +238,6 @@ public class BUser extends BUserEntity  {
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     public synchronized void resetBLinkedAccounts() {
         BLinkedAccounts = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BLinkData> getBLinkDataList() {
-        if (bLinkDataList == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BLinkDataDao targetDao = daoSession.getBLinkDataDao();
-            List<BLinkData> bLinkDataListNew = targetDao._queryBUser_BLinkDataList(id);
-            synchronized (this) {
-                if(bLinkDataList == null) {
-                    bLinkDataList = bLinkDataListNew;
-                }
-            }
-        }
-        return bLinkDataList;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBLinkDataList() {
-        bLinkDataList = null;
-    }
-
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<BFollower> getBFollowers() {
-        if (BFollowers == null) {
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            BFollowerDao targetDao = daoSession.getBFollowerDao();
-            List<BFollower> BFollowersNew = targetDao._queryBUser_BFollowers(id);
-            synchronized (this) {
-                if(BFollowers == null) {
-                    BFollowers = BFollowersNew;
-                }
-            }
-        }
-        return BFollowers;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    public synchronized void resetBFollowers() {
-        BFollowers = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
@@ -328,20 +318,20 @@ public class BUser extends BUserEntity  {
         List<BThread> bThreads = new ArrayList<>();
 
         // Freshen up the data by calling reset before getting the list
-        resetBLinkDataList();
-        List<BLinkData> bLinkDataList = getBLinkDataList();
+        resetUserThreadLinks();
+        List<UserThreadLink> UserThreadLinkList = getUserThreadLinks();
         // In case the list is empty
-        if (bLinkDataList == null) return null;
+        if (UserThreadLinkList == null) return null;
         // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
-        for (BLinkData bLinkData : bLinkDataList ){
-            if(bLinkData.getBThread() == null) continue;
+        for (UserThreadLink userThreadLink : UserThreadLinkList ){
+            if(userThreadLink.getBThread() == null) continue;
             // Do not retrieve deleted threads unless otherwise specified
-            if(bLinkData.getBThread().getDeleted() && !allowDeleted) continue;
+            if(userThreadLink.getBThread().isDeleted() && !allowDeleted) continue;
             // If the thread type was specified, only add this type
             // TODO: find out why some threads have null types, getTypeSafely should not be needed
-            if(bLinkData.getBThread().getTypeSafely() != type && type != -1) continue;
+            if(userThreadLink.getBThread().getTypeSafely() != type && type != -1) continue;
 
-            bThreads.add(bLinkData.getBThread());
+            bThreads.add(userThreadLink.getBThread());
         }
 
         // Sort the threads list before returning
@@ -351,35 +341,51 @@ public class BUser extends BUserEntity  {
 
     @Override
     public List<BUser> getContacts() {
+        List<BUser> contactList = new ArrayList<>();
+        List<ContactLink> contactLinks;
+        // For some reason the default ContactLinks do not persist, have to find in DB
+        contactLinks = DaoCore.fetchEntitiesWithProperty(ContactLink.class,
+                ContactLinkDao.Properties.LinkOwnerBUserDaoId, this.getId());
+        for (ContactLink contactLink : contactLinks){
+            contactList.add(contactLink.getBUser());
+        }
 
-        // Freshen up contacts list before retrieving from Dao
-        resetContactsList();
-        return getContactsList();
+        return contactList;
     }
 
     @Override
-    public void addContact(BUser user) {
-        if (user.equals(this))
+    public void addContact(BUser newContact) {
+        if (newContact.equals(this))
             return;
 
         // Retrieve contacts
-        List<BUser> contacts = getContacts();
+        List contacts = getContacts();
         // Check if user is already in contact list
-        for ( BUser contact : contacts){
-            if(user.getEntityID().equals(contact.getEntityID())) return;
-        }
+        if ( contacts.contains(newContact)) return;
 
-        // add user to contacts list, the user should already be persisted, so insert is not needed
-        // greenDao updates the DB with the add method call . . . not pretty, I know -_-
-        contacts.add(user);
+        // refresh contact list before updating
+        resetContactLinks();
+        List contactLinkList = getContactLinks();
+        ContactLink contactLink = new ContactLink();
+        // Set link owner
+        contactLink.setLinkOwnerBUser(this);
+        contactLink.setLinkOwnerBUserDaoId(this.getId());
+        // Set contact
+        contactLink.setBUser(newContact);
+        contactLink.setBUserDaoId(newContact.getId());
+        // insert contact link entity into DB
+        daoSession.insertOrReplace(contactLink);
+        // make the connection to the user
+        contactLinkList.add(newContact);
+        // persist contact list
+
+        this.update();
     }
 
-   
-   
-   
-    private BFollower fetchFollower(BUser follower, int type){
-        return DaoCore.fetchEntityWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.BUserId, BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
+
+    private FollowerLink fetchFollower(BUser follower, int type){
+        return DaoCore.fetchEntityWithProperties(FollowerLink.class,
+                new Property[]{FollowerLinkDao.Properties.BUserDaoId, FollowerLinkDao.Properties.LinkOwnerBUserDaoId, FollowerLinkDao.Properties.Type},
                 follower.getId(), getId(),  type);
     }
 
@@ -387,14 +393,14 @@ public class BUser extends BUserEntity  {
     public List<BUser> getFollowers() {
         List<BUser> users = new ArrayList<BUser>();
 
-        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
-                getId(), BFollower.Type.FOLLOWER);
+        List<FollowerLink> followers = DaoCore.fetchEntitiesWithProperties(FollowerLink.class,
+                new Property[]{FollowerLinkDao.Properties.LinkOwnerBUserDaoId, FollowerLinkDao.Properties.Type},
+                getId(), FollowerLink.Type.FOLLOWER);
 
-        for (BFollower f : followers)
+        for (FollowerLink f : followers)
         {
             if (f!=null)
-                users.add(f.getUser());
+                users.add(f.getBUser());
         }
 
         return users;
@@ -404,30 +410,30 @@ public class BUser extends BUserEntity  {
     public List<BUser> getFollows() {
         List<BUser> users = new ArrayList<BUser>();
 
-        List<BFollower> followers = DaoCore.fetchEntitiesWithProperties(BFollower.class,
-                new Property[]{BFollowerDao.Properties.OwnerId, BFollowerDao.Properties.Type},
-                getId(), BFollower.Type.FOLLOWS);
+        List<FollowerLink> followers = DaoCore.fetchEntitiesWithProperties(FollowerLink.class,
+                new Property[]{FollowerLinkDao.Properties.LinkOwnerBUserDaoId, FollowerLinkDao.Properties.Type},
+                getId(), FollowerLink.Type.FOLLOWS);
 
-        for (BFollower f : followers)
+        for (FollowerLink f : followers)
         {
             if (f!=null)
-                users.add(f.getUser());
+                users.add(f.getBUser());
         }
 
         return users;
     }
 
     @Override
-    public BFollower fetchOrCreateFollower(BUser follower, int type) {
+    public FollowerLink fetchOrCreateFollower(BUser follower, int type) {
 
-        BFollower follows = fetchFollower(follower, type);
+        FollowerLink follows = fetchFollower(follower, type);
 
         if (follows== null)
         {
-            follows = new BFollower();
+            follows = new FollowerLink();
 
-            follows.setOwner(this);
-            follows.setUser(follower);
+            follows.setLinkOwnerBUser(this);
+            follows.setBUser(follower);
             follows.setType(type);
 
             follows = DaoCore.createEntity(follows);
@@ -437,14 +443,12 @@ public class BUser extends BUserEntity  {
     }
 
     public boolean isFollowing(BUser user){
-        return fetchFollower(user, BFollower.Type.FOLLOWER) != null;
+        return fetchFollower(user, FollowerLink.Type.FOLLOWER) != null;
     }
 
     public boolean follows(BUser user){
-        return fetchFollower(user, BFollower.Type.FOLLOWS) != null;
+        return fetchFollower(user, FollowerLink.Type.FOLLOWS) != null;
     }
-
-    
     
    
     @Override
@@ -555,9 +559,9 @@ public class BUser extends BUserEntity  {
     
     
     public boolean hasThread(BThread thread){
-        com.braunster.chatsdk.dao.BLinkData data =
-                DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.BLinkData.class,
-                        new Property[]{BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, thread.getId(), getId());
+        com.braunster.chatsdk.dao.UserThreadLink data =
+                DaoCore.fetchEntityWithProperties(com.braunster.chatsdk.dao.UserThreadLink.class,
+                        new Property[]{UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), getId());
 
         return data != null;
     }

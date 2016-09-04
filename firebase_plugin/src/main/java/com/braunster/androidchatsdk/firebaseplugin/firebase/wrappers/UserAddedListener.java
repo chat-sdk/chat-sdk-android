@@ -15,8 +15,8 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventCombo;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManager;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BLinkData;
-import com.braunster.chatsdk.dao.BLinkDataDao;
+import com.braunster.chatsdk.dao.UserThreadLink;
+import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -121,9 +121,9 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         // Check to see if the user has left this thread. If so we unlink it from the thread.
                         if (values != null &&  values.containsKey(BDefines.Keys.BLeaved))
                         {
-                            BLinkData data =
-                                    DaoCore.fetchEntityWithProperties(BLinkData.class,
-                                            new Property[]{BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, thread.getId(), bUser.getId());
+                            UserThreadLink data =
+                                    DaoCore.fetchEntityWithProperties(UserThreadLink.class,
+                                            new Property[]{UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), bUser.getId());
 
                             if (data != null)
                             {

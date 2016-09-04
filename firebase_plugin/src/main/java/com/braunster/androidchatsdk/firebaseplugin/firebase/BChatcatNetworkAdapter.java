@@ -16,10 +16,10 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BMessageWra
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BFollower;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
@@ -876,7 +876,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         // Add the current user to the userToFollow "followers" path
         DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID())
-            .child(BFirebaseDefines.Path.BFollowers)
+            .child(BFirebaseDefines.Path.FollowerLinks)
             .child(user.getEntityID());
         if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
 
@@ -889,7 +889,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                 }
                 else
                 {
-                    BFollower follows = user.fetchOrCreateFollower(userToFollow, BFollower.Type.FOLLOWS);
+                    FollowerLink follows = user.fetchOrCreateFollower(userToFollow, FollowerLink.Type.FOLLOWS);
 
                     user.addContact(userToFollow);
 
@@ -939,12 +939,12 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         // Remove the current user to the userToFollow "followers" path
         DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID())
-            .child(BFirebaseDefines.Path.BFollowers)
+            .child(BFirebaseDefines.Path.FollowerLinks)
             .child(user.getEntityID());
 
         userToFollowRef.removeValue();
 
-        BFollower follows = user.fetchOrCreateFollower(userToUnfollow, BFollower.Type.FOLLOWS);
+        FollowerLink follows = user.fetchOrCreateFollower(userToUnfollow, FollowerLink.Type.FOLLOWS);
 
         // Add the user to follow to the current user follow
         DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
@@ -983,7 +983,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     {
                         BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
 
-                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWER);
+                        FollowerLink f = user.fetchOrCreateFollower(follwer, FollowerLink.Type.FOLLOWER);
 
                         followers.add(follwer);
                     } else if (DEBUG) Timber.e("Follower id is empty");
@@ -1056,7 +1056,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     {
                         BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
 
-                        BFollower f = user.fetchOrCreateFollower(follwer, BFollower.Type.FOLLOWS);
+                        FollowerLink f = user.fetchOrCreateFollower(follwer, FollowerLink.Type.FOLLOWS);
 
                         followers.add(follwer);
                     }

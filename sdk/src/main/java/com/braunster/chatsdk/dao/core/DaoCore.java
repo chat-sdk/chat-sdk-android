@@ -11,8 +11,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BLinkData;
-import com.braunster.chatsdk.dao.BLinkDataDao;
+import com.braunster.chatsdk.dao.UserThreadLink;
+import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.DaoMaster;
@@ -315,7 +315,7 @@ public class DaoCore {
 
     public static void connectUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        BLinkData linkData = new BLinkData();
+        UserThreadLink linkData = new UserThreadLink();
         linkData.setBThreadDaoId(thread.getId());
         linkData.setBThread(thread);
         linkData.setBUserDaoId(user.getId());
@@ -325,7 +325,7 @@ public class DaoCore {
 
     public static void breakUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        BLinkData linkData = fetchEntityWithProperties(BLinkData.class, new Property[] {BLinkDataDao.Properties.BThreadDaoId, BLinkDataDao.Properties.BUserDaoId}, thread.getId(), user.getId());
+        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), user.getId());
         
         DaoCore.deleteEntity(linkData);
     }

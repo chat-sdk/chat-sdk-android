@@ -10,8 +10,8 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
-import com.braunster.chatsdk.dao.BLinkData;
-import com.braunster.chatsdk.dao.BLinkDataDao;
+import com.braunster.chatsdk.dao.UserThreadLink;
+import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
@@ -211,12 +211,12 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                             
                             threadUserRef.setValue(true);
 
-                            List<BLinkData> list =  DaoCore.fetchEntitiesWithProperty(BLinkData.class, BLinkDataDao.Properties.BThreadDaoId, model.getId());
+                            List<UserThreadLink> list =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.BThreadDaoId, model.getId());
 
                             DaoCore.deleteEntity(model);
 
                             // Deleting all data relevant to the thread from the db.
-                            for (BLinkData d : list)
+                            for (UserThreadLink d : list)
                                 DaoCore.deleteEntity(d);
 
                             if (DEBUG)

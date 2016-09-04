@@ -18,12 +18,11 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.ThreadUpdat
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserAddedListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserMetaChangeListener;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BFollower;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
@@ -76,7 +75,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     private List<String> handledAddedUsersToThreadIDs = new ArrayList<String>();
     private List<String> handledMessagesThreadsID = new ArrayList<String>();
     private List<String> usersIds = new ArrayList<String>();
-    private List<String> hadnledUsersMetaIds= new ArrayList<String>();
+    private List<String> handledUsersMetaIds = new ArrayList<String>();
     private List<String> handleFollowDataChangeUsersId = new ArrayList<String>();
 
     public ConcurrentHashMap<String, FirebaseEventCombo> listenerAndRefs = new ConcurrentHashMap<String, FirebaseEventCombo>();
@@ -100,7 +99,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         handledAddedUsersToThreadIDs = Collections.synchronizedList(handledAddedUsersToThreadIDs);;
         handledMessagesThreadsID = Collections.synchronizedList(handledMessagesThreadsID);
         usersIds = Collections.synchronizedList(usersIds);
-        hadnledUsersMetaIds = Collections.synchronizedList(hadnledUsersMetaIds);
+        handledUsersMetaIds = Collections.synchronizedList(handledUsersMetaIds);
     }
 
     static class EventHandler extends Handler{
@@ -139,7 +138,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
                 case AppEvents.FOLLOWER_ADDED:
                     if (notNull())
-                        manager.get().onFollowerAdded((BFollower) msg.obj);
+                        manager.get().onFollowerAdded((FollowerLink) msg.obj);
                     break;
 
                 case AppEvents.FOLLOWER_REMOVED:
@@ -149,7 +148,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
                 case AppEvents.USER_TO_FOLLOW_ADDED:
                     if (notNull())
-                        manager.get().onUserToFollowAdded((BFollower) msg.obj);
+                        manager.get().onUserToFollowAdded((FollowerLink) msg.obj);
                     break;
 
                 case AppEvents.USER_TO_FOLLOW_REMOVED:
@@ -187,7 +186,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     }
 
     @Override
-    public boolean onFollowerAdded(final BFollower follower) {
+    public boolean onFollowerAdded(final FollowerLink follower) {
 
         if (follower!=null)
             for (Event  e : events.values())
@@ -196,7 +195,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                     continue;
 
                 if(e instanceof BatchedEvent)
-                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
+                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getBUser().getEntityID());
 
                 e.onFollowerAdded(follower);
             }
@@ -219,7 +218,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     }
 
     @Override
-    public boolean onUserToFollowAdded(final BFollower follower) {
+    public boolean onUserToFollowAdded(final FollowerLink follower) {
 
         if (follower!=null)
             for (Event e : events.values())
@@ -228,7 +227,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                     continue;
 
                 if(e instanceof BatchedEvent)
-                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getUser().getEntityID());
+                    ((BatchedEvent) e).add(Event.Type.FollwerEvent, follower.getBUser().getEntityID());
 
                 e.onUserToFollowAdded(follower);
             }
@@ -359,7 +358,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         userRef.child(BFirebaseDefines.Path.BThreadPath).addChildEventListener(threadAddedListener);
 
-        userRef.child(BFirebaseDefines.Path.BFollowers).addChildEventListener(followerEventListener);
+        userRef.child(BFirebaseDefines.Path.FollowerLinks).addChildEventListener(followerEventListener);
         userRef.child(BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
 
         FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
@@ -410,13 +409,13 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             return;
         }
 
-        if (hadnledUsersMetaIds.contains(userID))
+        if (handledUsersMetaIds.contains(userID))
         {
             if (DEBUG) Timber.d("handleUsersDetailsChange, Listening.");
             return;
         }
 
-        hadnledUsersMetaIds.add(userID);
+        handledUsersMetaIds.add(userID);
 
         final DatabaseReference userRef = FirebasePaths.userMetaRef(userID);
 
@@ -442,7 +441,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         
         listenerAndRefs.remove(USER_META_PREFIX  + userID);
 
-        hadnledUsersMetaIds.remove(userID);
+        handledUsersMetaIds.remove(userID);
     }
     
     public void threadUsersAddedOn(String threadId){
@@ -692,10 +691,10 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             post(new Runnable() {
                 @Override
                 public void run() {
-                    BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
 
                     onFollowerAdded(follower);
-                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getUser());
+                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
                     wrapper.once();
                     wrapper.metaOn();
                 }
@@ -709,7 +708,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         @Override
         public void onChildRemoved(DataSnapshot snapshot) {
-            BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
             DaoCore.deleteEntity(follower);
             onFollowerRemoved();
         }
@@ -748,9 +747,9 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             post(new Runnable() {
                 @Override
                 public void run() {
-                    BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
 
-                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getUser());
+                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
                     wrapper.once();
                     wrapper.metaOn();
                 }
@@ -764,7 +763,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         @Override
         public void onChildRemoved(DataSnapshot snapshot) {
-            BFollower follower = (BFollower) BFirebaseInterface.objectFromSnapshot(snapshot);
+            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
             DaoCore.deleteEntity(follower);
             onUserToFollowRemoved();
         }
@@ -871,7 +870,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         userRef.child(BFirebaseDefines.Path.BThreadPath).removeEventListener(threadAddedListener);
 
-        userRef.child(BFirebaseDefines.Path.BFollowers).removeEventListener(followerEventListener);
+        userRef.child(BFirebaseDefines.Path.FollowerLinks).removeEventListener(followerEventListener);
         userRef.child(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
 
         observedUserEntityID = "";
@@ -917,26 +916,11 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         threadsIds.clear();
         usersIds.clear();
-        hadnledUsersMetaIds.clear();
+        handledUsersMetaIds.clear();
         handledMessagesThreadsID.clear();
         handledAddedUsersToThreadIDs.clear();
         handleFollowDataChangeUsersId.clear();
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     /** get the current user entity so we know not to listen to his details and so on.*/
     public static String getCurrentUserId() {

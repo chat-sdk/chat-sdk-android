@@ -46,6 +46,10 @@ android {
             jniDebuggable false
             zipAlignEnabled true
         }
+        debug {
+            debuggable true
+            jniDebuggable true
+        }
     }
 
 
@@ -68,9 +72,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    
     compile project(':firebase_plugin')
-
     compile 'com.android.support:multidex:1.0.0'
 }
 

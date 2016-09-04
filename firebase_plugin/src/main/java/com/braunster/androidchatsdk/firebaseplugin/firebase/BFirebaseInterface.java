@@ -10,7 +10,7 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 import android.util.Log;
 
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BFollower;
+import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BFirebaseDefines;
@@ -41,15 +41,15 @@ public class BFirebaseInterface {
         if (DEBUG)Log.v(TAG, "objectFromSnapshot, Path: " + dataSnapshot.getRef().toString());
         BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
 
-         if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollowers))
+         if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.FollowerLinks))
         {
-            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollowers");
+            if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and FollowerLinks");
             String followerFirebaseID = path.idForIndex(1);
             String userFirebaseID = path.idForIndex(0);
 
             if (StringUtils.isNotEmpty(followerFirebaseID))
             {
-                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, BFollower.Type.FOLLOWER);
+                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, FollowerLink.Type.FOLLOWER);
             }
             else return childrenFromSnapshot(dataSnapshot);
         }
@@ -63,7 +63,7 @@ public class BFirebaseInterface {
 
             if (StringUtils.isNotEmpty(followerFirebaseID))
             {
-                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, BFollower.Type.FOLLOWS);
+                return getFollower(dataSnapshot, userFirebaseID, followerFirebaseID, FollowerLink.Type.FOLLOWS);
             }
             else return childrenFromSnapshot(dataSnapshot);
         }
@@ -85,7 +85,7 @@ public class BFirebaseInterface {
         return children;
     }
 
-    private static class GetFollowerCall implements Callable<BFollower>{
+    private static class GetFollowerCall implements Callable<FollowerLink>{
         private String userEntityId, followerEntityId;
         private int type = -1;
 
@@ -96,14 +96,14 @@ public class BFirebaseInterface {
         }
 
         @Override
-        public BFollower call() throws Exception {
+        public FollowerLink call() throws Exception {
             BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, userEntityId);
             BUser followerUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followerEntityId);
             return user.fetchOrCreateFollower(followerUser, type);
         }
     }
 
-    private static BFollower getFollower(DataSnapshot snapshot, String userFirebaseId, String followerFirebaseId, int followerType){
+    private static FollowerLink getFollower(DataSnapshot snapshot, String userFirebaseId, String followerFirebaseId, int followerType){
         if (DEBUG) Log.v(TAG, "getFollower");
         try {
             return DaoCore.daoSession.callInTx(new GetFollowerCall(userFirebaseId, followerFirebaseId, followerType));
