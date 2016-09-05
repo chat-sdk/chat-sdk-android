@@ -377,7 +377,6 @@ public class BUser extends BUserEntity  {
         daoSession.insertOrReplace(contactLink);
         // make the connection to the user
         contactLinkList.add(newContact);
-        // persist contact list
 
         this.update();
     }

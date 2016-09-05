@@ -310,7 +310,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return deferred.promise();
     }
     
-    private DatabaseReference ref(){
+    public DatabaseReference ref(){
         return FirebasePaths.userRef(entityId);
     }
 

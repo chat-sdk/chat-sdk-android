@@ -270,7 +270,7 @@ public class DaoCore {
             return null;
         }
 
-        daoSession.insert(entity);
+        daoSession.insertOrReplace(entity);
 
         if(DEBUG) printEntity(entity);
 
@@ -326,7 +326,6 @@ public class DaoCore {
     public static void breakUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), user.getId());
-        
         DaoCore.deleteEntity(linkData);
     }
 

@@ -84,17 +84,20 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                     // Checking to see if this thread was deleted.
                     if (thread.isDeleted())
                     {
-                        if (DEBUG) Timber.v("Thread is Deleted");
-
+                        if (DEBUG) Timber.v("Thread was Deleted");
+                        return;
+                        // TODO: figure out if this should be here
+                        /*
                         // Making sure we are now listening to all events.
                         BThreadWrapper threadWrapper = new  BThreadWrapper(thread);
                         threadWrapper.on();
                         threadWrapper.usersOn();
                         threadWrapper.messagesOn();
-                        threadWrapper.recoverThread();
+                        threadWrapper.recoverPrivateThread();
+                        */
                     }
 
-                    // Mark the thead as having unread messages if this message
+                    // Mark the thread as having unread messages if this message
                     // doesn't already exist on the thread
                     if (wrapper.model.getThread() == null)
                         thread.setHasUnreadMessages(true);

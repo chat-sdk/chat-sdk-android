@@ -152,6 +152,8 @@ public class BDefines {
         public static final String BLastOnline = "last-online";
         public static final String BVersion = "version";
         public static final String BMeta = "meta";
+        public static final String BThreads = "threads";
+        public static final String BUsers = "users";
 
         public static final String BImageUrl = "image-url";
         public static final String BCreatorEntityId = "creator-firebase-id";
