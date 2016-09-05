@@ -2,10 +2,8 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.object.BError;
 import com.google.firebase.database.DataSnapshot;
@@ -27,7 +25,7 @@ import java.util.List;
  * Created by kykrueger on 2016-09-04.
  */
 public class ThreadRecovery {
-    public static Promise<BThread, BError, Void> attemptToRecoverThread(List<BUser> users){
+    public static Promise<BThread, BError, Void> checkForAndRecoverThreadWithUsers(List<BUser> users){
 
         final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
 
@@ -136,61 +134,4 @@ public class ThreadRecovery {
         return deferred.promise();
     }
 
-    public static Promise<BThread, BError, Void> loadAllMessages(String threadEntityId){
-        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
-        final BThreadWrapper bThreadWrapper = new BThreadWrapper(threadEntityId);
-
-        bThreadWrapper.getModel().setEntityID(threadEntityId);
-        bThreadWrapper.recoverPrivateThread();
-        bThreadWrapper.loadMoreMessages(-1).done(new DoneCallback<List<BMessage>>() {
-            @Override
-            public void onDone(List<BMessage> bMessages) {
-                bThreadWrapper.getModel().setMessages(bMessages);
-                bThreadWrapper.getModel().setType(BThread.Type.Private);
-                DaoCore.createEntity(bThreadWrapper.getModel());
-                DaoCore.updateEntity(bThreadWrapper.getModel());
-                if (!deferred.isResolved()) {
-                    deferred.resolve(bThreadWrapper.getModel());
-                }
-            }
-        }).fail(new FailCallback<Void>() {
-            @Override
-            public void onFail(Void aVoid) {
-                if (!deferred.isResolved()) {
-                    deferred.resolve(bThreadWrapper.getModel());
-                }
-            }
-        });
-
-        return deferred.promise();
-    }
-
-    public static BThread recoverThreadLocally(List<BUser> usersInThread){
-        BUser me = new BUser();
-        BUser userToFind = new BUser();
-
-        if(usersInThread.size() != 2) return null;
-
-        for (BUser user : usersInThread){
-            if(user.isMe()){
-                me = user;
-            } else{
-                userToFind = user;
-            }
-        }
-
-        // for Private threads only
-        for (BThread thread : me.getThreads(BThread.Type.Private, true)) {
-
-            List<BUser> threadusers = thread.getUsers();
-            if(threadusers.size() != 2) continue;
-            for( BUser user : threadusers){
-                if (user.getEntityID().equals(userToFind.getEntityID())){
-
-                    return thread;
-                }
-            }
-        }
-        return null;
-    }
 }

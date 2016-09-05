@@ -21,7 +21,6 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
@@ -609,7 +608,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     public Promise<BThread, BError, Void> createThreadWithUsers(String name, final List<BUser> users) {
         final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
 
-        ThreadRecovery.attemptToRecoverThread(users)
+        ThreadRecovery.checkForAndRecoverThreadWithUsers(users)
                 .done(new DoneCallback<BThread>() {
                     @Override
                     public void onDone(final BThread thread) {

@@ -290,6 +290,8 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         return deferred.promise();
         
     }
+
+    // TODO: Replace this with the loadMessages method (need to figure out the date ref first)
     public Promise<List<BMessage>, Void, Void> loadMoreMessages(final int numberOfMessages){
 
         if (DEBUG) Timber.v("loadMoreMessages");
@@ -302,7 +304,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         if (messages.size() > 0)
             earliestMessage = messages.get(0);
             
-        // If we have a message in the database then we use the earliest
+        // If we have a message in the database then we use the latest
         if (earliestMessage != null)
         {
             if(DEBUG) Timber.d("Msg: %s", earliestMessage.getText());
