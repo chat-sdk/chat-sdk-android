@@ -60,11 +60,11 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                             deferred.reject(null);
                         return;
                     }
-                    
-                    BMessageWrapper wrapper = BMessageWrapper.initWithSnapshot(dataSnapshot);
 
+                    BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadEntityId);
+                    BMessageWrapper wrapper = new BMessageWrapper(thread, dataSnapshot);
                     wrapper.setDelivered(BMessage.Delivered.Yes);
-                    
+
                     // Checking for null sender and that the sender isn't the current user.
                     // This will make sure we wont notify user for his own messages.
                     if (wrapper.model.getBUserSender() != null &&
@@ -78,8 +78,7 @@ public class InMessagesListener extends FirebaseGeneralEvent {
                             wrapper.model.setIsRead(false);
                     }
 
-                    
-                    BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadEntityId);
+
                     
                     // Checking to see if this thread was deleted.
                     if (thread.isDeleted())

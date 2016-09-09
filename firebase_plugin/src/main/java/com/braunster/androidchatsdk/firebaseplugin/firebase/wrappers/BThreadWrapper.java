@@ -284,6 +284,11 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                 DaoCore.updateEntity(toBeUpdated);
                 deferred.resolve(toBeUpdated);
             }
+        }).fail(new FailCallback<Void>() {
+            @Override
+            public void onFail(Void aVoid) {
+                deferred.resolve(toBeUpdated);
+            }
         });
         DaoCore.updateEntity(this.model);
         
@@ -364,9 +369,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         BMessageWrapper msg;
                         for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
                         {
-                            msg = new BMessageWrapper(snapshot.child(key));
-                         
-                            msg.model.setThread(BThreadWrapper.this.model);
+                            msg = new BMessageWrapper(BThreadWrapper.this.getModel(), snapshot.child(key));
                             
                             DaoCore.updateEntity(msg.model);
                             
@@ -421,9 +424,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                     BMessageWrapper msg;
                     for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
                     {
-                        msg = new BMessageWrapper(snapshot.child(key));
-
-                        msg.model.setThread(BThreadWrapper.this.model);
+                        msg = new BMessageWrapper(BThreadWrapper.this.getModel() ,snapshot.child(key));
 
                         DaoCore.updateEntity(msg.model);
 

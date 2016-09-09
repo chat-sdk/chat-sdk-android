@@ -629,6 +629,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
                         // Save the thread to the database.
                         DaoCore.createEntity(thread);
+                        DaoCore.connectUserAndThread(currentUserModel(),thread);
 
                         updateLastOnline();
 

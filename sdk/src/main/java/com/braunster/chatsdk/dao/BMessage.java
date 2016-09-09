@@ -1,5 +1,7 @@
 package com.braunster.chatsdk.dao;
 
+import java.util.List;
+
 import com.braunster.chatsdk.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
 

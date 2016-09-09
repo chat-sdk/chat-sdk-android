@@ -38,6 +38,11 @@ public class ThreadRecovery {
                     public void onDone(BThread bThread) {
                         deferred.resolve(bThread);
                     }
+                }).fail(new FailCallback<BError>() {
+                    @Override
+                    public void onFail(BError bError) {
+                        deferred.reject(bError);
+                    }
                 });
             }
         }).fail(new FailCallback<BError>() {

@@ -23,6 +23,7 @@ import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
@@ -653,6 +654,10 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                                 !wrapper.getModel().hasUser(currentUser))
                         {
                             wrapper.addUser(BUserWrapper.initWithModel(currentUser));
+                            BThread thread = wrapper.getModel();
+                            thread.setType(BThreadEntity.Type.Private);
+                            DaoCore.createEntity(thread);
+                            DaoCore.connectUserAndThread(currentUser, thread);
                         }
                         
                         // Triggering thread added events.
