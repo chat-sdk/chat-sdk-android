@@ -79,14 +79,19 @@ public class ThreadRecovery {
             public void onDataChange(DataSnapshot allThreadsForUser) {
                 // Check all of the user's threads (only the threadIds are here)
                 Boolean lastThread = false;
-                Iterator<DataSnapshot> allThreadsForUserIterator;
-                allThreadsForUserIterator = allThreadsForUser.getChildren().iterator();
-                while(allThreadsForUserIterator.hasNext()){
+                int threadNumber = 0;
+
+                if (allThreadsForUser.getChildrenCount() == 0) {
+                    deferred.reject(new BError(404, "Could not find existing Thread"));
+                }
+
+                for(DataSnapshot threadOfUser : allThreadsForUser.getChildren()){
+                    threadNumber = threadNumber + 1;
+
                     // Stop searching if the thread has already been found
                     if (deferred.isResolved()) break;
 
-                    DataSnapshot threadOfUser = allThreadsForUserIterator.next();
-                    if(!allThreadsForUserIterator.hasNext()) lastThread = true;
+                    if(allThreadsForUser.getChildrenCount() == threadNumber) lastThread = true;
                     final Boolean lastThreadFinal = lastThread;
 
                     DatabaseReference threadRef = FirebasePaths.threadRef(threadOfUser.getKey());
