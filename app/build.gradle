@@ -81,3 +81,9 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
 }
 
+
+task copyDependencies(type: Copy) {
+    from configurations.compile
+    into 'dependencies'
+}
+

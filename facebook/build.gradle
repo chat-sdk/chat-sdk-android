@@ -6,10 +6,11 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
+
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
