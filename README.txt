@@ -22,21 +22,14 @@ platforms! Currently the database used to connect the applications is the Fireba
 
 CONTRIBUTION GUIDELINES - moving forward
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
-1. Add comments to all functions describing their purpose
-2. Practice Test Driven Development
-3.
+1. Add comments to all functions describing their purpose (Doxygen)
+2. Merge master changes into feature branches whenever possible. 
+3. Changes to feature branches should always be double checked if they belong in master.
 
 
 Future Plans / DEVELOPMENT DIRECTION
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 1. Reducing Complexity
-    a) Update usage of jdeferred;
-         the current call initialization of DeferredObjects
-         is confusing . . .
-         private Deferred<Void, Void, Void> deferred;
-    b) Review usage of and update greenDAO
-2.Features to be added
-    a) two_factor_auth_2
-    b) offlineMode
-    c) phone_book_contacts
-3. Merge main project to firebase3 branch
+    a) jDeferred is being phased out in favour of rxJava.
+    b) Greendao2 is being replaced with GreenDao3 which uses annotations.
+    c) Cleaning up stale branches.
