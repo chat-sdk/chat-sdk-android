@@ -115,6 +115,8 @@ public class ChatSDKProfileHelper {
                 break;
 
             case BDefines.BAccountType.Password:
+            case BDefines.BAccountType.Custom:
+            case BDefines.BAccountType.Register:
                 if (profileUser==null)
                     setProfilePicFromURL(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().metaStringForKey(BDefines.Keys.BPictureURL), false);
                 else setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
