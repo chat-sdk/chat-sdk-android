@@ -23,12 +23,17 @@
         style="@style/TextViewStyle"
         android:id="@+id/chat_sdk_txt"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/img_profile_picture" />
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_toRightOf="@id/img_profile_picture"
+        android:layout_toEndOf="@id/img_profile_picture"
+        android:layout_toLeftOf="@+id/checkbox"
+        android:layout_toStartOf="@id/checkbox"/>
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/checkbox"
+        android:id="@id/checkbox"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:padding="10dp"
