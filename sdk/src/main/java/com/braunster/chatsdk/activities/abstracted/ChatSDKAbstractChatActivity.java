@@ -563,43 +563,41 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         super.onActivityResult(requestCode, resultCode, data);
         if (DEBUG) Timber.v("onActivityResult");
 
-        int result = chatSDKChatHelper.handleResult(requestCode, resultCode, data);
+        chatSDKChatHelper.handleResult(requestCode, resultCode, data);
 
-        if (result == ChatSDKChatHelper.NOT_HANDLED)
+
+        if (requestCode == ADD_USERS)
         {
-            if (requestCode == ADD_USERS)
+            if (DEBUG) Timber.d("ADD_USER_RETURN");
+            if (resultCode == RESULT_OK)
             {
-                if (DEBUG) Timber.d("ADD_USER_RETURN");
-                if (resultCode == RESULT_OK)
-                {
-                    updateChat();
-                }
+                updateChat();
             }
-            else if (requestCode == SHOW_DETAILS)
+        }
+        else if (requestCode == SHOW_DETAILS)
+        {
+            if (DEBUG) Timber.d("SHOW_DETAILS");
+            if (resultCode == RESULT_OK)
             {
-                if (DEBUG) Timber.d("SHOW_DETAILS");
-                if (resultCode == RESULT_OK)
+                // Updating the selected chat id.
+                if (data != null && data.getExtras()!= null && data.getExtras().containsKey(THREAD_ID))
                 {
-                    // Updating the selected chat id.
-                    if (data != null && data.getExtras()!= null && data.getExtras().containsKey(THREAD_ID))
-                    {
-                        if ( !getThread(data.getExtras()) )
-                            return;
+                    if ( !getThread(data.getExtras()) )
+                        return;
 
-                        created = true;
+                    created = true;
 
-                        chatSDKChatHelper.setThread(thread);
+                    chatSDKChatHelper.setThread(thread);
 
-                        if (messagesListAdapter != null)
-                            messagesListAdapter.clear();
+                    if (messagesListAdapter != null)
+                        messagesListAdapter.clear();
 
-                        initActionBar();
-                    }
-                    else
-                        updateChat();
-
-
+                    initActionBar();
                 }
+                else
+                    updateChat();
+
+
             }
         }
     }

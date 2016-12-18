@@ -359,15 +359,15 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         listMessages.getAnimation().start();
     }
 
-    public int handleResult(int requestCode, int resultCode, Intent data) {
+    public void handleResult(int requestCode, int resultCode, Intent data) {
         if (DEBUG) Timber.v("onActivityResult");
         
         if (!hasActivity())
-            return NOT_HANDLED;
+            return;
 
         if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
         {
-            return NOT_HANDLED;
+            return;
         }
 
         // Just to be sure its init.
@@ -404,7 +404,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     {
                         uiHelper.dismissProgressCard();
                         uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-                        return ERROR;
+                        return;
                     }
                     
                     Uri outputUri = Uri.fromFile(new File(dir, mFileName  + ".jpeg"));
@@ -416,18 +416,18 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                     activity.get().startActivityForResult(cropIntent, request);
 
-                    return HANDLED;
+                    return;
 
                 case Activity.RESULT_CANCELED:
                     uiHelper.dismissProgressCard();
-                    return HANDLED;
+                    return;
             }
         }
         else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
             if (resultCode == Crop.RESULT_ERROR)
             {
                 uiHelper.dismissProgressCard();
-                return ERROR;
+                return;
             }
 
             try
@@ -444,7 +444,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 {
                     uiHelper.dismissProgressCard();
                     uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-                    return ERROR;
+                    return;
                 }
                 
                 File image = new File(dir, mFileName  + ".jpeg");
@@ -457,11 +457,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 
                 sendImageMessage(image.getPath());
                 
-                return HANDLED;
+                return;
             }
             catch (NullPointerException e){
                 uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-                return ERROR;
+                return;
             }
         }
 
@@ -471,12 +471,12 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (data.getExtras() == null)
-                    return ERROR;
+                    return;
 
                 if (data.getExtras().containsKey(ChatSDKLocationActivity.ERROR))
                     uiHelper.showAlertToast(data.getExtras().getString(ChatSDKLocationActivity.ERROR));
 
-                return ERROR;
+                return;
             }
             else if (resultCode == Activity.RESULT_OK) {
                 if (DEBUG)
@@ -485,7 +485,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                 sendLocationMessage(data);
 
-                return HANDLED;
+                return;
             }
         }
         /* Capture image logic*/
@@ -494,11 +494,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
             if (resultCode == Activity.RESULT_OK) {
                 sendImageMessage(selectedFilePath);
-                return HANDLED;
+                return;
             }
         }
 
-        return NOT_HANDLED;
+        return;
     }
 
     public void onSavedInstanceBundle(Bundle outState){
