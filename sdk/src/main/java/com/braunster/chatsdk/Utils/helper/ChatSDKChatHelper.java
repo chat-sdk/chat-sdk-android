@@ -175,7 +175,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             @Override
             public void run() {
 
-                if (collected())
+                if (!hasActivity())
                     return;
                 
                 final int oldDataSize = messagesListAdapter.getCount();
@@ -305,7 +305,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public void scrollListTo(final int pos, final boolean smooth) {
-        if (collected())
+        if (!hasActivity())
             return;
         
         if (listMessages == null)
@@ -332,7 +332,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public void animateListView(){
 
-        if (collected())
+        if (!hasActivity())
             return;
         
         if (listMessages == null)
@@ -372,7 +372,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public int handleResult(boolean send, int requestCode, int resultCode, Intent data) {
         if (DEBUG) Timber.v("onActivityResult");
         
-        if (collected())
+        if (!hasActivity())
             return NOT_HANDLED;
 
         if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
@@ -555,7 +555,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         if (savedInstanceState == null)
             return;
         
-        if (collected())
+        if (!hasActivity())
             return;
 
         selectedFilePath = savedInstanceState.getString(SELECTED_FILE_PATH);
@@ -584,7 +584,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     @Override
     public void onLocationPressed() {
-        if (collected())
+        if (!hasActivity())
             return;
         
         Intent intent = new Intent(activity.get(), uiHelper.shareLocationActivity);
@@ -594,7 +594,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     @Override
     public void onTakePhotoPressed() {
         
-        if (collected())
+        if (!hasActivity())
             return;
         
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -622,7 +622,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     @Override
     public void onPickImagePressed() {
         
-        if (collected())
+        if (!hasActivity())
             return;
 
         Intent intent = new Intent();
@@ -755,7 +755,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public void checkIfWantToShare(Intent intent){
         if (DEBUG) Timber.v("checkIfWantToShare");
 
-        if (collected())
+        if (!hasActivity())
             return;
 
         if (shared)
@@ -892,8 +892,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         return readCount;
     }
     
-    public boolean collected(){
-        return  activity == null || activity.get() == null;
+    public boolean hasActivity(){
+        return  activity != null && activity.get() != null;
         
     }
 }
