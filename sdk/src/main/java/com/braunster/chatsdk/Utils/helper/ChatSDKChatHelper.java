@@ -36,6 +36,7 @@ import com.braunster.chatsdk.object.Cropper;
 import com.braunster.chatsdk.view.ChatMessageBoxView;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.google.android.gms.maps.model.LatLng;
+import com.soundcloud.android.crop.BuildConfig;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
@@ -388,7 +389,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 uiHelper.showProgressCard("Sending...");
             }
         } catch (Exception e) {
-//            e.printStackTrace();
+            if(BuildConfig.DEBUG) e.printStackTrace();
         }
 
         /* Pick photo logic*/
