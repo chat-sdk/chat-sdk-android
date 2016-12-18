@@ -296,8 +296,6 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 Intent cropIntent = crop.getIntent(this, outputUri);
                 int request = Crop.REQUEST_CROP + THREAD_PIC;
-
-
                 startActivityForResult(cropIntent, request);
             }
         }

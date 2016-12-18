@@ -367,54 +367,72 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         /* Pick photo logic*/
         if (requestCode == PHOTO_PICKER_ID)
         {
-
-            switch (resultCode)
-            {
-                case Activity.RESULT_OK:
-
-                    Uri uri = data.getData();
-                    mFileName = DaoCore.generateEntity();
-
-                    // If enabled we will save the image to the app 
-                    // directory in gallery else we will save it in the cache dir.
-                    File dir;
-                    if (BDefines.Options.SaveImagesToDir)
-                        dir = Utils.ImageSaver.getAlbumStorageDir(activity.get(), Utils.ImageSaver.IMAGE_DIR_NAME);
-                    else 
-                        dir = this.activity.get().getCacheDir();
-
-                    if (dir == null)
-                    {
-                        uiHelper.dismissProgressCard();
-                        uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-                        return;
-                    }
-                    
-                    Uri outputUri = Uri.fromFile(new File(dir, mFileName  + ".jpeg"));
-
-                    crop = new Cropper(uri);
-
-                    Intent cropIntent = crop.getAdjustIntent(this.activity.get(), outputUri);
-                    int request = Crop.REQUEST_CROP + PHOTO_PICKER_ID;
-
-                    activity.get().startActivityForResult(cropIntent, request);
-
-                    return;
-
-                case Activity.RESULT_CANCELED:
-                    uiHelper.dismissProgressCard();
-            }
+            processPickedPhoto(resultCode, data);
         }
         else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
-            if (resultCode == Crop.RESULT_ERROR)
+            processCroppedPhoto(resultCode, data);
+        }
+        /* Pick location logic*/
+        else if (requestCode == PICK_LOCATION)
+        {
+            processPickedLocation(resultCode, data);
+        }
+        /* Capture image logic*/
+        else if (requestCode == CAPTURE_IMAGE)
+        {
+            if (resultCode == Activity.RESULT_OK) {
+                sendImageMessage(selectedFilePath);
+            }
+        }
+    }
+    private void processCroppedPhoto(int resultCode, Intent data){
+        if (resultCode == Crop.RESULT_ERROR)
+        {
+            uiHelper.dismissProgressCard();
+            return;
+        }
+
+        try
+        {
+            // If enabled we will save the image to the app
+            // directory in gallery else we will save it in the cache dir.
+            File dir;
+            if (BDefines.Options.SaveImagesToDir)
+                dir = Utils.ImageSaver.getAlbumStorageDir(activity.get(), Utils.ImageSaver.IMAGE_DIR_NAME);
+            else
+                dir = this.activity.get().getCacheDir();
+
+            if (dir == null)
             {
                 uiHelper.dismissProgressCard();
+                uiHelper.showAlertToast(R.string.unable_to_fetch_image);
                 return;
             }
 
-            try
-            {
-                // If enabled we will save the image to the app 
+            File image = new File(dir, mFileName  + ".jpeg");
+
+            selectedFilePath = image.getPath();
+
+            // Scanning the image so it would be visible in the gallery images.
+            if (BDefines.Options.SaveImagesToDir)
+                ImageUtils.scanFilePathForGallery(activity.get(), selectedFilePath);
+
+            sendImageMessage(image.getPath());
+        }
+        catch (NullPointerException e){
+            uiHelper.showAlertToast(R.string.unable_to_fetch_image);
+        }
+    }
+    private void processPickedPhoto(int resultCode, Intent data){
+
+        switch (resultCode)
+        {
+            case Activity.RESULT_OK:
+
+                Uri uri = data.getData();
+                mFileName = DaoCore.generateEntity();
+
+                // If enabled we will save the image to the app
                 // directory in gallery else we will save it in the cache dir.
                 File dir;
                 if (BDefines.Options.SaveImagesToDir)
@@ -428,48 +446,37 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     uiHelper.showAlertToast(R.string.unable_to_fetch_image);
                     return;
                 }
-                
-                File image = new File(dir, mFileName  + ".jpeg");
 
-                selectedFilePath = image.getPath();
+                Uri outputUri = Uri.fromFile(new File(dir, mFileName  + ".jpeg"));
 
-                // Scanning the image so it would be visible in the gallery images.
-                if (BDefines.Options.SaveImagesToDir)
-                    ImageUtils.scanFilePathForGallery(activity.get(), selectedFilePath);
-                
-                sendImageMessage(image.getPath());
-            }
-            catch (NullPointerException e){
-                uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-            }
+                crop = new Cropper(uri);
+
+                Intent cropIntent = crop.getAdjustIntent(this.activity.get(), outputUri);
+                int request = Crop.REQUEST_CROP + PHOTO_PICKER_ID;
+
+                activity.get().startActivityForResult(cropIntent, request);
+
+                return;
+
+            case Activity.RESULT_CANCELED:
+                uiHelper.dismissProgressCard();
         }
+    }
 
-        /* Pick location logic*/
-        else if (requestCode == PICK_LOCATION)
-        {
+    private void processPickedLocation(int resultCode, Intent data){
+        if (resultCode == Activity.RESULT_CANCELED) {
+            if (data.getExtras() == null)
+                return;
 
-            if (resultCode == Activity.RESULT_CANCELED) {
-                if (data.getExtras() == null)
-                    return;
-
-                if (data.getExtras().containsKey(ChatSDKLocationActivity.ERROR))
-                    uiHelper.showAlertToast(data.getExtras().getString(ChatSDKLocationActivity.ERROR));
-            }
-            else if (resultCode == Activity.RESULT_OK) {
-                if (DEBUG)
-                    Timber.d("Zoom level: %s", data.getFloatExtra(ChatSDKLocationActivity.ZOOM, 0.0f));
-                // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
-
-                sendLocationMessage(data);
-            }
+            if (data.getExtras().containsKey(ChatSDKLocationActivity.ERROR))
+                uiHelper.showAlertToast(data.getExtras().getString(ChatSDKLocationActivity.ERROR));
         }
-        /* Capture image logic*/
-        else if (requestCode == CAPTURE_IMAGE)
-        {
+        else if (resultCode == Activity.RESULT_OK) {
+            if (DEBUG)
+                Timber.d("Zoom level: %s", data.getFloatExtra(ChatSDKLocationActivity.ZOOM, 0.0f));
+            // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
 
-            if (resultCode == Activity.RESULT_OK) {
-                sendImageMessage(selectedFilePath);
-            }
+            sendLocationMessage(data);
         }
     }
 
