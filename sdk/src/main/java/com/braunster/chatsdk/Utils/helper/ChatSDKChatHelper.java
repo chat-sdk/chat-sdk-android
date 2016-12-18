@@ -362,13 +362,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public void handleResult(int requestCode, int resultCode, Intent data) {
         if (DEBUG) Timber.v("onActivityResult");
 
-        if (!hasActivity())
-            return;
-
-        if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
-        {
-            return;
-        }
+        if (!hasActivity()) return;
 
         /* Pick photo logic*/
         if (requestCode == PHOTO_PICKER_ID)
@@ -409,7 +403,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                 case Activity.RESULT_CANCELED:
                     uiHelper.dismissProgressCard();
-                    return;
             }
         }
         else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
@@ -445,12 +438,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     ImageUtils.scanFilePathForGallery(activity.get(), selectedFilePath);
                 
                 sendImageMessage(image.getPath());
-                
-                return;
             }
             catch (NullPointerException e){
                 uiHelper.showAlertToast(R.string.unable_to_fetch_image);
-                return;
             }
         }
 
@@ -464,8 +454,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                 if (data.getExtras().containsKey(ChatSDKLocationActivity.ERROR))
                     uiHelper.showAlertToast(data.getExtras().getString(ChatSDKLocationActivity.ERROR));
-
-                return;
             }
             else if (resultCode == Activity.RESULT_OK) {
                 if (DEBUG)
@@ -473,8 +461,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
 
                 sendLocationMessage(data);
-
-                return;
             }
         }
         /* Capture image logic*/
@@ -483,11 +469,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
             if (resultCode == Activity.RESULT_OK) {
                 sendImageMessage(selectedFilePath);
-                return;
             }
         }
-
-        return;
     }
 
     private void sendingMessageToast(){
