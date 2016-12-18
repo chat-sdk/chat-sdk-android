@@ -54,7 +54,7 @@ import timber.log.Timber;
 
 public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageSendListener{
 
-    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDELD = 1993;
+    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
 
     /** The key to get the shared file uri. This is used when the activity is opened to share and image or a file with the chat users.
      *  Example can be found in ContactsFragment that use click mode share with contact. */
@@ -428,11 +428,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
                     activity.get().startActivityForResult(cropIntent, request);
 
-                    return HANDELD;
+                    return HANDLED;
 
                 case Activity.RESULT_CANCELED:
                     uiHelper.dismissProgressCard();
-                    return HANDELD;
+                    return HANDLED;
             }
         }
         else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
@@ -469,7 +469,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 
                 sendImageMessage(image.getPath());
                 
-                return HANDELD;
+                return HANDLED;
             }
             catch (NullPointerException e){
                 uiHelper.showAlertToast(R.string.unable_to_fetch_image);
@@ -507,7 +507,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     selectedFilePath = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
                 }
 
-                return HANDELD;
+                return HANDLED;
             }
         }
         /* Capture image logic*/
@@ -521,7 +521,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 if (send)
                     sendImageMessage(selectedFilePath);
 
-                return HANDELD;
+                return HANDLED;
             }
         }
 
