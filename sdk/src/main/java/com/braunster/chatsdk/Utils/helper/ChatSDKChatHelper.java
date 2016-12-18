@@ -52,7 +52,6 @@ import java.util.List;
 import de.greenrobot.dao.query.QueryBuilder;
 import timber.log.Timber;
 
-
 public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageSendListener{
 
     public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
@@ -64,13 +63,14 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     /** The key to get shared text, this is used when the activity is open to share text with the chat user.
      *  Example can be found in ContactsFragment that use click mode share with contact. */
     public static final String SHARED_TEXT = "shared_text";
+    public static final String LAT = "lat", LNG = "lng";
+
 
     /** The key to get the shared file path. This is used when the activity is opened to share and image or a file with the chat users.
      */
     public static final String SHARED_FILE_PATH = "shared_file_path";
 
     public static final String SHARE_LOCATION = "share_location";
-    public static final String LAT = "lat", LNG = "lng";
 
     public static final String READ_COUNT = "read_count";
 
@@ -106,8 +106,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
      * The file name of the image that was picked and cropped
      **/
     private String mFileName;
-    
-    private double lat = 0, lng = 0;
 
     /** Keeping track of the amount of messages that was read in this thread.*/
     private int readCount = 0;
@@ -123,15 +121,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     private ProgressBar progressBar;
     private ChatSDKMessagesListAdapter messagesListAdapter;
 
-
-
     public ChatSDKChatHelper(Activity activity, BThread thread, ChatSDKUiHelper uiHelper) {
         this.activity = new WeakReference<Activity>(activity);
         this.thread = thread;
         this.uiHelper = uiHelper;
     }
-
-
 
     public void integrateUI(ChatMessageBoxView messageBoxView, ChatSDKMessagesListAdapter messagesListAdapter, ListView listView, ProgressBar progressBar) {
         integrateUI(true, messageBoxView, messagesListAdapter, listView, progressBar);
@@ -148,7 +142,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
         messageBoxView.setMessageBoxOptionsListener(this);
     }
-
 
     /** Load messages from the database and saving the current position of the list.*/
     public void loadMessagesAndRetainCurrentPos(){
@@ -395,8 +388,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         /* Pick photo logic*/
         if (requestCode == PHOTO_PICKER_ID)
         {
-            // Reset
-            lat = 0; lng = 0;
 
             switch (resultCode)
             {
@@ -481,8 +472,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         /* Pick location logic*/
         else if (requestCode == PICK_LOCATION)
         {
-            // Reset
-            lat = 0; lng = 0;
 
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (data.getExtras() == null)
@@ -503,8 +492,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 }
                 else
                 {
-                    lat = data.getDoubleExtra(ChatSDKLocationActivity.LANITUDE, 0);
-                    lng = data.getDoubleExtra(ChatSDKLocationActivity.LONGITUDE, 0);
                     selectedFilePath = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
                 }
 
@@ -514,8 +501,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         /* Capture image logic*/
         else if (requestCode == CAPTURE_IMAGE)
         {
-            // Reset
-            lat = 0; lng = 0;
 
             if (resultCode == Activity.RESULT_OK) {
 
@@ -533,12 +518,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         if (StringUtils.isNotEmpty(selectedFilePath))
         {
             outState.putString(SELECTED_FILE_PATH, selectedFilePath);
-
-            if (lng != 0)
-            {
-                outState.putDouble(LNG, lng);
-                outState.putDouble(LAT, lat);
-            }
         }
 
         outState.putInt(LOADED_MESSAGES_AMOUNT, loadedMessagesAmount);
@@ -562,16 +541,12 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         selectedFilePath = savedInstanceState.getString(SELECTED_FILE_PATH);
         savedInstanceState.remove(SELECTED_FILE_PATH);
 
-        lng = savedInstanceState.getDouble(LNG, 0);
-        lat = savedInstanceState.getDouble(LAT, 0);
 
         shared = savedInstanceState.getBoolean(SHARED);
 
         loadedMessagesAmount = savedInstanceState.getInt(LOADED_MESSAGES_AMOUNT, 0);
 
         readCount = savedInstanceState.getInt(READ_COUNT);
-        savedInstanceState.remove(LNG);
-        savedInstanceState.remove(LAT);
 
         mFileName = savedInstanceState.getString(FILE_NAME);
         SuperCardToast.onRestoreState(savedInstanceState, activity.get());
@@ -858,19 +833,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public boolean isLoactionMedia(){
-        return StringUtils.isNotEmpty(getSelectedFilePath()) && StringUtils.isNotBlank(getSelectedFilePath()) && lat != 0 && lng != 0;
+        return StringUtils.isNotEmpty(getSelectedFilePath()) && StringUtils.isNotBlank(getSelectedFilePath());
     }
 
     public void setThread(BThread thread) {
         this.thread = thread;
-    }
-
-    public double getLng() {
-        return lng;
-    }
-
-    public double getLat() {
-        return lat;
     }
 
     public void setListMessages(ListView listMessages) {
