@@ -361,24 +361,13 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
     public void handleResult(int requestCode, int resultCode, Intent data) {
         if (DEBUG) Timber.v("onActivityResult");
-        
+
         if (!hasActivity())
             return;
 
         if (requestCode != CAPTURE_IMAGE && requestCode != ADD_USERS && data == null)
         {
             return;
-        }
-
-        // Just to be sure its init.
-        uiHelper.initCardToast();
-
-        try {
-            if ((requestCode == PHOTO_PICKER_ID || requestCode == PICK_LOCATION || requestCode == CAPTURE_IMAGE) && resultCode == Activity.RESULT_OK) {
-                uiHelper.showProgressCard("Sending...");
-            }
-        } catch (Exception e) {
-            if(BuildConfig.DEBUG) e.printStackTrace();
         }
 
         /* Pick photo logic*/
@@ -499,6 +488,12 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         }
 
         return;
+    }
+
+    private void sendingMessageToast(){
+        // Just to be sure it's initialized.
+        uiHelper.initCardToast();
+        uiHelper.showProgressCard("Sending...");
     }
 
     public void onSavedInstanceBundle(Bundle outState){
@@ -653,7 +648,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
      * @param filePath the path to the image file that need to be sent.*/
     public  void sendImageMessage(final String filePath){
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
-        
+        sendingMessageToast();
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithImage(filePath, thread.getId())
                 .then(new DoneCallback<BMessage>() {
                     @Override
@@ -681,6 +676,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public void sendLocationMessage(final Intent data){
+        sendingMessageToast();
         BNetworkManager.sharedManager().getNetworkAdapter().sendMessageWithLocation(data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null),
                 new LatLng(data.getDoubleExtra(ChatSDKLocationActivity.LANITUDE, 0), data.getDoubleExtra(ChatSDKLocationActivity.LONGITUDE, 0)),
                 thread.getId())
