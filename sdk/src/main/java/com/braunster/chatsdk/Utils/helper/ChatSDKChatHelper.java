@@ -360,10 +360,6 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     }
 
     public int handleResult(int requestCode, int resultCode, Intent data) {
-        return handleResult(true, requestCode, resultCode, data);
-    }
-
-    public int handleResult(boolean send, int requestCode, int resultCode, Intent data) {
         if (DEBUG) Timber.v("onActivityResult");
         
         if (!hasActivity())
@@ -378,7 +374,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         uiHelper.initCardToast();
 
         try {
-            if (send && (requestCode == PHOTO_PICKER_ID || requestCode == PICK_LOCATION || requestCode == CAPTURE_IMAGE) && resultCode == Activity.RESULT_OK) {
+            if ((requestCode == PHOTO_PICKER_ID || requestCode == PICK_LOCATION || requestCode == CAPTURE_IMAGE) && resultCode == Activity.RESULT_OK) {
                 uiHelper.showProgressCard("Sending...");
             }
         } catch (Exception e) {
@@ -486,14 +482,8 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                 if (DEBUG)
                     Timber.d("Zoom level: %s", data.getFloatExtra(ChatSDKLocationActivity.ZOOM, 0.0f));
                 // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
-                if (send)
-                {
-                    sendLocationMessage(data);
-                }
-                else
-                {
-                    selectedFilePath = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
-                }
+
+                sendLocationMessage(data);
 
                 return HANDLED;
             }
@@ -503,10 +493,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         {
 
             if (resultCode == Activity.RESULT_OK) {
-
-                if (send)
-                    sendImageMessage(selectedFilePath);
-
+                sendImageMessage(selectedFilePath);
                 return HANDLED;
             }
         }
