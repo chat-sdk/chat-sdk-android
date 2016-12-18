@@ -580,7 +580,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     
     @Override
     public void onSendPressed(String text) {
-        sentMessageWithText();
+        sendMessageWithText();
     }
 
     @Override
@@ -641,15 +641,15 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
 
 
     /** Send text message logic.*/
-    public  void sentMessageWithText(){
-        sentMessageWithText(messageBoxView.getMessageText(), true);
+    public  void sendMessageWithText(){
+        sendMessageWithText(messageBoxView.getMessageText(), true);
     }
 
     /** Send text message
      * FIXME the messages does not added to the row anymore because we are getting the date from firebase server. Need to find a different way, Maybe new item mode for the row that wont have any date.
      * @param text the text to send.
      * @param clearEditText if true clear the message edit text.*/
-    public  void sentMessageWithText(String text, boolean clearEditText){
+    public  void sendMessageWithText(String text, boolean clearEditText){
         if (DEBUG) Timber.v("sendTextMessage, Text: %s, Clear: %s", text, String.valueOf(clearEditText));
 
         if (StringUtils.isEmpty(text) || StringUtils.isBlank(text))
@@ -800,7 +800,7 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             // removing the key so we wont send again,
             intent.getExtras().remove(SHARED_TEXT);
 
-            sentMessageWithText(text, false);
+            sendMessageWithText(text, false);
 
             intent.removeExtra(SHARED_TEXT);
 
