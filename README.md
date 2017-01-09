@@ -43,10 +43,10 @@ You can easily enable instant messaging for your app in only a few minutes by ad
 2. Download the Android ChatSDK and unzip it
 3. Import the project modules from the ChatSDK to your project
   We need to import the following modules `country_picker`, `facebook`, `firebase_plugin`, generator and sdk. To do this open project and click **file** -> **new** -> **import module**
-  
-  ![screenshot](http://img.chatcatapp.com/chatsdk/android_screen_1.png)
-  
+    
   Next click on the far right button to browse your directories. Navigate to where you have saved the ChatSDK project and select the above dependancies. You should be able to import all of them at once, if you can't then repeat the process to add all the modules.
+
+  ![screenshot](http://img.chatcatapp.com/chatsdk/android_screen_1.png)
 
 4. Add the SDK versions  
 Now you will see that gradle cannot be sync because it missing some parameters. Go to `gradle.properties` in the root of your project and add this to allow us to set higher build versions for the entire SDK all at once:
