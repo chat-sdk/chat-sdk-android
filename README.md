@@ -1,5 +1,5 @@
 #Chat SDK for Android
-
+###Open Source Messaging framework for Android
 
 <img target="_blank" src="http://img.chatcatapp.com/chatsdk/template_1.png" />
 
@@ -45,6 +45,7 @@ You can easily enable instant messaging for your app in only a few minutes by ad
   We need to import the following modules `country_picker`, `facebook`, `firebase_plugin`, generator and sdk. To do this open project and click **file** -> **new** -> **import module**
   
   <img target="_blank" src="http://img.chatcatapp.com/chatsdk/android_screen_1.png" />
+  
   
   Next click on the far right button to browse your directories. Navigate to where you have saved the ChatSDK project and select the above dependancies. You should be able to import all of them at once, if you can't then repeat the process to add all the modules.
 
