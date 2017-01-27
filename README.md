@@ -55,10 +55,10 @@ Now you will see that gradle cannot be sync because it missing some parameters. 
 
   ```
   MIN_SDK = 15
-  ANDROID_BUILD_SDK_VERSION = 21
+  ANDROID_BUILD_SDK_VERSION = 23
   ANDROID_BUILD_TOOLS_VERSION = 21.1.0
-  ANDROID_BUILD_TARGET_SDK_VERSION = 21
-  ANDROID_COMPILE_SDK_VERSION = 21
+  ANDROID_BUILD_TARGET_SDK_VERSION = 23
+  ANDROID_COMPILE_SDK_VERSION = 23
   ```
   >**Note:**  
   >You can check your Android Studio build tools version by opening **Project Structure** -> **App (under modules)** -> **Build Tools Version**. These two values should be the same.  
