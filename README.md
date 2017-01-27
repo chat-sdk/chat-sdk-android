@@ -60,6 +60,9 @@ Now you will see that gradle cannot be sync because it missing some parameters. 
   ANDROID_BUILD_TARGET_SDK_VERSION = 21
   ANDROID_COMPILE_SDK_VERSION = 21
   ```
+  >**Note:**  
+  >You can check your Android Studio build tools version by opening Project Structure -> App (under modules) -> Build Tools Version. These two values should be the same.  
+  
 5. Add `Google-Services` to your gradle file  
 Finally you need to add the following code to your project's 'build.gradle' file. Ensure the repositories contains the following:
 
