@@ -106,6 +106,8 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract void setUserOnline();
 
+    public abstract void setUserOffline();
+
     public abstract void logout();
 
     /*** Send a request to the server to get the online status of the user. */

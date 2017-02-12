@@ -326,8 +326,21 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     }
 
     @Override
+    public void setUserOffline() {
+        BUser current = currentUserModel();
+        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
+        {
+            currentUser().goOffline();
+            updateLastOnline();
+        }
+
+    }
+
+    @Override
     public void goOffline() {
         DatabaseReference.goOffline();
+
+        setUserOffline();
     }
 
     @Override
@@ -1076,9 +1089,9 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         pushUser();
     }
-    
+
     private void updateLastOnline(){
         // FIXME to implement?
-        
+
     }
 }

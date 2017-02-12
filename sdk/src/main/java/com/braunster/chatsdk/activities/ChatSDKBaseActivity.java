@@ -228,6 +228,18 @@ public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        getNetworkAdapter().setUserOnline();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getNetworkAdapter().setUserOffline();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
