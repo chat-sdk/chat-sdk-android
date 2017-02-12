@@ -238,6 +238,10 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                                     authenticateWithMap(details).done(new DoneCallback<Object>() {
                                         @Override
                                         public void onDone(Object o) {
+                                            if(currentUserModel() != null) {
+                                                pushUser();
+                                                updateIndexForUser(currentUserModel());
+                                            }
                                             deferred.resolve(o);
                                         }
                                     }).fail(new FailCallback<BError>() {
