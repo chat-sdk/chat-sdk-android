@@ -1,15 +1,15 @@
 #Chat SDK for Android
 ###Open Source Messaging framework for Android
 
-<img target="_blank" src="http://img.chatcatapp.com/chatsdk/template_1.png" />
+<img target="_blank" src="http://img.chatcatapp.com/Chat SDK/template_1.png" />
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
-- **Open Source.** The Chat SDK is open source under the MIT license.
+- **Open Source.** The Chat SDK is open source under the MIT license
 - **Full data control.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Firebase** Powered by Google Firebase
-- **[Download the APK](http://img.chatcatapp.com/APK/ChatSDKAndroid.apk)** to try out the Firebase Chat SDK for Android now!
+- **[Download the APK](http://img.chatcatapp.com/APK/Chat SDKAndroid.apk)** to try out the Firebase Chat SDK for Android now!
 
 ##Features
 
@@ -35,20 +35,19 @@ We're very excited about the project and we're looking for other people to get i
 + Help us update the library to use Swift
 + Helping to write adapters for other services such as Layer, Pusher, Pubnub etc... 
 
-If you're interested please email me at **ben@chatsdk.co**.
+If you're interested please email me at **ben@Chat SDK.co**.
 
-##Adding ChatSDK to an existing project
+##Adding Chat SDK to an existing project
 
-You can easily enable instant messaging for your app in only a few minutes by adding the ChatSDK to your existing project:
+You can easily enable instant messaging for your app in only a few minutes by adding the Chat SDK to your existing project:
 
 1. Open your existing project or create a new one
-2. Download the Android ChatSDK and unzip it
-3. Import the project modules from the ChatSDK to your project
-  We need to import the following modules `country_picker`, `facebook`, `firebase_plugin`, generator and sdk. To do this open project and click **file** -> **new** -> **import module**
+2. Download the Android Chat SDK and unzip it
+3. Import the project modules from the Chat SDK to your project. We need to import the following modules `country_picker`, `facebook`, `firebase_plugin`, generator and sdk. To do this, open project and click **file** -> **new** -> **import module**
     
-  Next click on the far right button to browse your directories. Navigate to where you have saved the ChatSDK project and select the above dependancies. You should be able to import all of them at once, if you can't then repeat the process to add all the modules.
+  Next, click on the far right button to browse your directories. Navigate to where you have saved the Chat SDK project and select the above dependencies. You should be able to import all of them at once, if you can't, repeat the process to add all the modules.
 
-  ![screenshot](http://img.chatcatapp.com/chatsdk/android_screen_1.png)
+  ![screenshot](http://img.chatcatapp.com/Chat SDK/android_screen_1.png)
 
 4. Add the SDK versions  
 Now you will see that gradle cannot be sync because it missing some parameters. Go to `gradle.properties` in the root of your project and add this to allow us to set higher build versions for the entire SDK all at once:
@@ -61,7 +60,7 @@ Now you will see that gradle cannot be sync because it missing some parameters. 
   ANDROID_COMPILE_SDK_VERSION = 21
   ```
 5. Add `Google-Services` to your gradle file  
-Finally you need to add the following code to your project's 'build.gradle' file. Ensure the repositories contains the following:
+Finally you need to add the following code to your project's 'build.gradle' file. Ensure the repositories contain the following:
 
   ```
   repositories {
@@ -80,15 +79,15 @@ Finally you need to add the following code to your project's 'build.gradle' file
   >**Note:**  
   >It is worth checking the latest version for these. The ones displayed are the correct ones on time of writing and will depreciate when new versions are released.
 
-##Configuring ChatSDK
-ChatSDK relies on serveral different services to be fully operational. Firebase deals with storing the user data, notifying the app when the data has changed and storing the files for the audio, video and image messages. Backendless takes care of push notifications on the app. Facebook and Twitter can also be used if you want social media login for your app. ChatSDK comes preconfigured for all these types on our test accounts meaning you will need to create your own before you can get fully up and running.
+##Configuring Chat SDK
+Chat SDK relies on serveral different services to be fully operational. Firebase deals with storing the user data, notifying the app when the data has changed and storing the files for the audio, video and image messages. Backendless takes care of push notifications on the app. Facebook and Twitter can also be used if you want social media login for your app. Chat SDK comes preconfigured for all these types on our test accounts meaning you will need to create your own before you can get fully up and running.
 
 ###Firebase
 1. Go to the Firebase website and create an account if you do not already have one
 2. Create a new project on the Firebase dashboard
 3. Click on this project and then click database in the left hand menu
 4. Copy the url from near the top of the screen, it shuold look something like this: 'https://yourappname.firebaseio.com/'
-5. In the ChatSDK Android open 'com.braunster.chatsdk.network.BDefines.java' and copy your path in place of the 'ServerUrl' and also add it to your Firebas storage path. Finally set your Firebase root path.
+5. In the Chat SDK Android open 'com.braunster.Chat SDK.network.BDefines.java' and copy your path in place of the 'ServerUrl' and also add it to your Firebas storage path. Finally set your Firebase root path
 
 >**IMPORTANT**  
 >The base URL path mush have a trailing slash. If you miss off the trailing slash the SDK won't be able to process the URLs properly and messages may not be updated.
@@ -105,7 +104,7 @@ public static String FirebaseStoragePath = "gs://your-firebase-name.appspot.com"
 >For the Firebase storage path you need to only add the Firebase name you have set followed by appspot.com.
 
 >**NOTE:**  
->The root path of the app allows you to set custom branches for a single project. Depending on the string set will determine where the data is stored. This means you can set a different root path for your production and testing phases meaning that the data will be completely seperatede from each other but stored in the same place to view.
+>The root path of the app allows you to set custom branches for a single project. The value of the string that is set, will determine where the data is stored. This means you can set a different root path for your production and testing phases meaning that the data will be completely seperatede from each other but stored in the same place to view.
 
 Next you need to add your app to your Firebase project. Go to the Firebase dashboard. 
 
@@ -118,9 +117,9 @@ Next you need to add your app to your Firebase project. Go to the Firebase dashb
 You should now add this JSON file to your sdk file.
 
 >**IMPORTANT:**  
->You need to go through this process twice. The first time you need to add the package name of your app (to the sdk file). The second time you need to add the following package name: **com.braunster.androidchatsdk.firebaseplugin**
+>You need to go through this process twice. The first time you need to add the package name of your app (to the sdk file). The second time you need to add the following package name: **com.braunster.androidChat SDK.firebaseplugin**
 
-This JSON needs to be added into your `firebase_plugin` folder. If you do not add this then the ChatSDK won't compile properly. 
+This JSON needs to be added into your `firebase_plugin` folder. If you do not add this then the Chat SDK won't compile properly. 
 
 ####Security Rules
 
@@ -137,17 +136,17 @@ Firebase allows users to login with many different account (Email, Anonymous, Fa
 
 ###Facebook setup
 
-1. Navigate to the Facebook developer account page.
+1. Navigate to the Facebook developer account page
 
-2. If you don't already have an account create one. Then click **Apps** -> **Create new app**. On the new app page click **Settings**. Click **Add Platform** and choose Android.
+2. If you don't already have an account create one. Then click **Apps** -> **Create new app**. On the new app page click **Settings**. Click **Add Platform** and choose Android
 
-3. Fill in a display name and a contact email. Then you need to set the app key hash. To get the app hash, you can use the `Utils.getSHA`. You will also need to set your app package name and class name.
+3. Fill in a display name and a contact email. Then you need to set the app key hash. To get the app hash, you can use the `Utils.getSHA`. You will also need to set your app package name and class name
 
-4. Then click **Status & Review** and set the switch to **Yes** this will allow other people to sign on to your app.
+4. Then click **Status & Review** and set the switch to **Yes** this will allow other people to sign on to your app
 
-5. Now go to the `sdk` string resource file and edit the `facebook_id` item setting it to your Facebook app id. You can also create a new item in your string resource file and it will override the original value.
+5. Now go to the `sdk` string resource file and edit the `facebook_id` item setting it to your Facebook app id. You can also create a new item in your string resource file and it will override the original value
 
-6. Navigate back to the Facebook developers page and in the left hand menu click the **+ Add Product button**.
+6. Navigate back to the Facebook developers page and in the left hand menu click the **+ Add Product button**
 
 7. Choose Facebook login
 
@@ -155,16 +154,16 @@ Firebase allows users to login with many different account (Email, Anonymous, Fa
 
 9. Click save changes
 
-10. Now the app is setup but you still need to link the Facebook account to Firebase and your app.
+10. Now the app is setup but you still need to link the Facebook account to Firebase and your app
 
-11. Go back to the Firebase dashboard and click **Login & Auth**. Click the Facebook tab and tick the **Enabled** box. Then copy paste your Facebook **App Id** and **App Secret** into the boxes provided.
+11. Go back to the Firebase dashboard and click **Login & Auth**. Click the Facebook tab and tick the **Enabled** box. Then copy paste your Facebook **App Id** and **App Secret** into the boxes provided
 
 ###Backendless Push Notifictions
 
-1. If you haven't already got a [Backendless account](https://backendless.com/) then go to the Backendless website and create one.
+1. If you haven't already got a [Backendless account](https://backendless.com/) then go to the Backendless website and create one
 2. Create a new app on the dashboard and click it
 3. Click settings in the top menu to bring up your app keys
-4. Navigate to your strings.xml file and add your AppID, App Secret and Version.
+4. Navigate to your strings.xml file and add your AppID, App Secret and Version
 
 ```
 <string name="backendless_app_id">1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
@@ -172,7 +171,7 @@ Firebase allows users to login with many different account (Email, Anonymous, Fa
 <string name="backendless_app_version">v1</string>
 ```
 
-All the code for Push Notifications is already included in the ChatSDK. Getting them working only requires a small amount of configuration. For help regarding this you can take a look at the [Backendless guide](https://backendless.com/documentation/messaging/android/messaging_push_notification_setup_androi.htm).
+All the code for Push Notifications is already included in the Chat SDK. Getting them working only requires a small amount of configuration. For help regarding this, you can take a look at the [Backendless guide](https://backendless.com/documentation/messaging/android/messaging_push_notification_setup_androi.htm).
 
 >**NOTE:**  
 >Some of the steps in this tutorial include adding code to the app, these steps should be unnecessary as they have already been added to the project.
@@ -184,7 +183,7 @@ All the code for Push Notifications is already included in the ChatSDK. Getting 
 
 Copy the `permission.MAPS_RECEIVE` declared in the **app** manifest. Notice that you need to replace `com.braunster` with your package name.
 
-After that, you will need to add you API key in the manifest. After that Google Play services are added as a dependency by the SDK. Once you have your api key, just past it in the manifest. Notice that you will have to sign you app to get the key.
+After that, you will need to add your API key in the manifest. After that Google Play services are added as a dependency by the SDK. Once you have your api key, just paste it in the manifest. Notice that you will have to sign you app to get the key.
 
 ```
 <!-- Google Maps Metadata-->
@@ -193,7 +192,7 @@ After that, you will need to add you API key in the manifest. After that Google 
     android:value="YOUR API KEY"/>
 ```
 
-There is more then one way to do it, This is how i do it but you can do it your own way.
+There is more than one way to do it, this is how I do it but you can do it your own way.
 
 ```
 signingConfigs {
@@ -214,17 +213,17 @@ signingConfigs {
 }
 ```
 
-If you are unable to see the map you may have authentication problem, You need to add the package name and SHA to the credentials in your developer console.
+If you are unable to see the map you may have an authentication problem, You need to add the package name and SHA to the credentials in your developer console.
 
 ##Running the app
 
-Add Dependency to the firebase module this goes below to the android brackets in your **app** `build.gradle` file.
+Add the dependency to the firebase module. This goes below to the android brackets in your **app** `build.gradle` file.
 
 ```
 @Override
 public void onCreate() {
     super.onCreate();
-    ChatSDKUiHelper.initDefault(); // This is used for the app custom toast and activity transition
+    Chat SDKUiHelper.initDefault(); // This is used for the app custom toast and activity transition
 
     BNetworkManager.init(getApplicationContext()); // Init the network manager        
 
@@ -233,14 +232,14 @@ public void onCreate() {
 }
 ```
 
-If the project is fresh and you want to open the SDK default login activity and see the app flow you need to set the SDK login activity as your launcher activity in the application manifest. You can do it by replacing your main activity with this.
+If the project is fresh and you want to open the SDK default login activity and see the app flow, you need to set the SDK login activity as your launcher activity in the application manifest. You can do it by replacing your main activity with this.
 
 ```
 <activity
-       android:name="com.braunster.chatsdk.activities.ChatSDKLoginActivity"
+       android:name="com.braunster.Chat SDK.activities.Chat SDKLoginActivity"
        android:label="@string/app_name"
        android:screenOrientation="portrait"
-       android:theme="@style/ChatSDKTheme"
+       android:theme="@style/Chat SDKTheme"
        android:windowSoftInputMode="stateHidden|adjustPan"
 >
     <intent-filter>
@@ -260,8 +259,6 @@ packagingOptions {
 ```
 
 to your build.gradle file under your **app** module. It should be inside the **android** brackets.
-
-To get the Firebase version of the app working several steps are necessary:
 
 Now the app should be ready to go!
 
