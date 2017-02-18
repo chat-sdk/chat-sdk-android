@@ -43,6 +43,7 @@ We're very excited about the project and we're looking for other people to get i
 + Fixing bugs
 + Writing documentation
 + Improving the user interface
++ Help us update the library to use Swift
 + Helping to write adapters for other services such as Layer, Pusher, Pubnub etc... 
 
 If you're interested please email me at [**team@chatsdk.co**](mailto:team@chatsdk.co).
@@ -322,7 +323,8 @@ import android.content.Intent;
 Next add the Chat SDK setup code to your `onCreate` method. 
 
 ```
-// This is used for the app custom toast and activity transitionChatSDKUiHelper.initDefault(); 
+// This is used for the app custom toast and activity transition 
+ChatSDKUiHelper.initDefault(); 
 
 // Init the network manager
 BNetworkManager.init(getApplicationContext()); 
