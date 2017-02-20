@@ -152,7 +152,7 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
         if (DEBUG) Timber.v("authenticateWithMap, KeyType: %s", details.get(BDefines.Prefs.LoginTypeKey));
 
         final Deferred<Object, BError, Void> deferred = new DeferredObject<>();
-        
+
         if (isAuthing())
         {
             if (DEBUG) Timber.d("Already Authing!, Status: %s", authingStatus.name());
@@ -238,10 +238,6 @@ public abstract class BFirebaseNetworkAdapter extends AbstractNetworkAdapter {
                                     authenticateWithMap(details).done(new DoneCallback<Object>() {
                                         @Override
                                         public void onDone(Object o) {
-                                            if(currentUserModel() != null) {
-                                                pushUser();
-                                                updateIndexForUser(currentUserModel());
-                                            }
                                             deferred.resolve(o);
                                         }
                                     }).fail(new FailCallback<BError>() {

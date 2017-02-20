@@ -90,6 +90,13 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin(){
+        // Indexing the user.
+        BUser currentUser = getNetworkAdapter().currentUserModel();
+        if(getNetworkAdapter().currentUserModel() != null) {
+            getNetworkAdapter().pushUser();
+            getNetworkAdapter().updateIndexForUser(currentUser);
+        }
+
         Intent logout = new Intent(ChatSDKMainActivity.Action_clear_data);
         sendBroadcast(logout);
 
@@ -134,8 +141,6 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                 .authenticateWithMap(data).done(new DoneCallback<Object>() {
             @Override
             public void onDone(Object o) {
-                // Indexing the user.
-                getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUserModel());
                 afterLogin();
             }
         }).fail(new FailCallback<BError>() {
@@ -184,8 +189,6 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                 dialog.dismiss();
 
                 showProgDialog(getString(R.string.authenticating));
-
-                getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUserModel());
 
                 afterLogin();
             }
@@ -282,7 +285,6 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             @Override
             public void onDone(Object o) {
                 if (DEBUG) Timber.i("Connected to facebook");
-                getNetworkAdapter().updateIndexForUser(getNetworkAdapter().currentUserModel());
                 afterLogin();
             }
         }).fail(new FailCallback<BError>() {
