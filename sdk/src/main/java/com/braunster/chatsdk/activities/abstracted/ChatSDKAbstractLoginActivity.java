@@ -94,7 +94,6 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         BUser currentUser = getNetworkAdapter().currentUserModel();
         if(getNetworkAdapter().currentUserModel() != null) {
             getNetworkAdapter().pushUser();
-            getNetworkAdapter().updateIndexForUser(currentUser);
         }
 
         Intent logout = new Intent(ChatSDKMainActivity.Action_clear_data);

@@ -393,8 +393,6 @@ public abstract class AbstractNetworkAdapter {
     
     public abstract Promise<List<BUser>, BError, Integer> usersForIndex(String index, String value);
 
-    public abstract Promise<Void, BError, Void>  updateIndexForUser(BUser user);
-
     public static String processForQuery(String query){
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
     }
