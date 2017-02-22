@@ -1,7 +1,7 @@
 #Chat SDK for Android
 ###Open Source Messaging framework for Android
 
-<img target="_blank" src="http://img.chatcatapp.com/Chat SDK/template_1.png" />
+<img target="_blank" src="http://img.chatcatapp.com/chatsdk/template_1.png" />
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full data control.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Firebase** Powered by Google Firebase
-- **[Download the APK](http://img.chatcatapp.com/APK/Chat SDKAndroid.apk)** to try out the Firebase Chat SDK for Android now!
+- **[Download the APK](https://drive.google.com/open?id=0B5yzhtuipbsrYkl1Wkh2WjMwOEE)** to try out the Firebase Chat SDK for Android now! 
 
 ##Features
 
