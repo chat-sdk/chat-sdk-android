@@ -59,7 +59,7 @@ This project uses the MIT license which is a commercially friendly open source l
 
 ##Wiki
 
-We have a lot more information on our [**Wiki**](https://github.com/chat-sdk/chat-sdk-ios/wiki) so make sure to check it out! 
+We have a lot more information on our [**Wiki**](https://github.com/chat-sdk/chat-sdk-android/wiki) so make sure to check it out! 
 
 ##Running the Chat SDK
 
