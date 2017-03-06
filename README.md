@@ -377,4 +377,4 @@ The final step is to make the login activity available by adding it to our app m
 
 Now run the app and you will see the Chat SDK login screen open when the app launches. 
 
-If you have any problems Firebase offer good [documentation](https://www.firebase.com/docs/android/quickstart.html) and Facebook have an [integration guide](https://developers.facebook.com/docs/android/getting-started).
+If you have any problems Firebase offer good [documentation](https://www.firebase.com/docs/android/quickstart.html) and Facebook has an [integration guide](https://developers.facebook.com/docs/android/getting-started).
