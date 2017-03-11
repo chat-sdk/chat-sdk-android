@@ -169,10 +169,12 @@ public abstract class AbstractNetworkAdapter {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                deferred.notify(message);
+                if(!deferred.isResolved()){
+                    deferred.notify(message);
+                }
             }
         }, 100);
-        
+
         return deferred.promise();
     }
 
