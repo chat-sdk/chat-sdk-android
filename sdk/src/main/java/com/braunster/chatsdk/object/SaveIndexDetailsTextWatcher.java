@@ -80,7 +80,6 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
             user.setMetadataString(metaKey, editable.toString());
 
             BNetworkManager.sharedManager().getNetworkAdapter().pushUser();
-            BNetworkManager.sharedManager().getNetworkAdapter().updateIndexForUser(user);
         }
     };
 

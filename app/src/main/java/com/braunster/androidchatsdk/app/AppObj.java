@@ -25,10 +25,8 @@ public class AppObj extends MultiDexApplication {
         
         MultiDex.install(this);
 
-        ChatSDKUiHelper.initDefault();
 
-        // Android chat SDK init!
-        BNetworkManager.init(getApplicationContext());
+
 
         // Logging tool.
         if (BuildConfig.DEBUG) {
@@ -36,10 +34,13 @@ public class AppObj extends MultiDexApplication {
         } else {
             Timber.plant(new Timber.HollowTree());
         }
-        
+
+
+        // Android chat SDK init!
+        ChatSDKUiHelper.initDefault();
+        BNetworkManager.init(getApplicationContext());
         // Adapter init.
         BChatcatNetworkAdapter adapter = new BChatcatNetworkAdapter(getApplicationContext());
-
         BNetworkManager.sharedManager().setNetworkAdapter(adapter);
     }
 }

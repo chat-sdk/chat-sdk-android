@@ -143,9 +143,5 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
         this.enableActionBarItems = enableActionBarItems;
     }
 
-    protected void indexUser(final BUser user){
-        getNetworkAdapter().updateIndexForUser(user);
-    }
-
 
 }

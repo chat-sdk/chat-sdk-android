@@ -106,6 +106,8 @@ public abstract class AbstractNetworkAdapter {
 
     public abstract void setUserOnline();
 
+    public abstract void setUserOffline();
+
     public abstract void logout();
 
     /*** Send a request to the server to get the online status of the user. */
@@ -167,10 +169,12 @@ public abstract class AbstractNetworkAdapter {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                deferred.notify(message);
+                if(!deferred.isResolved()){
+                    deferred.notify(message);
+                }
             }
         }, 100);
-        
+
         return deferred.promise();
     }
 
@@ -390,8 +394,6 @@ public abstract class AbstractNetworkAdapter {
 
     
     public abstract Promise<List<BUser>, BError, Integer> usersForIndex(String index, String value);
-
-    public abstract Promise<Void, BError, Void>  updateIndexForUser(BUser user);
 
     public static String processForQuery(String query){
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();

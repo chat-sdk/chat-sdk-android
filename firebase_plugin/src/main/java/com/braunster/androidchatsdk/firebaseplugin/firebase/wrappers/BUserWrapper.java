@@ -306,6 +306,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                 else deferred.reject(getFirebaseError(firebaseError));
             }
         });
+
+        // index should be updated whenever the user is pushed
+        updateIndex();
         
         return deferred.promise();
     }

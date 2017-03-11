@@ -114,7 +114,6 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
             // Doint a once() on the user to push its details to firebase.
             final BUserWrapper wrapper = BUserWrapper.initWithAuthData(authData);
-            
             wrapper.once().then(new DoneCallback<BUser>() {
                 @Override
                 public void onDone(BUser bUser) {
@@ -131,7 +130,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
                     }
                     
                     goOnline();
-                    
+
                     wrapper.push().done(new DoneCallback<BUser>() {
                         @Override
                         public void onDone(BUser u) {
@@ -326,8 +325,21 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
     }
 
     @Override
+    public void setUserOffline() {
+        BUser current = currentUserModel();
+        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
+        {
+            currentUser().goOffline();
+            updateLastOnline();
+        }
+
+    }
+
+    @Override
     public void goOffline() {
         DatabaseReference.goOffline();
+
+        setUserOffline();
     }
 
     @Override
@@ -520,13 +532,7 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
         
         return deferred.promise();
     }
-
-
-    @Override
-    public Promise<Void, BError, Void> updateIndexForUser(BUser user){
-        return BUserWrapper.initWithModel(user).updateIndex();
-    }
-
+    
     @Override
     public Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread) {
         return new BThreadWrapper(thread).loadMoreMessages(BFirebaseDefines.NumberOfMessagesPerBatch);
@@ -1076,9 +1082,9 @@ public class BChatcatNetworkAdapter extends BFirebaseNetworkAdapter {
 
         pushUser();
     }
-    
+
     private void updateLastOnline(){
         // FIXME to implement?
-        
+
     }
 }
