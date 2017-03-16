@@ -40,7 +40,7 @@
             android:layout_gravity="center"/>
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_margin="5dp"
         android:layout_height="wrap_content">
@@ -51,29 +51,37 @@
             android:src="@drawable/ic_profile"
             style="@style/CircleIconStyle"
             android:id="@+id/chat_sdk_admin_image_view"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             app:border_color="@android:color/black"
             android:layout_gravity="center"/>
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TextViewStyle"
             android:text="Admin name"
             android:layout_marginLeft="3dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textSize="15sp"
+            android:layout_toRightOf="@id/chat_sdk_admin_image_view"
+            android:layout_toEndOf="@id/chat_sdk_admin_image_view"
             android:id="@+id/chat_sdk_txt_admin_name"/>
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="Admin"
             android:layout_marginRight="3dp"
             android:textColor="@android:color/holo_red_light"
-            android:gravity="right|top"
-            android:textSize="12sp"/>
+            android:layout_below="@id/chat_sdk_txt_admin_name"
+            android:layout_toRightOf="@id/chat_sdk_admin_image_view"
+            android:layout_toEndOf="@id/chat_sdk_admin_image_view"
+            android:paddingStart="8dp"
+            android:paddingLeft="8dp"
+            android:textSize="15sp"
+            />
 
-        </LinearLayout>
+        </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
