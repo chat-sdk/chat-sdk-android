@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -49,7 +50,7 @@ import timber.log.Timber;
 /**
  * Created by braunster on 18/06/14.
  */
-public class ChatSDKBaseActivity extends Activity implements ChatSDKBaseActivityInterface {
+public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBaseActivityInterface {
 
     private static final String TAG = ChatSDKBaseActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.BaseActivity;

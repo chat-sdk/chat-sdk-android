@@ -19,12 +19,12 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.activities.ChatSDKEditProfileActivity;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.fragments.abstracted.ChatSDKAbstractProfileFragment;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.countrypicker.Country;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -137,7 +137,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
         // Loading the user country icon, If not exist we will hide the icon.
         if (StringUtils.isNotEmpty(country))
         {
-            ((ImageView) mainView.findViewById(R.id.chat_sdk_country_ic)).setImageResource(Country.getResId(country));
+            ((ImageView) mainView.findViewById(R.id.chat_sdk_country_ic)).setImageResource(ChatSDKEditProfileActivity.getResId(country));
             mainView.findViewById(R.id.chat_sdk_country_ic).setVisibility(View.VISIBLE);
         }
         else mainView.findViewById(R.id.chat_sdk_country_ic).setVisibility(View.INVISIBLE);

@@ -26,12 +26,13 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.countrypicker.Country;
-import com.countrypicker.CountryPicker;
-import com.countrypicker.CountryPickerListener;
+import com.mukesh.countrypicker.fragments.CountryPicker;
+import com.mukesh.countrypicker.interfaces.CountryPickerListener;
+import com.mukesh.countrypicker.models.Country;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -125,9 +126,38 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         if (StringUtils.isNotEmpty(status))
             etStatus.setText(status);
     }
-    
+
+
+    /**
+     * The drawable image name has the format "flag_$countryCode". We need to
+     * load the drawable dynamically from country code. Code from
+     * http://stackoverflow.com/
+     * questions/3042961/how-can-i-get-the-resource-id-of
+     * -an-image-if-i-know-its-name
+     *
+     * @param countryCode
+     * @return
+     */
+    public static int getResId(String countryCode) {
+        String drawableName = "flag_"
+                + countryCode.toLowerCase(Locale.ENGLISH);
+
+        if (BuildConfig.DEBUG) Log.v(Country.class.getSimpleName(), String.format("getResId, Name: %s", drawableName));
+
+        try {
+            Class<R.drawable> res = R.drawable.class;
+            Field field = res.getField(drawableName);
+            int drawableId = field.getInt(null);
+            return drawableId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (BuildConfig.DEBUG) Log.e(Country.class.getSimpleName(), "cant get the drawable id for country code");
+        }
+        return -1;
+    }
+
     private void loadCountryFlag(String countryCode){
-        imageCountryFlag.setImageResource(Country.getResId(countryCode));
+        imageCountryFlag.setImageResource(this.getResId(countryCode));
         imageCountryFlag.setVisibility(View.VISIBLE);
     }
 
@@ -279,14 +309,14 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
             picker.setListener(new CountryPickerListener() {
                 @Override
-                public void onSelectCountry(String name, String code) {
+                public void onSelectCountry(String name, String code, String dialCode, int resId) {
                     getNetworkAdapter().currentUserModel().setMetadataString(BDefines.Keys.BCountry, code);
                     loadCountryFlag(code);
                     picker.dismiss();
                 }
             });
 
-            picker.show(getFragmentManager(), "");
+            picker.show(this.getSupportFragmentManager(), "");
         }
     }
 }
