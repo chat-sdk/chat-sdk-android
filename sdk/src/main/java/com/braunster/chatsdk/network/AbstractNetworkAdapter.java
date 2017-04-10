@@ -10,52 +10,25 @@ package com.braunster.chatsdk.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.sorter.ThreadsItemSorter;
-import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
-import com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.object.BError;
-import com.braunster.chatsdk.object.SaveImageProgress;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.ProgressCallback;
 import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 import static com.braunster.chatsdk.network.BDefines.Prefs.AuthenticationID;
 
 /**
