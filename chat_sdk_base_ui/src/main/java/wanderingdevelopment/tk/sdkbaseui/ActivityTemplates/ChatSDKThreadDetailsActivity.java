@@ -7,8 +7,7 @@
 
 package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -225,7 +224,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
     }
 
     protected void initActionBar(){
-        ActionBar ab = getActionBar();
+        ActionBar ab = getSupportActionBar();
         if (ab!=null)
         {
             ab.setTitle(getString(R.string.thread_details_activity_title));

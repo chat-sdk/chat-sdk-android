@@ -3,7 +3,7 @@
     tools:context="com.braunster.androidchatsdk.app.MainActivity">
 
     <!-- Base application theme. -->
-    <style name="ChatSDKTheme" parent="Theme.AppCompat.Light">
+    <style name="ChatSDKTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
 
         <item name="android:windowContentOverlay">@null</item>
@@ -17,9 +17,9 @@
     </style>
 
     <!--Action bar style-->
-    <style name="ActionBarStyle" parent="Theme.AppCompat.Light">
-        <item name="android:background">@color/chat_sdk_theme_color</item>
-        <item name="background">@color/chat_sdk_theme_color</item>
+    <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/sdkPrimary</item>
+        <item name="background">@color/sdkPrimary</item>
         <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
         <item name="titleTextStyle">@style/actionBarTextStyle</item>
         <item name="actionMenuTextColor">@android:color/white</item>
@@ -81,7 +81,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
         <item name="pstsShouldExpand">true</item>
-        <item name="pstsIndicatorColor">@color/chat_sdk_theme_color</item>
+        <item name="pstsIndicatorColor">@color/sdkPrimary</item>
         <item name="background">@drawable/background_tab</item>
     </style>
 

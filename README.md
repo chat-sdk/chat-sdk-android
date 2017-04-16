@@ -364,7 +364,7 @@ The final step is to make the login activity available by adding it to our app m
     android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity"
     android:label="@string/app_name"
     android:screenOrientation="portrait"
-    android:theme="@style/ChatSDKTheme"
+    android:theme="@style/SdkTheme"
     android:windowSoftInputMode="stateHidden|adjustPan"
     >
     <intent-filter>

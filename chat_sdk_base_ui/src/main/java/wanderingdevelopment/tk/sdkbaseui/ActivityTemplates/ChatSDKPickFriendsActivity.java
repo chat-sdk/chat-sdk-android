@@ -7,7 +7,7 @@
 
 package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -98,7 +98,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     }
 
     protected void initActionBar(){
-        ActionBar ab = getActionBar();
+        ActionBar ab = getSupportActionBar();
         if (ab!=null)
         {
             ab.setTitle(getString(R.string.pick_friends));

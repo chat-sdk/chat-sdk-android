@@ -10,7 +10,7 @@
         android:layout_width="5dp"
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_indicator"
-        android:background="@color/chat_sdk_theme_color"/>
+        android:background="@color/sdkPrimary"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

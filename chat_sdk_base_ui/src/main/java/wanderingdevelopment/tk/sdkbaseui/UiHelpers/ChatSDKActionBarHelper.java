@@ -8,7 +8,7 @@
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -29,7 +29,7 @@ public class ChatSDKActionBarHelper {
 
     public ChatSDKActionBarHelper(AppCompatActivity activity) {
         this.activity = activity;
-        actionBar = activity.getActionBar();
+        actionBar = activity.getSupportActionBar();
     }
 
     public ChatSDKActionBarHelper setActionBar(ActionBar actionBar) {
@@ -145,7 +145,7 @@ public class ChatSDKActionBarHelper {
         return this;
     }
 
-    public ActionBar getActionBar() {
+    public ActionBar getSupportActionBar() {
         return actionBar;
     }
 

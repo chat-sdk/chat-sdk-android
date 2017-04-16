@@ -73,7 +73,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
         if (getIntent().getAction() != null)
             action = getIntent().getAction();
 
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
     }
 

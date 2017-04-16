@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/ChatSDKTheme">
+        android:theme="@style/SdkTheme">
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_id"/>
@@ -28,7 +28,7 @@
 
         <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKMainActivity"
             android:launchMode = "singleTask"
-            android:theme="@style/ChatSDKTheme"
+            android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKPickFriendsActivity"
@@ -36,10 +36,10 @@
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLocationActivity"
-            android:theme="@style/ChatSDKTheme"/>
+            android:theme="@style/SdkTheme"/>
 
         <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKSearchActivity"
-            android:theme="@style/ChatSDKTheme">
+            android:theme="@style/SdkTheme">
             <intent-filter>
                 <action android:name="com.braunster.chatsdk.ACTION_SEARCH_AND_ADD_USERS"/>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -51,7 +51,7 @@
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKShareWithContactsActivity"
-            android:theme="@style/ChatSDKTheme"
+            android:theme="@style/SdkTheme"
             android:noHistory="true">
 
             <intent-filter>

@@ -20,7 +20,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/ChatSDKTheme"
+        android:theme="@style/SdkTheme"
         android:name=".AppObj" >
         >
 
@@ -28,7 +28,7 @@
             android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/ChatSDKTheme"
+            android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustPan"
             >
             <intent-filter>

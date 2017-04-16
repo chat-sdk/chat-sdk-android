@@ -7,7 +7,7 @@
 
 package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -151,7 +151,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
     }
 
     protected ActionBar readyActionBarToCustomView(){
-        ActionBar ab = getActionBar();
+        ActionBar ab = getSupportActionBar();
         ab.setDisplayShowHomeEnabled(false);
         ab.setDisplayShowTitleEnabled(false);
         ab.setDisplayShowCustomEnabled(true);

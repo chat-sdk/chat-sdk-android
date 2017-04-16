@@ -710,7 +710,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                     message.getStatusOrNull(),
                     user.getId(),
                     user.getThumbnailPictureURL(),
-                    String.valueOf(simpleDateFormat.format(message.getDate())),
+                    String.valueOf(simpleDateFormat.format(message.getDate().toDate())),
                     message.getText(),
                     user.getMessageColor(),
                     message.getDate().toDate().getTime(),

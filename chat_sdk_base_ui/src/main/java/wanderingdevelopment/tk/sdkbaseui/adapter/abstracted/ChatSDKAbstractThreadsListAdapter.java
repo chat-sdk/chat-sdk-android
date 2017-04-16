@@ -533,7 +533,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         break;
                 }
 
-            data[1] = simpleDateFormat.format(messages.get(0).getDate());
+            data[1] = simpleDateFormat.format(messages.get(0).getDate().toDate());
 
             return data;
         }

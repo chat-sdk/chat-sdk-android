@@ -61,8 +61,8 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         
         enableCheckOnlineOnResumed(true);
         
-        if (getActionBar() != null)
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         setContentView(R.layout.chatcat_activity_edit_profile);
         

@@ -2,9 +2,12 @@
 <resources>
     <color name="chat_sdk_shadow">#CC000000</color>
 
-    <color name="chat_sdk_theme_color">@android:color/holo_blue_dark</color>
-    <color name="chat_sdk_theme_color_dark">#06769C</color>
-    <color name="chat_sdk_theme_background">@android:color/white</color>
+    <color name="sdkPrimary">@android:color/holo_blue_dark</color>
+    <color name="sdkPrimaryDark">@android:color/holo_blue_dark</color>
+    <color name="sdkAccent">@android:color/holo_green_light</color>
+    <color name="sdkNavigationBarColor">@android:color/darker_gray</color>
+
+    <color name="sdkWindowBackground">@android:color/white</color>
 
     <color name="chat_sdk_button_login_button_color">#1c93db</color>
     <color name="chat_sdk_button_login_button_color_pressed">#1874ac</color>

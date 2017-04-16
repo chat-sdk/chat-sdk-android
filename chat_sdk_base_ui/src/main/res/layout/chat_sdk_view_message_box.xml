@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:text="@string/send"
-        android:textColor="@color/chat_sdk_theme_color"
+        android:textColor="@color/sdkPrimary"
         android:gravity="center"
         android:padding="10dp"
         android:textSize="18sp"
