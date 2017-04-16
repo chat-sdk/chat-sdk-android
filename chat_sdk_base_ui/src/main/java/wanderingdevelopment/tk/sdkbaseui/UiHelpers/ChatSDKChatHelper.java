@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import tk.wanderingdevelopment.chatsdkcore.db.BMessageDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import com.braunster.chatsdk.Utils.ImageUtils;
 import com.braunster.chatsdk.Utils.Utils;
@@ -27,7 +27,6 @@ import com.braunster.chatsdk.Utils.sorter.MessageSorter;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLocationActivity;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKMessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
@@ -41,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.ProgressCallback;
@@ -50,7 +50,6 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
-import de.greenrobot.dao.query.QueryBuilder;
 import timber.log.Timber;
 
 public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsListener, ChatMessageBoxView.MessageSendListener{
@@ -260,11 +259,11 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
         List<BMessage> list ;
 
         QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.ThreadDaoId.eq(id));
+        qb.where(BMessageDao.Properties.ThreadId.eq(id));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());
-        qb.where(BMessageDao.Properties.Sender.isNotNull());
+        qb.where(BMessageDao.Properties.SenderId.isNotNull());
 
         qb.orderDesc(BMessageDao.Properties.Date);
 

@@ -35,10 +35,10 @@ public abstract class BMessageEntity extends Entity {
         public static final int Yes = 0, No= 1;
     }
 
-    public abstract void setType(@MessageType Integer type);
+/*    public abstract void setType(@MessageType Integer type);
     
     @MessageType
-    public abstract Integer getType();
+    public abstract Integer getType();*/
     
     public abstract String color();
 

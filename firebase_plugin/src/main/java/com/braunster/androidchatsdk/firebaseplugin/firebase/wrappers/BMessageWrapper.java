@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
+import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         values.put(BDefines.Keys.BPayload, model.getText());
         values.put(BDefines.Keys.BDate, ServerValue.TIMESTAMP);
         values.put(BDefines.Keys.BType, model.getType());
-        values.put(BDefines.Keys.BUserFirebaseId, model.getBUserSender().getEntityID());
+        values.put(BDefines.Keys.BUserFirebaseId, model.getSender().getEntityID());
 
 
         return values;
@@ -83,7 +84,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         }
 
         if (value.containsKey(BDefines.Keys.BDate) && !value.get(BDefines.Keys.BDate).equals(""))
-            model.setDate( new Date( (Long) value.get(BDefines.Keys.BDate) ) );
+            model.setDate( new DateTime( (Long) value.get(BDefines.Keys.BDate) ) );
 
         if (value.containsKey(BDefines.Keys.BUserFirebaseId) && !value.get(BDefines.Keys.BUserFirebaseId).equals(""))
         {
@@ -99,7 +100,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
                 BUserWrapper.initWithModel(user).once();
             }
 
-            model.setBUserSender(user);
+            model.setSender(user);
         }
 
         // Updating the db

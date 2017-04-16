@@ -16,7 +16,6 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManage
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.UserThreadLink;
-import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -26,12 +25,14 @@ import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
 import com.google.firebase.database.DataSnapshot;
 
+import org.greenrobot.greendao.Property;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import de.greenrobot.dao.Property;
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
 public class UserAddedListener extends FirebaseGeneralEvent {
 
@@ -123,7 +124,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                         {
                             UserThreadLink data =
                                     DaoCore.fetchEntityWithProperties(UserThreadLink.class,
-                                            new Property[]{UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), bUser.getId());
+                                            new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), bUser.getId());
 
                             if (data != null)
                             {

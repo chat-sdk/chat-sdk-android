@@ -26,6 +26,7 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.jdeferred.multiple.MasterDeferredObject;
 import org.jdeferred.multiple.MasterProgress;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -365,7 +366,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                     finally {
                         if (date != null)
                         {
-                            message.setDate(new Date(date));
+                            message.setDate(new DateTime(date));
                             DaoCore.updateEntity(message);
                         }
                     }
@@ -420,7 +421,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
         else if (message.getType() == IMAGE)
             messageText = "Picture Message";
 
-        String sender = message.getBUserSender().getMetaName();
+        String sender = message.getSender().getMetaName();
         String fullText = sender + " " + messageText;
 
         JSONObject data = new JSONObject();
@@ -430,9 +431,9 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
             data.put(BDefines.Keys.CONTENT, fullText);
             data.put(BDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
             data.put(BDefines.Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
-            data.put(BDefines.Keys.MESSAGE_DATE, message.getDate().getTime());
-            data.put(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getBUserSender().getEntityID());
-            data.put(BDefines.Keys.MESSAGE_SENDER_NAME, message.getBUserSender().getMetaName());
+            data.put(BDefines.Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
+            data.put(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
+            data.put(BDefines.Keys.MESSAGE_SENDER_NAME, message.getSender().getMetaName());
             data.put(BDefines.Keys.MESSAGE_TYPE, message.getType());
             data.put(BDefines.Keys.MESSAGE_PAYLOAD, message.getText());
             //For iOS

@@ -17,8 +17,9 @@
     </style>
 
     <!--Action bar style-->
-    <style name="ActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="ActionBarStyle" parent="Theme.AppCompat.Light">
         <item name="android:background">@color/chat_sdk_theme_color</item>
+        <item name="background">@color/chat_sdk_theme_color</item>
         <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
         <item name="titleTextStyle">@style/actionBarTextStyle</item>
         <item name="actionMenuTextColor">@android:color/white</item>

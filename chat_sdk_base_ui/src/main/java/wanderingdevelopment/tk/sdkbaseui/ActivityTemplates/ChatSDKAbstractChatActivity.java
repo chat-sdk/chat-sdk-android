@@ -30,6 +30,8 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import com.braunster.chatsdk.Utils.Debug;
 
@@ -44,7 +46,6 @@ import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKMessagesListAdapter;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -415,7 +416,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 if (DEBUG) Timber.v("onMessageReceived, EntityID: %s", message.getEntityID());
 
                 // Check that the message is relevant to the current thread.
-                if (!message.getThread().getEntityID().equals(thread.getEntityID()) || message.getThreadDaoId() != thread.getId().intValue()) {
+                if (!message.getThread().getEntityID().equals(thread.getEntityID()) || message.getThreadId() != thread.getId().intValue()) {
                     return false;
                 }
 
@@ -425,7 +426,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 boolean isAdded = messagesListAdapter.addRow(message);
 
                 // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                if (message.getBUserSender().getEntityID().equals(
+                if (message.getSender().getEntityID().equals(
                         BNetworkManager.getCoreInterface().currentUserModel().getEntityID()) )
                 {
                     if (isAdded)
@@ -436,7 +437,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 }
 
                 // We check to see that this message is really a new one and not loaded from the server.
-                if (System.currentTimeMillis() - message.getDate().getTime() < 1000*60)
+                if (System.currentTimeMillis() - message.getDate().toDate().getTime() < 1000*60)
                 {
                     Vibrator v = (Vibrator) ChatSDKAbstractChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
                     // Vibrate for 500 milliseconds

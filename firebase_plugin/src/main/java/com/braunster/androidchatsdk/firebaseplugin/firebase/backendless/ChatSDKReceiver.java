@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -116,7 +117,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
 
             final Long dateLong =json.getLong(BDefines.Keys.MESSAGE_DATE);
-            final Date date = new Date(dateLong);
+            final DateTime date = new DateTime(dateLong);
             final Integer type = json.getInt(BDefines.Keys.MESSAGE_TYPE);
             final String messagePayload = (json.getString(BDefines.Keys.MESSAGE_PAYLOAD));
 
@@ -152,7 +153,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
                 DaoCore.updateEntity(thread);
 
-                message.setBUserSender(sender);
+                message.setSender(sender);
                 message.setThread(thread);
                 message = DaoCore.createEntity(message);
 
@@ -169,7 +170,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                             @Override
                             public void onDone(final BUser bUser) {
                                 // Adding the user as the sender.
-                                finalMessage.setBUserSender(bUser);
+                                finalMessage.setSender(bUser);
 
                                 if (thread == null)
                                 {

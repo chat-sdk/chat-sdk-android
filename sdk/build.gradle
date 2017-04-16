@@ -1,4 +1,16 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
+    }
+}
+
 apply plugin: 'com.android.library'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
 
@@ -34,6 +46,12 @@ android {
     }
 }
 
+greendao {
+    schemaVersion 1
+    targetGenDir "src/main/java"
+    daoPackage "tk.wanderingdevelopment.chatsdkcore.db"
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // Facebook SDK
@@ -54,10 +72,7 @@ dependencies {
     compile('com.mcxiaoke.volley:library-aar:1.0.1@aar') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
-    // Has is own support library in it so need to exclude it so no TOP_LEVEL_EXCEPTION will occur.
-    compile('de.greenrobot:greendao:1.3.7@jar') {
-        exclude group: 'com.google.android', module: 'support-v4'
-    }
+
     // Super Toast
     compile('com.github.johnpersano:supertoasts:1.3.4@aar') {
         exclude group: 'com.android.support', module: 'support-v4'
@@ -72,11 +87,14 @@ dependencies {
 
     // Backendless
     compile 'com.backendless:backendless:3.0.20'
-    compile 'com.android.support:support-annotations:23.0.0'
+    compile 'com.android.support:support-annotations:25.3.1'
     compile 'org.scribe:scribe:1.3.7'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.jakewharton.timber:timber:4.3.1'
-    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'org.greenrobot:greendao-api:3.2.2'
+    compile 'joda-time:joda-time:2.9.4'
+    compile 'org.greenrobot:greendao:3.2.2'
 }
 
 

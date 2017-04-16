@@ -179,16 +179,16 @@ public class NotificationUtils {
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(BDefines.THREAD_ID,  message.getThreadDaoId());
+        resultIntent.putExtra(BDefines.THREAD_ID,  message.getThreadId());
         resultIntent.putExtra(BDefines.FROM_PUSH, true);
-        resultIntent.putExtra(BDefines.MSG_TIMESTAMP, message.getDate().getTime());
+        resultIntent.putExtra(BDefines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
 
         String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
 
         String title = !StringUtils.isEmpty(
-                message.getBUserSender().getMetaName()) ? message.getBUserSender().getMetaName() : " ";
+                message.getSender().getMetaName()) ? message.getSender().getMetaName() : " ";
 
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getBUserSender().getMetaName(), msgContent);
+        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getMetaName(), msgContent);
 
         getNotificationLines(context, message, data);
         
@@ -207,10 +207,10 @@ public class NotificationUtils {
             }
             
             // Trying to load the sender image.
-            if (threadImage == null && message.getBUserSender() != null
-                    && StringUtils.isNotEmpty(message.getBUserSender().getMetaPictureUrl()))
+            if (threadImage == null && message.getSender() != null
+                    && StringUtils.isNotEmpty(message.getSender().getMetaPictureUrl()))
             {
-                VolleyUtils.getImageLoader().get(message.getBUserSender().getMetaPictureUrl(), new ImageLoader.ImageListener() {
+                VolleyUtils.getImageLoader().get(message.getSender().getMetaPictureUrl(), new ImageLoader.ImageListener() {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                         if (imageContainer.getBitmap() != null)
@@ -235,7 +235,7 @@ public class NotificationUtils {
  
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
-                message.getBUserSender().getMetaName(),
+                message.getSender().getMetaName(),
                 message.getType() == TEXT ? message.getText()
                 : message.getType() == IMAGE ? context.getString(R.string.not_image_message)
                 : context.getString(R.string.not_location_message));
@@ -306,7 +306,7 @@ public class NotificationUtils {
         {
             lines.add(getMessageContent(context, message));
 
-            String senderName = message.getBUserSender().getMetaName();
+            String senderName = message.getSender().getMetaName();
             if (!senders.contains(senderName))
                 senders.add(senderName);
 

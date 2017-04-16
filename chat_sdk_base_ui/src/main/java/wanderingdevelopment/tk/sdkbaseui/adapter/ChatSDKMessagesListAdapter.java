@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -702,7 +701,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             if (simpleDateFormat == null)
                 simpleDateFormat = getFormat(message);
 
-            BUser user = message.getBUserSender();
+            BUser user = message.getSender();
 
             MessageListItem msg = new MessageListItem( message.getId(),
                     message.getEntityID(),
@@ -714,7 +713,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                     String.valueOf(simpleDateFormat.format(message.getDate())),
                     message.getText(),
                     user.getMessageColor(),
-                    message.getDate().getTime(), 
+                    message.getDate().toDate().getTime(),
                     message.wasDelivered(),
                     message.getResourcesPath(), 
                     message.getImageDimensions());
@@ -759,7 +758,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
         private static SimpleDateFormat getFormat(BMessage message){
 
             Date curTime = new Date();
-            long interval = (curTime.getTime() - message.getDate().getTime()) / 1000L;
+            long interval = (curTime.getTime() - message.getDate().toDate().getTime()) / 1000L;
 
             // More then a day ago
             if (interval > 3600 * 24)

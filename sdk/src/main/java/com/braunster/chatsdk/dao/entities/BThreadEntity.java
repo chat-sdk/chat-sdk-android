@@ -40,13 +40,10 @@ public abstract class BThreadEntity extends Entity{
     public abstract boolean hasUser(BUser user);
 
 
-    @ThreadType
-    public abstract void setType(@ThreadType Integer type);
     
     public abstract List<BUser> getUsers();
 
     public abstract String displayName();
 
-    public abstract Integer getType();
 
 }

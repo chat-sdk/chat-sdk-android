@@ -181,7 +181,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             }
 
             // Make sure the message that incoming is not the user message.
-            if (message.getBUserSender().getEntityID().equals(
+            if (message.getSender().getEntityID().equals(
                     BNetworkManager.getCoreInterface().currentUserModel().getEntityID()))
                 return false;
 
@@ -199,7 +199,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                         // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
                         if (!BNetworkManager.getCoreInterface().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getThread())) {
                             // Checking if the message has a sender with a name, Also if the message was read.
-                            if (message.getBUserSender().getMetaName() != null && !message.wasRead())
+                            if (message.getSender().getMetaName() != null && !message.wasRead())
                             {
                                 NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
                             }

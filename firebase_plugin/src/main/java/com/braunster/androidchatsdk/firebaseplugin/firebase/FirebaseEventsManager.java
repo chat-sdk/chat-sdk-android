@@ -554,7 +554,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
             if (DEBUG) Timber.d("messagesOn, Messages size:  %s, LastMessage: %s", messages.size(), messages.get(0).getText());
             
             // The plus 1 is needed so we wont receive the last message again.
-            messagesQuery = messagesQuery.startAt(messages.get(0).getDate().getTime() + 1);
+            messagesQuery = messagesQuery.startAt(messages.get(0).getDate().toDate().getTime() + 1);
 
             // Set any message that received as new.
             incomingMessagesListener.setNew(true);

@@ -11,13 +11,10 @@ import com.braunster.chatsdk.Utils.volley.VolleyUtils;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BThreadDao;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.UserThreadLink;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
-import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.BError;
@@ -31,6 +28,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.ProgressCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,6 +39,7 @@ import java.util.List;
 
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
+import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
 import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
@@ -71,9 +70,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         final BMessage message = new BMessage();
         message.setText(text);
-        message.setThreadDaoId(threadId);
+        message.setThreadId(threadId);
         message.setType(TEXT);
-        message.setBUserSender(BNetworkManager.getCoreInterface().currentUserModel());
+        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
         message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
 
@@ -87,7 +86,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         if (date == null)
             date = new Date();
 
-        message.setDate( new Date(date.getTime() + 1) );
+        message.setDate( new DateTime(date.getTime() + 1) );
 
         DaoCore.updateEntity(message);
 
@@ -121,11 +120,11 @@ public abstract class ThreadsManager implements ThreadsInterface {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setThreadDaoId(threadId);
+        message.setThreadId(threadId);
         message.setType(LOCATION);
         message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
-        message.setBUserSender(BNetworkManager.getCoreInterface().currentUserModel());
+        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
         message.setResourcesPath(filePath);
 
         DaoCore.createEntity(message);
@@ -138,7 +137,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         if (date == null)
             date = new Date();
 
-        message.setDate( new Date(date.getTime() + 1) );
+        message.setDate( new DateTime(date.getTime() + 1) );
 
         DaoCore.updateEntity(message);
 
@@ -208,9 +207,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
         final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
-        message.setThreadDaoId(threadId);
+        message.setThreadId(threadId);
         message.setType(IMAGE);
-        message.setBUserSender(BNetworkManager.getCoreInterface().currentUserModel());
+        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
         message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
 
@@ -224,7 +223,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         if (date == null)
             date = new Date();
 
-        message.setDate( new Date(date.getTime() + 1) );
+        message.setDate( new DateTime(date.getTime() + 1) );
 
         message.setResourcesPath(filePath);
 

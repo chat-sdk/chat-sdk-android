@@ -11,9 +11,7 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.Utils.sorter.MessageSorter;
 import com.braunster.chatsdk.dao.UserThreadLink;
-import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BMessageDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -30,6 +28,7 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -43,10 +42,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.greenrobot.dao.query.QueryBuilder;
 import jdeferred.android.AndroidDeferredObject;
 import jdeferred.android.AndroidExecutionScope;
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdkcore.db.BMessageDao;
+import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
 public class BThreadWrapper extends EntityWrapper<BThread> {
     
@@ -181,7 +181,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         if (model.getTypeSafely() != BThreadEntity.Type.Private) return deferred.promise();
 
-        List<BMessage> messages = DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.ThreadDaoId, model.getId());
+        List<BMessage> messages = DaoCore.fetchEntitiesWithProperty(BMessage.class, BMessageDao.Properties.ThreadId, model.getId());
 
         for (BMessage m : messages) {
             DaoCore.deleteEntity(m);
@@ -216,7 +216,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
                         threadUserRef.setValue(true);
 
-                        List<UserThreadLink> list =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.BThreadDaoId, model.getId());
+                        List<UserThreadLink> list =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, model.getId());
 
                         DaoCore.deleteEntity(model);
 
@@ -313,7 +313,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         if (earliestMessage != null)
         {
             if(DEBUG) Timber.d("Msg: %s", earliestMessage.getText());
-            messageDate = earliestMessage.getDate();
+            messageDate = earliestMessage.getDate().toDate();
         }
         // Otherwise we use todays date
         else messageDate = new Date();
@@ -321,7 +321,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         List<BMessage> list ;
 
         QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.ThreadDaoId.eq(model.getId()));
+        qb.where(BMessageDao.Properties.ThreadId.eq(model.getId()));
 
         // Making sure no null messages infected the sort.
         qb.where(BMessageDao.Properties.Date.isNotNull());

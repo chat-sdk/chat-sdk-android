@@ -12,12 +12,13 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.UserThreadLink;
-import com.braunster.chatsdk.dao.UserThreadLinkDao;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.DaoMaster;
-import com.braunster.chatsdk.dao.DaoSession;
 import com.braunster.chatsdk.dao.entities.Entity;
+
+import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.async.AsyncSession;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,10 +26,10 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
 
-import de.greenrobot.dao.Property;
-import de.greenrobot.dao.async.AsyncSession;
-import de.greenrobot.dao.query.QueryBuilder;
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdkcore.db.DaoMaster;
+import tk.wanderingdevelopment.chatsdkcore.db.DaoSession;
+import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
 
 /**
@@ -94,7 +95,11 @@ public class DaoCore {
 
     /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
     public static <T extends Entity> T fetchEntityWithEntityID(Class<T> c, Object entityID){
-        return fetchEntityWithProperty(c, EntityID, entityID);
+        Property[] properties = daoSession.getDao(c).getProperties();
+
+        if(!properties[1].columnName.equals(EntityID.columnName)) return null; // EntityId is missing from dao table, must always be first property after id
+
+        return fetchEntityWithProperty(c, properties[1], entityID);
     }
 
     /** Fetch an entity for given property and value. If more then one found the first will be returned.*/
@@ -322,16 +327,16 @@ public class DaoCore {
     public static void connectUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("connectUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
         UserThreadLink linkData = new UserThreadLink();
-        linkData.setBThreadDaoId(thread.getId());
+        linkData.setThreadId(thread.getId());
         linkData.setBThread(thread);
-        linkData.setBUserDaoId(user.getId());
+        linkData.setUserId(user.getId());
         linkData.setBUser(user);
         createEntity(linkData);
     }
 
     public static void breakUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("breakUserAndThread, User ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.BThreadDaoId, UserThreadLinkDao.Properties.BUserDaoId}, thread.getId(), user.getId());
+        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         DaoCore.deleteEntity(linkData);
     }
 
