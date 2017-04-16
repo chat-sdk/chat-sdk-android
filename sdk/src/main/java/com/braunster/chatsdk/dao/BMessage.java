@@ -305,7 +305,7 @@ public class BMessage extends BMessageEntity  {
     }
 
     public boolean isMine(){
-        return getBUserSender().equals(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel());
+        return getBUserSender().equals(BNetworkManager.getCoreInterface().currentUserModel());
     }
 
     @Override

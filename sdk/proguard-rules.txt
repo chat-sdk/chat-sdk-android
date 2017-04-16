@@ -49,6 +49,6 @@
 
 -keepnames class  com.shaded.fasterxml.jackson.** { *; }
 
--keep class com.braunster.chatsdk.adapter.abstracted.ChatSDKAbstractThreadsListAdapter$* {
+-keep class wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter$* {
                                                                          *;
                                                                      }

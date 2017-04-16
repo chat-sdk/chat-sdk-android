@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 
 import com.braunster.chatsdk.dao.BMessage;
@@ -39,7 +40,7 @@ public class Utils {
 
     static final boolean DEBUG = false;
 
-    public static String getSHA(Activity activity, String packageInfo){
+    public static String getSHA(AppCompatActivity activity, String packageInfo){
         if (DEBUG) Timber.d("PackageName: %s", packageInfo);
         // Add code to print out the key hash
         try {

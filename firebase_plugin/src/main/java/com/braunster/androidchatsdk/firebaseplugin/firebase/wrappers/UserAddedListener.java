@@ -76,7 +76,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
-                    BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+                    BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
 
                     // If listener is old return,
                     // We can check if he is old if the observed user id does not match the current user id.

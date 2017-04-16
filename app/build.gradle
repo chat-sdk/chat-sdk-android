@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.braunster.androidchatsdk.app"
 
-        multiDexEnabled = false
+        multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
@@ -79,6 +79,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':firebase_plugin')
     compile 'com.android.support:multidex:1.0.0'
+    compile project(path: ':chat_sdk_base_ui')
 }
 
 

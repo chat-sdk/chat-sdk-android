@@ -12,11 +12,14 @@ public class Debug {
     /*Network*/
     public static final boolean BFirebaseInterface = false;
     public static final boolean AbstractNetworkAdapter = false;
+    public static final boolean AuthManager = false;
     public static final boolean BFacebookManager = false;
     public static final boolean BNetworkManager = false;
     public static final boolean TwitterManager = true;
     public static final boolean EventManager = false;
     public static final boolean BPath = false;
+    public static final boolean CoreManager = false;
+    public static final boolean ThreadsManager = false;
     public static final boolean BFirebaseNetworkAdapter = true;
     public static final boolean BFirebaseUploadHandler = true;
     public static final boolean BBackendlessPushHandler = true;

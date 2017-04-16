@@ -15,8 +15,6 @@ import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.NotificationUtils;
-import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -34,6 +32,8 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import timber.log.Timber;
+
+import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
 
 /**
  *
@@ -100,8 +100,8 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
-            if (BNetworkManager.sharedManager().getNetworkAdapter() != null) {
-                BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+            if (BNetworkManager.getCoreInterface() != null) {
+                BUser user = BNetworkManager.getCoreInterface().currentUserModel();
                 if (user != null && !channel.equals(user.getPushChannel()))
                     return;
             }
@@ -182,7 +182,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                                                 @Override
                                                 public void onDone(BThread bThread) {
 
-                                                    BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+                                                    BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
                                                     // Add the current user to the thread if needed.
 
                                                     if (!threadWrapper.getModel().hasUser(currentUser)) {
@@ -238,7 +238,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
         {
             if (DEBUG) Timber.d("no auth user");
-            resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().loginActivity);
+            resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getLoginActivity());
 
             // Posting the notification.
             try {
@@ -260,7 +260,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                 return;
             }
             // Open main activity
-            else resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+            else resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
 
             // Posting the notification.
             try {
@@ -281,7 +281,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         final JSONObject json;
         try {
             json = new JSONObject(intent.getExtras().getString("message"));
-            Intent resultIntent = new Intent(context, ChatSDKUiHelper.getInstance().mainActivity);
+            Intent resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
             NotificationUtils.createAlertNotification(context, BDefines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
                             json.getString(BDefines.Keys.CONTENT)));

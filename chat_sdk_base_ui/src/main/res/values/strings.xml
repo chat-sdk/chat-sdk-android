@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ChatSDK</string>
+
+
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="anonymous_login">Anonymous Login</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="logout">Logout</string>
+    <string name="search">Search</string>
+    <string name="add_contacts">Add Contacts</string>
+    <string name="add_users">Add Users</string>
+    <string name="start_chat">Start Chat</string>
+    <string name="contacts_upper_case">CONTACTS</string>
+    <string name="select_all">Select All</string>
+    <string name="send_location">Send this location</string>
+    <string name="search_upper_case">SEARCH</string>
+    <string name="send">Send</string>
+    <string name="pick_friends">Pick Friends</string>
+
+    <!--ThreadDetails activity-->
+    <string name="thread_details_activity_title">Thread Details</string>
+    <string name="thread_details_activity_change_name_dialog_title">Set thread name</string>
+
+    <!--Message list adapter-->
+    <string name="message_adapter_no_google_maps">This device does not have google maps</string>
+    <string name="message_adapter_load_image_fail">Can\'t show image</string>
+
+    <!-- Login Activity-->
+    <string name="chat_sdk_version">Version:</string>
+    <string name="login_activity_no_mail_toast">Please enter your email</string>
+    <string name="login_activity_no_password_toast">Please enter password</string>
+    <string name="login_activity_facebook_connection_fail_toast">Failed to connect to Facebook</string>
+    <string name="login_activity_failed_to_login_toast">Failed to connect</string>
+    <string name="login_activity_failed_to_register_toast">Failed to register</string>
+
+    <!--BaseFragment/BaseActivity-->
+    <string name="create_thread_with_users_fail_toast">Failed to start chat</string>
+    <string name="delete_thread_fail_toast">Unable to delete thread</string>
+    <string name="delete_thread_success_toast">Thread is deleted</string>
+
+    <!--ChatSDKAbstractChatActivity-->
+    <string name="chat_activity_no_more_messages_to_load_toast">There is no new messages to load&#8230;</string>
+    <string name="chat_activity_add_item_text">Add contact to chat</string>
+    <string name="chat_activity_show_users_item_text">Show thread users</string>
+    <string name="chat_activity_show_thread_details">Thread Details</string>
+
+    <!--ChatSDKAbstractContactsFragment-->
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">User added to thread, Name:&#160;</string>
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Can\'t add user to thread.</string>
+    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Problem sharing contact, Unknown share type.</string>
+
+    <!--ChatSDKShareWithContactsActivity-->
+    <string name="share_activity_error_getting_share_data">Error getting share data</string>
+
+    <!--ChatSDKPickFriendsActivity-->
+    <string name="pick_friends_activity_no_users_selected_toast">Please select at least one user</string>
+    <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Adding users to thread&#8230;</string>
+    <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Creating thread&#8230;</string>
+
+    <!--ExitHelper-->
+    <string name="exit_helper_double_tap_toast">click back again to exit</string>
+    <!-- Exit Dialog-->
+    <string name="alert_exit">Are you sure you want to exit?</string>
+    <string name="exit">Exit</string>
+    <string name="stay">Stay</string>
+
+    <!--ChatSDKSearchActivity-->
+    <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
+    <string name="search_activity_no_user_found_toast">No match found</string>
+    <string name="search_activity_no_contact_selected_toast">No contacts were selected</string>
+    <string name="search_activity_user_added_as_contact_after_count_toast"> Users were added as contacts</string>
+    <string name="search_activity_prog_dialog_init_message">Fetching&#8230;</string>
+    <string name="search_activity_prog_dialog_before_count_message">Fetching&#8230; Found:&#160;</string>
+
+    <!--PublicThreadFragment-->
+    <string name="public_thread_fragment_add_item_text">Add Public chat Room</string>
+
+    <!--Add public chat room dialog-->
+    <string name="add_public_chat_dialog_title">Add Chat Room</string>
+    <string name="add_public_chat_dialog_progress_message">Creating thread&#8230;</string>
+    <string name="add_public_chat_dialog_toast_success_before_thread_name">Public thread&#160;</string>
+    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160;is created.</string>
+    <string name="add_public_chat_dialog_toast_error_before_thread_name">Failed to create public thread&#160;</string>
+
+    <!--Delete Contact Dialog-->
+    <string name="alert_delete_contact">"Are you sure you want to delete this contact?</string>
+
+    <!--Delete Thread Dialog-->
+    <string name="alert_delete_thread">"Are you sure you want to delete this thread?</string>
+
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Login Dialog-->
+    <string name="authenticating">Authenticating&#8230;</string>
+    <string name="login_activity_auth_failed">Auth Failed</string>
+    <string name="connecting">Connecting&#8230;</string>
+    <string name="registering">Registering&#8230;</string>
+
+    <!--Acceptability-->
+    <string name="acces_message_option_button">Message option button</string>
+
+    <string name="action_settings">action_setting</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_contact_developer">Contact Developer</string>
+    <string name="action_add_chat">Add Chat</string>
+    <string name="done_show_again">Done show again</string>
+    <string name="double_back_press_exit">Use double back button pressed to exit</string>
+
+    <!--Notification-->
+    <string name="not_message_title">Message</string>
+    <string name="not_message_ticker">You got a new message</string>
+    <string name="not_follower_title">New Follower</string>
+    <string name="not_follower_ticker">You got a new follower</string>
+    <string name="not_follower_content">is following you!</string>
+    <string name="not_image_message">Image message</string>
+    <string name="not_location_message">Location message</string>
+    
+    <!--Error-->
+    <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
+    <string name="unable_to_save_file">Unable to save file&#8230;</string>
+    <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>
+    <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
+    <string name="unable_to_send_message">unable to send message&#8230;</string>
+    
+    <!--State-->
+    <string name="sending">Sending&#8230;</string>
+    <string name="not_messages_summary">%d unread messages</string>
+    <string name="unable_to_catch_image">Unable to catch image</string>
+    <string name="status">Status</string>
+    <string name="location_hint">Location</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="action_edit">Edit</string>
+    <string name="chat_sdk_edit_profile_select_country">Select Country</string>
+    <string name="chat_sdk_edit_profile_pick_birth_date">Select date of birth</string>
+    <string name="app_info">App Info</string>
+    <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>
+</resources>

@@ -379,7 +379,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         if (DEBUG) Timber.v("userOff, EntityID: $s", user.getEntityID());
         
         BThreadWrapper wrapper;
-        for (BThread thread : user.getThreads())
+        for (BThread thread : BNetworkManager.getThreadsInterface().getThreads())
         {
             wrapper = new BThreadWrapper(thread);
             
@@ -647,7 +647,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
                         wrapper.messagesOn();
                         wrapper.usersOn();
 
-                        BUser currentUser = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+                        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
 
                         // Add the current user to the thread if needed. Only if not public.
                         if (!publicThread &&
@@ -929,7 +929,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     
     /** get the current user entity so we know not to listen to his details and so on.*/
     public static String getCurrentUserId() {
-        return BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID();
+        return BNetworkManager.getCoreInterface().currentUserModel().getEntityID();
     }
 
     /** Print save data of this class. Id's List and listener and refs. Used for debugging.*/

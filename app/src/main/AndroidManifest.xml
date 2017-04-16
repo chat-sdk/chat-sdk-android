@@ -21,10 +21,11 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/ChatSDKTheme"
-        android:name=".AppObj">
+        android:name=".AppObj" >
+        >
 
         <activity
-            android:name="com.braunster.chatsdk.activities.ChatSDKLoginActivity"
+            android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/ChatSDKTheme"

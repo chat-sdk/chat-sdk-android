@@ -289,4 +289,11 @@ public class BDefines {
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
     public static final int FOLLOWER_NOTIFICATION_ID = 1002;
 
+
+    public static final String THREAD_ID = "thread_id";
+    public static final String LIST_POS = "list_pos";
+    public static final String FROM_PUSH = "from_push";
+    public static final String MSG_TIMESTAMP = "timestamp";
+
+
 }

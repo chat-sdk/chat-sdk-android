@@ -67,14 +67,14 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
 
                         if (DEBUG) Timber.d("Name: %s, Phone Number: %s", name, phoneNo);
 
-                        BNetworkManager.sharedManager().getNetworkAdapter().usersForIndex(BDefines.Keys.BPhone, phoneNo)
+                        BNetworkManager.getCoreInterface().usersForIndex(BDefines.Keys.BPhone, phoneNo)
                                 .done(new DoneCallback<List<BUser>>() {
                                     @Override
                                     public void onDone(List<BUser> users) {
                                         for (BUser u : users)
                                         {
                                             if (DEBUG) Timber.d("User found: %s", u.getMetaName());
-                                            BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().addContact(u);
+                                            BNetworkManager.getCoreInterface().currentUserModel().addContact(u);
                                         }
                                     }
                                 });

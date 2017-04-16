@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.AuthManager;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
 import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
@@ -123,8 +124,8 @@ public class TwitterManager {
 
                     if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
 
-                    BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                            AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter))
+                    BNetworkManager.getAuthInterface().authenticateWithMap(
+                            AuthManager.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter))
                             .done(new DoneCallback<Object>() {
                                 @Override
                                 public void onDone(Object o) {

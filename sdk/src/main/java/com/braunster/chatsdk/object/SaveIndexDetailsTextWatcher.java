@@ -71,7 +71,7 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
             if (StringUtils.isBlank(editable.toString()))
                 return;
 
-            BUser user = BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel();
+            BUser user = BNetworkManager.getCoreInterface().currentUserModel();
             String metadata = user.metaStringForKey(metaKey);
 
             if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))
@@ -79,7 +79,7 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
 
             user.setMetadataString(metaKey, editable.toString());
 
-            BNetworkManager.sharedManager().getNetworkAdapter().pushUser();
+            BNetworkManager.getCoreInterface().pushUser();
         }
     };
 

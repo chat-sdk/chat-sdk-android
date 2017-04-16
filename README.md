@@ -312,11 +312,11 @@ Open up your app's main activity. It should be in **App** -> **java** -> **Your 
 Add the following imports.
 
 ```
-import com.braunster.androidchatsdk.firebaseplugin.firebase.BChatcatNetworkAdapter;
-import com.braunster.chatsdk.Utils.helper.ChatSDKUiHelper;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.BAuthAdapter;
+import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.activities.ChatSDKLoginActivity;
+import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity;
 import android.content.Intent;
 ```
 
@@ -361,7 +361,7 @@ The final step is to make the login activity available by adding it to our app m
 
 ```
 <activity
-    android:name="com.braunster.chatsdk.activities.ChatSDKLoginActivity"
+    android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity"
     android:label="@string/app_name"
     android:screenOrientation="portrait"
     android:theme="@style/ChatSDKTheme"

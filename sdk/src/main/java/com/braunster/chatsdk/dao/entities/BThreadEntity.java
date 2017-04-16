@@ -49,5 +49,4 @@ public abstract class BThreadEntity extends Entity{
 
     public abstract Integer getType();
 
-
 }

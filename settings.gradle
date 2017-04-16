@@ -1,1 +1,1 @@
-include ':app', ':facebook', ':generator', ':firebase_plugin', ':sdk', ':chat_sdk_firebase_network_implementation', ':chat_sdk_base_ui', ':chat_sdk_core', ':chat_sdk_network_interface'
+include ':app', ':facebook', ':generator', ':firebase_plugin', ':sdk', ':chat_sdk_base_ui', ':chat_sdk_core', ':chat_sdk_network_interface'

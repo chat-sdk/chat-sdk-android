@@ -7,21 +7,19 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.BFirebaseNetworkAdapter;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.Utils.Debug;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
-import com.braunster.chatsdk.network.AbstractNetworkAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.BError;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -36,10 +34,11 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+
+import static com.braunster.chatsdk.dao.core.ProcessForQueryHandler.processForQuery;
 
 public class BUserWrapper extends EntityWrapper<BUser> {
 
@@ -90,18 +89,18 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType((Integer) getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+        model.setAuthenticationType((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
         String name = authData.getDisplayName();
         String email = authData.getEmail();
-        String token = getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.TokenKey).toString();
+        String token = BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.TokenKey).toString();
         String uid = authData.getUid();
 
         BLinkedAccount linkedAccount;
         
-        switch ((Integer) (getNetworkAdapter().getLoginInfo().get(BDefines.Prefs.AccountTypeKey)))
+        switch ((Integer) (BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey)))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
@@ -206,7 +205,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             @Override
             public void onCancelled(DatabaseError firebaseError) {
                 if (DEBUG) Timber.v("once, onCancelled");
-                deferred.reject(BFirebaseNetworkAdapter.getFirebaseError(firebaseError));
+                deferred.reject(FirebaseErrors.getFirebaseError(firebaseError));
             }
         });
 
@@ -228,13 +227,13 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     }
 
     public void metaOff(){
-        getNetworkAdapter().getEventManager().userMetaOff(entityId);
+        BNetworkManager.getCoreInterface().getEventManager().userMetaOff(entityId);
     }
 
     public Promise metaOn(){
         final Deferred<Void, Void, Void> deferred = new DeferredObject<>();
 
-        getNetworkAdapter().getEventManager().userMetaOn(entityId, deferred);
+        BNetworkManager.getCoreInterface().getEventManager().userMetaOn(entityId, deferred);
         
         return deferred;
     }
@@ -400,11 +399,11 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         String email = model.getMetaEmail();
         String phoneNumber = model.metaStringForKey(BDefines.Keys.BPhone);
         
-        values.put(BDefines.Keys.BName, StringUtils.isNotEmpty(name) ? AbstractNetworkAdapter.processForQuery(name) : "");
-        values.put(BDefines.Keys.BEmail, StringUtils.isNotEmpty(email) ? AbstractNetworkAdapter.processForQuery(email) : "");
+        values.put(BDefines.Keys.BName, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
+        values.put(BDefines.Keys.BEmail, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
 
         if (BDefines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber))
-            values.put(BDefines.Keys.BPhone, AbstractNetworkAdapter.processForQuery(phoneNumber));
+            values.put(BDefines.Keys.BPhone, processForQuery(phoneNumber));
 
 
         DatabaseReference ref = FirebasePaths.indexRef().child(entityId);

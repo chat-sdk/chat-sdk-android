@@ -7,8 +7,8 @@
 
 package com.braunster.chatsdk.Utils.helper;
 
-import android.app.Activity;
-import android.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,7 +24,7 @@ public class CatchImageClickListener implements View.OnClickListener{
     /** The key to get the path of the last captured image path in case the activity is destroyed while capturing.*/
     public static final String SELECTED_FILE_PATH = "captured_photo_path";
 
-    private Activity activity;
+    private AppCompatActivity activity;
     private DialogFragment dialogFragment;
     private Fragment fragment;
     private int requestCode;
@@ -33,18 +33,18 @@ public class CatchImageClickListener implements View.OnClickListener{
 
     private String selectedFilePath = "";
 
-    public CatchImageClickListener(Activity activity, DialogFragment dialogFragment, int requestCode) {
+    public CatchImageClickListener(AppCompatActivity activity, DialogFragment dialogFragment, int requestCode) {
         this.activity = activity;
         this.dialogFragment = dialogFragment;
         this.requestCode = requestCode;
     }
 
-    public CatchImageClickListener(Activity activity, int requestCode) {
+    public CatchImageClickListener(AppCompatActivity activity, int requestCode) {
         this.activity = activity;
         this.requestCode = requestCode;
     }
 
-    public CatchImageClickListener(Activity activity, int requestCode, Fragment fragment) {
+    public CatchImageClickListener(AppCompatActivity activity, int requestCode, Fragment fragment) {
         this.activity = activity;
         this.requestCode = requestCode;
         this.fragment = fragment;

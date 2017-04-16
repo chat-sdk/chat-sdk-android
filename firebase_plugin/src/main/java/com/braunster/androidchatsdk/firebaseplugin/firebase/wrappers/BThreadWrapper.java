@@ -77,7 +77,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         AndroidDeferredObject<BThread, Void, Void> androidDeferredObject = new AndroidDeferredObject<BThread, Void, Void>(deferred.promise(), AndroidExecutionScope.UI);
 
-        getNetworkAdapter().getEventManager().threadOn(entityId, deferred);
+        BNetworkManager.getCoreInterface().getEventManager().threadOn(entityId, deferred);
         
         return androidDeferredObject.promise();
     }
@@ -87,7 +87,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      **/
     public void off(){
         if (DEBUG) Timber.v("off");
-        getNetworkAdapter().getEventManager().threadOff(entityId);
+        BNetworkManager.getCoreInterface().getEventManager().threadOff(entityId);
     }
 
     /**
@@ -100,7 +100,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
 
         AndroidDeferredObject<BThread, Void, Void> androidDeferredObject = new AndroidDeferredObject<BThread, Void, Void>(deferred.promise(), AndroidExecutionScope.UI);
 
-        getNetworkAdapter().getEventManager().messagesOn(entityId, deferred);
+        BNetworkManager.getCoreInterface().getEventManager().messagesOn(entityId, deferred);
         
         return androidDeferredObject.promise();
     }
@@ -111,7 +111,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     public void messagesOff(){
 
         if (DEBUG) Timber.v("messagesOff");
-        getNetworkAdapter().getEventManager().messagesOff(entityId);
+        BNetworkManager.getCoreInterface().getEventManager().messagesOff(entityId);
     }
 
     //Note the old listener that was used to process the thread data is still in use.
@@ -120,7 +120,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      **/
     public void usersOn(){
         if (DEBUG) Timber.v("usersOn");
-        getNetworkAdapter().getEventManager().threadUsersAddedOn(entityId);
+        BNetworkManager.getCoreInterface().getEventManager().threadUsersAddedOn(entityId);
     }
 
     /**
@@ -129,7 +129,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     public void usersOff(){
 
         if (DEBUG) Timber.v("usersOff");
-        getNetworkAdapter().getEventManager().threadUsersAddedOff(entityId);
+        BNetworkManager.getCoreInterface().getEventManager().threadUsersAddedOff(entityId);
     }
 
     //Note - Maybe should reject when cant find value in the user deleted path.
@@ -140,7 +140,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     public Promise<Long, DatabaseError, Void> threadDeletedDate(){
         final Deferred<Long, DatabaseError, Void> deferred = new DeferredObject<>();
 
-        BUser user = getNetworkAdapter().currentUserModel();
+        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
         
         DatabaseReference currentThreadUser = FirebasePaths.threadRef(entityId)
                 .child(BFirebaseDefines.Path.BUsersPath)
@@ -177,7 +177,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         
         final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
         
-        BUser user = getNetworkAdapter().currentUserModel();
+        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
 
         if (model.getTypeSafely() != BThreadEntity.Type.Private) return deferred.promise();
 
@@ -211,7 +211,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         // Adding a leave value to the user on the thread path so other users will know this user has left.
                         DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId)
                             .child(BFirebaseDefines.Path.BUsersPath)
-                            .child(getNetworkAdapter().currentUserModel().getEntityID())
+                            .child(BNetworkManager.getCoreInterface().currentUserModel().getEntityID())
                             .child(BDefines.Keys.BLeaved);
 
                         threadUserRef.setValue(true);
@@ -245,7 +245,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         {
             DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId)
                 .child(BFirebaseDefines.Path.BUsersPath)
-                .child(getNetworkAdapter().currentUserModel().getEntityID())
+                .child(BNetworkManager.getCoreInterface().currentUserModel().getEntityID())
                 .child(BDefines.Keys.BDeleted);
 
             // Set the deleted value in firebase
@@ -269,7 +269,7 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         // Removing the deleted value from firebase.
         DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId)
             .child(BFirebaseDefines.Path.BUsersPath)
-            .child(BNetworkManager.sharedManager().getNetworkAdapter().currentUserModel().getEntityID())
+            .child(BNetworkManager.getCoreInterface().currentUserModel().getEntityID())
             .child(BDefines.Keys.BDeleted);
 
         threadUserRef.removeValue();

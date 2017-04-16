@@ -60,12 +60,6 @@ public abstract class BUserEntity extends Entity {
 
     public abstract String[] getCacheIDs();
 
-    public abstract List<BThread> getThreads();
-
-    public abstract List<BThread> getThreads(int type);
-
-    public abstract List<BThread> getThreads(int type, boolean allowDeleted);
-
     public abstract List<BUser> getContacts();
 
     public abstract void addContact(BUser user);

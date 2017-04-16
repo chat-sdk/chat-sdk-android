@@ -48,7 +48,7 @@ public class BBackendlessHandler implements BPushHandler, BUploadHandler {
 
     @Override
     public boolean subscribeToPushChannel(final String channel) {
-        if (!BNetworkManager.sharedManager().getNetworkAdapter().backendlessEnabled())
+        if (!BNetworkManager.getCoreInterface().backendlessEnabled())
             return false;
 
         try {
@@ -73,7 +73,7 @@ public class BBackendlessHandler implements BPushHandler, BUploadHandler {
 
     @Override
     public boolean unsubscribeToPushChannel(String channel) {
-        if (!BNetworkManager.sharedManager().getNetworkAdapter().backendlessEnabled())
+        if (!BNetworkManager.getCoreInterface().backendlessEnabled())
             return false;
 
         // TODO: unsubscribe from push channel backendless

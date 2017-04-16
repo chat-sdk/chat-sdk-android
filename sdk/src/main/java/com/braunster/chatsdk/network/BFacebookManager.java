@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
+import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.AuthManager;
+import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.CoreManager;
 
 import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
 import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
@@ -56,8 +58,8 @@ public class BFacebookManager {
     }
 
     public static Promise<Object, BError, Void> loginWithFacebook() {
-        return BNetworkManager.sharedManager().getNetworkAdapter().authenticateWithMap(
-                AbstractNetworkAdapter.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook));
+        return BNetworkManager.getAuthInterface().authenticateWithMap(
+                AuthManager.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook));
     }
 
     /** Re authenticate after session state changed.*/

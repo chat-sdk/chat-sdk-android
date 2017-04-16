@@ -59,7 +59,7 @@ public class UiLifecycleHelper {
      * Creates a new UiLifecycleHelper.
      *
      * @param activity the Activity associated with the helper. If calling from a Fragment,
-     *                 use {@link android.support.v4.app.Fragment#getActivity()}
+     *                 use {@link android.support.v7.app.Fragment#getActivity()}
      * @param callback the callback for Session status changes, can be null
      */
     public UiLifecycleHelper(Activity activity, Session.StatusCallback callback) {
