@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="sdkLoginButtonColor">@android:color/holo_blue_light</color>
+    <color name="sdkLoginButtonTextColor">@android:color/white</color>
+    <color name="sdkRegisterButtonColor">@android:color/holo_green_light</color>
+    <color name="sdkRegisterButtonTextColor">@android:color/white</color>
+
+    <style name="SdkTheme.LoginButton"
+        parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/sdkLoginButtonColor</item>
+        <item name="background">@color/sdkLoginButtonColor</item>
+        <item name="android:textColor">@color/sdkLoginButtonTextColor</item>
+    </style>
+
+    <style name="SdkTheme.RegisterButton"
+        parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/sdkRegisterButtonColor</item>
+        <item name="background">@color/sdkRegisterButtonColor</item>
+        <item name="android:textColor">@color/sdkRegisterButtonTextColor</item>
+    </style>
+
+</resources>

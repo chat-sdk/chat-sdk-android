@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="thread_item_text_size_timestamp">12sp</dimen>
+    <string name="thread_item_placeholder_timestamp">Yesterday hh.mm</string>
+    <string name="thread_item_placeholder_title">Title or Username</string>
+    <string name="thread_item_placeholder_last_message">Something that was said</string>
+</resources>

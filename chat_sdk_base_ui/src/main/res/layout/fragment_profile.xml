@@ -1,0 +1,215 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ProfileFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="160dp">
+
+            <ImageView
+                android:id="@+id/profile_country_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:src="@drawable/flag_de"
+                android:clickable="false"
+                android:background="@drawable/editflag_background"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_picture"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:padding="16dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/avatar_male_big"/>
+            <TextView
+                style="@style/ProfileUsernameField"
+                android:id="@+id/profile_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/profile_picture"
+                android:layout_centerHorizontal="true"
+                android:text="@string/profile_placeholder_user_name"/>
+
+            <EditText
+                style="@style/ProfileUsernameEditField"
+                android:id="@+id/profile_username_edit"
+                android:hint="@string/profile_hint_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/profile_picture"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_user_availability"
+                android:labelFor="@+id/profile_availability"/>
+            <LinearLayout
+                android:id="@+id/profile_availability_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    style="@style/ProfileTextFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/message_outline"/>
+
+                <android.support.v7.widget.AppCompatSpinner
+                    style="@style/ProfileEditTextField"
+                    android:id="@+id/profile_availability_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/profile_show_states"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/profile_location_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    style="@style/ProfileTextFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/map_marker"/>
+                <TextView
+                    style="@style/ProfileTextField"
+                    android:id="@+id/profile_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_hint_location"/>
+                <EditText
+                    style="@style/ProfileEditTextField"
+                    android:id="@+id/profile_location_edit"
+                    android:hint="@string/profile_hint_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/profile_phonenumber_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    style="@style/ProfileTextFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/cellphone"/>
+                <TextView
+                    style="@style/ProfileTextField"
+                    android:id="@+id/profile_phonenumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/profile_hint_phone_number"/>
+
+                <EditText
+                    style="@style/ProfileEditTextField"
+                    android:inputType="phone"
+                    android:id="@+id/profile_phone_number_edit"
+                    android:hint="@string/profile_hint_phone_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="gone"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/profile_email_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    style="@style/ProfileTextFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/email"/>
+                <TextView
+                    style="@style/ProfileTextField"
+                    android:id="@+id/profile_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/profile_hint_email"/>
+
+                <EditText
+                    style="@style/ProfileEditTextField"
+                    android:id="@+id/profile_email_edit"
+                    android:hint="@string/profile_hint_email"
+                    android:inputType="textEmailAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/profile_birthday_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    style="@style/ProfileTextFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/cake_variant"/>
+                <TextView
+                    style="@style/ProfileTextField"
+                    android:id="@+id/profile_birthday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_hint_birthday"/>
+
+                <EditText
+                    style="@style/ProfileEditTextField"
+                    android:id="@+id/profile_birthday_edit"
+                    android:hint="@string/profile_hint_birthday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include layout="@layout/fab_layout" />
+
+</FrameLayout>
+

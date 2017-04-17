@@ -1,10 +1,7 @@
 apply plugin: 'com.android.application'
 
-def versionMajor = 0
-def versionMinor = 9
-def versionPatch = 6
-def versionBuild = 1 // bump for dogfood builds, public betas, etc.
-
+def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${CHAT_SDK_PATCH_VERSION}"
+int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -22,8 +19,8 @@ android {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
-        versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        versionName chatSdkVersionName
+        versionCode chatSdkVersionCode
     }
 
     signingConfigs {

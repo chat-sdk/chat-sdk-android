@@ -12,6 +12,9 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'org.greenrobot.greendao'
 
+def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${CHAT_SDK_PATCH_VERSION}"
+int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -19,17 +22,21 @@ android {
 
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-        versionCode Integer.parseInt(project.SDK_VERSION_CODE)
-        versionName project.SDK_MAJOR_VERSION + "." + project.SDK_MINOR_VERSION
 
+        versionName chatSdkVersionName
+        versionCode chatSdkVersionCode
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
         }
     }
 }
@@ -52,5 +59,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'io.reactivex.rxjava2:rxjava:2.0.0'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.0'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile project(path: ':sdk')
 }
 

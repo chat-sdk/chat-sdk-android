@@ -27,9 +27,9 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.mukesh.countrypicker.fragments.CountryPicker;
-import com.mukesh.countrypicker.interfaces.CountryPickerListener;
-import com.mukesh.countrypicker.models.Country;
+import com.mukesh.countrypicker.Country;
+import com.mukesh.countrypicker.CountryPicker;
+import com.mukesh.countrypicker.CountryPickerListener;
 
 import org.apache.commons.lang3.StringUtils;
 

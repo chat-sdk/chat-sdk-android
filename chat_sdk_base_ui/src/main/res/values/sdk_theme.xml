@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SdkTheme"
+        parent="Theme.AppCompat.Light">
+        <!-- App Bar -->
+        <item name="colorPrimary">@color/sdkPrimary</item>
+        <item name="colorPrimaryDark">@color/sdkPrimaryDark</item>
+        <item name="colorAccent">@color/sdkAccent</item>
+        <item name="colorControlNormal">@color/sdkTextColorPrimary</item>
+        <item name="actionBarWidgetTheme">@style/Widget.SdkTheme.ActionBar</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
+    </style>
+
+    <style name="Widget.SdkTheme.ActionBar"
+        parent="Widget.AppCompat.ActionBar">
+
+    </style>
+    <style name="ThemeOverlay.SdkTheme.ActionBar"
+        parent="ThemeOverlay.AppCompat.ActionBar">
+
+        <item name="android:textColorPrimary">@color/sdkTextColorPrimary</item>
+        <item name="android:textColorSecondary">?android:textColorSecondary</item>
+    </style>
+
+</resources>

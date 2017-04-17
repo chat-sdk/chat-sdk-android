@@ -32,4 +32,6 @@ public interface UsersInterface {
 
     Single<User> addOrUpdateUser(final User user);
 
+    Observable<User> getUserAvailabilityObservable();
+
 }

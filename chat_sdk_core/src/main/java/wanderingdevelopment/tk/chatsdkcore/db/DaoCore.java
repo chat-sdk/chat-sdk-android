@@ -27,8 +27,6 @@ import wanderingdevelopment.tk.chatsdkcore.BuildConfig;
 import wanderingdevelopment.tk.chatsdkcore.entities.AuthCredential;
 import wanderingdevelopment.tk.chatsdkcore.entities.User;
 
-import static wanderingdevelopment.tk.chatsdkcore.BuildConfig.DEBUG;
-
 /**
  * Created by kykrueger on 2016-11-21.
  */
@@ -70,16 +68,23 @@ public class DaoCore{
     }
 
     public static DaoCore getDaoCore(Context applicationContext, String dbName) {
-        // backup auth credential if possible
+
         AuthCredential authCredential = null;
-        if(daoCore != null){
+
+        // Backup credentials if changing DB
+        if(daoDbName != null && daoDbName.equals(dbName)){
             authCredential = daoCore.fetchEntityWithProperty(AuthCredential.class,
                     AuthCredentialDao.Properties.UserAlias, dbName
-                    );
+            );
+
+            daoCore = null;
         }
-        if(daoCore == null || daoDbName != dbName){
+
+        if(daoCore == null){
             daoCore = new DaoCore(applicationContext, dbName);
         }
+
+        // Save backup credentials in new DB
         if(authCredential != null) {
             daoCore.createOrReplace(authCredential);
         }
@@ -104,7 +109,7 @@ public class DaoCore{
     }
 
 
-//    /** Fetch entity for given entity ID, If more then one found the first will be returned.*/
+//    /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
 //    public <T extends Object> T fetchEntityWithEntityID(Class<T> c, Object entityID){
 //        return fetchEntityWithProperty(c, EntityID, entityID);
 //    }
@@ -175,7 +180,7 @@ public class DaoCore{
                         Arrays.copyOfRange(conditionsArray, 2, conditionsArray.length));
             }
         } catch (Exception e){
-            if(DEBUG) e.printStackTrace();
+            if(BuildConfig.DEBUG) e.printStackTrace();
             return new ArrayList<T>();
         }
         return qb.list();
@@ -287,7 +292,7 @@ public class DaoCore{
 
 
     @SuppressWarnings("unchecked") private  <T extends Object> T fetchOrCreateEntityWithProperty(Class<T> c, Property property, Object value){
-        if (DEBUG) Timber.v("fetchOrCreateEntityWithProperty, Value: %s", value);
+        if (BuildConfig.DEBUG) Timber.v("fetchOrCreateEntityWithProperty, Value: %s", value);
         T entity = fetchEntityWithProperty(c, property, value);
 
         if (entity != null)
@@ -302,19 +307,19 @@ public class DaoCore{
             o = (T) ctor.newInstance();
         } catch (ClassNotFoundException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("ClassNotFoundException");
+            if (BuildConfig.DEBUG) Timber.e("ClassNotFoundException");
         } catch (NoSuchMethodException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("NoSuchMethodException");
+            if (BuildConfig.DEBUG) Timber.e("NoSuchMethodException");
         } catch (InvocationTargetException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InvocationTargetException");
+            if (BuildConfig.DEBUG) Timber.e("InvocationTargetException");
         } catch (InstantiationException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InstantiationException");
+            if (BuildConfig.DEBUG) Timber.e("InstantiationException");
         } catch (IllegalAccessException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("IllegalAccessException");
+            if (BuildConfig.DEBUG) Timber.e("IllegalAccessException");
         }
 
         if (o != null)
@@ -327,7 +332,7 @@ public class DaoCore{
 
     /* Update, Create and Delete*/
     public <T extends Object> T createEntity(T entity){
-        if (DEBUG) Timber.v("createEntity");
+        if (BuildConfig.DEBUG) Timber.v("createEntity");
 
         if (entity == null)
         {
@@ -340,11 +345,11 @@ public class DaoCore{
     }
 
     public <T extends Object> T deleteEntity(T entity){
-        if (DEBUG) Timber.v("deleteEntity");
+        if (BuildConfig.DEBUG) Timber.v("deleteEntity");
 
         if (entity == null)
         {
-            if (DEBUG) Timber.e("Entity is null");
+            if (BuildConfig.DEBUG) Timber.e("Entity is null");
             return null;
         }
 
@@ -373,19 +378,19 @@ public class DaoCore{
             o = ctor.newInstance();
         } catch (ClassNotFoundException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("ClassNotFoundException");
+            if (BuildConfig.DEBUG) Timber.e("ClassNotFoundException");
         } catch (NoSuchMethodException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("NoSuchMethodException");
+            if (BuildConfig.DEBUG) Timber.e("NoSuchMethodException");
         } catch (InvocationTargetException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InvocationTargetException");
+            if (BuildConfig.DEBUG) Timber.e("InvocationTargetException");
         } catch (InstantiationException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("InstantiationException");
+            if (BuildConfig.DEBUG) Timber.e("InstantiationException");
         } catch (IllegalAccessException e) {
 //                e.printStackTrace();
-            if (DEBUG) Timber.e("IllegalAccessException");
+            if (BuildConfig.DEBUG) Timber.e("IllegalAccessException");
         }
 
         return o;

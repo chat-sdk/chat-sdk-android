@@ -4,7 +4,7 @@
     tools:context="com.braunster.chatsdk.wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKMainActivity">
 
     <item android:id="@+id/android_settings"
-        android:title="@string/action_settings"
+        android:title="@string/chat_sdk__action_settings"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

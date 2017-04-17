@@ -31,7 +31,7 @@
     <string name="message_adapter_load_image_fail">Can\'t show image</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk_version">Version:</string>
+    <string name="chat_sdk__version_label">Version:</string>
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>
     <string name="login_activity_facebook_connection_fail_toast">Failed to connect to Facebook</string>
@@ -105,7 +105,7 @@
     <!--Acceptability-->
     <string name="acces_message_option_button">Message option button</string>
 
-    <string name="action_settings">action_setting</string>
+    <string name="chat_sdk__action_settings">action_setting</string>
     <string name="action_logout">Logout</string>
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>

@@ -1,0 +1,125 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.LoginActivity">>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        >
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_launcher_big"
+            android:id="@+id/app_icon"
+            android:visibility="visible"
+            android:layout_alignParentTop="true"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:ems="10"
+            android:nextFocusDown="@+id/chat_sdk_et_password"
+            android:id="@+id/sdk_et_user_alias"
+            android:gravity="center"
+            android:layout_below="@id/app_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:hint="@string/email_field" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/sdk_et_password"
+            android:layout_below="@id/sdk_et_user_alias"
+            android:layout_alignLeft="@+id/sdk_et_user_alias"
+            android:layout_alignStart="@+id/sdk_et_user_alias"
+            android:hint="@string/password_field"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@id/sdk_et_password"
+            android:layout_marginTop="10dp"
+            android:id="@+id/linear_buttons"
+            android:layout_centerHorizontal="true">
+
+            <Button
+                android:theme="@style/SdkTheme.LoginButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_login_text"
+                android:id="@+id/sdk_btn_login"
+                android:layout_weight="1"/>
+
+            <Button
+                android:theme="@style/SdkTheme.RegisterButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_register_text"
+                android:id="@+id/sdk_btn_register"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/linear_api_buttons"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_above="@+id/li_version">
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/li_version"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sdk_txt_version"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="3dp"
+                android:layout_centerHorizontal="true"
+                android:text="@string/CHAT_SDK_VER"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sdk_version_name"
+                android:layout_marginTop="5dp"
+                android:layout_toRightOf="@+id/sdk_txt_version"
+                android:layout_alignTop="@+id/sdk_txt_version"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

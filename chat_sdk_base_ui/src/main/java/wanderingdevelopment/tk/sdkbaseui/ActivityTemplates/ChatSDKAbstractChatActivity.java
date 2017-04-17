@@ -28,11 +28,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
+
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.braunster.chatsdk.Utils.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;

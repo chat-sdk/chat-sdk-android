@@ -142,7 +142,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@+id/chat_sdk_btn_anon_login"
-                android:text="@string/chat_sdk_version"/>
+                android:text="@string/chat_sdk__version_label"/>
 
             <TextView
                 android:layout_width="wrap_content"

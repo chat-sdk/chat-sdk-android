@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/spinner"
+        android:title="@string/spinner_title_search_fields"
+        app:actionViewClass="android.widget.Spinner"
+        android:background="@color/sdkPrimary"
+        app:showAsAction="always" />
+</menu>

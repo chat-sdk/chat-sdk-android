@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="2dp"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp"
+    android:paddingEnd="2dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        style="@style/CircleIconStyle"
+        android:id="@+id/message_user_image"
+        android:layout_margin="5dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/avatar_male_big"/>
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/message_user_image"
+        android:layout_toEndOf="@id/message_user_image"
+        android:weightSum="10"
+        android:orientation="horizontal">
+
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/message_bubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="9">
+
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/message_payload_image"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/message_image_message_border"
+                app:srcCompat="@drawable/avatar_male_big"/>
+
+            <RelativeLayout
+                android:id="@+id/message_payload_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chat_bubble_generic"
+                android:padding="9dp">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/message_incoming_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:text="Blah blah blah blah"/>
+
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/message_outgoing_text"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+
+
+
+            </RelativeLayout>
+
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:id="@+id/message_details_box"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1">
+
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:text="@string/thread_timestamp_placeholder"
+                android:textSize="@dimen/thread_timestamp_text_height"/>
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/message_read_receipt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_alignBottom="@id/message_bubble"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"/>
+
+        </android.support.v7.widget.LinearLayoutCompat>
+    </android.support.v7.widget.LinearLayoutCompat>
+</RelativeLayout>

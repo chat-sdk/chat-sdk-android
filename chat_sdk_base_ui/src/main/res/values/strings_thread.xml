@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="thread_timestamp_placeholder">Monday hh.mm</string>
+    <string name="thread_button_send">Send</string>
+
+    <string name="thread_button_message_option">Message option button</string>
+
+    <dimen name="thread_timestamp_text_height">8sp</dimen>
+    <integer name="chat_sdk_max_message_lines">5</integer>
+    <integer name="chat_sdk_max_status_length">140</integer>
+
+</resources>

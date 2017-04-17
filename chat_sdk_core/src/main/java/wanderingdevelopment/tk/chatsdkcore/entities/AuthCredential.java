@@ -8,6 +8,9 @@ import wanderingdevelopment.tk.chatsdkcore.db.DaoSession;
 import wanderingdevelopment.tk.chatsdkcore.db.UserDao;
 import org.greenrobot.greendao.annotation.NotNull;
 import wanderingdevelopment.tk.chatsdkcore.db.AuthCredentialDao;
+import wanderingdevelopment.tk.chatsdkcore.entities.User;
+import wanderingdevelopment.tk.chatsdkcore.entities.User;
+import wanderingdevelopment.tk.chatsdkcore.db.UserDao;
 
 /**
  * Created by kykrueger on 2016-12-03.
@@ -33,8 +36,7 @@ public class AuthCredential {
     private transient Long currentUser__resolvedKey;
 
     @Generated(hash = 1926045155)
-    public AuthCredential(String userAlias, String userPassword,
-            long currentUserId) {
+    public AuthCredential(String userAlias, String userPassword, long currentUserId) {
         this.userAlias = userAlias;
         this.userPassword = userPassword;
         this.currentUserId = currentUserId;
@@ -64,8 +66,7 @@ public class AuthCredential {
     @Generated(hash = 1423205226)
     public User getCurrentUser() {
         long __key = this.currentUserId;
-        if (currentUser__resolvedKey == null
-                || !currentUser__resolvedKey.equals(__key)) {
+        if (currentUser__resolvedKey == null || !currentUser__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -78,19 +79,6 @@ public class AuthCredential {
             }
         }
         return currentUser;
-    }
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1113642023)
-    public void setCurrentUser(@NotNull User currentUser) {
-        if (currentUser == null) {
-            throw new DaoException(
-                    "To-one property 'currentUserId' has not-null constraint; cannot set to-one to null");
-        }
-        synchronized (this) {
-            this.currentUser = currentUser;
-            currentUserId = currentUser.getId();
-            currentUser__resolvedKey = currentUserId;
-        }
     }
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
@@ -130,5 +118,18 @@ public class AuthCredential {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAuthCredentialDao() : null;
+    }
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1113642023)
+    public void setCurrentUser(@NotNull User currentUser) {
+        if (currentUser == null) {
+            throw new DaoException(
+                    "To-one property 'currentUserId' has not-null constraint; cannot set to-one to null");
+        }
+        synchronized (this) {
+            this.currentUser = currentUser;
+            currentUserId = currentUser.getId();
+            currentUser__resolvedKey = currentUserId;
+        }
     }
 }

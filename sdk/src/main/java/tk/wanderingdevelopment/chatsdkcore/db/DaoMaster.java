@@ -21,24 +21,24 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        BThreadDao.createTable(db, ifNotExists);
-        BMessageDao.createTable(db, ifNotExists);
         BLinkedAccountDao.createTable(db, ifNotExists);
+        BMessageDao.createTable(db, ifNotExists);
+        BThreadDao.createTable(db, ifNotExists);
         BUserDao.createTable(db, ifNotExists);
-        UserThreadLinkDao.createTable(db, ifNotExists);
         ContactLinkDao.createTable(db, ifNotExists);
         FollowerLinkDao.createTable(db, ifNotExists);
+        UserThreadLinkDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        BThreadDao.dropTable(db, ifExists);
-        BMessageDao.dropTable(db, ifExists);
         BLinkedAccountDao.dropTable(db, ifExists);
+        BMessageDao.dropTable(db, ifExists);
+        BThreadDao.dropTable(db, ifExists);
         BUserDao.dropTable(db, ifExists);
-        UserThreadLinkDao.dropTable(db, ifExists);
         ContactLinkDao.dropTable(db, ifExists);
         FollowerLinkDao.dropTable(db, ifExists);
+        UserThreadLinkDao.dropTable(db, ifExists);
     }
 
     /**
@@ -57,13 +57,13 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(BThreadDao.class);
-        registerDaoClass(BMessageDao.class);
         registerDaoClass(BLinkedAccountDao.class);
+        registerDaoClass(BMessageDao.class);
+        registerDaoClass(BThreadDao.class);
         registerDaoClass(BUserDao.class);
-        registerDaoClass(UserThreadLinkDao.class);
         registerDaoClass(ContactLinkDao.class);
         registerDaoClass(FollowerLinkDao.class);
+        registerDaoClass(UserThreadLinkDao.class);
     }
 
     public DaoSession newSession() {

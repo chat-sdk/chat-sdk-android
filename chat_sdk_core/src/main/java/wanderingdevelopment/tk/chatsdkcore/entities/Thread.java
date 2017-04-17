@@ -15,6 +15,7 @@ import wanderingdevelopment.tk.chatsdkcore.db.DaoSession;
 import wanderingdevelopment.tk.chatsdkcore.db.UserDao;
 import wanderingdevelopment.tk.chatsdkcore.db.MessageDao;
 import wanderingdevelopment.tk.chatsdkcore.db.ThreadDao;
+import wanderingdevelopment.tk.chatsdkcore.db.UserDao;
 
 /**
  * Created by kykrueger on 2016-10-22.
@@ -122,8 +123,7 @@ public class Thread {
                 throw new DaoException("Entity is detached from DAO context");
             }
             UserDao targetDao = daoSession.getUserDao();
-            List<User> usersInConversationNew = targetDao
-                    ._queryThread_UsersInConversation(id);
+            List<User> usersInConversationNew = targetDao._queryThread_UsersInConversation(id);
             synchronized (this) {
                 if (usersInConversation == null) {
                     usersInConversation = usersInConversationNew;

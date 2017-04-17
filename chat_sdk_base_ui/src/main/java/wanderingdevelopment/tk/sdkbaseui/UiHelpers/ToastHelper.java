@@ -1,14 +1,9 @@
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,9 +19,9 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 public class ToastHelper {
 
     private SuperCardToast superCardToast;
-    private AppCompatActivity activity;
+    private Activity activity;
 
-    public ToastHelper(AppCompatActivity activity){
+    public ToastHelper(Activity activity){
         this.activity = activity;
     }
 
@@ -86,9 +81,9 @@ public class ToastHelper {
             @Override
             public void run() {
                 superCardToast.dismiss();
+                superCardToast = null;
             }
         }, delay);
-        superCardToast = null;
     }
 
     public void dismissProgressCardImmediately(){
@@ -99,9 +94,9 @@ public class ToastHelper {
             @Override
             public void run() {
                 superCardToast.dismissImmediately();
+                superCardToast = null;
             }
         }, 0);
-        superCardToast = null;
     }
 
     private void showProgressCard(String text){
@@ -114,7 +109,7 @@ public class ToastHelper {
         ViewGroup viewGroup = superCardToast.getViewGroup();
 
         if (viewGroup!=null && superCardToast.getView()!= null && viewGroup.findViewById(superCardToast.getView().getId()) != null)
-            //viewGroup.removeView(superCardToast.getView());
+            viewGroup.clearChildFocus(superCardToast.getView());
 
         decorView.findViewById(R.id.card_container).bringToFront();
 

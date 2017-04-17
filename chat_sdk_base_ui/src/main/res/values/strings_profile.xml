@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tab / Fragment Title -->
+    <string name="profile_tab_title">Profile</string>
+    <!-- Menu Buttons -->
+    <string name="profile_menu_button_edit">Edit</string>
+    <string name="profile_menu_button_save">Save</string>
+    <string name="profile_menu_button_cancel">Cancel</string>
+    <string name="profile_menu_button_logout">Logout</string>
+    <!-- Labels -->
+    <string name="profile_label_user_availability">Availability</string>
+
+    <!-- Placeholders -->
+    <string name="profile_placeholder_user_name">Username</string>
+    <string name="profile_hint_user_name">Username</string>
+    <string name="profile_hint_location">Location</string>
+    <string name="profile_hint_phone_number">+1 123 456 7890</string>
+    <string name="profile_hint_email">address@domain.com</string>
+    <string name="profile_hint_birthday">Day Month Year</string>
+    <string name="profile_placeholder_user_metadata_null">unavailable</string>
+    
+    <string-array name="profile_show_states">
+        <item>Available</item>
+        <item>Away</item>
+        <item>Do not disturb</item>
+        <item>Unavailable</item>
+    </string-array>
+
+    <!-- Alerts -->
+    <string name="profile_country_flag_clicked">Select your country</string>
+    <string name="profile_saving">Saving changes</string>
+    <string name="profile_saving_success">Saved changes</string>
+    <string name="profile_saving_fail">Save failed</string>
+</resources>

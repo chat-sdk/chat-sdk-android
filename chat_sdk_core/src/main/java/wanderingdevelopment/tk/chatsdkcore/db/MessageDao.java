@@ -1,11 +1,13 @@
 package wanderingdevelopment.tk.chatsdkcore.db;
 
 import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
@@ -16,6 +18,7 @@ import org.joda.time.DateTime;
 import wanderingdevelopment.tk.chatsdkcore.entities.Message.DateTimeConverter;
 import wanderingdevelopment.tk.chatsdkcore.entities.Message.Type;
 import wanderingdevelopment.tk.chatsdkcore.entities.Message.TypeConverter;
+import wanderingdevelopment.tk.chatsdkcore.entities.User;
 
 import wanderingdevelopment.tk.chatsdkcore.entities.Message;
 
@@ -37,8 +40,11 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property Type = new Property(2, Integer.class, "type", false, "TYPE");
         public final static Property DateTime = new Property(3, Long.class, "dateTime", false, "DATE_TIME");
         public final static Property Text = new Property(4, String.class, "text", false, "TEXT");
-        public final static Property Payload = new Property(5, String.class, "payload", false, "PAYLOAD");
+        public final static Property ImagePayload = new Property(5, String.class, "imagePayload", false, "IMAGE_PAYLOAD");
+        public final static Property SenderId = new Property(6, long.class, "senderId", false, "SENDER_ID");
     }
+
+    private DaoSession daoSession;
 
     private final TypeConverter typeConverter = new TypeConverter();
     private final DateTimeConverter dateTimeConverter = new DateTimeConverter();
@@ -50,6 +56,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
     
     public MessageDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -61,7 +68,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"TYPE\" INTEGER," + // 2: type
                 "\"DATE_TIME\" INTEGER," + // 3: dateTime
                 "\"TEXT\" TEXT," + // 4: text
-                "\"PAYLOAD\" TEXT);"); // 5: payload
+                "\"IMAGE_PAYLOAD\" TEXT," + // 5: imagePayload
+                "\"SENDER_ID\" INTEGER NOT NULL );"); // 6: senderId
     }
 
     /** Drops the underlying database table. */
@@ -99,10 +107,11 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindString(5, text);
         }
  
-        String payload = entity.getPayload();
-        if (payload != null) {
-            stmt.bindString(6, payload);
+        String imagePayload = entity.getImagePayload();
+        if (imagePayload != null) {
+            stmt.bindString(6, imagePayload);
         }
+        stmt.bindLong(7, entity.getSenderId());
     }
 
     @Override
@@ -134,10 +143,17 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindString(5, text);
         }
  
-        String payload = entity.getPayload();
-        if (payload != null) {
-            stmt.bindString(6, payload);
+        String imagePayload = entity.getImagePayload();
+        if (imagePayload != null) {
+            stmt.bindString(6, imagePayload);
         }
+        stmt.bindLong(7, entity.getSenderId());
+    }
+
+    @Override
+    protected final void attachEntity(Message entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override
@@ -153,7 +169,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 2) ? null : typeConverter.convertToEntityProperty(cursor.getInt(offset + 2)), // type
             cursor.isNull(offset + 3) ? null : dateTimeConverter.convertToEntityProperty(cursor.getLong(offset + 3)), // dateTime
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // text
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // payload
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // imagePayload
+            cursor.getLong(offset + 6) // senderId
         );
         return entity;
     }
@@ -165,7 +182,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setType(cursor.isNull(offset + 2) ? null : typeConverter.convertToEntityProperty(cursor.getInt(offset + 2)));
         entity.setDateTime(cursor.isNull(offset + 3) ? null : dateTimeConverter.convertToEntityProperty(cursor.getLong(offset + 3)));
         entity.setText(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setPayload(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setImagePayload(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setSenderId(cursor.getLong(offset + 6));
      }
     
     @Override
@@ -208,4 +226,97 @@ public class MessageDao extends AbstractDao<Message, Long> {
         return query.list();
     }
 
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
+            builder.append(" FROM MESSAGE T");
+            builder.append(" LEFT JOIN USER T0 ON T.\"SENDER_ID\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected Message loadCurrentDeep(Cursor cursor, boolean lock) {
+        Message entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        User sender = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+         if(sender != null) {
+            entity.setSender(sender);
+        }
+
+        return entity;    
+    }
+
+    public Message loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<Message> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<Message> list = new ArrayList<Message>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<Message> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<Message> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="chat_sdk_button_login_button_color">#1c93db</color>
+    <color name="chat_sdk_button_login_button_color_pressed">#1874ac</color>
+
+    <color name="chat_sdk_button_register_button_color">#78b737</color>
+    <color name="chat_sdk_button_register_button_color_pressed">#59872a</color>
+
+    <color name="chat_sdk_button_anonymous_button_color">#aaaaaa</color>
+    <color name="chat_sdk_button_anonymous_button_color_pressed">#888787</color>
+
+</resources>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer name="chat_sdk_max_message_lines">5</integer>
-    <integer name="chat_sdk_max_status_length">140</integer>
-</resources>

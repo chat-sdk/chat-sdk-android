@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fetchphoto_dialog_title">Select an Image</string>
+    <array name="fetchphoto_list_array">
+        <item>Gallery</item>
+        <item>Camera</item>
+        <item>Cancel</item>
+    </array>
+
+    <string name="fetchphoto_dialog_cancelled">Cancelled</string>
+</resources>

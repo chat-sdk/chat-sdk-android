@@ -5,15 +5,10 @@ import com.google.gson.Gson;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.greenrobot.greendao.annotation.Generated;
 
 import wanderingdevelopment.tk.chatsdkcore.BuildConfig;
+import wanderingdevelopment.tk.chatsdkcore.EqualsWithNulls;
 
 /**
  * Created by kykrueger on 2016-10-22.
@@ -28,18 +23,20 @@ public class User {
     private String photoPath;
     private String metadata;
     private String userName;
+
     @Generated(hash = 370148902)
-    public User(Long id, String name, String photoPath, String metadata,
-            String userName) {
+    public User(Long id, String name, String photoPath, String metadata, String userName) {
         this.id = id;
         this.name = name;
         this.photoPath = photoPath;
         this.metadata = metadata;
         this.userName = userName;
     }
+
     @Generated(hash = 586692638)
     public User() {
     }
+
     public Long getId() {
         return this.id;
     }
@@ -146,22 +143,8 @@ public class User {
 
     public void setBirthday(String birthday){
         Gson gson = new Gson();
-
         UserMetaData userMetaData = parseUserMetadata();
         userMetaData.setBirthday(birthday);
-        metadata = gson.toJson(userMetaData);
-    }
-
-    public String getEntityId(){
-        UserMetaData userMetaData = parseUserMetadata();
-        return userMetaData.getEntityId();
-    }
-
-    public void setEntityId(String entityId){
-        Gson gson = new Gson();
-
-        UserMetaData userMetaData = parseUserMetadata();
-        userMetaData.setBirthday(entityId);
         metadata = gson.toJson(userMetaData);
     }
 
@@ -184,8 +167,14 @@ public class User {
 
         User model = (User) o;
 
-        if (id != model.id) return false;
-        return name != null ? name.equals(model.getName()) : model.name == null;
+        if (!EqualsWithNulls.equalsWithNulls(id, model.getId())) return false;
+        if (!EqualsWithNulls.equalsWithNulls(getUserName(), model.getUserName())) return false;
+        if (!EqualsWithNulls.equalsWithNulls(getAvailability(), model.getAvailability())) return false;
+        if (!EqualsWithNulls.equalsWithNulls(getName(),model.getName())) return false;
+        if (!EqualsWithNulls.equalsWithNulls(getEmail(), model.getEmail())) return false;
+        if (!EqualsWithNulls.equalsWithNulls(getCountryName(), model.getEmail())) return false;
+
+        return true;
 
     }
 
@@ -197,21 +186,12 @@ public class User {
     }
 
     private class UserMetaData{
-        private String entityId;
         private String availability;
         private String email;
         private String phoneNumber;
         private String countryName;
         private String location;
         private String birthday;
-
-        public String getEntityId() {
-            return entityId;
-        }
-
-        public void setEntityId(String entityId) {
-            this.entityId = entityId;
-        }
 
         String getAvailability() {
             return availability;
