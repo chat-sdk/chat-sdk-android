@@ -12,25 +12,25 @@ public class FirebaseAuthenticationHandler {
     // Note: this method gets called often
     // Each time the main tab bar appears the app check that the user is authenticated
     // -(RXPromise *) authenticateWithCachedToken {
-    public authenticateWithCachedToken() {
-    }
+//    public authenticateWithCachedToken() {
+//    }
 
     //-(BOOL) userAuthenticated {
-    public userAuthenticated() {
-
+    public Boolean userAuthenticated() {
+        return Boolean.TRUE;
     }
 
     //-(RXPromise *) logout {
-    public  logout() {
-
-    }
+//    public  logout() {
+//
+//    }
 
     //-(RXPromise *) authenticateWithDictionary: (NSDictionary *) details {
-    public authenticateWithDictionary() {
-    }
+//    public authenticateWithDictionary() {
+//    }
 
 
     //-(RXPromise *) handleFAUser: (FIRUser *) firebaseUser {
-    public handlerFAUser() {
-    }
+//    public handlerFAUser() {
+//    }
 }

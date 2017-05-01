@@ -6,4 +6,8 @@ package wanderingdevelopment.tk.chatsdkcore.Interfaces;
 
 public interface AudioMessageHandler {
 
+    /**
+     * @brief Send an audio message
+     */
+    //-(RXPromise *) sendMessageWithAudio:(NSData *) data duration:(double) seconds withThreadEntityID:(NSString *)threadID;
 }
