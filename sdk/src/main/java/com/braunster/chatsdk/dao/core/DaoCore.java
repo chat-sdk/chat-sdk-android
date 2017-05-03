@@ -11,6 +11,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.braunster.chatsdk.Utils.Debug;
+import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.UserThreadLink;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -31,10 +32,10 @@ import tk.wanderingdevelopment.chatsdkcore.db.DaoMaster;
 import tk.wanderingdevelopment.chatsdkcore.db.DaoSession;
 import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
-
 /**
  * Manage all creation, deletion and updating Entities.
  */
+@Deprecated
 public class DaoCore {
     private static final String TAG = DaoCore.class.getSimpleName();
     private static final boolean DEBUG = Debug.DaoCore;
@@ -93,7 +94,10 @@ public class DaoCore {
     }
 
 
-    /** Fetch entity for fiven entity ID, If more then one found the first will be returned.*/
+    /**
+     * Fetch entity for given entity ID, If more then one found the first will be returned.
+     */
+    @Deprecated
     public static <T extends Entity> T fetchEntityWithEntityID(Class<T> c, Object entityID){
         Property[] properties = daoSession.getDao(c).getProperties();
 
@@ -367,4 +371,5 @@ public class DaoCore {
 
         return o;
     }
+
 }

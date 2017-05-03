@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import co.chatsdk.core.entities.Message;
+import co.chatsdk.core.entities.Thread;
+import co.chatsdk.core.interfaces.StorageAdapter;
 import timber.log.Timber;
 import wanderingdevelopment.tk.chatsdkcore.BuildConfig;
 import wanderingdevelopment.tk.chatsdkcore.entities.AuthCredential;
@@ -31,7 +34,7 @@ import wanderingdevelopment.tk.chatsdkcore.entities.User;
  * Created by kykrueger on 2016-11-21.
  */
 
-public class DaoCore{
+public class DaoCore {
 
     private static String daoDbName = null;
     private static DaoCore daoCore = null;

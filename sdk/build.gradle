@@ -59,6 +59,9 @@ greendao {
 }
 
 dependencies {
+
+    //compile project(path: ':chat_sdk_core')
+
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // Facebook SDK
     compile project(':facebook')

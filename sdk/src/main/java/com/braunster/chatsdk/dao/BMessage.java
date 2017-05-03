@@ -19,7 +19,7 @@ import org.joda.time.DateTime;
 
 import java.util.Calendar;
 
-        import timber.log.Timber;
+import timber.log.Timber;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 import tk.wanderingdevelopment.chatsdkcore.db.DaoSession;
@@ -27,8 +27,10 @@ import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import tk.wanderingdevelopment.chatsdkcore.db.BUserDao;
 import tk.wanderingdevelopment.chatsdkcore.db.BMessageDao;
 
+
+@Deprecated
 @org.greenrobot.greendao.annotation.Entity
-public class BMessage extends BMessageEntity  {
+public class BMessage extends BMessageEntity {
 
     @Id
     private Long id;

@@ -44,8 +44,9 @@ import tk.wanderingdevelopment.chatsdkcore.db.BUserDao;
 import tk.wanderingdevelopment.chatsdkcore.db.FollowerLinkDao;
 import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
+@Deprecated
 @Entity
-public class BUser extends BUserEntity  {
+public class BUser extends BUserEntity {
 
     @Id
     private Long id;
@@ -118,8 +119,8 @@ public class BUser extends BUserEntity  {
     }
 
     /** Get a link account of the user by type.
-     * @return BLinkedAccount if found
-     * @return null if no account found.*/
+     * @return BLinkedAccount if found or otherwise null
+     */
     public BLinkedAccount getAccountWithType(int type){
         for (BLinkedAccount account : getBLinkedAccounts())
         {
@@ -128,8 +129,6 @@ public class BUser extends BUserEntity  {
         }
         return null;
     }
-
-
 
     @Override
     public List<BUser> getContacts() {

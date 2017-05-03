@@ -59,7 +59,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     }
 
     public static BUserWrapper initWithEntityId(String entityId){
-        BUser model = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+        BUser model = (BUser) DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
         return initWithModel(model);
     }
     

@@ -41,7 +41,7 @@ import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 import tk.wanderingdevelopment.chatsdkcore.db.BUserDao;
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 
-
+@Deprecated
 @org.greenrobot.greendao.annotation.Entity
 public class BThread extends BThreadEntity  {
 

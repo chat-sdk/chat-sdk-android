@@ -73,6 +73,7 @@ import static com.braunster.chatsdk.network.BDefines.LIST_POS;
 /**
  * Created by itzik on 6/8/2014.
  */
+@Deprecated
 public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity implements  AbsListView.OnScrollListener{
 
     private static final String TAG = ChatSDKAbstractChatActivity.class.getSimpleName();

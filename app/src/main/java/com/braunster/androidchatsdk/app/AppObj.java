@@ -6,9 +6,13 @@ import android.support.multidex.MultiDexApplication;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseCoreAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseThreadsAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseAuthAdapter;
+//import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 
+import wanderingdevelopment.tk.chatsdkcore.db.DaoCore;
+
+import co.chatsdk.core.StorageManager;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
@@ -41,16 +45,20 @@ public class AppObj extends MultiDexApplication {
             Timber.plant(Timber.asTree());
         }
 
+        //StorageManager.shared().a = DaoCore.getDaoCore(getApplicationContext());
 
         // Android chat SDK init!
         BNetworkManager.init(getApplicationContext());
         // Adapter init.
         AuthInterface auth = new FirebaseAuthAdapter(getApplicationContext());
         BNetworkManager.setAuthInterface(auth);
+
         ThreadsInterface threads = new FirebaseThreadsAdapter();
         BNetworkManager.setThreadsInterface(threads);
+
         CoreInterface core = new FirebaseCoreAdapter(getApplicationContext());
         BNetworkManager.setCoreInterface(core);
+
         UiLauncherInterface uiLauncher = ChatSDKUiHelper.initDefault();
         BNetworkManager.setUiLauncherInterface(uiLauncher);
     }
