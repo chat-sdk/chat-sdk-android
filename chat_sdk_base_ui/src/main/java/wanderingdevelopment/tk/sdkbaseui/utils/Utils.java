@@ -5,9 +5,8 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package com.braunster.chatsdk.Utils;
+package wanderingdevelopment.tk.sdkbaseui.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;

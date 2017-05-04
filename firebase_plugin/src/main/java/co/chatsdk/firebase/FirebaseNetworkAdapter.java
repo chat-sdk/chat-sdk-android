@@ -10,6 +10,7 @@ public class FirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     public FirebaseNetworkAdapter () {
         core = new FirebaseCorehandler();
+        auth = new FirebaseAuthenticationHandler();
     }
 
 }

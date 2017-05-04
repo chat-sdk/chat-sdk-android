@@ -4,10 +4,10 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.sorter.ThreadsSorter;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
+import com.braunster.chatsdk.utils.sorter.ThreadsSorter;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -17,7 +17,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.SaveImageProgress;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -53,7 +53,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
     protected boolean DEBUG = Debug.ThreadsManager;
 
-    public abstract Promise<BMessage, BError, BMessage> sendMessage(BMessage message);
+    public abstract Promise<BMessage, ChatError, BMessage> sendMessage(BMessage message);
 
     /**
      * Preparing a text message,
@@ -64,9 +64,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Promise<BMessage, BError, BMessage>  sendMessageWithText(String text, long threadId) {
+    public Promise<BMessage, ChatError, BMessage>  sendMessageWithText(String text, long threadId) {
 
-        final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
+        final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
         message.setText(text);
@@ -115,9 +115,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * @param location       is the Latitude and Longitude of the picked location.
      * @param threadId the id of the thread that the message is sent to.
      */
-    public  Promise<BMessage, BError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId) {
+    public  Promise<BMessage, ChatError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId) {
 
-        final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
+        final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
         message.setThreadId(threadId);
@@ -181,9 +181,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         deferred.reject(error);
                         new File(filePath).delete();
                     }
@@ -202,9 +202,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param threadId the id of the thread that the message is sent to.
      */
-    public Promise<BMessage, BError, BMessage>  sendMessageWithImage(final String filePath, long threadId) {
+    public Promise<BMessage, ChatError, BMessage>  sendMessageWithImage(final String filePath, long threadId) {
 
-        final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
+        final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
 
         final BMessage message = new BMessage();
         message.setThreadId(threadId);
@@ -258,9 +258,9 @@ public abstract class ThreadsManager implements ThreadsInterface {
                         sendMessage(message, deferred);
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         deferred.reject(error);
                     }
                 });
@@ -269,7 +269,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         return deferred.promise();
     }
 
-    public Deferred<BMessage, BError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, BError, BMessage> deferred){
+    public Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred){
 
         sendMessage(message).done(new DoneCallback<BMessage>() {
             @Override
@@ -279,12 +279,12 @@ public abstract class ThreadsManager implements ThreadsInterface {
 //                deferred.notify(message);
                 deferred.resolve(message);
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError bError) {
+            public void onFail(ChatError chatError) {
                 message.setStatus(BMessage.Status.FAILED);
 
-                deferred.reject(bError);
+                deferred.reject(chatError);
             }
         });
 
@@ -326,18 +326,18 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * For any item adding failure the "onItemFailed will be called.
      * If the main task will fail the error object in the "onMainFinished" method will be called.
      */
-    public abstract Promise<BThread, BError, Void> createThreadWithUsers(String name, List<BUser> users);
+    public abstract Promise<BThread, ChatError, Void> createThreadWithUsers(String name, List<BUser> users);
 
-    public Promise<BThread, BError, Void> createThreadWithUsers(String name, BUser... users) {
+    public Promise<BThread, ChatError, Void> createThreadWithUsers(String name, BUser... users) {
         return createThreadWithUsers(name, Arrays.asList(users));
     }
 
-    public abstract Promise<BThread, BError, Void> createPublicThreadWithName(String name);
+    public abstract Promise<BThread, ChatError, Void> createPublicThreadWithName(String name);
 
 
-    public abstract Promise<Void, BError, Void> deleteThreadWithEntityID(String entityID);
+    public abstract Promise<Void, ChatError, Void> deleteThreadWithEntityID(String entityID);
 
-    public Promise<Void, BError, Void> deleteThread(BThread thread){
+    public Promise<Void, ChatError, Void> deleteThread(BThread thread){
         return deleteThreadWithEntityID(thread.getEntityID());
     }
 
@@ -404,28 +404,28 @@ public abstract class ThreadsManager implements ThreadsInterface {
     /**
      * Add given users list to the given thread.
      */
-    public abstract Promise<BThread, BError, Void> addUsersToThread(BThread thread, List<BUser> users);
+    public abstract Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, List<BUser> users);
 
     /**
      * Add given users list to the given thread.
      */
-    public Promise<BThread, BError, Void> addUsersToThread(BThread thread, BUser... users) {
+    public Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, BUser... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
     /**
      * Remove given users list to the given thread.
      */
-    public abstract Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
+    public abstract Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
 
     /**
      * Remove given users list to the given thread.
      */
-    public Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, BUser... users) {
+    public Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, BUser... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
     }
 
-    public abstract Promise<BThread, BError, Void> pushThread(BThread thread);
+    public abstract Promise<BThread, ChatError, Void> pushThread(BThread thread);
 
     public List<BThread> getThreads(){
         return getThreads(-1);

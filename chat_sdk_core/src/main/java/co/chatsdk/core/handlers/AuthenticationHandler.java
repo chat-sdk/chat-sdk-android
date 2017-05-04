@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import co.chatsdk.core.types.AccountType;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.internal.operators.observable.ObservableElementAt;
 
@@ -18,18 +19,18 @@ public interface AuthenticationHandler {
      * Check to see if the user is already authenticated
      */
     //-(RXPromise *) authenticateWithCachedToken;
-    public Observable<Void> authenticateWithCachedToken();
+    public Completable authenticateWithCachedToken();
 
     /**
     * Authenticate with Firebase
     */
     //-(RXPromise *) authenticateWithDictionary: (NSDictionary *) details;
-    public Observable<Void> authenticateWithMap (final Map<String, Object> details);
+    public Completable authenticateWithMap (final Map<String, Object> details);
 
     /**
     * Checks whether the user has been authenticated this session
     */
-    //-(BOOL) userAuthenticated;
+    //-(BOOL) authenticateWithCachedToken;
     public Boolean userAuthenticated();
 
     /**

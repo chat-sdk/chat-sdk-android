@@ -26,12 +26,12 @@ public class BUserDao extends AbstractDao<BUser, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property AuthenticationType = new Property(2, Integer.class, "AuthenticationType", false, "AUTHENTICATION_TYPE");
+        public final static Property AuthenticationType = new Property(2, Integer.class, "authenticationType", false, "AUTHENTICATION_TYPE");
         public final static Property MessageColor = new Property(3, String.class, "messageColor", false, "MESSAGE_COLOR");
         public final static Property LastOnline = new Property(4, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
         public final static Property LastUpdated = new Property(5, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
-        public final static Property Online = new Property(6, Boolean.class, "Online", false, "ONLINE");
-        public final static Property Metadata = new Property(7, String.class, "Metadata", false, "METADATA");
+        public final static Property Online = new Property(6, Boolean.class, "online", false, "ONLINE");
+        public final static Property Metadata = new Property(7, String.class, "metadata", false, "METADATA");
     }
 
     private DaoSession daoSession;
@@ -52,12 +52,12 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"BUSER\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"ENTITY_ID\" TEXT," + // 1: entityID
-                "\"AUTHENTICATION_TYPE\" INTEGER," + // 2: AuthenticationType
+                "\"AUTHENTICATION_TYPE\" INTEGER," + // 2: authenticationType
                 "\"MESSAGE_COLOR\" TEXT," + // 3: messageColor
                 "\"LAST_ONLINE\" INTEGER," + // 4: lastOnline
                 "\"LAST_UPDATED\" INTEGER," + // 5: lastUpdated
-                "\"ONLINE\" INTEGER," + // 6: Online
-                "\"METADATA\" TEXT);"); // 7: Metadata
+                "\"ONLINE\" INTEGER," + // 6: online
+                "\"METADATA\" TEXT);"); // 7: metadata
     }
 
     /** Drops the underlying database table. */
@@ -80,9 +80,9 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindString(2, entityID);
         }
  
-        Integer AuthenticationType = entity.getAuthenticationType();
-        if (AuthenticationType != null) {
-            stmt.bindLong(3, AuthenticationType);
+        Integer authenticationType = entity.getAuthenticationType();
+        if (authenticationType != null) {
+            stmt.bindLong(3, authenticationType);
         }
  
         String messageColor = entity.getMessageColor();
@@ -100,14 +100,14 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindLong(6, lastUpdated.getTime());
         }
  
-        Boolean Online = entity.getOnline();
-        if (Online != null) {
-            stmt.bindLong(7, Online ? 1L: 0L);
+        Boolean online = entity.getOnline();
+        if (online != null) {
+            stmt.bindLong(7, online ? 1L: 0L);
         }
  
-        String Metadata = entity.getMetadata();
-        if (Metadata != null) {
-            stmt.bindString(8, Metadata);
+        String metadata = entity.getMetadata();
+        if (metadata != null) {
+            stmt.bindString(8, metadata);
         }
     }
 
@@ -125,9 +125,9 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindString(2, entityID);
         }
  
-        Integer AuthenticationType = entity.getAuthenticationType();
-        if (AuthenticationType != null) {
-            stmt.bindLong(3, AuthenticationType);
+        Integer authenticationType = entity.getAuthenticationType();
+        if (authenticationType != null) {
+            stmt.bindLong(3, authenticationType);
         }
  
         String messageColor = entity.getMessageColor();
@@ -145,14 +145,14 @@ public class BUserDao extends AbstractDao<BUser, Long> {
             stmt.bindLong(6, lastUpdated.getTime());
         }
  
-        Boolean Online = entity.getOnline();
-        if (Online != null) {
-            stmt.bindLong(7, Online ? 1L: 0L);
+        Boolean online = entity.getOnline();
+        if (online != null) {
+            stmt.bindLong(7, online ? 1L: 0L);
         }
  
-        String Metadata = entity.getMetadata();
-        if (Metadata != null) {
-            stmt.bindString(8, Metadata);
+        String metadata = entity.getMetadata();
+        if (metadata != null) {
+            stmt.bindString(8, metadata);
         }
     }
 
@@ -172,12 +172,12 @@ public class BUserDao extends AbstractDao<BUser, Long> {
         BUser entity = new BUser( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
-            cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // AuthenticationType
+            cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // authenticationType
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // messageColor
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastOnline
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // lastUpdated
-            cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // Online
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // Metadata
+            cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // online
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // metadata
         );
         return entity;
     }

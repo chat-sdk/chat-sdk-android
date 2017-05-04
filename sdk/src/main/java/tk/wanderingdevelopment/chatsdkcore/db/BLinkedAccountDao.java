@@ -33,7 +33,7 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, Long> {
         public final static Property UserId = new Property(3, Long.class, "userId", false, "USER_ID");
     }
 
-    private Query<BLinkedAccount> bUser_BLinkedAccountsQuery;
+    private Query<BLinkedAccount> bUser_LinkedAccountsQuery;
 
     public BLinkedAccountDao(DaoConfig config) {
         super(config);
@@ -158,16 +158,16 @@ public class BLinkedAccountDao extends AbstractDao<BLinkedAccount, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "BLinkedAccounts" to-many relationship of BUser. */
-    public List<BLinkedAccount> _queryBUser_BLinkedAccounts(Long userId) {
+    /** Internal query to resolve the "linkedAccounts" to-many relationship of BUser. */
+    public List<BLinkedAccount> _queryBUser_LinkedAccounts(Long userId) {
         synchronized (this) {
-            if (bUser_BLinkedAccountsQuery == null) {
+            if (bUser_LinkedAccountsQuery == null) {
                 QueryBuilder<BLinkedAccount> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.UserId.eq(null));
-                bUser_BLinkedAccountsQuery = queryBuilder.build();
+                bUser_LinkedAccountsQuery = queryBuilder.build();
             }
         }
-        Query<BLinkedAccount> query = bUser_BLinkedAccountsQuery.forCurrentThread();
+        Query<BLinkedAccount> query = bUser_LinkedAccountsQuery.forCurrentThread();
         query.setParameter(0, userId);
         return query.list();
     }

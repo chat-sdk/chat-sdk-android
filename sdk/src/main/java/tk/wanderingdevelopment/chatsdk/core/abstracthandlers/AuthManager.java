@@ -3,10 +3,11 @@ package tk.wanderingdevelopment.chatsdk.core.abstracthandlers;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 
 import org.jdeferred.Promise;
 
@@ -16,8 +17,6 @@ import java.util.Map;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 
-import static com.braunster.chatsdk.network.BDefines.Prefs.AuthenticationID;
-
 /**
  * Created by KyleKrueger on 10.04.2017.
  */
@@ -26,8 +25,8 @@ public abstract class AuthManager implements AuthInterface {
 
     private boolean authenticated = false;
     private static final boolean DEBUG = Debug.AbstractNetworkAdapter;
-    public static String provider = "";
-    public static String token = "";
+    //public static String provider = "";
+    //public static String token = "";
 
     protected Context context;
 
@@ -35,18 +34,18 @@ public abstract class AuthManager implements AuthInterface {
         this.context = ctx.getApplicationContext();
     }
 
-    public abstract Promise<Object, BError, Void> authenticateWithMap(Map<String, Object> details);
+    public abstract Promise<Object, ChatError, Void> authenticateWithMap(Map<String, Object> details);
 
     public abstract void logout();
 
         // TODO: break into isAuthenticated and authenticateWithCachedToken
-    public abstract Promise<BUser, BError, Void> checkUserAuthenticated();
+    public abstract Promise<BUser, ChatError, Void> authenticateWithCachedToken();
 
     /** Send a password change request to the server.*/
-    public abstract Promise<Void, BError, Void> changePassword(String email, String oldPassword, String newPassword);
+    public abstract Promise<Void, ChatError, Void> changePassword(String email, String oldPassword, String newPassword);
 
     /** Send a reset email request to the server.*/
-    public abstract Promise<Void, BError, Void> sendPasswordResetMail(String email);
+    public abstract Promise<Void, ChatError, Void> sendPasswordResetMail(String email);
 
     /**
      * Indicator that the current user in the adapter is authenticated.
@@ -99,7 +98,7 @@ public abstract class AuthManager implements AuthInterface {
      * The preference manager is initialized when the BNetworkManager.Init(context) is called.
      */
     public String getCurrentUserAuthenticationId() {
-        return BNetworkManager.preferences.getString(AuthenticationID, "");
+        return BNetworkManager.preferences.getString(Defines.Prefs.AuthenticationID, "");
     }
 
 
@@ -108,7 +107,7 @@ public abstract class AuthManager implements AuthInterface {
     }
 
 
-
+    @Deprecated
     public static Map<String, Object> getMap(String[] keys,  Object...values){
         Map<String, Object> map = new HashMap<String, Object>();
 

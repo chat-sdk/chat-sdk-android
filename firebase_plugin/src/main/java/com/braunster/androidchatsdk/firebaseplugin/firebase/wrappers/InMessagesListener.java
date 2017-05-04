@@ -13,7 +13,7 @@ import android.os.Process;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManager;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;

@@ -9,7 +9,7 @@ package com.braunster.chatsdk.network;
 
 import android.text.TextUtils;
 
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import java.util.ArrayList;
 import java.util.HashMap;

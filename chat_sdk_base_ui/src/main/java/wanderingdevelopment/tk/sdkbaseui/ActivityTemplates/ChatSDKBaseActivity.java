@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -22,15 +21,20 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import co.chatsdk.core.NetworkManager;
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
@@ -40,7 +44,6 @@ import com.github.johnpersano.supertoasts.SuperToast;
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
 
 import java.util.concurrent.Callable;
 
@@ -199,26 +202,31 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
 
                             if (!online)
                             {
-                                authenticate().done(new DoneCallback<BUser>() {
+                                authenticate().subscribe(new CompletableObserver() {
                                     @Override
-                                    public void onDone(BUser bUser) {
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
                                         if (DEBUG) Timber.d("Authenticated!");
                                         onAuthenticated();
                                     }
-                                }).fail(new FailCallback<BError>() {
+
                                     @Override
-                                    public void onFail(BError bError) {
+                                    public void onError(Throwable e) {
                                         if (DEBUG) Timber.d("Authenticated Failed!");
                                         onAuthenticationFailed();
                                     }
                                 });
+
                             }
                         }
                     })
-                    .fail(new FailCallback<BError>() {
+                    .fail(new FailCallback<ChatError>() {
                         @Override
-                        public void onFail(BError error) {
-                            if (DEBUG) Timber.e("Check online failed!, Error message: %s", error.message);
+                        public void onFail(ChatError error) {
+                            if (DEBUG) Timber.e("Check online failed!, Error message: %s", error.getMessage());
                             onAuthenticationFailed();
                         }
                     });
@@ -326,8 +334,8 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     }
 
     /** Authenticates the current user.*/
-    public Promise<BUser, BError, Void> authenticate(){
-        return BNetworkManager.getAuthInterface().checkUserAuthenticated();
+    public Completable authenticate(){
+        return NetworkManager.shared().a.auth.authenticateWithCachedToken();
     }
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
@@ -354,9 +362,9 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
                         });
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         if (isOnMainThread())
                             showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
                         else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
@@ -444,16 +452,15 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     }
 
     protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
-        BFacebookManager.onSessionStateChange(session, state, exception)
-                .fail(new FailCallback<BError>() {
-                    @Override
-                    public void onFail(BError bError) {
-                        if (DEBUG) Timber.e("onDoneWithError. Error: %s", bError.message);
-                        // Facebook session is closed so we need to disconnect from firebase.
-                        BNetworkManager.getAuthInterface().logout();
-                        startLoginActivity(true);
-                    }
-                });
+        BFacebookManager.onSessionStateChange(session, state, exception).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                if (DEBUG) Timber.e("onDoneWithError. Error: %s", throwable.getMessage());
+                // Facebook session is closed so we need to disconnect from firebase.
+                BNetworkManager.getAuthInterface().logout();
+                startLoginActivity(true);
+            }
+        });
     }
 
     @Override

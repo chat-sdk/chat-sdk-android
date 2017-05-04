@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package com.braunster.chatsdk.Utils;
+package com.braunster.chatsdk.utils.volley;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import wanderingdevelopment.tk.chatsdkcore.Utils.Debug;
+
+
 public class ImageUtils {
     public static final String TAG = ImageUtils.class.getSimpleName();
     public static final boolean DEBUG = Debug.ImageUtils;
@@ -48,7 +51,8 @@ public class ImageUtils {
      *
      * @return A Bitmap containing the given images.
      * */
-    @Nullable public static Bitmap getMixImagesBitmap(@Size(min = 1) int width,@Size(min = 1) int height, @NonNull Bitmap...bitmaps){
+    @Nullable
+    public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull Bitmap...bitmaps){
 
         if (height == 0 || width == 0) return null;
 

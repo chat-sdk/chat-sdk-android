@@ -22,12 +22,12 @@ import android.view.MenuItem;
 
 import wanderingdevelopment.tk.sdkbaseui.pagersslidingtabstrip.PagerSlidingTabStrip;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ExitHelper;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
-import com.braunster.chatsdk.Utils.Utils;
+import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.OpenFromPushChecker;
 import wanderingdevelopment.tk.sdkbaseui.adapter.AbstractChatSDKTabsAdapter;
 import wanderingdevelopment.tk.sdkbaseui.adapter.PagerAdapterTabs;

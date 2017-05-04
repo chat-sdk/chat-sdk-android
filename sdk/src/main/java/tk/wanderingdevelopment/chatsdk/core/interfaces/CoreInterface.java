@@ -4,21 +4,16 @@ import android.graphics.Bitmap;
 
 
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.BPushHandler;
 import com.braunster.chatsdk.interfaces.BUploadHandler;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.SaveImageProgress;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Promise;
 
 import java.util.Date;
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Created by KyleKrueger on 13.04.2017.
@@ -57,7 +52,7 @@ public interface CoreInterface {
      **/
     List<BUser> getContacs();
 
-    Promise<BUser, BError, Void> pushUser();
+    Promise<BUser, ChatError, Void> pushUser();
 
     void goOnline();
 
@@ -68,26 +63,26 @@ public interface CoreInterface {
     void setUserOffline();
 
     /*** Send a request to the server to get the online status of the user. */
-    Promise<Boolean, BError, Void> isOnline();
+    Promise<Boolean, ChatError, Void> isOnline();
 
     void updateLastOnline();
 
-    Promise<List<BUser>, BError, Void> getFollowers(String entityId);
+    Promise<List<BUser>, ChatError, Void> getFollowers(String entityId);
 
-    Promise<List<BUser>, BError, Void>  getFollows(String entityId);
+    Promise<List<BUser>, ChatError, Void>  getFollows(String entityId);
 
-    Promise<Void, BError, Void> followUser(BUser userToFollow);
+    Promise<Void, ChatError, Void> followUser(BUser userToFollow);
 
     void unFollowUser(BUser userToUnfollow);
 
-    Promise<List<BUser>, BError, Integer> usersForIndex(String index, String value);
+    Promise<List<BUser>, ChatError, Integer> usersForIndex(String index, String value);
 
     String getServerURL();
 
 
-    Promise<String[], BError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail);
+    Promise<String[], ChatError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail);
 
-    Promise<String, BError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image);
+    Promise<String, ChatError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image);
 
 
 }

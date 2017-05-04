@@ -1,7 +1,7 @@
 package tk.wanderingdevelopment.chatsdk.core.interfaces;
 
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 
 import org.jdeferred.Promise;
 
@@ -13,10 +13,7 @@ import java.util.Map;
 
 public interface AuthInterface {
 
-
-
-
-    Promise<Object, BError, Void> authenticateWithMap(Map<String, Object> details);
+    Promise<Object, ChatError, Void> authenticateWithMap(Map<String, Object> details);
 
     void logout();
 
@@ -27,13 +24,13 @@ public interface AuthInterface {
     String getCurrentUserAuthenticationId();
 
     // TODO: break into isAuthenticated and authenticateWithCachedToken
-    Promise<BUser, BError, Void> checkUserAuthenticated();
+    Promise<BUser, ChatError, Void> authenticateWithCachedToken();
 
     /** Send a password change request to the server.*/
-    Promise<Void, BError, Void> changePassword(String email, String oldPassword, String newPassword);
+    Promise<Void, ChatError, Void> changePassword(String email, String oldPassword, String newPassword);
 
     /** Send a reset email request to the server.*/
-    Promise<Void, BError, Void> sendPasswordResetMail(String email);
+    Promise<Void, ChatError, Void> sendPasswordResetMail(String email);
 
     /**
      * Indicator that the current user in the adapter is authenticated.

@@ -13,7 +13,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -26,7 +26,6 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.joda.time.DateTime;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,10 +106,10 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         DaoCore.updateEntity(model);
     }
 
-    public Promise<BMessage, BError, BMessage>  push(){
+    public Promise<BMessage, ChatError, BMessage>  push(){
         if (DEBUG) Timber.v("push");
 
-        final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
+        final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
         
         // Getting the message ref. Will be created if not exist.
         DatabaseReference ref = ref();
@@ -135,7 +134,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
         return deferred.promise();
     }
     
-    public Promise<BMessage, BError, BMessage> send(){
+    public Promise<BMessage, ChatError, BMessage> send(){
         if (DEBUG) Timber.v("send");
         
         if (model.getThread() != null)
@@ -143,7 +142,7 @@ public class BMessageWrapper extends EntityWrapper<BMessage> {
             return push();
         }else
         {
-            final Deferred<BMessage, BError, BMessage> deferred = new DeferredObject<>();
+            final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
             deferred.reject(null);
             return deferred.promise();
         }           

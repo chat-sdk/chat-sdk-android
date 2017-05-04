@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractContactsFragment;

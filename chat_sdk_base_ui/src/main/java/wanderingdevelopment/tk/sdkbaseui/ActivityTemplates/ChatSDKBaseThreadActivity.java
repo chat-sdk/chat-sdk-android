@@ -13,7 +13,7 @@ import android.view.MenuItem;
 
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
 

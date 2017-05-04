@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter.abstracted;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +22,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 

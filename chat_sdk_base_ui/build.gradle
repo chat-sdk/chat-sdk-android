@@ -57,7 +57,6 @@ dependencies {
 
     compile project(path: ':sdk')
     compile project(path: ':chat_sdk_core')
-    compile project(path: ':chat_sdk_core_adapters')
 }
 
 

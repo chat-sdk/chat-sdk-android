@@ -26,7 +26,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKThreadsListAdapter;

@@ -2,11 +2,11 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.support.annotation.NonNull;
 
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.SaveImageProgress;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,8 +29,8 @@ public class BFirebaseUploadHandler implements BUploadHandler {
     private static final boolean DEBUG = Debug.BFirebaseUploadHandler;
 
     @Override
-    public Promise<String, BError, SaveImageProgress> uploadFile(byte[] data, String name, String mimeType) {
-        final Deferred<String, BError, SaveImageProgress> deferred = new DeferredObject<>();
+    public Promise<String, ChatError, SaveImageProgress> uploadFile(byte[] data, String name, String mimeType) {
+        final Deferred<String, ChatError, SaveImageProgress> deferred = new DeferredObject<>();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl(BDefines.FirebaseStoragePath);
@@ -44,7 +44,7 @@ public class BFirebaseUploadHandler implements BUploadHandler {
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (DEBUG) Timber.e(e.getCause(), "Firebase storage exception while saving");
-                deferred.reject(new BError(BError.Code.FIREBASE_STORAGE_EXCEPTION, e));
+                deferred.reject(new ChatError(ChatError.Code.FIREBASE_STORAGE_EXCEPTION, e));
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override

@@ -11,6 +11,8 @@ import com.braunster.chatsdk.BuildConfig;
 
 import java.util.Random;
 
+import com.braunster.chatsdk.utils.ImageUtils;
+
 /**
  * Created by braunster on 23/06/14.
  */
@@ -48,17 +50,7 @@ public class BDefines {
         return "Chatcat" + String.valueOf(new Random().nextInt(1000) + 1);
     }
 
-    /** Each type get his own prefix by using the private constructor.
-     * This is the place to change the prefix if wanted.*/
-    public static final class BAccountType{
-        public static final int Password = 1;
-        public static final int Facebook = 2;
-        public static final int Twitter = 4;
-        public static final int Google = 3;
-        public static final int Anonymous = 5;
-        public static final int Register = 6;
-        public static final int Custom = 7;
-    }
+
 
     /**
      * If true anonymous login is possible.
@@ -67,7 +59,7 @@ public class BDefines {
 
     /**
      * The initials that will be used to create initials image for anonymous user and user without names.
-     * @see com.braunster.chatsdk.Utils.ImageUtils#getInitialsBitmap(int, int, String)
+     * @see ImageUtils#getInitialsBitmap(int, int, String)
      * */
     public static final String InitialsForAnonymous = "AN";
 
@@ -118,17 +110,6 @@ public class BDefines {
         public static final int DOUBLE_CLICK_INTERVAL = 2000;
     }
 
-    public static final class Prefs{
-        public static final String CurrentUserLoginInfo = "Current-User-Login-Info";
-        public static final String AuthenticationID = "authentication-id";
-        public static final String TokenKey = "token";
-        public static final String AccountTypeKey = "accounty-type";
-        public static final String ObjectKey = "object";
-        public static final String LoginEmailKey = "login-email";
-        public static final String LoginTypeKey = "login-type";
-        public static final String LoginPasswordKey = "login-password";
-        public static final String PushEnabled = "push-enabled";
-    }
 
     public static final class Keys{
         /*Metadata*/

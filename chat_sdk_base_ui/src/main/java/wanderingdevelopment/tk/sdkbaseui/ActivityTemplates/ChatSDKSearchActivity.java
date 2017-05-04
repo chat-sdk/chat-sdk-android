@@ -24,12 +24,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -237,10 +237,10 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                             hideSoftKeyboard(ChatSDKSearchActivity.this);
                         }
                     })
-                    .fail(new FailCallback<BError>() {
+                    .fail(new FailCallback<ChatError>() {
                         @Override
-                        public void onFail(BError bError) {
-                            if (bError.code == BError.Code.NO_USER_FOUND) {
+                        public void onFail(ChatError chatError) {
+                            if (chatError.code == ChatError.Code.NO_USER_FOUND) {
                                 showAlertToast(getString(R.string.search_activity_no_user_found_toast));
                                 dialog.dismiss();
                                 

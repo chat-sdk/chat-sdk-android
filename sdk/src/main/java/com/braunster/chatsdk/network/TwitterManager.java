@@ -12,13 +12,15 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.object.BError;
+
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.LoginType;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.object.ChatError;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.jdeferred.impl.DeferredObject;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,11 +36,9 @@ import org.scribe.oauth.OAuthService;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.AuthManager;
-
-import static com.braunster.chatsdk.network.BDefines.BAccountType.Twitter;
-import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
 
 
 /**
@@ -78,7 +78,7 @@ public class TwitterManager {
                     ex.printStackTrace();
                     Message message = new Message();
                     message.what = ERROR;
-                    message.obj = BError.getError(BError.Code.BAD_RESPONSE, "Cant get request token.");
+                    message.obj = ChatError.getError(ChatError.Code.BAD_RESPONSE, "Cant get request token.");
                     handler.sendMessage(message);
                     return;
                 }
@@ -93,7 +93,8 @@ public class TwitterManager {
         });
     }
 
-    public static Thread getVerifierThread(final Context context, final String ver, final Deferred<Object, BError, Void> deferred){
+    // TODO: Refactor this
+    public static Thread getVerifierThread(final Context context, final String ver, final Deferred<Object, ChatError, Void> deferred){
         return new Thread(new Runnable() {
             @Override
             public void run() {
@@ -101,7 +102,7 @@ public class TwitterManager {
 
                 if (accessToken == null)
                 {
-                    handler.sendMessage(MessageObj.getErrorMessage(deferred, BError.getError(BError.Code.ACCESS_TOKEN_REFUSED, "Access token is null")));
+                    handler.sendMessage(MessageObj.getErrorMessage(deferred, ChatError.getError(ChatError.Code.ACCESS_TOKEN_REFUSED, "Access token is null")));
                     return;
                 }
 
@@ -109,7 +110,7 @@ public class TwitterManager {
 
                 if (!response.isSuccessful())
                 {
-                    handler.sendMessage(MessageObj.getErrorMessage(deferred, BError.getError(BError.Code.BAD_RESPONSE, response.getBody())));
+                    handler.sendMessage(MessageObj.getErrorMessage(deferred, ChatError.getError(ChatError.Code.BAD_RESPONSE, response.getBody())));
                     return;
                 }
 
@@ -124,20 +125,26 @@ public class TwitterManager {
 
                     if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
 
-                    BNetworkManager.getAuthInterface().authenticateWithMap(
-                            AuthManager.getMap(new String[]{BDefines.Keys.UserId, LoginTypeKey}, json.get("id"), Twitter))
-                            .done(new DoneCallback<Object>() {
-                                @Override
-                                public void onDone(Object o) {
-                                    deferred.resolve(o);
-                                }
-                            })
-                            .fail(new FailCallback<BError>() {
-                                @Override
-                                public void onFail(BError bError) {
-                                    deferred.reject(bError);
-                                }
-                            });
+                    final Map<String, Object> data = new HashMap<String, Object>();
+
+                    data.put(BDefines.Keys.UserId, json.get("id"));
+                    data.put(LoginType.TypeKey, AccountType.Twitter);
+
+                    NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            deferred.resolve(null);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            deferred.reject(ChatError.getError(0, e.getMessage()));
+                        }
+                    });
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -227,11 +234,11 @@ public class TwitterManager {
                     MessageObj obj = (MessageObj) msg.obj;
                     if (obj.listener instanceof Deferred)
                     {
-                        Deferred<Object, BError, Void> deferred= ((DeferredObject) obj.listener);
+                        Deferred<Object, ChatError, Void> deferred= ((DeferredObject) obj.listener);
 
 
                         if (msg.arg1 == ERROR)
-                            deferred.reject((BError) obj.data);
+                            deferred.reject((ChatError) obj.data);
                         else deferred.resolve(obj.data);
                     }
             }

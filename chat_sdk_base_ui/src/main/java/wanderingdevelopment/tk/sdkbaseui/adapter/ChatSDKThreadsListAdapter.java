@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 
 import java.util.List;

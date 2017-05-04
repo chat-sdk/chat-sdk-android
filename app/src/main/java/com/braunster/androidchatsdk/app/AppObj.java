@@ -10,9 +10,11 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseAuthAdapter;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 
+import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import wanderingdevelopment.tk.chatsdkcore.db.DaoCore;
 
-import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.NetworkManager;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
@@ -45,6 +47,8 @@ public class AppObj extends MultiDexApplication {
             Timber.plant(Timber.asTree());
         }
 
+        AppContext.init(getApplicationContext());
+        NetworkManager.shared().a = new FirebaseNetworkAdapter();
         //StorageManager.shared().a = DaoCore.getDaoCore(getApplicationContext());
 
         // Android chat SDK init!

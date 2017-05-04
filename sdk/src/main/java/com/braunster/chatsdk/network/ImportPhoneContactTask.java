@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:23 PM
  */
 
-package com.braunster.chatsdk.Utils.asynctask;
+package com.braunster.chatsdk.network;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,10 +14,9 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 
+
 import com.braunster.chatsdk.R;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.jdeferred.DoneCallback;
 

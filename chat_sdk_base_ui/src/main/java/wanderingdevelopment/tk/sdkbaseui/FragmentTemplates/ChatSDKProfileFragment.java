@@ -16,8 +16,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractProfileFragment;
 import com.braunster.chatsdk.network.BDefines;
@@ -114,7 +115,7 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
     @Override
     public void loadData() {
         super.loadData();
-        setDetails((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+        setDetails((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey));
     }
 
     @Override

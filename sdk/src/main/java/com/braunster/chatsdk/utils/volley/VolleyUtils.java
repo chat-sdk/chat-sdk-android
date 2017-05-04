@@ -1,5 +1,5 @@
 
-package com.braunster.chatsdk.Utils.volley;
+package com.braunster.chatsdk.utils.volley;
 
 
 import android.content.Context;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Preferences -->
+    <!-- AppContext -->
     <string name="preference_database_id">PREFERENCE_DATABASE_SESSION_ID</string>
 
     <!-- Hints -->

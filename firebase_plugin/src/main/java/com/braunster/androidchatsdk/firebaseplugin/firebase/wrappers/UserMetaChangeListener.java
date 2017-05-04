@@ -12,7 +12,7 @@ import android.os.Message;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManager;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

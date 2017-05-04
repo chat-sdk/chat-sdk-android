@@ -3,9 +3,7 @@ package tk.wanderingdevelopment.chatsdk.core.interfaces;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.jdeferred.Deferred;
@@ -34,7 +32,7 @@ public interface ThreadsInterface {
     List<BThread> getThreads(int type, boolean allowDeleted);
 
 
-    Promise<BMessage, BError, BMessage> sendMessage(BMessage messages);
+    Promise<BMessage, ChatError, BMessage> sendMessage(BMessage messages);
 
     /**
      * Preparing a text message,
@@ -45,7 +43,7 @@ public interface ThreadsInterface {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    Promise<BMessage, BError, BMessage>  sendMessageWithText(String text, long threadId);
+    Promise<BMessage, ChatError, BMessage>  sendMessageWithText(String text, long threadId);
 
     /**
      * Preparing a location message,
@@ -58,7 +56,7 @@ public interface ThreadsInterface {
      * @param location       is the Latitude and Longitude of the picked location.
      * @param threadId the id of the thread that the message is sent to.
      */
-     Promise<BMessage, BError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId);
+     Promise<BMessage, ChatError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId);
 
     /**
      * Preparing an image message,
@@ -70,9 +68,9 @@ public interface ThreadsInterface {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param threadId the id of the thread that the message is sent to.
      */
-    Promise<BMessage, BError, BMessage>  sendMessageWithImage(final String filePath, long threadId);
+    Promise<BMessage, ChatError, BMessage>  sendMessageWithImage(final String filePath, long threadId);
 
-    Deferred<BMessage, BError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, BError, BMessage> deferred);
+    Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred);
 
     Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);
 
@@ -88,39 +86,39 @@ public interface ThreadsInterface {
      * For any item adding failure the "onItemFailed will be called.
      * If the main task will fail the error object in the "onMainFinished" method will be called.
      */
-    Promise<BThread, BError, Void> createThreadWithUsers(String name, List<BUser> users);
+    Promise<BThread, ChatError, Void> createThreadWithUsers(String name, List<BUser> users);
 
-    Promise<BThread, BError, Void> createThreadWithUsers(String name, BUser... users);
+    Promise<BThread, ChatError, Void> createThreadWithUsers(String name, BUser... users);
 
-    Promise<BThread, BError, Void> createPublicThreadWithName(String name);
+    Promise<BThread, ChatError, Void> createPublicThreadWithName(String name);
 
 
-    Promise<Void, BError, Void> deleteThreadWithEntityID(String entityID);
+    Promise<Void, ChatError, Void> deleteThreadWithEntityID(String entityID);
 
-    Promise<Void, BError, Void> deleteThread(BThread thread);
+    Promise<Void, ChatError, Void> deleteThread(BThread thread);
 
 
     /**
      * Add given users list to the given thread.
      */
-    Promise<BThread, BError, Void> addUsersToThread(BThread thread, List<BUser> users);
+    Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, List<BUser> users);
 
     /**
      * Add given users list to the given thread.
      */
-    Promise<BThread, BError, Void> addUsersToThread(BThread thread, BUser... users);
+    Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, BUser... users);
     /**
      * Remove given users list to the given thread.
      */
-    Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
+    Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
 
     /**
      * Remove given users list to the given thread.
      */
-    Promise<BThread, BError, Void> removeUsersFromThread(BThread thread, BUser... users);
+    Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, BUser... users);
 
 
-    Promise<BThread, BError, Void> pushThread(BThread thread);
+    Promise<BThread, ChatError, Void> pushThread(BThread thread);
 
 
 

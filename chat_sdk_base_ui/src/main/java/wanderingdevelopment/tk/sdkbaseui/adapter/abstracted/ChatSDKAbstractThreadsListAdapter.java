@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter.abstracted;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TimingLogger;
@@ -19,11 +18,11 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ThreadsItemSorter;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;

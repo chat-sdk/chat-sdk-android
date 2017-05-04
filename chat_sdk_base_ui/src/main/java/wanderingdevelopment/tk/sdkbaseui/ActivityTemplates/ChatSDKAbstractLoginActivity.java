@@ -10,14 +10,19 @@ package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 import android.content.Intent;
 import android.widget.EditText;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.types.LoginType;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
@@ -33,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.AuthManager;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -62,25 +66,30 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
         Map<String, ?> loginInfo = BNetworkManager.getAuthInterface().getLoginInfo();
-        if (loginInfo != null && loginInfo.containsKey(BDefines.Prefs.AccountTypeKey))
+        if (loginInfo != null && loginInfo.containsKey(Defines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
 
                 showProgDialog(getString(R.string.authenticating));
-                authenticate().done(new DoneCallback<BUser>() {
+
+                authenticate().subscribe(new CompletableObserver() {
                     @Override
-                    public void onDone(BUser bUser) {
+                    public void onSubscribe(Disposable d) {}
+
+                    @Override
+                    public void onComplete() {
                         if (DEBUG) Timber.d("Authenticated");
                         dismissProgDialog();
                         afterLogin();
                     }
-                })
-                .fail(new FailCallback<BError>() {
+
                     @Override
-                    public void onFail(BError bError) {
+                    public void onError(Throwable e) {
                         dismissProgDialog();
                         if (DEBUG) Timber.d("Auth Failed");
-/*FIXME remove if not needed.                        if (bError.code != BError.Code.NO_LOGIN_INFO)
-                            showAlertToast(getString(R.string.login_activity_auth_failed));*/
+                        //TODO: remove if not needed.
+                        //if (chatError.code != ChatError.Code.NO_LOGIN_INFO)
+                        //    showAlertToast(getString(R.string.login_activity_auth_failed));
+
                     }
                 });
             }
@@ -106,20 +115,25 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
         showProgDialog(getString(R.string.connecting));
 
-        Map<String, Object> data = AuthManager.getMap(
-                new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey},
-                BDefines.BAccountType.Password, etEmail.getText().toString(), etPass.getText().toString());
+        Map<String, Object> data = new HashMap<String, Object>();
 
-        BNetworkManager.getAuthInterface()
-                .authenticateWithMap(data).done(new DoneCallback<Object>() {
+        data.put(LoginType.TypeKey, AccountType.Password);
+        data.put(LoginType.EmailKey, etEmail.getText().toString());
+        data.put(LoginType.PasswordKey, etPass.getText().toString());
+
+        NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
-            public void onDone(Object o) {
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
                 afterLogin();
             }
-        }).fail(new FailCallback<BError>() {
+
             @Override
-            public void onFail(BError bError) {
-                toastErrorMessage(bError, true);
+            public void onError(Throwable e) {
+                toastErrorMessage(e, false);
                 dismissProgDialog();
             }
         });
@@ -128,11 +142,14 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     public void register(){
         if (!checkFields())
             return;
+
         showProgDialog(getString(R.string.registering));
 
-        Map<String, Object> data = AuthManager.getMap(
-                new String[]{BDefines.Prefs.LoginTypeKey, BDefines.Prefs.LoginEmailKey, BDefines.Prefs.LoginPasswordKey },
-                BDefines.BAccountType.Register, etEmail.getText().toString(), etPass.getText().toString());
+        Map<String, Object> data = new HashMap<String, Object>();
+
+        data.put(LoginType.TypeKey, AccountType.Register);
+        data.put(LoginType.EmailKey, etEmail.getText().toString());
+        data.put(LoginType.PasswordKey, etPass.getText().toString());
 
         BNetworkManager.getAuthInterface()
                 .authenticateWithMap(data).done(new DoneCallback<Object>() {
@@ -140,34 +157,38 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             public void onDone(Object o) {
                 afterLogin();
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError bError) {
-                toastErrorMessage(bError, false);
+            public void onFail(ChatError chatError) {
+                toastErrorMessage(chatError, false);
                 dismissProgDialog();
             }
         });
     }
 
-    public void anonymosLogin(){
+    public void anonymousLogin(){
         showProgDialog(getString(R.string.connecting));
 
         Map<String, Object> data = new HashMap<String, Object>();
-        data.put(BDefines.Prefs.LoginTypeKey, BDefines.BAccountType.Anonymous);
+        data.put(LoginType.TypeKey, AccountType.Anonymous);
 
-        BNetworkManager.getAuthInterface()
-                .authenticateWithMap(data).done(new DoneCallback<Object>() {
+        NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
-            public void onDone(Object o) {
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
                 afterLogin();
             }
-        }).fail(new FailCallback<BError>() {
+
             @Override
-            public void onFail(BError bError) {
-                toastErrorMessage(bError, false);
+            public void onError(Throwable e) {
+                toastErrorMessage(e, false);
                 dismissProgDialog();
             }
         });
+
     }
 
     public void twitterLogin(){
@@ -189,11 +210,11 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
                 afterLogin();
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError bError) {
+            public void onFail(ChatError chatError) {
                 dialog.dismiss();
-                toastErrorMessage(bError, true);
+                toastErrorMessage(chatError, true);
             }
         });
         
@@ -232,11 +253,11 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     }
 
-    public void toastErrorMessage(BError error, boolean login){
+    public void toastErrorMessage(Throwable error, boolean login){
         String errorMessage = "";
 
-        if (StringUtils.isNotBlank(error.message))
-            errorMessage = error.message;
+        if (StringUtils.isNotBlank(error.getMessage()))
+            errorMessage = error.getMessage();
         else if (login)
             errorMessage = getString(R.string.login_activity_failed_to_login_toast);
         else
@@ -278,17 +299,20 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             }
         }else showOrUpdateProgDialog(getString(R.string.authenticating));
 
-        BFacebookManager.onSessionStateChange(session, state, exception).done(new DoneCallback<Object>() {
+        BFacebookManager.onSessionStateChange(session, state, exception).subscribe(new CompletableObserver() {
             @Override
-            public void onDone(Object o) {
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
                 if (DEBUG) Timber.i("Connected to facebook");
                 afterLogin();
             }
-        }).fail(new FailCallback<BError>() {
+
             @Override
-            public void onFail(BError bError) {
+            public void onError(Throwable e) {
                 if (DEBUG) Timber.i(TAG, "Error connecting to Facebook");
-//                Toast.makeText(LoginActivity.this, "Failed connect to facebook.", Toast.LENGTH_SHORT).show();
                 showAlertToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
                 BFacebookManager.logout(ChatSDKAbstractLoginActivity.this);
                 dismissProgDialog();

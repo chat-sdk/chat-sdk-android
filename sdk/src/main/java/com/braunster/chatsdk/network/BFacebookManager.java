@@ -10,8 +10,8 @@ package com.braunster.chatsdk.network;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.object.BError;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.object.ChatError;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
@@ -28,14 +28,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.types.AccountType;
+import io.reactivex.Completable;
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.AuthManager;
-import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.CoreManager;
 
-import static com.braunster.chatsdk.network.BDefines.BAccountType.Facebook;
-import static com.braunster.chatsdk.network.BDefines.Prefs.LoginTypeKey;
+import co.chatsdk.core.types.LoginType;
 
 /*
  * Created by itzik on 6/8/2014.
@@ -48,35 +50,28 @@ public class BFacebookManager {
     private static final boolean DEBUG = Debug.BFacebookManager;
 
     public static String userFacebookAccessToken;
-    private static String facebookAppID;
-    private static String userThirdPartyUserAccount;
-    private static Context ctx;
 
-    public static void init(String id, Context context) {
-        facebookAppID = id;
-        ctx = context;
-    }
+    private static Completable loginWithFacebook() {
 
-    public static Promise<Object, BError, Void> loginWithFacebook() {
-        return BNetworkManager.getAuthInterface().authenticateWithMap(
-                AuthManager.getMap(new String[]{BDefines.Keys.ThirdPartyData.AccessToken, LoginTypeKey}, userFacebookAccessToken, Facebook));
+        Map<String, Object> data = new HashMap<String, Object>();
+
+        data.put(BDefines.Keys.ThirdPartyData.AccessToken, userFacebookAccessToken);
+        data.put(LoginType.TypeKey, AccountType.Facebook);
+
+        return NetworkManager.shared().a.auth.authenticateWithMap(data);
     }
 
     /** Re authenticate after session state changed.*/
-    public static Promise<Object, BError, Void> onSessionStateChange(Session session, SessionState state, Exception exception) {
+    public static Completable onSessionStateChange(Session session, SessionState state, Exception exception) {
+
         if (DEBUG) Timber.i("Session changed state");
 
-        // If we can start the login process with no errors this promise wont be used. 
-        // The returned promise will be from the loginWithFacebook.
-        Deferred<Object, BError, Void> deferred = new DeferredObject<>();
-        
         if (exception != null)
         {
             exception.printStackTrace();
             if (exception instanceof FacebookOperationCanceledException)
             {
-                deferred.reject(new BError(BError.Code.EXCEPTION, exception));
-                return deferred.promise();
+                return Completable.error(ChatError.getError(ChatError.Code.EXCEPTION, exception.getMessage()));
             }
         }
 
@@ -87,24 +82,21 @@ public class BFacebookManager {
             userFacebookAccessToken = Session.getActiveSession().getAccessToken();
 
             return loginWithFacebook();
-
-        } else if (state.isClosed()) {
+        }
+        else  {
             // Logged out of Facebook
             if (DEBUG) Timber.i("Session is closed.");
-            deferred.reject(new BError(BError.Code.SESSION_CLOSED, "Facebook session is closed."));
+            return Completable.error(ChatError.getError(ChatError.Code.SESSION_CLOSED, "Facebook session is closed."));
         }
-        
-        
-        return deferred.promise();
     }
 
     public static boolean isAuthenticated() {
         return  userFacebookAccessToken != null;
     }
 
-    public static Promise<GraphObject, BError, Void> getUserDetails(){
+    public static Promise<GraphObject, ChatError, Void> getUserDetails(){
 
-        final Deferred<GraphObject, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<GraphObject, ChatError, Void> deferred = new DeferredObject<>();
         
         if (Session.getActiveSession().getState().isOpened())
         {
@@ -122,13 +114,13 @@ public class BFacebookManager {
                         }
                         catch (Exception e)
                         {
-                            deferred.reject(BError.getExceptionError(e));
+                            deferred.reject(ChatError.getExceptionError(e));
                         }
 
                     }
                 }
             }).executeAsync();
-        } else deferred.reject(new BError(BError.Code.SESSION_CLOSED));
+        } else deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
         
         return deferred.promise();
     }
@@ -136,14 +128,14 @@ public class BFacebookManager {
     /*
     * No need for access token in SDK V3
     * Get the friend list from facebook that is using the app.*/
-    public static  Promise<List<GraphUser>, BError, Void>  getUserFriendList(){
+    public static  Promise<List<GraphUser>, ChatError, Void>  getUserFriendList(){
 
-        final Deferred<List<GraphUser>, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<List<GraphUser>, ChatError, Void> deferred = new DeferredObject<>();
 
         
         if (!Session.getActiveSession().getState().isOpened())
         {
-            return deferred.reject(new BError(BError.Code.SESSION_CLOSED));
+            return deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
         }
         Request req = Request.newMyFriendsRequest(Session.getActiveSession(), new Request.GraphUserListCallback() {
             @Override
@@ -158,9 +150,9 @@ public class BFacebookManager {
     }
 
     /** Does not work if your app dosent have facebook game app privileges.*/
-    public static Promise<List<JSONObject>, BError, Void> getInvitableFriendsList(){
+    public static Promise<List<JSONObject>, ChatError, Void> getInvitableFriendsList(){
 
-        final Deferred<List<JSONObject>, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<List<JSONObject>, ChatError, Void> deferred = new DeferredObject<>();
         
         final Session session = Session.getActiveSession();
         if (session != null && session.isOpened()) {
@@ -175,7 +167,7 @@ public class BFacebookManager {
                             FacebookRequestError error = response.getError();
                             if (error != null) {
                                 if (DEBUG) Timber.e(error.toString());
-                                deferred.reject(new BError(BError.Code.TAGGED, "Error while fetching invitable friends.", error));
+                                deferred.reject(new ChatError(ChatError.Code.TAGGED, "Error while fetching invitable friends.", error));
                             } else if (session == Session.getActiveSession()) {
                                 if (response != null) {
                                     // Get the result
@@ -205,7 +197,7 @@ public class BFacebookManager {
         else
         {
             if (DEBUG) Timber.d("Session is closed");
-            deferred.reject(new BError(BError.Code.SESSION_CLOSED));
+            deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
         }
         
         return deferred.promise();

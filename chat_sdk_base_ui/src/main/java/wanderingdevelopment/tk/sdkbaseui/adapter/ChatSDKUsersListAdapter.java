@@ -7,16 +7,14 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter;
 import com.braunster.chatsdk.dao.BUser;
 

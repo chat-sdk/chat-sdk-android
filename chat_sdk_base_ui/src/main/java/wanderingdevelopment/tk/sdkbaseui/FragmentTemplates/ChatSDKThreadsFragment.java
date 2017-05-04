@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKThreadsListAdapter;
 import com.braunster.chatsdk.dao.BThread;
@@ -32,7 +32,7 @@ import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
@@ -220,12 +220,12 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                                             });
                                 }
                             })
-                            .fail(new FailCallback<BError>() {
+                            .fail(new FailCallback<ChatError>() {
                                 @Override
-                                public void onFail(BError bError) {
+                                public void onFail(ChatError chatError) {
                                     showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
 
-                                    if (DEBUG) Timber.e("Error: %s", bError.message);
+                                    if (DEBUG) Timber.e("Error: %s", chatError.getMessage());
 
                                     dismissProgDialog();
                                 }

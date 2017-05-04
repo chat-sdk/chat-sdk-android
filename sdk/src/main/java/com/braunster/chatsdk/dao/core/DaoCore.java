@@ -10,8 +10,8 @@ package com.braunster.chatsdk.dao.core;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.dao.BMessage;
+import co.chatsdk.core.defines.Debug;
+
 import com.braunster.chatsdk.dao.UserThreadLink;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
@@ -35,7 +35,6 @@ import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 /**
  * Manage all creation, deletion and updating Entities.
  */
-@Deprecated
 public class DaoCore {
     private static final String TAG = DaoCore.class.getSimpleName();
     private static final boolean DEBUG = Debug.DaoCore;

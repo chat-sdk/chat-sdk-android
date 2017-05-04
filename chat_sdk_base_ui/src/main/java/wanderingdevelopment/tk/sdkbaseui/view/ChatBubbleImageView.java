@@ -24,14 +24,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
 

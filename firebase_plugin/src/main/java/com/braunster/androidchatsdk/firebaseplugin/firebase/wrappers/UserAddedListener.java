@@ -14,7 +14,7 @@ import android.os.Message;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventCombo;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseEventsManager;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.UserThreadLink;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;

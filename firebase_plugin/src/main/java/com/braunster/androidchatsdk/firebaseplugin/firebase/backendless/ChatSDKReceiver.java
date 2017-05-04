@@ -14,14 +14,16 @@ import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.Utils.Debug;
+
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jdeferred.DoneCallback;
@@ -29,8 +31,6 @@ import org.jdeferred.FailCallback;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Date;
 
 import timber.log.Timber;
 
@@ -62,7 +62,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
     @Override
     public boolean onMessage(final Context context, Intent intent) {
 
-        if (!BNetworkManager.preferences.getBoolean(BDefines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
+        if (!BNetworkManager.preferences.getBoolean(Defines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
             return false;
 
         try {
@@ -215,9 +215,9 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                                 }
                                 else postMessageNotification(context, json, thread, finalMessage, true);
                             }
-                        }, new FailCallback<BError>() {
+                        }, new FailCallback<ChatError>() {
                             @Override
-                            public void onFail(BError error) {
+                            public void onFail(ChatError error) {
                                 if (DEBUG) Timber.d("Failed to get user.");
                                 postMessageNotification(context, json, thread, finalMessage, false);
                             }

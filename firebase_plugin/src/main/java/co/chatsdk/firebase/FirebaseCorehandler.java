@@ -1,7 +1,7 @@
 package co.chatsdk.firebase;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -14,7 +14,6 @@ import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.entities.Message;
 import co.chatsdk.core.entities.ThreadType;
 import co.chatsdk.core.entities.User;
-import co.chatsdk.core.handlers.CoreHandler;
 import io.reactivex.Observable;
 import timber.log.Timber;
 

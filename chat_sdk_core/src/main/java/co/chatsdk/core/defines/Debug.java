@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package com.braunster.chatsdk.Utils;
+package co.chatsdk.core.defines;
 
 public class Debug {
 
@@ -23,6 +23,10 @@ public class Debug {
     public static final boolean BFirebaseNetworkAdapter = true;
     public static final boolean BFirebaseUploadHandler = true;
     public static final boolean BBackendlessPushHandler = true;
+
+    public static final boolean FirebaseAuthenticationHandler = true;
+    public static final boolean AbstractAuthenticationHandler = true;
+
 
     /*Fragments*/
     private static final boolean FRAGMENTS = false;

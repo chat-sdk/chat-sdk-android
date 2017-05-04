@@ -20,9 +20,9 @@ import android.widget.ProgressBar;
 
 import tk.wanderingdevelopment.chatsdkcore.db.BMessageDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.Utils;
-import com.braunster.chatsdk.Utils.sorter.MessageSorter;
+import com.braunster.chatsdk.utils.ImageUtils;
+import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
+import com.braunster.chatsdk.utils.sorter.MessageSorter;
 
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLocationActivity;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKMessagesListAdapter;
@@ -31,7 +31,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.Cropper;
 import wanderingdevelopment.tk.sdkbaseui.view.ChatMessageBoxView;
@@ -616,9 +616,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                     @Override
                     public void onDone(BMessage message) {
                     }
-                }, new FailCallback<BError>() {
+                }, new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         uiHelper.showAlertToast(R.string.unable_to_send_message);
                     }
                 }, new ProgressCallback<BMessage>() {
@@ -646,9 +646,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                         if (DEBUG) Timber.v("Image is sent");
                         uiHelper.dismissProgressCardWithSmallDelay();
                     }
-                }, new FailCallback<BError>() {
+                }, new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         uiHelper.dismissProgressCardWithSmallDelay();
                         uiHelper.showAlertToast(R.string.unable_to_send_image_message);
                     }
@@ -676,9 +676,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                         if (DEBUG) Timber.v("Image is sent");
                         uiHelper.dismissProgressCardWithSmallDelay();
                     }
-                }, new FailCallback<BError>() {
+                }, new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         uiHelper.dismissProgressCardWithSmallDelay();
                         uiHelper.showAlertToast(R.string.unable_to_send_location_message);
                     }
@@ -786,9 +786,9 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
                             uiHelper.dismissProgressCardWithSmallDelay();
                         }
                     })
-                    .fail(new FailCallback<BError>() {
+                    .fail(new FailCallback<ChatError>() {
                         @Override
-                        public void onFail(BError bError) {
+                        public void onFail(ChatError chatError) {
                             uiHelper.dismissProgressCardWithSmallDelay();
                             uiHelper.showAlertToast(R.string.unable_to_send_location_message);
                         }

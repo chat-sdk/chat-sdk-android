@@ -8,7 +8,7 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DatabaseError;
 
 public class EntityWrapper<E>{
@@ -25,7 +25,7 @@ public class EntityWrapper<E>{
         return entityId;
     }
     
-    protected BError getFirebaseError(DatabaseError firebaseError){
+    protected ChatError getFirebaseError(DatabaseError firebaseError){
         return FirebaseErrors.getFirebaseError(firebaseError);
         
     }

@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package com.braunster.chatsdk.Utils.sorter;
+package com.braunster.chatsdk.utils.sorter;
 
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.core.DaoCore;

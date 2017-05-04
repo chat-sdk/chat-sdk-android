@@ -1,5 +1,5 @@
 
-package com.braunster.chatsdk.Utils;
+package co.chatsdk.core.utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,6 +9,7 @@ import java.util.*;
 
 /** Source from : https://gist.github.com/codebutler/2339666*/
 public class JsonHelper {
+
     public static Object toJSON(Object object) throws JSONException {
         if (object instanceof Map) {
             JSONObject json = new JSONObject();

@@ -21,16 +21,19 @@ import android.widget.ProgressBar;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.helper.ChatSDKIntentClickListener;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.utils.ImageUtils;
+import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.Cropper;
 import com.braunster.chatsdk.object.SaveImageProgress;
 import com.soundcloud.android.crop.Crop;
@@ -110,22 +113,22 @@ public class ChatSDKProfileHelper {
 
         switch (loginType)
         {
-            case BDefines.BAccountType.Facebook:
+            case AccountType.Facebook:
                 getProfileFromFacebook();
                 break;
 
-            case BDefines.BAccountType.Password:
-            case BDefines.BAccountType.Custom:
-            case BDefines.BAccountType.Register:
+            case AccountType.Password:
+            case AccountType.Custom:
+            case AccountType.Register:
                 if (profileUser==null)
                     setProfilePicFromURL(BNetworkManager.getCoreInterface().currentUserModel().metaStringForKey(BDefines.Keys.BPictureURL), false);
                 else setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
                 break;
 
-            case BDefines.BAccountType.Anonymous:
+            case AccountType.Anonymous:
                 setInitialsProfilePic(BDefines.InitialsForAnonymous, true);
 
-            case BDefines.BAccountType.Twitter:
+            case AccountType.Twitter:
                 getProfileFromTwitter();
                 break;
         }
@@ -240,7 +243,7 @@ public class ChatSDKProfileHelper {
     }
 
     /** Only for current user.*/
-    public  Promise<String[], BError, SaveImageProgress> saveProfilePicToServer(String path, boolean setAsPic) {
+    public  Promise<String[], ChatError, SaveImageProgress> saveProfilePicToServer(String path, boolean setAsPic) {
 
         //  Loading the bitmap
         if (setAsPic)
@@ -270,7 +273,7 @@ public class ChatSDKProfileHelper {
     }
 
     /** Only for current user.*/
-    public Promise<String[], BError, SaveImageProgress> saveProfilePicToServer(String path){
+    public Promise<String[], ChatError, SaveImageProgress> saveProfilePicToServer(String path){
         Bitmap image = ImageUtils.getCompressed(path);
 
         Bitmap thumbnail = ImageUtils.getCompressed(path,
@@ -291,11 +294,11 @@ public class ChatSDKProfileHelper {
                         BNetworkManager.getCoreInterface().pushUser();
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         if (DEBUG)
-                            Timber.e("Backendless Exception while saving profile pic, message: %s", error.message);
+                            Timber.e("Backendless Exception while saving profile pic, message: %s", error.getMessage());
                     }
                 });
     }
@@ -541,13 +544,6 @@ public class ChatSDKProfileHelper {
         }
     }
 
-
-    
-    
-    
-    
-    
-    
     public static View.OnClickListener getProfilePicClickListener(final AppCompatActivity activity){
         return ChatSDKIntentClickListener.getPickImageClickListener(activity, PROFILE_PIC);
     }
@@ -565,7 +561,7 @@ public class ChatSDKProfileHelper {
     }
 
     public Integer getLoginType(){
-        return (Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
+        return (Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey);
     }
 
     /** If set the helper will use this fragment when calling startActivityForResult*/

@@ -19,11 +19,12 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKProfileHelper;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
-import com.braunster.chatsdk.network.BDefines;
+
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.Cropper;
 
@@ -96,7 +97,7 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
     }
 
     protected Integer getLoginType(){
-        return (Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey);
+        return (Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey);
     }
 
     @Override

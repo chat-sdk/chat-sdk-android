@@ -22,14 +22,14 @@ import android.widget.TextView;
 
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -253,9 +253,9 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                                             });
                                         }
                                     })
-                                    .fail(new FailCallback<BError>() {
+                                    .fail(new FailCallback<ChatError>() {
                                         @Override
-                                        public void onFail(BError error) {
+                                        public void onFail(ChatError error) {
                                             ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {

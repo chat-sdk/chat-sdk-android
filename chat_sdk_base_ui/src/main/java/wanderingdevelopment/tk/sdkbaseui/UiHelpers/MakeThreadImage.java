@@ -9,9 +9,9 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

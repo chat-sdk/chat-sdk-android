@@ -10,49 +10,49 @@ package com.braunster.chatsdk.object;
 /**
  * Created by braunster on 27/06/14.
  */
-public class BError {
+public class ChatError extends Throwable {
 
     public Object tag = null;
     public int code = -1;
-    public String message;
 
-    public BError(int code){
-        this.code = code;
-        this.message = Message.getMessageForCode(code);
+    public ChatError(int code){
+        this(code, Message.getMessageForCode(code));
     }
 
-    public BError(int code, String message){
+    public ChatError(int code, String message){
+        super(message);
         this.code = code;
-        this.message = message;
     }
 
-    public BError(int code, Object tag){
-        this.code = code;
+    public ChatError(int code, Object tag){
+        this(code);
         this.tag = tag;
-        this.message = Message.getMessageForCode(code);
     }
 
-    public BError(int code, String message, Object tag){
-        this.code = code;
-        this.message = message;
+    public ChatError(int code, String message, Object tag){
+        this(code, message);
         this.tag = tag;
     }
 
     /*Static Initializer's*/
-    public static BError getError(int code, String message){
-        return new BError(code, message);
+    public static ChatError getError(int code, String message){
+        return new ChatError(code, message);
     }
 
-    public static BError getNoPathError(){
-        return new BError(Code.NO_PATH);
+    public static ChatError getError(int code) {
+        return new ChatError(code);
     }
 
-    public static BError getExceptionError(Exception e){
-        return new BError(Code.EXCEPTION, e.getMessage(), e);
+    public static ChatError getNoPathError() {
+        return new ChatError(Code.NO_PATH);
     }
 
-    public static BError getExceptionError(Exception e, String message){
-        return new BError(Code.EXCEPTION, message, e);
+    public static ChatError getExceptionError(Exception e){
+        return new ChatError(Code.EXCEPTION, e.getMessage(), e);
+    }
+
+    public static ChatError getExceptionError(Exception e, String message){
+        return new ChatError(Code.EXCEPTION, message, e);
     }
 
     public static final class Code{
@@ -124,6 +124,6 @@ public class BError {
 
     @Override
     public String toString() {
-        return String.format("BError, Code: %s, Message: %s, Tag: %s", code, message, tag);
+        return String.format("ChatError, Code: %s, Message: %s, Tag: %s", code, getMessage(), tag);
     }
 }

@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.BuildConfig;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
@@ -141,7 +141,7 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
             passwordLogin();
         }
         else if (i == R.id.chat_sdk_btn_anon_login) {
-            anonymosLogin();
+            anonymousLogin();
         }
         else if (i == R.id.chat_sdk_btn_register)
         {

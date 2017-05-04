@@ -9,7 +9,9 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
-import com.braunster.chatsdk.Utils.Debug;
+
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BLinkedAccount;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -18,7 +20,7 @@ import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -89,18 +91,18 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey));
+        model.setAuthenticationType((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
         String name = authData.getDisplayName();
         String email = authData.getEmail();
-        String token = BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.TokenKey).toString();
+        String token = BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.TokenKey).toString();
         String uid = authData.getUid();
 
         BLinkedAccount linkedAccount;
         
-        switch ((Integer) (BNetworkManager.getAuthInterface().getLoginInfo().get(BDefines.Prefs.AccountTypeKey)))
+        switch ((Integer) (BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey)))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
@@ -185,11 +187,11 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         DaoCore.updateEntity(model);
     }
 
-    public Promise<BUser, BError, Void> once(){
+    public Promise<BUser, ChatError, Void> once(){
 
-        final Deferred<DataSnapshot, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<DataSnapshot, ChatError, Void> deferred = new DeferredObject<>();
 
-        final Deferred<BUser, BError, Void> promise = new DeferredObject<>();
+        final Deferred<BUser, ChatError, Void> promise = new DeferredObject<>();
 
         DatabaseReference ref = ref();
 
@@ -216,10 +218,10 @@ public class BUserWrapper extends EntityWrapper<BUser> {
                 
                 promise.resolve(model);
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError bError) {
-                promise.reject(bError);
+            public void onFail(ChatError chatError) {
+                promise.reject(chatError);
             }
         });
         
@@ -290,10 +292,10 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         return values;
     }
     
-    public Promise<BUser, BError, Void> push(){
+    public Promise<BUser, ChatError, Void> push(){
         if (DEBUG) Timber.v("push");
         
-        final Deferred<BUser, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<BUser, ChatError, Void> deferred = new DeferredObject<>();
         
         ref().updateChildren(serialize(), new DatabaseReference.CompletionListener() {
             @Override
@@ -389,9 +391,9 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
     }
     
-    public Promise<Void, BError, Void> updateIndex(){
+    public Promise<Void, ChatError, Void> updateIndex(){
 
-        final Deferred<Void, BError, Void> deferred = new DeferredObject();
+        final Deferred<Void, ChatError, Void> deferred = new DeferredObject();
 
         Map<String, String> values = new HashMap<String, String>();
         

@@ -13,14 +13,14 @@ import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BBackendlessHandler;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -91,7 +91,7 @@ public class FirebaseCoreAdapter extends CoreManager {
 
     @Override
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
-    public Promise<BUser, BError, Void> pushUser() {
+    public Promise<BUser, ChatError, Void> pushUser() {
         return currentUser().push();
     }
 
@@ -108,13 +108,13 @@ public class FirebaseCoreAdapter extends CoreManager {
      *
      * This will allow us to find the user*/
     @Override
-    public Promise<List<BUser>, BError, Integer> usersForIndex(final String index, final String value) {
+    public Promise<List<BUser>, ChatError, Integer> usersForIndex(final String index, final String value) {
 
-        final Deferred<List<BUser>, BError, Integer> deferred = new DeferredObject<>();
+        final Deferred<List<BUser>, ChatError, Integer> deferred = new DeferredObject<>();
 
         if (StringUtils.isBlank(value))
         {
-            return deferred.reject(BError.getError(BError.Code.NULL, "Value is blank"));
+            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
         }
 
         Query query = FirebasePaths.indexRef().orderByChild(index).startAt(
@@ -156,7 +156,7 @@ public class FirebaseCoreAdapter extends CoreManager {
                         int count = 0;
                         for (final BUser user : usersToGo) {
 
-                            final Deferred<BUser, BError, Integer>  d = new DeferredObject<>();
+                            final Deferred<BUser, ChatError, Integer>  d = new DeferredObject<>();
 
                             BUserWrapper.initWithModel(user)
                                     .once()
@@ -183,12 +183,12 @@ public class FirebaseCoreAdapter extends CoreManager {
                                             }
                                         }
                                     })
-                                    .fail(new FailCallback<BError>() {
+                                    .fail(new FailCallback<ChatError>() {
                                         @Override
-                                        public void onFail(BError bError) {
+                                        public void onFail(ChatError chatError) {
                                             if (DEBUG) Timber.e("usersForIndex, onDoneWithError.");
                                             // Notify that an error occurred while selecting.
-                                            d.reject(bError);
+                                            d.reject(chatError);
                                         }
                                     });
 
@@ -207,7 +207,7 @@ public class FirebaseCoreAdapter extends CoreManager {
                                 // Reject the promise if all promises failed.
                                 if (masterProgress.getFail() == masterProgress.getTotal())
                                 {
-                                    deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
+                                    deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
                                 }
                                 // If all was done lets resolve the promise.
                                 else if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal())
@@ -216,10 +216,10 @@ public class FirebaseCoreAdapter extends CoreManager {
                         });
 
 
-                    } else deferred.reject(BError.getError(BError.Code.NO_USER_FOUND, "Unable to found user."));
+                    } else deferred.reject(ChatError.getError(ChatError.Code.NO_USER_FOUND, "Unable to found user."));
                 } else {
                     if (DEBUG) Timber.d("Value is null");
-                    deferred.reject(BError.getError(BError.Code.NO_USER_FOUND, "Unable to found user."));
+                    deferred.reject(ChatError.getError(ChatError.Code.NO_USER_FOUND, "Unable to found user."));
                 }
             }
 
@@ -267,13 +267,13 @@ public class FirebaseCoreAdapter extends CoreManager {
         setUserOnline();
     }
 
-    public Promise<Boolean, BError, Void> isOnline(){
+    public Promise<Boolean, ChatError, Void> isOnline(){
 
-        final Deferred<Boolean, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<Boolean, ChatError, Void> deferred = new DeferredObject<>();
 
         if (BNetworkManager.getCoreInterface().currentUserModel() == null)
         {
-            return  deferred.reject(BError.getError(BError.Code.NULL, "Current user is null"));
+            return  deferred.reject(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
         }
 
         FirebasePaths.userOnlineRef(BNetworkManager.getCoreInterface().currentUserModel().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -295,12 +295,12 @@ public class FirebaseCoreAdapter extends CoreManager {
     }
 
     @Override
-    public Promise<Void, BError, Void> followUser(final BUser userToFollow) {
+    public Promise<Void, ChatError, Void> followUser(final BUser userToFollow) {
 
         if (!BDefines.EnableFollowers)
             throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
 
-        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<Void, ChatError, Void> deferred = new DeferredObject<>();
 
         final BUser user = BNetworkManager.getCoreInterface().currentUserModel();
 
@@ -385,14 +385,14 @@ public class FirebaseCoreAdapter extends CoreManager {
     }
 
     @Override
-    public Promise<List<BUser>, BError, Void> getFollowers(String entityId){
+    public Promise<List<BUser>, ChatError, Void> getFollowers(String entityId){
         if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
 
-        final Deferred<List<BUser>, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<List<BUser>, ChatError, Void> deferred = new DeferredObject<>();
 
         if (StringUtils.isEmpty(entityId))
         {
-            return deferred.reject(BError.getError(BError.Code.NULL, "Entity id is empty"));
+            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Entity id is empty"));
         }
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
@@ -440,7 +440,7 @@ public class FirebaseCoreAdapter extends CoreManager {
                         // Reject the promise if all promisses failed.
                         if (masterProgress.getFail() == masterProgress.getTotal())
                         {
-                            deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
+                            deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
                         }
                         else
                             deferred.resolve(followers);
@@ -459,14 +459,14 @@ public class FirebaseCoreAdapter extends CoreManager {
     }
 
     @Override
-    public Promise<List<BUser>, BError, Void>  getFollows(String entityId){
+    public Promise<List<BUser>, ChatError, Void>  getFollows(String entityId){
         if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
 
-        final Deferred<List<BUser>, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<List<BUser>, ChatError, Void> deferred = new DeferredObject<>();
 
         if (StringUtils.isEmpty(entityId))
         {
-            return deferred.reject(BError.getError(BError.Code.NULL, "Entity id is empty"));
+            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Entity id is empty"));
         }
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
@@ -513,7 +513,7 @@ public class FirebaseCoreAdapter extends CoreManager {
                         // Reject the promise if all promisses failed.
                         if (masterProgress.getFail() == masterProgress.getTotal())
                         {
-                            deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
+                            deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
                         }
                         else
                             deferred.resolve(followers);

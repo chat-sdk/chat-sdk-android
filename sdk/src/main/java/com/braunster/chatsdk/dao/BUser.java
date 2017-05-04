@@ -7,13 +7,12 @@ import java.util.List;
 
 // KEEP INCLUDES - put your custom includes here
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import com.braunster.chatsdk.Utils.JsonHelper;
+import co.chatsdk.core.utils.JsonHelper;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -26,11 +25,9 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.JoinProperty;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.Transient;
-import org.greenrobot.greendao.annotation.Unique;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,23 +41,21 @@ import tk.wanderingdevelopment.chatsdkcore.db.BUserDao;
 import tk.wanderingdevelopment.chatsdkcore.db.FollowerLinkDao;
 import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
-@Deprecated
 @Entity
 public class BUser extends BUserEntity {
 
     @Id
     private Long id;
     private String entityID;
-    private Integer AuthenticationType;
+    private Integer authenticationType;
     private String messageColor;
     private java.util.Date lastOnline;
     private java.util.Date lastUpdated;
-    private Boolean Online;
-    private String Metadata;
-
+    private Boolean online;
+    private String metadata;
 
     @ToMany(referencedJoinProperty = "userId")
-    private List<BLinkedAccount> BLinkedAccounts;
+    private List<BLinkedAccount> linkedAccounts;
 
     @Transient
     private static final String TAG = BUser.class.getSimpleName();
@@ -80,25 +75,22 @@ public class BUser extends BUserEntity {
         this.id = id;
     }
 
-
-    @Generated(hash = 242980031)
-    public BUser(Long id, String entityID, Integer AuthenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated,
-            Boolean Online, String Metadata) {
+    @Generated(hash = 932829735)
+    public BUser(Long id, String entityID, Integer authenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated,
+            Boolean online, String metadata) {
         this.id = id;
         this.entityID = entityID;
-        this.AuthenticationType = AuthenticationType;
+        this.authenticationType = authenticationType;
         this.messageColor = messageColor;
         this.lastOnline = lastOnline;
         this.lastUpdated = lastUpdated;
-        this.Online = Online;
-        this.Metadata = Metadata;
+        this.online = online;
+        this.metadata = metadata;
     }
-
 
     @Generated(hash = 497069028)
     public BUser() {
     }
-
 
     @Override @Keep
     public BPath getBPath() {
@@ -110,10 +102,6 @@ public class BUser extends BUserEntity {
         return Type.bEntityTypeUser;
     }
 
-    public Date lastUpdated() {
-        return lastUpdated;
-    }
-
     public String[] getCacheIDs(){
         return new String[]{entityID != null ? entityID : ""};
     }
@@ -122,7 +110,7 @@ public class BUser extends BUserEntity {
      * @return BLinkedAccount if found or otherwise null
      */
     public BLinkedAccount getAccountWithType(int type){
-        for (BLinkedAccount account : getBLinkedAccounts())
+        for (BLinkedAccount account : getLinkedAccounts())
         {
             if (account.getType() == type)
                 return account;
@@ -293,10 +281,10 @@ public class BUser extends BUserEntity {
     public void setMetaMap(Map<String, Object> metadata){
         metadata = updateMetaDataFormat(metadata);
         
-        this.Metadata = new JSONObject(metadata).toString();
+        this.metadata = new JSONObject(metadata).toString();
     }
     
-    @Deprecated()
+    @Deprecated
     /**
      * This is for maintaining compatibility with older chat versions, It will be removed in a few versions.
      **/
@@ -326,14 +314,14 @@ public class BUser extends BUserEntity {
      * Converting the metadata json to a map object
      **/
     public Map<String, Object> metaMap(){
-        if (StringUtils.isEmpty(Metadata))
+        if (StringUtils.isEmpty(metadata))
             return new HashMap<>();
 
         try {
-            return JsonHelper.toMap(new JSONObject(Metadata));
+            return JsonHelper.toMap(new JSONObject(metadata));
         } catch (JSONException e) {
             e.printStackTrace();
-            Timber.e(e.getCause(), "Cant parse metadata json to map. Meta: %s", Metadata);
+            Timber.e(e.getCause(), "Cant parse metadata json to map. Meta: %s", metadata);
 
             return new HashMap<>();
         }
@@ -401,12 +389,12 @@ public class BUser extends BUserEntity {
 
 
     public Integer getAuthenticationType() {
-        return this.AuthenticationType;
+        return this.authenticationType;
     }
 
 
     public void setAuthenticationType(Integer AuthenticationType) {
-        this.AuthenticationType = AuthenticationType;
+        this.authenticationType = AuthenticationType;
     }
 
 
@@ -441,54 +429,51 @@ public class BUser extends BUserEntity {
 
 
     public Boolean getOnline() {
-        return this.Online;
+        return this.online;
     }
 
 
     public void setOnline(Boolean Online) {
-        this.Online = Online;
+        this.online = Online;
     }
 
 
     public String getMetadata() {
-        return this.Metadata;
+        return this.metadata;
     }
 
 
     public void setMetadata(String Metadata) {
-        this.Metadata = Metadata;
+        this.metadata = Metadata;
     }
-
 
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1371197961)
-    public List<BLinkedAccount> getBLinkedAccounts() {
-        if (BLinkedAccounts == null) {
+    @Generated(hash = 579014559)
+    public List<BLinkedAccount> getLinkedAccounts() {
+        if (linkedAccounts == null) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             BLinkedAccountDao targetDao = daoSession.getBLinkedAccountDao();
-            List<BLinkedAccount> BLinkedAccountsNew = targetDao._queryBUser_BLinkedAccounts(id);
+            List<BLinkedAccount> linkedAccountsNew = targetDao._queryBUser_LinkedAccounts(id);
             synchronized (this) {
-                if (BLinkedAccounts == null) {
-                    BLinkedAccounts = BLinkedAccountsNew;
+                if (linkedAccounts == null) {
+                    linkedAccounts = linkedAccountsNew;
                 }
             }
         }
-        return BLinkedAccounts;
+        return linkedAccounts;
     }
-
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 950803068)
-    public synchronized void resetBLinkedAccounts() {
-        BLinkedAccounts = null;
+    @Generated(hash = 1903600659)
+    public synchronized void resetLinkedAccounts() {
+        linkedAccounts = null;
     }
-
 
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
@@ -502,7 +487,6 @@ public class BUser extends BUserEntity {
         myDao.delete(this);
     }
 
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
      * Entity must attached to an entity context.
@@ -514,7 +498,6 @@ public class BUser extends BUserEntity {
         }
         myDao.refresh(this);
     }
-
 
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
@@ -528,12 +511,22 @@ public class BUser extends BUserEntity {
         myDao.update(this);
     }
 
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1611990536)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBUserDao() : null;
     }
+
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+
+
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+
 
 }

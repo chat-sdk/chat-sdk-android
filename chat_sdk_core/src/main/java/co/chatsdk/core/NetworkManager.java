@@ -9,7 +9,7 @@ public class NetworkManager {
     private static NetworkManager instance;
     public AbstractNetworkAdapter a;
 
-    public static NetworkManager sharedManager(){
+    public static NetworkManager shared() {
         if (instance == null) {
             instance = new NetworkManager();
         }

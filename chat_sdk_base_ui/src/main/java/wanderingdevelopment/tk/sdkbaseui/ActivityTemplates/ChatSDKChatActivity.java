@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.widget.AbsListView;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 
 /**

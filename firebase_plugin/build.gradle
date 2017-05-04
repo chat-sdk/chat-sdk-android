@@ -28,6 +28,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':sdk')
+    compile project(':chat_sdk_core')
 
     compile 'com.google.firebase:firebase-core:9.0.2'
     compile 'com.google.firebase:firebase-database:9.0.2'

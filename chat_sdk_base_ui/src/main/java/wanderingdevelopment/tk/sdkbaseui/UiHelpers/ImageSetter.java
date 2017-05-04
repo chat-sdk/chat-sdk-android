@@ -8,7 +8,7 @@ import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
 

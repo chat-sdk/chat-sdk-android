@@ -11,7 +11,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import timber.log.Timber;
@@ -54,9 +53,9 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
     }
 
     @Override
-    public Promise<BThread, BError, Void> createPublicThreadWithName(String name) {
+    public Promise<BThread, ChatError, Void> createPublicThreadWithName(String name) {
 
-        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
 
         // Crating the new thread.
         // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
@@ -107,9 +106,9 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                         });
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         if (DEBUG) Timber.e("Failed to push thread to ref.");
                         DaoCore.deleteEntity(thread);
                         deferred.reject(error);
@@ -124,14 +123,14 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.*/
     @Override
-    public Promise<BThread, BError, Void> addUsersToThread(final BThread thread, final List<BUser> users) {
+    public Promise<BThread, ChatError, Void> addUsersToThread(final BThread thread, final List<BUser> users) {
 
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
 
         if (thread == null)
         {
             if (DEBUG) Timber.e("addUsersToThread, Thread is null" );
-            return deferred.reject(new BError(BError.Code.NULL, "Thread is null"));
+            return deferred.reject(new ChatError(ChatError.Code.NULL, "Thread is null"));
         }
 
         if (DEBUG) Timber.d("Users Amount: %s", users.size());
@@ -163,7 +162,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                     // Reject the promise if all promisses failed.
                     if (masterProgress.getFail() == masterProgress.getTotal())
                     {
-                        deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "All promises failed"));
+                        deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
                     }
                     else
                         deferred.resolve(thread);
@@ -176,13 +175,13 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
     }
 
     @Override
-    public Promise<BThread, BError, Void> removeUsersFromThread(final BThread thread, List<BUser> users) {
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+    public Promise<BThread, ChatError, Void> removeUsersFromThread(final BThread thread, List<BUser> users) {
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
 
         if (thread == null)
         {
             if (DEBUG) Timber.e("addUsersToThread, Thread is null" );
-            return deferred.reject(new BError(BError.Code.NULL, "Thread is null"));
+            return deferred.reject(new ChatError(ChatError.Code.NULL, "Thread is null"));
         }
 
         if (DEBUG) Timber.d("Users Amount: %s", users.size());
@@ -223,7 +222,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
     }
 
     @Override
-    public Promise<BThread, BError, Void>  pushThread(BThread thread) {
+    public Promise<BThread, ChatError, Void>  pushThread(BThread thread) {
         return new BThreadWrapper(thread).push();
     }
 
@@ -235,7 +234,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.*/
     @Override
-    public Promise<BMessage, BError, BMessage> sendMessage(final BMessage message){
+    public Promise<BMessage, ChatError, BMessage> sendMessage(final BMessage message){
         if (DEBUG) Timber.v("sendMessage");
 
         return new BMessageWrapper(message).send().done(new DoneCallback<BMessage>() {
@@ -261,8 +260,8 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
      *  For any item adding failure the "onItemFailed will be called.
      *   If the main task will fail the error object in the "onMainFinished" method will be called."*/
     @Override
-    public Promise<BThread, BError, Void> createThreadWithUsers(String name, final List<BUser> users) {
-        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
+    public Promise<BThread, ChatError, Void> createThreadWithUsers(String name, final List<BUser> users) {
+        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
 
         ThreadRecovery.checkForAndRecoverThreadWithUsers(users)
                 .done(new DoneCallback<BThread>() {
@@ -271,9 +270,9 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                         deferred.resolve(thread);
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         // Didn't find a new thread so we create a new.
                         final BThread thread = new BThread();
                         BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
@@ -304,17 +303,17 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                                                 deferred.resolve(thread);
                                             }
                                         })
-                                                .fail(new FailCallback<BError>() {
+                                                .fail(new FailCallback<ChatError>() {
                                                     @Override
-                                                    public void onFail(BError error) {
+                                                    public void onFail(ChatError error) {
                                                         deferred.reject(error);
                                                     }
                                                 });
                                     }
                                 })
-                                .fail(new FailCallback<BError>() {
+                                .fail(new FailCallback<ChatError>() {
                                     @Override
-                                    public void onFail(BError error) {
+                                    public void onFail(ChatError error) {
                                         // Delete the thread if failed to push
                                         DaoCore.deleteEntity(thread);
 
@@ -331,7 +330,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
 
 
     @Override
-    public Promise<Void, BError, Void> deleteThreadWithEntityID(final String entityID) {
+    public Promise<Void, ChatError, Void> deleteThreadWithEntityID(final String entityID) {
 
         final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
 

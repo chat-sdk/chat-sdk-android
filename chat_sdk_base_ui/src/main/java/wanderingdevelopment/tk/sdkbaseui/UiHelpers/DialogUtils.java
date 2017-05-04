@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
 import android.content.Context;
@@ -43,15 +42,15 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.Utils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
+import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.TwitterManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
 import wanderingdevelopment.tk.sdkbaseui.view.TouchImageView;
 
@@ -158,7 +157,7 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private Deferred<Object, BError, Void> deferred = new DeferredObject<>();
+        private Deferred<Object, ChatError, Void> deferred = new DeferredObject<>();
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -195,7 +194,7 @@ public class DialogUtils {
 
                     if (url.startsWith(getString(R.string.twitter_callback_url) + "?denied"))
                     {
-                        deferred.reject(BError.getError(BError.Code.OPERATION_FAILED, "Cancelled."));
+                        deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "Cancelled."));
                         dismiss();
                         return false;
                     }
@@ -262,7 +261,7 @@ public class DialogUtils {
                 switch (msg.what)
                 {
                     case TwitterManager.ERROR:
-                        deferred.reject((BError) msg.obj);
+                        deferred.reject((ChatError) msg.obj);
 
                         break;
 
@@ -273,7 +272,7 @@ public class DialogUtils {
             }
         };
 
-        public Promise<Object, BError, Void> promise(){
+        public Promise<Object, ChatError, Void> promise(){
             return deferred.promise();
         }
 

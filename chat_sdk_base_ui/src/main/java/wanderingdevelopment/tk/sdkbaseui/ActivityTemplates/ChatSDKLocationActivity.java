@@ -16,12 +16,11 @@ import android.view.View;
 import android.widget.Button;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;

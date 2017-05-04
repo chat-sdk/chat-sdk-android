@@ -34,13 +34,13 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragment;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKChatHelper;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
 

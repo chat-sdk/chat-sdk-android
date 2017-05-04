@@ -5,7 +5,7 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrappe
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BFirebaseDefines;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,16 +18,15 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by kykrueger on 2016-09-04.
  */
 public class ThreadRecovery {
-    public static Promise<BThread, BError, Void> checkForAndRecoverThreadWithUsers(List<BUser> users){
+    public static Promise<BThread, ChatError, Void> checkForAndRecoverThreadWithUsers(List<BUser> users){
 
-        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
 
         checkForRemoteThreadWithUsers(users).done(new DoneCallback<String>() {
             @Override
@@ -38,25 +37,25 @@ public class ThreadRecovery {
                     public void onDone(BThread bThread) {
                         deferred.resolve(bThread);
                     }
-                }).fail(new FailCallback<BError>() {
+                }).fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError bError) {
-                        deferred.reject(bError);
+                    public void onFail(ChatError chatError) {
+                        deferred.reject(chatError);
                     }
                 });
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError bError) {
-                deferred.reject(bError);
+            public void onFail(ChatError chatError) {
+                deferred.reject(chatError);
             }
         });
 
         return deferred.promise();
     }
 
-    public static Promise<String, BError, Void> checkForRemoteThreadWithUsers(List<BUser> users){
-        final Deferred<String, BError, Void> deferred = new DeferredObject<>();
+    public static Promise<String, ChatError, Void> checkForRemoteThreadWithUsers(List<BUser> users){
+        final Deferred<String, ChatError, Void> deferred = new DeferredObject<>();
         final List<String> userEntityIds = new ArrayList<>();
 
         DatabaseReference currentUsersDatabasePath = null;
@@ -82,7 +81,7 @@ public class ThreadRecovery {
                 int threadNumber = 0;
 
                 if (allThreadsForUser.getChildrenCount() == 0) {
-                    deferred.reject(new BError(404, "Could not find existing Thread"));
+                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
                 }
 
                 for(DataSnapshot threadOfUser : allThreadsForUser.getChildren()){
@@ -114,7 +113,7 @@ public class ThreadRecovery {
                             // Return if this is not true
                             if(numberOfUsers != userEntityIds.size() || !threadFound){
                                 if(lastThreadFinal && deferred.isPending()){
-                                    deferred.reject(new BError(404, "Could not find existing Thread"));
+                                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
                                 }
                                 return;
                             }
@@ -125,7 +124,7 @@ public class ThreadRecovery {
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             if (deferred.isPending()){
-                                deferred.reject(new BError(404, "Could not find existing Thread"));
+                                deferred.reject(new ChatError(404, "Could not find existing Thread"));
                             }
                         }
                     });
@@ -135,7 +134,7 @@ public class ThreadRecovery {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 if (deferred.isPending()){
-                    deferred.reject(new BError(404, "Could not find existing Thread"));
+                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
                 }
             }
         });

@@ -1,26 +1,7 @@
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
-import com.facebook.LoginActivity;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Created by kykrueger on 2016-11-06.

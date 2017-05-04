@@ -20,20 +20,20 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragment;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
-import com.braunster.chatsdk.Utils.ImageUtils;
-import com.braunster.chatsdk.Utils.helper.ChatSDKIntentClickListener;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import com.braunster.chatsdk.utils.ImageUtils;
+import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractContactsFragment;
 
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
 
@@ -203,9 +203,9 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                                     });
                             }
                         })
-                        .fail(new FailCallback<BError>() {
+                        .fail(new FailCallback<ChatError>() {
                             @Override
-                            public void onFail(BError error) {
+                            public void onFail(ChatError error) {
                                 if (isOnMainThread()) {
                                     showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
                                     dismissProgDialog();
@@ -342,9 +342,9 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                                 BNetworkManager.getThreadsInterface().pushThread(thread);
                             }
                         })
-                        .fail(new FailCallback<BError>() {
+                        .fail(new FailCallback<ChatError>() {
                             @Override
-                            public void onFail(BError error) {
+                            public void onFail(ChatError error) {
                                 showAlertToast(getString(R.string.unable_to_save_file));
                             }
                         });

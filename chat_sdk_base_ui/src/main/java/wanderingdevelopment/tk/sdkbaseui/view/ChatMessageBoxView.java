@@ -20,9 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
-import com.braunster.chatsdk.Utils.Utils;
+import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 public class ChatMessageBoxView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{

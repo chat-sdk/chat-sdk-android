@@ -13,8 +13,8 @@ import android.content.SharedPreferences;
 
 import com.braunster.chatsdk.BuildConfig;
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.volley.VolleyUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.bugsense.trace.BugSenseHandler;
 
@@ -55,9 +55,6 @@ public class BNetworkManager {
         VolleyUtils.init(context);
         DaoCore.init(context);
 
-        BFacebookManager.init(context.getString(R.string.facebook_id), context);
-
-        
         //Bug Sense
         if (BNetworkManager.BUGSENSE_ENABLED && StringUtils.isNotEmpty( context.getString(R.string.bug_sense_key) )) {
             BugSenseHandler.initAndStartSession(context, context.getString(R.string.bug_sense_key));

@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import org.apache.commons.lang3.StringUtils;
 

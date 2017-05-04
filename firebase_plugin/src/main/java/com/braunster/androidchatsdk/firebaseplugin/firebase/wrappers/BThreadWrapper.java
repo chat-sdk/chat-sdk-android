@@ -8,8 +8,8 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.sorter.MessageSorter;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.sorter.MessageSorter;
 import com.braunster.chatsdk.dao.UserThreadLink;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;
@@ -19,7 +19,7 @@ import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -171,11 +171,11 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      * Deleting a thread, Thread isn't always actually deleted from the db.
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
-    public Promise<Void, BError, Void>  deleteThread(){
+    public Promise<Void, ChatError, Void>  deleteThread(){
 
         if (DEBUG) Timber.v("deleteThread");
         
-        final Deferred<Void, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<Void, ChatError, Void> deferred = new DeferredObject<>();
         
         BUser user = BNetworkManager.getCoreInterface().currentUserModel();
 
@@ -262,10 +262,10 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
         return deferred.promise();
     }
 
-    public Promise<BThread, BError, Void> recoverPrivateThread(){
+    public Promise<BThread, ChatError, Void> recoverPrivateThread(){
 
         if (DEBUG) Timber.v("recoverPrivateThread");
-        final Deferred<BThread, BError, Void> deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
         // Removing the deleted value from firebase.
         DatabaseReference threadUserRef = FirebasePaths.threadRef(entityId)
             .child(BFirebaseDefines.Path.BUsersPath)
@@ -545,11 +545,11 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     /**
      * Push the thread to firebase.
      **/
-    public Promise<BThread, BError, Void> push(){
+    public Promise<BThread, ChatError, Void> push(){
 
         if (DEBUG) Timber.v("push");
         
-        final DeferredObject<BThread, BError, Void> deferred = new DeferredObject<>();
+        final DeferredObject<BThread, ChatError, Void> deferred = new DeferredObject<>();
         
         DatabaseReference ref = null;
         if (StringUtils.isNotEmpty(model.getEntityID()))
@@ -584,9 +584,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     /**
      * Add the thread from the given user threads ref.
      **/
-    public Promise<BThread, BError, Void> addUserWithEntityID(String entityId){
+    public Promise<BThread, ChatError, Void> addUserWithEntityID(String entityId){
 
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
         
         DatabaseReference ref = FirebasePaths.threadRef(this.entityId)
                 .child(BFirebaseDefines.Path.BUsersPath)
@@ -615,9 +615,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
     /**
      *Remove the thread from the given user threads ref.
      **/
-    public Promise<BThread, BError, Void> removeUserWithEntityID(String entityId){
+    public Promise<BThread, ChatError, Void> removeUserWithEntityID(String entityId){
 
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
 
         BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
@@ -640,8 +640,8 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      * Removing a user from thread.
      * If the thread is private the thread will be removed from the user thread ref.
      **/
-    public Promise<BThread, BError, Void> removeUser(final BUserWrapper user){
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+    public Promise<BThread, ChatError, Void> removeUser(final BUserWrapper user){
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
 
         removeUserWithEntityID(user.entityId).done(new DoneCallback<BThread>() {
             @Override
@@ -653,17 +653,17 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                         public void onDone(BThread thread) {
                             deferred.resolve(thread);
                         }
-                    }).fail(new FailCallback<BError>() {
+                    }).fail(new FailCallback<ChatError>() {
                         @Override
-                        public void onFail(BError error) {
+                        public void onFail(ChatError error) {
                             deferred.reject(error);
                         }
                     });
                 } else deferred.resolve(BThreadWrapper.this.model);
             }
-        }).fail(new FailCallback<BError>() {
+        }).fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError error) {
+            public void onFail(ChatError error) {
                 deferred.reject(error);
             }
         });
@@ -676,8 +676,8 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
      * Adding a user to the thread. 
      * If the thread is private the thread will be added to the user thread ref.
      **/
-    public Promise<BThread, BError, Void> addUser(final BUserWrapper user){
-        final Deferred<BThread, BError, Void>  deferred = new DeferredObject<>();
+    public Promise<BThread, ChatError, Void> addUser(final BUserWrapper user){
+        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
 
         // Adding the user.
         addUserWithEntityID(user.entityId).done(new DoneCallback<BThread>() {
@@ -700,9 +700,9 @@ public class BThreadWrapper extends EntityWrapper<BThread> {
                 } else deferred.resolve(null);
             }
         })
-        .fail(new FailCallback<BError>() {
+        .fail(new FailCallback<ChatError>() {
             @Override
-            public void onFail(BError error) {
+            public void onFail(ChatError error) {
                 deferred.reject(error);
             }
         });

@@ -17,7 +17,7 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.InMessagesL
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.ThreadUpdateChangeListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserAddedListener;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.UserMetaChangeListener;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BMessage;
 import com.braunster.chatsdk.dao.BThread;

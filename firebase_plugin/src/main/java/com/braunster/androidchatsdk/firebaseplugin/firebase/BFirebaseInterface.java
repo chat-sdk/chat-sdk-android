@@ -9,7 +9,7 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import android.util.Log;
 
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;

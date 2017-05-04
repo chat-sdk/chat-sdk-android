@@ -13,7 +13,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -26,7 +25,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.entities.Entity;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
@@ -179,11 +178,11 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
     }
 
     /** Create or fetch chat for users, Opens the chat when done.*/
-    protected Promise<BThread, BError, Void>  createAndOpenThreadWithUsers(String name, BUser...users){
+    protected Promise<BThread, ChatError, Void>  createAndOpenThreadWithUsers(String name, BUser...users){
         return createThreadWithUsers(name, true, users);
     }
     /** Create or fetch chat for users. Opens the chat if wanted.*/
-    protected Promise<BThread, BError, Void>  createThreadWithUsers(String name, final boolean openChatWhenDone, BUser... users) {
+    protected Promise<BThread, ChatError, Void>  createThreadWithUsers(String name, final boolean openChatWhenDone, BUser... users) {
         return BNetworkManager.getThreadsInterface().createThreadWithUsers(name, users)
                 .done(new DoneCallback<BThread>() {
                     @Override
@@ -194,9 +193,9 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
                         }
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         if (isOnMainThread())
                             showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
                         else getActivity().runOnUiThread(new Runnable() {
@@ -312,9 +311,9 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
                             refreshOnBackground();
                         }
                     })
-                    .fail(new FailCallback<BError>() {
+                    .fail(new FailCallback<ChatError>() {
                         @Override
-                        public void onFail(BError error) {
+                        public void onFail(ChatError error) {
                             showAlertToast(  getString(R.string.delete_thread_fail_toast)  );
                         }
                     });
@@ -326,8 +325,8 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
 
     /** Authenticates the current user.*/
-    public Promise<BUser, BError, Void> authenticate(){
-        return BNetworkManager.getAuthInterface().checkUserAuthenticated();
+    public Promise<BUser, ChatError, Void> authenticate(){
+        return BNetworkManager.getAuthInterface().authenticateWithCachedToken();
     }
 
     public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {

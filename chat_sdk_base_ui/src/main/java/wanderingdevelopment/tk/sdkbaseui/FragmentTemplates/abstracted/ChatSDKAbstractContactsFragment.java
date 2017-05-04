@@ -27,7 +27,7 @@ import android.widget.ProgressBar;
 
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.Utils.Debug;
+import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKSearchActivity;
@@ -41,7 +41,7 @@ import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.BatchedEvent;
 import com.braunster.chatsdk.network.events.Event;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
@@ -414,9 +414,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                             }
                                         }
                                     })
-                                    .fail(new FailCallback<BError>() {
+                                    .fail(new FailCallback<ChatError>() {
                                         @Override
-                                        public void onFail(BError error) {
+                                        public void onFail(ChatError error) {
                                             chatSDKUiHelper.showAlertToast( getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail) );
                                         }
                                     });
@@ -450,9 +450,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                             startActivity(intent);
                                         }
                                     })
-                                    .fail(new FailCallback<BError>() {
+                                    .fail(new FailCallback<ChatError>() {
                                         @Override
-                                        public void onFail(BError error) {
+                                        public void onFail(ChatError error) {
                                             
                                         }
                                     });
@@ -476,9 +476,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                             getDialog().dismiss();
                                     }
                                 })
-                                .fail(new FailCallback<BError>() {
+                                .fail(new FailCallback<ChatError>() {
                                     @Override
-                                    public void onFail(BError error) {
+                                    public void onFail(ChatError error) {
                                         
                                     }
                                 });
@@ -541,9 +541,9 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                         adapter.notifyDataSetChanged();
                                     }
                                 })
-                                .fail(new FailCallback<BError>() {
+                                .fail(new FailCallback<ChatError>() {
                                     @Override
-                                    public void onFail(BError error) {
+                                    public void onFail(ChatError error) {
                                         //TODO handle error
                                     }
                                 });

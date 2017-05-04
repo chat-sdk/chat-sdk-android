@@ -4,15 +4,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.Utils.Debug;
-import com.braunster.chatsdk.Utils.ImageUtils;
+import co.chatsdk.core.defines.Debug;
+import com.braunster.chatsdk.utils.ImageUtils;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.interfaces.BPushHandler;
 import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
-import com.braunster.chatsdk.object.BError;
+import com.braunster.chatsdk.object.ChatError;
 import com.braunster.chatsdk.object.SaveImageProgress;
 
 import org.apache.commons.lang3.StringUtils;
@@ -124,7 +124,7 @@ public abstract class CoreManager implements CoreInterface {
         return currentUserModel().getContacts();
     }
 
-    public abstract Promise<BUser, BError, Void> pushUser();
+    public abstract Promise<BUser, ChatError, Void> pushUser();
 
 
     public abstract void goOnline();
@@ -137,29 +137,29 @@ public abstract class CoreManager implements CoreInterface {
 
 
     /*** Send a request to the server to get the online status of the user. */
-    public abstract Promise<Boolean, BError, Void> isOnline();
+    public abstract Promise<Boolean, ChatError, Void> isOnline();
 
 
 
 
-    public abstract Promise<List<BUser>, BError, Void> getFollowers(String entityId);
+    public abstract Promise<List<BUser>, ChatError, Void> getFollowers(String entityId);
 
-    public abstract Promise<List<BUser>, BError, Void>  getFollows(String entityId);
+    public abstract Promise<List<BUser>, ChatError, Void>  getFollows(String entityId);
 
-    public abstract Promise<Void, BError, Void> followUser(BUser userToFollow);
+    public abstract Promise<Void, ChatError, Void> followUser(BUser userToFollow);
 
     public abstract void unFollowUser(BUser userToUnfollow);
 
-    public abstract Promise<List<BUser>, BError, Integer> usersForIndex(String index, String value);
+    public abstract Promise<List<BUser>, ChatError, Integer> usersForIndex(String index, String value);
 
     public abstract String getServerURL();
 
 
-    public Promise<String[], BError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail) {
+    public Promise<String[], ChatError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail) {
 
         if(image == null || thumbnail == null) return rejectMultiple();
 
-        final Deferred<String[], BError, SaveImageProgress> deferred = new DeferredObject<String[], BError, SaveImageProgress>();
+        final Deferred<String[], ChatError, SaveImageProgress> deferred = new DeferredObject<String[], ChatError, SaveImageProgress>();
 
         final String[] urls = new String[2];
 
@@ -178,17 +178,17 @@ public abstract class CoreManager implements CoreInterface {
                                         deferred.resolve(urls);
                                     }
                                 })
-                                .fail(new FailCallback<BError>() {
+                                .fail(new FailCallback<ChatError>() {
                                     @Override
-                                    public void onFail(BError error) {
+                                    public void onFail(ChatError error) {
                                         deferred.reject(error);
                                     }
                                 });
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         deferred.reject(error);
                     }
                 });
@@ -196,11 +196,11 @@ public abstract class CoreManager implements CoreInterface {
         return deferred.promise();
     }
 
-    public Promise<String, BError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image) {
+    public Promise<String, ChatError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image) {
 
         if(image == null) return reject();
 
-        final Deferred<String, BError, SaveImageProgress> deferred = new DeferredObject<String, BError, SaveImageProgress>();
+        final Deferred<String, ChatError, SaveImageProgress> deferred = new DeferredObject<String, ChatError, SaveImageProgress>();
 
         BNetworkManager.getCoreInterface().getUploadHandler().uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg")
                 .done(new DoneCallback<String>() {
@@ -209,9 +209,9 @@ public abstract class CoreManager implements CoreInterface {
                         deferred.resolve(url);
                     }
                 })
-                .fail(new FailCallback<BError>() {
+                .fail(new FailCallback<ChatError>() {
                     @Override
-                    public void onFail(BError error) {
+                    public void onFail(ChatError error) {
                         deferred.reject(error);
                     }
                 });
@@ -219,11 +219,11 @@ public abstract class CoreManager implements CoreInterface {
         return deferred.promise();
     }
 
-    private static Promise<String, BError, SaveImageProgress> reject(){
-        return new DeferredObject<String, BError, SaveImageProgress>().reject(new BError(BError.Code.NULL, "Image Is Null"));
+    private static Promise<String, ChatError, SaveImageProgress> reject(){
+        return new DeferredObject<String, ChatError, SaveImageProgress>().reject(new ChatError(ChatError.Code.NULL, "Image Is Null"));
     }
 
-    private static Promise<String[], BError, SaveImageProgress> rejectMultiple(){
-        return new DeferredObject<String[], BError, SaveImageProgress>().reject(new BError(BError.Code.NULL, "Image Is Null"));
+    private static Promise<String[], ChatError, SaveImageProgress> rejectMultiple(){
+        return new DeferredObject<String[], ChatError, SaveImageProgress>().reject(new ChatError(ChatError.Code.NULL, "Image Is Null"));
     }
 }
