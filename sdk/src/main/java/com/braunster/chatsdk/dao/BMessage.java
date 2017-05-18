@@ -6,7 +6,7 @@ package com.braunster.chatsdk.dao;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
 
@@ -103,15 +103,15 @@ public class BMessage extends BMessageEntity {
 
 
     // KEEP METHODS - put your custom methods here
-    @Override
-    public BPath getBPath() {
-        if (getThread() == null)
-        {
-            if (DEBUG) Timber.e("Owner Thread is null");
-            return null;
-        }
-        return getThread().getBPath().addPathComponent(BFirebaseDefines.Path.BMessagesPath, entityID);
-    }
+//    @Override
+//    public BPath getBPath() {
+//        if (getThread() == null)
+//        {
+//            if (DEBUG) Timber.e("Owner Thread is null");
+//            return null;
+//        }
+//        return getThread().getBPath().addPathComponent(FirebasePaths.MessagesPath, entityID);
+//    }
 
     @Override
     public Entity.Type getEntityType() {

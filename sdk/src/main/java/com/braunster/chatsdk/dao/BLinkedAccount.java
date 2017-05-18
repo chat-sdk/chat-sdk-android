@@ -11,6 +11,7 @@ import org.greenrobot.greendao.annotation.Id;
         import org.greenrobot.greendao.annotation.Generated;
 
 @Entity
+@Deprecated
 public class BLinkedAccount extends BLinkedAccountEntity  {
 
     @Id

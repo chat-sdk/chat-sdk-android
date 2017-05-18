@@ -22,4 +22,5 @@ public class AppContext {
         return context.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
     }
 
+
 }

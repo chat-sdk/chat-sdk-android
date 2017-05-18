@@ -1,21 +1,20 @@
 package co.chatsdk.core.handlers;
 
+import org.json.JSONObject;
+
+import java.util.Collection;
+
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
 public interface PushHandler {
 
+    public boolean subscribeToPushChannel(String channel);
+    public boolean unsubscribeToPushChannel(String channel);
 
-//    -(void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
-//
-//    -(void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
-//
-//    -(void) registerForPushNotificationsWithApplication: (UIApplication *) app launchOptions: (NSDictionary *) options;
-//
-//    -(void) subscribeToPushChannel: (NSString *) channel;
-//    -(void) unsubscribeToPushChannel: (NSString *) channel;
-//
-//    -(void) pushToChannels: (NSArray *) channels withData:(NSDictionary *) data;
-//    -(void) pushForMessage: (id<PMessage>) message;
+    public void pushToChannels(Collection<String> channels, JSONObject data);
+    //public void pushForMesasge(BMessage message);
+
+
 }

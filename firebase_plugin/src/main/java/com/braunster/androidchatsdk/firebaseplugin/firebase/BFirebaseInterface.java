@@ -13,7 +13,8 @@ import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
+
 import com.braunster.chatsdk.network.BPath;
 import com.google.firebase.database.DataSnapshot;
 
@@ -41,7 +42,7 @@ public class BFirebaseInterface {
         if (DEBUG)Log.v(TAG, "objectFromSnapshot, Path: " + dataSnapshot.getRef().toString());
         BPath path = BPath.pathWithPath(dataSnapshot.getRef().toString());
 
-         if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.FollowerLinks))
+         if (path.isEqualToComponent(FirebasePaths.UsersPath, FirebasePaths.FollowersPath))
         {
             if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and FollowerLinks");
             String followerFirebaseID = path.idForIndex(1);
@@ -55,7 +56,7 @@ public class BFirebaseInterface {
         }
         // ---------------
         // Follower Class Type.
-        else if (path.isEqualToComponent(BFirebaseDefines.Path.BUsersPath, BFirebaseDefines.Path.BFollows))
+        else if (path.isEqualToComponent(FirebasePaths.UsersPath, FirebasePaths.FollowingPath))
         {
             if (DEBUG) Log.i(TAG, "objectFromSnapshot, BUsersPath and BFollows");
             String followerFirebaseID = path.idForIndex(1);

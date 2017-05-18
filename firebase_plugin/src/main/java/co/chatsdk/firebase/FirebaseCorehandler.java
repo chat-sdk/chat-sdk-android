@@ -1,6 +1,8 @@
 package co.chatsdk.firebase;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
+
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
@@ -21,7 +23,7 @@ import timber.log.Timber;
  * Created by benjaminsmiley-andrews on 02/05/2017.
  */
 
-public class FirebaseCorehandler extends AbstractCoreHandler {
+public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     // TODO: Check this
     private static boolean DEBUG = Debug.BFirebaseNetworkAdapter;
@@ -32,10 +34,10 @@ public class FirebaseCorehandler extends AbstractCoreHandler {
     }
 
     public User currentUserModel(){
-        String authID = BNetworkManager.getAuthInterface().getCurrentUserAuthenticationId();
-        if (StringUtils.isNotEmpty(authID))
+        String entityID = NetworkManager.shared().a.auth.getCurrentUserEntityID();
+        if (StringUtils.isNotEmpty(entityID))
         {
-            User currentUser = (User) DaoCore.fetchEntityWithEntityID(BUser.class, authID);
+            User currentUser = (User) DaoCore.fetchEntityWithEntityID(BUser.class, entityID);
 
             if(DEBUG) {
                 if (currentUser == null) Timber.e("Current user is null");

@@ -48,7 +48,6 @@ import org.jdeferred.FailCallback;
 import java.util.concurrent.Callable;
 
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 
 /**
@@ -457,7 +456,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
             public void accept(Throwable throwable) throws Exception {
                 if (DEBUG) Timber.e("onDoneWithError. Error: %s", throwable.getMessage());
                 // Facebook session is closed so we need to disconnect from firebase.
-                BNetworkManager.getAuthInterface().logout();
+                NetworkManager.shared().a.auth.logout();
                 startLoginActivity(true);
             }
         });
@@ -517,11 +516,6 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     /*Getters and Setters*/
     public void setAlertToast(SuperToast alertToast) {
         chatSDKUiHelper.setAlertToast(alertToast);
-    }
-
-
-    public AuthInterface getAuthInterface(){
-        return BNetworkManager.getAuthInterface();
     }
 
     public ThreadsInterface getThreadsInterface(){

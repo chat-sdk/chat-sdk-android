@@ -10,6 +10,8 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BLinkedAccount;
@@ -17,7 +19,6 @@ import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.ChatError;
@@ -91,18 +92,24 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey));
+        model.setAuthenticationType((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
+
         String name = authData.getDisplayName();
         String email = authData.getEmail();
-        String token = BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.TokenKey).toString();
+        String token = null;
+        Object tokenObject = NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.TokenKey);
+        if(tokenObject != null) {
+            token = tokenObject.toString();
+        }
         String uid = authData.getUid();
+
 
         BLinkedAccount linkedAccount;
         
-        switch ((Integer) (BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey)))
+        switch ((Integer) (NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey)))
         {
             case BDefines.ProviderInt.Facebook:
                 // Setting the name.
@@ -253,7 +260,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
             }
 
             // The entity update is called in the deserializeMeta.
-            deserializeMeta((Map<String, Object>) value.get(BFirebaseDefines.Path.BMetaPath));
+            deserializeMeta((Map<String, Object>) value.get(FirebasePaths.MetaPath));
         }
     }
 
@@ -319,15 +326,15 @@ public class BUserWrapper extends EntityWrapper<BUser> {
     }
 
     private DatabaseReference imageRef(){
-        return ref().child(BFirebaseDefines.Path.BImage);
+        return ref().child(FirebasePaths.Image);
     }
 
     private DatabaseReference thumbnailRef(){
-        return ref().child(BFirebaseDefines.Path.BThumbnail);
+        return ref().child(FirebasePaths.Thumbnail);
     }
 
     private DatabaseReference metaRef(){
-        return ref().child(BFirebaseDefines.Path.BMetaPath);
+        return ref().child(FirebasePaths.MetaPath);
     }
     
     public String pushChannel(){
@@ -348,7 +355,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
         // Getting the user ref.
         DatabaseReference userThreadRef = ref();
 
-        userThreadRef = userThreadRef.child(BFirebaseDefines.Path.BThreadPath).child(entityId);
+        userThreadRef = userThreadRef.child(FirebasePaths.ThreadsPath).child(entityId);
 
         userThreadRef.child(BDefines.Keys.BNull).setValue("", new DatabaseReference.CompletionListener() {
             @Override
@@ -371,7 +378,7 @@ public class BUserWrapper extends EntityWrapper<BUser> {
 
         final Deferred<BUserWrapper, DatabaseError, Void> deferred = new DeferredObject<>();
 
-        DatabaseReference userThreadRef = FirebasePaths.userRef(entityId).child(BFirebaseDefines.Path.BThreadPath).child(entityId);
+        DatabaseReference userThreadRef = FirebasePaths.userRef(entityId).child(FirebasePaths.ThreadsPath).child(entityId);
 
         userThreadRef.removeValue(new DatabaseReference.CompletionListener() {
             @Override

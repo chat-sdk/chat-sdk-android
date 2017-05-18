@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 
 import org.jdeferred.Deferred;
 
+import co.chatsdk.core.utils.Executor;
 import timber.log.Timber;
 
 public class ThreadUpdateChangeListener extends FirebaseGeneralEvent {
@@ -42,7 +43,7 @@ public class ThreadUpdateChangeListener extends FirebaseGeneralEvent {
     public void onDataChange(final DataSnapshot dataSnapshot) {
         if (DEBUG) Timber.i("Thread details changed, Alive: %s", isAlive());
         if (isAlive())
-            FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
+            Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);

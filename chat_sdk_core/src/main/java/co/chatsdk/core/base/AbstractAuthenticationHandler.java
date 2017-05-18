@@ -75,30 +75,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      * @return the save auth id saved in the preference manager.
      * The preference manager is initialized when the BNetworkManager.Init(context) is called.
      */
-    public String getCurrentUserAuthenticationId() {
+    public String getCurrentUserEntityID() {
         return AppContext.getPreferences().getString(Defines.Prefs.AuthenticationID, "");
     }
-
 
     public Map<String, ?> getLoginInfo() {
         return AppContext.getPreferences().getAll();
     }
-
-
-    public static Map<String, Object> getMap(String[] keys,  Object...values){
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        for (int i = 0 ; i < keys.length; i++){
-
-            // More values then keys entered.
-            if (i == values.length)
-                break;
-
-            map.put(keys[i], values[i]);
-        }
-
-        return map;
-    }
-
 
 }

@@ -65,7 +65,8 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         super.onResume();
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
-        Map<String, ?> loginInfo = BNetworkManager.getAuthInterface().getLoginInfo();
+        Map<String, ?> loginInfo = NetworkManager.shared().a.auth.getLoginInfo();
+
         if (loginInfo != null && loginInfo.containsKey(Defines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
 
@@ -151,16 +152,19 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         data.put(LoginType.EmailKey, etEmail.getText().toString());
         data.put(LoginType.PasswordKey, etPass.getText().toString());
 
-        BNetworkManager.getAuthInterface()
-                .authenticateWithMap(data).done(new DoneCallback<Object>() {
+        NetworkManager.shared().a.auth.
+                authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
-            public void onDone(Object o) {
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onComplete() {
                 afterLogin();
             }
-        }).fail(new FailCallback<ChatError>() {
+
             @Override
-            public void onFail(ChatError chatError) {
-                toastErrorMessage(chatError, false);
+            public void onError(Throwable e) {
+                toastErrorMessage(e, false);
                 dismissProgDialog();
             }
         });

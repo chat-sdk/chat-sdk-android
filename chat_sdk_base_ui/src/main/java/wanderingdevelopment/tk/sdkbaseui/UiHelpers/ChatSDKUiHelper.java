@@ -409,6 +409,13 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         }, delay);
     }
 
+    public void setProgress (float progress) {
+        if (superCardToastProgress != null) {
+            superCardToastProgress.setMaxProgress(1000);
+            superCardToastProgress.setProgress(Math.round(1000 * progress));
+        }
+    }
+
     /** You should pass שמ Activity and not a context if you want to use this.*/
     @Override
     public void showProgressCard(String text){

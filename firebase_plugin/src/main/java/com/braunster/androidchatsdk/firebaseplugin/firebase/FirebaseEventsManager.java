@@ -26,7 +26,7 @@ import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.interfaces.AppEvents;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
@@ -54,8 +54,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import co.chatsdk.core.utils.Executor;
 import timber.log.Timber;
 
+@Deprecated
 public class FirebaseEventsManager extends AbstractEventManager implements AppEvents {
 
     private static final boolean DEBUG = Debug.EventManager;
@@ -104,6 +106,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     }
 
     static class EventHandler extends Handler{
+
         WeakReference<FirebaseEventsManager> manager;
 
         public EventHandler(FirebaseEventsManager manager){
@@ -348,56 +351,56 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
     /*##########################################################################################*/
 
-    @Override
-    public void userOn(final BUser user){
+//    @Override
+//    public void userOn(final BUser user){
+//
+//        if (DEBUG) Timber.v("userOn, EntityID: %s", user.getEntityID());
+//
+//        observedUserEntityID = user.getEntityID();
+//
+//        DatabaseReference userRef = FirebasePaths.userRef(observedUserEntityID);
+//
+////        userRef.child(FirebasePaths.BThreadPath).addChildEventListener(threadAddedListener);
+//
+////        userRef.child(FirebasePaths.FollowerLinks).addChildEventListener(followerEventListener);
+////        userRef.child(FirebasePaths.BFollows).addChildEventListener(followsEventListener);
+//
+////        FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
+//
+//        post(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (BUser contact : user.getContacts())
+//                    BUserWrapper.initWithModel(contact).metaOn();
+//            }
+//        });
+//
+//    }
 
-        if (DEBUG) Timber.v("userOn, EntityID: %s", user.getEntityID());
-        
-        observedUserEntityID = user.getEntityID();
-
-        DatabaseReference userRef = FirebasePaths.userRef(observedUserEntityID);
-
-        userRef.child(BFirebaseDefines.Path.BThreadPath).addChildEventListener(threadAddedListener);
-
-        userRef.child(BFirebaseDefines.Path.FollowerLinks).addChildEventListener(followerEventListener);
-        userRef.child(BFirebaseDefines.Path.BFollows).addChildEventListener(followsEventListener);
-
-        FirebasePaths.publicThreadsRef().addChildEventListener(threadAddedListener);
-
-        post(new Runnable() {
-            @Override
-            public void run() {
-                for (BUser contact : user.getContacts())
-                    BUserWrapper.initWithModel(contact).metaOn();
-            }
-        });
-
-    }
-
-    @Override
-    public void userOff(final BUser user){
-        if (DEBUG) Timber.v("userOff, EntityID: $s", user.getEntityID());
-        
-        BThreadWrapper wrapper;
-        for (BThread thread : BNetworkManager.getThreadsInterface().getThreads())
-        {
-            wrapper = new BThreadWrapper(thread);
-            
-            wrapper.off();
-            wrapper.messagesOff();
-            wrapper.usersOff();
-        }
-
-        post(new Runnable() {
-            @Override
-            public void run() {
-                for (BUser contact : user.getContacts())
-                    BUserWrapper.initWithModel(contact).metaOff();
-            }
-        });
-
-        removeAll();
-    }
+//    @Override
+//    public void userOff(final BUser user){
+//        if (DEBUG) Timber.v("userOff, EntityID: $s", user.getEntityID());
+//
+//        BThreadWrapper wrapper;
+//        for (BThread thread : BNetworkManager.getThreadsInterface().getThreads())
+//        {
+//            wrapper = new BThreadWrapper(thread);
+//
+//            wrapper.off();
+//            wrapper.messagesOff();
+//            wrapper.usersOff();
+//        }
+//
+//        post(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (BUser contact : user.getContacts())
+//                    BUserWrapper.initWithModel(contact).metaOff();
+//            }
+//        });
+//
+//        removeAll();
+//    }
 
     /**
      * Handle user meta change.
@@ -454,7 +457,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
         // Also listen to the thread users
         // This will allow us to update the users in the database
-        DatabaseReference threadUsers = FirebasePaths.threadRef(threadId).child(BFirebaseDefines.Path.BUsersPath);
+        DatabaseReference threadUsers = FirebasePaths.threadRef(threadId).child(FirebasePaths.UsersPath);
 
         UserAddedListener userAddedToThreadListener= UserAddedListener.getNewInstance(observedUserEntityID, threadId, handlerUserAdded);
 
@@ -476,98 +479,98 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         handledAddedUsersToThreadIDs.remove(threadId);
     }
     
-    public void messagesOn(String threadId, Deferred<BThread, Void , Void> deferred){
-        if (DEBUG) Timber.v("messagesOn, EntityID: %s", threadId);
-        
-        // Check if handled.
-        if (handledMessagesThreadsID.contains(threadId))
-            return;
-
-        handledMessagesThreadsID.add(threadId);
-
-        final DatabaseReference threadRef = FirebasePaths.threadRef(threadId);
-        Query messagesQuery = threadRef.child(BFirebaseDefines.Path.BMessagesPath);
-
-        final BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadId);
-
-        final List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-        final InMessagesListener incomingMessagesListener = new InMessagesListener(handlerMessages, threadId, deferred);
-
-        /**
-         * If the thread was deleted or has no message we first check for his deletion date.
-         * If has deletion date we listen to message from this day on, Else we will get the last messages.
-         *
-         *
-         * Limiting the messages here can cause a problems,
-         * If we reach the limit with new messages the new one wont be triggered and he user wont see them.
-         * (He would see his if he kill the chat because they are saved locally).
-         *
-         * */
-        if (thread.isDeleted() || messages.size() == 0)
-        {
-            if (DEBUG) Timber.v("Thread is Deleted, ID: %s", threadId);
-            
-            BThreadWrapper wrapper = new BThreadWrapper(thread);
-            
-            wrapper.threadDeletedDate().done(new DoneCallback<Long>() {
-                @Override
-                public void onDone(Long aLong) {
-                    Query query = threadRef.child(BFirebaseDefines.Path.BMessagesPath);
-
-                    // Not deleted
-                    if (aLong==null)
-                    {
-                        query = query.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
-                    }
-                    // Deleted.
-                    else
-                    {
-                        if (DEBUG) Timber.d("Thread Deleted Value: %s", aLong);
-
-                        // The plus 1 is needed so we wont receive the last message again.
-                        query = query.startAt(aLong);
-                    }
-
-                    FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), query.getRef().toString(), incomingMessagesListener);
-
-                    query.addChildEventListener(combo.getListener());
-                }
-            })
-            .fail(new FailCallback<DatabaseError>() {
-                @Override
-                public void onFail(DatabaseError firebaseError) {
-                    // Default behavior if failed.
-                    Query query = threadRef.child(BFirebaseDefines.Path.BMessagesPath);
-                    query = query.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
-
-                    FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), query.getRef().toString(), incomingMessagesListener);
-
-                    query.addChildEventListener(combo.getListener());
-                }
-            });
-
-            return;
-        }
-        else if (messages.size() > 0)
-        {
-            if (DEBUG) Timber.d("messagesOn, Messages size:  %s, LastMessage: %s", messages.size(), messages.get(0).getText());
-            
-            // The plus 1 is needed so we wont receive the last message again.
-            messagesQuery = messagesQuery.startAt(messages.get(0).getDate().toDate().getTime() + 1);
-
-            // Set any message that received as new.
-            incomingMessagesListener.setNew(true);
-        }
-        else
-        {
-            messagesQuery = messagesQuery.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
-        }
-
-        FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), messagesQuery.getRef().toString(), incomingMessagesListener);
-
-        messagesQuery.addChildEventListener(combo.getListener());
-    }
+//    public void messagesOn(String threadId, Deferred<BThread, Void , Void> deferred){
+//        if (DEBUG) Timber.v("messagesOn, EntityID: %s", threadId);
+//
+//        // Check if handled.
+//        if (handledMessagesThreadsID.contains(threadId))
+//            return;
+//
+//        handledMessagesThreadsID.add(threadId);
+//
+//        final DatabaseReference threadRef = FirebasePaths.threadRef(threadId);
+//        Query messagesQuery = threadRef.child(FirebasePaths.MessagesPath);
+//
+//        final BThread thread = DaoCore.fetchOrCreateEntityWithEntityID(BThread.class, threadId);
+//
+//        final List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
+//
+//        final InMessagesListener incomingMessagesListener = new InMessagesListener(handlerMessages, threadId, deferred);
+//
+//        /**
+//         * If the thread was deleted or has no message we first check for his deletion date.
+//         * If has deletion date we listen to message from this day on, Else we will get the last messages.
+//         *
+//         *
+//         * Limiting the messages here can cause a problems,
+//         * If we reach the limit with new messages the new one wont be triggered and he user wont see them.
+//         * (He would see his if he kill the chat because they are saved locally).
+//         *
+//         * */
+//        if (thread.isDeleted() || messages.size() == 0)
+//        {
+//            if (DEBUG) Timber.v("Thread is Deleted, ID: %s", threadId);
+//
+//            BThreadWrapper wrapper = new BThreadWrapper(thread);
+//
+//            wrapper.threadDeletedDate().done(new DoneCallback<Long>() {
+//                @Override
+//                public void onDone(Long aLong) {
+//                    Query query = threadRef.child(FirebasePaths.MessagesPath);
+//
+//                    // Not deleted
+//                    if (aLong==null)
+//                    {
+//                        query = query.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
+//                    }
+//                    // Deleted.
+//                    else
+//                    {
+//                        if (DEBUG) Timber.d("Thread Deleted Value: %s", aLong);
+//
+//                        // The plus 1 is needed so we wont receive the last message again.
+//                        query = query.startAt(aLong);
+//                    }
+//
+//                    FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), query.getRef().toString(), incomingMessagesListener);
+//
+//                    query.addChildEventListener(combo.getListener());
+//                }
+//            })
+//            .fail(new FailCallback<DatabaseError>() {
+//                @Override
+//                public void onFail(DatabaseError firebaseError) {
+//                    // Default behavior if failed.
+//                    Query query = threadRef.child(FirebasePaths.MessagesPath);
+//                    query = query.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
+//
+//                    FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), query.getRef().toString(), incomingMessagesListener);
+//
+//                    query.addChildEventListener(combo.getListener());
+//                }
+//            });
+//
+//            return;
+//        }
+//        else if (messages.size() > 0)
+//        {
+//            if (DEBUG) Timber.d("messagesOn, Messages size:  %s, LastMessage: %s", messages.size(), messages.get(0).getText());
+//
+//            // The plus 1 is needed so we wont receive the last message again.
+//            messagesQuery = messagesQuery.startAt(messages.get(0).getDate().toDate().getTime() + 1);
+//
+//            // Set any message that received as new.
+//            incomingMessagesListener.setNew(true);
+//        }
+//        else
+//        {
+//            messagesQuery = messagesQuery.limitToLast(BDefines.MAX_MESSAGES_TO_PULL);
+//        }
+//
+//        FirebaseEventCombo combo = getCombo(MSG_PREFIX + thread.getEntityID(), messagesQuery.getRef().toString(), incomingMessagesListener);
+//
+//        messagesQuery.addChildEventListener(combo.getListener());
+//    }
     
     public void messagesOff(String threadId){
         if (DEBUG) Timber.v("messagesOff, EntityID: %s", threadId);
@@ -594,7 +597,7 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
 
             // Add an observer to the thread details so we get
             // updated when the thread details change
-            DatabaseReference detailsRef = threadRef.child(BFirebaseDefines.Path.BDetailsPath);
+            DatabaseReference detailsRef = threadRef.child(FirebasePaths.DetailsPath);
 
             FirebaseEventCombo combo = getCombo(threadId, detailsRef.toString(), new ThreadUpdateChangeListener(threadId, handlerThread, deferred));
 
@@ -618,116 +621,110 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
     }
     
     
-    private ChildEventListener threadAddedListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(final DataSnapshot snapshot, String s) {
-            post(new Runnable() {
-                @Override
-                public void run() {
+//    private ChildEventListener threadAddedListener = new ChildEventListener() {
+//        @Override
+//        public void onChildAdded(final DataSnapshot snapshot, String s) {
+//            post(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                    boolean publicThread =false;
+//                    String threadFirebaseID;
+//                    BPath path = BPath.pathWithPath(snapshot.getRef().toString());
+//                    if (path.isEqualToComponent(FirebasePaths.BPublicThreadPath))
+//                    {
+//                        threadFirebaseID = path.idForIndex(0);
+//                        publicThread = true;
+//                    }
+//                    else threadFirebaseID = path.idForIndex(1);
+//
+//                    if (DEBUG) Timber.i("Thread is added, Thread EntityID: %s, Listening: %s", threadFirebaseID, isListeningToThread(threadFirebaseID));
+//
+//
+//                    if (!isListeningToThread(threadFirebaseID))
+//                    {
+//
+//                        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
+//
+//                        // Add the current user to the thread if needed. Only if not public.
+//                        if (!publicThread &&
+//                                !wrapper.getModel().hasUser(currentUser))
+//                        {
+//                            wrapper.addUser(BUserWrapper.initWithModel(currentUser));
+//                            BThread thread = wrapper.getModel();
+//                            thread.setType(BThreadEntity.Type.Private);
+//                            DaoCore.createEntity(thread);
+//                            DaoCore.connectUserAndThread(currentUser, thread);
+//                        }
+//
+//                        // Triggering thread added events.
+//                        onThreadIsAdded(threadFirebaseID);
+//                    }
+//                }
+//            });
+//        }
+//
+//        //region Not used.
+//        @Override
+//        public void onChildChanged(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onChildRemoved(DataSnapshot snapshot) {
+//
+//        }
+//
+//        @Override
+//        public void onChildMoved(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError error) {
+//
+//        }
+//        //endregion
+//    };
 
-                    boolean publicThread =false;
-                    String threadFirebaseID;
-                    BPath path = BPath.pathWithPath(snapshot.getRef().toString());
-                    if (path.isEqualToComponent(BFirebaseDefines.Path.BPublicThreadPath))
-                    {
-                        threadFirebaseID = path.idForIndex(0);
-                        publicThread = true;
-                    }
-                    else threadFirebaseID = path.idForIndex(1);
-
-                    if (DEBUG) Timber.i("Thread is added, Thread EntityID: %s, Listening: %s", threadFirebaseID, isListeningToThread(threadFirebaseID));
-
-
-                    if (!isListeningToThread(threadFirebaseID))
-                    {
-                        BThreadWrapper wrapper = new BThreadWrapper(threadFirebaseID);
-                        
-                        // Starting to listen to thread changes.
-                        wrapper.on();
-                        wrapper.messagesOn();
-                        wrapper.usersOn();
-
-                        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
-
-                        // Add the current user to the thread if needed. Only if not public.
-                        if (!publicThread &&
-                                !wrapper.getModel().hasUser(currentUser))
-                        {
-                            wrapper.addUser(BUserWrapper.initWithModel(currentUser));
-                            BThread thread = wrapper.getModel();
-                            thread.setType(BThreadEntity.Type.Private);
-                            DaoCore.createEntity(thread);
-                            DaoCore.connectUserAndThread(currentUser, thread);
-                        }
-                        
-                        // Triggering thread added events.
-                        onThreadIsAdded(threadFirebaseID);
-                    }
-                }
-            });
-        }
-
-        //region Not used.
-        @Override
-        public void onChildChanged(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot snapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError error) {
-
-        }
-        //endregion
-    };
-
-    private ChildEventListener followerEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(final DataSnapshot snapshot, String s) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
-
-                    onFollowerAdded(follower);
-                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
-                    wrapper.once();
-                    wrapper.metaOn();
-                }
-            });
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot snapshot) {
-            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
-            DaoCore.deleteEntity(follower);
-            onFollowerRemoved();
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError firebaseError) {
-
-        }
-    };
+//    private ChildEventListener followerEventListener = new ChildEventListener() {
+//        @Override
+//        public void onChildAdded(final DataSnapshot snapshot, String s) {
+//            post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
+//
+//                    onFollowerAdded(follower);
+//                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
+//                    wrapper.once();
+//                    wrapper.metaOn();
+//                }
+//            });
+//        }
+//
+//        @Override
+//        public void onChildChanged(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onChildRemoved(DataSnapshot snapshot) {
+//            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
+//            DaoCore.deleteEntity(follower);
+//            onFollowerRemoved();
+//        }
+//
+//        @Override
+//        public void onChildMoved(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError firebaseError) {
+//
+//        }
+//    };
 
     /** Check to see if the given thread id is already handled by this class.
      * @return true if handled.*/
@@ -736,53 +733,45 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         return threadsIds.contains(entityID);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    private ChildEventListener followsEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(final DataSnapshot snapshot, String s) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
 
-                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
-                    wrapper.once();
-                    wrapper.metaOn();
-                }
-            });
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot snapshot) {
-            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
-            DaoCore.deleteEntity(follower);
-            onUserToFollowRemoved();
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot snapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError firebaseError) {
-
-        }
-    };
+//    private ChildEventListener followsEventListener = new ChildEventListener() {
+//        @Override
+//        public void onChildAdded(final DataSnapshot snapshot, String s) {
+//            post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
+//
+//                    BUserWrapper wrapper = BUserWrapper.initWithModel(follower.getBUser());
+//                    wrapper.once();
+//                    wrapper.metaOn();
+//                }
+//            });
+//        }
+//
+//        @Override
+//        public void onChildChanged(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onChildRemoved(DataSnapshot snapshot) {
+//            FollowerLink follower = (FollowerLink) BFirebaseInterface.objectFromSnapshot(snapshot);
+//            DaoCore.deleteEntity(follower);
+//            onUserToFollowRemoved();
+//        }
+//
+//        @Override
+//        public void onChildMoved(DataSnapshot snapshot, String s) {
+//
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError firebaseError) {
+//
+//        }
+//    };
 
     /** Remove listeners from thread id. The listener's are The thread details, messages and added users.*/
     public void stopListeningToThread(String threadID){
@@ -865,44 +854,35 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         return events.containsKey(tag);
     }
     
-    /** 
-     * Remove all firebase listeners and all app events listeners. 
-     * After removing all class list will be cleared.
-     **/
-    public void removeAll(){
-
-        DatabaseReference userRef = FirebasePaths.userRef(observedUserEntityID);
-
-        userRef.child(BFirebaseDefines.Path.BThreadPath).removeEventListener(threadAddedListener);
-
-        userRef.child(BFirebaseDefines.Path.FollowerLinks).removeEventListener(followerEventListener);
-        userRef.child(BFirebaseDefines.Path.BFollows).removeEventListener(followsEventListener);
-
-        observedUserEntityID = "";
-
-        FirebasePaths.publicThreadsRef().removeEventListener(threadAddedListener);
-
-        Set<String> Keys = listenerAndRefs.keySet();
-
-        FirebaseEventCombo combo;
-
-        Iterator<String> iter = Keys.iterator();
-        String key;
-        while (iter.hasNext())
-        {
-            key = iter.next();
-            if (DEBUG) Timber.d("Removing listener, Key: %s",  key);
-
-            combo = listenerAndRefs.get(key);
-            
-            if (combo != null)
-                combo.breakCombo();
-        }
-
-        Executor.getInstance().restart();
-
-        clearLists();
-    }
+//    /**
+//     * Remove all firebase listeners and all app events listeners.
+//     * After removing all class list will be cleared.
+//     **/
+//    public void removeAll(){
+//
+//
+//
+//        Set<String> Keys = listenerAndRefs.keySet();
+//
+//        FirebaseEventCombo combo;
+//
+//        Iterator<String> iter = Keys.iterator();
+//        String key;
+//        while (iter.hasNext())
+//        {
+//            key = iter.next();
+//            if (DEBUG) Timber.d("Removing listener, Key: %s",  key);
+//
+//            combo = listenerAndRefs.get(key);
+//
+//            if (combo != null)
+//                combo.breakCombo();
+//        }
+//
+//        Executor.getInstance().restart();
+//
+//        clearLists();
+//    }
 
     /**
      *Clearing all the lists.
@@ -951,54 +931,54 @@ public class FirebaseEventsManager extends AbstractEventManager implements AppEv
         Executor.getInstance().execute(runnable);
     }
 
-    public static class Executor {
-        // Sets the amount of time an idle thread waits before terminating
-        private static final int KEEP_ALIVE_TIME = 20;
-        // Sets the Time Unit to seconds
-        private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-
-        private LinkedBlockingQueue<Runnable>  workQueue = new LinkedBlockingQueue<Runnable>();
-        /*
-         * Gets the number of available cores
-         * (not always the same as the maximum number of cores)
-         */
-        private static int NUMBER_OF_CORES =
-                Runtime.getRuntime().availableProcessors();
-
-        private static int MAX_THREADS = 15;
-
-        private ThreadPoolExecutor threadPool;
-
-        private static Executor instance;
-
-        public static Executor getInstance() {
-            if (instance == null)
-                instance = new Executor();
-            return instance;
-        }
-
-        private Executor(){
-            
-            if (NUMBER_OF_CORES <= 0)
-                NUMBER_OF_CORES = 2;
-            
-            // Creates a thread pool manager
-            threadPool = new ThreadPoolExecutor(
-                    NUMBER_OF_CORES,       // Initial pool size
-                    NUMBER_OF_CORES,       // Max pool size
-                    KEEP_ALIVE_TIME,
-                    KEEP_ALIVE_TIME_UNIT,
-                    workQueue);
-        }
-
-        public void execute(Runnable runnable){
-            threadPool.execute(runnable);
-        }
-
-        private void restart(){
-            threadPool.shutdownNow();
-            instance = new Executor();
-        }
-    }
+//    public static class Executor {
+//        // Sets the amount of time an idle thread waits before terminating
+//        private static final int KEEP_ALIVE_TIME = 20;
+//        // Sets the Time Unit to seconds
+//        private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+//
+//        private LinkedBlockingQueue<Runnable>  workQueue = new LinkedBlockingQueue<Runnable>();
+//        /*
+//         * Gets the number of available cores
+//         * (not always the same as the maximum number of cores)
+//         */
+//        private static int NUMBER_OF_CORES =
+//                Runtime.getRuntime().availableProcessors();
+//
+//        private static int MAX_THREADS = 15;
+//
+//        private ThreadPoolExecutor threadPool;
+//
+//        private static Executor instance;
+//
+//        public static Executor getInstance() {
+//            if (instance == null)
+//                instance = new Executor();
+//            return instance;
+//        }
+//
+//        private Executor(){
+//
+//            if (NUMBER_OF_CORES <= 0)
+//                NUMBER_OF_CORES = 2;
+//
+//            // Creates a thread pool manager
+//            threadPool = new ThreadPoolExecutor(
+//                    NUMBER_OF_CORES,       // Initial pool size
+//                    NUMBER_OF_CORES,       // Max pool size
+//                    KEEP_ALIVE_TIME,
+//                    KEEP_ALIVE_TIME_UNIT,
+//                    workQueue);
+//        }
+//
+//        public void execute(Runnable runnable){
+//            threadPool.execute(runnable);
+//        }
+//
+//        private void restart(){
+//            threadPool.shutdownNow();
+//            instance = new Executor();
+//        }
+//    }
 }
 

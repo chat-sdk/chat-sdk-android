@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NetworkManager;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BDefines;
@@ -225,7 +226,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         // Logout and return to the login activity.
         BFacebookManager.logout(this);
 
-        BNetworkManager.getAuthInterface().logout();
+        NetworkManager.shared().a.auth.logout();
         chatSDKUiHelper.startLoginActivity(true);
     }
     

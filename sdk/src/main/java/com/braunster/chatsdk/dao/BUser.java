@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.utils.JsonHelper;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BUserEntity;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
 
@@ -90,11 +91,6 @@ public class BUser extends BUserEntity {
 
     @Generated(hash = 497069028)
     public BUser() {
-    }
-
-    @Override @Keep
-    public BPath getBPath() {
-        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
     }
 
     @Override @Keep

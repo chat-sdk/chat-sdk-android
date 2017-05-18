@@ -10,15 +10,16 @@ package com.braunster.androidchatsdk.firebaseplugin.firebase;
 import android.content.Context;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BBackendlessHandler;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
+
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
@@ -64,21 +65,6 @@ public class FirebaseCoreAdapter extends CoreManager {
         FirebaseEventsManager eventManager = FirebaseEventsManager.getInstance();
         setEventManager(eventManager);
 
-        // Setting the upload handler
-        setUploadHandler(new BFirebaseUploadHandler());
-
-        // Setting the push handler
-        BBackendlessHandler backendlessPushHandler = new BBackendlessHandler();
-        backendlessPushHandler.setContext(context);
-        setPushHandler(backendlessPushHandler);
-
-        // Parse init
-        /*Parse.initialize(context, context.getString(R.string.parse_app_id), context.getString(R.string.parse_client_key));
-        ParseInstallation.getCurrentInstallation().saveInBackground();*/
-
-        // TODO: Check This
-        backendlessPushHandler.initWithAppKey(context.getString(R.string.backendless_app_id),
-                            context.getString(R.string.backendless_secret_key), context.getString(R.string.backendless_app_version));
     }
 
 
@@ -118,7 +104,7 @@ public class FirebaseCoreAdapter extends CoreManager {
         }
 
         Query query = FirebasePaths.indexRef().orderByChild(index).startAt(
-                processForQuery(value)).limitToFirst(BFirebaseDefines.NumberOfUserToLoadForIndex);
+                processForQuery(value)).limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -306,7 +292,7 @@ public class FirebaseCoreAdapter extends CoreManager {
 
         // Add the current user to the userToFollow "followers" path
         DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID())
-                .child(BFirebaseDefines.Path.FollowerLinks)
+                .child(FirebasePaths.FollowersPath)
                 .child(user.getEntityID());
         if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
 
@@ -347,7 +333,7 @@ public class FirebaseCoreAdapter extends CoreManager {
 
                             List<String> channels = new ArrayList<String>();
                             channels.add(userToFollow.getPushChannel());
-                            BNetworkManager.getCoreInterface().getPushHandler().pushToChannels(channels, data);
+                            NetworkManager.shared().a.push.pushToChannels(channels, data);
 
                             deferred.resolve(null);
                         }
@@ -369,7 +355,7 @@ public class FirebaseCoreAdapter extends CoreManager {
 
         // Remove the current user to the userToFollow "followers" path
         DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID())
-                .child(BFirebaseDefines.Path.FollowerLinks)
+                .child(FirebasePaths.FollowersPath)
                 .child(user.getEntityID());
 
         userToFollowRef.removeValue();
@@ -471,7 +457,7 @@ public class FirebaseCoreAdapter extends CoreManager {
 
         final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
 
-        DatabaseReference followersRef = FirebasePaths.userFollowsRef(entityId);
+        DatabaseReference followersRef = FirebasePaths.userFollowingRef(entityId);
 
         followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

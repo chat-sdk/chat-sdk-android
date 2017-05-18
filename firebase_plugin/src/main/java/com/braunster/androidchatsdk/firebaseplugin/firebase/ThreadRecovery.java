@@ -4,7 +4,8 @@ import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrap
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
+
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,7 +73,7 @@ public class ThreadRecovery {
         // We don't need to worry about this linking to a public thread because the current
         // user cannot be in a public thread while trying to create a private one.
         currentUsersDatabasePath.
-                child(BFirebaseDefines.Path.BThreadPath).
+                child(FirebasePaths.ThreadsPath).
                 addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot allThreadsForUser) {
@@ -102,7 +103,7 @@ public class ThreadRecovery {
                             Boolean threadFound = true;
 
                             DataSnapshot threadUsersPath = thread
-                                    .child(BFirebaseDefines.Path.BUsersPath);
+                                    .child(FirebasePaths.UsersPath);
 
                             for (DataSnapshot user : threadUsersPath.getChildren()){
                                 numberOfUsers = numberOfUsers + 1;

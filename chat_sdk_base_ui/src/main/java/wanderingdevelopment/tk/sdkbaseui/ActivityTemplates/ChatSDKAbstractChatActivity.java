@@ -29,6 +29,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import io.reactivex.functions.Consumer;
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 
@@ -40,6 +44,8 @@ import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragment;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKChatHelper;
+
+import com.braunster.chatsdk.network.PredicateFactory;
 import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
@@ -449,6 +455,16 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                 return false;
             }
         };
+
+        NetworkManager.shared().a.events.source()
+                .filter(PredicateFactory.type(EventType.PrivateThreadAdded))
+                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
+                .subscribe(new Consumer<NetworkEvent>() {
+            @Override
+            public void accept(NetworkEvent networkEvent) throws Exception {
+
+            }
+        });
 
         final BatchedEvent threadBatchedEvent = new BatchedEvent(ThreadListenerTAG + thread.getId(), thread.getEntityID(), Event.Type.ThreadEvent, handler);
         threadBatchedEvent.setBatchedAction(Event.Type.ThreadEvent, new Batcher.BatchedAction<String>() {

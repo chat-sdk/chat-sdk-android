@@ -37,7 +37,7 @@ public interface AuthenticationHandler {
     * Logout the user from the current account
     */
     //-(RXPromise *) logout;
-    public Observable<Void> logout();
+    public Completable logout();
 
     /**
     * Says which networks are available this can be setup in bFirebaseDefines
@@ -50,20 +50,19 @@ public interface AuthenticationHandler {
     /**
     * Get the user's stored login credentials
     */
-    //-(NSDictionary *) loginInfo;
-    public Map<String, Object> loginInfo();
+    public Map<String, ?> getLoginInfo();
 
     /**
     * Set the user's stored login credentials
     */
-    //-(void) setLoginInfo: (NSDictionary *) info;
     public void setLoginInfo(Map<String, Object> info);
+
 
     /**
     * Get the current user's authentication id
     */
-    //-(NSString *) currentUserEntityID;
-    public String currentUserEntityID();
+    //-(NSString *) getCurrentUserEntityID;
+    public String getCurrentUserEntityID();
 
     // TODO: Implement something like this
     /**
@@ -71,4 +70,7 @@ public interface AuthenticationHandler {
     */
     //-(UIViewController *) challengeViewController;
     //-(void) setChallengeViewController: (UIViewController *) viewController;
+
+    public Completable changePassword(String email, String oldPassword, final String newPassword);
+    public Completable sendPasswordResetMail(String email);
 }

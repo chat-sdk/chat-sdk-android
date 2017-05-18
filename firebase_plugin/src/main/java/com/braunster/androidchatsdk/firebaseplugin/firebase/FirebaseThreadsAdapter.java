@@ -9,7 +9,7 @@ import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.chatsdk.core.NetworkManager;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.ThreadsManager;
 
@@ -49,7 +50,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
 
     @Override
     public Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread) {
-        return new BThreadWrapper(thread).loadMoreMessages(BFirebaseDefines.NumberOfMessagesPerBatch);
+        return new BThreadWrapper(thread).loadMoreMessages(FirebaseDefines.NumberOfMessagesPerBatch);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
             @Override
             public void onDone(BMessage message) {
                 // Setting the time stamp for the last message added to the thread.
-                DatabaseReference threadRef = FirebasePaths.threadRef(message.getThread().getEntityID()).child(BFirebaseDefines.Path.BDetailsPath);
+                DatabaseReference threadRef = FirebasePaths.threadRef(message.getThread().getEntityID()).child(FirebasePaths.DetailsPath);
 
                 threadRef.updateChildren(FirebasePaths.getMap(new String[]{BDefines.Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
 
@@ -342,7 +343,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
 
 
     protected void pushForMessage(final BMessage message){
-        if (!BNetworkManager.getCoreInterface().backendlessEnabled())
+        if (NetworkManager.shared().a.push == null)
             return;
 
         if (DEBUG) Timber.v("pushForMessage");
@@ -350,7 +351,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
 
             // Loading the message from firebase to get the timestamp from server.
             DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
-                    .child(BFirebaseDefines.Path.BMessagesPath)
+                    .child(FirebasePaths.MessagesPath)
                     .child(message.getEntityID());
 
             firebase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -401,7 +402,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
     protected void pushToUsers(BMessage message, List<BUser> users){
         if (DEBUG) Timber.v("pushToUsers");
 
-        if (!BNetworkManager.getCoreInterface().backendlessEnabled() || users.size() == 0)
+        if (NetworkManager.shared().a.push == null || users.size() == 0)
             return;
 
         // We're identifying each user using push channels. This means that
@@ -444,7 +445,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
             e.printStackTrace();
         }
 
-        BNetworkManager.getCoreInterface().getPushHandler().pushToChannels(channels, data);
+        NetworkManager.shared().a.push.pushToChannels(channels, data);
     }
 
 

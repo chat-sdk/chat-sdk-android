@@ -7,7 +7,7 @@
 --------------------------
 # Better scrolling
 # UI fixes
-# New Event type for event manager BatchedEvent
+# New Event type for networkEvent manager BatchedEvent
 ##########################
         BUG FIX
 --------------------------

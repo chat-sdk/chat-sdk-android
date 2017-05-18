@@ -18,6 +18,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.types.ImageUploadResult;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import tk.wanderingdevelopment.chatsdkcore.db.BMessageDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import com.braunster.chatsdk.utils.ImageUtils;
@@ -639,64 +642,85 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
     public  void sendImageMessage(final String filePath){
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
         sendingMessageToast();
-        BNetworkManager.getThreadsInterface().sendMessageWithImage(filePath, thread.getId())
-                .then(new DoneCallback<BMessage>() {
-                    @Override
-                    public void onDone(BMessage message) {
-                        if (DEBUG) Timber.v("Image is sent");
-                        uiHelper.dismissProgressCardWithSmallDelay();
-                    }
-                }, new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        uiHelper.dismissProgressCardWithSmallDelay();
-                        uiHelper.showAlertToast(R.string.unable_to_send_image_message);
-                    }
-                }, new ProgressCallback<BMessage>() {
-                    @Override
-                    public void onProgress(BMessage message) {
-                        // Adding the message after it was prepared bt the NetworkAdapter.
-                        if (messagesListAdapter != null)
-                        {
-                            messagesListAdapter.addRow(message);
-                            scrollListTo(messagesListAdapter.getCount(), true);
-                        }
-                    }
-                });
+
+
+        BNetworkManager.getThreadsInterface().sendMessageWithImage(filePath, thread.getId()).subscribe(new Observer<ImageUploadResult>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(ImageUploadResult value) {
+                uiHelper.setProgress(value.progress.asFraction());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                uiHelper.dismissProgressCardWithSmallDelay();
+                uiHelper.showAlertToast(R.string.unable_to_send_image_message);
+            }
+
+            @Override
+            public void onComplete() {
+                if (DEBUG) Timber.v("Image is sent");
+                uiHelper.dismissProgressCardWithSmallDelay();
+            }
+        });
+
+        // TODO: BEN1 Add this!
+
+//        // Adding the message after it was prepared bt the NetworkAdapter.
+//        if (messagesListAdapter != null)
+//        {
+//            messagesListAdapter.addRow(message);
+//            scrollListTo(messagesListAdapter.getCount(), true);
+//        }
+
     }
 
     public void sendLocationMessage(final Intent data){
         sendingMessageToast();
-        BNetworkManager.getThreadsInterface().sendMessageWithLocation(data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null),
-                new LatLng(data.getDoubleExtra(ChatSDKLocationActivity.LANITUDE, 0), data.getDoubleExtra(ChatSDKLocationActivity.LONGITUDE, 0)),
-                thread.getId())
-                .then(new DoneCallback<BMessage>() {
-                    @Override
-                    public void onDone(BMessage message) {
-                        if (DEBUG) Timber.v("Image is sent");
-                        uiHelper.dismissProgressCardWithSmallDelay();
-                    }
-                }, new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        uiHelper.dismissProgressCardWithSmallDelay();
-                        uiHelper.showAlertToast(R.string.unable_to_send_location_message);
-                    }
-                }, new ProgressCallback<BMessage>() {
-                    @Override
-                    public void onProgress(BMessage message) {
-                        // Adding the message after it was prepared bt the NetworkAdapter.
-                        String path = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, "");
-                        if (StringUtils.isNotBlank(path))
-                        {
-                            if (messagesListAdapter != null)
-                            {
-                                messagesListAdapter.addRow(message);
-                                scrollListTo(messagesListAdapter.getCount(), true);
-                            }
-                        }
-                    }
-                });
+
+        String filePath = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
+        LatLng latLng = new LatLng(data.getDoubleExtra(ChatSDKLocationActivity.LANITUDE, 0), data.getDoubleExtra(ChatSDKLocationActivity.LONGITUDE, 0));
+
+        BNetworkManager.getThreadsInterface().sendMessageWithLocation(filePath, latLng, thread.getId()).subscribe(new Observer<ImageUploadResult>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(ImageUploadResult value) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                uiHelper.dismissProgressCardWithSmallDelay();
+                uiHelper.showAlertToast(R.string.unable_to_send_location_message);
+            }
+
+            @Override
+            public void onComplete() {
+                if (DEBUG) Timber.v("Image is sent");
+                uiHelper.dismissProgressCardWithSmallDelay();
+            }
+        });
+
+        // TODO: BEN1 Add this in
+        // Adding the message after it was prepared bt the NetworkAdapter.
+//        String path = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, "");
+//        if (StringUtils.isNotBlank(path))
+//        {
+//            if (messagesListAdapter != null)
+//            {
+//                messagesListAdapter.addRow(message);
+//                scrollListTo(messagesListAdapter.getCount(), true);
+//            }
+//        }
+
+
     }
     
 
@@ -775,28 +799,32 @@ public class ChatSDKChatHelper implements ChatMessageBoxView.MessageBoxOptionsLi
             // FIXME pull text from string resource for language control
             uiHelper.showProgressCard(R.string.sending);
 
-            BNetworkManager.getThreadsInterface().sendMessageWithLocation(intent.getExtras().getString(SHARE_LOCATION, null),
-                    new LatLng(intent.getDoubleExtra(LAT, 0), intent.getDoubleExtra(LNG, 0)),
-                    thread.getId())
-                    .done(new DoneCallback<BMessage>() {
-                        @Override
-                        public void onDone(BMessage message) {
-                            if (DEBUG) Timber.v("Image is sent");
+            //TODO: BEN1
+            this.sendLocationMessage(intent);
 
-                            uiHelper.dismissProgressCardWithSmallDelay();
-                        }
-                    })
-                    .fail(new FailCallback<ChatError>() {
-                        @Override
-                        public void onFail(ChatError chatError) {
-                            uiHelper.dismissProgressCardWithSmallDelay();
-                            uiHelper.showAlertToast(R.string.unable_to_send_location_message);
-                        }
-                    });
 
-            intent.removeExtra(SHARE_LOCATION);
-
-            shared = true;
+//            BNetworkManager.getThreadsInterface().sendMessageWithLocation(intent.getExtras().getString(SHARE_LOCATION, null),
+//                    new LatLng(intent.getDoubleExtra(LAT, 0), intent.getDoubleExtra(LNG, 0)),
+//                    thread.getId())
+//                    .done(new DoneCallback<BMessage>() {
+//                        @Override
+//                        public void onDone(BMessage message) {
+//                            if (DEBUG) Timber.v("Image is sent");
+//
+//                            uiHelper.dismissProgressCardWithSmallDelay();
+//                        }
+//                    })
+//                    .fail(new FailCallback<ChatError>() {
+//                        @Override
+//                        public void onFail(ChatError chatError) {
+//                            uiHelper.dismissProgressCardWithSmallDelay();
+//                            uiHelper.showAlertToast(R.string.unable_to_send_location_message);
+//                        }
+//                    });
+//
+//            intent.removeExtra(SHARE_LOCATION);
+//
+//            shared = true;
         }
     }
 

@@ -1,8 +1,6 @@
 package tk.wanderingdevelopment.chatsdk.core.abstracthandlers;
 
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.utils.ImageUtils;
@@ -18,14 +16,12 @@ import com.braunster.chatsdk.dao.entities.BMessageEntity;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
-import com.braunster.chatsdk.object.SaveImageProgress;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
-import org.jdeferred.ProgressCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.joda.time.DateTime;
@@ -37,6 +33,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import co.chatsdk.core.types.ImageUploadResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
@@ -66,8 +68,6 @@ public abstract class ThreadsManager implements ThreadsInterface {
      */
     public Promise<BMessage, ChatError, BMessage>  sendMessageWithText(String text, long threadId) {
 
-        final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
-
         final BMessage message = new BMessage();
         message.setText(text);
         message.setThreadId(threadId);
@@ -76,7 +76,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         message.setStatus(BMessageEntity.Status.SENDING);
         message.setDelivered(BMessageEntity.Delivered.No);
 
-        final BMessage bMessage = DaoCore.createEntity(message);
+        DaoCore.createEntity(message);
 
         // Setting the temporary time of the message to be just after the last message that
         // was added to the thread.
@@ -90,18 +90,18 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         DaoCore.updateEntity(message);
 
-        sendMessage(bMessage, deferred);
+        return implSendMessage(message);
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(!deferred.isResolved()){
-                    deferred.notify(message);
-                }
-            }
-        }, 100);
+        // TODO: What does this do?
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                if(!deferred.isResolved()){
+//                    deferred.notify(message);
+//                }
+//            }
+//        }, 100);
 
-        return deferred.promise();
     }
 
     /**
@@ -115,7 +115,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * @param location       is the Latitude and Longitude of the picked location.
      * @param threadId the id of the thread that the message is sent to.
      */
-    public  Promise<BMessage, ChatError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId) {
+    public Observable<ImageUploadResult> sendMessageWithLocation(final String filePath, final LatLng location, long threadId) {
 
         final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
 
@@ -149,47 +149,35 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         message.setImageDimensions(ImageUtils.getDimensionAsString(image));
 
-        BNetworkManager.getCoreInterface().uploadImage(image, thumbnail)
-                .progress(new ProgressCallback<SaveImageProgress>() {
-                    @Override
-                    public void onProgress(SaveImageProgress saveImageProgress) {
-                        deferred.notify(message);
-                    }
-                })
-                .done(new DoneCallback<String[]>() {
-                    @Override
-                    public void onDone(String[] url) {
-                        // Add the LatLng data to the message and the image url and thumbnail url
-                        message.setText(String.valueOf(location.latitude)
-                                + BDefines.DIVIDER
-                                + String.valueOf(location.longitude)
-                                + BDefines.DIVIDER + url[0]
-                                + BDefines.DIVIDER + url[1]
-                                + BDefines.DIVIDER + message.getImageDimensions());
+        return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+            @Override
+            public void accept(ImageUploadResult result) throws Exception {
+                if(result.isComplete()) {
+                    // Add the LatLng data to the message and the image url and thumbnail url
+                    message.setText(String.valueOf(location.latitude)
+                            + BDefines.DIVIDER
+                            + String.valueOf(location.longitude)
+                            + BDefines.DIVIDER + result.imageURL
+                            + BDefines.DIVIDER + result.thumbnailURL
+                            + BDefines.DIVIDER + message.getImageDimensions());
+                }
+            }
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                DaoCore.updateEntity(message);
 
-                        DaoCore.updateEntity(message);
+                // Sending the message, After it was uploaded to the server we can delte the file.
+                implSendMessage(message)
+                        .done(new DoneCallback<BMessage>() {
+                            @Override
+                            public void onDone(BMessage message) {
+                                new File(filePath).delete();
+                            }
+                        });
+            }
+        });
 
-                        // Sending the message, After it was uploaded to the server we can delte the file.
-                        sendMessage(message, deferred)
-                                .done(new DoneCallback<BMessage>() {
-                                    @Override
-                                    public void onDone(BMessage message) {
-                                        new File(filePath).delete();
-                                    }
-                                });
-
-
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        deferred.reject(error);
-                        new File(filePath).delete();
-                    }
-                });
-
-        return deferred.promise();
     }
 
     /**
@@ -202,7 +190,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param threadId the id of the thread that the message is sent to.
      */
-    public Promise<BMessage, ChatError, BMessage>  sendMessageWithImage(final String filePath, long threadId) {
+    public Observable<ImageUploadResult> sendMessageWithImage(final String filePath, long threadId) {
 
         final Deferred<BMessage, ChatError, BMessage> deferred = new DeferredObject<>();
 
@@ -223,7 +211,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
         if (date == null)
             date = new Date();
 
-        message.setDate( new DateTime(date.getTime() + 1) );
+        message.setDate(new DateTime(date.getTime() + 1));
 
         message.setResourcesPath(filePath);
 
@@ -241,54 +229,36 @@ public abstract class ThreadsManager implements ThreadsInterface {
                 VolleyUtils.BitmapCache.getCacheKey(message.getResourcesPath()),
                 thumbnail);
 
-        BNetworkManager.getCoreInterface().uploadImage(image, thumbnail)
-                .progress(new ProgressCallback<SaveImageProgress>() {
-                    @Override
-                    public void onProgress(SaveImageProgress saveImageProgress) {
-                        deferred.notify(message);
-                    }
-                })
-                .done(new DoneCallback<String[]>() {
-                    @Override
-                    public void onDone(String[] url) {
-                        message.setText(url[0] + BDefines.DIVIDER + url[1] + BDefines.DIVIDER + message.getImageDimensions());
+        return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+            @Override
+            public void accept(ImageUploadResult result) throws Exception {
+                if(result.isComplete()) {
+                    message.setText(result.imageURL + BDefines.DIVIDER + result.thumbnailURL + BDefines.DIVIDER + message.getImageDimensions());
+                    DaoCore.updateEntity(message);
+                }
+            }
+        }).doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+                implSendMessage(message);
+            }
+        });
 
-                        DaoCore.updateEntity(message);
-
-                        sendMessage(message, deferred);
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        deferred.reject(error);
-                    }
-                });
-
-
-        return deferred.promise();
     }
 
-    public Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred){
-
-        sendMessage(message).done(new DoneCallback<BMessage>() {
+    private Promise<BMessage, ChatError, BMessage> implSendMessage(final BMessage message) {
+        return sendMessage(message).done(new DoneCallback<BMessage>() {
             @Override
-            public void onDone(BMessage message) {
-                message.setStatus(BMessage.Status.SENT);
-                message = DaoCore.updateEntity(message);
-//                deferred.notify(message);
-                deferred.resolve(message);
+            public void onDone(BMessage m) {
+                m.setStatus(BMessage.Status.SENT);
+                DaoCore.updateEntity(m);
             }
         }).fail(new FailCallback<ChatError>() {
             @Override
             public void onFail(ChatError chatError) {
                 message.setStatus(BMessage.Status.FAILED);
-
-                deferred.reject(chatError);
             }
         });
-
-        return deferred;
     }
 
     public abstract Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);

@@ -11,7 +11,7 @@ import com.braunster.chatsdk.utils.sorter.MessageSorter;
 import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.chatsdk.dao.entities.BThreadEntity;
 import com.braunster.chatsdk.dao.entities.Entity;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.BPath;
 
@@ -110,9 +110,10 @@ public class BThread extends BThreadEntity  {
     }
 
     // KEEP METHODS - put your custom methods here
-    @Override
-    public BPath getBPath() {
-        return new BPath().addPathComponent(BFirebaseDefines.Path.BThreadPath, getEntityID());}
+//    @Override
+//    public BPath getBPath() {
+//        return new BPath().addPathComponent(FirebasePaths.BThreadPath, getEntityID());
+//    }
 
     @Override
     public Entity.Type getEntityType() {
@@ -345,10 +346,13 @@ public class BThread extends BThreadEntity  {
         this.creationDate = creationDate;
     }
 
+    // TODO: Unused remove this
+    @Deprecated
     public Boolean getHasUnreadMessages() {
         return this.hasUnreadMessages;
     }
 
+    @Deprecated
     public void setHasUnreadMessages(Boolean hasUnreadMessages) {
         this.hasUnreadMessages = hasUnreadMessages;
     }

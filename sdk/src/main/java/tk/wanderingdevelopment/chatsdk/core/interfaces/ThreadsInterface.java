@@ -11,6 +11,11 @@ import org.jdeferred.Promise;
 
 import java.util.List;
 
+import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.types.ImageUploadResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+
 /**
  * Created by KyleKrueger on 10.04.2017.
  */
@@ -54,9 +59,9 @@ public interface ThreadsInterface {
      *
      * @param filePath     is a String representation of a bitmap that contain the image of the location wanted.
      * @param location       is the Latitude and Longitude of the picked location.
-     * @param threadId the id of the thread that the message is sent to.
+     * @param threadID the id of the thread that the message is sent to.
      */
-     Promise<BMessage, ChatError, BMessage> sendMessageWithLocation(final String filePath, final LatLng location, long threadId);
+     Observable<ImageUploadResult> sendMessageWithLocation(final String filePath, final LatLng location, long threadID);
 
     /**
      * Preparing an image message,
@@ -66,11 +71,11 @@ public interface ThreadsInterface {
      * When done or when an error occurred the calling method will be notified.
      *
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
-     * @param threadId the id of the thread that the message is sent to.
+     * @param threadID the id of the thread that the message is sent to.
      */
-    Promise<BMessage, ChatError, BMessage>  sendMessageWithImage(final String filePath, long threadId);
+    Observable<ImageUploadResult> sendMessageWithImage(final String filePath, long threadID);
 
-    Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred);
+    //Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred);
 
     Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);
 

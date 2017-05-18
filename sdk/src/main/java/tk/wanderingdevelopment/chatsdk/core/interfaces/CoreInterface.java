@@ -4,16 +4,17 @@ import android.graphics.Bitmap;
 
 
 import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.object.ChatError;
-import com.braunster.chatsdk.object.SaveImageProgress;
 
 import org.jdeferred.Promise;
 
 import java.util.Date;
 import java.util.List;
+
+import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.types.ImageUploadResult;
+import io.reactivex.Observable;
 
 /**
  * Created by KyleKrueger on 13.04.2017.
@@ -21,18 +22,7 @@ import java.util.List;
 
 public interface CoreInterface {
 
-
-    void setUploadHandler(BUploadHandler uploadHandler);
-
-    void setPushHandler(BPushHandler pushHandler);
-
-    BUploadHandler getUploadHandler();
-
-    BPushHandler getPushHandler();
-
     BUser currentUserModel();
-
-    boolean backendlessEnabled();
 
     boolean facebookEnabled();
 
@@ -80,9 +70,13 @@ public interface CoreInterface {
     String getServerURL();
 
 
-    Promise<String[], ChatError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail);
+    public Observable<ImageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail) ;
+    public Observable<FileUploadResult> uploadImage(final Bitmap image);
 
-    Promise<String, ChatError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image);
+
+    //Promise<String[], ChatError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail);
+
+    //Promise<String, ChatError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image);
 
 
 }

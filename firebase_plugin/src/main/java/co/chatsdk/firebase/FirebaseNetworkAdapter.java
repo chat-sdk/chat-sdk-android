@@ -9,8 +9,10 @@ import co.chatsdk.core.AbstractNetworkAdapter;
 public class FirebaseNetworkAdapter extends AbstractNetworkAdapter {
 
     public FirebaseNetworkAdapter () {
-        core = new FirebaseCorehandler();
+        core = new FirebaseCoreHandler();
         auth = new FirebaseAuthenticationHandler();
+        upload = new FirebaseUploadHandler();
+        events = StateManager.shared();
     }
 
 }

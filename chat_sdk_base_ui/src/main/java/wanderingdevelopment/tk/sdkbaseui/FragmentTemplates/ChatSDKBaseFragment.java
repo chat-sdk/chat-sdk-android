@@ -19,6 +19,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import co.chatsdk.core.NetworkManager;
+import io.reactivex.Completable;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
 import com.braunster.chatsdk.dao.BThread;
@@ -325,8 +327,8 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
 
     /** Authenticates the current user.*/
-    public Promise<BUser, ChatError, Void> authenticate(){
-        return BNetworkManager.getAuthInterface().authenticateWithCachedToken();
+    public Completable authenticate(){
+        return NetworkManager.shared().a.auth.authenticateWithCachedToken();
     }
 
     public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {

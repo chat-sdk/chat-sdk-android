@@ -21,6 +21,7 @@ import com.google.firebase.database.DataSnapshot;
 
 import org.jdeferred.Deferred;
 
+import co.chatsdk.core.utils.Executor;
 import timber.log.Timber;
 
 public class InMessagesListener extends FirebaseGeneralEvent {
@@ -47,7 +48,7 @@ public class InMessagesListener extends FirebaseGeneralEvent {
     public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
         if (DEBUG) Timber.v("Message has arrived, Alive: %s", isAlive());
         if (isAlive())
-            FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
+            Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
                     if (DEBUG) Timber.v("Message has arrived - execute, Alive: %s", isAlive());

@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 
 import org.jdeferred.Deferred;
 
+import co.chatsdk.core.utils.Executor;
 import timber.log.Timber;
 
 public class UserMetaChangeListener extends FirebaseGeneralEvent {
@@ -41,7 +42,7 @@ public class UserMetaChangeListener extends FirebaseGeneralEvent {
     public void onDataChange(final DataSnapshot snapshot) {
         if (DEBUG) Timber.v("User Details has changed, Alive: %s", isAlive());
         if (isAlive())
-            FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
+            Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);

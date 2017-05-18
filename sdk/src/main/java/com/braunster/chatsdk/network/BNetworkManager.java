@@ -20,7 +20,6 @@ import com.bugsense.trace.BugSenseHandler;
 
 import org.apache.commons.lang3.StringUtils;
 
-import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
@@ -34,17 +33,16 @@ public class BNetworkManager {
     private static final boolean DEBUG = Debug.BNetworkManager;
 
     private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
-    public static final boolean BUGSENSE_ENABLED = false, PushEnabledDefaultValue = true;
+    public static final boolean BUGSENSE_ENABLED = false;
+    public static final boolean PushEnabledDefaultValue = true;
 
     public static SharedPreferences preferences;
 
     private static BNetworkManager instance;
 
-    private static AuthInterface authInterface;
     private static CoreInterface coreInterface;
     private static ThreadsInterface threadsInterface;
     private static UiLauncherInterface uiLauncherInterface;
-
 
     private static Context context;
 
@@ -71,14 +69,6 @@ public class BNetworkManager {
             instance = new BNetworkManager();
         }
         return instance;
-    }
-
-    public static void setAuthInterface(AuthInterface authInterface) {
-        BNetworkManager.authInterface = authInterface;
-    }
-
-    public static AuthInterface getAuthInterface() {
-        return authInterface;
     }
 
     public static void setUiLauncherInterface(UiLauncherInterface uiLauncherInterface) {

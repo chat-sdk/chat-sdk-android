@@ -5,6 +5,7 @@ import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
+import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
 import co.chatsdk.core.handlers.LocationMessageHandler;
@@ -45,5 +46,6 @@ public class AbstractNetworkAdapter {
     public ReadReceiptHandler readReceipts;
     public StickerMessageHandler stickerMessage;
     public SocialLoginHandler socialLogin;
+    public EventHandler events;
 
 }

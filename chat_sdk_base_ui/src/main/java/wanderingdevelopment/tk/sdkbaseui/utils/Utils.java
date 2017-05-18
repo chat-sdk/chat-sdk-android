@@ -77,11 +77,11 @@ public class Utils {
             if(!cacheDir.exists())
                 cacheDir.mkdirs();
 
-            File old = new File(cacheDir, "ProfileImage.jpg");
+            File old = new File(cacheDir, "ImageUploadResult.jpg");
             if (old.exists())
                 old.delete();
 
-            File f = new File(cacheDir, "ProfileImage.jpg");
+            File f = new File(cacheDir, "ImageUploadResult.jpg");
 
             InputStream is;
             try {

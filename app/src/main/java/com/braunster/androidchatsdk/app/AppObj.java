@@ -1,22 +1,21 @@
 package com.braunster.androidchatsdk.app;
 
+import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseCoreAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseThreadsAdapter;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseAuthAdapter;
 //import com.braunster.chatsdk.dao.core.DaoCore;
+import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BackendlessHandler;
 import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
-import wanderingdevelopment.tk.chatsdkcore.db.DaoCore;
 
 import co.chatsdk.core.NetworkManager;
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.interfaces.AuthInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
@@ -37,7 +36,7 @@ public class AppObj extends MultiDexApplication {
         
         MultiDex.install(this);
 
-
+        Context context = getApplicationContext();
 
 
         // Logging tool.
@@ -51,14 +50,18 @@ public class AppObj extends MultiDexApplication {
         NetworkManager.shared().a = new FirebaseNetworkAdapter();
         //StorageManager.shared().a = DaoCore.getDaoCore(getApplicationContext());
 
+        String backendlessAppKey = context.getString(com.braunster.chatsdk.R.string.backendless_app_id);
+        String backendlessSecret = context.getString(com.braunster.chatsdk.R.string.backendless_secret_key);
+        String backendlessVersion = context.getString(com.braunster.chatsdk.R.string.backendless_app_version);
+
+        NetworkManager.shared().a.push = new BackendlessHandler(context, backendlessAppKey, backendlessSecret, backendlessVersion);
+
         // Android chat SDK init!
         BNetworkManager.init(getApplicationContext());
         // Adapter init.
-        AuthInterface auth = new FirebaseAuthAdapter(getApplicationContext());
-        BNetworkManager.setAuthInterface(auth);
-
         ThreadsInterface threads = new FirebaseThreadsAdapter();
         BNetworkManager.setThreadsInterface(threads);
+
 
         CoreInterface core = new FirebaseCoreAdapter(getApplicationContext());
         BNetworkManager.setCoreInterface(core);

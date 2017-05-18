@@ -35,9 +35,9 @@ public abstract class AbstractEventManager {
      * to thread details change will be assigned. After details received the messages and added users listeners will be assign.*//*
     public abstract void handleThread(final String threadID);*/
 
-    public abstract void userOn(final BUser user);
-
-    public abstract void userOff(BUser user);
+//    public abstract void userOn(final BUser user);
+//
+//    public abstract void userOff(BUser user);
 
     /**
      * Handle user meta change.
@@ -80,6 +80,6 @@ public abstract class AbstractEventManager {
     /**
      * Removes all the events from the event manger.
      **/
-    public abstract void removeAll();
+    //public abstract void removeAll();
 
 }

@@ -7,11 +7,10 @@
 
 package com.braunster.chatsdk.dao.entities;
 
-import com.braunster.chatsdk.dao.BThread;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.FollowerLink;
 import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BFirebaseDefines;
+import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BPath;
 
 import java.util.List;
@@ -23,7 +22,9 @@ public abstract class BUserEntity extends Entity {
 
     public String email ="";
 
-    public static String safeAuthenticationID(String aid, int type){
+    // TODO: Remove this
+    @Deprecated
+    private static String safeAuthenticationID(String aid, int type){
 
         // Numbers are like the Provider enum in simple login.
         String prefix = "";
@@ -53,10 +54,10 @@ public abstract class BUserEntity extends Entity {
         return prefix;
     }
 
-    @Override
-    public BPath getBPath() {
-        return new BPath().addPathComponent(BFirebaseDefines.Path.BUsersPath, getEntityID());
-    }
+//    @Override
+//    public BPath getBPath() {
+//        return new BPath().addPathComponent(FirebasePaths.BUsersPath, getEntityID());
+//    }
 
     public abstract String[] getCacheIDs();
 

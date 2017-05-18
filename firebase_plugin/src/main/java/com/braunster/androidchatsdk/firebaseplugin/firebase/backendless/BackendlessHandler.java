@@ -12,45 +12,38 @@ import com.backendless.messaging.PushBroadcastMask;
 import com.backendless.messaging.PushPolicyEnum;
 import com.backendless.services.messaging.MessageStatus;
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 
-import org.jdeferred.Promise;
+import co.chatsdk.core.defines.Debug;
+
+import com.braunster.chatsdk.network.BDefines;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Collection;
 
+import co.chatsdk.core.handlers.PushHandler;
 import timber.log.Timber;
 
 /**
  * Created by Erk on 27.07.2016.
  */
-public class BBackendlessHandler implements BPushHandler, BUploadHandler {
+public class BackendlessHandler implements PushHandler {
 
-    private static final String TAG = BBackendlessHandler.class.getSimpleName();
-    private static final boolean DEBUG = Debug.BBackendlessPushHandler;
+    private static final String TAG = BackendlessHandler.class.getSimpleName();
+    private static final boolean DEBUG = Debug.BackendlessPushHandler;
 
-    private boolean isSubscribed;
+    //private boolean isSubscribed;
     private Context context;
 
-    public void setContext(Context ctx) {
-        context = ctx;
-    }
-
-    public void initWithAppKey(String appKey, String secretKey, String versionKey)
+    public BackendlessHandler(Context ctx, String appKey, String secretKey, String versionKey)
     {
-        Backendless.initApp(context, appKey, secretKey, versionKey);
+        context = ctx;
+        Backendless.initApp(ctx, appKey, secretKey, versionKey);
     }
 
     @Override
     public boolean subscribeToPushChannel(final String channel) {
-        if (!BNetworkManager.getCoreInterface().backendlessEnabled())
-            return false;
-
         try {
             Backendless.Messaging.registerDevice(context.getString(R.string.google_project_number), channel, new AsyncCallback<Void>() {
                 @Override
@@ -73,8 +66,6 @@ public class BBackendlessHandler implements BPushHandler, BUploadHandler {
 
     @Override
     public boolean unsubscribeToPushChannel(String channel) {
-        if (!BNetworkManager.getCoreInterface().backendlessEnabled())
-            return false;
 
         // TODO: unsubscribe from push channel backendless
         // http://support.backendless.com/topic/push-notification-unregister-from-a-specific-channel
@@ -133,8 +124,4 @@ public class BBackendlessHandler implements BPushHandler, BUploadHandler {
         }
     }
 
-    @Override
-    public Promise uploadFile(byte[] data, String name, String mimeType) {
-        return null;
-    }
 }

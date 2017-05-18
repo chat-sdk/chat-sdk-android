@@ -26,7 +26,7 @@ public class FirebaseGeneralEvent implements ValueEventListener, ChildEventListe
     }
 
     /** This is a workaround to make sure events are not trigger after they are removed.
-     * If the event is killed even if the Firebase Child/Value Event will be trigger,
+     * If the event is killed even if the Firebase Child/Value NetworkEvent will be trigger,
      * the data wont be parsed and the EventManager wont get any notification. */
     public void killEvent(){
         alive = false;

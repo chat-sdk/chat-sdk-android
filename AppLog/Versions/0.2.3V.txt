@@ -23,6 +23,6 @@
 # Some time images cause the db to break.
 # When adding  a public thread the user details change and we load and refresh all users.
 # User is not set to offline after logout.
-# Messages listener does not get removed by the event manager.
+# Messages listener does not get removed by the networkEvent manager.
 # Cancel login to facebook option.
 ##########################

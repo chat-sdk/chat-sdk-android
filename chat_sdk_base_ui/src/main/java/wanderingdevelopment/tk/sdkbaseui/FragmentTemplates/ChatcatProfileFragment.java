@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
@@ -92,9 +93,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
     @Override
     public void loadData() {
         super.loadData();
-
-        setDetails((Integer) BNetworkManager.getAuthInterface().getLoginInfo().get(Defines.Prefs.AccountTypeKey));
-
+        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey));
     }
 
     @Override
@@ -112,7 +111,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
         // Logout and return to the login activity.
         BFacebookManager.logout(getActivity());
 
-        BNetworkManager.getAuthInterface().logout();
+        NetworkManager.shared().a.auth.logout();
         chatSDKUiHelper.startLoginActivity(true);
     }
 

@@ -6,6 +6,7 @@ package co.chatsdk.core.handlers;
 
 public interface ReadReceiptHandler {
 
-//    -(void) updateReadReceiptsForThread: (id<PThread>) thread;
-//    -(void) markRead: (id<PThread>) thread;
+    public void updateReadReceipts(Object thread);
+    public void markRead (Object thread);
+
 }

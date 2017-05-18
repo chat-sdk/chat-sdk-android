@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.utils.Executor;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdkcore.db.UserThreadLinkDao;
 
@@ -72,7 +73,7 @@ public class UserAddedListener extends FirebaseGeneralEvent {
 
     private void doLogic(final DataSnapshot dataSnapshot){
         if (isAlive())
-            FirebaseEventsManager.Executor.getInstance().execute(new Runnable() {
+            Executor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
                     android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);

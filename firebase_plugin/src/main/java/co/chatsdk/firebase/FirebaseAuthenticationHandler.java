@@ -2,8 +2,10 @@ package co.chatsdk.firebase;
 
 import android.support.annotation.NonNull;
 
+import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.dao.BUser;
@@ -20,10 +22,13 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.TwitterAuthProvider;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.util.HashMap;
@@ -36,6 +41,7 @@ import co.chatsdk.core.types.LoginType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -43,6 +49,8 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import timber.log.Timber;
+
+import static com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors.getFirebaseError;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -139,6 +147,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                             loginInfoMap.put(Defines.Prefs.AccountTypeKey, loginType);
                             loginInfoMap.put(Defines.Prefs.AuthenticationID, uid);
+                            //loginInfoMap.put(Defines.Prefs.TokenKey, );
 
                             setLoginInfo(loginInfoMap);
 
@@ -160,16 +169,19 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         String accessToken = BFacebookManager.userFacebookAccessToken;
 
-                        if (DEBUG) Timber.d(TAG, "authing with fb, AccessToken: %s", accessToken);
+                        addLoginInfoData(Defines.Prefs.TokenKey, accessToken);
+
+                        if (DEBUG) Timber.d(TAG, "Authenticating with fb, AccessToken: %s", accessToken);
 
                         credential = FacebookAuthProvider.getCredential(accessToken);
                         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
-
                         break;
 
                     case AccountType.Twitter:
                         String token = TwitterManager.accessToken.getToken();
                         String secret = TwitterManager.accessToken.getSecret();
+
+                        addLoginInfoData(Defines.Prefs.TokenKey, token);
 
                         if (DEBUG) Timber.d("authing with twitter, AccessToken: %s", token);
 
@@ -208,12 +220,14 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 setAuthStateToIdle();
             }
         });
-        c.subscribe();
+        // TODO: Need to look at this - how to make sure it always executes...
+        //c.subscribe();
+
         return c;
     }
 
     private Completable handleFAUser(final FirebaseUser authData){
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
@@ -231,16 +245,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     final BUserWrapper wrapper = BUserWrapper.initWithAuthData(authData);
                     wrapper.once().then(new DoneCallback<BUser>() {
                         @Override
-                        public void onDone(BUser bUser) {
+                        public void onDone(BUser user) {
 
                             if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
-                            DaoCore.updateEntity(bUser);
+                            DaoCore.updateEntity(user);
 
-                            BNetworkManager.getCoreInterface().getEventManager().userOn(bUser);
+                            StateManager.shared().userOn(user.getEntityID());
 
                             // TODO push a default image of the user to the cloud.
                             // TODO: This shouldn't return the error... Would lead to a race condition
-                            if(!BNetworkManager.getCoreInterface().getPushHandler().subscribeToPushChannel(wrapper.pushChannel())) {
+                            if(!NetworkManager.shared().a.push.subscribeToPushChannel(wrapper.pushChannel())) {
                                 // TODO: Handle this error
                                 Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
                                 //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
@@ -270,35 +284,85 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }
             }
         });
+    }
+
+    public Boolean userAuthenticated() {
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
+    }
+
+    @Override
+    public Completable changePassword(String email, String oldPassword, final String newPassword) {
+        Completable c = Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                OnCompleteListener<Void> resultHandler = new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            e.onComplete();
+                        } else {
+                            e.onError(getFirebaseError(DatabaseError.fromException(task.getException())));
+                        }
+                    }
+                };
+
+                user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
+            }
+        });
         c.subscribe();
         return c;
     }
 
-    public Boolean userAuthenticated() {
-        return false;
+    public Completable logout() {
+        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+
+        // Stop listening to user related alerts. (added message or thread.)
+        StateManager.shared().userOff(user.getEntityID());
+
+        // Removing the push channel
+        if (NetworkManager.shared().a.push != null)
+            NetworkManager.shared().a.push.unsubscribeToPushChannel(user.getPushChannel());
+
+        // Login out
+        // TODO: Move this to the user wrapper
+        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
+        userOnlineRef.setValue(false);
+
+        FirebaseAuth.getInstance().signOut();
+
+        return Completable.complete();
     }
 
+    public Completable sendPasswordResetMail(final String email) {
+        Completable c = Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
+                OnCompleteListener<Void> resultHandler = new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            if(DEBUG) Timber.v("Email sent");
+                            e.onComplete();
+                        } else {
+                            e.onError(getFirebaseError(DatabaseError.fromException(task.getException())));
+                        }
+                    }
+                };
 
+                FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
-
-    public Observable<Void> logout() {
-        return null;
+            }
+        });
+        c.subscribe();
+        return c;
     }
 
     public Boolean accountTypeEnabled(AccountType type) {
         return null;
     }
 
-    public Map<String, Object> loginInfo() {
-        return null;
-    }
 
-    public void setLoginInfo(Map<String, Object> info) {
-
-    }
-
-    public String currentUserEntityID() {
-        return null;
-    }
 
 }

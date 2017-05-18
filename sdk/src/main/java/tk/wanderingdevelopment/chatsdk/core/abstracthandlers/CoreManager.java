@@ -4,27 +4,25 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.braunster.chatsdk.R;
+
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.utils.ImageUtils;
 import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.interfaces.BPushHandler;
-import com.braunster.chatsdk.interfaces.BUploadHandler;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.events.AbstractEventManager;
 import com.braunster.chatsdk.object.ChatError;
-import com.braunster.chatsdk.object.SaveImageProgress;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
 
 import java.util.Date;
 import java.util.List;
 
+import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.types.ImageUploadResult;
+import io.reactivex.Observable;
+import io.reactivex.functions.BiFunction;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
 
@@ -38,37 +36,17 @@ public abstract class CoreManager implements CoreInterface {
     protected boolean DEBUG = Debug.CoreManager;
     private Context context;
     private AbstractEventManager eventManager;
-    public BPushHandler pushHandler;
-    public BUploadHandler uploadHandler;
 
     public CoreManager(Context context){
         this.context = context;
     }
 
-
-    public void setUploadHandler(BUploadHandler uploadHandler) {
-        this.uploadHandler = uploadHandler;
-    }
-
-    @Override
-    public BUploadHandler getUploadHandler() {
-        return uploadHandler;
-    }
-
-    public void setPushHandler(BPushHandler pushHandler) {
-        this.pushHandler = pushHandler;
-    }
-
-    @Override
-    public BPushHandler getPushHandler() {
-        return pushHandler;
-    }
-
     public BUser currentUserModel(){
-        String authID = BNetworkManager.getAuthInterface().getCurrentUserAuthenticationId();
-        if (StringUtils.isNotEmpty(authID))
+        String entityID = NetworkManager.shared().a.auth.getCurrentUserEntityID();
+
+        if (StringUtils.isNotEmpty(entityID))
         {
-            BUser currentUser = DaoCore.fetchEntityWithEntityID(BUser.class, authID);
+            BUser currentUser = DaoCore.fetchEntityWithEntityID(BUser.class, entityID);
 
             if(DEBUG) {
                 if (currentUser == null) Timber.e("Current user is null");
@@ -80,10 +58,6 @@ public abstract class CoreManager implements CoreInterface {
         }
         if (DEBUG) Timber.e("getCurrentUserAuthenticationIdr is null");
         return null;
-    }
-
-    public boolean backendlessEnabled(){
-        return StringUtils.isNotEmpty(context.getString(R.string.backendless_app_id)) && StringUtils.isNotEmpty(context.getString(R.string.backendless_secret_key));
     }
 
     public boolean facebookEnabled(){
@@ -155,75 +129,48 @@ public abstract class CoreManager implements CoreInterface {
     public abstract String getServerURL();
 
 
-    public Promise<String[], ChatError, SaveImageProgress> uploadImage(final Bitmap image, final Bitmap thumbnail) {
+    public Observable<ImageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail) {
 
-        if(image == null || thumbnail == null) return rejectMultiple();
+        if(image == null || thumbnail == null) {
+            return Observable.error(new Throwable("The image and thumbnail can't be null"));
+        }
 
-        final Deferred<String[], ChatError, SaveImageProgress> deferred = new DeferredObject<String[], ChatError, SaveImageProgress>();
+        // Upload the two images in parallel
+        Observable<FileUploadResult> o1 = NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
+        Observable<FileUploadResult> o2 = NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(thumbnail), "thumbnail.jpg", "image/jpeg");
 
-        final String[] urls = new String[2];
+        return Observable.zip(o1, o2, new BiFunction<FileUploadResult, FileUploadResult, ImageUploadResult>() {
+            @Override
+            public ImageUploadResult apply(FileUploadResult s1, FileUploadResult s2) throws Exception {
+                String imageURL = null, thumbnailURL = null;
 
-        BNetworkManager.getCoreInterface().getUploadHandler().uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg")
-                .done(new DoneCallback<String>() {
-                    @Override
-                    public void onDone(String url) {
-                        urls[0] = url;
+                if (s1.name.equals("image.jpg")) {
+                    imageURL = s1.url;
+                }
+                if (s2.name.equals("image.jpg")) {
+                    imageURL = s2.url;
+                }
+                if (s1.name.equals("thumbnail.jpg")) {
+                    thumbnailURL = s1.url;
+                }
+                if (s2.name.equals("thumbnail.jpg")) {
+                    thumbnailURL = s2.url;
+                }
 
-                        BNetworkManager.getCoreInterface().getUploadHandler().uploadFile(ImageUtils.getImageByteArray(thumbnail), "thumbnail.jpg", "image/jpeg")
-                                .done(new DoneCallback<String>() {
-                                    @Override
-                                    public void onDone(String url) {
-                                        urls[1] = url;
 
-                                        deferred.resolve(urls);
-                                    }
-                                })
-                                .fail(new FailCallback<ChatError>() {
-                                    @Override
-                                    public void onFail(ChatError error) {
-                                        deferred.reject(error);
-                                    }
-                                });
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        deferred.reject(error);
-                    }
-                });
+                ImageUploadResult p = new ImageUploadResult(imageURL, thumbnailURL);
+                p.progress = s1.progress.add(s2.progress);
 
-        return deferred.promise();
+                return p;
+            }
+        });
     }
 
-    public Promise<String, ChatError, SaveImageProgress> uploadImageWithoutThumbnail(final Bitmap image) {
+    public Observable<FileUploadResult> uploadImage(final Bitmap image) {
 
-        if(image == null) return reject();
+        if(image == null) return Observable.error(new Throwable("Image can not be null"));
 
-        final Deferred<String, ChatError, SaveImageProgress> deferred = new DeferredObject<String, ChatError, SaveImageProgress>();
-
-        BNetworkManager.getCoreInterface().getUploadHandler().uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg")
-                .done(new DoneCallback<String>() {
-                    @Override
-                    public void onDone(String url) {
-                        deferred.resolve(url);
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        deferred.reject(error);
-                    }
-                });
-
-        return deferred.promise();
+        return NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
     }
 
-    private static Promise<String, ChatError, SaveImageProgress> reject(){
-        return new DeferredObject<String, ChatError, SaveImageProgress>().reject(new ChatError(ChatError.Code.NULL, "Image Is Null"));
-    }
-
-    private static Promise<String[], ChatError, SaveImageProgress> rejectMultiple(){
-        return new DeferredObject<String[], ChatError, SaveImageProgress>().reject(new ChatError(ChatError.Code.NULL, "Image Is Null"));
-    }
 }

@@ -22,7 +22,8 @@ public class Debug {
     public static final boolean ThreadsManager = false;
     public static final boolean BFirebaseNetworkAdapter = true;
     public static final boolean BFirebaseUploadHandler = true;
-    public static final boolean BBackendlessPushHandler = true;
+    public static final boolean BackendlessPushHandler = true;
+    public static final boolean StateManager = true;
 
     public static final boolean FirebaseAuthenticationHandler = true;
     public static final boolean AbstractAuthenticationHandler = true;

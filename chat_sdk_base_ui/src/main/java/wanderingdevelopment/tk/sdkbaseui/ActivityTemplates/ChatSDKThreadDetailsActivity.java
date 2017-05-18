@@ -19,6 +19,11 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.types.FileUploadResult;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -333,21 +338,30 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
 
-                BNetworkManager.getCoreInterface().uploadImageWithoutThumbnail(imageBitmap)
-                        .done(new DoneCallback<String>() {
-                            @Override
-                            public void onDone(String s) {
-                                thread.setImageUrl(s);
-                                DaoCore.updateEntity(thread);
-                                BNetworkManager.getThreadsInterface().pushThread(thread);
-                            }
-                        })
-                        .fail(new FailCallback<ChatError>() {
-                            @Override
-                            public void onFail(ChatError error) {
-                                showAlertToast(getString(R.string.unable_to_save_file));
-                            }
-                        });
+                BNetworkManager.getCoreInterface().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(FileUploadResult value) {
+                        if(value.isComplete()) {
+                            thread.setImageUrl(value.url);
+                            DaoCore.updateEntity(thread);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showAlertToast(getString(R.string.unable_to_save_file));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        BNetworkManager.getThreadsInterface().pushThread(thread);
+                    }
+                });
+
             }
             catch (NullPointerException e){
                 if (DEBUG) Timber.e("Null pointer when getting file.");
