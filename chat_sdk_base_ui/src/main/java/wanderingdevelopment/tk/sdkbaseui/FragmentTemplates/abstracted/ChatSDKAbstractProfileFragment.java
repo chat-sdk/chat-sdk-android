@@ -26,7 +26,6 @@ import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKProfileHelper;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
 
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.Cropper;
 
 import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;

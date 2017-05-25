@@ -8,29 +8,17 @@
 package wanderingdevelopment.tk.sdkbaseui.utils;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.network.BDefines;
+import co.chatsdk.core.types.Defines;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import timber.log.Timber;
 
@@ -39,113 +27,110 @@ public class Utils {
 
     static final boolean DEBUG = false;
 
-    public static String getSHA(AppCompatActivity activity, String packageInfo){
-        if (DEBUG) Timber.d("PackageName: %s", packageInfo);
-        // Add code to print out the key hash
-        try {
-            PackageInfo info = activity.getPackageManager().getPackageInfo(
-                    packageInfo,
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                if (DEBUG) Timber.d(Base64.encodeToString(md.digest(), Base64.DEFAULT));
-                return Base64.encodeToString(md.digest(), Base64.DEFAULT);
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            return "NameNotFoundException";
-        } catch (NoSuchAlgorithmException e) {
-            return "NoSuchAlgorithmException";
-        }
+//    public static String getSHA(AppCompatActivity activity, String packageInfo){
+//        if (DEBUG) Timber.d("PackageName: %s", packageInfo);
+//        // Add code to print out the key hash
+//        try {
+//            PackageInfo info = activity.getPackageManager().getPackageInfo(
+//                    packageInfo,
+//                    PackageManager.GET_SIGNATURES);
+//            for (Signature signature : info.signatures) {
+//                MessageDigest md = MessageDigest.getInstance("SHA");
+//                md.update(signature.toByteArray());
+//                if (DEBUG) Timber.d(Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//                return Base64.encodeToString(md.digest(), Base64.DEFAULT);
+//            }
+//        } catch (PackageManager.NameNotFoundException e) {
+//            return "NameNotFoundException";
+//        } catch (NoSuchAlgorithmException e) {
+//            return "NoSuchAlgorithmException";
+//        }
+//
+//        return "Error";
+//    }
 
-        return "Error";
-    }
+//    public static String getRealPathFromURI(Context context, Uri uri){
+//        String[] proj = { MediaStore.Images.Media.DATA , MediaStore.Images.Media.DISPLAY_NAME};
+//        Cursor cursor = context.getContentResolver()
+//                .query(uri, proj, null, null, null);
+//
+//        int column_index;
+//
+//        // some devices a non valid path so we load them to a temp file in the app cache dir.
+//        if (uri.toString().startsWith("content://com.sec.android.gallery3d.provider") ||
+//                uri.toString().startsWith("content://media/external/images/media/"))  {
+//
+//            File cacheDir = context.getCacheDir();
+//
+//            if(!cacheDir.exists())
+//                cacheDir.mkdirs();
+//
+//            File old = new File(cacheDir, "ImageUploadResult.jpg");
+//            if (old.exists())
+//                old.delete();
+//
+//            File f = new File(cacheDir, "ImageUploadResult.jpg");
+//
+//            InputStream is;
+//            try {
+//                is = context.getContentResolver().openInputStream(uri);
+//                OutputStream os = new FileOutputStream(f);
+//
+//                byte[] buffer = new byte[10240];
+//                int len;
+//                while ((len = is.read(buffer)) != -1) {
+//                    os.write(buffer, 0, len);
+//                }
+//
+//                os.close();
+//
+//                return f.getPath();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        String path;
+//        try {
+//            column_index = cursor.getColumnIndexOrThrow(proj[0]);
+//            cursor.moveToFirst();
+//
+//            path = cursor.getString(column_index);
+//
+//            cursor.close();
+//        } catch (NullPointerException e) {
+//
+//            // Closing the cursor if he isn't null.
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//
+//            // If we cant get a cursor or there was an error we will try the uri default path.
+//            path = uri.getPath();
+//        }
+//
+//
+//        if (DEBUG) Timber.d("Path From URI: %s", path);
+//
+//        return path;
+//    }
 
-    public static String getRealPathFromURI(Context context, Uri uri){
-        String[] proj = { MediaStore.Images.Media.DATA , MediaStore.Images.Media.DISPLAY_NAME};
-        Cursor cursor = context.getContentResolver()
-                .query(uri, proj, null, null, null);
+//    public static File getFile(Context context, Uri uri) {
+//        return  new File(Uri.parse(getRealPathFromURI(context, uri)).getPath());
+//    }
 
-        int column_index;
-
-        // some devices a non valid path so we load them to a temp file in the app cache dir.
-        if (uri.toString().startsWith("content://com.sec.android.gallery3d.provider") ||
-                uri.toString().startsWith("content://media/external/images/media/"))  {
-
-            File cacheDir = context.getCacheDir();
-
-            if(!cacheDir.exists())
-                cacheDir.mkdirs();
-
-            File old = new File(cacheDir, "ImageUploadResult.jpg");
-            if (old.exists())
-                old.delete();
-
-            File f = new File(cacheDir, "ImageUploadResult.jpg");
-
-            InputStream is;
-            try {
-                is = context.getContentResolver().openInputStream(uri);
-                OutputStream os = new FileOutputStream(f);
-
-                byte[] buffer = new byte[10240];
-                int len;
-                while ((len = is.read(buffer)) != -1) {
-                    os.write(buffer, 0, len);
-                }
-
-                os.close();
-
-                return f.getPath();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        
-        String path;
-        try {
-            column_index = cursor.getColumnIndexOrThrow(proj[0]);
-            cursor.moveToFirst();
-
-            path = cursor.getString(column_index);
-
-            cursor.close();
-        } catch (NullPointerException e) {
-            
-            // Closing the cursor if he isn't null.
-            if (cursor != null) {
-                cursor.close();
-            }
-
-            // If we cant get a cursor or there was an error we will try the uri default path.
-            path = uri.getPath();
-        }
-
-
-        if (DEBUG) Timber.d("Path From URI: %s", path);
-        
-        return path;
-    }
-
-    public static File getFile(Context context, Uri uri) {
-        return  new File(Uri.parse(getRealPathFromURI(context, uri)).getPath());
-    }
-
-    public static int getColorFromDec(String color){
-        String[] split = color.split(" ");
-
-        if (split.length != 4)
-            return BMessage.randomColor();
-
-        int bubbleColor = -1;
-
-        bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
-
-        return bubbleColor;
-    }
+//    public static int getColorFromDec(String color){
+//        String[] split = color.split(" ");
+//
+//        int bubbleColor = -1;
+//
+//        bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
+//
+//        return bubbleColor;
+//    }
 
     public static  class ImageSaver {
-        public static final String IMAGE_DIR_NAME = BDefines.ImageDirName;
+        public static final String IMAGE_DIR_NAME = Defines.ImageDirName;
 
         public static final String IMG_FILE_ENDING = ".jpg";
 
@@ -213,9 +198,9 @@ public class Utils {
             }
         }
 
-        public static String getPath(Context context, String name) {
-            return getInternalDir(context, name).getPath();
-        }
+//        public static String getPath(Context context, String name) {
+//            return getInternalDir(context, name).getPath();
+//        }
 
         public static File getAlbumStorageDir(Context context, String albumName) {
             if (isExternalStorageWritable()) {

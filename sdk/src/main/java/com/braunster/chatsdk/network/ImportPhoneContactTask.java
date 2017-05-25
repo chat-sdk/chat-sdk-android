@@ -14,14 +14,12 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 
-
 import com.braunster.chatsdk.R;
-import com.braunster.chatsdk.dao.BUser;
 
-import org.jdeferred.DoneCallback;
-
-import java.util.List;
-
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
@@ -66,17 +64,12 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
 
                         if (DEBUG) Timber.d("Name: %s, Phone Number: %s", name, phoneNo);
 
-                        BNetworkManager.getCoreInterface().usersForIndex(BDefines.Keys.BPhone, phoneNo)
-                                .done(new DoneCallback<List<BUser>>() {
-                                    @Override
-                                    public void onDone(List<BUser> users) {
-                                        for (BUser u : users)
-                                        {
-                                            if (DEBUG) Timber.d("User found: %s", u.getMetaName());
-                                            BNetworkManager.getCoreInterface().currentUserModel().addContact(u);
-                                        }
-                                    }
-                                });
+                        BNetworkManager.getCoreInterface().usersForIndex(DaoDefines.Keys.Phone, phoneNo).doOnNext(new Consumer<BUser>() {
+                            @Override
+                            public void accept(BUser u) throws Exception {
+                                NetworkManager.shared().a.core.currentUserModel().addContact(u);
+                            }
+                        }).subscribe();
                     }
                     pCur.close();
                 }

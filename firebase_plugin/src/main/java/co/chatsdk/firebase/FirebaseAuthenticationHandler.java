@@ -1,15 +1,16 @@
 package co.chatsdk.firebase;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 
+import com.backendless.ContextHandler;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 
 import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.dao.core.DaoCore;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
@@ -25,10 +26,8 @@ import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 
 import java.util.HashMap;
@@ -38,11 +37,13 @@ import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.LoginType;
+import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -113,12 +114,12 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     @Override
     public Completable authenticateWithMap(final Map<String, Object> details) {
-
-        final int loginType = (Integer)details.get(LoginType.TypeKey);
-
-        Completable c =  Single.create(new SingleOnSubscribe<FirebaseUser>() {
+        return Single.create(new SingleOnSubscribe<FirebaseUser>() {
             @Override
             public void subscribe(final SingleEmitter<FirebaseUser> e) throws Exception {
+
+                final int loginType = (Integer)details.get(LoginType.TypeKey);
+
                 if (DEBUG) Timber.v("authenticateWithMap, KeyType: %s", details.get(LoginType.TypeKey));
 
                 if (isAuthenticating())
@@ -147,7 +148,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                             loginInfoMap.put(Defines.Prefs.AccountTypeKey, loginType);
                             loginInfoMap.put(Defines.Prefs.AuthenticationID, uid);
-                            //loginInfoMap.put(Defines.Prefs.TokenKey, );
+                            //loginInfoMap.put(DaoDefines.Prefs.TokenKey, );
 
                             setLoginInfo(loginInfoMap);
 
@@ -221,69 +222,47 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             }
         });
         // TODO: Need to look at this - how to make sure it always executes...
-        //c.subscribe();
-
-        return c;
     }
 
     private Completable handleFAUser(final FirebaseUser authData){
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
 
-                if (DEBUG) Timber.v("handleFAUser");
+        if (DEBUG) Timber.v("handleFAUser");
 
-                setAuthStatus(AuthStatus.HANDLING_F_USER);
+        setAuthStatus(AuthStatus.HANDLING_F_USER);
 
-                if (authData == null) {
-                    // If the user isn't authenticated they'll need to login
-                    e.onError(ChatError.getError(ChatError.Code.SESSION_CLOSED));
+        if (authData == null) {
+            // If the user isn't authenticated they'll need to login
+            return Completable.error(ChatError.getError(ChatError.Code.SESSION_CLOSED));
+        }
+        else {
+
+            // Do a once() on the user to push its details to firebase.
+            final UserWrapper wrapper = UserWrapper.initWithAuthData(authData);
+
+            return wrapper.once().andThen(new CompletableSource() {
+                @Override
+                public void subscribe(CompletableObserver cs) {
+
+                    if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
+                    DaoCore.updateEntity(wrapper.getModel());
+
+                    FirebaseStateManager.shared().userOn(wrapper.getModel().getEntityID());
+
+                    // TODO push a default image of the user to the cloud.
+                    // TODO: This shouldn't return the error... Would lead to a race condition
+                    if(!NetworkManager.shared().a.push.subscribeToPushChannel(wrapper.pushChannel())) {
+                        // TODO: Handle this error
+                        Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
+                        //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
+                    }
+
+                    BNetworkManager.getCoreInterface().goOnline();
+
+                    cs.onComplete();
+
                 }
-                else {
-
-                    // Do a once() on the user to push its details to firebase.
-                    final BUserWrapper wrapper = BUserWrapper.initWithAuthData(authData);
-                    wrapper.once().then(new DoneCallback<BUser>() {
-                        @Override
-                        public void onDone(BUser user) {
-
-                            if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
-                            DaoCore.updateEntity(user);
-
-                            StateManager.shared().userOn(user.getEntityID());
-
-                            // TODO push a default image of the user to the cloud.
-                            // TODO: This shouldn't return the error... Would lead to a race condition
-                            if(!NetworkManager.shared().a.push.subscribeToPushChannel(wrapper.pushChannel())) {
-                                // TODO: Handle this error
-                                Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
-                                //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
-                            }
-
-                            BNetworkManager.getCoreInterface().goOnline();
-
-                            wrapper.push().done(new DoneCallback<BUser>() {
-                                @Override
-                                public void onDone(BUser u) {
-                                    if (DEBUG) Timber.v("OnDone, user was pushed from firebase.");
-                                    e.onComplete();
-                                }
-                            }).fail(new FailCallback<ChatError>() {
-                                @Override
-                                public void onFail(ChatError error) {
-                                    e.onError(error);
-                                }
-                            });
-                        }
-                    }, new FailCallback<ChatError>() {
-                        @Override
-                        public void onFail(ChatError chatError) {
-                            e.onError(chatError);
-                        }
-                    });
-                }
-            }
-        });
+            }).andThen(wrapper.push());
+        }
     }
 
     public Boolean userAuthenticated() {
@@ -292,7 +271,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     @Override
     public Completable changePassword(String email, String oldPassword, final String newPassword) {
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -311,15 +290,13 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
             }
         });
-        c.subscribe();
-        return c;
     }
 
     public Completable logout() {
-        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+        BUser user = NetworkManager.shared().a.core.currentUserModel();
 
         // Stop listening to user related alerts. (added message or thread.)
-        StateManager.shared().userOff(user.getEntityID());
+        FirebaseStateManager.shared().userOff(user.getEntityID());
 
         // Removing the push channel
         if (NetworkManager.shared().a.push != null)
@@ -336,7 +313,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable sendPasswordResetMail(final String email) {
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
                 OnCompleteListener<Void> resultHandler = new OnCompleteListener<Void>() {
@@ -355,13 +332,37 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
             }
         });
-        c.subscribe();
-        return c;
     }
 
-    public Boolean accountTypeEnabled(AccountType type) {
-        return null;
+    public Boolean accountTypeEnabled(int type) {
+        if(type == AccountType.Facebook) {
+            return facebookEnabled();
+        }
+        if(type == AccountType.Twitter) {
+            return twitterEnabled();
+        }
+        if(type == AccountType.Google) {
+            return googleEnabled();
+        }
+        return true;
     }
+
+    public boolean facebookEnabled(){
+        return StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.facebook_id));
+    }
+
+    public boolean googleEnabled(){
+        return false;
+    }
+
+    public boolean twitterEnabled(){
+        return (StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_consumer_key))
+                && StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_consumer_secret)))
+                ||
+               (StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_access_token))
+                        && StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_access_token_secret)));
+    }
+
 
 
 

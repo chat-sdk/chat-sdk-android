@@ -36,13 +36,13 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
 
         if (StringUtils.isEmpty(action) && StringUtils.isEmpty(type))
         {
-            showAlertToast(getString(R.string.share_activity_error_getting_share_data));
+            showToast(getString(R.string.share_activity_error_getting_share_data));
             return;
         }
 
         if (!action.equals(Intent.ACTION_SEND))
         {
-            showAlertToast(getString(R.string.share_activity_error_getting_share_data));
+            showToast(getString(R.string.share_activity_error_getting_share_data));
             return;
         }
 
@@ -62,6 +62,6 @@ public class ChatSDKShareWithContactsActivity extends ChatSDKBaseActivity {
             ChatSDKContactsFragment fragment = ChatSDKContactsFragment.newInstance(ChatSDKContactsFragment.MODE_LOAD_CONTACTS, ChatSDKContactsFragment.CLICK_MODE_SHARE_CONTENT, extraData);
             getSupportFragmentManager().beginTransaction().replace(R.id.content, fragment).commit();
         }
-        else showAlertToast(getString(R.string.share_activity_error_getting_share_data));
+        else showToast(getString(R.string.share_activity_error_getting_share_data));
     }
 }

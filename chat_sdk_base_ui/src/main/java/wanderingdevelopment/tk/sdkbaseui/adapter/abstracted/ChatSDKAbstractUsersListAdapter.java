@@ -21,10 +21,13 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.interfaces.StorageAdapter;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.dao.core.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -316,7 +319,7 @@ public abstract class ChatSDKAbstractUsersListAdapter<E extends ChatSDKAbstractU
         }
 
         public BUser asBUser(){
-            return DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
+            return StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, entityID);
         }
     }
 

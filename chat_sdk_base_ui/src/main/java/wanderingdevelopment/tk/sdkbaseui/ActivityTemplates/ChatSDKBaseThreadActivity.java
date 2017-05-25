@@ -11,15 +11,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.dao.core.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
 import timber.log.Timber;
+import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 
 /**
  * Created by braunster on 24/11/14.
@@ -109,7 +110,7 @@ public class ChatSDKBaseThreadActivity extends ChatSDKBaseActivity {
 
         if (thread == null)
         {
-            if (DEBUG) Timber.e("Thread is null");
+            if (DEBUG) Timber.e("CoreThread is null");
             finish();
         }
     }

@@ -29,10 +29,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractChatActivity;
+import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractLoginActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractProfileActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKChatActivity;
+import co.chatsdk.ui.chat.ChatSDKChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKEditProfileActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLocationActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity;
@@ -451,30 +451,16 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
     /*Getters and Setters*/
     @Override
-    public void showAlertToast(String text){
+    public void showToast(String text){
         alertToast.setText(text);
         alertToast.show();
-    }
-
-    @Override
-    public void showAlertToast(@StringRes int resourceId){
-        if (context.get() == null)
-            return;
-        
-        showAlertToast(context.get().getString(resourceId));
-    }
-
-    @Override
-    public void showToast(String text){
-        toast.setText(text);
-        toast.show();
     }
 
     @Override
     public void showToast(@StringRes int resourceId){
         if (context.get() == null)
             return;
-
+        
         showToast(context.get().getString(resourceId));
     }
 

@@ -1,12 +1,15 @@
 package co.chatsdk.core.handlers;
 
+import co.chatsdk.core.dao.core.BUser;
+import io.reactivex.Observable;
+
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
 public interface SearchHandler {
 
-
+    public Observable<BUser> usersForIndex(final String index, final String value);
     /**
      * @brief Methods to handle search
      */

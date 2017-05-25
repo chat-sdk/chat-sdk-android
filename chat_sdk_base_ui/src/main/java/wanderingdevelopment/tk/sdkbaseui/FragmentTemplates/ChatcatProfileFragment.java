@@ -18,14 +18,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
 
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKEditProfileActivity;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractProfileFragment;
-import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 
@@ -93,7 +92,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
     @Override
     public void loadData() {
         super.loadData();
-        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey));
+        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
     }
 
     @Override
@@ -117,23 +116,22 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
 
     /** Fetching the user details from the user's metadata.*/
     private void setDetails(int loginType){
-        if (mainView == null || getActivity() == null)
-        {
+        if (mainView == null || getActivity() == null) {
             return;
         }
 
-        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+        BUser user = NetworkManager.shared().a.core.currentUserModel();
 
         String name = user.getMetaName();
 
         if (StringUtils.isNotEmpty(name))
             ((TextView) mainView.findViewById(R.id.chat_sdk_txt_name)).setText(name);
 
-        String country = user.metaStringForKey(BDefines.Keys.BCountry);
+        String country = user.metaStringForKey(DaoDefines.Keys.Country);
 
-        String status = user.metaStringForKey(BDefines.Keys.BStatus);
+        String status = user.metaStringForKey(DaoDefines.Keys.Status);
 
-        String location = user.metaStringForKey(BDefines.Keys.BLocation);
+        String location = user.metaStringForKey(DaoDefines.Keys.Location);
 
         // Loading the user country icon, If not exist we will hide the icon.
         if (StringUtils.isNotEmpty(country))
@@ -190,7 +188,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
         
         if (item.getItemId() == R.id.action_chat_sdk_edit)
         {
-            chatSDKUiHelper.startEditProfileActivity(BNetworkManager.getCoreInterface().currentUserModel().getId());
+            chatSDKUiHelper.startEditProfileActivity(NetworkManager.shared().a.core.currentUserModel().getId());
 
             getActivity().overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
             return true;

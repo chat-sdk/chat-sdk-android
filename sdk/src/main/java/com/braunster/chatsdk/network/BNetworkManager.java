@@ -13,9 +13,10 @@ import android.content.SharedPreferences;
 
 import com.braunster.chatsdk.BuildConfig;
 import com.braunster.chatsdk.R;
+
+import co.chatsdk.core.dao.core.DaoCore;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.utils.volley.VolleyUtils;
 import com.bugsense.trace.BugSenseHandler;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
 /**
  * Created by itzik on 6/8/2014.
  */
+@Deprecated
 public class BNetworkManager {
 
     private static final String TAG = BNetworkManager.class.getSimpleName();
@@ -95,12 +97,12 @@ public class BNetworkManager {
         return coreInterface;
     }
 
-    /** Always safe to call*/
-    public static SharedPreferences getUserPrefs(String entityId){
-        return context.getSharedPreferences(entityId, Context.MODE_PRIVATE);
-    }
-    /** Safe to call after login.*/
-    public static SharedPreferences getCurrentUserPrefs(){
-        return context.getSharedPreferences(BNetworkManager.getCoreInterface().currentUserModel().getEntityID(), Context.MODE_PRIVATE);
-    }
+//    /** Always safe to call*/
+//    public static SharedPreferences getUserPrefs(String entityId){
+//        return context.getSharedPreferences(entityId, Context.MODE_PRIVATE);
+//    }
+//    /** Safe to call after login.*/
+//    public static SharedPreferences getCurrentUserPrefs(){
+//        return context.getSharedPreferences(NetworkManager.shared().a.core.currentUserModel().getEntityID(), Context.MODE_PRIVATE);
+//    }
 }

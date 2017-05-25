@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.widget.EditText;
 
 import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.LoginType;
@@ -19,7 +20,6 @@ import io.reactivex.disposables.Disposable;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
@@ -89,7 +89,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                         if (DEBUG) Timber.d("Auth Failed");
                         //TODO: remove if not needed.
                         //if (chatError.code != ChatError.Code.NO_LOGIN_INFO)
-                        //    showAlertToast(getString(R.string.login_activity_auth_failed));
+                        //    showToast(getString(R.string.login_activity_auth_failed));
 
                     }
                 });
@@ -99,7 +99,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin(){
         // Indexing the user.
-        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
+        BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
         if(currentUser != null) {
             BNetworkManager.getCoreInterface().pushUser();
         }
@@ -199,7 +199,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
         if (!BNetworkManager.getCoreInterface().twitterEnabled())
         {
-            showAlertToast("Twitter is disabled.");
+            showToast("Twitter is disabled.");
             return;
         }
 
@@ -234,7 +234,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
                 else if (error.getMessage() != null && error.getMessage().equals("Log in attempt aborted."))
                     return;
 
-                showAlertToast("Facebook error: " + error.getMessage() + " " + error.getClass().getSimpleName());
+                showToast("Facebook error: " + error.getMessage() + " " + error.getClass().getSimpleName());
             }
         });
 
@@ -268,19 +268,19 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             errorMessage = getString(R.string.login_activity_failed_to_register_toast);
 
 
-        showAlertToast(errorMessage);
+        showToast(errorMessage);
     }
 
     protected boolean checkFields(){
         if (etEmail.getText().toString().isEmpty())
         {
-            showAlertToast(getString(R.string.login_activity_no_mail_toast));
+            showToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }
 
         if (etPass.getText().toString().isEmpty())
         {
-            showAlertToast( getString(R.string.login_activity_no_password_toast) );
+            showToast( getString(R.string.login_activity_no_password_toast) );
             return false;
         }
 
@@ -317,7 +317,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
             @Override
             public void onError(Throwable e) {
                 if (DEBUG) Timber.i(TAG, "Error connecting to Facebook");
-                showAlertToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
+                showToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
                 BFacebookManager.logout(ChatSDKAbstractLoginActivity.this);
                 dismissProgDialog();
             }

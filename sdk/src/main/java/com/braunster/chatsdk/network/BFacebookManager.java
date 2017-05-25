@@ -10,6 +10,7 @@ package com.braunster.chatsdk.network;
 import android.content.Context;
 import android.os.Bundle;
 
+import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.object.ChatError;
 import com.facebook.FacebookOperationCanceledException;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.Defines;
 import io.reactivex.Completable;
 import timber.log.Timber;
 
@@ -55,7 +57,7 @@ public class BFacebookManager {
 
         Map<String, Object> data = new HashMap<String, Object>();
 
-        data.put(BDefines.Keys.ThirdPartyData.AccessToken, userFacebookAccessToken);
+        data.put(DaoDefines.Keys.ThirdPartyData.AccessToken, userFacebookAccessToken);
         data.put(LoginType.TypeKey, AccountType.Facebook);
 
         return NetworkManager.shared().a.auth.authenticateWithMap(data);

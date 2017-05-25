@@ -7,6 +7,7 @@
 
 package wanderingdevelopment.tk.sdkbaseui.FragmentTemplates;
 
+import android.net.Network;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,22 +24,19 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.interfaces.ThreadType;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKThreadsListAdapter;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.entities.Entity;
+
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.BatchedEvent;
-import com.braunster.chatsdk.network.events.Event;
-import com.braunster.chatsdk.object.ChatError;
-import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
-
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 
 import java.util.List;
 
@@ -108,7 +106,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Public));
+        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(ThreadType.Public));
     }
 
     @Override
@@ -145,7 +143,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Public);
+                message.obj = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Public);
 
                 handler.sendMessageAtFrontOfQueue(message);
 
@@ -157,7 +155,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     }
 
     @Override
-    public void refreshForEntity(Entity entity) {
+    public void refreshForEntity(Object entity) {
         super.refreshForEntity(entity);
         adapter.replaceOrAddItem((BThread) entity);
     }
@@ -202,15 +200,16 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                 public void onFinished(final String s) {
 
                     showProgDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                    BNetworkManager.getThreadsInterface().createPublicThreadWithName(s)
-                            .done(new DoneCallback<BThread>() {
+                    NetworkManager.shared().a.publicThread.createPublicThreadWithName(s)
+                            .doOnSuccess(new Consumer<BThread>() {
                                 @Override
-                                public void onDone(final BThread thread) {
+                                public void accept(final BThread thread) throws Exception {
                                     // Add the current user to the thread.
-                                    BNetworkManager.getThreadsInterface().addUsersToThread(thread, BNetworkManager.getCoreInterface().currentUserModel())
-                                            .done(new DoneCallback<BThread>() {
+                                    // TODO: Check if this is needed - maybe we add the user when the chat view opens
+                                    BNetworkManager.getThreadsInterface().addUsersToThread(thread, NetworkManager.shared().a.core.currentUserModel())
+                                            .doOnComplete(new Action() {
                                                 @Override
-                                                public void onDone(BThread thread) {
+                                                public void run() throws Exception {
                                                     dismissProgDialog();
                                                     adapter.addRow(thread);
                                                     showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
@@ -220,16 +219,14 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                                             });
                                 }
                             })
-                            .fail(new FailCallback<ChatError>() {
+                            .doOnError(new Consumer<Throwable>() {
                                 @Override
-                                public void onFail(ChatError chatError) {
-                                    showAlertToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
-
-                                    if (DEBUG) Timber.e("Error: %s", chatError.getMessage());
-
+                                public void accept(Throwable throwable) throws Exception {
+                                    if (DEBUG) Timber.e("Error: %s", throwable.getMessage());
+                                    showToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
                                     dismissProgDialog();
                                 }
-                            });
+                            }).subscribe();
                 }
             });
 
@@ -245,16 +242,17 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
     public void onResume() {
         super.onResume();
 
-        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
-
-        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
-            @Override
-            public void triggered(List<String> list) {
-                loadDataOnBackground();
-            }
-        });
-
-        BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(APP_EVENT_TAG);
-        BNetworkManager.getCoreInterface().getEventManager().addEvent(batchedEvents);
+        // TODO: Check this
+//        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
+//
+//        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
+//            @Override
+//            public void triggered(List<String> list) {
+//                loadDataOnBackground();
+//            }
+//        });
+//
+//        BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(APP_EVENT_TAG);
+//        BNetworkManager.getCoreInterface().getEventManager().addEvent(batchedEvents);
     }
 }

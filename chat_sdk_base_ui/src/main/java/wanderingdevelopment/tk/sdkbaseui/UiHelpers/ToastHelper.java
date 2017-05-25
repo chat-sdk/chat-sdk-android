@@ -131,7 +131,7 @@ public class ToastHelper {
         toast.show();
     }
 
-    public void showAlertToast(@StringRes int resourceId){
+    public void showToast(@StringRes int resourceId){
         if (this.activity == null)
             return;
 
@@ -139,13 +139,6 @@ public class ToastHelper {
         showToast(this.activity.getResources().getString(resourceId), toast);
     }
 
-    public void showToast(@StringRes int resourceId){
-        if (this.activity == null)
-            return;
-
-        SuperToast toast = getDefaultToast();
-        showToast(this.activity.getResources().getString(resourceId), toast);
-    }
     public void showToast(@StringRes int resourceId, SuperToast toast){
         if (this.activity == null)
             return;

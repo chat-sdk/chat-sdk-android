@@ -17,8 +17,7 @@ import android.widget.Button;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.utils.ImageUtils;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.dao.core.DaoCore;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -34,6 +33,7 @@ import timber.log.Timber;
 /**
  * Created by braunster on 19/06/14.
  */
+@Deprecated
 public class ChatSDKLocationActivity extends AppCompatActivity {
 
     public static final String TAG = ChatSDKLocationActivity.class.getSimpleName();
@@ -56,6 +56,7 @@ public class ChatSDKLocationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_locaction);
+
 
         map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                 .getMap();
@@ -115,7 +116,7 @@ public class ChatSDKLocationActivity extends AppCompatActivity {
                     public void onSnapshotReady(Bitmap snapshot) {
                         Bitmap bitmapLocation = snapshot;
                         try {
-                            File savedFile = File.createTempFile(DaoCore.generateEntity(), ".jpg", ChatSDKLocationActivity.this.getCacheDir());
+                            File savedFile = File.createTempFile(DaoCore.generateRandomName(), ".jpg", ChatSDKLocationActivity.this.getCacheDir());
 
                             ImageUtils.saveBitmapToFile(savedFile, bitmapLocation);
 //                            File savedFile = Utils.LocationImageHandler.saveLocationImage(ChatSDKLocationActivity.this, bitmapLocation, null);

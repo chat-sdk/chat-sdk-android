@@ -2,9 +2,9 @@ package co.chatsdk.core.handlers;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.entities.Message;
-import co.chatsdk.core.entities.ThreadType;
-import co.chatsdk.core.entities.User;
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.interfaces.ThreadType;
 import io.reactivex.Observable;
 
 /**
@@ -18,20 +18,20 @@ public interface ThreadHandler {
      * Register block to:
      * - Handle thread creation
      */
-    public Observable<Thread> createThread (ArrayList<User> users, String name);
-    public Observable<Thread> createThread (ArrayList<User> users);
+    public Observable<Thread> createThread (ArrayList<BUser> users, String name);
+    public Observable<Thread> createThread (ArrayList<BUser> users);
 
     /**
      * Add users to a thread
      */
     //-(RXPromise *) addUsers: (NSArray<PUser> *) userIDs toThread: (id<PThread>) threadModel;
-    public Observable<User> addUsersToThread (ArrayList<User> users, Thread thread);
+    public Observable<BUser> addUsersToThread (ArrayList<BUser> users, Thread thread);
 
     /**
      * Remove users from a thread
      */
     //-(RXPromise *) removeUsers: (NSArray<PUser> *) userIDs fromThread: (id<PThread>) threadModel;
-    public Observable<User> removeUsersFromThread (ArrayList<User> users, Thread thread);
+    public Observable<BUser> removeUsersFromThread (ArrayList<BUser> users, Thread thread);
 
     /**
      * Lazy loading of messages this method will load
@@ -63,14 +63,14 @@ public interface ThreadHandler {
      * Send a message object
      */
     //-(RXPromise *) sendMessage: (id<PMessage>) messageModel;
-    public Observable<Void> sendMessage (Message message);
+    public Observable<Void> sendMessage (BMessage message);
 
     // TODO: Consider making this a PThread for consistency
     /**
      * Get the messages for a particular thread
      */
     //-(NSArray<PMessage> *) messagesForThreadWithEntityID:(NSString *) entityID order: (NSComparisonResult) order;
-    public ArrayList<Message> messagesForThread (String threadID, boolean ascending);
+    public ArrayList<BMessage> messagesForThread (String threadID, boolean ascending);
 
     /**
      * Get a list of all threads

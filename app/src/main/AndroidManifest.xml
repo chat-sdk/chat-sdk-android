@@ -74,10 +74,10 @@
             </intent-filter>
         </receiver>
 
-        <!-- Google Maps Metadata-->
+        <!-- Google Maps Metadata - lifted from Google Services.json-->
         <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="@string/google_maps_api_key"/>
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_api_key"/>
 
     </application>
 

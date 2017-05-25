@@ -2,27 +2,27 @@ package tk.wanderingdevelopment.chatsdk.core.abstracthandlers;
 
 import android.graphics.Bitmap;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BThreadDao;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.core.UserThreadLink;
+import co.chatsdk.core.dao.core.sorter.ThreadsSorter;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.utils.ImageUtils;
-import com.braunster.chatsdk.utils.sorter.ThreadsSorter;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
 
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.UserThreadLink;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.dao.entities.BMessageEntity;
-import com.braunster.chatsdk.network.BDefines;
+
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.volley.VolleyUtils;
+
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
 import org.joda.time.DateTime;
 
@@ -35,17 +35,13 @@ import java.util.List;
 
 import co.chatsdk.core.types.ImageUploadResult;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
-import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
-
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 /**
  * Created by KyleKrueger on 10.04.2017.
@@ -55,7 +51,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
     protected boolean DEBUG = Debug.ThreadsManager;
 
-    public abstract Promise<BMessage, ChatError, BMessage> sendMessage(BMessage message);
+    public abstract Completable sendMessage(BMessage message);
 
     /**
      * Preparing a text message,
@@ -66,15 +62,15 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Promise<BMessage, ChatError, BMessage>  sendMessageWithText(String text, long threadId) {
+    public Completable  sendMessageWithText(String text, long threadId) {
 
         final BMessage message = new BMessage();
         message.setText(text);
         message.setThreadId(threadId);
-        message.setType(TEXT);
-        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
-        message.setStatus(BMessageEntity.Status.SENDING);
-        message.setDelivered(BMessageEntity.Delivered.No);
+        message.setType(BMessage.Type.TEXT);
+        message.setSender(NetworkManager.shared().a.core.currentUserModel());
+        message.setStatus(BMessage.Status.SENDING);
+        message.setDelivered(BMessage.Delivered.No);
 
         DaoCore.createEntity(message);
 
@@ -91,16 +87,6 @@ public abstract class ThreadsManager implements ThreadsInterface {
         DaoCore.updateEntity(message);
 
         return implSendMessage(message);
-
-        // TODO: What does this do?
-//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                if(!deferred.isResolved()){
-//                    deferred.notify(message);
-//                }
-//            }
-//        }, 100);
 
     }
 
@@ -121,10 +107,10 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         final BMessage message = new BMessage();
         message.setThreadId(threadId);
-        message.setType(LOCATION);
-        message.setStatus(BMessageEntity.Status.SENDING);
-        message.setDelivered(BMessageEntity.Delivered.No);
-        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
+        message.setType(BMessage.Type.LOCATION);
+        message.setStatus(BMessage.Status.SENDING);
+        message.setDelivered(BMessage.Delivered.No);
+        message.setSender(NetworkManager.shared().a.core.currentUserModel());
         message.setResourcesPath(filePath);
 
         DaoCore.createEntity(message);
@@ -144,8 +130,8 @@ public abstract class ThreadsManager implements ThreadsInterface {
         Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
 
         Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         message.setImageDimensions(ImageUtils.getDimensionAsString(image));
 
@@ -155,26 +141,29 @@ public abstract class ThreadsManager implements ThreadsInterface {
                 if(result.isComplete()) {
                     // Add the LatLng data to the message and the image url and thumbnail url
                     message.setText(String.valueOf(location.latitude)
-                            + BDefines.DIVIDER
+                            + Defines.DIVIDER
                             + String.valueOf(location.longitude)
-                            + BDefines.DIVIDER + result.imageURL
-                            + BDefines.DIVIDER + result.thumbnailURL
-                            + BDefines.DIVIDER + message.getImageDimensions());
+                            + Defines.DIVIDER + result.imageURL
+                            + Defines.DIVIDER + result.thumbnailURL
+                            + Defines.DIVIDER + message.getImageDimensions());
                 }
+            }
+        }).doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+                // Sending the message, After it was uploaded to the server we can delte the file.
+                implSendMessage(message).doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        DaoCore.updateEntity(message);
+                    }
+                }).subscribe();
+
             }
         }).doOnError(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                DaoCore.updateEntity(message);
-
-                // Sending the message, After it was uploaded to the server we can delte the file.
-                implSendMessage(message)
-                        .done(new DoneCallback<BMessage>() {
-                            @Override
-                            public void onDone(BMessage message) {
-                                new File(filePath).delete();
-                            }
-                        });
+                new File(filePath).delete();
             }
         });
 
@@ -196,10 +185,10 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         final BMessage message = new BMessage();
         message.setThreadId(threadId);
-        message.setType(IMAGE);
-        message.setSender(BNetworkManager.getCoreInterface().currentUserModel());
-        message.setStatus(BMessageEntity.Status.SENDING);
-        message.setDelivered(BMessageEntity.Delivered.No);
+        message.setType(BMessage.Type.IMAGE);
+        message.setSender(NetworkManager.shared().a.core.currentUserModel());
+        message.setStatus(BMessage.Status.SENDING);
+        message.setDelivered(BMessage.Delivered.No);
 
         DaoCore.createEntity(message);
 
@@ -220,8 +209,8 @@ public abstract class ThreadsManager implements ThreadsInterface {
         Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
 
         Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         message.setImageDimensions(ImageUtils.getDimensionAsString(image));
 
@@ -233,7 +222,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
             @Override
             public void accept(ImageUploadResult result) throws Exception {
                 if(result.isComplete()) {
-                    message.setText(result.imageURL + BDefines.DIVIDER + result.thumbnailURL + BDefines.DIVIDER + message.getImageDimensions());
+                    message.setText(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
                     DaoCore.updateEntity(message);
                 }
             }
@@ -246,25 +235,25 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
     }
 
-    private Promise<BMessage, ChatError, BMessage> implSendMessage(final BMessage message) {
-        return sendMessage(message).done(new DoneCallback<BMessage>() {
+    private Completable implSendMessage(final BMessage message) {
+        return sendMessage(message).doOnComplete(new Action() {
             @Override
-            public void onDone(BMessage m) {
-                m.setStatus(BMessage.Status.SENT);
-                DaoCore.updateEntity(m);
+            public void run() throws Exception {
+                message.setStatus(BMessage.Status.SENT);
+                DaoCore.updateEntity(message);
             }
-        }).fail(new FailCallback<ChatError>() {
+        }).doOnError(new Consumer<Throwable>() {
             @Override
-            public void onFail(ChatError chatError) {
+            public void accept(Throwable throwable) throws Exception {
                 message.setStatus(BMessage.Status.FAILED);
             }
         });
     }
 
-    public abstract Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);
+    public abstract Single<List<BMessage>> loadMoreMessagesForThread(BThread thread);
 
     public int getUnreadMessagesAmount(boolean onePerThread){
-        List<BThread> threads = BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private);
 
         int count = 0;
         for (BThread t : threads)
@@ -296,111 +285,113 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * For any item adding failure the "onItemFailed will be called.
      * If the main task will fail the error object in the "onMainFinished" method will be called.
      */
-    public abstract Promise<BThread, ChatError, Void> createThreadWithUsers(String name, List<BUser> users);
+    public abstract Single<BThread> createThreadWithUsers(String name, List<BUser> users);
 
-    public Promise<BThread, ChatError, Void> createThreadWithUsers(String name, BUser... users) {
+    public Single<BThread> createThreadWithUsers(String name, BUser... users) {
         return createThreadWithUsers(name, Arrays.asList(users));
     }
 
-    public abstract Promise<BThread, ChatError, Void> createPublicThreadWithName(String name);
+    public abstract Completable deleteThreadWithEntityID(String entityID);
 
-
-    public abstract Promise<Void, ChatError, Void> deleteThreadWithEntityID(String entityID);
-
-    public Promise<Void, ChatError, Void> deleteThread(BThread thread){
+    public Completable deleteThread(BThread thread){
         return deleteThreadWithEntityID(thread.getEntityID());
     }
 
-    public List<BThread> threadsWithType(int threadType) {
-
-        // Get the thread list ordered desc by the last message added date.
-        List<BThread> threadsFromDB;
-        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
-        BUser threadCreator;
-
-        if (threadType == BThread.Type.Private)
-        {
-            if (DEBUG) Timber.d("threadItemsWithType, loading private.");
-            threadsFromDB = getThreads(BThread.Type.Private);
-        }
-        else threadsFromDB = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, threadType);
-
-        List<BThread> threads = new ArrayList<BThread>();
-
-        if (threadType == BThread.Type.Public)
-        {
-            for (BThread thread : threadsFromDB)
-                if (thread.getTypeSafely() == BThread.Type.Public)
-                    threads.add(thread);
-        }
-        else {
-            for (BThread thread : threadsFromDB) {
-                if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s, Deleted: %s", thread.getId(), thread.getDeleted());
-
-                if (thread.isDeleted())
-                    continue;
-
-                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
-                {
-                    threads.add(thread);
-                    continue;
-                }
-
-                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
-                {
-                    threads.add(thread);
-                }
-                else
-                {
-                    threadCreator = thread.getCreator();
-                    if (threadCreator != null )
-                    {
-                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
-                        {
-                            threads.add(thread);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (DEBUG) Timber.d("threadsWithType, Type: %s, Found on db: %s, Threads List Size: %s" + threadType, threadsFromDB.size(), threads.size());
-
-        Collections.sort(threads, new ThreadsSorter());
-
-        return threads;
-    }
+    // TODO: Why is this never used?
+//
+//    public List<BThread> threadsWithType(int type) {
+//
+//        // Get the thread list ordered desc by the last message added date.
+//        List<BThread> allThreads;
+//        BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+//        BUser threadCreator;
+//
+//        // Get all the threads - if they are private we get the thread links
+//        if (ThreadType.isPrivate(type)) {
+//            if (DEBUG) Timber.d("threadItemsWithType, loading private.");
+//            allThreads = getThreads(ThreadType.Private);
+//        }
+//        else {
+//            allThreads = DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, type);
+//        }
+//
+//        List<BThread> threads = new ArrayList<BThread>();
+//
+//        if (type == BThread.Type.Public)
+//        {
+//            for (BThread thread : allThreads)
+//                if (thread.getTypeSafely() == BThread.Type.Public)
+//                    threads.add(thread);
+//        }
+//        else {
+//            for (BThread thread : allThreads) {
+//                if (DEBUG) Timber.i("threadItemsWithType, ThreadID: %s, Deleted: %s", thread.getId(), thread.getDeleted());
+//
+//                if (thread.isDeleted())
+//                    continue;
+//
+//                if (thread.getMessagesWithOrder(DaoCore.ORDER_DESC).size() > 0)
+//                {
+//                    threads.add(thread);
+//                    continue;
+//                }
+//
+//                if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getEntityID().equals(currentUser.getEntityID()))
+//                {
+//                    threads.add(thread);
+//                }
+//                else
+//                {
+//                    threadCreator = thread.getCreator();
+//                    if (threadCreator != null )
+//                    {
+//                        if (threadCreator.equals(currentUser) && thread.hasUser(currentUser))
+//                        {
+//                            threads.add(thread);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (DEBUG) Timber.d("threadsWithType, Type: %s, Found on db: %s, Threads List Size: %s" + type, threads.size(), threads.size());
+//
+//        Collections.sort(threads, new ThreadsSorter());
+//
+//        return threads;
+//    }
 
     /**
      * Add given users list to the given thread.
      */
-    public abstract Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, List<BUser> users);
+    public abstract Flowable<BUser> addUsersToThread(BThread thread, List<BUser> users);
 
     /**
      * Add given users list to the given thread.
      */
-    public Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, BUser... users) {
+    public Flowable<BUser> addUsersToThread(BThread thread, BUser... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
     /**
      * Remove given users list to the given thread.
      */
-    public abstract Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
+    public abstract Flowable<BUser> removeUsersFromThread(BThread thread, List<BUser> users);
 
     /**
      * Remove given users list to the given thread.
      */
-    public Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, BUser... users) {
+    public Flowable<BUser> removeUsersFromThread(BThread thread, BUser... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
     }
 
-    public abstract Promise<BThread, ChatError, Void> pushThread(BThread thread);
+    public abstract Completable pushThread(BThread thread);
 
-    public List<BThread> getThreads(){
-        return getThreads(-1);
-    }
+//    public List<BThread> getThreads(){
+//        return getThreads(-1);
+//    }
 
+    @Deprecated
     public List<BThread> getThreads(int type){
         return getThreads(type, false);
     }
@@ -412,28 +403,42 @@ public abstract class ThreadsManager implements ThreadsInterface {
      * @param allowDeleted if true deleted threads will be included in the result list
      * @return a list with all the threads.
      ** */
+    // TODO: This gets all threads - not just for the current user. See the get threads with type method
+    @Deprecated
     public List<BThread> getThreads(int type, boolean allowDeleted){
-        List<BThread> bThreads = new ArrayList<>();
+        if(ThreadType.isPublic(type)) {
+            return DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, type);
+        }
 
         // Freshen up the data by calling reset before getting the list
-        List<UserThreadLink> UserThreadLinkList = DaoCore.fetchEntitiesOfClass(UserThreadLink.class);
-        // In case the list is empty
-        if (UserThreadLinkList == null) return null;
-        // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
-        for (UserThreadLink userThreadLink : UserThreadLinkList ){
-            if(userThreadLink.getBThread() == null) continue;
-            // Do not retrieve deleted threads unless otherwise specified
-            if(userThreadLink.getBThread().isDeleted() && !allowDeleted) continue;
-            // If the thread type was specified, only add this type
-            // TODO: find out why some threads have null types, getTypeSafely should not be needed
-            if(userThreadLink.getBThread().getTypeSafely() != type && type != -1) continue;
+        List<UserThreadLink> links = DaoCore.fetchEntitiesOfClass(UserThreadLink.class);
 
-            bThreads.add(userThreadLink.getBThread());
+        // In case the list is empty
+        if (links == null) return null;
+
+        List<BThread> threads = new ArrayList<>();
+        BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+
+        // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
+        for (UserThreadLink link : links ){
+            BThread thread = link.getBThread();
+            BUser user = link.getBUser();
+
+            if(user == null || !user.equals(currentUser)) {
+                continue;
+            }
+
+            if (thread == null || (thread.isDeleted() && !allowDeleted) || !thread.typeIs(type)) {
+                continue;
+            }
+
+            threads.add(link.getBThread());
         }
 
         // Sort the threads list before returning
-        Collections.sort(bThreads, new ThreadsSorter());
-        return bThreads;
+        Collections.sort(threads, new ThreadsSorter());
+
+        return threads;
     }
 
 }

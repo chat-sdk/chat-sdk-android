@@ -16,6 +16,7 @@ def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${
 int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
 
 android {
+
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
     defaultConfig {
@@ -44,10 +45,14 @@ android {
 greendao {
     schemaVersion 1
     targetGenDir "src/main/java"
-    daoPackage "wanderingdevelopment.tk.chatsdkcore.db"
+//    daoPackage "wanderingdevelopment.tk.chatsdkcore.db"
+    daoPackage "co.chatsdk.core.dao.core"
 }
 
 dependencies {
+
+    compile project(path: ':green_dao_storage_adapter')
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

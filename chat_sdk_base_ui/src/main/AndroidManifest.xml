@@ -21,7 +21,7 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKChatActivity"
+        <activity android:name="co.chatsdk.ui.chat.ChatSDKChatActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>

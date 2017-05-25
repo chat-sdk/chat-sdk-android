@@ -1,45 +1,46 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BMessageWrapper;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
+
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.firebase.wrappers.MessageWrapper;
+import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import co.chatsdk.firebase.wrappers.UserWrapper;
+import co.chatsdk.core.dao.core.DaoCore;
 import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.ProgressCallback;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
-import org.jdeferred.multiple.MasterDeferredObject;
-import org.jdeferred.multiple.MasterProgress;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.NetworkManager;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.ThreadsManager;
-
-import static com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors.getFirebaseError;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
 
 /**
  * Created by KyleKrueger on 02.04.2017.
@@ -49,74 +50,8 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
 
 
     @Override
-    public Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread) {
-        return new BThreadWrapper(thread).loadMoreMessages(FirebaseDefines.NumberOfMessagesPerBatch);
-    }
-
-    @Override
-    public Promise<BThread, ChatError, Void> createPublicThreadWithName(String name) {
-
-        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
-
-        // Crating the new thread.
-        // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
-        final BThread thread = new BThread();
-
-        BUser curUser = BNetworkManager.getCoreInterface().currentUserModel();
-        thread.setCreator(curUser);
-        thread.setCreatorEntityId(curUser.getEntityID());
-        thread.setType(BThread.Type.Public);
-        thread.setName(name);
-
-        // Add the path and API key
-        // This allows you to restrict public threads to a particular
-        // API key or root key
-        thread.setRootKey(BDefines.BRootPath);
-        thread.setApiKey("");
-
-        // Save the entity to the local db.
-        DaoCore.createEntity(thread);
-
-        BThreadWrapper wrapper = new BThreadWrapper(thread);
-
-        wrapper.push()
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(final BThread thread) {
-                        DaoCore.updateEntity(thread);
-
-                        if (DEBUG) Timber.d("public thread is pushed and saved.");
-
-                        // Add the thread to the list of public threads
-                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
-                                .child(thread.getEntityID())
-                                .child("null");
-
-                        publicThreadRef.setValue("", new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError error, DatabaseReference firebase) {
-                                if (error == null)
-                                    deferred.resolve(thread);
-                                else {
-                                    if (DEBUG)
-                                        Timber.e("Unable to add thread to public thread ref.");
-                                    DaoCore.deleteEntity(thread);
-                                    deferred.reject(getFirebaseError(error));
-                                }
-                            }
-                        });
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        if (DEBUG) Timber.e("Failed to push thread to ref.");
-                        DaoCore.deleteEntity(thread);
-                        deferred.reject(error);
-                    }
-                });
-
-        return deferred.promise();
+    public Single<List<BMessage>> loadMoreMessagesForThread(BThread thread) {
+        return new ThreadWrapper(thread).loadMoreMessages(FirebaseDefines.NumberOfMessagesPerBatch);
     }
 
     /** Add given users list to the given thread.
@@ -124,127 +59,69 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.*/
     @Override
-    public Promise<BThread, ChatError, Void> addUsersToThread(final BThread thread, final List<BUser> users) {
+    public Flowable<BUser> addUsersToThread(final BThread thread, final List<BUser> users) {
 
-        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
-
-        if (thread == null)
-        {
-            if (DEBUG) Timber.e("addUsersToThread, Thread is null" );
-            return deferred.reject(new ChatError(ChatError.Code.NULL, "Thread is null"));
+        if(thread == null) {
+            return Flowable.error(new Throwable("Thread cannot be null"));
         }
 
-        if (DEBUG) Timber.d("Users Amount: %s", users.size());
+        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
+        ArrayList<Single<BUser>> singles = new ArrayList<>();
 
-        Promise[] promises = new Promise[users.size()];
-
-        BThreadWrapper threadWrapper = new BThreadWrapper(thread);
-
-        int count = 0;
-        for (BUser user : users){
-
-            // Add the user to the thread
-            if (!user.hasThread(thread))
-            {
-                DaoCore.connectUserAndThread(user, thread);
-            }
-
-            promises[count] = threadWrapper.addUser(BUserWrapper.initWithModel(user));
-            count++;
-        }
-
-        MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-        masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-            @Override
-            public void onProgress(MasterProgress masterProgress) {
-                if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal())
-                {
-                    // Reject the promise if all promisses failed.
-                    if (masterProgress.getFail() == masterProgress.getTotal())
-                    {
-                        deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
-                    }
-                    else
-                        deferred.resolve(thread);
+        for (final BUser user : users){
+            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+                @Override
+                public BUser call () throws Exception {
+                    return user;
                 }
-            }
-        });
+            }));
+        }
 
-
-        return deferred.promise();
+        return Single.merge(singles);
     }
 
     @Override
-    public Promise<BThread, ChatError, Void> removeUsersFromThread(final BThread thread, List<BUser> users) {
-        final Deferred<BThread, ChatError, Void>  deferred = new DeferredObject<>();
+    public Flowable<BUser> removeUsersFromThread(final BThread thread, List<BUser> users) {
 
-        if (thread == null)
-        {
-            if (DEBUG) Timber.e("addUsersToThread, Thread is null" );
-            return deferred.reject(new ChatError(ChatError.Code.NULL, "Thread is null"));
+        if(thread == null) {
+            return Flowable.error(new Throwable("Thread cannot be null"));
         }
 
-        if (DEBUG) Timber.d("Users Amount: %s", users.size());
+        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
+        ArrayList<Single<BUser>> singles = new ArrayList<>();
 
-        Promise[] promises = new Promise[users.size()];
-
-        BThreadWrapper threadWrapper = new BThreadWrapper(thread);
-
-        int count = 0;
-        for (BUser user : users){
-
-            // Breaking the connection in the internal database between the thread and the user.
-            DaoCore.breakUserAndThread(user, thread);
-
-            promises[count] = threadWrapper.removeUser(BUserWrapper.initWithModel(user));
-            count++;
-        }
-
-        MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-        masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-            @Override
-            public void onProgress(MasterProgress masterProgress) {
-                if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal())
-                {
-                    // Reject the promise if all promisses failed.
-                    if (masterProgress.getFail() == masterProgress.getTotal())
-                    {
-                        deferred.reject(null);
-                    }
-                    else
-                        deferred.resolve(thread);
+        for (final BUser user : users){
+            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+                @Override
+                public BUser call () throws Exception {
+                    return user;
                 }
-            }
-        });
+            }));
+        }
 
-        return deferred.promise();
+        return Single.merge(singles);
     }
 
     @Override
-    public Promise<BThread, ChatError, Void>  pushThread(BThread thread) {
-        return new BThreadWrapper(thread).push();
+    public Completable  pushThread(BThread thread) {
+        return new ThreadWrapper(thread).push();
     }
-
-
-
 
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.*/
     @Override
-    public Promise<BMessage, ChatError, BMessage> sendMessage(final BMessage message){
+    public Completable sendMessage(final BMessage message){
         if (DEBUG) Timber.v("sendMessage");
 
-        return new BMessageWrapper(message).send().done(new DoneCallback<BMessage>() {
+        return new MessageWrapper(message).send().doOnComplete(new Action() {
             @Override
-            public void onDone(BMessage message) {
+            public void run() throws Exception {
                 // Setting the time stamp for the last message added to the thread.
                 DatabaseReference threadRef = FirebasePaths.threadRef(message.getThread().getEntityID()).child(FirebasePaths.DetailsPath);
 
-                threadRef.updateChildren(FirebasePaths.getMap(new String[]{BDefines.Keys.BLastMessageAdded}, ServerValue.TIMESTAMP));
+                threadRef.updateChildren(FirebasePaths.getMap(new String[]{DaoDefines.Keys.LastMessageAdded}, ServerValue.TIMESTAMP));
 
                 // Pushing the message to all offline users. we cant push it before the message was
                 // uploaded as the date is saved by the firebase server using the timestamp.
@@ -254,100 +131,113 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
     }
 
 
-    /** Create thread for given users.
+    /**
+     * Create thread for given users.
      *  When the thread is added to the server the "onMainFinished" will be invoked,
      *  If an error occurred the error object would not be null.
      *  For each user that was successfully added the "onItem" method will be called,
      *  For any item adding failure the "onItemFailed will be called.
-     *   If the main task will fail the error object in the "onMainFinished" method will be called."*/
+     *   If the main task will fail the error object in the "onMainFinished" method will be called."
+     **/
+
     @Override
-    public Promise<BThread, ChatError, Void> createThreadWithUsers(String name, final List<BUser> users) {
-        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
+    public Single<BThread> createThreadWithUsers(final String name, final List<BUser> users) {
+        return Single.create(new SingleOnSubscribe<BThread>() {
+            @Override
+            public void subscribe(final SingleEmitter<BThread> e) throws Exception {
 
-        ThreadRecovery.checkForAndRecoverThreadWithUsers(users)
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(final BThread thread) {
-                        deferred.resolve(thread);
+                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+
+                if(!users.contains(currentUser)) {
+                    users.add(currentUser);
+                }
+
+                if(users.size() == 2) {
+
+                    BUser otherUser = null;
+                    BThread jointThread = null;
+
+                    for(BUser user : users) {
+                        if(!user.equals(currentUser)) {
+                            otherUser = user;
+                            break;
+                        }
                     }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        // Didn't find a new thread so we create a new.
-                        final BThread thread = new BThread();
-                        BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
-                        thread.setCreator(currentUser);
-                        thread.setCreatorEntityId(currentUser.getEntityID());
 
-                        // If we're assigning users then the thread is always going to be private
-                        thread.setType(BThread.Type.Private);
+                    // Check to see if a thread already exists with these
+                    // two users
 
-                        // Save the thread to the database.
-                        DaoCore.createEntity(thread);
-                        DaoCore.connectUserAndThread(BNetworkManager.getCoreInterface().currentUserModel(),thread);
-
-                        BNetworkManager.getCoreInterface().updateLastOnline();
-
-                        new BThreadWrapper(thread).push()
-                                .done(new DoneCallback<BThread>() {
-                                    @Override
-                                    public void onDone(BThread thread) {
-
-                                        // Save the thread to the local db.
-                                        DaoCore.updateEntity(thread);
-
-                                        // Add users, For each added user the listener passed here will get a call.
-                                        addUsersToThread(thread, users).done(new DoneCallback<BThread>() {
-                                            @Override
-                                            public void onDone(BThread thread) {
-                                                deferred.resolve(thread);
-                                            }
-                                        })
-                                                .fail(new FailCallback<ChatError>() {
-                                                    @Override
-                                                    public void onFail(ChatError error) {
-                                                        deferred.reject(error);
-                                                    }
-                                                });
-                                    }
-                                })
-                                .fail(new FailCallback<ChatError>() {
-                                    @Override
-                                    public void onFail(ChatError error) {
-                                        // Delete the thread if failed to push
-                                        DaoCore.deleteEntity(thread);
-
-                                        deferred.reject(error);
-                                    }
-                                });
+                    for(BThread thread : getThreads(ThreadType.Private1to1)) {
+                        if(thread.getUsers().size() == 2 &&
+                                thread.getUsers().contains(currentUser) &&
+                                thread.getUsers().contains(otherUser))
+                        {
+                            jointThread = thread;
+                            break;
+                        }
                     }
-                });
 
+                    if(jointThread != null) {
+                        jointThread.setDeleted(false);
+                        DaoCore.updateEntity(jointThread);
+                        e.onSuccess(jointThread);
+                    }
+                }
+                else {
 
-        return deferred.promise();
+                    final BThread thread = new BThread();
+                    thread.setCreator(currentUser);
+                    thread.setCreatorEntityId(currentUser.getEntityID());
+                    thread.setCreationDate(new Date());
+                    thread.setName(name);
+                    thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+
+                    // Save the thread to the database.
+
+                    e.onSuccess(thread);
+
+                }
+            }
+        }).flatMap(new Function<BThread, SingleSource<? extends BThread>>() {
+            @Override
+            public SingleSource<? extends BThread> apply(final BThread thread) throws Exception {
+                return new SingleSource<BThread>() {
+                    @Override
+                    public void subscribe(final SingleObserver<? super BThread> observer) {
+
+                        ThreadWrapper wrapper = new ThreadWrapper(thread);
+                        wrapper.push().andThen(addUsersToThread(thread, users)).doOnComplete(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                observer.onSuccess(thread);
+                            }
+                        }).subscribe();
+
+                    }
+                };
+            }
+        }).doOnSuccess(new Consumer<BThread>() {
+            @Override
+            public void accept(BThread thread) throws Exception {
+                DaoCore.createEntity(thread);
+                DaoCore.connectUserAndThread(NetworkManager.shared().a.core.currentUserModel(),thread);
+                DaoCore.updateEntity(thread);
+            }
+        });
     }
 
-
-
     @Override
-    public Promise<Void, ChatError, Void> deleteThreadWithEntityID(final String entityID) {
-
+    public Completable deleteThreadWithEntityID(final String entityID) {
         final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
-
-        BNetworkManager.getCoreInterface().updateLastOnline();
-
-        return new BThreadWrapper(thread).deleteThread();
+        return new ThreadWrapper(thread).deleteThread();
     }
-
-
 
     protected void pushForMessage(final BMessage message){
         if (NetworkManager.shared().a.push == null)
             return;
 
         if (DEBUG) Timber.v("pushForMessage");
-        if (message.getThread().getTypeSafely() == BThread.Type.Private) {
+        if (message.getThread().typeIs(ThreadType.Private)) {
 
             // Loading the message from firebase to get the timestamp from server.
             DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
@@ -359,9 +249,9 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                 public void onDataChange(DataSnapshot snapshot) {
                     Long date = null;
                     try {
-                        date = (Long) snapshot.child(BDefines.Keys.BDate).getValue();
+                        date = (Long) snapshot.child(DaoDefines.Keys.Date).getValue();
                     } catch (ClassCastException e) {
-                        date = (((Double)snapshot.child(BDefines.Keys.BDate).getValue()).longValue());
+                        date = (((Double)snapshot.child(DaoDefines.Keys.Date).getValue()).longValue());
                     }
                     finally {
                         if (date != null)
@@ -375,7 +265,7 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
                     if (message.getDate()==null)
                         return;
 
-                    BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
+                    BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
                     List<BUser> users = new ArrayList<BUser>();
 
                     for (BUser user : message.getThread().getUsers())
@@ -416,31 +306,31 @@ public class FirebaseThreadsAdapter extends ThreadsManager {
         if (DEBUG) Timber.v("pushutils sendmessage");
         String messageText = message.getText();
 
-        if (message.getType() == LOCATION)
-            messageText = "Location Message";
-        else if (message.getType() == IMAGE)
-            messageText = "Picture Message";
+        if (message.getType() == BMessage.Type.LOCATION)
+            messageText = "Location CoreMessage";
+        else if (message.getType() == BMessage.Type.IMAGE)
+            messageText = "Picture CoreMessage";
 
         String sender = message.getSender().getMetaName();
         String fullText = sender + " " + messageText;
 
         JSONObject data = new JSONObject();
         try {
-            data.put(BDefines.Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+            data.put(DaoDefines.Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
 
-            data.put(BDefines.Keys.CONTENT, fullText);
-            data.put(BDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
-            data.put(BDefines.Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
-            data.put(BDefines.Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
-            data.put(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
-            data.put(BDefines.Keys.MESSAGE_SENDER_NAME, message.getSender().getMetaName());
-            data.put(BDefines.Keys.MESSAGE_TYPE, message.getType());
-            data.put(BDefines.Keys.MESSAGE_PAYLOAD, message.getText());
+            data.put(DaoDefines.Keys.CONTENT, fullText);
+            data.put(DaoDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
+            data.put(DaoDefines.Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
+            data.put(DaoDefines.Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
+            data.put(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
+            data.put(DaoDefines.Keys.MESSAGE_SENDER_NAME, message.getSender().getMetaName());
+            data.put(DaoDefines.Keys.MESSAGE_TYPE, message.getType());
+            data.put(DaoDefines.Keys.MESSAGE_PAYLOAD, message.getText());
             //For iOS
-            data.put(BDefines.Keys.BADGE, BDefines.Keys.INCREMENT);
-            data.put(BDefines.Keys.ALERT, fullText);
+            data.put(DaoDefines.Keys.BADGE, DaoDefines.Keys.INCREMENT);
+            data.put(DaoDefines.Keys.ALERT, fullText);
             // For making sound in iOS
-            data.put(BDefines.Keys.SOUND, BDefines.Keys.Default);
+            data.put(DaoDefines.Keys.SOUND, DaoDefines.Keys.Default);
         } catch (JSONException e) {
             e.printStackTrace();
         }

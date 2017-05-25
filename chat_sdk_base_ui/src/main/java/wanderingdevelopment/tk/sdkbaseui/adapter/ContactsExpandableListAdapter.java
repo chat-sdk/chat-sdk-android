@@ -20,8 +20,8 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
+import co.chatsdk.core.dao.core.BUser;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.dao.BUser;
 
 import java.util.HashMap;
 import java.util.List;

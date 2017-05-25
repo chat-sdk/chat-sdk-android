@@ -117,13 +117,13 @@ public class ChatError extends Throwable {
 
         public static final String ExcpetionOccurred = "Exception occurred";
         public static final String NoLoginInfo = "No older login data is save in the preferences.";
-        public static final String NoPath = "Entity Path is null";
+        public static final String NoPath = "CoreEntity Path is null";
         public static final String Tagged = "Tagged";
     }
 
 
     @Override
     public String toString() {
-        return String.format("ChatError, Code: %s, Message: %s, Tag: %s", code, getMessage(), tag);
+        return String.format("ChatError, Code: %s, CoreMessage: %s, Tag: %s", code, getMessage(), tag);
     }
 }

@@ -862,7 +862,7 @@ public class Facebook {
         }
 
         if (context.checkCallingOrSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-            Util.showAlert(context, "Error", "Application requires permission to access the Internet");
+            Util.showToast(context, "Error", "Application requires permission to access the Internet");
         } else {
             new FbDialog(context, action, parameters, listener).show();
         }

@@ -11,14 +11,17 @@ import android.content.Context;
 
 import com.braunster.androidchatsdk.firebaseplugin.R;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
+
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.core.FollowerLink;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.firebase.wrappers.UserWrapper;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.FollowerLink;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
+import co.chatsdk.core.dao.core.DaoCore;
 import co.chatsdk.core.defines.FirebaseDefines;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
@@ -30,13 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.ProgressCallback;
-import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
-import org.jdeferred.multiple.MasterDeferredObject;
-import org.jdeferred.multiple.MasterProgress;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,12 +43,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.abstracthandlers.CoreManager;
 
 import static com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors.getFirebaseError;
-import static com.braunster.chatsdk.dao.core.ProcessForQueryHandler.processForQuery;
-import static com.braunster.chatsdk.network.BDefines.Keys;
 
 public class FirebaseCoreAdapter extends CoreManager {
 
@@ -62,473 +69,238 @@ public class FirebaseCoreAdapter extends CoreManager {
         super(context);
 
         // Adding the manager that will handle all the incoming events.
-        FirebaseEventsManager eventManager = FirebaseEventsManager.getInstance();
-        setEventManager(eventManager);
+//        FirebaseEventsManager eventManager = FirebaseEventsManager.getInstance();
+//        setEventManager(eventManager);
 
     }
+
+
+
+
+
 
 
 
     @Override
-    public String getServerURL() {
-        return BDefines.ServerUrl;
-    }
-
-
-    @Override
-    /** Unlike the iOS code the current user need to be saved before you call this method.*/
-    public Promise<BUser, ChatError, Void> pushUser() {
-        return currentUser().push();
-    }
-
-    public BUserWrapper currentUser(){
-        return BUserWrapper.initWithModel(currentUserModel());
-    }
-
-    /** Indexing
-     * To allow searching we're going to implement a simple index. Strings can be registered and
-     * associated with users i.e. if there's a user called John Smith we could make a new index
-     * like this:
-     *
-     * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
-     *
-     * This will allow us to find the user*/
-    @Override
-    public Promise<List<BUser>, ChatError, Integer> usersForIndex(final String index, final String value) {
-
-        final Deferred<List<BUser>, ChatError, Integer> deferred = new DeferredObject<>();
-
-        if (StringUtils.isBlank(value))
-        {
-            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
-        }
-
-        Query query = FirebasePaths.indexRef().orderByChild(index).startAt(
-                processForQuery(value)).limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+    public Completable followUser(final BUser userToFollow) {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.getValue() != null) {
+            public void subscribe(final CompletableEmitter e) throws Exception {
 
-                    Map<String, Objects> values = (Map<String, Objects>) snapshot.getValue();
-
-                    final List<BUser> usersToGo = new ArrayList<BUser>();
-                    List<String> keys = new ArrayList<String>();
-
-                    // So we dont have to call the db for each key.
-                    String currentUserEntityID = currentUserModel().getEntityID();
-
-                    // Adding all keys to the list, Except the current user key.
-                    for (String key : values.keySet())
-                        if (!key.equals(currentUserEntityID))
-                            keys.add(key);
-
-                    // Fetch or create users in the local db.
-                    BUser bUser;
-                    if (keys.size() > 0) {
-                        for (String entityID : keys) {
-                            // Making sure that we wont try to get users with a null object id in the index section
-                            // If we will try the query will never end and there would be no result from the index.
-                            if(StringUtils.isNotBlank(entityID) && !entityID.equals(Keys.BNull) && !entityID.equals("(null)"))
-                            {
-                                bUser = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityID);
-                                usersToGo.add(bUser);
-                            }
-                        }
-
-                        Promise[] promises = new Promise[keys.size()];
-
-                        int count = 0;
-                        for (final BUser user : usersToGo) {
-
-                            final Deferred<BUser, ChatError, Integer>  d = new DeferredObject<>();
-
-                            BUserWrapper.initWithModel(user)
-                                    .once()
-                                    .done(new DoneCallback<BUser>() {
-                                        @Override
-                                        public void onDone(BUser bUser) {
-                                            if (DEBUG)
-                                                Timber.d("onDone, index: %s, Value: %s", index, value);
-
-                                            // Notify that a user has been found.
-                                            // Making sure the user due start with the wanted name
-                                            if (processForQuery(bUser.metaStringForKey(index)).startsWith(processForQuery(value))) {
-                                                d.resolve(bUser);
-                                            }
-                                            else {
-                                                if (DEBUG)
-                                                    Timber.d("Not valid result, " +
-                                                            "index: %s, UserValue: %s Value: %s", index, bUser.metaStringForKey(index), value);
-
-                                                // Remove the not valid user from the list.
-                                                usersToGo.remove(user);
-
-                                                d.resolve(null);
-                                            }
-                                        }
-                                    })
-                                    .fail(new FailCallback<ChatError>() {
-                                        @Override
-                                        public void onFail(ChatError chatError) {
-                                            if (DEBUG) Timber.e("usersForIndex, onDoneWithError.");
-                                            // Notify that an error occurred while selecting.
-                                            d.reject(chatError);
-                                        }
-                                    });
-
-                            promises[count] = d.promise();
-                            count++;
-                        }
-
-                        MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-                        masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-                            @Override
-                            public void onProgress(MasterProgress masterProgress) {
-
-                                if (DEBUG) Timber.d("MasterDeferredProgress, done: %s, failed: %s, total: %s", masterProgress.getDone(), masterProgress.getFail(), masterProgress.getTotal());
-
-                                // Reject the promise if all promises failed.
-                                if (masterProgress.getFail() == masterProgress.getTotal())
-                                {
-                                    deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
-                                }
-                                // If all was done lets resolve the promise.
-                                else if (masterProgress.getFail() + masterProgress.getDone() == masterProgress.getTotal())
-                                    deferred.resolve(usersToGo);
-                            }
-                        });
-
-
-                    } else deferred.reject(ChatError.getError(ChatError.Code.NO_USER_FOUND, "Unable to found user."));
-                } else {
-                    if (DEBUG) Timber.d("Value is null");
-                    deferred.reject(ChatError.getError(ChatError.Code.NO_USER_FOUND, "Unable to found user."));
-                }
-            }
-
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-                deferred.reject(FirebaseErrors.getFirebaseError(firebaseError));
+//                if (!DaoDefines.EnableFollowers)
+//                    throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
+//
+//                final BUser user = NetworkManager.shared().a.core.currentUserModel();
+//
+//                // Add the current user to the userToFollow "followers" path
+//                final DatabaseReference userToFollowingRef = FirebasePaths.userFollowingRef(userToFollow.getEntityID())
+//                        .child(user.getEntityID());
+//
+//                if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowingRef.toString());
+//
+//                userToFollowingRef.setValue("null", new DatabaseReference.CompletionListener() {
+//                    @Override
+//                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
+//                        if (firebaseError!=null)
+//                        {
+//                            e.onError(getFirebaseError(firebaseError));
+//                        }
+//                        else
+//                        {
+//                            FollowerLink follows = user.fetchOrCreateFollower(userToFollow, FollowerLink.Type.FOLLOWS);
+//
+//                            user.addContact(userToFollow);
+//
+//                            // Add the user to follow to the current user follow
+//                            DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(FirebasePaths.FollowingPath);
+//                            if (DEBUG) Timber.d("followUser, curUserFollowsRef: %s", curUserFollowsRef.toString());
+//                            curUserFollowsRef.setValue("null", new DatabaseReference.CompletionListener() {
+//                                @Override
+//                                public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
+//
+//                                    // Send a push to the user that is now followed.
+//                                    if (DEBUG) Timber.v("pushutils sendfollowpush");
+//                                    JSONObject data = new JSONObject();
+//                                    try {
+//                                        data.put(DaoDefines.Keys.ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
+//                                        data.put(DaoDefines.Keys.CONTENT, user.getMetaName() + " " + BNetworkManager.getAppContext().getString(R.string.not_follower_content));
+//                                        // For iOS
+//                                        data.put(DaoDefines.Keys.BADGE, DaoDefines.Keys.INCREMENT);
+//                                        data.put(DaoDefines.Keys.ALERT, user.getMetaName() + " " + BNetworkManager.getAppContext().getString(R.string.not_follower_content));
+//                                        // For making sound in iOS
+//                                        data.put(DaoDefines.Keys.SOUND, DaoDefines.Keys.Default);
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//
+//                                    List<String> channels = new ArrayList<String>();
+//                                    channels.add(userToFollow.getPushChannel());
+//                                    NetworkManager.shared().a.push.pushToChannels(channels, data);
+//
+//                                    e.onComplete();
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
             }
         });
-
-        return deferred.promise();
-    }
-
-    @Override
-    public void setUserOnline() {
-        BUser current = BNetworkManager.getCoreInterface().currentUserModel();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
-        {
-            BUserWrapper.initWithModel(currentUserModel()).goOnline();
-        }
-    }
-
-    @Override
-    public void setUserOffline() {
-        BUser current = BNetworkManager.getCoreInterface().currentUserModel();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
-        {
-            BUserWrapper.initWithModel(currentUserModel()).goOffline();
-            updateLastOnline();
-        }
-
-    }
-
-    @Override
-    public void goOffline() {
-        DatabaseReference.goOffline();
-
-        setUserOffline();
-    }
-
-    @Override
-    public void goOnline() {
-        DatabaseReference.goOnline();
-
-        setUserOnline();
-    }
-
-    public Promise<Boolean, ChatError, Void> isOnline(){
-
-        final Deferred<Boolean, ChatError, Void> deferred = new DeferredObject<>();
-
-        if (BNetworkManager.getCoreInterface().currentUserModel() == null)
-        {
-            return  deferred.reject(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
-        }
-
-        FirebasePaths.userOnlineRef(BNetworkManager.getCoreInterface().currentUserModel().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-
-                updateLastOnline();
-
-                deferred.resolve((Boolean) snapshot.getValue());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
-            }
-        });
-
-        return deferred.promise();
-    }
-
-    @Override
-    public Promise<Void, ChatError, Void> followUser(final BUser userToFollow) {
-
-        if (!BDefines.EnableFollowers)
-            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
-
-        final Deferred<Void, ChatError, Void> deferred = new DeferredObject<>();
-
-        final BUser user = BNetworkManager.getCoreInterface().currentUserModel();
-
-        // Add the current user to the userToFollow "followers" path
-        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToFollow.getEntityID())
-                .child(FirebasePaths.FollowersPath)
-                .child(user.getEntityID());
-        if (DEBUG) Timber.d("followUser, userToFollowRef: ", userToFollowRef.toString());
-
-        userToFollowRef.setValue("null", new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                if (firebaseError!=null)
-                {
-                    deferred.reject(getFirebaseError(firebaseError));
-                }
-                else
-                {
-                    FollowerLink follows = user.fetchOrCreateFollower(userToFollow, FollowerLink.Type.FOLLOWS);
-
-                    user.addContact(userToFollow);
-
-                    // Add the user to follow to the current user follow
-                    DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
-                    if (DEBUG) Timber.d("followUser, curUserFollowsRef: %s", curUserFollowsRef.toString());
-                    curUserFollowsRef.setValue("null", new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-
-                            // Send a push to the user that is now followed.
-                            if (DEBUG) Timber.v("pushutils sendfollowpush");
-                            JSONObject data = new JSONObject();
-                            try {
-                                data.put(BDefines.Keys.ACTION, ChatSDKReceiver.ACTION_FOLLOWER_ADDED);
-                                data.put(BDefines.Keys.CONTENT, user.getMetaName() + " " + BNetworkManager.getAppContext().getString(R.string.not_follower_content));
-                                // For iOS
-                                data.put(BDefines.Keys.BADGE, BDefines.Keys.INCREMENT);
-                                data.put(BDefines.Keys.ALERT, user.getMetaName() + " " + BNetworkManager.getAppContext().getString(R.string.not_follower_content));
-                                // For making sound in iOS
-                                data.put(BDefines.Keys.SOUND, BDefines.Keys.Default);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            List<String> channels = new ArrayList<String>();
-                            channels.add(userToFollow.getPushChannel());
-                            NetworkManager.shared().a.push.pushToChannels(channels, data);
-
-                            deferred.resolve(null);
-                        }
-                    });
-                }
-            }
-        });
-
-        return deferred.promise();
     }
 
     @Override
     public void unFollowUser(BUser userToUnfollow) {
-        if (!BDefines.EnableFollowers)
-            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
-
-
-        final BUser user = BNetworkManager.getCoreInterface().currentUserModel();
-
-        // Remove the current user to the userToFollow "followers" path
-        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID())
-                .child(FirebasePaths.FollowersPath)
-                .child(user.getEntityID());
-
-        userToFollowRef.removeValue();
-
-        FollowerLink follows = user.fetchOrCreateFollower(userToUnfollow, FollowerLink.Type.FOLLOWS);
-
-        // Add the user to follow to the current user follow
-        DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
-
-        curUserFollowsRef.removeValue();
-
-        DaoCore.deleteEntity(follows);
+//        if (!DaoDefines.EnableFollowers)
+//            throw new IllegalStateException("You need to enable followers in defines before you can use this method.");
+//
+//
+//        final BUser user = NetworkManager.shared().a.core.currentUserModel();
+//
+//        // Remove the current user to the userToFollow "followers" path
+//        DatabaseReference userToFollowRef = FirebasePaths.userRef(userToUnfollow.getEntityID())
+//                .child(FirebasePaths.FollowersPath)
+//                .child(user.getEntityID());
+//
+//        userToFollowRef.removeValue();
+//
+//        FollowerLink follows = user.fetchOrCreateFollower(userToUnfollow, FollowerLink.Type.FOLLOWS);
+//
+//        // Add the user to follow to the current user follow
+//        DatabaseReference curUserFollowsRef = FirebasePaths.firebaseRef().child(follows.getBPath().getPath());
+//
+//        curUserFollowsRef.removeValue();
+//
+//        DaoCore.deleteEntity(follows);
     }
 
     @Override
-    public Promise<List<BUser>, ChatError, Void> getFollowers(String entityId){
-        if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
-
-        final Deferred<List<BUser>, ChatError, Void> deferred = new DeferredObject<>();
-
-        if (StringUtils.isEmpty(entityId))
-        {
-            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Entity id is empty"));
-        }
-
-        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
-
-        DatabaseReference followersRef = FirebasePaths.userFollowersRef(entityId);
-
-        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public Observable<BUser> getFollowers(final String entityId){
+        return Observable.create(new ObservableOnSubscribe<BUser>() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-
-                final List<BUser> followers = new ArrayList<BUser>();
-
-                for (DataSnapshot snap : snapshot.getChildren())
-                {
-                    String followingUserID = snap.getKey();
-
-                    if (StringUtils.isNotEmpty(followingUserID))
-                    {
-                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
-
-                        FollowerLink f = user.fetchOrCreateFollower(follwer, FollowerLink.Type.FOLLOWER);
-
-                        followers.add(follwer);
-                    } else if (DEBUG) Timber.e("Follower id is empty");
-                }
-
-                Promise[] promises= new Promise[followers.size()];
-
-                int count = 0;
-                for (BUser u : followers)
-                {
-                    promises[count] = BUserWrapper.initWithModel(u).once();
-
-                    count++;
-                }
-
-                MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-                masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-                    @Override
-                    public void onProgress(MasterProgress masterProgress) {
-
-                        if (DEBUG) Timber.d("MasterDeferredProgress, done: %s, failed: %s, total: %s", masterProgress.getDone(), masterProgress.getFail(), masterProgress.getTotal());
-
-                        // Reject the promise if all promisses failed.
-                        if (masterProgress.getFail() == masterProgress.getTotal())
-                        {
-                            deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
-                        }
-                        else
-                            deferred.resolve(followers);
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
+            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+//                if (StringUtils.isEmpty(entityId)) {
+//                    e.onError(ChatError.getError(ChatError.Code.NULL, "CoreEntity id is empty"));
+//                    return;
+//                }
+//
+//                final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+//
+//                DatabaseReference followersRef = FirebasePaths.userFollowersRef(entityId);
+//
+//                followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot snapshot) {
+//
+//                        final List<BUser> followers = new ArrayList<BUser>();
+//
+//                        for (DataSnapshot snap : snapshot.getChildren())
+//                        {
+//                            String followingUserID = snap.getKey();
+//
+//                            if (StringUtils.isNotEmpty(followingUserID))
+//                            {
+//                                BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
+//
+//                                FollowerLink f = user.fetchOrCreateFollower(follwer, FollowerLink.Type.FOLLOWER);
+//
+//                                followers.add(follwer);
+//                            } else if (DEBUG) Timber.e("Follower id is empty");
+//                        }
+//
+//                        ArrayList<Completable> completables = new ArrayList<>();
+//
+//                        for (final BUser u : followers)
+//                        {
+//                            completables.add(UserWrapper.initWithModel(u).once().doOnComplete(new Action() {
+//                                @Override
+//                                public void run() throws Exception {
+//                                    e.onNext(u);
+//                                }
+//                            }));
+//                        }
+//                        Completable.merge(completables).doOnComplete(new Action() {
+//                            @Override
+//                            public void run() throws Exception {
+//                                e.onComplete();
+//                            }
+//                        }).subscribe();
+//
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError firebaseError) {
+//                        e.onError(firebaseError.toException());
+//                    }
+//                });
             }
         });
-
-
-        return deferred.promise();
     }
 
     @Override
-    public Promise<List<BUser>, ChatError, Void>  getFollows(String entityId){
-        if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
-
-        final Deferred<List<BUser>, ChatError, Void> deferred = new DeferredObject<>();
-
-        if (StringUtils.isEmpty(entityId))
-        {
-            return deferred.reject(ChatError.getError(ChatError.Code.NULL, "Entity id is empty"));
-        }
-
-        final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
-
-        DatabaseReference followersRef = FirebasePaths.userFollowingRef(entityId);
-
-        followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public Observable<BUser>  getFollows(final String entityId){
+        return Observable.create(new ObservableOnSubscribe<BUser>() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                final List<BUser> followers = new ArrayList<BUser>();
-
-                for (DataSnapshot snap : snapshot.getChildren())
-                {
-                    String followingUserID = snap.getKey();
-
-                    if (StringUtils.isNotEmpty(followingUserID))
-                    {
-                        BUser follwer = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
-
-                        FollowerLink f = user.fetchOrCreateFollower(follwer, FollowerLink.Type.FOLLOWS);
-
-                        followers.add(follwer);
-                    }
-                }
-
-                Promise[] promises= new Promise[followers.size()];
-
-                int count = 0;
-                for (BUser u : followers)
-                {
-                    promises[count] = BUserWrapper.initWithModel(u).once();
-
-                    count++;
-                }
-
-                MasterDeferredObject masterDeferredObject = new MasterDeferredObject(promises);
-
-                masterDeferredObject.progress(new ProgressCallback<MasterProgress>() {
-                    @Override
-                    public void onProgress(MasterProgress masterProgress) {
-
-                        if (DEBUG) Timber.d("MasterDeferredProgress, done: %s, failed: %s, total: %s", masterProgress.getDone(), masterProgress.getFail(), masterProgress.getTotal());
-
-                        // Reject the promise if all promisses failed.
-                        if (masterProgress.getFail() == masterProgress.getTotal())
-                        {
-                            deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "All promises failed"));
-                        }
-                        else
-                            deferred.resolve(followers);
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-                deferred.reject(getFirebaseError(firebaseError));
+            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+//                if (DEBUG) Timber.v("getFollowers, Id: %s", entityId);
+//
+//                final Deferred<List<BUser>, ChatError, Void> deferred = new DeferredObject<>();
+//
+//                if (StringUtils.isEmpty(entityId))
+//                {
+//                    e.onError(ChatError.getError(ChatError.Code.NULL, "CoreEntity id is empty"));
+//                    return;
+//                }
+//
+//                final BUser user = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+//
+//                DatabaseReference followersRef = FirebasePaths.userFollowingRef(entityId);
+//
+//                followersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot snapshot) {
+//                        final List<BUser> followers = new ArrayList<BUser>();
+//
+//                        for (DataSnapshot snap : snapshot.getChildren())
+//                        {
+//                            String followingUserID = snap.getKey();
+//
+//                            if (StringUtils.isNotEmpty(followingUserID))
+//                            {
+//                                BUser follower = DaoCore.fetchOrCreateEntityWithEntityID(BUser.class, followingUserID);
+//
+//                                FollowerLink f = user.fetchOrCreateFollower(follower, FollowerLink.Type.FOLLOWS);
+//
+//                                followers.add(follower);
+//                            }
+//                        }
+//
+//                        ArrayList<Completable> completables = new ArrayList<>();
+//
+//                        for (final BUser u : followers)
+//                        {
+//                            completables.add(UserWrapper.initWithModel(u).once().doOnComplete(new Action() {
+//                                @Override
+//                                public void run() throws Exception {
+//                                    e.onNext(u);
+//                                }
+//                            }));
+//                        }
+//                        Completable.merge(completables).doOnComplete(new Action() {
+//                            @Override
+//                            public void run() throws Exception {
+//                                e.onComplete();
+//                            }
+//                        }).subscribe();
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError firebaseError) {
+//                        e.onError(firebaseError.toException());
+//                    }
+//                });
             }
         });
-
-        return deferred.promise();
     }
 
 
-    @Override
-    public void setLastOnline(Date lastOnline) {
-        BUser currentUser  = BNetworkManager.getCoreInterface().currentUserModel();
-        currentUser.setLastOnline(lastOnline);
-        DaoCore.updateEntity(currentUser);
-
-        BNetworkManager.getCoreInterface().pushUser();
-    }
-
-    public void updateLastOnline(){
-        // FIXME to implement?
-
-    }
 
 }

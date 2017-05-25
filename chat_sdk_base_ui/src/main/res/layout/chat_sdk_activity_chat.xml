@@ -45,10 +45,10 @@
 
     </FrameLayout>
 
-    <wanderingdevelopment.tk.sdkbaseui.view.ChatMessageBoxView
+    <co.chatsdk.ui.chat.TextInputView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/chat_sdk_message_box">
-    </wanderingdevelopment.tk.sdkbaseui.view.ChatMessageBoxView>
+    </co.chatsdk.ui.chat.TextInputView>
 
 </LinearLayout>

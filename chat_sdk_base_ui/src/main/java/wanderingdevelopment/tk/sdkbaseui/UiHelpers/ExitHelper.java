@@ -7,23 +7,22 @@
 
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
+import co.chatsdk.core.dao.core.DaoDefines;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.network.BDefines;
+
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.concurrent.Callable;
 
 /**
  * Helper to create special exit to your app.
- * See {@link com.braunster.chatsdk.network.BDefines.Exit} for setting the app exit action.
+ * See {@link DaoDefines.Exit} for setting the app exit action.
  *
- * Example for it's use is in {@link com.braunster.chatsdk.activities.ChatSDKMainActivity#exitHelper MainActivity exit helper}
  */
 public class ExitHelper {
 
@@ -37,15 +36,15 @@ public class ExitHelper {
     }
 
     public void triggerExit() {
-        switch (BDefines.Defaults.SDKExitMode)
+        switch (DaoDefines.Defaults.SDKExitMode)
         {
-            case BDefines.Exit.EXIT_MODE_DIALOG:
+            case DaoDefines.Exit.EXIT_MODE_DIALOG:
                 // Show alert dialog, Positive response is just dismiss the dialog, Negative will close the app.
-                DialogUtils.showAlertDialog(activity, "", activity.getResources().getString(R.string.alert_exit), activity.getResources().getString(R.string.exit),
+                DialogUtils.showToastDialog(activity, "", activity.getResources().getString(R.string.alert_exit), activity.getResources().getString(R.string.exit),
                         activity.getResources().getString(R.string.stay), null, new CloseApp());
                 break;
 
-            case BDefines.Exit.EXIT_MODE_DOUBLE_BACK:
+            case DaoDefines.Exit.EXIT_MODE_DOUBLE_BACK:
                 if (doubleBackToExitPressedOnce) {
                     try {
                         new CloseApp().call();
@@ -60,13 +59,13 @@ public class ExitHelper {
                     public void run() {
                         doubleBackToExitPressedOnce = false;
                     }
-                }, BDefines.Exit.DOUBLE_CLICK_INTERVAL);
+                }, DaoDefines.Exit.DOUBLE_CLICK_INTERVAL);
 
                 this.doubleBackToExitPressedOnce = true;
-                showAlertToast( activity.getString(R.string.exit_helper_double_tap_toast) );
+                showToast( activity.getString(R.string.exit_helper_double_tap_toast) );
                 break;
 
-            case BDefines.Exit.EXIT_MODE_NONE:
+            case DaoDefines.Exit.EXIT_MODE_NONE:
                 try {
                     new CloseApp().call();
                 } catch (Exception e) {
@@ -89,7 +88,7 @@ public class ExitHelper {
         }
     }
 
-    protected void showAlertToast(String text){
+    protected void showToast(String text){
         superToast.setDuration(SuperToast.Duration.MEDIUM);
         superToast.setTextColor(Color.WHITE);
         superToast.setAnimations(SuperToast.Animations.FLYIN);

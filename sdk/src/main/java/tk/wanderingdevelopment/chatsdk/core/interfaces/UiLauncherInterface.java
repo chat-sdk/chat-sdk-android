@@ -42,13 +42,10 @@ public interface UiLauncherInterface {
     void showProgressCard(@StringRes int resourceId);
 
     /*Getters and Setters*/
-    void showAlertToast(String text);
-
-    void showAlertToast(@StringRes int resourceId);
-
     void showToast(String text);
 
     void showToast(@StringRes int resourceId);
+
 
     void setAlertToast(SuperToast alertToast);
 

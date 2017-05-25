@@ -17,16 +17,18 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.dao.core.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ThreadsItemSorter;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
+import co.chatsdk.core.utils.volley.VolleyUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,10 +40,6 @@ import java.util.List;
 
 import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
 import timber.log.Timber;
-
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.LOCATION;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -246,7 +244,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
             // If thread image url contain more then one url.
             if (urls.length > 1)
             {
-//                if (DEBUG) Log.d(TAG, "Thread has more then 2 users.");
+//                if (DEBUG) Log.d(TAG, "BThread has more then 2 users.");
 
                 // If we do not yet have size post the creation
                 if (size==0)
@@ -405,9 +403,6 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
      * If you want to add more data to your list you can extend the absract adapter after that you can extend the {@link wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItem ThreadListItem}
      * And add new variables to keep it and populate then in with your maker.
      *
-     * @see wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#fromBThread(com.braunster.chatsdk.dao.BThread)
-     * @see wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#getGroupsHeader()
-     * @see @see wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter.ThreadListItemMaker#getMorePeopleHeader
      * */
     public interface ThreadListItemMaker<E>{
         public E fromBThread(BThread thread);
@@ -505,29 +500,29 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
 //            message = new BMessage();
 //            message.setText("No Messages...");
 //            message.setType(bText.ordinal());
-                data[0] = "No Message";
+                data[0] = "No BMessage";
                 data[1] = "";
                 return data;
             }
 
-//            if (DEBUG) Log.d(TAG, "Message text: " + messages.get(0).getText());
+//            if (DEBUG) Log.d(TAG, "BMessage text: " + messages.get(0).getText());
 
             if (messages.get(0).getType() == null)
                 data[0] = "Bad Data";
             else
                 switch (messages.get(0).getType())
                 {
-                    case TEXT:
+                    case BMessage.Type.TEXT:
                         // TODO cut string if needed.
                         //http://stackoverflow.com/questions/3630086/how-to-get-string-width-on-android
                         data[0] = messages.get(0).getText();
                         break;
 
-                    case IMAGE:
+                    case BMessage.Type.IMAGE:
                         data[0] = "Image message";
                         break;
 
-                    case LOCATION:
+                    case BMessage.Type.LOCATION:
                         data[0] = "Location message";
                         break;
                 }
@@ -617,7 +612,7 @@ public abstract class ChatSDKAbstractThreadsListAdapter<E extends ChatSDKAbstrac
                         thread.getUnreadMessagesAmount(),
                         thread.getId(),
                         thread.getLastMessageAdded(),
-                        thread.getTypeSafely() == BThread.Type.Private);
+                        thread.typeIs(ThreadType.Private));
             }
 
             @Override

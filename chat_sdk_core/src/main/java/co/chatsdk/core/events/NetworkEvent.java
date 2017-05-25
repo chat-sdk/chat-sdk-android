@@ -1,5 +1,8 @@
 package co.chatsdk.core.events;
 
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -9,31 +12,43 @@ import io.reactivex.functions.Predicate;
 public class NetworkEvent {
 
     final public EventType type;
-    public Object payload;
+    public BMessage message;
+    public BThread thread;
+    public BUser user;
 
     public NetworkEvent(EventType type) {
         this.type = type;
     }
 
-    public NetworkEvent(EventType type, Object payload) {
+    public NetworkEvent(EventType type, BThread thread) {
+        this(type, thread, null, null);
+    }
+
+    public NetworkEvent(EventType type, BThread thread, BMessage message) {
+        this(type, thread, message, null);
+    }
+
+    public NetworkEvent(EventType type, BThread thread, BMessage message, BUser user) {
         this.type = type;
-        this.payload = payload;
+        this.thread = thread;
+        this.message = message;
+        this.user = user;
     }
 
-    public static NetworkEvent privateThreadAdded () {
-        return new NetworkEvent(EventType.PrivateThreadAdded);
+    public static NetworkEvent privateThreadAdded (BThread thread) {
+        return new NetworkEvent(EventType.PrivateThreadAdded, thread);
     }
 
-    public static NetworkEvent privateThreadRemoved () {
-        return new NetworkEvent(EventType.PrivateThreadRemoved);
+    public static NetworkEvent privateThreadRemoved (BThread thread) {
+        return new NetworkEvent(EventType.PrivateThreadRemoved, thread);
     }
 
-    public static NetworkEvent publicThreadAdded () {
-        return new NetworkEvent(EventType.PublicThreadAdded);
+    public static NetworkEvent publicThreadAdded (BThread thread) {
+        return new NetworkEvent(EventType.PublicThreadAdded, thread);
     }
 
-    public static NetworkEvent publicThreadRemoved () {
-        return new NetworkEvent(EventType.PublicThreadRemoved);
+    public static NetworkEvent publicThreadRemoved (BThread thread) {
+        return new NetworkEvent(EventType.PublicThreadRemoved, thread);
     }
 
     public static NetworkEvent followerAdded () {
@@ -50,6 +65,22 @@ public class NetworkEvent {
 
     public static NetworkEvent followingRemoved () {
         return new NetworkEvent(EventType.FollowingRemoved);
+    }
+
+    public static NetworkEvent threadDetailsUpdated (BThread thread) {
+        return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
+    }
+
+    public static NetworkEvent messageAdded (BThread thread, BMessage message) {
+        return new NetworkEvent(EventType.MessageAdded, thread, message);
+    }
+
+    public static NetworkEvent threadUsersChanged (BThread thread, BUser user) {
+        return new NetworkEvent(EventType.ThreadUsersChanged, thread, null, user);
+    }
+
+    public static NetworkEvent userMetaUpdated (BUser user) {
+        return new NetworkEvent(EventType.UserMetaUpdated, null, null, user);
     }
 
     public Predicate<NetworkEvent> filter () {

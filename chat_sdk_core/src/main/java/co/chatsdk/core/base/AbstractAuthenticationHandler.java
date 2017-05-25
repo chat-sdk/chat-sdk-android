@@ -2,7 +2,6 @@ package co.chatsdk.core.base;
 
 import android.content.SharedPreferences;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import co.chatsdk.core.enums.AuthStatus;

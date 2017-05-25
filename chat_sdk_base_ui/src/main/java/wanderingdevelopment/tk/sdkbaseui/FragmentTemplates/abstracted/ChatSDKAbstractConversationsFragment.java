@@ -25,19 +25,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.interfaces.ThreadType;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractChatActivity;
+import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKThreadsListAdapter;
 import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.entities.Entity;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.BatchedEvent;
-import com.braunster.chatsdk.network.events.Event;
-import com.braunster.chatsdk.object.Batcher;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
@@ -105,7 +102,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
             onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    showAlertDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                    showToastDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                             getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
 
                     return true;
@@ -123,7 +120,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Private));
+        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private));
     }
 
     @Override
@@ -169,7 +166,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List list = BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Private);
+                List list = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private);
 
                 if (DEBUG) {
                     timings.addSplit("Loading threads");
@@ -190,7 +187,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
     }
 
     @Override
-    public void refreshForEntity(Entity entity) {
+    public void refreshForEntity(Object entity) {
         super.refreshForEntity(entity);
         if (adapter.getCount() == 0)
             return;;
@@ -284,16 +281,16 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
 
 //        loadDataOnBackground();
 
-        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
-        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
-            @Override
-            public void triggered(List<String> list) {
-                loadDataOnBackground();
-            }
-        });
-
-        BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(APP_EVENT_TAG);
-        BNetworkManager.getCoreInterface().getEventManager().addEvent(batchedEvents);
+//        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
+//        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
+//            @Override
+//            public void triggered(List<String> list) {
+//                loadDataOnBackground();
+//            }
+//        });
+//
+//        BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(APP_EVENT_TAG);
+//        BNetworkManager.getCoreInterface().getEventManager().addEvent(batchedEvents);
     }
 
     @Override

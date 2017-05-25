@@ -20,6 +20,16 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.Defines;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.pagersslidingtabstrip.PagerSlidingTabStrip;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
@@ -31,13 +41,8 @@ import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.OpenFromPushChecker;
 import wanderingdevelopment.tk.sdkbaseui.adapter.AbstractChatSDKTabsAdapter;
 import wanderingdevelopment.tk.sdkbaseui.adapter.PagerAdapterTabs;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.network.events.AppEventListener;
+import com.braunster.chatsdk.network.PredicateFactory;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
-import com.braunster.chatsdk.object.UIUpdater;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,7 +67,9 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     private int pageAdapterPos = -1;
 
     private OpenFromPushChecker mOpenFromPushChecker;
-    
+
+    Disposable messageAddedDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,11 +108,29 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
     protected void onResume() {
         super.onResume();
 
+        if(messageAddedDisposable != null) {
+            messageAddedDisposable.dispose();
+        }
+
+        // TODO: Check this
+        messageAddedDisposable = NetworkManager.shared().a.events.source()
+                .filter(PredicateFactory.type(EventType.MessageAdded))
+                .filter(PredicateFactory.threadType(ThreadType.Private))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        if(networkEvent.message != null) {
+                            NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, (BMessage) networkEvent.message);
+                        }
+                    }
+                });
+
+
+
         ChatSDKThreadPool.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(appEventListener.getTag());
-                BNetworkManager.getCoreInterface().getEventManager().addEvent(appEventListener);
 
                 tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                     private int lastPage = 0;
@@ -168,52 +193,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         }
     }
 
-    private AppEventListener appEventListener = new AppEventListener("MainActivity") {
-        private final int  messageDelay = 3000;
-        private UIUpdater uiUpdaterMessages;
-
-        @Override
-        public boolean onMessageReceived(final BMessage message) {
-
-            // Only notify for private threads.
-            if (message.getThread().getTypeSafely() == BThread.Type.Public) {
-                return false;
-            }
-
-            // Make sure the message that incoming is not the user message.
-            if (message.getSender().getEntityID().equals(
-                    BNetworkManager.getCoreInterface().currentUserModel().getEntityID()))
-                return false;
-
-            if (uiUpdaterMessages != null)
-                uiUpdaterMessages.setKilled(true);
-
-            handler.removeCallbacks(uiUpdaterMessages);
-
-            uiUpdaterMessages = new UIUpdater(){
-
-                @Override
-                public void run() {
-                    if (!isKilled())
-                    {
-                        // We check to see that the ChatActivity is not listening to this messages so we wont alert twice.
-                        if (!BNetworkManager.getCoreInterface().getEventManager().isEventTagExist(ChatSDKChatActivity.MessageListenerTAG + message.getThread())) {
-                            // Checking if the message has a sender with a name, Also if the message was read.
-                            if (message.getSender().getMetaName() != null && !message.wasRead())
-                            {
-                                NotificationUtils.createMessageNotification(ChatSDKMainActivity.this, message);
-                            }
-                        }
-                    }
-                }
-            };
-
-            handler.postDelayed(uiUpdaterMessages, messageDelay);
-
-            return false;
-        }
-    };
-
     static final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -258,12 +237,12 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
             return true;
         }
         else   if (item.getItemId() == R.id.contact_developer) {
-            if(StringUtils.isNotEmpty(BDefines.ContactDeveloper_Email))
+            if(StringUtils.isNotEmpty(Defines.ContactDeveloper_Email))
             {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", BDefines.ContactDeveloper_Email, null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, BDefines.ContactDeveloper_Subject);
-                startActivity(Intent.createChooser(emailIntent, BDefines.ContactDeveloper_DialogTitle));
+                        "mailto", Defines.ContactDeveloper_Email, null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, Defines.ContactDeveloper_Subject);
+                startActivity(Intent.createChooser(emailIntent, Defines.ContactDeveloper_DialogTitle));
             }
             return true;
         }
@@ -286,7 +265,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(FIRST_TIME_IN_APP, true))
         {
             // Creating the images directory if not exist.
-            Utils.ImageSaver.getAlbumStorageDir(this, BDefines.ImageDirName);
+            Utils.ImageSaver.getAlbumStorageDir(this, Defines.ImageDirName);
 
             PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(FIRST_TIME_IN_APP, false).apply();
         }
@@ -305,12 +284,17 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                 if (contacts != null)
                     contacts.refreshOnBackground();
 
-                if (intent.getExtras().containsKey(ChatSDKSearchActivity.USER_IDS_LIST))
-                {
-                    String[] ids = intent.getStringArrayExtra(ChatSDKSearchActivity.USER_IDS_LIST);
-                    for (String id : ids)
-                        BNetworkManager.getCoreInterface().getEventManager().userMetaOn(id, null);
-                }
+                // TODO: This should be handled by the list already no?
+//                if (intent.getExtras().containsKey(ChatSDKSearchActivity.USER_IDS_LIST))
+//                {
+//                    String[] ids = intent.getStringArrayExtra(ChatSDKSearchActivity.USER_IDS_LIST);
+//                    for (String id : ids) {
+//
+//                        new UserWrapper(id);
+//                    }
+//
+//                        BNetworkManager.getCoreInterface().getEventManager().userMetaOn(id, null);
+//                }
             }
             else if (intent.getAction().equals(Action_clear_data))
             {

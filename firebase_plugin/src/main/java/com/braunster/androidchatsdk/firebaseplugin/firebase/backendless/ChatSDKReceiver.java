@@ -12,26 +12,29 @@ import android.content.Intent;
 
 import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
 
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import co.chatsdk.firebase.wrappers.UserWrapper;
+
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
+import co.chatsdk.core.dao.core.DaoCore;
+
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
@@ -62,18 +65,18 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
     @Override
     public boolean onMessage(final Context context, Intent intent) {
 
-        if (!BNetworkManager.preferences.getBoolean(Defines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
+        if (!BNetworkManager.preferences.getBoolean(co.chatsdk.core.types.Defines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
             return false;
 
         try {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
-            String action = json.getString(BDefines.Keys.ACTION);
+            String action = json.getString(DaoDefines.Keys.ACTION);
 
             if (action.equals(ACTION_MESSAGE))
             {
                 // Getting the push channel used.
-                String channel = json.getString(BDefines.Keys.Channel);
+                String channel = json.getString(DaoDefines.Keys.Channel);
 
                 if (DEBUG) Timber.d("got action: %s, on channel: %s ", action , channel);
 
@@ -102,24 +105,24 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
             // If the push is not for the current user we ignore it.
             if (BNetworkManager.getCoreInterface() != null) {
-                BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+                BUser user = NetworkManager.shared().a.core.currentUserModel();
                 if (user != null && !channel.equals(user.getPushChannel()))
                     return;
             }
 
             // Extracting the message data from the push json.
-            String entityID = json.getString(BDefines.Keys.MESSAGE_ENTITY_ID);
-            final String threadEntityID = json.getString(BDefines.Keys.THREAD_ENTITY_ID);
-            final String senderEntityId = json.getString(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID);
+            String entityID = json.getString(DaoDefines.Keys.MESSAGE_ENTITY_ID);
+            final String threadEntityID = json.getString(DaoDefines.Keys.THREAD_ENTITY_ID);
+            final String senderEntityId = json.getString(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID);
 
             // Getting the sender and the thread.
             BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
             final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
 
-            final Long dateLong =json.getLong(BDefines.Keys.MESSAGE_DATE);
+            final Long dateLong =json.getLong(DaoDefines.Keys.MESSAGE_DATE);
             final DateTime date = new DateTime(dateLong);
-            final Integer type = json.getInt(BDefines.Keys.MESSAGE_TYPE);
-            final String messagePayload = (json.getString(BDefines.Keys.MESSAGE_PAYLOAD));
+            final Integer type = json.getInt(DaoDefines.Keys.MESSAGE_TYPE);
+            final String messagePayload = (json.getString(DaoDefines.Keys.MESSAGE_PAYLOAD));
 
             if (DEBUG) Timber.d("Pushed message entity id: %s", entityID);
             if (DEBUG) Timber.d("Pushed message thread entity id: %s", threadEntityID);
@@ -130,7 +133,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             // So we are ignoring it.
             if (message != null)
             {
-                if (DEBUG) Timber.d("Message already exist");
+                if (DEBUG) Timber.d("CoreMessage already exist");
                 return;
             }
 
@@ -158,71 +161,63 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                 message = DaoCore.createEntity(message);
 
                 postMessageNotification(context, json, thread, message, true);
-            } else {
+            }
+            else {
 
-                if (DEBUG) Timber.d("Entity is null,Is null? Sender: %s, Thread: %s", sender== null, thread==null);
+                if (DEBUG) Timber.d("CoreEntity is null,Is null? Sender: %s, CoreThread: %s", sender== null, thread==null);
 
                 // Getting the user and the thread from firebase
                 final BMessage finalMessage = message;
-                BUserWrapper.initWithEntityId(senderEntityId)
-                        .once()
-                        .then(new DoneCallback<BUser>() {
+
+                final UserWrapper userWrapper = UserWrapper.initWithEntityId(senderEntityId);
+
+                userWrapper.once().andThen(new CompletableSource() {
                             @Override
-                            public void onDone(final BUser bUser) {
+                            public void subscribe(CompletableObserver cs) {
+
+                                final BUser user = userWrapper.getModel();
+
                                 // Adding the user as the sender.
-                                finalMessage.setSender(bUser);
+                                finalMessage.setSender(user);
 
                                 if (thread == null)
                                 {
-                                    final BThreadWrapper threadWrapper =
-                                            new BThreadWrapper(threadEntityID);
+                                    final ThreadWrapper threadWrapper = new ThreadWrapper(threadEntityID);
 
-                                    threadWrapper
-                                            .on()
-                                            .then(new DoneCallback<BThread>() {
-                                                @Override
-                                                public void onDone(BThread bThread) {
+                                    threadWrapper.once().doOnComplete(new Action() {
+                                        @Override
+                                        public void run() throws Exception {
+                                            BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                                            // Add the current user to the thread if needed.
 
-                                                    BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
-                                                    // Add the current user to the thread if needed.
+                                            if (!threadWrapper.getModel().hasUser(currentUser)) {
+                                                threadWrapper.addUser(UserWrapper.initWithModel(currentUser));
 
-                                                    if (!threadWrapper.getModel().hasUser(currentUser)) {
-                                                        threadWrapper.addUser(BUserWrapper.initWithModel(currentUser));
+                                                // Connecting both users to the thread.
+                                                DaoCore.connectUserAndThread(currentUser, threadWrapper.getModel());
+                                                DaoCore.connectUserAndThread(user, threadWrapper.getModel());
+                                            }
 
-                                                        // Connecting both users to the thread.
-                                                        DaoCore.connectUserAndThread(currentUser, threadWrapper.getModel());
-                                                        DaoCore.connectUserAndThread(bUser, threadWrapper.getModel());
-                                                    }
+                                            // Adding the thread to the message.
+                                            finalMessage.setThread(threadWrapper.getModel());
 
-                                                    // Adding the thread to the message.
-                                                    finalMessage.setThread(bThread);
+                                            // posting the notification. Also creating the new updated message.
+                                            postMessageNotification(context, json, threadWrapper.getModel(), DaoCore.createEntity(finalMessage), true);
 
-                                                    // posting the notification. Also creating the new updated message.
-                                                    postMessageNotification(context, json, bThread, DaoCore.createEntity(finalMessage), true);
-
-                                                    threadWrapper.off();
-                                                }
-                                            })
-                                            .fail(new FailCallback() {
-                                                @Override
-                                                public void onFail(Object o) {
-                                                    if (DEBUG) Timber.d("Failed to get thread.");
-                                                    postMessageNotification(context, json, thread, finalMessage, false);
-
-                                                    threadWrapper.off();
-                                                }
-                                            });
+                                            threadWrapper.off();
+                                        }
+                                    }).doOnError(new Consumer<Throwable>() {
+                                        @Override
+                                        public void accept(Throwable throwable) throws Exception {
+                                            if (DEBUG) Timber.d("Failed to get thread.");
+                                            postMessageNotification(context, json, thread, finalMessage, false);
+                                        }
+                                    }).subscribe();
                                 }
                                 else postMessageNotification(context, json, thread, finalMessage, true);
                             }
-                        }, new FailCallback<ChatError>() {
-                            @Override
-                            public void onFail(ChatError error) {
-                                if (DEBUG) Timber.d("Failed to get user.");
-                                postMessageNotification(context, json, thread, finalMessage, false);
-                            }
                         });
-            }
+           }
         } catch (JSONException e) {
             if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }
@@ -243,9 +238,9 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
             // Posting the notification.
             try {
-                NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
+                NotificationUtils.createAlertNotification(context, Defines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(BDefines.Keys.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(DaoDefines.Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
@@ -253,7 +248,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         else
         {
             if (DEBUG) Timber.i("user is authenticated");
-            // If the message is valid(Sender and Thread exist in the db)
+            // If the message is valid(Sender and CoreThread exist in the db)
             // we should lead the user to the chat.
             if (messageIsValid)
             {
@@ -265,9 +260,9 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
             // Posting the notification.
             try {
-                NotificationUtils.createAlertNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, resultIntent,
+                NotificationUtils.createAlertNotification(context, Defines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(BDefines.Keys.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(DaoDefines.Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
@@ -283,9 +278,9 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         try {
             json = new JSONObject(intent.getExtras().getString("message"));
             Intent resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
-            NotificationUtils.createAlertNotification(context, BDefines.FOLLOWER_NOTIFICATION_ID, resultIntent,
+            NotificationUtils.createAlertNotification(context, Defines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
-                            json.getString(BDefines.Keys.CONTENT)));
+                            json.getString(DaoDefines.Keys.CONTENT)));
         } catch (JSONException e) {
             if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }

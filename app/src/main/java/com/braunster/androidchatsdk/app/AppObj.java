@@ -6,9 +6,8 @@ import android.support.multidex.MultiDexApplication;
 
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseCoreAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseThreadsAdapter;
-//import com.braunster.chatsdk.dao.core.DaoCore;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BackendlessHandler;
-import com.braunster.chatsdk.network.BDefines;
+
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import co.chatsdk.core.utils.AppContext;
@@ -30,10 +29,6 @@ public class AppObj extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        // Setting the version name of the sdk, This data will be added 
-        // to the user metadata and will help in future when doing code updating.
-        BDefines.BAppVersion = BuildConfig.VERSION_NAME;
-        
         MultiDex.install(this);
 
         Context context = getApplicationContext();

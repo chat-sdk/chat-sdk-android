@@ -5,12 +5,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'org.greenrobot.greendao'
 
 def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${CHAT_SDK_PATCH_VERSION}"
 int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
@@ -52,15 +50,10 @@ android {
     }
 }
 
-greendao {
-    schemaVersion 1
-    targetGenDir "src/main/java"
-    daoPackage "tk.wanderingdevelopment.chatsdkcore.db"
-}
-
 dependencies {
 
     compile project(path: ':chat_sdk_core')
+    compile project(path: ':green_dao_storage_adapter')
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // Facebook SDK
@@ -100,9 +93,7 @@ dependencies {
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.jakewharton.timber:timber:4.3.1'
     compile 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
-    compile 'org.greenrobot:greendao-api:3.2.2'
     compile 'joda-time:joda-time:2.9.4'
-    compile 'org.greenrobot:greendao:3.2.2'
 }
 
 

@@ -12,7 +12,6 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 import wanderingdevelopment.tk.chatsdkcore.BuildConfig;
-import wanderingdevelopment.tk.chatsdkcore.db.DaoCore;
 import wanderingdevelopment.tk.chatsdkcore.entities.User;
 import wanderingdevelopment.tk.chatsdknetworkinterface.AuthManager;
 

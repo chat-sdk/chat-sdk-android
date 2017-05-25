@@ -1,20 +1,17 @@
 package tk.wanderingdevelopment.chatsdk.core.interfaces;
 
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.object.ChatError;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.jdeferred.Deferred;
-import org.jdeferred.Promise;
 
 import java.util.List;
 
-import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.types.ImageUploadResult;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by KyleKrueger on 10.04.2017.
@@ -23,7 +20,7 @@ import io.reactivex.Observable;
 public interface ThreadsInterface {
 
 
-    List<BThread> getThreads();
+    //List<BThread> getThreads();
 
     List<BThread> getThreads(int type);
 
@@ -37,7 +34,7 @@ public interface ThreadsInterface {
     List<BThread> getThreads(int type, boolean allowDeleted);
 
 
-    Promise<BMessage, ChatError, BMessage> sendMessage(BMessage messages);
+    Completable sendMessage(BMessage messages);
 
     /**
      * Preparing a text message,
@@ -48,7 +45,7 @@ public interface ThreadsInterface {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    Promise<BMessage, ChatError, BMessage>  sendMessageWithText(String text, long threadId);
+    Completable sendMessageWithText(String text, long threadId);
 
     /**
      * Preparing a location message,
@@ -77,7 +74,7 @@ public interface ThreadsInterface {
 
     //Deferred<BMessage, ChatError, BMessage> sendMessage(final BMessage message, final Deferred<BMessage, ChatError, BMessage> deferred);
 
-    Promise<List<BMessage>, Void, Void> loadMoreMessagesForThread(BThread thread);
+    Single<List<BMessage>> loadMoreMessagesForThread(BThread thread);
 
     int getUnreadMessagesAmount(boolean onePerThread);
 
@@ -91,39 +88,37 @@ public interface ThreadsInterface {
      * For any item adding failure the "onItemFailed will be called.
      * If the main task will fail the error object in the "onMainFinished" method will be called.
      */
-    Promise<BThread, ChatError, Void> createThreadWithUsers(String name, List<BUser> users);
+    Single<BThread> createThreadWithUsers(String name, List<BUser> users);
 
-    Promise<BThread, ChatError, Void> createThreadWithUsers(String name, BUser... users);
-
-    Promise<BThread, ChatError, Void> createPublicThreadWithName(String name);
+    Single<BThread> createThreadWithUsers(String name, BUser... users);
 
 
-    Promise<Void, ChatError, Void> deleteThreadWithEntityID(String entityID);
+    Completable deleteThreadWithEntityID(String entityID);
 
-    Promise<Void, ChatError, Void> deleteThread(BThread thread);
+    Completable deleteThread(BThread thread);
 
 
     /**
      * Add given users list to the given thread.
      */
-    Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, List<BUser> users);
+    Flowable<BUser> addUsersToThread(BThread thread, List<BUser> users);
 
     /**
      * Add given users list to the given thread.
      */
-    Promise<BThread, ChatError, Void> addUsersToThread(BThread thread, BUser... users);
+    Flowable<BUser> addUsersToThread(BThread thread, BUser... users);
     /**
      * Remove given users list to the given thread.
      */
-    Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, List<BUser> users);
+    Flowable<BUser> removeUsersFromThread(BThread thread, List<BUser> users);
 
     /**
      * Remove given users list to the given thread.
      */
-    Promise<BThread, ChatError, Void> removeUsersFromThread(BThread thread, BUser... users);
+    Flowable<BUser> removeUsersFromThread(BThread thread, BUser... users);
 
 
-    Promise<BThread, ChatError, Void> pushThread(BThread thread);
+    Completable pushThread(BThread thread);
 
 
 

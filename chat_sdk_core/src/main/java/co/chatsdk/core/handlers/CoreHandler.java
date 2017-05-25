@@ -1,13 +1,8 @@
 package co.chatsdk.core.handlers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
-import co.chatsdk.core.entities.Message;
-import co.chatsdk.core.entities.ThreadType;
+import co.chatsdk.core.dao.core.BUser;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
-import co.chatsdk.core.entities.User;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -33,12 +28,12 @@ public interface CoreHandler {
     /**
      * Update the user on the server
      */
-    public Observable<Void> pushUser ();
+    public Completable pushUser ();
 
     /**
     * Return the current user data
     */
-    public User currentUserModel();
+    public BUser currentUserModel();
 
     // TODO: Consider removing / refactoring this
 

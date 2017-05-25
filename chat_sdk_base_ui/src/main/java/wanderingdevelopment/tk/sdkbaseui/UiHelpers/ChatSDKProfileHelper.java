@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.UiHelpers;
 
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,7 +21,8 @@ import android.widget.ProgressBar;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
@@ -30,11 +30,9 @@ import io.reactivex.Completable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import wanderingdevelopment.tk.sdkbaseui.R;
-import com.braunster.chatsdk.utils.ImageUtils;
+
 import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.network.BDefines;
+import co.chatsdk.core.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
@@ -42,7 +40,6 @@ import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.DoneCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,9 +49,10 @@ import java.net.URL;
 import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
 import timber.log.Timber;
 
+// TODO: Refactor this class
 public class ChatSDKProfileHelper {
 
-    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDELD = 1993;
+    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
 
     private static final String LAST_IMAGE_PATH = "last_image_path";
 
@@ -65,12 +63,9 @@ public class ChatSDKProfileHelper {
 
     private Fragment fragment = null;
 
-    /** If this was set this is the user that will be used instead of the current user.*/
-    private BUser profileUser;
+    private static final int PROFILE_PIC = 100;
 
-    public static final int PROFILE_PIC = 100;
-
-    public CircleImageView profileCircleImageView;
+    private CircleImageView profileCircleImageView;
     public ProgressBar progressBar;
 
     private AppCompatActivity activity;
@@ -78,12 +73,7 @@ public class ChatSDKProfileHelper {
     private ChatSDKUiHelper uiHelper;
 
     private View mainView;
-
-    public ChatSDKProfileHelper(AppCompatActivity activity, ChatSDKUiHelper uiHelper, View mainView) {
-        this.activity = activity;
-        this.uiHelper = uiHelper;
-        this.mainView = mainView;
-    }
+    private PostProfilePic postProfilePic;
 
     public ChatSDKProfileHelper(AppCompatActivity activity, CircleImageView profileCircleImageView, ProgressBar progressBar, ChatSDKUiHelper uiHelper, View mainView) {
         this.profileCircleImageView = profileCircleImageView;
@@ -95,13 +85,8 @@ public class ChatSDKProfileHelper {
 
     private static String lastImageLoadedPath = "";
 
-    private boolean saveImageWhenLoaded = true;
-
-    /* UI */
-    public void loadProfilePic(){
-        loadProfilePic(getLoginType());
-    }
-
+    //TODO: The image should be added to the user when they login
+    @Deprecated
     public void loadProfilePic(int loginType){
         profileCircleImageView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
@@ -121,13 +106,11 @@ public class ChatSDKProfileHelper {
             case AccountType.Password:
             case AccountType.Custom:
             case AccountType.Register:
-                if (profileUser==null)
-                    setProfilePicFromURL(BNetworkManager.getCoreInterface().currentUserModel().metaStringForKey(BDefines.Keys.BPictureURL), false);
-                else setProfilePicFromURL(profileUser.metaStringForKey(BDefines.Keys.BPictureURL), false);
+                setProfilePicFromURL(NetworkManager.shared().a.core.currentUserModel().metaStringForKey(DaoDefines.Keys.PictureURL), false);
                 break;
 
             case AccountType.Anonymous:
-                setInitialsProfilePic(BDefines.InitialsForAnonymous, true);
+                setInitialsProfilePic(Defines.InitialsForAnonymous, true);
 
             case AccountType.Twitter:
                 getProfileFromTwitter();
@@ -151,8 +134,6 @@ public class ChatSDKProfileHelper {
             profileCircleImageView.setVisibility(View.VISIBLE);
         }
     }
-
-    private PostProfilePic postProfilePic;
 
     public void setProfilePic(final Bitmap bitmap){
         // load image into imageview
@@ -227,10 +208,10 @@ public class ChatSDKProfileHelper {
         if (StringUtils.isEmpty(url))
         {
             // Loading the user image from robohash.
-            String name = profileUser == null ? BNetworkManager.getCoreInterface().currentUserModel().getMetaName() : profileUser.getMetaName();
-            url = BDefines.getDefaultImageUrl("http://robohash.org/" + name,
-                    BDefines.ImageProperties.INITIALS_IMAGE_SIZE, 
-                    BDefines.ImageProperties.INITIALS_IMAGE_SIZE);
+            String name = NetworkManager.shared().a.core.currentUserModel().getMetaName();
+            url = Defines.getDefaultImageUrl("http://robohash.org/" + name,
+                    Defines.ImageProperties.INITIALS_IMAGE_SIZE,
+                    Defines.ImageProperties.INITIALS_IMAGE_SIZE);
             
             saveAfterLoad = true;
         }
@@ -264,7 +245,7 @@ public class ChatSDKProfileHelper {
             b = ImageUtils.loadBitmapFromFile(activity.getCacheDir().getPath() + path);
             if (b == null)
             {
-                uiHelper.showAlertToast(R.string.unable_to_save_file);
+                uiHelper.showToast(R.string.unable_to_save_file);
                 if (DEBUG) Timber.e("Cant save image to backendless file path is invalid: " + activity.getCacheDir().getPath() + path);
                 return;
             }
@@ -278,8 +259,8 @@ public class ChatSDKProfileHelper {
         Bitmap image = ImageUtils.getCompressed(path);
 
         Bitmap thumbnail = ImageUtils.getCompressed(path,
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-                BDefines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         // TODO: Are we handling the error here
         return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).flatMapCompletable(new Function<ImageUploadResult, Completable>() {
@@ -287,7 +268,7 @@ public class ChatSDKProfileHelper {
             public Completable apply(ImageUploadResult profileImageUploadResult) throws Exception {
 
                 // Saving the image to backendless.
-                final BUser currentUser = BNetworkManager.getCoreInterface().currentUserModel();
+                final BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
 
                 currentUser.setMetaPictureUrl(profileImageUploadResult.imageURL);
                 currentUser.setMetaPictureThumbnail(profileImageUploadResult.thumbnailURL);
@@ -302,9 +283,7 @@ public class ChatSDKProfileHelper {
     private void getProfileFromFacebook (){
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl;
-        if (profileUser==null)
-            imageUrl = BNetworkManager.getCoreInterface().currentUserModel().getMetaPictureUrl();
-        else imageUrl = profileUser.getMetaPictureUrl();
+        imageUrl = NetworkManager.shared().a.core.currentUserModel().getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(imageUrl))
             setProfilePicFromURL(imageUrl, false);
@@ -318,19 +297,9 @@ public class ChatSDKProfileHelper {
                     try {
                         String facebookId;
                         String authId;
-                        if (profileUser==null)
-                        {
-                            authId = BNetworkManager.getCoreInterface().currentUserModel().getEntityID();
-                        }
-                        else {
-                            authId = profileUser.getEntityID().replace(BDefines.ProviderString.Facebook + ":", "");
-                            
-                            if (StringUtils.isEmpty(authId)) {
-                                authId = profileUser.getEntityID();
-                            }
-                        }
-                        
-                        facebookId = authId.replace(BDefines.ProviderString.Facebook + ":", "");
+                        authId = NetworkManager.shared().a.core.currentUserModel().getEntityID();
+
+                        facebookId = authId.replace(Defines.ProviderString.Facebook + ":", "");
                         
                         if (DEBUG) Timber.d("Facebook Id: %s", facebookId);
 
@@ -364,11 +333,7 @@ public class ChatSDKProfileHelper {
 
     private void getProfileFromTwitter(){
         // Use facebook profile picture only if has no other picture saved.
-        String savedUrl;
-
-        if (profileUser==null)
-            savedUrl = BNetworkManager.getCoreInterface().currentUserModel().getMetaPictureUrl();
-        else savedUrl = profileUser.getMetaPictureUrl();
+        String savedUrl = NetworkManager.shared().a.core.currentUserModel().getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(savedUrl))
             setProfilePicFromURL(savedUrl, false);
@@ -394,17 +359,10 @@ public class ChatSDKProfileHelper {
     private void setInitialsProfilePic(boolean save){
         String initials = "";
 
-        String name;
-        if (profileUser==null)
-            name = BNetworkManager.getCoreInterface().currentUserModel().getMetaName();
-        else{
-            // We dont save initials image for other users.
-            save = false;
-            name = profileUser.getMetaName();
-        }
+        String name = NetworkManager.shared().a.core.currentUserModel().getMetaName();
 
         if (StringUtils.isEmpty(name))
-            initials = BDefines.InitialsForAnonymous;
+            initials = Defines.InitialsForAnonymous;
         else
         {
             String[] splited = name.split("\\s+");
@@ -412,7 +370,7 @@ public class ChatSDKProfileHelper {
                 initials = String.valueOf(name.toUpperCase().charAt(0));
             else if (splited.length >= 2)
                 initials = String.valueOf(splited[0].toUpperCase().charAt(0)) + String.valueOf(splited[1].toUpperCase().charAt(0));
-            else initials = BDefines.InitialsForAnonymous;
+            else initials = Defines.InitialsForAnonymous;
         }
 
         setInitialsProfilePic(initials, save);
@@ -439,7 +397,7 @@ public class ChatSDKProfileHelper {
         }
     }
 
-    public Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
+    private Bitmap scaleImage(Bitmap bitmap, int boundBoxInDp){
         if (boundBoxInDp == 0)
             return null;
 
@@ -465,11 +423,9 @@ public class ChatSDKProfileHelper {
     }
 
     public int handleResult(int requestCode, int resultCode, Intent data){
-        if (data == null)
-        {
+        if (data == null) {
             return NOT_HANDLED;
         }
-
 
         if (requestCode == PROFILE_PIC)
         {
@@ -487,7 +443,7 @@ public class ChatSDKProfileHelper {
                     activity.startActivityForResult(cropIntent, request);
                 else activity.startActivityFromFragment(fragment, cropIntent, request);
 
-                return HANDELD;
+                return HANDLED;
             }
         }
         else  if (requestCode == Crop.REQUEST_CROP + PROFILE_PIC) {
@@ -506,23 +462,18 @@ public class ChatSDKProfileHelper {
 
                 lastImageLoadedPath = image.getPath();
 
-                if (saveImageWhenLoaded)
-                {
-                    saveProfilePicToServer(lastImageLoadedPath, true).doOnComplete(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            lastImageLoadedPath = "";
-                        }
-                    }).subscribe();
-                }
-                else
-                    setProfilePicFromPath(lastImageLoadedPath);
+                saveProfilePicToServer(lastImageLoadedPath, true).doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        lastImageLoadedPath = "";
+                    }
+                }).subscribe();
 
-                return HANDELD;
+                return HANDLED;
             }
             catch (NullPointerException e){
                 if (DEBUG) Timber.e("Null pointer when getting file.");
-                uiHelper.showAlertToast(R.string.unable_to_fetch_image);
+                uiHelper.showToast(R.string.unable_to_fetch_image);
                 return ERROR;
             }
         }
@@ -538,24 +489,8 @@ public class ChatSDKProfileHelper {
         }
     }
 
-    public static View.OnClickListener getProfilePicClickListener(final AppCompatActivity activity){
-        return ChatSDKIntentClickListener.getPickImageClickListener(activity, PROFILE_PIC);
-    }
-
     public static View.OnClickListener getProfilePicClickListener(final AppCompatActivity activity, final Fragment fragment){
         return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, PROFILE_PIC);
-    }
-
-    public static View.OnClickListener getPickImageClickListener(final AppCompatActivity activity,final Fragment fragment, final int requestCode){
-        return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, requestCode);
-    }
-
-    public static View.OnClickListener getPickImageClickListener(final AppCompatActivity activity,final DialogFragment fragment, final int requestCode){
-        return ChatSDKIntentClickListener.getPickImageClickListener(activity, fragment, requestCode);
-    }
-
-    private Integer getLoginType(){
-        return (Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey);
     }
 
     /** If set the helper will use this fragment when calling startActivityForResult*/
@@ -563,19 +498,4 @@ public class ChatSDKProfileHelper {
         this.fragment = fragment;
     }
 
-    public String getLastImageLoadedPath() {
-        return lastImageLoadedPath;
-    }
-
-    public void saveImageWhenLoaded(boolean saveImageWhenLoaded) {
-        this.saveImageWhenLoaded = saveImageWhenLoaded;
-    }
-
-    public CircleImageView getProfilePic() {
-        return profileCircleImageView;
-    }
-
-    public void setProfileUser(BUser profileUser) {
-        this.profileUser = profileUser;
-    }
 }

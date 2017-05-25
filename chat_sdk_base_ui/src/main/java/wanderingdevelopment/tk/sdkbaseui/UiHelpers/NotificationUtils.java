@@ -21,14 +21,16 @@ import android.os.PowerManager;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.dao.core.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.utils.ImageUtils;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
+
+import co.chatsdk.core.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,9 +40,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 
 import timber.log.Timber;
-
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.IMAGE;
-import static com.braunster.chatsdk.dao.entities.BMessageEntity.Type.TEXT;
 
 public class NotificationUtils {
 
@@ -172,18 +171,18 @@ public class NotificationUtils {
     }
     
     public static void createMessageNotification(Context context, BMessage message, int smallIconResID, Uri soundUri, int number){
-        createMessageNotification(context, BDefines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
+        createMessageNotification(context, Defines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
     }
 
     public static void createMessageNotification(final Context context, final int id, BMessage message, final int smallIconResID, final Uri soundUri, final int number){
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(BDefines.THREAD_ID,  message.getThreadId());
-        resultIntent.putExtra(BDefines.FROM_PUSH, true);
-        resultIntent.putExtra(BDefines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
+        resultIntent.putExtra(Defines.THREAD_ID,  message.getThreadId());
+        resultIntent.putExtra(Defines.FROM_PUSH, true);
+        resultIntent.putExtra(Defines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
 
-        String msgContent = message.getType() == TEXT ? message.getText() : message.getType() == IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
+        String msgContent = message.getType() == BMessage.Type.TEXT ? message.getText() : message.getType() == BMessage.Type.IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
 
         String title = !StringUtils.isEmpty(
                 message.getSender().getMetaName()) ? message.getSender().getMetaName() : " ";
@@ -236,15 +235,15 @@ public class NotificationUtils {
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
                 message.getSender().getMetaName(),
-                message.getType() == TEXT ? message.getText()
-                : message.getType() == IMAGE ? context.getString(R.string.not_image_message)
+                message.getType() == BMessage.Type.TEXT ? message.getText()
+                : message.getType() == BMessage.Type.IMAGE ? context.getString(R.string.not_image_message)
                 : context.getString(R.string.not_location_message));
     }
  
     private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){
-        List<BThread> threads = BNetworkManager.getThreadsInterface().getThreads(BThread.Type.Private);
+        List<BThread> threads = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private);
 
-        if (DEBUG) Timber.v("getNotification, Thread size: %s", threads == null ? "0" : threads.size());
+        if (DEBUG) Timber.v("getNotification, CoreThread size: %s", threads == null ? "0" : threads.size());
 
         if (threads == null)
             return new ArrayList<>();
@@ -257,13 +256,13 @@ public class NotificationUtils {
 
         // Getting the lines to use for this message notification
         // A max of three lines could be added from each thread.
-        // There is also a max amount of lines to use defined in BDefines.MaxInboxNotificationLines.
+        // There is also a max amount of lines to use defined in DaoDefines.MaxInboxNotificationLines.
         for (BThread t : threads)
         {
             m = t.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
 
-            if (DEBUG) Timber.v("getNotification, Thread messages size: %s", m.size());
+            if (DEBUG) Timber.v("getNotification, CoreThread messages size: %s", m.size());
 
             // Max of three lines from each thread.
             for (int i = 0 ; i < 3; i++){
@@ -275,7 +274,7 @@ public class NotificationUtils {
             }
             
             // Checking to see that we are still under the max amount of lines to use.
-            if (linesCount >= BDefines.Options.MaxInboxNotificationLines)
+            if (linesCount >= Defines.Options.MaxInboxNotificationLines)
                 break;
         }
 
@@ -320,7 +319,7 @@ public class NotificationUtils {
     }
   
     private static boolean validateLinesAndMessagesSize(List<BMessage> m, int minMessagesSize, ArrayList<String> lines){
-        return m.size() > minMessagesSize && lines.size() < BDefines.Options.MaxInboxNotificationLines;
+        return m.size() > minMessagesSize && lines.size() < Defines.Options.MaxInboxNotificationLines;
     }
   
     

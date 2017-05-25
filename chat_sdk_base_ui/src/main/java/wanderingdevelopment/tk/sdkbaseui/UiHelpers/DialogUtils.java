@@ -41,14 +41,15 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.utils.ImageUtils;
+
 import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
-import com.braunster.chatsdk.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.dao.BMessage;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
+import co.chatsdk.core.utils.volley.VolleyUtils;
+import co.chatsdk.core.dao.core.DaoCore;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
@@ -288,7 +289,7 @@ public class DialogUtils {
         popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
         popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
 
-        if (!BDefines.Options.LocationEnabled || context.getString(R.string.google_maps_api_key).isEmpty()){
+        if (!Defines.Options.LocationEnabled || context.getString(R.string.google_maps_api_key).isEmpty()){
             popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
         }
         
@@ -431,7 +432,7 @@ public class DialogUtils {
                         public void onErrorResponse(VolleyError error) {
                             progressBar.setVisibility(View.GONE);
 
-                            chatSDKUiHelper.showAlertToast(R.string.unable_to_fetch_image);
+                            chatSDKUiHelper.showToast(R.string.unable_to_fetch_image);
 
                             dismiss();
                         }
@@ -493,7 +494,7 @@ public class DialogUtils {
         public void onFinished(T t);
     }
 
-    public static void showAlertDialog(AppCompatActivity activity, String title, String alert, String p, String n, final Callable neg, final Callable pos){
+    public static void showToastDialog(AppCompatActivity activity, String title, String alert, String p, String n, final Callable neg, final Callable pos){
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
 
         // set title if not null

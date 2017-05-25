@@ -20,23 +20,23 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import tk.wanderingdevelopment.chatsdkcore.db.BThreadDao;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BThreadDao;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.types.Defines;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.ChatError;
+import co.chatsdk.core.dao.core.DaoCore;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
+import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.List;
 
 import timber.log.Timber;
+import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -134,7 +134,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         if (mode == MODE_ADD_TO_CONVERSATION)
             btnStartChat.setText(getResources().getString(R.string.add_users));
         
-        if (!BDefines.Options.GroupEnabled)
+        if (!Defines.Options.GroupEnabled)
         {
             btnStartChat.setVisibility(View.GONE);
             chSelectAll.setVisibility(View.GONE);
@@ -142,7 +142,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     }
 
     private void initList(){
-        final List<BUser> list = BNetworkManager.getCoreInterface().currentUserModel().getContacts();
+        final List<BUser> list = NetworkManager.shared().a.core.currentUserModel().getContacts();
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
@@ -154,7 +154,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
         if (list.size() > 0)
             chSelectAll.setEnabled(true);
 
-        listAdapter = new ChatSDKUsersListAdapter(ChatSDKPickFriendsActivity.this, BDefines.Options.GroupEnabled);
+        listAdapter = new ChatSDKUsersListAdapter(ChatSDKPickFriendsActivity.this, Defines.Options.GroupEnabled);
         listAdapter.setUserItems(listAdapter.makeList(list, false, true));
         listContacts.setAdapter(listAdapter);
 
@@ -162,11 +162,11 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // If groups enabled toggeling selection
-                if (BDefines.Options.GroupEnabled)
+                if (Defines.Options.GroupEnabled)
                     listAdapter.toggleSelection(position);
                 else
                 {
-                    createAndOpenThreadWithUsers("", BNetworkManager.getCoreInterface().currentUserModel(), listAdapter.getItem(position).asBUser());
+                    createAndOpenThreadWithUsers("", NetworkManager.shared().a.core.currentUserModel(), listAdapter.getItem(position).asBUser());
                 }
             }
         });
@@ -189,7 +189,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                 if (listAdapter.getSelectedCount() == 0)
                 {
-                    showAlertToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
+                    showToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
                     return;
                 }
 
@@ -220,52 +220,47 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                             users[i] = listAdapter.getUserItems().get(pos).asBUser();
 
-                            if (DEBUG) Timber.d("Selected User[%s]: ", users[i].getMetaName());
+                            if (DEBUG) Timber.d("Selected CoreUser[%s]: ", users[i].getMetaName());
 
                         }
 
                         if (mode == MODE_NEW_CONVERSATION)
                         {
-                            users[users.length - 1] = BNetworkManager.getCoreInterface().currentUserModel();
+                            users[users.length - 1] = NetworkManager.shared().a.core.currentUserModel();
                             createAndOpenThreadWithUsers("", users);
                             
                             chSelectAll.setSelected(false);
                         }
                         else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                            BNetworkManager.getThreadsInterface().addUsersToThread(thread, users)
-                                    .done(new DoneCallback<BThread>() {
+                            BNetworkManager.getThreadsInterface().addUsersToThread(thread, users).doOnComplete(new Action() {
+                                @Override
+                                public void run() throws Exception {
+                                    ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
                                         @Override
-                                        public void onDone(BThread thread) {
-                                            ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-
-                                                    setResult(AppCompatActivity.RESULT_OK);
-
-                                                    dismissProgDialog();
-
-                                                    finish();
-
-                                                    if (animateExit)
-                                                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .fail(new FailCallback<ChatError>() {
-                                        @Override
-                                        public void onFail(ChatError error) {
-                                            ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    dismissProgDialog();
-                                                    setResult(AppCompatActivity.RESULT_CANCELED);
-                                                    finish();
-                                                }
-                                            });
+                                        public void run() {
+                                            setResult(AppCompatActivity.RESULT_OK);
+                                            dismissProgDialog();
+                                            finish();
+                                            if (animateExit)
+                                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
                                         }
                                     });
+                                }
+                            }).doOnError(new Consumer<Throwable>() {
+                                @Override
+                                public void accept(Throwable throwable) throws Exception {
+                                    ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dismissProgDialog();
+                                            setResult(AppCompatActivity.RESULT_CANCELED);
+                                            finish();
+                                        }
+                                    });
+                                }
+                            }).subscribe();
+
                         }
                     }
                 }).start();

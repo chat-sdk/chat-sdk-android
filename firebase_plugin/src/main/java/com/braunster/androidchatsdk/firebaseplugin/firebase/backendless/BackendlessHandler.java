@@ -13,9 +13,8 @@ import com.backendless.messaging.PushPolicyEnum;
 import com.backendless.services.messaging.MessageStatus;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
+import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.defines.Debug;
-
-import com.braunster.chatsdk.network.BDefines;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +22,7 @@ import org.json.JSONObject;
 import java.util.Collection;
 
 import co.chatsdk.core.handlers.PushHandler;
+import co.chatsdk.core.types.Defines;
 import timber.log.Timber;
 
 /**
@@ -89,10 +89,10 @@ public class BackendlessHandler implements PushHandler {
         // Configure the header
         PublishOptions publishOptions = new PublishOptions();
         try {
-        publishOptions.putHeader("android-ticker-text", data.getString(BDefines.Keys.CONTENT));
-        publishOptions.putHeader("android-content-title", "Message from " + data.getString(BDefines.Keys.MESSAGE_SENDER_NAME));
-        publishOptions.putHeader("android-content-text", data.getString(BDefines.Keys.MESSAGE_PAYLOAD));
-        publishOptions.setPublisherId(data.getString(BDefines.Keys.MESSAGE_SENDER_ENTITY_ID));
+        publishOptions.putHeader("android-ticker-text", data.getString(DaoDefines.Keys.CONTENT));
+        publishOptions.putHeader("android-content-title", "CoreMessage from " + data.getString(DaoDefines.Keys.MESSAGE_SENDER_NAME));
+        publishOptions.putHeader("android-content-text", data.getString(DaoDefines.Keys.MESSAGE_PAYLOAD));
+        publishOptions.setPublisherId(data.getString(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -105,7 +105,7 @@ public class BackendlessHandler implements PushHandler {
         // Publish a push notification to each channel
         for(final String channel : channels) {
             try {
-                data.put(BDefines.Keys.Channel, channel);
+                data.put(DaoDefines.Keys.Channel, channel);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -113,7 +113,7 @@ public class BackendlessHandler implements PushHandler {
             Backendless.Messaging.publish(channel, data.toString(), publishOptions, deliveryOptions, new AsyncCallback<MessageStatus>() {
                 @Override
                 public void handleResponse(MessageStatus response) {
-                    if (DEBUG) Timber.v("Message published to channel: " + channel);
+                    if (DEBUG) Timber.v("CoreMessage published to channel: " + channel);
                 }
 
                 @Override

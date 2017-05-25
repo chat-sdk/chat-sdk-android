@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by braunster on 23/08/14.
  */
+@Deprecated
 public class Batcher<T> {
     public static final long DEF_INTERVAL = 1500;
 

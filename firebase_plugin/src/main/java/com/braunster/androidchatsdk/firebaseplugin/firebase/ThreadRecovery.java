@@ -1,147 +1,117 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BThreadWrapper;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers.BUserWrapper;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
-import co.chatsdk.core.defines.FirebaseDefines;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.firebase.wrappers.ThreadWrapper;
 
+import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import org.jdeferred.Deferred;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
 
 /**
  * Created by kykrueger on 2016-09-04.
  */
+@Deprecated
 public class ThreadRecovery {
-    public static Promise<BThread, ChatError, Void> checkForAndRecoverThreadWithUsers(List<BUser> users){
 
-        final Deferred<BThread, ChatError, Void> deferred = new DeferredObject<>();
-
-        checkForRemoteThreadWithUsers(users).done(new DoneCallback<String>() {
+    public static Single<BThread> checkForAndRecoverThreadWithUsers(List<BUser> users){
+        return checkForRemoteThreadWithUsers(users).flatMap(new Function<String, SingleSource<BThread>>() {
             @Override
-            public void onDone(String foundRemoteThread) {
-                BThreadWrapper threadWrapper = new BThreadWrapper(foundRemoteThread);
-                threadWrapper.recoverPrivateThread().done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(BThread bThread) {
-                        deferred.resolve(bThread);
-                    }
-                }).fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError chatError) {
-                        deferred.reject(chatError);
-                    }
-                });
-            }
-        }).fail(new FailCallback<ChatError>() {
-            @Override
-            public void onFail(ChatError chatError) {
-                deferred.reject(chatError);
+            public SingleSource<BThread> apply(final String s) throws Exception {
+                ThreadWrapper threadWrapper = new ThreadWrapper(s);
+                return threadWrapper.recoverPrivateThread();
             }
         });
-
-        return deferred.promise();
     }
 
-    public static Promise<String, ChatError, Void> checkForRemoteThreadWithUsers(List<BUser> users){
-        final Deferred<String, ChatError, Void> deferred = new DeferredObject<>();
-        final List<String> userEntityIds = new ArrayList<>();
-
-        DatabaseReference currentUsersDatabasePath = null;
-
-        // Get current user's firebase reference
-        for ( BUser user : users){
-            userEntityIds.add(user.getEntityID());
-            if(user.isMe()){
-                currentUsersDatabasePath = BUserWrapper.initWithModel(user).ref();
-            }
-        }
-
-        // Look through all of their associated threads for an existing one with the listed users
-        // We don't need to worry about this linking to a public thread because the current
-        // user cannot be in a public thread while trying to create a private one.
-        currentUsersDatabasePath.
-                child(FirebasePaths.ThreadsPath).
-                addListenerForSingleValueEvent(new ValueEventListener() {
+    public static Single<String> checkForRemoteThreadWithUsers(final List<BUser> users){
+        return Single.create(new SingleOnSubscribe<String>() {
             @Override
-            public void onDataChange(DataSnapshot allThreadsForUser) {
-                // Check all of the user's threads (only the threadIds are here)
-                Boolean lastThread = false;
-                int threadNumber = 0;
+            public void subscribe(final SingleEmitter<String> e) throws Exception {
 
-                if (allThreadsForUser.getChildrenCount() == 0) {
-                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
-                }
+                final List<String> userEntityIds = new ArrayList<>();
 
-                for(DataSnapshot threadOfUser : allThreadsForUser.getChildren()){
-                    threadNumber = threadNumber + 1;
+                BUser currentUser = BNetworkManager.sharedManager().getCoreInterface().currentUserModel();
+                DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(currentUser.getEntityID());
 
-                    // Stop searching if the thread has already been found
-                    if (deferred.isResolved()) break;
 
-                    if(allThreadsForUser.getChildrenCount() == threadNumber) lastThread = true;
-                    final Boolean lastThreadFinal = lastThread;
+                // Look through all of their associated threads for an existing one with the listed users
+                // We don't need to worry about this linking to a public thread because the current
+                // user cannot be in a public thread while trying to create a private one.
+                userThreadsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange( DataSnapshot allThreadsForUser) {
+                                // Check all of the user's threads (only the threadIds are here)
+                                Boolean lastThread = false;
+                                int threadNumber = 0;
 
-                    DatabaseReference threadRef = FirebasePaths.threadRef(threadOfUser.getKey());
-                    // Make a call to retrieve details for each thread
-                    threadRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot thread) {
-                            Integer numberOfUsers = 0;
-                            Boolean threadFound = true;
-
-                            DataSnapshot threadUsersPath = thread
-                                    .child(FirebasePaths.UsersPath);
-
-                            for (DataSnapshot user : threadUsersPath.getChildren()){
-                                numberOfUsers = numberOfUsers + 1;
-                                if(!userEntityIds.contains(user.getKey())) threadFound = false;
-                            }
-                            // If there are no other users, and the number of users are the same
-                            // This is an existing thread between the specified users
-                            // Return if this is not true
-                            if(numberOfUsers != userEntityIds.size() || !threadFound){
-                                if(lastThreadFinal && deferred.isPending()){
-                                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
+                                if (allThreadsForUser.getChildrenCount() == 0) {
+                                    e.onError(new ChatError(404, "Could not find exiting Thread"));
                                 }
-                                return;
-                            }
+                                else {
+                                    for(DataSnapshot threadOfUser : allThreadsForUser.getChildren()){
+                                        threadNumber = threadNumber + 1;
 
-                            // Return thread's entityId
-                            deferred.resolve(thread.getKey());
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            if (deferred.isPending()){
-                                deferred.reject(new ChatError(404, "Could not find existing Thread"));
-                            }
-                        }
-                    });
+                                        if(allThreadsForUser.getChildrenCount() == threadNumber) {
+                                            lastThread = true;
+                                        }
+                                        final Boolean lastThreadFinal = lastThread;
 
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                if (deferred.isPending()){
-                    deferred.reject(new ChatError(404, "Could not find existing Thread"));
-                }
+                                        DatabaseReference threadRef = FirebasePaths.threadRef(threadOfUser.getKey());
+                                        // Make a call to retrieve details for each thread
+                                        threadRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot thread) {
+                                                Integer numberOfUsers = 0;
+                                                Boolean threadFound = true;
+
+                                                DataSnapshot threadUsersPath = thread
+                                                        .child(FirebasePaths.UsersPath);
+
+                                                for (DataSnapshot user : threadUsersPath.getChildren()){
+                                                    numberOfUsers = numberOfUsers + 1;
+                                                    if(!userEntityIds.contains(user.getKey())) threadFound = false;
+                                                }
+                                                // If there are no other users, and the number of users are the same
+                                                // This is an existing thread between the specified users
+                                                // Return if this is not true
+                                                if(numberOfUsers != userEntityIds.size() || !threadFound){
+                                                    if(lastThreadFinal){
+                                                        e.onError(new ChatError(404, "Could not find exiting Thread"));
+                                                    }
+                                                    return;
+                                                }
+
+                                                e.onSuccess(thread.getKey());
+                                            }
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                e.onError(databaseError.toException());
+                                            }
+                                        });
+
+                                    }
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                e.onError(databaseError.toException());
+                            }
+                        });
             }
         });
-
-
-        return deferred.promise();
     }
 
 }

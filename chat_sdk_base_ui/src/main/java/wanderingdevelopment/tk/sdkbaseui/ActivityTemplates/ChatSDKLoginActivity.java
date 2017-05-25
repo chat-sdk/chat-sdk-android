@@ -17,14 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.braunster.chatsdk.BuildConfig;
+
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
-import com.braunster.chatsdk.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
 
-import org.apache.commons.lang3.StringUtils;
+import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.Arrays;
 
@@ -115,21 +112,10 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
         super.afterLogin();
 
         // Updating the version name.
-        BUser curUser = BNetworkManager.getCoreInterface().currentUserModel();
+        //BUser curUser = NetworkManager.shared().a.core.currentUserModel();
         
-        String version = BDefines.BAppVersion,
-                metaVersion = curUser.metaStringForKey(BDefines.Keys.BVersion);
-        
-        if (StringUtils.isNotEmpty(version))
-        {
-            if (StringUtils.isEmpty(metaVersion) || !metaVersion.equals(version))
-            {
-                curUser.setMetadataString(BDefines.Keys.BVersion, version);
-            }
 
-            DaoCore.updateEntity(curUser);
-        }
-        
+
         startMainActivity();
     }
 

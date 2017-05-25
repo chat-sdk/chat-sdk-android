@@ -12,10 +12,12 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.apache.commons.lang3.StringUtils;
+
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BUser;
 
 /**
  * Created by braunster on 04/11/14.
@@ -29,17 +31,17 @@ import org.apache.commons.lang3.StringUtils;
 public class SaveIndexDetailsTextWatcher implements TextWatcher {
 
     public static final long INDEX_DELAY_DEFAULT = 500;
-    private long indexDelay = INDEX_DELAY_DEFAULT;
+    //private long indexDelay = INDEX_DELAY_DEFAULT;
 
     private String metaKey;
 
     /** Contain the string that was last typed.*/
     private Editable editable;
 
-    public SaveIndexDetailsTextWatcher(long indexDelay, String metaKey) {
-        this.indexDelay = indexDelay;
-        this.metaKey = metaKey;
-    }
+//    public SaveIndexDetailsTextWatcher(long indexDelay, String metaKey) {
+//        this.indexDelay = indexDelay;
+//        this.metaKey = metaKey;
+//    }
 
     public SaveIndexDetailsTextWatcher(String metaKey) {
         this.metaKey = metaKey;
@@ -71,7 +73,7 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
             if (StringUtils.isBlank(editable.toString()))
                 return;
 
-            BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+            BUser user = NetworkManager.shared().a.core.currentUserModel();
             String metadata = user.metaStringForKey(metaKey);
 
             if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))

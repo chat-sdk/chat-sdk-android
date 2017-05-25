@@ -22,19 +22,19 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
-import com.braunster.chatsdk.dao.BThread;
-import com.braunster.chatsdk.dao.BUser;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
-import com.braunster.chatsdk.object.ChatError;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
@@ -42,8 +42,6 @@ import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 
 import java.util.concurrent.Callable;
 
@@ -191,44 +189,37 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
             getWindow().getDecorView().post(new Runnable() {
                 @Override
                 public void run() {
-                    BNetworkManager.getCoreInterface().isOnline()
-                    .done(new DoneCallback<Boolean>() {
+                    BNetworkManager.getCoreInterface().isOnline().subscribe(new BiConsumer<Boolean, Throwable>() {
                         @Override
-                        public void onDone(Boolean online) {
-                            if (online == null) return;
+                        public void accept(Boolean online, Throwable throwable) throws Exception {
+                            if(throwable == null) {
+                                if(DEBUG) Timber.d("Check done, ", online);
 
-                            if(DEBUG) Timber.d("Check done, ", online);
+                                if (!online)
+                                {
+                                    authenticate().subscribe(new CompletableObserver() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+                                        }
 
-                            if (!online)
-                            {
-                                authenticate().subscribe(new CompletableObserver() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                    }
+                                        @Override
+                                        public void onComplete() {
+                                            if (DEBUG) Timber.d("Authenticated!");
+                                            onAuthenticated();
+                                        }
 
-                                    @Override
-                                    public void onComplete() {
-                                        if (DEBUG) Timber.d("Authenticated!");
-                                        onAuthenticated();
-                                    }
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            if (DEBUG) Timber.d("Authenticated Failed!");
+                                            onAuthenticationFailed();
+                                        }
+                                    });
 
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        if (DEBUG) Timber.d("Authenticated Failed!");
-                                        onAuthenticationFailed();
-                                    }
-                                });
-
+                                }
                             }
                         }
-                    })
-                    .fail(new FailCallback<ChatError>() {
-                        @Override
-                        public void onFail(ChatError error) {
-                            if (DEBUG) Timber.e("Check online failed!, Error message: %s", error.getMessage());
-                            onAuthenticationFailed();
-                        }
                     });
+
                 }
             });
         }
@@ -309,13 +300,6 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
         chatSDKUiHelper.getToast().show();
     }
 
-    protected void showAlertToast(String text){
-        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
-            return;
-        chatSDKUiHelper.getAlertToast().setText(text);
-        chatSDKUiHelper.getAlertToast().show();
-    }
-
     protected void showProgressCard(String text){
         chatSDKUiHelper.showProgressCard(text);
     }
@@ -339,41 +323,38 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
     protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        BNetworkManager.getThreadsInterface().createThreadWithUsers(name, users)
-                .done(new DoneCallback<BThread>() {
-                    @Override
-                    public void onDone(final BThread thread) {
+        BNetworkManager.getThreadsInterface().createThreadWithUsers(name, users).subscribe(new BiConsumer<BThread, Throwable>() {
+            @Override
+            public void accept(final BThread thread, Throwable throwable) throws Exception {
+                if(throwable == null) {
+                    dismissProgDialog();
 
-                        dismissProgDialog();
+                    if (thread == null) {
+                        if (DEBUG) Timber.e("thread added is null");
+                        return;
+                    }
 
-                        if (thread == null) {
-                            if (DEBUG) Timber.e("thread added is null");
-                            return;
-                        }
-
-                        if (isOnMainThread()) {
+                    if (isOnMainThread()) {
+                        startChatActivityForID(thread.getId());
+                    } else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             startChatActivityForID(thread.getId());
-                        } else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                startChatActivityForID(thread.getId());
-                            }
-                        });
-                    }
-                })
-                .fail(new FailCallback<ChatError>() {
-                    @Override
-                    public void onFail(ChatError error) {
-                        if (isOnMainThread())
-                            showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                        else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showAlertToast(getString(R.string.create_thread_with_users_fail_toast));
-                            }
-                        });
-                    }
-                });
+                        }
+                    });
+                }
+                else {
+                    if (isOnMainThread())
+                        showToast(getString(R.string.create_thread_with_users_fail_toast));
+                    else ChatSDKBaseActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast(getString(R.string.create_thread_with_users_fail_toast));
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /** Start the chat activity for the given thread id.
@@ -446,8 +427,8 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
         }
     }
 
-    protected void showAlertDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        DialogUtils.showAlertDialog(this, title, alert, p, n, neg, pos);
+    protected void showToastDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
+        DialogUtils.showToastDialog(this, title, alert, p, n, neg, pos);
     }
 
     protected void onSessionStateChange(Session session, final SessionState state, Exception exception){

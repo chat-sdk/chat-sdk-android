@@ -1,8 +1,9 @@
 package co.chatsdk.core.interfaces;
 
-import co.chatsdk.core.entities.Message;
-import co.chatsdk.core.entities.User;
-import co.chatsdk.core.entities.Thread;
+
+import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.core.BUser;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -10,8 +11,8 @@ import co.chatsdk.core.entities.Thread;
 
 public interface StorageAdapter {
 
-    public User fetchUserWithEntityID (String entityID);
-    public Thread fetchThreadWithEntityID (String entityID);
-    public Message fetchMessageWithEntityID (String entityID);
+    public BUser fetchUserWithEntityID (String entityID);
+    public BThread fetchThreadWithEntityID (String entityID);
+    public BMessage fetchMessageWithEntityID (String entityID);
 
 }

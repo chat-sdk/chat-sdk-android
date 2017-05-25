@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <!-- TODO maybe change the size back to 48dp -->
-    <com.braunster.chatsdk.utils.volley.RoundedCornerNetworkImageView
+    <co.chatsdk.core.utils.volley.RoundedCornerNetworkImageView
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"

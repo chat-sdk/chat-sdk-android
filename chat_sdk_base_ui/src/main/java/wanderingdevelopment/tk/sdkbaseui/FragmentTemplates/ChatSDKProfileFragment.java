@@ -17,12 +17,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.core.DaoDefines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.dao.BUser;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractProfileFragment;
-import com.braunster.chatsdk.network.BDefines;
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.SaveIndexDetailsTextWatcher;
@@ -31,7 +30,6 @@ import com.braunster.chatsdk.object.SaveIndexDetailsTextWatcher;
  * Created by itzik on 6/17/2014.
  */
 public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
-
 
     private static final String TAG = ChatSDKProfileFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ProfileFragment;
@@ -102,21 +100,20 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
         super.onResume();
 
         // Setting a listener to text change, The listener will take cate of indexing the data.
-        SaveIndexDetailsTextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(BDefines.Keys.BEmail);
-        SaveIndexDetailsTextWatcher nameTextWatcher= new SaveIndexDetailsTextWatcher(BDefines.Keys.BName);
+        TextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Email);
+        TextWatcher nameTextWatcher= new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Name);
+        TextWatcher phoneTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Phone);
+
         etMail.addTextChangedListener(emailTextWatcher);
         etName.addTextChangedListener(nameTextWatcher);
-
-
-        // The number would only be index if phone index is enabled in BDefines.
-        TextWatcher phoneTextWatcher = new SaveIndexDetailsTextWatcher(BDefines.Keys.BPhone);
         etPhone.addTextChangedListener(phoneTextWatcher);
+
     }
 
     @Override
     public void loadData() {
         super.loadData();
-        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey));
+        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
     }
 
     @Override
@@ -158,9 +155,9 @@ public class ChatSDKProfileFragment extends ChatSDKAbstractProfileFragment {
             return;
         }
 
-        BUser user = BNetworkManager.getCoreInterface().currentUserModel();
+        BUser user = NetworkManager.shared().a.core.currentUserModel();
         etName.setText(user.getMetaName());
-        etPhone.setText(user.metaStringForKey(BDefines.Keys.BPhone));
+        etPhone.setText(user.metaStringForKey(DaoDefines.Keys.Phone));
         etMail.setText(user.getMetaEmail());
 
         chatSDKProfileHelper.loadProfilePic(loginType);

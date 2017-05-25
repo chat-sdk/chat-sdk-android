@@ -305,7 +305,7 @@ public final class Util {
      *          Alert dialog message
      */
     @Deprecated
-    public static void showAlert(Context context, String title, String text) {
+    public static void showToast(Context context, String title, String text) {
         Builder alertBuilder = new Builder(context);
         alertBuilder.setTitle(title);
         alertBuilder.setMessage(text);

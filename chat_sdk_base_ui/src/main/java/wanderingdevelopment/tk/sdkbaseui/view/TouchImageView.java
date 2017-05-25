@@ -857,7 +857,7 @@ public class TouchImageView extends ImageView {
             setImageMatrix(matrix);
             
             //
-    		// User-defined OnTouchListener
+    		// CoreUser-defined OnTouchListener
     		//
     		if(userTouchListener != null) {
     			userTouchListener.onTouch(v, event);
