@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import wanderingdevelopment.tk.sdkbaseui.R;
 
 import java.util.HashMap;

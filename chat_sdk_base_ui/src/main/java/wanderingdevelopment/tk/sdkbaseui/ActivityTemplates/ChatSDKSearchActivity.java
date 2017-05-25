@@ -23,15 +23,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +149,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
                     return;
                 }
 
-                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                BUser currentUser = NM.currentUser();
                 String[] entitiesIDs = new String[adapter.getSelectedCount()];
                 BUser user;
                 for (int i = 0; i < adapter.getSelectedCount(); i++) {
@@ -200,11 +200,11 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
             final List<String> userIds = new ArrayList<String>();
             final List<BUser> users = new ArrayList<>();
 
-            NetworkManager.shared().a.search.usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
+            NM.search().usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
                 .doOnNext(new Consumer<BUser>() {
                     @Override
                     public void accept(BUser u) throws Exception {
-                        NetworkManager.shared().a.core.currentUserModel().addContact(u);
+                        NM.currentUser().addContact(u);
                         userIds.add(u.getEntityID());
                         users.add(u);
                     }

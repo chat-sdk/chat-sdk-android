@@ -16,9 +16,10 @@ import android.telephony.TelephonyManager;
 
 import com.braunster.chatsdk.R;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
@@ -64,10 +65,10 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
 
                         if (DEBUG) Timber.d("Name: %s, Phone Number: %s", name, phoneNo);
 
-                        NetworkManager.shared().a.search.usersForIndex(DaoDefines.Keys.Phone, phoneNo).doOnNext(new Consumer<BUser>() {
+                        NM.search().usersForIndex(DaoDefines.Keys.Phone, phoneNo).doOnNext(new Consumer<BUser>() {
                             @Override
                             public void accept(BUser u) throws Exception {
-                                NetworkManager.shared().a.core.currentUserModel().addContact(u);
+                                NM.currentUser().addContact(u);
                             }
                         }).subscribe();
                     }

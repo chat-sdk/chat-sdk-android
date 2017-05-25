@@ -12,12 +12,11 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 
-import com.braunster.chatsdk.network.BNetworkManager;
-
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 
 /**
  * Created by braunster on 04/11/14.
@@ -72,14 +71,14 @@ public class SaveDetailTextWatcher implements TextWatcher {
             if (StringUtils.isBlank(editable.toString()))
                 return;
 
-            BUser user = NetworkManager.shared().a.core.currentUserModel();
+            BUser user = NM.currentUser();
             String metadata = user.metaStringForKey(metaKey);
 
             if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))
                 return;
 
             user.setMetadataString(metaKey, editable.toString());
-            NetworkManager.shared().a.core.pushUser();
+            NM.core().pushUser();
         }
     };
 

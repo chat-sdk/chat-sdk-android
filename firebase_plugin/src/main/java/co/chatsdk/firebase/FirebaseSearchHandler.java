@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.firebase.wrappers.UserWrapper;
@@ -67,7 +68,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                             List<String> keys = new ArrayList<String>();
 
                             // So we dont have to call the db for each key.
-                            String currentUserEntityID = NetworkManager.shared().a.core.currentUserModel().getEntityID();
+                            String currentUserEntityID = NM.currentUser().getEntityID();
 
                             // Adding all keys to the list, Except the current user key.
                             for (String key : values.keySet())

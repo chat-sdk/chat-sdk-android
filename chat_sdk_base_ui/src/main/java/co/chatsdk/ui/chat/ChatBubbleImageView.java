@@ -28,7 +28,7 @@ import android.util.AttributeSet;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.volley.ImageUtils;
 import wanderingdevelopment.tk.sdkbaseui.R;

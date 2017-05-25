@@ -5,16 +5,17 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.Executor;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.functions.Consumer;
@@ -146,8 +147,8 @@ public class FirebaseStateManager implements EventHandler {
         }));
         FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
 
-        if (NetworkManager.shared().a.push != null) {
-            NetworkManager.shared().a.push.subscribeToPushChannel(user.getPushChannel());
+        if (NM.push() != null) {
+            NM.push().subscribeToPushChannel(user.getPushChannel());
         }
 
         // TODO: Check this
@@ -237,7 +238,7 @@ public class FirebaseStateManager implements EventHandler {
         FirebaseReferenceManager.shared().removeListener(FirebasePaths.userFollowingRef(entityID));
 
         ThreadWrapper wrapper;
-        for (BThread thread : BNetworkManager.getThreadsInterface().getThreads(ThreadType.All))
+        for (BThread thread : NM.thread().getThreads(ThreadType.All))
         {
             wrapper = new ThreadWrapper(thread);
 
@@ -254,8 +255,8 @@ public class FirebaseStateManager implements EventHandler {
             }
         });
 
-        if (NetworkManager.shared().a.push != null) {
-            NetworkManager.shared().a.push.unsubscribeToPushChannel(user.getPushChannel());
+        if (NM.push() != null) {
+            NM.push().unsubscribeToPushChannel(user.getPushChannel());
         }
     }
 

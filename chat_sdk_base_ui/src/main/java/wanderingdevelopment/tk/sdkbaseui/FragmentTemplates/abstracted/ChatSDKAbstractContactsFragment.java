@@ -25,12 +25,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BThreadDao;
-import co.chatsdk.core.dao.core.BUser;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BThreadDao;
+import co.chatsdk.core.dao.BUser;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
@@ -40,16 +38,13 @@ import co.chatsdk.ui.chat.ChatSDKChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKSearchActivity;
 import co.chatsdk.ui.chat.ChatSDKChatHelper;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
-import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter;
-import co.chatsdk.core.dao.core.DaoCore;
+import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKAbstractUsersListAdapter;
+import co.chatsdk.core.dao.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
-import com.braunster.chatsdk.network.BNetworkManager;
+
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.UIUpdater;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -131,12 +126,12 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
      *  Look in {@link #loadSourceUsers()} or in {@link #setListClickMode()} for more examples. */
     protected Object extraData ="";
 
-    /** This is passed to the {@link wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter}, If true the list adapter will remove all duplicates.
-     * @see wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter*/
+    /** This is passed to the {@link ChatSDKAbstractUsersListAdapter}, If true the list adapter will remove all duplicates.
+     * @see ChatSDKAbstractUsersListAdapter */
     protected boolean removeDuplicates = true;
 
     /** This is passed to the list adapter, If true the list will be with headers.
-     * @see wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter*/
+     * @see ChatSDKAbstractUsersListAdapter */
     protected boolean withHeaders = false;
 
     /** If true the fragent will listen to users details change and updates.*/
@@ -282,7 +277,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
         loadSourceUsers();
 
-        if (NetworkManager.shared().a.core.currentUserModel() != null)
+        if (NM.currentUser() != null)
         {
             adapter.setUserItems(adapter.makeList(sourceUsers, withHeaders, removeDuplicates));
 
@@ -389,7 +384,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                         return;
 
                     final BUser clickedUser = DaoCore.fetchEntityWithEntityID(BUser.class, adapter.getItem(position).getEntityID());
-                    final BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                    final BUser currentUser = NM.currentUser();
 
                     switch (clickMode) {
                         case CLICK_MODE_ADD_USER_TO_THREAD:
@@ -401,7 +396,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                                 thread = DaoCore.fetchEntityWithEntityID(BThread.class, extraData);
                             }
 
-                            BNetworkManager.getThreadsInterface().addUsersToThread(thread, clickedUser)
+                            NM.thread().addUsersToThread(thread, clickedUser)
                                     .doOnComplete(new Action() {
                                         @Override
                                         public void run() throws Exception {
@@ -490,7 +485,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
             switch (loadingMode) {
                 case MODE_LOAD_CONTACTS:
                     if (DEBUG) Timber.d("Mode - Contacts");
-                    sourceUsers = NetworkManager.shared().a.core.currentUserModel().getContacts();
+                    sourceUsers = NM.currentUser().getContacts();
                     break;
 
                 case MODE_LOAD_THREAD_USERS:
@@ -499,13 +494,13 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 
                     // Remove the current user from the list.
                     List<BUser> users = thread.getUsers();
-                    users.remove(NetworkManager.shared().a.core.currentUserModel());
+                    users.remove(NM.currentUser());
 
                     sourceUsers = users;
                     break;
 
                 case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                    List<BUser> users1 = NetworkManager.shared().a.core.currentUserModel().getContacts();
+                    List<BUser> users1 = NM.currentUser().getContacts();
                     thread = DaoCore.fetchEntityWithProperty(BThread.class, BThreadDao.Properties.Id, extraData);
                     List<BUser> threadUser = thread.getUsers();
                     users1.removeAll(threadUser);
@@ -525,7 +520,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 //
 //                                    @Override
 //                                    public void onNext(BUser value) {
-//                                        if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
+//                                        if(!value.equals(NM.currentUser())) {
 //                                            sourceUsers.add(value);
 //                                        }
 //                                    }
@@ -545,7 +540,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 //
 //                    }
 //                    else
-//                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollowers();
+//                        sourceUsers = NM.currentUser().getFollowers();
 //                    break;
 //
 //                case MODE_LOAD_FOLLOWS:
@@ -561,7 +556,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 //
 //                            @Override
 //                            public void onNext(BUser value) {
-//                                if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
+//                                if(!value.equals(NM.currentUser())) {
 //                                    sourceUsers.add(value);
 //                                }
 //                            }
@@ -579,7 +574,7 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
 //                        });
 //                    }
 //                    else
-//                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollows();
+//                        sourceUsers = NM.currentUser().getFollows();
 //                    break;
             }
     }

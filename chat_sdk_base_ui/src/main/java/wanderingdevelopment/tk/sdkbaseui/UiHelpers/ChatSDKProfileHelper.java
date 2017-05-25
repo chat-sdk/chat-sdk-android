@@ -21,9 +21,10 @@ import android.widget.ProgressBar;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
@@ -36,7 +37,6 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
@@ -108,7 +108,7 @@ public class ChatSDKProfileHelper {
             case AccountType.Password:
             case AccountType.Custom:
             case AccountType.Register:
-                setProfilePicFromURL(NetworkManager.shared().a.core.currentUserModel().metaStringForKey(DaoDefines.Keys.PictureURL), false);
+                setProfilePicFromURL(NM.currentUser().metaStringForKey(DaoDefines.Keys.PictureURL), false);
                 break;
 
             case AccountType.Anonymous:
@@ -210,7 +210,7 @@ public class ChatSDKProfileHelper {
         if (StringUtils.isEmpty(url))
         {
             // Loading the user image from robohash.
-            String name = NetworkManager.shared().a.core.currentUserModel().getMetaName();
+            String name = NM.currentUser().getMetaName();
             url = Defines.getDefaultImageUrl("http://robohash.org/" + name,
                     Defines.ImageProperties.INITIALS_IMAGE_SIZE,
                     Defines.ImageProperties.INITIALS_IMAGE_SIZE);
@@ -265,17 +265,17 @@ public class ChatSDKProfileHelper {
                 Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         // TODO: Are we handling the error here
-        return NetworkManager.shared().a.upload.uploadImage(image, thumbnail).flatMapCompletable(new Function<ImageUploadResult, Completable>() {
+        return NM.upload().uploadImage(image, thumbnail).flatMapCompletable(new Function<ImageUploadResult, Completable>() {
             @Override
             public Completable apply(ImageUploadResult profileImageUploadResult) throws Exception {
 
                 // Saving the image to backendless.
-                final BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                final BUser currentUser = NM.currentUser();
 
                 currentUser.setMetaPictureUrl(profileImageUploadResult.imageURL);
                 currentUser.setMetaPictureThumbnail(profileImageUploadResult.thumbnailURL);
 
-                NetworkManager.shared().a.core.pushUser();
+                NM.core().pushUser();
 
                 return Completable.complete();
             }
@@ -285,7 +285,7 @@ public class ChatSDKProfileHelper {
     private void getProfileFromFacebook (){
         // Use facebook profile picture only if has no other picture saved.
         String imageUrl;
-        imageUrl = NetworkManager.shared().a.core.currentUserModel().getMetaPictureUrl();
+        imageUrl = NM.currentUser().getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(imageUrl))
             setProfilePicFromURL(imageUrl, false);
@@ -299,7 +299,7 @@ public class ChatSDKProfileHelper {
                     try {
                         String facebookId;
                         String authId;
-                        authId = NetworkManager.shared().a.core.currentUserModel().getEntityID();
+                        authId = NM.currentUser().getEntityID();
 
                         facebookId = authId.replace(Defines.ProviderString.Facebook + ":", "");
                         
@@ -335,7 +335,7 @@ public class ChatSDKProfileHelper {
 
     private void getProfileFromTwitter(){
         // Use facebook profile picture only if has no other picture saved.
-        String savedUrl = NetworkManager.shared().a.core.currentUserModel().getMetaPictureUrl();
+        String savedUrl = NM.currentUser().getMetaPictureUrl();
 
         if (StringUtils.isNotEmpty(savedUrl))
             setProfilePicFromURL(savedUrl, false);
@@ -361,7 +361,7 @@ public class ChatSDKProfileHelper {
     private void setInitialsProfilePic(boolean save){
         String initials = "";
 
-        String name = NetworkManager.shared().a.core.currentUserModel().getMetaName();
+        String name = NM.currentUser().getMetaName();
 
         if (StringUtils.isEmpty(name))
             initials = Defines.InitialsForAnonymous;

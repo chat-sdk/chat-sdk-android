@@ -2,13 +2,13 @@ package co.chatsdk.firebase;
 
 import android.support.annotation.NonNull;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,8 +23,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.Deferred;
-import org.jdeferred.impl.DeferredObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,8 +62,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             @Override
             public void subscribe(final SingleEmitter<FirebaseUser> e) throws Exception {
                 if (DEBUG) Timber.v("checkUserAuthenticatedWithCallback, %s", getLoginInfo().get(Defines.Prefs.AccountTypeKey));
-
-                final Deferred<BUser, ChatError, Void> deferred = new DeferredObject<>();
 
                 if (isAuthenticating())
                 {
@@ -246,13 +242,13 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     // TODO push a default image of the user to the cloud.
                     // TODO: This shouldn't return the error... Would lead to a race condition
-                    if(!NetworkManager.shared().a.push.subscribeToPushChannel(wrapper.pushChannel())) {
+                    if(!NM.push().subscribeToPushChannel(wrapper.pushChannel())) {
                         // TODO: Handle this error
                         Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
                         //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
                     }
 
-                    NetworkManager.shared().a.core.goOnline();
+                    NM.core().goOnline();
 
                     cs.onComplete();
 
@@ -289,14 +285,14 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable logout() {
-        BUser user = NetworkManager.shared().a.core.currentUserModel();
+        BUser user = NM.currentUser();
 
         // Stop listening to user related alerts. (added message or thread.)
         FirebaseStateManager.shared().userOff(user.getEntityID());
 
         // Removing the push channel
-        if (NetworkManager.shared().a.push != null)
-            NetworkManager.shared().a.push.unsubscribeToPushChannel(user.getPushChannel());
+        if (NM.push() != null)
+            NM.push().unsubscribeToPushChannel(user.getPushChannel());
 
         // Login out
         // TODO: Move this to the user wrapper

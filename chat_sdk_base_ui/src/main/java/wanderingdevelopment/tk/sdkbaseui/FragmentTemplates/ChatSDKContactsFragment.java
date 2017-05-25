@@ -12,10 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractContactsFragment;
 
 import java.util.List;

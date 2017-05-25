@@ -17,16 +17,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKEditProfileActivity;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractProfileFragment;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -92,7 +92,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
     @Override
     public void loadData() {
         super.loadData();
-        setDetails((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
+        setDetails((Integer) NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
     }
 
     @Override
@@ -110,7 +110,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
         // Logout and return to the login activity.
         BFacebookManager.logout(getActivity());
 
-        NetworkManager.shared().a.auth.logout();
+        NM.auth().logout();
         chatSDKUiHelper.startLoginActivity(true);
     }
 
@@ -120,7 +120,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
             return;
         }
 
-        BUser user = NetworkManager.shared().a.core.currentUserModel();
+        BUser user = NM.currentUser();
 
         String name = user.getMetaName();
 
@@ -188,7 +188,7 @@ public class ChatcatProfileFragment extends ChatSDKAbstractProfileFragment {
         
         if (item.getItemId() == R.id.action_chat_sdk_edit)
         {
-            chatSDKUiHelper.startEditProfileActivity(NetworkManager.shared().a.core.currentUserModel().getId());
+            chatSDKUiHelper.startEditProfileActivity(NM.currentUser().getId());
 
             getActivity().overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
             return true;

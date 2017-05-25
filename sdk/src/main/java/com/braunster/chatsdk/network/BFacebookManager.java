@@ -10,7 +10,8 @@ package com.braunster.chatsdk.network;
 import android.content.Context;
 import android.os.Bundle;
 
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.object.ChatError;
 import com.facebook.FacebookOperationCanceledException;
@@ -22,9 +23,6 @@ import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 
-import org.jdeferred.Deferred;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,8 +33,10 @@ import java.util.Map;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.types.AccountType;
-import co.chatsdk.core.types.Defines;
 import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import timber.log.Timber;
 
 import co.chatsdk.core.types.LoginType;
@@ -60,7 +60,7 @@ public class BFacebookManager {
         data.put(DaoDefines.Keys.ThirdPartyData.AccessToken, userFacebookAccessToken);
         data.put(LoginType.TypeKey, AccountType.Facebook);
 
-        return NetworkManager.shared().a.auth.authenticateWithMap(data);
+        return NM.auth().authenticateWithMap(data);
     }
 
     /** Re authenticate after session state changed.*/
@@ -96,114 +96,37 @@ public class BFacebookManager {
         return  userFacebookAccessToken != null;
     }
 
-    public static Promise<GraphObject, ChatError, Void> getUserDetails(){
-
-        final Deferred<GraphObject, ChatError, Void> deferred = new DeferredObject<>();
-        
-        if (Session.getActiveSession().getState().isOpened())
-        {
-            // Request user data and show the results
-            Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback()
-            {
-                @Override
-                public void onCompleted(GraphUser user, Response response)
-                {
-                    if (response != null)
-                    {
-                        try
-                        {
-                            deferred.resolve(user);
-                        }
-                        catch (Exception e)
-                        {
-                            deferred.reject(ChatError.getExceptionError(e));
-                        }
-
-                    }
-                }
-            }).executeAsync();
-        } else deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
-        
-        return deferred.promise();
-    }
-
-    /*
-    * No need for access token in SDK V3
-    * Get the friend list from facebook that is using the app.*/
-    public static  Promise<List<GraphUser>, ChatError, Void>  getUserFriendList(){
-
-        final Deferred<List<GraphUser>, ChatError, Void> deferred = new DeferredObject<>();
-
-        
-        if (!Session.getActiveSession().getState().isOpened())
-        {
-            return deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
-        }
-        Request req = Request.newMyFriendsRequest(Session.getActiveSession(), new Request.GraphUserListCallback() {
+    public static Single<GraphObject> getUserDetails(){
+        return Single.create(new SingleOnSubscribe<GraphObject>() {
             @Override
-            public void onCompleted(List<GraphUser> users, Response response) {
-                deferred.resolve(users);
-            }
-        });
-
-        req.executeAsync();
-        
-        return deferred.promise();
-    }
-
-    /** Does not work if your app dosent have facebook game app privileges.*/
-    public static Promise<List<JSONObject>, ChatError, Void> getInvitableFriendsList(){
-
-        final Deferred<List<JSONObject>, ChatError, Void> deferred = new DeferredObject<>();
-        
-        final Session session = Session.getActiveSession();
-        if (session != null && session.isOpened()) {
-
-            // Get a list of friends who have _not installed_ the game.
-            Request invitableFriendsRequest = Request.newGraphPathRequest(session,
-                    "/me/invitable_friends", new Request.Callback() {
-
+            public void subscribe(final SingleEmitter<GraphObject> ev) throws Exception {
+                if (Session.getActiveSession().getState().isOpened())
+                {
+                    // Request user data and show the results
+                    Request.newMeRequest(Session.getActiveSession(), new Request.GraphUserCallback()
+                    {
                         @Override
-                        public void onCompleted(Response response) {
-
-                            FacebookRequestError error = response.getError();
-                            if (error != null) {
-                                if (DEBUG) Timber.e(error.toString());
-                                deferred.reject(new ChatError(ChatError.Code.TAGGED, "Error while fetching invitable friends.", error));
-                            } else if (session == Session.getActiveSession()) {
-                                if (response != null) {
-                                    // Get the result
-                                    GraphObject graphObject = response.getGraphObject();
-                                    JSONArray dataArray = (JSONArray)graphObject.getProperty("data");
-
-                                    List<JSONObject> invitableFriends = new ArrayList<JSONObject>();
-                                    if (dataArray.length() > 0) {
-                                        // Ensure the user has at least one friend ...
-
-                                        for (int i=0; i<dataArray.length(); i++) {
-                                            invitableFriends.add(dataArray.optJSONObject(i));
-                                        }
-                                    }
-                                    deferred.resolve(invitableFriends);
+                        public void onCompleted(GraphUser user, Response response)
+                        {
+                            if (response != null)
+                            {
+                                try
+                                {
+                                    ev.onSuccess(user);
                                 }
+                                catch (Exception e)
+                                {
+                                    ev.onError(e);
+                                }
+
                             }
                         }
-
-                    });
-
-            Bundle invitableParams = new Bundle();
-            invitableParams.putString("fields", "id,first_name,picture");
-            invitableFriendsRequest.setParameters(invitableParams);
-            invitableFriendsRequest.executeAsync();
-        }
-        else
-        {
-            if (DEBUG) Timber.d("Session is closed");
-            deferred.reject(new ChatError(ChatError.Code.SESSION_CLOSED));
-        }
-        
-        return deferred.promise();
-
+                    }).executeAsync();
+                } else {
+                    ev.onError(new ChatError(ChatError.Code.SESSION_CLOSED));
+                }
+            }
+        });
     }
 
     /*Helpers */

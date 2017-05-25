@@ -46,7 +46,7 @@ greendao {
     schemaVersion 1
     targetGenDir "src/main/java"
 //    daoPackage "wanderingdevelopment.tk.chatsdkcore.db"
-    daoPackage "co.chatsdk.core.dao.core"
+    daoPackage "co.chatsdk.core.dao"
 }
 
 dependencies {
@@ -66,6 +66,7 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxandroid:2.0.0'
     compile 'com.android.volley:volley:1.0.0'
     compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.google.android.gms:play-services:9.0.2'
     //compile project(path: ':sdk')
 }
 

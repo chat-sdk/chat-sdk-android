@@ -30,11 +30,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BThreadDao;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BThreadDao;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -55,12 +56,12 @@ import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragment;
 
-import co.chatsdk.core.PredicateFactory;
+import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
 
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
 import com.google.android.gms.appindexing.AppIndex;
@@ -398,7 +399,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             public void onRefresh() {
                 if (DEBUG) Timber.d("onRefreshStarted");
 
-                BNetworkManager.getThreadsInterface().loadMoreMessagesForThread(thread).subscribe(new BiConsumer<List<BMessage>, Throwable>() {
+                NM.thread().loadMoreMessagesForThread(thread).subscribe(new BiConsumer<List<BMessage>, Throwable>() {
                     @Override
                     public void accept(List<BMessage> bMessages, Throwable throwable) throws Exception {
                         if (throwable == null) {
@@ -421,7 +422,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         chatSDKChatHelper.setListMessages(listMessages);
 
         if (messagesListAdapter == null) {
-            messagesListAdapter = new ChatSDKMessagesListAdapter(ChatSDKAbstractChatActivity.this, NetworkManager.shared().a.core.currentUserModel().getId());
+            messagesListAdapter = new ChatSDKMessagesListAdapter(ChatSDKAbstractChatActivity.this, NM.currentUser().getId());
         }
 
         listMessages.setAdapter(messagesListAdapter);
@@ -442,7 +443,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             return;
         }
 
-        BNetworkManager.getThreadsInterface().sendMessageWithText(text.trim(), thread.getId())
+        NM.thread().sendMessageWithText(text.trim(), thread)
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
@@ -458,7 +459,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         showSendingMessageToast();
 
-        BNetworkManager.getThreadsInterface().sendMessageWithLocation(snapshotPath, latLng, thread.getId())
+        NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread)
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
@@ -503,7 +504,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
         showSendingMessageToast();
 
-        BNetworkManager.getThreadsInterface().sendMessageWithImage(filePath, thread.getId())
+        NM.thread().sendMessageWithImage(filePath, thread)
                 .doOnNext(new Consumer<ImageUploadResult>() {
                     @Override
                     public void accept(ImageUploadResult value) throws Exception {
@@ -553,8 +554,8 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         client.connect();
 
         if (thread != null && thread.typeIs(ThreadType.Public)) {
-            BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
-            BNetworkManager.getThreadsInterface().addUsersToThread(thread, currentUser);
+            BUser currentUser = NM.currentUser();
+            NM.thread().addUsersToThread(thread, currentUser);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -589,7 +590,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
             }
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
-        NetworkManager.shared().a.events.source()
+        NM.events().source()
                 .filter(PredicateFactory.type(EventType.MessageAdded))
                 .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -611,7 +612,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
 
                         boolean isAdded = messagesListAdapter.addRow(message);
 
-                        BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                        BUser currentUser = NM.currentUser();
 
                         // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                         if (message.getSender().getEntityID().equals(currentUser.getEntityID())) {
@@ -629,7 +630,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
                     }
                 });
 
-        NetworkManager.shared().a.events.source()
+        NM.events().source()
                 .filter(PredicateFactory.type(
                         EventType.PrivateThreadAdded,
                         EventType.PrivateThreadRemoved,
@@ -680,7 +681,7 @@ public abstract class ChatSDKAbstractChatActivity extends ChatSDKBaseActivity im
         // TODO: Check this
 //        if (thread != null && thread.getType() == BThread.Type.Public)
 //        {
-//            BNetworkManager.getThreadsInterface().removeUsersFromThread(thread, NetworkManager.shared().a.core.currentUserModel());
+//            BNetworkManager.getThreadsInterface().removeUsersFromThread(thread, NM.currentUser());
 //        }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

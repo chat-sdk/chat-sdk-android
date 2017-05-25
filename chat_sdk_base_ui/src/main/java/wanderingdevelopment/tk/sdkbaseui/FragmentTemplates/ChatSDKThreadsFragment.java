@@ -7,7 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.FragmentTemplates;
 
-import android.net.Network;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,8 +23,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.interfaces.ThreadType;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -106,7 +106,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(ThreadType.Public));
+        adapter.setThreadItems(NM.thread().getThreads(ThreadType.Public));
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
 
                 Message message = new Message();
                 message.what = 1;
-                message.obj = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Public);
+                message.obj = NM.thread().getThreads(ThreadType.Public);
 
                 handler.sendMessageAtFrontOfQueue(message);
 
@@ -200,13 +200,13 @@ public class ChatSDKThreadsFragment extends ChatSDKBaseFragment {
                 public void onFinished(final String s) {
 
                     showProgDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                    NetworkManager.shared().a.publicThread.createPublicThreadWithName(s)
+                    NM.publicThread().createPublicThreadWithName(s)
                             .doOnSuccess(new Consumer<BThread>() {
                                 @Override
                                 public void accept(final BThread thread) throws Exception {
                                     // Add the current user to the thread.
                                     // TODO: Check if this is needed - maybe we add the user when the chat view opens
-                                    BNetworkManager.getThreadsInterface().addUsersToThread(thread, NetworkManager.shared().a.core.currentUserModel())
+                                    NM.thread().addUsersToThread(thread, NM.currentUser())
                                             .doOnComplete(new Action() {
                                                 @Override
                                                 public void run() throws Exception {

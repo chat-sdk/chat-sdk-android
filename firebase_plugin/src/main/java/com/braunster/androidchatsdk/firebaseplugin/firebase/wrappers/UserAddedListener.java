@@ -53,7 +53,7 @@ public class UserAddedListener {
 //                public void run() {
 //                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 //
-//                    BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+//                    BUser currentUser = NM.currentUser();
 //
 //                    // If listener is old return,
 //                    // We can check if he is old if the observed user id does not match the current user id.

@@ -13,7 +13,7 @@ import com.backendless.messaging.PushPolicyEnum;
 import com.backendless.services.messaging.MessageStatus;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 
 import org.json.JSONException;
@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import java.util.Collection;
 
 import co.chatsdk.core.handlers.PushHandler;
-import co.chatsdk.core.types.Defines;
 import timber.log.Timber;
 
 /**

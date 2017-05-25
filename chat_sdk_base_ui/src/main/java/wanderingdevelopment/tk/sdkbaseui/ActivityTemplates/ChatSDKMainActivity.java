@@ -19,9 +19,11 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -41,7 +43,7 @@ import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.OpenFromPushChecker;
 import wanderingdevelopment.tk.sdkbaseui.adapter.AbstractChatSDKTabsAdapter;
 import wanderingdevelopment.tk.sdkbaseui.adapter.PagerAdapterTabs;
-import co.chatsdk.core.PredicateFactory;
+import co.chatsdk.core.events.PredicateFactory;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 
 import org.apache.commons.lang3.StringUtils;
@@ -113,7 +115,7 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         }
 
         // TODO: Check this
-        messageAddedDisposable = NetworkManager.shared().a.events.source()
+        messageAddedDisposable = NM.events().source()
                 .filter(PredicateFactory.type(EventType.MessageAdded))
                 .filter(PredicateFactory.threadType(ThreadType.Private))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -125,8 +127,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
                         }
                     }
                 });
-
-
 
         ChatSDKThreadPool.getInstance().execute(new Runnable() {
             @Override
@@ -193,8 +193,6 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         }
     }
 
-    static final Handler handler = new Handler(Looper.getMainLooper());
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -216,6 +214,8 @@ public class ChatSDKMainActivity extends ChatSDKBaseActivity {
         tabs.setViewPager(pager);
 
         pager.setOffscreenPageLimit(3);
+
+
     }
 
     @Override

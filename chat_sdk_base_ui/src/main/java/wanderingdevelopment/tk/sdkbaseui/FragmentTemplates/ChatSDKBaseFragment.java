@@ -19,9 +19,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
@@ -178,7 +179,7 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
     }
     /** Create or fetch chat for users. Opens the chat if wanted.*/
     protected Single<BThread> createThreadWithUsers(String name, final boolean openChatWhenDone, BUser... users) {
-        return BNetworkManager.getThreadsInterface().createThreadWithUsers(name, users).doOnSuccess(new Consumer<BThread>() {
+        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<BThread>() {
             @Override
             public void accept(BThread thread) throws Exception {
                 if (thread != null) {
@@ -289,14 +290,14 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
     protected class DeleteThread implements Callable{
 
-        private String threadID;
-        public DeleteThread(String threadID){
-            this.threadID = threadID;
+        private BThread thread;
+        public DeleteThread(BThread thread){
+            this.thread = thread;
         }
 
         @Override
         public Object call() throws Exception {
-            BNetworkManager.getThreadsInterface().deleteThreadWithEntityID(threadID).subscribe(new CompletableObserver() {
+            NM.thread().deleteThread(thread).subscribe(new CompletableObserver() {
                 @Override
                 public void onSubscribe(Disposable d) {
                 }
@@ -321,7 +322,7 @@ public abstract class ChatSDKBaseFragment extends DialogFragment implements Chat
 
     /** Authenticates the current user.*/
     public Completable authenticate(){
-        return NetworkManager.shared().a.auth.authenticateWithCachedToken();
+        return NM.auth().authenticateWithCachedToken();
     }
 
     public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {

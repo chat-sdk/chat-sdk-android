@@ -14,14 +14,13 @@ import android.content.SharedPreferences;
 import com.braunster.chatsdk.BuildConfig;
 import com.braunster.chatsdk.R;
 
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 import com.bugsense.trace.BugSenseHandler;
 
 import org.apache.commons.lang3.StringUtils;
 
-import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
 
 /**
@@ -29,9 +28,6 @@ import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
  */
 @Deprecated
 public class BNetworkManager {
-
-    private static final String TAG = BNetworkManager.class.getSimpleName();
-    private static final boolean DEBUG = Debug.BNetworkManager;
 
     private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
     public static final boolean BUGSENSE_ENABLED = false;
@@ -41,7 +37,6 @@ public class BNetworkManager {
 
     private static BNetworkManager instance;
 
-    private static ThreadsInterface threadsInterface;
     private static UiLauncherInterface uiLauncherInterface;
 
     private static Context context;
@@ -60,10 +55,6 @@ public class BNetworkManager {
         }
     }
 
-    public static Context getAppContext() {
-        return context;
-    }
-
     public static BNetworkManager sharedManager(){
         if (instance == null) {
             instance = new BNetworkManager();
@@ -79,14 +70,6 @@ public class BNetworkManager {
         return uiLauncherInterface;
     }
 
-    public static void setThreadsInterface(ThreadsInterface threadsInterface) {
-        BNetworkManager.threadsInterface = threadsInterface;
-    }
-
-    public static ThreadsInterface getThreadsInterface() {
-        return threadsInterface;
-    }
-
 
 //    /** Always safe to call*/
 //    public static SharedPreferences getUserPrefs(String entityId){
@@ -94,6 +77,6 @@ public class BNetworkManager {
 //    }
 //    /** Safe to call after login.*/
 //    public static SharedPreferences getCurrentUserPrefs(){
-//        return context.getSharedPreferences(NetworkManager.shared().a.core.currentUserModel().getEntityID(), Context.MODE_PRIVATE);
+//        return context.getSharedPreferences(NM.currentUser().getEntityID(), Context.MODE_PRIVATE);
 //    }
 }

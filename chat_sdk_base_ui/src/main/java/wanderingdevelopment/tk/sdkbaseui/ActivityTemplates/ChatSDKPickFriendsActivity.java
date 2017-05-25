@@ -20,17 +20,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BThreadDao;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BThreadDao;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKUsersListAdapter;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import com.braunster.chatsdk.network.BNetworkManager;
 
@@ -143,7 +144,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
     }
 
     private void initList(){
-        final List<BUser> list = NetworkManager.shared().a.core.currentUserModel().getContacts();
+        final List<BUser> list = NM.currentUser().getContacts();
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
@@ -167,7 +168,7 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
                     listAdapter.toggleSelection(position);
                 else
                 {
-                    createAndOpenThreadWithUsers("", NetworkManager.shared().a.core.currentUserModel(), listAdapter.getItem(position).asBUser());
+                    createAndOpenThreadWithUsers("", NM.currentUser(), listAdapter.getItem(position).asBUser());
                 }
             }
         });
@@ -227,14 +228,14 @@ public class ChatSDKPickFriendsActivity extends ChatSDKBaseActivity {
 
                         if (mode == MODE_NEW_CONVERSATION)
                         {
-                            users[users.length - 1] = NetworkManager.shared().a.core.currentUserModel();
+                            users[users.length - 1] = NM.currentUser();
                             createAndOpenThreadWithUsers("", users);
                             
                             chSelectAll.setSelected(false);
                         }
                         else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                            BNetworkManager.getThreadsInterface().addUsersToThread(thread, users).doOnComplete(new Action() {
+                            NM.thread().addUsersToThread(thread, users).doOnComplete(new Action() {
                                 @Override
                                 public void run() throws Exception {
                                     ChatSDKPickFriendsActivity.this.runOnUiThread(new Runnable() {

@@ -12,11 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.utils.volley.VolleyUtils;
-import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractUsersListAdapter;
 
 import java.util.ArrayList;
 import java.util.Comparator;

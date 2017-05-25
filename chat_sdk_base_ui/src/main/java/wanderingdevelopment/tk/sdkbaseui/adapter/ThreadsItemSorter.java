@@ -7,8 +7,6 @@
 
 package wanderingdevelopment.tk.sdkbaseui.adapter;
 
-import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
-
 import java.util.Comparator;
 import java.util.Date;
 

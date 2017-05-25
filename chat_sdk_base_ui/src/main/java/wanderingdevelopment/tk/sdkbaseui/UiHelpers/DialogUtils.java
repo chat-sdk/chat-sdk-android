@@ -42,24 +42,24 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import co.chatsdk.core.dao.core.BMessage;
+import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.volley.ImageUtils;
+import io.reactivex.Completable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import co.chatsdk.core.utils.volley.VolleyUtils;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
 import wanderingdevelopment.tk.sdkbaseui.view.TouchImageView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.Deferred;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DeferredObject;
 import org.scribe.model.Token;
 import org.scribe.oauth.OAuthService;
 
@@ -79,6 +79,7 @@ public class DialogUtils {
         private EditText mEditText;
         private String dialogTitle = "Title";
         private EditTextDialogInterface listener;
+
 
 
         private ChatSDKUiHelper chatSDKUiHelper;
@@ -159,7 +160,15 @@ public class DialogUtils {
         private OAuthService service;
         private Token requestToken;
         private LinearLayout progressBar;
-        private Deferred<Object, ChatError, Void> deferred = new DeferredObject<>();
+        private Completion completion;
+
+        public interface Completion {
+            void complete(Throwable e);
+        }
+
+        public void addCompletionHandler (Completion c) {
+            completion = c;
+        }
 
         /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
         private boolean loginIn = false;
@@ -196,7 +205,9 @@ public class DialogUtils {
 
                     if (url.startsWith(getString(R.string.twitter_callback_url) + "?denied"))
                     {
-                        deferred.reject(ChatError.getError(ChatError.Code.OPERATION_FAILED, "Cancelled."));
+                        if(completion != null) {
+                            completion.complete(ChatError.getError(ChatError.Code.OPERATION_FAILED, "Cancelled."));
+                        }
                         dismiss();
                         return false;
                     }
@@ -207,7 +218,7 @@ public class DialogUtils {
                     Uri uri = Uri.parse(url);
                     String ver = uri.getQueryParameter("oauth_verifier");
 
-                    TwitterManager.getVerifierThread(getActivity(), ver, deferred).start();
+                    runVerifierThread(ver);
 
                     ((TextView) progressBar.findViewById(R.id.chat_sdk_progressbar_text)).setText(getActivity().getResources().getString(R.string.connecting));
                     webView.setVisibility(View.INVISIBLE);
@@ -238,7 +249,7 @@ public class DialogUtils {
                         if (etPin.getText().toString().isEmpty())
                             return true;
 
-                        TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), deferred).start();
+                        runVerifierThread(etPin.getText().toString());
                     }
                     return false;
                 }
@@ -247,7 +258,7 @@ public class DialogUtils {
             view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TwitterManager.getVerifierThread(getActivity(), etPin.getText().toString(), deferred).start();
+                    runVerifierThread(etPin.getText().toString());
                 }
             });
 
@@ -263,7 +274,9 @@ public class DialogUtils {
                 switch (msg.what)
                 {
                     case TwitterManager.ERROR:
-                        deferred.reject((ChatError) msg.obj);
+                        if(completion != null) {
+                            completion.complete((ChatError)msg.obj);
+                        }
 
                         break;
 
@@ -274,12 +287,28 @@ public class DialogUtils {
             }
         };
 
-        public Promise<Object, ChatError, Void> promise(){
-            return deferred.promise();
+        public void runVerifierThread(String text) {
+            TwitterManager.runVerifierThread(getActivity(), etPin.getText().toString())
+                    .doOnComplete(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            if(completion != null) {
+                                completion.complete(null);
+                            }
+                        }
+                    })
+                    .doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if(completion != null) {
+                                completion.complete(throwable);
+                            }
+                        }
+                    }).subscribe();
         }
 
-
     }
+
 
     /** A popup to select the type of message to send, "Text", "Image", "Location".*/
     public static PopupWindow getMenuOptionPopup(Context context, View.OnClickListener listener){

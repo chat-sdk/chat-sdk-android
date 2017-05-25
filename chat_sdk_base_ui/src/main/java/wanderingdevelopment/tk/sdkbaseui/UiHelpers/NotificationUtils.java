@@ -22,11 +22,12 @@ import android.os.PowerManager;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.utils.volley.ImageUtils;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
@@ -242,7 +243,7 @@ public class NotificationUtils {
     }
  
     private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){
-        List<BThread> threads = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private);
+        List<BThread> threads = NM.thread().getThreads(ThreadType.Private);
 
         if (DEBUG) Timber.v("getNotification, CoreThread size: %s", threads == null ? "0" : threads.size());
 
@@ -293,7 +294,7 @@ public class NotificationUtils {
             // Adding summary, Total amount of unread messages.
             if (lines.size() > 3)
             {
-                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary), BNetworkManager.getThreadsInterface().getUnreadMessagesAmount(false)));
+                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary), NM.thread().getUnreadMessagesAmount(false)));
             }
         }
         

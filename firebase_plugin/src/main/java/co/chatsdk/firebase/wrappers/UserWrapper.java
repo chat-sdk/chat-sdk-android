@@ -10,16 +10,17 @@ package co.chatsdk.firebase.wrappers;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.core.BLinkedAccount;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BLinkedAccount;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import com.braunster.chatsdk.network.TwitterManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -92,7 +93,7 @@ public class UserWrapper {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType((Integer) NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
+        model.setAuthenticationType((Integer) NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
@@ -100,7 +101,7 @@ public class UserWrapper {
         String name = authData.getDisplayName();
         String email = authData.getEmail();
         String token = null;
-        Object tokenObject = NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.TokenKey);
+        Object tokenObject = NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.TokenKey);
         if(tokenObject != null) {
             token = tokenObject.toString();
         }
@@ -108,7 +109,7 @@ public class UserWrapper {
 
         BLinkedAccount linkedAccount;
         
-        switch ((Integer) (NetworkManager.shared().a.auth.getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
+        switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
         {
             case Defines.ProviderInt.Facebook:
                 // Setting the name.

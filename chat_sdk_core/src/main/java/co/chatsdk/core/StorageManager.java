@@ -1,6 +1,6 @@
 package co.chatsdk.core;
 
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.StorageAdapter;
 import timber.log.Timber;

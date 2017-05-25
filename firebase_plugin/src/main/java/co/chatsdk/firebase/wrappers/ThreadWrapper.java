@@ -7,19 +7,20 @@
 
 package co.chatsdk.firebase.wrappers;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import co.chatsdk.core.defines.FirebaseDefines;
 
@@ -94,8 +95,8 @@ public class ThreadWrapper  {
                             deserialize((Map<String, Object>)dataSnapshot.getValue());
                         }
 
-                        if(NetworkManager.shared().a.readReceipts != null) {
-                            NetworkManager.shared().a.readReceipts.updateReadReceipts(model);
+                        if(NM.readReceipts() != null) {
+                            NM.readReceipts().updateReadReceipts(model);
                         }
 
                         e.onNext(model);
@@ -109,8 +110,8 @@ public class ThreadWrapper  {
 
                 FirebaseReferenceManager.shared().addRef(detailsRef, listener);
 
-                if(NetworkManager.shared().a.typingIndicator != null) {
-                    NetworkManager.shared().a.typingIndicator.typingOn(model);
+                if(NM.typingIndicator() != null) {
+                    NM.typingIndicator().typingOn(model);
                 }
             }
         });
@@ -131,8 +132,8 @@ public class ThreadWrapper  {
                             deserialize((Map<String, Object>)dataSnapshot.getValue());
                         }
 
-                        if(NetworkManager.shared().a.readReceipts != null) {
-                            NetworkManager.shared().a.readReceipts.updateReadReceipts(model);
+                        if(NM.readReceipts() != null) {
+                            NM.readReceipts().updateReadReceipts(model);
                         }
 
                         e.onComplete();
@@ -307,7 +308,7 @@ public class ThreadWrapper  {
         return Single.create(new SingleOnSubscribe<Long>() {
             @Override
             public void subscribe(final SingleEmitter<Long> e) {
-                BUser user = NetworkManager.shared().a.core.currentUserModel();
+                BUser user = NM.currentUser();
 
                 DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
                         .child(FirebasePaths.UsersPath)
@@ -360,7 +361,7 @@ public class ThreadWrapper  {
 
                     DaoCore.updateEntity(model);
 
-                    final BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                    final BUser currentUser = NM.currentUser();
 
                     DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
                             .child(currentUser.getEntityID());
@@ -410,7 +411,7 @@ public class ThreadWrapper  {
 
                 // Removing the deleted value from firebase.
                 DatabaseReference threadUserRef = FirebasePaths.threadUsersRef(model.getEntityID())
-                        .child(NetworkManager.shared().a.core.currentUserModel().getEntityID())
+                        .child(NM.currentUser().getEntityID())
                         .child(DaoDefines.Keys.Deleted);
 
                 threadUserRef.removeValue();
@@ -731,8 +732,8 @@ public class ThreadWrapper  {
     }
 
     private void updateReadReceipts() {
-        if(NetworkManager.shared().a.readReceipts != null) {
-            NetworkManager.shared().a.readReceipts.updateReadReceipts(model);
+        if(NM.readReceipts() != null) {
+            NM.readReceipts().updateReadReceipts(model);
         }
     }
 

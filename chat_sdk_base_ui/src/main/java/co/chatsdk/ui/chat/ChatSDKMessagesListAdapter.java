@@ -30,8 +30,8 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.volley.ImageUtils;
 import wanderingdevelopment.tk.sdkbaseui.R;
@@ -39,9 +39,9 @@ import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
-import co.chatsdk.core.dao.core.sorter.MessageSorter;
+import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.utils.volley.VolleyUtils;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import wanderingdevelopment.tk.sdkbaseui.adapter.MessageItemSorter;
 

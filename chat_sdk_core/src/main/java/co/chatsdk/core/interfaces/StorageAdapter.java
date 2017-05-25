@@ -1,9 +1,9 @@
 package co.chatsdk.core.interfaces;
 
 
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.

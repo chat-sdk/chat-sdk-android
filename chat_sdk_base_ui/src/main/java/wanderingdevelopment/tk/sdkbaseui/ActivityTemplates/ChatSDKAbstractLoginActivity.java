@@ -10,8 +10,9 @@ package wanderingdevelopment.tk.sdkbaseui.ActivityTemplates;
 import android.content.Intent;
 import android.widget.EditText;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.LoginType;
@@ -21,7 +22,6 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
@@ -30,8 +30,6 @@ import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,7 +63,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         super.onResume();
 
         // If there is preferences saved dont check auth ot the info does not contain AccountType.
-        Map<String, ?> loginInfo = NetworkManager.shared().a.auth.getLoginInfo();
+        Map<String, ?> loginInfo = NM.auth().getLoginInfo();
 
         if (loginInfo != null && loginInfo.containsKey(Defines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
@@ -99,9 +97,9 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin(){
         // Indexing the user.
-        BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+        BUser currentUser = NM.currentUser();
         if(currentUser != null) {
-            NetworkManager.shared().a.core.pushUser();
+            NM.core().pushUser();
         }
 
         Intent logout = new Intent(ChatSDKMainActivity.Action_clear_data);
@@ -122,7 +120,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         data.put(LoginType.EmailKey, etEmail.getText().toString());
         data.put(LoginType.PasswordKey, etPass.getText().toString());
 
-        NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }
@@ -152,8 +150,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         data.put(LoginType.EmailKey, etEmail.getText().toString());
         data.put(LoginType.PasswordKey, etPass.getText().toString());
 
-        NetworkManager.shared().a.auth.
-                authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {}
 
@@ -176,7 +173,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put(LoginType.TypeKey, AccountType.Anonymous);
 
-        NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }
@@ -197,31 +194,28 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     public void twitterLogin(){
 
-        if (!NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Twitter))
+        if (!NM.auth().accountTypeEnabled(AccountType.Twitter))
         {
             showToast("Twitter is disabled.");
             return;
         }
 
         final DialogUtils.ChatSDKTwitterLoginDialog dialog = DialogUtils.ChatSDKTwitterLoginDialog.getInstance();
-        
-        dialog.promise().done(new DoneCallback<Object>() {
+        dialog.addCompletionHandler(new DialogUtils.ChatSDKTwitterLoginDialog.Completion() {
             @Override
-            public void onDone(Object o) {
-                dialog.dismiss();
-
-                showProgDialog(getString(R.string.authenticating));
-
-                afterLogin();
-            }
-        }).fail(new FailCallback<ChatError>() {
-            @Override
-            public void onFail(ChatError chatError) {
-                dialog.dismiss();
-                toastErrorMessage(chatError, true);
+            public void complete(Throwable e) {
+                if(e == null) {
+                    dialog.dismiss();
+                    showProgDialog(getString(R.string.authenticating));
+                    afterLogin();
+                }
+                else {
+                    dialog.dismiss();
+                    toastErrorMessage(e, true);
+                }
             }
         });
-        
+
         dialog.show(getSupportFragmentManager(), "TwitterLogin");
     }
 
@@ -289,7 +283,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     public void onSessionStateChange(Session session, SessionState state, Exception exception){
 
-        if (!NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
+        if (!NM.auth().accountTypeEnabled(AccountType.Facebook))
         {
             return;
         }

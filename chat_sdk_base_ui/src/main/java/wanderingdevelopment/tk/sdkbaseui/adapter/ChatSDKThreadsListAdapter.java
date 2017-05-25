@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
 
 import java.util.List;
 

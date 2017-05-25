@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BUser;
 import io.reactivex.Observable;
 
 /**

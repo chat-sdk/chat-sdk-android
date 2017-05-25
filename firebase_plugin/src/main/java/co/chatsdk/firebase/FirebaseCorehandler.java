@@ -6,12 +6,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,7 +44,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public BUser currentUserModel(){
-        String entityID = NetworkManager.shared().a.auth.getCurrentUserEntityID();
+        String entityID = NM.auth().getCurrentUserEntityID();
 
         if (StringUtils.isNotEmpty(entityID))
         {
@@ -69,7 +70,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void setUserOnline() {
-        BUser current = NetworkManager.shared().a.core.currentUserModel();
+        BUser current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
             UserWrapper.initWithModel(currentUserModel()).goOnline();
@@ -77,7 +78,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void setUserOffline() {
-        BUser current = NetworkManager.shared().a.core.currentUserModel();
+        BUser current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
             UserWrapper.initWithModel(currentUserModel()).goOffline();
@@ -100,7 +101,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable updateLastOnline () {
-        BUser currentUser  = NetworkManager.shared().a.core.currentUserModel();
+        BUser currentUser  = NM.currentUser();
         currentUser.setLastOnline(new Date());
         DaoCore.updateEntity(currentUser);
         return pushUser();
@@ -110,13 +111,13 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(final SingleEmitter<Boolean> e) throws Exception {
-                if (NetworkManager.shared().a.core.currentUserModel() == null)
+                if (NM.currentUser() == null)
                 {
                     e.onError(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
                     return;
                 }
 
-                FirebasePaths.userOnlineRef(NetworkManager.shared().a.core.currentUserModel().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
+                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
 

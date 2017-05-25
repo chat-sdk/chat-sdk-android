@@ -1,12 +1,12 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,9 +45,8 @@ public class ThreadRecovery {
 
                 final List<String> userEntityIds = new ArrayList<>();
 
-                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                BUser currentUser = NM.currentUser();
                 DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(currentUser.getEntityID());
-
 
                 // Look through all of their associated threads for an existing one with the listed users
                 // We don't need to worry about this linking to a public thread because the current

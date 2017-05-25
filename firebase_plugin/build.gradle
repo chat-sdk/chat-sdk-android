@@ -37,6 +37,8 @@ dependencies {
     compile 'com.google.firebase:firebase-storage:9.0.2'
     compile 'com.google.firebase:firebase-auth:9.0.2'
     compile 'com.jakewharton.timber:timber:4.3.1'
+    compile 'com.firebaseui:firebase-ui:0.4.1'
+
 
 }
 

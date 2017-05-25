@@ -13,17 +13,18 @@ import android.content.Intent;
 import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -105,7 +106,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
-            BUser user = NetworkManager.shared().a.core.currentUserModel();
+            BUser user = NM.currentUser();
             if (user != null && !channel.equals(user.getPushChannel()))
                 return;
 
@@ -186,7 +187,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                                     threadWrapper.once().doOnComplete(new Action() {
                                         @Override
                                         public void run() throws Exception {
-                                            BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                                            BUser currentUser = NM.currentUser();
                                             // Add the current user to the thread if needed.
 
                                             if (!threadWrapper.getModel().hasUser(currentUser)) {

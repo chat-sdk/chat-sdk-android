@@ -2,8 +2,9 @@ package co.chatsdk.core.base;
 
 import android.graphics.Bitmap;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.ImageUploadResult;
@@ -24,8 +25,8 @@ public abstract class BaseUploadHandler implements UploadHandler {
         }
 
         // Upload the two images in parallel
-        Observable<FileUploadResult> o1 = NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
-        Observable<FileUploadResult> o2 = NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(thumbnail), "thumbnail.jpg", "image/jpeg");
+        Observable<FileUploadResult> o1 = NM.upload().uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
+        Observable<FileUploadResult> o2 = NM.upload().uploadFile(ImageUtils.getImageByteArray(thumbnail), "thumbnail.jpg", "image/jpeg");
 
         return Observable.zip(o1, o2, new BiFunction<FileUploadResult, FileUploadResult, ImageUploadResult>() {
             @Override
@@ -57,7 +58,7 @@ public abstract class BaseUploadHandler implements UploadHandler {
 
         if(image == null) return Observable.error(new Throwable("Image can not be null"));
 
-        return NetworkManager.shared().a.upload.uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
+        return NM.upload().uploadFile(ImageUtils.getImageByteArray(image), "image.jpg", "image/jpeg");
     }
 
     public String getUUID() {

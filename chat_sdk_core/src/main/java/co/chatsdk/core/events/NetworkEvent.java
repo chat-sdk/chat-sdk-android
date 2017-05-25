@@ -1,8 +1,8 @@
 package co.chatsdk.core.events;
 
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 import io.reactivex.functions.Predicate;
 
 /**

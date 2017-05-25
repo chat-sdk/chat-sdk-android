@@ -25,16 +25,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.interfaces.ThreadType;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
 import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKThreadsListAdapter;
-import wanderingdevelopment.tk.sdkbaseui.adapter.abstracted.ChatSDKAbstractThreadsListAdapter;
+import wanderingdevelopment.tk.sdkbaseui.adapter.ChatSDKAbstractThreadsListAdapter;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKBaseFragment;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.UIUpdater;
 
 import java.util.List;
@@ -103,7 +103,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                     showToastDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                            getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getEntityId()));
+                            getResources().getString(R.string.cancel), null, new DeleteThread(adapter.getItem(position).getThread()));
 
                     return true;
                 }
@@ -120,7 +120,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private));
+        adapter.setThreadItems(NM.thread().getThreads(ThreadType.Private));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class ChatSDKAbstractConversationsFragment extends ChatSDKBaseFragment {
                     timings.addSplit("Loading threads");
                 }
 
-                List list = BNetworkManager.getThreadsInterface().getThreads(ThreadType.Private);
+                List list = NM.thread().getThreads(ThreadType.Private);
 
                 if (DEBUG) {
                     timings.addSplit("Loading threads");

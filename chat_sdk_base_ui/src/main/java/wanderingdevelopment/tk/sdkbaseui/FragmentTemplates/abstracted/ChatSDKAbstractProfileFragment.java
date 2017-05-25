@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
@@ -97,7 +98,7 @@ public abstract class ChatSDKAbstractProfileFragment extends ChatSDKBaseFragment
     }
 
     protected Integer getLoginType(){
-        return (Integer) NetworkManager.shared().a.auth.getLoginInfo().get(Defines.Prefs.AccountTypeKey);
+        return (Integer) NM.auth().getLoginInfo().get(Defines.Prefs.AccountTypeKey);
     }
 
     @Override

@@ -20,9 +20,10 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.volley.ImageUtils;
 import io.reactivex.Observer;
@@ -35,7 +36,7 @@ import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragme
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
 import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
 import co.chatsdk.core.utils.volley.VolleyUtils;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.abstracted.ChatSDKAbstractContactsFragment;
 
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -183,9 +184,9 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                 showProgDialog("Opening thread.");
 
                 BUser otherUser = contactsFragment.getAdapter().getItem(position).asBUser();
-                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                BUser currentUser = NM.currentUser();
 
-                BNetworkManager.getThreadsInterface().createThreadWithUsers("", otherUser, currentUser)
+                NM.thread().createThread("", otherUser, currentUser)
                         .subscribe(new BiConsumer<BThread, Throwable>() {
                             @Override
                             public void accept(final BThread thread, Throwable throwable) throws Exception {
@@ -246,7 +247,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
         super.onResume();
 
         // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NetworkManager.shared().a.core.currentUserModel().getEntityID()))
+        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NM.currentUser().getEntityID()))
         {
             imageThread.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
 
@@ -262,7 +263,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
                             thread.setName(s);
                             DaoCore.updateEntity(thread);
 
-                            BNetworkManager.getThreadsInterface().pushThread(thread);
+                            NM.thread().pushThread(thread);
                         }
                     });
 
@@ -342,7 +343,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
 
-                NetworkManager.shared().a.upload.uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
+                NM.upload().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                     }
@@ -362,7 +363,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                     @Override
                     public void onComplete() {
-                        BNetworkManager.getThreadsInterface().pushThread(thread);
+                        NM.thread().pushThread(thread);
                     }
                 });
 

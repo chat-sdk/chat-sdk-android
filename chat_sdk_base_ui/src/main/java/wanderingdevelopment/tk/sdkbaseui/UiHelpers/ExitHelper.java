@@ -12,7 +12,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.DaoDefines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 
 import com.github.johnpersano.supertoasts.SuperToast;

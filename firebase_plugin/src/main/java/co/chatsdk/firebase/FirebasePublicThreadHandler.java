@@ -1,12 +1,13 @@
 package co.chatsdk.firebase;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,7 +41,7 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
                 // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
                 final BThread thread = new BThread();
 
-                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
+                BUser currentUser = NM.currentUser();
                 thread.setCreator(currentUser);
                 thread.setCreatorEntityId(currentUser.getEntityID());
                 thread.setType(ThreadType.PublicGroup);

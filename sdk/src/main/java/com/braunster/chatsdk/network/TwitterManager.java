@@ -13,16 +13,15 @@ import android.os.Message;
 
 import com.braunster.chatsdk.R;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.LoginType;
 import co.chatsdk.core.defines.Debug;
 import com.braunster.chatsdk.object.ChatError;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jdeferred.Deferred;
-import org.jdeferred.impl.DeferredObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.scribe.builder.ServiceBuilder;
@@ -37,7 +36,13 @@ import org.scribe.oauth.OAuthService;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -95,64 +100,68 @@ public class TwitterManager {
     }
 
     // TODO: Refactor this
-    public static Thread getVerifierThread(final Context context, final String ver, final Deferred<Object, ChatError, Void> deferred){
-        return new Thread(new Runnable() {
+    public static Completable runVerifierThread(final Context context, final String ver){
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void run() {
-                accessToken = verify(ver);
+            public void subscribe(final CompletableEmitter e) throws Exception {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        accessToken = verify(ver);
 
-                if (accessToken == null)
-                {
-                    handler.sendMessage(MessageObj.getErrorMessage(deferred, ChatError.getError(ChatError.Code.ACCESS_TOKEN_REFUSED, "Access token is null")));
-                    return;
-                }
-
-                Response response = getResponse(context, PROTECTED_RESOURCE_URL);
-
-                if (!response.isSuccessful())
-                {
-                    handler.sendMessage(MessageObj.getErrorMessage(deferred, ChatError.getError(ChatError.Code.BAD_RESPONSE, response.getBody())));
-                    return;
-                }
-
-                try {
-                    JSONObject json = new JSONObject(response.getBody());
-
-                    if (DEBUG) Timber.d("Twitter Response: %s", json.toString());
-
-                    userId = json.getString("id");
-
-                    profileImageUrl = json.getString(DaoDefines.Keys.ThirdPartyData.ImageURL);
-
-                    if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
-
-                    final Map<String, Object> data = new HashMap<String, Object>();
-
-                    data.put(DaoDefines.Keys.UserId, json.get("id"));
-                    data.put(LoginType.TypeKey, AccountType.Twitter);
-
-                    NetworkManager.shared().a.auth.authenticateWithMap(data).subscribe(new CompletableObserver() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
+                        if (accessToken == null)
+                        {
+                            e.onError(ChatError.getError(ChatError.Code.ACCESS_TOKEN_REFUSED, "Access token is null"));
+                            return;
                         }
 
-                        @Override
-                        public void onComplete() {
-                            deferred.resolve(null);
+                        Response response = getResponse(context, PROTECTED_RESOURCE_URL);
+
+                        if (!response.isSuccessful())
+                        {
+                            e.onError(ChatError.getError(ChatError.Code.BAD_RESPONSE, response.getBody()));
+                            return;
                         }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            deferred.reject(ChatError.getError(0, e.getMessage()));
-                        }
-                    });
+                        try {
+                            JSONObject json = new JSONObject(response.getBody());
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                            if (DEBUG) Timber.d("Twitter Response: %s", json.toString());
+
+                            userId = json.getString("id");
+
+                            profileImageUrl = json.getString(DaoDefines.Keys.ThirdPartyData.ImageURL);
+
+                            if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
+
+                            final Map<String, Object> data = new HashMap<String, Object>();
+
+                            data.put(DaoDefines.Keys.UserId, json.get("id"));
+                            data.put(LoginType.TypeKey, AccountType.Twitter);
+
+                            NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                    e.onComplete();
+                                }
+
+                                @Override
+                                public void onError(Throwable exc) {
+                                    e.onError(exc);
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).run();
             }
-        }
-        );
+        });
     }
 
     /** Must be called from inside a thread.*/
@@ -223,29 +232,6 @@ public class TwitterManager {
         }
     }
 
-    private static TwitterHandler handler = new TwitterHandler();
-
-    private static class TwitterHandler extends Handler{
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            switch (msg.what){
-                case 1:
-                    MessageObj obj = (MessageObj) msg.obj;
-                    if (obj.listener instanceof Deferred)
-                    {
-                        Deferred<Object, ChatError, Void> deferred= ((DeferredObject) obj.listener);
-
-
-                        if (msg.arg1 == ERROR)
-                            deferred.reject((ChatError) obj.data);
-                        else deferred.resolve(obj.data);
-                    }
-            }
-        }
-    }
-    
     public static Map<String, Object> getMap(String[] keys,  Object...values){
         Map<String, Object> map = new HashMap<String, Object>();
 

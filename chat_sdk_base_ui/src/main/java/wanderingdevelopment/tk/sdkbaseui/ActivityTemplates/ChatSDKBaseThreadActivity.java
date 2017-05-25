@@ -11,11 +11,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import co.chatsdk.core.dao.core.BThread;
-import co.chatsdk.core.dao.core.BThreadDao;
+import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.BThreadDao;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -123,6 +123,7 @@ public class ChatSDKBaseThreadActivity extends ChatSDKBaseActivity {
         outState.putInt(MODE, mode);
         outState.putBoolean(ChatSDKAbstractChatActivity.ANIMATE_EXIT, animateExit);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

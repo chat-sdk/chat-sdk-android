@@ -17,6 +17,7 @@ import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.StickerMessageHandler;
+import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
@@ -31,6 +32,7 @@ public class AbstractNetworkAdapter {
     public AuthenticationHandler auth;
     public PushHandler push;
     public UploadHandler upload;
+    public ThreadHandler thread;
     public VideoMessageHandler videoMessage;
     public AudioMessageHandler audioMessage;
     public ImageMessageHandler imageMessage;

@@ -10,9 +10,9 @@ package co.chatsdk.firebase.wrappers;
 import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoCore;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.DaoDefines;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;

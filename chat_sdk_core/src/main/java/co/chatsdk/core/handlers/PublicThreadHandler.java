@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.dao.BThread;
 import io.reactivex.Single;
 
 /**

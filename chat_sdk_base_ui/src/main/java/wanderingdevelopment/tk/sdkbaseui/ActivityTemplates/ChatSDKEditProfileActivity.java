@@ -22,14 +22,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.core.BUser;
-import co.chatsdk.core.dao.core.DaoDefines;
+import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
 import wanderingdevelopment.tk.sdkbaseui.R;
 
 import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.mukesh.countrypicker.Country;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
@@ -90,7 +90,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
      * Load the user data from the database.
      * */
     private void loadCurrentData(){
-        BUser user = NetworkManager.shared().a.core.currentUserModel();
+        BUser user = NM.currentUser();
         
         String gender = user.metaStringForKey(DaoDefines.Keys.Gender);
         
@@ -169,10 +169,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
      * Save the user details before closing the screen.
      * */
     private void saveDetailsBeforeClose(){
-        BUser user = NetworkManager.shared().a.core.currentUserModel();
-
-
-
+        BUser user = NM.currentUser();
 
         if (!etName.getText().toString().isEmpty()) {
             user.setMetaName(etName.getText().toString());
@@ -199,7 +196,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
                 setSelected(txtMale, true);
 
-                NetworkManager.shared().a.core.currentUserModel().setMetadataString(DaoDefines.Keys.Gender, "male");
+                NM.currentUser().setMetadataString(DaoDefines.Keys.Gender, "male");
             }
         });
 
@@ -214,7 +211,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
 
                 setSelected(txtFemale, true);
 
-                NetworkManager.shared().a.core.currentUserModel().setMetadataString(DaoDefines.Keys.Gender, "female");
+                NM.currentUser().setMetadataString(DaoDefines.Keys.Gender, "female");
             }
         });
 
@@ -228,7 +225,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         // Logout and return to the login activity.
         BFacebookManager.logout(this);
 
-        NetworkManager.shared().a.auth.logout();
+        NM.auth().logout();
         chatSDKUiHelper.startLoginActivity(true);
     }
     
@@ -262,7 +259,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         if (!loggingOut)
         {
             saveDetailsBeforeClose();
-            NetworkManager.shared().a.core.pushUser();
+            NM.core().pushUser();
         }
 
 
@@ -314,7 +311,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
             picker.setListener(new CountryPickerListener() {
                 @Override
                 public void onSelectCountry(String name, String code, String dialCode, int resId) {
-                    NetworkManager.shared().a.core.currentUserModel().setMetadataString(DaoDefines.Keys.Country, code);
+                    NM.currentUser().setMetadataString(DaoDefines.Keys.Country, code);
                     loadCountryFlag(code);
                     picker.dismiss();
                 }

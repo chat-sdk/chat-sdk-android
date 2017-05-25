@@ -15,9 +15,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import co.chatsdk.core.dao.core.BMessage;
-import co.chatsdk.core.dao.core.BMessageDao;
-import co.chatsdk.core.dao.core.BThread;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BMessageDao;
+import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
 import io.reactivex.Observer;
@@ -26,9 +28,9 @@ import wanderingdevelopment.tk.sdkbaseui.R;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
 
-import co.chatsdk.core.dao.core.sorter.MessageSorter;
+import co.chatsdk.core.dao.sorter.MessageSorter;
 
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.Cropper;
@@ -364,7 +366,7 @@ public class ChatSDKChatHelper {
         sendingMessageToast();
 
 
-        BNetworkManager.getThreadsInterface().sendMessageWithImage(filePath, thread.getId()).subscribe(new Observer<ImageUploadResult>() {
+        NM.thread().sendMessageWithImage(filePath, thread).subscribe(new Observer<ImageUploadResult>() {
             @Override
             public void onSubscribe(Disposable d) {
             }

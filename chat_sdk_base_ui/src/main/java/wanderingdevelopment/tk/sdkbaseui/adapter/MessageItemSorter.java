@@ -8,7 +8,7 @@
 package wanderingdevelopment.tk.sdkbaseui.adapter;
 
 import co.chatsdk.ui.chat.ChatSDKMessagesListAdapter;
-import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.dao.DaoCore;
 
 import java.util.Comparator;
 
