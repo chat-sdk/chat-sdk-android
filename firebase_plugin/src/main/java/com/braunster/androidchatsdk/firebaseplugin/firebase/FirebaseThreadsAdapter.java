@@ -7,12 +7,13 @@ import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import co.chatsdk.core.dao.core.DaoCore;
 import co.chatsdk.core.defines.FirebaseDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

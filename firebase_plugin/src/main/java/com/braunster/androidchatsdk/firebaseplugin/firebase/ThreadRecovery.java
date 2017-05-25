@@ -1,7 +1,9 @@
 package com.braunster.androidchatsdk.firebaseplugin.firebase;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 
 import com.braunster.chatsdk.network.BNetworkManager;
@@ -43,7 +45,7 @@ public class ThreadRecovery {
 
                 final List<String> userEntityIds = new ArrayList<>();
 
-                BUser currentUser = BNetworkManager.sharedManager().getCoreInterface().currentUserModel();
+                BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
                 DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(currentUser.getEntityID());
 
 

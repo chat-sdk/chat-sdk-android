@@ -30,13 +30,11 @@ public interface AuthenticationHandler {
     /**
     * Checks whether the user has been authenticated this session
     */
-    //-(BOOL) authenticateWithCachedToken;
     public Boolean userAuthenticated();
 
     /**
     * Logout the user from the current account
     */
-    //-(RXPromise *) logout;
     public Completable logout();
 
     /**
@@ -44,8 +42,7 @@ public interface AuthenticationHandler {
     * if you set the API key to @"" for Twitter Facebook or Google then it's automatically
     * disabled
     */
-    //-(BOOL) accountTypeEnabled: (bAccountType) type;
-    public Boolean accountTypeEnabled(AccountType type);
+    public Boolean accountTypeEnabled(int type);
 
     /**
     * Get the user's stored login credentials
@@ -61,15 +58,12 @@ public interface AuthenticationHandler {
     /**
     * Get the current user's authentication id
     */
-    //-(NSString *) getCurrentUserEntityID;
     public String getCurrentUserEntityID();
 
     // TODO: Implement something like this
     /**
     * The view controller that should be displayed when the user isn't logged in
     */
-    //-(UIViewController *) challengeViewController;
-    //-(void) setChallengeViewController: (UIViewController *) viewController;
 
     public Completable changePassword(String email, String oldPassword, final String newPassword);
     public Completable sendPasswordResetMail(String email);

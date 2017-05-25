@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.braunster.chatsdk.BuildConfig;
 
+import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.types.AccountType;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -38,7 +40,7 @@ public class ChatSDKLoginActivity extends ChatSDKAbstractLoginActivity implement
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableFacebookIntegration(BNetworkManager.getCoreInterface().facebookEnabled());
+        enableFacebookIntegration(NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activty_login);
 

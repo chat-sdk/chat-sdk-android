@@ -262,7 +262,7 @@ public class ChatSDKEditProfileActivity extends ChatSDKBaseActivity implements O
         if (!loggingOut)
         {
             saveDetailsBeforeClose();
-            BNetworkManager.getCoreInterface().pushUser();
+            NetworkManager.shared().a.core.pushUser();
         }
 
 

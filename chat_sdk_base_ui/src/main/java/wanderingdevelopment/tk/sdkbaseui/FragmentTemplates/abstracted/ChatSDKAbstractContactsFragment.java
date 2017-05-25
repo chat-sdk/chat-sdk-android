@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BThreadDao;
 import co.chatsdk.core.dao.core.BUser;
@@ -511,75 +512,75 @@ public class ChatSDKAbstractContactsFragment extends ChatSDKBaseFragment {
                     sourceUsers = users1;
                     break;
 
-                case MODE_LOAD_FOLLOWERS:
-                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
-                    {
-                        sourceUsers = new ArrayList<BUser>();
-                        showLoading();
-                        BNetworkManager.getCoreInterface().getFollowers((String) extraData)
-                                .subscribe(new Observer<BUser>() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onNext(BUser value) {
-                                        if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
-                                            sourceUsers.add(value);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                        hideLoading();
-                                        adapter.addBUsersRows(sourceUsers);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-
-                    }
-                    else
-                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollowers();
-                    break;
-
-                case MODE_LOAD_FOLLOWS:
-                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
-                    {
-
-                        sourceUsers = new ArrayList<BUser>();
-                        showLoading();
-                        BNetworkManager.getCoreInterface().getFollows((String) extraData).subscribe(new Observer<BUser>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(BUser value) {
-                                if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
-                                    sourceUsers.add(value);
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                hideLoading();
-                                adapter.addBUsersRows(sourceUsers);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                    else
-                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollows();
-                    break;
+//                case MODE_LOAD_FOLLOWERS:
+//                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
+//                    {
+//                        sourceUsers = new ArrayList<BUser>();
+//                        showLoading();
+//                        BNetworkManager.getCoreInterface().getFollowers((String) extraData)
+//                                .subscribe(new Observer<BUser>() {
+//                                    @Override
+//                                    public void onSubscribe(Disposable d) {
+//                                    }
+//
+//                                    @Override
+//                                    public void onNext(BUser value) {
+//                                        if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
+//                                            sourceUsers.add(value);
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onError(Throwable e) {
+//
+//                                    }
+//
+//                                    @Override
+//                                    public void onComplete() {
+//                                        hideLoading();
+//                                        adapter.addBUsersRows(sourceUsers);
+//                                        adapter.notifyDataSetChanged();
+//                                    }
+//                                });
+//
+//                    }
+//                    else
+//                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollowers();
+//                    break;
+//
+//                case MODE_LOAD_FOLLOWS:
+//                    if (extraData instanceof String && StringUtils.isNotEmpty((String) extraData))
+//                    {
+//
+//                        sourceUsers = new ArrayList<BUser>();
+//                        showLoading();
+//                        BNetworkManager.getCoreInterface().getFollows((String) extraData).subscribe(new Observer<BUser>() {
+//                            @Override
+//                            public void onSubscribe(Disposable d) {
+//                            }
+//
+//                            @Override
+//                            public void onNext(BUser value) {
+//                                if(!value.equals(NetworkManager.shared().a.core.currentUserModel())) {
+//                                    sourceUsers.add(value);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onError(Throwable e) {
+//                            }
+//
+//                            @Override
+//                            public void onComplete() {
+//                                hideLoading();
+//                                adapter.addBUsersRows(sourceUsers);
+//                                adapter.notifyDataSetChanged();
+//                            }
+//                        });
+//                    }
+//                    else
+//                        sourceUsers = NetworkManager.shared().a.core.currentUserModel().getFollows();
+//                    break;
             }
     }
 

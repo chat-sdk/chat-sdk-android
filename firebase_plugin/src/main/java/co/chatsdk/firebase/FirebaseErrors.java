@@ -1,4 +1,4 @@
-package com.braunster.androidchatsdk.firebaseplugin.firebase;
+package co.chatsdk.firebase;
 
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DatabaseError;

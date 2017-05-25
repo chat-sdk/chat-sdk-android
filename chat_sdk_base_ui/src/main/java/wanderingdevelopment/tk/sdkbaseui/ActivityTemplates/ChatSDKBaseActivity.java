@@ -24,6 +24,7 @@ import android.view.View;
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
+import co.chatsdk.core.types.AccountType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
@@ -91,7 +92,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
 
         chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(this);
 
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
         {
             uiHelper = new UiLifecycleHelper(this, callback);
             uiHelper.onCreate(savedInstanceState);
@@ -167,7 +168,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     @Override
     protected void onPause() {
         super.onPause();
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
             uiHelper.onPause();
     }
 
@@ -180,7 +181,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
 
         if (DEBUG) Timber.v("onResumed, From login: %s, Check online: %s", fromLoginActivity, checkOnlineOnResumed);
 
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
             uiHelper.onResume();
 
         if (checkOnlineOnResumed && !fromLoginActivity)
@@ -189,7 +190,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
             getWindow().getDecorView().post(new Runnable() {
                 @Override
                 public void run() {
-                    BNetworkManager.getCoreInterface().isOnline().subscribe(new BiConsumer<Boolean, Throwable>() {
+                    NetworkManager.shared().a.core.isOnline().subscribe(new BiConsumer<Boolean, Throwable>() {
                         @Override
                         public void accept(Boolean online, Throwable throwable) throws Exception {
                             if(throwable == null) {
@@ -230,20 +231,20 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     @Override
     protected void onStart() {
         super.onStart();
-        BNetworkManager.getCoreInterface().setUserOnline();
+        NetworkManager.shared().a.core.setUserOnline();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        BNetworkManager.getCoreInterface().setUserOffline();
+        NetworkManager.shared().a.core.setUserOffline();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
             uiHelper.onDestroy();
 
         dismissProgDialog();
@@ -253,7 +254,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled()) uiHelper.onSaveInstanceState(outState);
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook)) uiHelper.onSaveInstanceState(outState);
 
         outState.putBoolean(FROM_LOGIN, fromLoginActivity);
 
@@ -448,7 +449,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
         super.onActivityResult(requestCode, resultCode, data);
         if(DEBUG) Timber.v("onActivityResult");
         
-        if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+        if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
             uiHelper.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -456,7 +457,7 @@ public class ChatSDKBaseActivity extends AppCompatActivity implements ChatSDKBas
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
-            if (integratedWithFacebook && BNetworkManager.getCoreInterface().facebookEnabled())
+            if (integratedWithFacebook && NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
                 onSessionStateChange(session, state, exception);
         }
     };

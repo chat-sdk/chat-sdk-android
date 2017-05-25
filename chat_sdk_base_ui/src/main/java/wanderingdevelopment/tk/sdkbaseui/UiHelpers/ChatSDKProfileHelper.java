@@ -21,11 +21,13 @@ import android.widget.ProgressBar;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
+import co.chatsdk.core.utils.volley.ImageUtils;
 import io.reactivex.Completable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
@@ -263,7 +265,7 @@ public class ChatSDKProfileHelper {
                 Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
         // TODO: Are we handling the error here
-        return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).flatMapCompletable(new Function<ImageUploadResult, Completable>() {
+        return NetworkManager.shared().a.upload.uploadImage(image, thumbnail).flatMapCompletable(new Function<ImageUploadResult, Completable>() {
             @Override
             public Completable apply(ImageUploadResult profileImageUploadResult) throws Exception {
 
@@ -273,7 +275,7 @@ public class ChatSDKProfileHelper {
                 currentUser.setMetaPictureUrl(profileImageUploadResult.imageURL);
                 currentUser.setMetaPictureThumbnail(profileImageUploadResult.thumbnailURL);
 
-                BNetworkManager.getCoreInterface().pushUser();
+                NetworkManager.shared().a.core.pushUser();
 
                 return Completable.complete();
             }

@@ -41,7 +41,7 @@ import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.OpenFromPushChecker;
 import wanderingdevelopment.tk.sdkbaseui.adapter.AbstractChatSDKTabsAdapter;
 import wanderingdevelopment.tk.sdkbaseui.adapter.PagerAdapterTabs;
-import com.braunster.chatsdk.network.PredicateFactory;
+import co.chatsdk.core.PredicateFactory;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 
 import org.apache.commons.lang3.StringUtils;

@@ -1,10 +1,6 @@
 package co.chatsdk.firebase;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
-
-import com.backendless.ContextHandler;
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BUser;
@@ -51,7 +47,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import timber.log.Timber;
 
-import static com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseErrors.getFirebaseError;
+import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -256,7 +252,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
                     }
 
-                    BNetworkManager.getCoreInterface().goOnline();
+                    NetworkManager.shared().a.core.goOnline();
 
                     cs.onComplete();
 

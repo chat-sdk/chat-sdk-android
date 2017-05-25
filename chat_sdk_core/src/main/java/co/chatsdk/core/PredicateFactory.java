@@ -1,4 +1,4 @@
-package com.braunster.chatsdk.network;
+package co.chatsdk.core;
 
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.events.EventType;

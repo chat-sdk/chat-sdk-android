@@ -101,7 +101,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
         // Indexing the user.
         BUser currentUser = NetworkManager.shared().a.core.currentUserModel();
         if(currentUser != null) {
-            BNetworkManager.getCoreInterface().pushUser();
+            NetworkManager.shared().a.core.pushUser();
         }
 
         Intent logout = new Intent(ChatSDKMainActivity.Action_clear_data);
@@ -197,7 +197,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     public void twitterLogin(){
 
-        if (!BNetworkManager.getCoreInterface().twitterEnabled())
+        if (!NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Twitter))
         {
             showToast("Twitter is disabled.");
             return;
@@ -289,7 +289,7 @@ public class ChatSDKAbstractLoginActivity extends ChatSDKBaseActivity {
 
     public void onSessionStateChange(Session session, SessionState state, Exception exception){
 
-        if (!BNetworkManager.getCoreInterface().facebookEnabled())
+        if (!NetworkManager.shared().a.auth.accountTypeEnabled(AccountType.Facebook))
         {
             return;
         }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.DaoCore;
+import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.ImageUploadResult;
 import io.reactivex.Observable;
@@ -14,7 +15,7 @@ import co.chatsdk.core.utils.volley.ImageUtils;
  * Created by benjaminsmiley-andrews on 24/05/2017.
  */
 
-public class BaseUploadHandler {
+public abstract class BaseUploadHandler implements UploadHandler {
 
     public Observable<ImageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail) {
 

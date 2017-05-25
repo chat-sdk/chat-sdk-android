@@ -14,6 +14,7 @@ public class FirebaseNetworkAdapter extends AbstractNetworkAdapter {
         upload = new FirebaseUploadHandler();
         events = FirebaseStateManager.shared();
         publicThread = new FirebasePublicThreadHandler();
+        search = new FirebaseSearchHandler();
     }
 
 }

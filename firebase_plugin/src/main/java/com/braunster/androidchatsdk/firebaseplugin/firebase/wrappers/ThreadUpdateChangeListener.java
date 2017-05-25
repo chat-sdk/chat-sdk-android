@@ -7,10 +7,8 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-
 @Deprecated
-public class ThreadUpdateChangeListener extends FirebaseGeneralEvent {
+public class ThreadUpdateChangeListener {
 
 //    private static final String TAG = ThreadUpdateChangeListener.class.getSimpleName();
 //    private static final boolean DEBUG = Debug.ThreadDetailsChangeListener;

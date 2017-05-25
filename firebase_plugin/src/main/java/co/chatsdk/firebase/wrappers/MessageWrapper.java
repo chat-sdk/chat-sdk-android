@@ -7,7 +7,7 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
+import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.core.BMessage;

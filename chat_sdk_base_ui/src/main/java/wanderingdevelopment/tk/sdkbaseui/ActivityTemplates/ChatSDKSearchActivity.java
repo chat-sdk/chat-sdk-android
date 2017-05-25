@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.dao.core.DaoDefines;
 import io.reactivex.functions.Action;
@@ -199,7 +200,7 @@ public class ChatSDKSearchActivity extends ChatSDKBaseActivity {
             final List<String> userIds = new ArrayList<String>();
             final List<BUser> users = new ArrayList<>();
 
-            BNetworkManager.getCoreInterface().usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
+            NetworkManager.shared().a.search.usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
                 .doOnNext(new Consumer<BUser>() {
                     @Override
                     public void accept(BUser u) throws Exception {

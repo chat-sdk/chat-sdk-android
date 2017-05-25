@@ -1,6 +1,5 @@
 package co.chatsdk.firebase;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.object.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +27,6 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Action;
-import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.

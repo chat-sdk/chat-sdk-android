@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BThreadDao;
 import co.chatsdk.core.dao.core.BUser;

@@ -64,7 +64,7 @@ public class ImportPhoneContactTask extends AsyncTask<Void, Void, Void> {
 
                         if (DEBUG) Timber.d("Name: %s, Phone Number: %s", name, phoneNo);
 
-                        BNetworkManager.getCoreInterface().usersForIndex(DaoDefines.Keys.Phone, phoneNo).doOnNext(new Consumer<BUser>() {
+                        NetworkManager.shared().a.search.usersForIndex(DaoDefines.Keys.Phone, phoneNo).doOnNext(new Consumer<BUser>() {
                             @Override
                             public void accept(BUser u) throws Exception {
                                 NetworkManager.shared().a.core.currentUserModel().addContact(u);

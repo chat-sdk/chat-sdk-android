@@ -13,6 +13,7 @@ import android.content.Intent;
 import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BMessage;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
@@ -104,11 +105,9 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
-            if (BNetworkManager.getCoreInterface() != null) {
-                BUser user = NetworkManager.shared().a.core.currentUserModel();
-                if (user != null && !channel.equals(user.getPushChannel()))
-                    return;
-            }
+            BUser user = NetworkManager.shared().a.core.currentUserModel();
+            if (user != null && !channel.equals(user.getPushChannel()))
+                return;
 
             // Extracting the message data from the push json.
             String entityID = json.getString(DaoDefines.Keys.MESSAGE_ENTITY_ID);

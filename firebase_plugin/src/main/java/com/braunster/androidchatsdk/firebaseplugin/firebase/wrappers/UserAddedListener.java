@@ -7,12 +7,10 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-
 import com.google.firebase.database.DataSnapshot;
 
 @Deprecated
-public class UserAddedListener extends FirebaseGeneralEvent {
+public class UserAddedListener {
 
 //    private static final boolean DEBUG = Debug.UserAddedToThreadListener;
 //

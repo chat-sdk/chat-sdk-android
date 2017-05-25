@@ -135,7 +135,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
 
         message.setImageDimensions(ImageUtils.getDimensionAsString(image));
 
-        return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+        return NetworkManager.shared().a.upload.uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
             @Override
             public void accept(ImageUploadResult result) throws Exception {
                 if(result.isComplete()) {
@@ -218,7 +218,7 @@ public abstract class ThreadsManager implements ThreadsInterface {
                 VolleyUtils.BitmapCache.getCacheKey(message.getResourcesPath()),
                 thumbnail);
 
-        return BNetworkManager.getCoreInterface().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+        return NetworkManager.shared().a.upload.uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
             @Override
             public void accept(ImageUploadResult result) throws Exception {
                 if(result.isComplete()) {

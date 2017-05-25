@@ -20,9 +20,11 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.utils.volley.ImageUtils;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
@@ -340,7 +342,7 @@ public class ChatSDKThreadDetailsActivity extends ChatSDKBaseThreadActivity {
 
                 Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
 
-                BNetworkManager.getCoreInterface().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
+                NetworkManager.shared().a.upload.uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                     }

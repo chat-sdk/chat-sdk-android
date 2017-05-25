@@ -7,10 +7,8 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-
 @Deprecated
-public class InMessagesListener extends FirebaseGeneralEvent {
+public class InMessagesListener {
 
 //    private static final String TAG = InMessagesListener.class.getSimpleName();
 //    private static final boolean DEBUG = Debug.IncomingMessagesListener;

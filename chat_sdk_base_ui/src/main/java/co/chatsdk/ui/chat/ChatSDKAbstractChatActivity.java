@@ -55,7 +55,7 @@ import co.chatsdk.core.defines.Debug;
 
 import wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKContactsFragment;
 
-import com.braunster.chatsdk.network.PredicateFactory;
+import co.chatsdk.core.PredicateFactory;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;

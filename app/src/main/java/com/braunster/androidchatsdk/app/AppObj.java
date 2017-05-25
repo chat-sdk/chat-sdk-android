@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseCoreAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseThreadsAdapter;
 import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.BackendlessHandler;
 
@@ -15,7 +14,6 @@ import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
 import co.chatsdk.core.NetworkManager;
 import timber.log.Timber;
-import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
@@ -57,9 +55,6 @@ public class AppObj extends MultiDexApplication {
         ThreadsInterface threads = new FirebaseThreadsAdapter();
         BNetworkManager.setThreadsInterface(threads);
 
-
-        CoreInterface core = new FirebaseCoreAdapter(getApplicationContext());
-        BNetworkManager.setCoreInterface(core);
 
         UiLauncherInterface uiLauncher = ChatSDKUiHelper.initDefault();
         BNetworkManager.setUiLauncherInterface(uiLauncher);

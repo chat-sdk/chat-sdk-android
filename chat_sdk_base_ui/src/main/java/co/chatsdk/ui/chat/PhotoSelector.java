@@ -14,6 +14,7 @@ import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
 
+import co.chatsdk.core.utils.volley.ImageUtils;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
 

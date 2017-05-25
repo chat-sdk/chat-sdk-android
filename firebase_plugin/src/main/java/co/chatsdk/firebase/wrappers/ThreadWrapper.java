@@ -7,7 +7,7 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
+import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.StorageManager;
@@ -22,7 +22,7 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.core.DaoCore;
 
 import co.chatsdk.core.defines.FirebaseDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
+
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;

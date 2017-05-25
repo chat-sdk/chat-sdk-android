@@ -7,22 +7,11 @@
 
 package com.braunster.androidchatsdk.firebaseplugin.firebase.wrappers;
 
-import android.os.Handler;
-import android.os.Message;
-
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebaseGeneralEvent;
-import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.interfaces.AppEvents;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
-import org.jdeferred.Deferred;
-
-import co.chatsdk.core.utils.Executor;
-import timber.log.Timber;
-
 @Deprecated
-public class UserMetaChangeListener extends FirebaseGeneralEvent {
+public class UserMetaChangeListener {
 
 //    private static final String TAG = UserMetaChangeListener.class.getSimpleName();
 //    private static final boolean DEBUG = Debug.UserDetailsChangeListener;

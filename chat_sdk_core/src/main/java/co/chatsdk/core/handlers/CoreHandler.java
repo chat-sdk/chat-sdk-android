@@ -3,12 +3,13 @@ package co.chatsdk.core.handlers;
 import co.chatsdk.core.dao.core.BUser;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
-public interface CoreHandler {
+ public interface CoreHandler {
 
     enum bSystemMessageType {
         bSystemMessageTypeInfo(1),
@@ -20,7 +21,7 @@ public interface CoreHandler {
             this.numVal = numVal;
         }
 
-        public int getNumVal() {
+         int getNumVal() {
             return numVal;
         }
     }
@@ -28,35 +29,37 @@ public interface CoreHandler {
     /**
      * Update the user on the server
      */
-    public Completable pushUser ();
+    Completable pushUser ();
 
     /**
     * Return the current user data
     */
-    public BUser currentUserModel();
-
-    // TODO: Consider removing / refactoring this
+    BUser currentUserModel();
 
     /**
     * Mark the user as online
     */
-    public void setUserOnline();
+    void setUserOnline();
+
+    void setUserOffline();
 
     /**
     * Connect to the server
     */
-    public void goOffline();
+    void goOffline();
 
     /**
     * Disconnect from the server
     */
-    public void goOnline();
+    void goOnline();
+
+    Single<Boolean> isOnline();
 
     // TODO: Consider removing / refactoring this
     /**
     * Subscribe to a user's updates
     */
-    public void observeUser(String entityID);
+    void observeUser(String entityID);
 
     // TODO: Consider removing this
     /**
@@ -64,8 +67,6 @@ public interface CoreHandler {
      * Core Data stores all data chages in memory and when the program terminates these
      * changes are lost. Calling save forces Core Data to persist the data to perminant storage
      */
-    //-(void) save;
-    public void save();
-
+    void save();
 
 }

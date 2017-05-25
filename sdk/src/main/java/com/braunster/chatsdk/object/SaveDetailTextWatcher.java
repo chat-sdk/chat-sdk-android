@@ -79,7 +79,7 @@ public class SaveDetailTextWatcher implements TextWatcher {
                 return;
 
             user.setMetadataString(metaKey, editable.toString());
-            BNetworkManager.getCoreInterface().pushUser();
+            NetworkManager.shared().a.core.pushUser();
         }
     };
 

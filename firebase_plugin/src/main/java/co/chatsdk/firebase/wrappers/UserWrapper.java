@@ -10,7 +10,7 @@ package co.chatsdk.firebase.wrappers;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
+import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.StorageManager;

@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:34 PM
  */
 
-package com.braunster.androidchatsdk.firebaseplugin.firebase;
+package co.chatsdk.firebase;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

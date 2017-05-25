@@ -21,7 +21,6 @@ import com.bugsense.trace.BugSenseHandler;
 
 import org.apache.commons.lang3.StringUtils;
 
-import tk.wanderingdevelopment.chatsdk.core.interfaces.CoreInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.ThreadsInterface;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
 
@@ -42,7 +41,6 @@ public class BNetworkManager {
 
     private static BNetworkManager instance;
 
-    private static CoreInterface coreInterface;
     private static ThreadsInterface threadsInterface;
     private static UiLauncherInterface uiLauncherInterface;
 
@@ -89,13 +87,6 @@ public class BNetworkManager {
         return threadsInterface;
     }
 
-    public static void setCoreInterface(CoreInterface coreInterface) {
-        BNetworkManager.coreInterface = coreInterface;
-    }
-
-    public static CoreInterface getCoreInterface() {
-        return coreInterface;
-    }
 
 //    /** Always safe to call*/
 //    public static SharedPreferences getUserPrefs(String entityId){

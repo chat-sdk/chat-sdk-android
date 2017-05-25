@@ -1,14 +1,13 @@
 package co.chatsdk.firebase;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
-
+import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.core.BThread;
 import co.chatsdk.core.dao.core.BUser;
 import co.chatsdk.core.dao.core.DaoDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.core.DaoCore;
-import com.braunster.chatsdk.network.BNetworkManager;
+
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 

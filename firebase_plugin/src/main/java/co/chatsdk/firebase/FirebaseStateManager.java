@@ -1,6 +1,5 @@
 package co.chatsdk.firebase;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.FirebasePaths;
 import com.braunster.chatsdk.network.BNetworkManager;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
