@@ -52,7 +52,7 @@ public class Strings {
         if (StringUtils.isNotEmpty(thread.getName()))
             return thread.getName();
 
-        // Due to the data printing when the app run on debug this sometime is null.
+        // Due to the bundle printing when the app run on debug this sometime is null.
         BUser currentUser = NM.currentUser();
         String name = "";
 

@@ -32,7 +32,7 @@ public class ContactsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;
     private List<String> _listDataHeader; // header titles
-    // child data in format of header title, child title
+    // child bundle in format of header title, child title
     private HashMap<String, List<BUser>> _listDataChild;
 
     private TextView txtContactName;

@@ -50,7 +50,7 @@ import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
  * Then the receiver will check to see if the message is already on the db, if the message exist it will be <b>ignored</b>.
  * This behavior prevents notifying the user for a message that is already seen by the user while the push was on its way.
  *
- * Then the receiver will parse the message data from the push json. After that it will validate, build and save the message to the db.
+ * Then the receiver will parse the message bundle from the push json. After that it will validate, build and save the message to the db.
  *
  * Then the receiver will check if the user is authenticated, If he his the notification will lead him to the ChatActivity else he will be directed to the LoginActivity.
  *
@@ -101,7 +101,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         try {
             if (DEBUG) Timber.v("onReceive");
 
-            // The data saved for this push message.
+            // The bundle saved for this push message.
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
@@ -109,7 +109,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             if (user != null && !channel.equals(user.getPushChannel()))
                 return;
 
-            // Extracting the message data from the push json.
+            // Extracting the message bundle from the push json.
             String entityID = json.getString(DaoDefines.Keys.MESSAGE_ENTITY_ID);
             final String threadEntityID = json.getString(DaoDefines.Keys.THREAD_ENTITY_ID);
             final String senderEntityId = json.getString(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID);

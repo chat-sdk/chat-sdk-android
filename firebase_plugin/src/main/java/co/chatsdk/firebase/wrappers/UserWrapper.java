@@ -189,7 +189,7 @@ public class UserWrapper {
             model.setMetaName(Defines.getDefaultUserName());
         }
         
-        // Save the data
+        // Save the bundle
         DaoCore.updateEntity(model);
     }
 
@@ -282,7 +282,7 @@ public class UserWrapper {
 
             if (DEBUG) Timber.v("deserializeMeta, OldDataMap: %s", oldData);
             
-            // Updating the old data
+            // Updating the old bundle
             for (String key : newData.keySet())
             {
                 if (DEBUG) Timber.d("key: %s, Value: %s", key, newData.get(key));

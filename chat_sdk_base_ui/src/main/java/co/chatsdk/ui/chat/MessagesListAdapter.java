@@ -61,9 +61,9 @@ import timber.log.Timber;
 /**
  * Created by itzik on 6/5/2014.
  */
-public class ChatSDKMessagesListAdapter extends BaseAdapter{
+public class MessagesListAdapter extends BaseAdapter{
 
-    private static final String TAG = ChatSDKMessagesListAdapter.class.getSimpleName();
+    private static final String TAG = MessagesListAdapter.class.getSimpleName();
     private static final boolean DEBUG = Debug.MessagesListAdapter;
 
     /**
@@ -124,7 +124,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * * */
     private StringBuilder builder = new StringBuilder();
 
-    public ChatSDKMessagesListAdapter(AppCompatActivity activity, Long userID) {
+    public MessagesListAdapter(AppCompatActivity activity, Long userID) {
         this.activity = activity;
         this.userID = userID;
 
@@ -189,7 +189,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
 //        if (DEBUG) Log.d(TAG, "CoreMessage, Type: " + message.type  + " Row Type: " + type + ", Text: " + message.text);
 
-        // Load the message data.
+        // Load the message bundle.
         loadMessageData(holder, message);
 
         loadDefaults(row, holder, position, message, sender);
@@ -261,9 +261,9 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     }
 
     /**
-     * Load the data for each message, The data will be loaded for each message type and would be animated if needed.
+     * Load the bundle for each message, The bundle will be loaded for each message type and would be animated if needed.
      *
-     * By Overriding this function you can load data for your custom messages type, For example video message or audio.
+     * By Overriding this function you can load bundle for your custom messages type, For example video message or audio.
      * You can also just change one of the default loading type.
      *
      * */
@@ -279,7 +279,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 holder.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
                 Linkify.addLinks(holder.txtContent, Linkify.ALL);
 
-                if (textColor != -1991)
+                if (textColor != ChatSDKUiHelper.NULL)
                     holder.txtContent.setTextColor(textColor);
 
                 animateContent((View) holder.txtContent.getParent(), null, message.delivered != BMessage.Delivered.No);
@@ -309,9 +309,9 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     }
 
     /**
-     * Load the default data for each message, The data will be loaded for each message and be animated if needed.
+     * Load the default bundle for each message, The bundle will be loaded for each message and be animated if needed.
      *
-     * By Overriding this function you change or add logic for your default message data load,
+     * By Overriding this function you change or add logic for your default message bundle load,
      * For example load online status for each user.
      *
      * */
@@ -484,7 +484,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * @return true if the item is added to the list.
      * */
     public boolean addRow(MessageListItem newItem){
-        // Bad data.
+        // Bad bundle.
         if (newItem == null)
             return false;
         
@@ -629,14 +629,14 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * @see #setCustomDateFormat(java.text.SimpleDateFormat)
      * */
     public List<MessageListItem> makeList(List<BMessage> list){
-        return MessageListItem.makeList(activity, userID, list, customDateFormat);
+        return MessageListItem.makeList(activity, list);
     }
 
 
 
 
     /**
-     * The MessageListItem holds the BMessage object so we wont need to query data about the message each time we inflate a row.
+     * The MessageListItem holds the BMessage object so we wont need to query bundle about the message each time we inflate a row.
      * */
     public static class MessageListItem {
 
@@ -678,10 +678,10 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
         }
 
-        public static List<MessageListItem> makeList(AppCompatActivity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
+        public static List<MessageListItem> makeList(AppCompatActivity activity, List<BMessage> messages){
             if (DEBUG) Timber.v("makeList, messagesSize: %s, ", messages.size());
             
-            List<MessageListItem> list = new ArrayList<MessageListItem>();
+            List<MessageListItem> list = new ArrayList();
 
             int maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
 
@@ -690,21 +690,20 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
             {
                 item = new MessageListItem(message, maxWidth);
 
-                    /*Fixme Due to old data*/
                 if (message.getType() != BMessage.Type.TEXT && item.dimensions == null)
                 {
                     Timber.d("Cant find dimensions, path: %s, dimensionsString: %s", item.resourcePath, item.dimensionsString);
                     continue;
                 }
 
-                /*Skip messages with no date.*/
+                // Skip messages with no date
                 if (message.getDate() == null)
                     continue;
 
                 list.add(item);
             }
 
-            // We need to reverse the list so the newest data would be on the top again.
+            // We need to reverse the list so the newest bundle would be on the top again.
             Collections.reverse(list);
 
             return list;
@@ -735,35 +734,6 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 return simpleDateFormat;
             }
         }
-//
-//        private static int getColorFromDec(String color){
-//            String[] split = color.split(" ");
-//
-//            int bubbleColor = -1;
-//
-//            bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
-//
-//            return bubbleColor;
-//        }
-//
-//        private static int setColor(String color){
-//            // Coloring the message
-//            int bubbleColor = -1;
-//            if (color != null && !color.equals("Red"))
-//            {
-//                try{
-//                    bubbleColor = Color.parseColor(color);
-//                }
-//                catch (Exception e){}
-//
-//                if (bubbleColor == -1)
-//                {
-//                    bubbleColor = getColorFromDec(color);
-//                }
-//            }
-//
-//            return bubbleColor;
-//        }
 
         private static int getRowType(int messageType, long senderId, long curUserID){
             // Setting the row type.
@@ -876,7 +846,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     }
 
     /**
-     * Set the messages list data.
+     * Set the messages list bundle.
      * */
     public void setListData(List<MessageListItem> listData) {
         if (DEBUG) Timber.v("setListData, Size: %s", listData == null ? "null" : listData.size());

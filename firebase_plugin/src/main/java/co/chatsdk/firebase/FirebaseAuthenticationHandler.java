@@ -86,7 +86,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         e.onSuccess(user);
                     }
                     else{
-                        e.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth data found"));
+                        e.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth bundle found"));
                     }
                 }
             }

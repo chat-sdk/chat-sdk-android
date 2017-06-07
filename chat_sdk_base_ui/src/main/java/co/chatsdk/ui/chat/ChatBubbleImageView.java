@@ -447,7 +447,7 @@ public class ChatBubbleImageView extends AppCompatImageView /*implements View.On
         protected void onPostExecute(WeakReference<Bitmap> bitmap) {
             super.onPostExecute(bitmap);
 
-            // Validating the data so we wont show the wrong image.
+            // Validating the bundle so we wont show the wrong image.
             if (isCancelled() || bitmap == null || killed || !imageUrl.equals(bubbleImageUrl))
             {
                 if (DEBUG) Timber.d("Async task is dead? %s", isCancelled());

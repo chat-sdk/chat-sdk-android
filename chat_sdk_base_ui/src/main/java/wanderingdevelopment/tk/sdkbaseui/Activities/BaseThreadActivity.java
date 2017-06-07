@@ -30,7 +30,6 @@ public class BaseThreadActivity extends BaseActivity {
     private static final String TAG = BaseThreadActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.ChatSDKBaseThreadActivity;
 
-
     /** The key to get the thread long id.*/
     public static final String THREAD_ID = "thread_id";
     public static final String THREAD_ENTITY_ID = "Thread_Entity_ID";

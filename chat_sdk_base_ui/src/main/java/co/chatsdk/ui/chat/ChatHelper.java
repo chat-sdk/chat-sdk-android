@@ -44,7 +44,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class ChatSDKChatHelper {
+public class ChatHelper {
 
     public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
 
@@ -88,7 +88,7 @@ public class ChatSDKChatHelper {
     /** Keeping track of the amount of messages that was read in this thread.*/
     private int readCount = 0;
 
-    private static final String TAG = ChatSDKChatHelper.class.getSimpleName();
+    private static final String TAG = ChatHelper.class.getSimpleName();
     private static final boolean DEBUG = false;
 
     private WeakReference<AppCompatActivity> activity;
@@ -96,9 +96,9 @@ public class ChatSDKChatHelper {
     private ChatSDKUiHelper uiHelper;
     private ListView listMessages;
     private ProgressBar progressBar;
-    private ChatSDKMessagesListAdapter messagesListAdapter;
+    private MessagesListAdapter messagesListAdapter;
 
-    public ChatSDKChatHelper(AppCompatActivity activity, BThread thread, ChatSDKUiHelper uiHelper) {
+    public ChatHelper(AppCompatActivity activity, BThread thread, ChatSDKUiHelper uiHelper) {
         this.activity = new WeakReference<>(activity);
         this.thread = thread;
         this.uiHelper = uiHelper;
@@ -138,17 +138,23 @@ public class ChatSDKChatHelper {
                 List<BMessage> messages;
                 // Loading messages
                 // Load with fixed limit
-                if (amountToLoad > 0)
-                    messages = getMessagesForThreadForEntityID(thread.getId(), amountToLoad);
-                // we allread loaded messages so we load more then the default limit.
-                else if (messagesListAdapter.getCount() > Defines.MAX_MESSAGES_TO_PULL + 1)
-                    messages = getMessagesForThreadForEntityID(thread.getId(), messagesListAdapter.getCount());
+                if (amountToLoad > 0) {
+                    messages = getMessagesForThreadID(thread.getId(), amountToLoad);
+                }
+
+                // we all read loaded messages so we load more then the default limit.
+                else if (messagesListAdapter.getCount() > Defines.MAX_MESSAGES_TO_PULL + 1) {
+                    messages = getMessagesForThreadID(thread.getId(), messagesListAdapter.getCount());
+                }
+
                 //This value is saved in the savedInstanceState so we could check if there was more loaded messages then normal before.
-                else if (loadedMessagesAmount > Defines.MAX_MESSAGES_TO_PULL + 1)
-                    messages = getMessagesForThreadForEntityID(thread.getId(), loadedMessagesAmount);
+                else if (loadedMessagesAmount > Defines.MAX_MESSAGES_TO_PULL + 1) {
+                    messages = getMessagesForThreadID(thread.getId(), loadedMessagesAmount);
+                }
                 //Loading with default limit.
-                else
-                    messages = getMessagesForThreadForEntityID(thread.getId());
+                else {
+                    messages = getMessagesForThreadID(thread.getId());
+                }
 
                 // Sorting the message by date to make sure the list looks ok.
                 Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
@@ -158,7 +164,7 @@ public class ChatSDKChatHelper {
                 markAsRead(messages);
 
                 // Setting the new message to the adapter.
-                final List<ChatSDKMessagesListAdapter.MessageListItem> list = messagesListAdapter.makeList(messages);
+                final List<MessagesListAdapter.MessageListItem> list = messagesListAdapter.makeList(messages);
 
                 if (list.size() == 0)
                 {
@@ -206,14 +212,14 @@ public class ChatSDKChatHelper {
     /**
      * Get all messages for given thread id ordered Ascending/Descending
      */
-    public List<BMessage> getMessagesForThreadForEntityID(Long id) {
-        return getMessagesForThreadForEntityID(id, Defines.MAX_MESSAGES_TO_PULL);
+    public List<BMessage> getMessagesForThreadID(Long id) {
+        return getMessagesForThreadID(id, Defines.MAX_MESSAGES_TO_PULL);
     }
 
     /**
      * Get all messages for given thread id ordered Ascending/Descending
      */
-    public List<BMessage> getMessagesForThreadForEntityID(Long id, int limit) {
+    public List<BMessage> getMessagesForThreadID(Long id, int limit) {
         List<BMessage> list ;
 
         QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
@@ -282,7 +288,7 @@ public class ChatSDKChatHelper {
         });
     }
 
-    public void animateListView(){
+    public void animateListView() {
 
         if (!hasActivity())
             return;
@@ -317,8 +323,6 @@ public class ChatSDKChatHelper {
         listMessages.getAnimation().start();
     }
 
-
-
     private void sendingMessageToast(){
         // Just to be sure it's initialized.
         uiHelper.initCardToast();
@@ -332,12 +336,10 @@ public class ChatSDKChatHelper {
         }
 
         outState.putInt(LOADED_MESSAGES_AMOUNT, loadedMessagesAmount);
+        outState.putInt(READ_COUNT, readCount);
+        outState.putString(FILE_NAME, mFileName);
 
         SuperCardToast.onSaveState(outState);
-
-        outState.putInt(READ_COUNT, readCount);
-        
-        outState.putString(FILE_NAME, mFileName);
     }
     
     public void restoreSavedInstance(Bundle savedInstanceState){
@@ -348,13 +350,10 @@ public class ChatSDKChatHelper {
             return;
 
         selectedFilePath = savedInstanceState.getString(SELECTED_FILE_PATH);
-        savedInstanceState.remove(SELECTED_FILE_PATH);
-
         loadedMessagesAmount = savedInstanceState.getInt(LOADED_MESSAGES_AMOUNT, 0);
-
         readCount = savedInstanceState.getInt(READ_COUNT);
-
         mFileName = savedInstanceState.getString(FILE_NAME);
+
         SuperCardToast.onRestoreState(savedInstanceState, activity.get());
     }
 
@@ -388,29 +387,8 @@ public class ChatSDKChatHelper {
             }
         });
 
-        // TODO: BEN1 Add this!
-
-//        // Adding the message after it was prepared bt the NetworkAdapter.
-//        if (messagesListAdapter != null)
-//        {
-//            messagesListAdapter.addRow(message);
-//            scrollListTo(messagesListAdapter.getCount(), true);
-//        }
-
     }
 
-
-    /** Check the intent if carries some data that received from another app to share on this chat.*/
-
-
-        
-//    public String getSelectedFilePath() {
-//        return selectedFilePath;
-//    }
-
-//    public boolean isLoactionMedia(){
-//        return StringUtils.isNotEmpty(getSelectedFilePath()) && StringUtils.isNotBlank(getSelectedFilePath());
-//    }
 
     public void setThread(BThread thread) {
         this.thread = thread;
@@ -424,7 +402,7 @@ public class ChatSDKChatHelper {
         this.progressBar = progressBar;
     }
 
-    public void setMessagesListAdapter(ChatSDKMessagesListAdapter messagesListAdapter) {
+    public void setMessagesListAdapter(MessagesListAdapter messagesListAdapter) {
         this.messagesListAdapter = messagesListAdapter;
     }
 

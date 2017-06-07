@@ -66,6 +66,7 @@ public class Defines {
      * */
     public static final int MAX_MESSAGES_TO_PULL = 30;
 
+    public static final String THREAD_ID = "thread_id";
     /**
      * If true user phone number will be index if not empty.
      *
@@ -176,8 +177,6 @@ public class Defines {
     public static final int FOLLOWER_NOTIFICATION_ID = 1002;
 
 
-    public static final String THREAD_ID = "thread_id";
-    public static final String LIST_POS = "list_pos";
     public static final String FROM_PUSH = "from_push";
     public static final String MSG_TIMESTAMP = "timestamp";
 

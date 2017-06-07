@@ -48,6 +48,8 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
     public static final String USER_ID = "user_id";
     public static final String USER_ENTITY_ID = "user_entity_id";
 
+    public static final int NULL = -1991;
+
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener) {
         setupTouchUIToDismissKeyboard(view, onTouchListener, -1);
@@ -104,7 +106,6 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         return instance;
     }
 
-    private static final int NULL = -1991;
 
     /** If one of this toast are initialized it will be used across the app as the default toast.
      *  Each context can set it's own toast using the ui helper the sdk offers.

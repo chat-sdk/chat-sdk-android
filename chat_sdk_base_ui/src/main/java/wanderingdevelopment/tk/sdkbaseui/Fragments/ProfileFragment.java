@@ -99,7 +99,7 @@ public class ProfileFragment extends AbstractProfileFragment {
     public void onResume() {
         super.onResume();
 
-        // Setting a listener to text change, The listener will take cate of indexing the data.
+        // Setting a listener to text change, The listener will take cate of indexing the bundle.
         TextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Email);
         TextWatcher nameTextWatcher= new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Name);
         TextWatcher phoneTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Phone);

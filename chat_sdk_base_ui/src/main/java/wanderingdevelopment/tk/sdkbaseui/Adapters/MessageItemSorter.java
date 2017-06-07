@@ -7,14 +7,14 @@
 
 package wanderingdevelopment.tk.sdkbaseui.Adapters;
 
-import co.chatsdk.ui.chat.ChatSDKMessagesListAdapter;
+import co.chatsdk.ui.chat.MessagesListAdapter;
 import co.chatsdk.core.dao.DaoCore;
 
 import java.util.Comparator;
 
-import static co.chatsdk.ui.chat.ChatSDKMessagesListAdapter.MessageListItem;
+import static co.chatsdk.ui.chat.MessagesListAdapter.MessageListItem;
 
-public class MessageItemSorter implements Comparator<ChatSDKMessagesListAdapter.MessageListItem> {
+public class MessageItemSorter implements Comparator<MessagesListAdapter.MessageListItem> {
     public static final int ORDER_TYPE_ASC = DaoCore.ORDER_ASC;
     public static final int ORDER_TYPE_DESC = DaoCore.ORDER_DESC;
 

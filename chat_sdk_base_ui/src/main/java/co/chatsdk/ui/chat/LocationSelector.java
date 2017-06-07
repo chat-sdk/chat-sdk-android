@@ -57,7 +57,7 @@ public class LocationSelector {
             // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
             if(resultHandler != null) {
                 Place place = PlacePicker.getPlace(activity, data);
-//                String filePath = data.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
+//                String filePath = bundle.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
 
                 resultHandler.result("", place.getLatLng());
             }

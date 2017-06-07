@@ -472,7 +472,7 @@ public class BaseActivity extends AppCompatActivity {
         this.integratedWithFacebook = integratedWithFacebook;
     }
 
-    public void setEnableCardToast(boolean enableCardToast) {
+    public void setCardToastEnabled(boolean enableCardToast) {
         this.enableCardToast = enableCardToast;
     }
 

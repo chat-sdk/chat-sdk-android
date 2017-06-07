@@ -24,7 +24,7 @@ public class ShareWithContactsActivity extends BaseActivity {
     public static final String TAG = ShareWithContactsActivity.class.getSimpleName();
     public static final boolean DEBUG = Debug.ShareWithContactsActivity;
 
-    /*FIXME add a check to see if there is any user logged in, If there is not add an option for a quick login just for passing all the data.*/
+    /*FIXME add a check to see if there is any user logged in, If there is not add an option for a quick login just for passing all the bundle.*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

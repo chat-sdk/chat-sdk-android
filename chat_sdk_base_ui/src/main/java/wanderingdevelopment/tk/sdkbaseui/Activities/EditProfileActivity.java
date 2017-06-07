@@ -87,7 +87,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
     }
 
     /**
-     * Load the user data from the database.
+     * Load the user bundle from the database.
      * */
     private void loadCurrentData(){
         BUser user = NM.currentUser();

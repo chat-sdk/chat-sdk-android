@@ -247,7 +247,7 @@ public class ThreadWrapper  {
 
     }
 
-    //Note the old listener that was used to process the thread data is still in use.
+    //Note the old listener that was used to process the thread bundle is still in use.
     /**
      * Start listening to users added to this thread.
      **/
@@ -744,13 +744,13 @@ public class ThreadWrapper  {
 //            @Override
 //            public void subscribe(final CompletableEmitter e) throws Exception {
 //                DatabaseReference ref = FirebasePaths.firebaseRef();
-//                final HashMap<String, Object> data = new HashMap<>();
-//                data.put("threads/" + model.getEntityID() + "/users/" + user.getModel().getEntityID(), DaoDefines.Keys.Null);
+//                final HashMap<String, Object> bundle = new HashMap<>();
+//                bundle.put("threads/" + model.getEntityID() + "/users/" + user.getModel().getEntityID(), DaoDefines.Keys.Null);
 //
 //                if(model.typeIs(ThreadType.Private)) {
-//                    data.put("users/" + user.getModel().getEntityID() + "/threads/" + model.getEntityID(), DaoDefines.Keys.Null);
+//                    bundle.put("users/" + user.getModel().getEntityID() + "/threads/" + model.getEntityID(), DaoDefines.Keys.Null);
 //                }
-//                ref.updateChildren(data, new DatabaseReference.CompletionListener() {
+//                ref.updateChildren(bundle, new DatabaseReference.CompletionListener() {
 //                    @Override
 //                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 //                        if(databaseError == null) {

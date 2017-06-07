@@ -267,7 +267,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /** Refresh the contacts fragment when a contact added action is received.
-     *  Clear Fragments data when logged out.
+     *  Clear Fragments bundle when logged out.
      *  Refresh Fragment when wanted.*/
     private BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override

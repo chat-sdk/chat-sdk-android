@@ -283,7 +283,7 @@ public class NotificationUtils {
             data.putString(TITLE, StringUtils.join(senders, ", "));
         }
         
-        // Adding the lines data
+        // Adding the lines bundle
         if (lines.size() > 0)
         {
             data.putStringArrayList(LINES, lines);

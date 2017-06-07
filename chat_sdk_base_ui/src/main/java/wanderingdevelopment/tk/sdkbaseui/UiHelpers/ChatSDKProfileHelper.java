@@ -414,7 +414,7 @@ public class ChatSDKProfileHelper {
         float yScale = ((float) boundBoxInDp) / height;
         float scale = (xScale <= yScale) ? xScale : yScale;
 
-        // Create a matrix for the scaling and add the scaling data
+        // Create a matrix for the scaling and add the scaling bundle
         Matrix matrix = new Matrix();
         matrix.postScale(scale, scale);
 

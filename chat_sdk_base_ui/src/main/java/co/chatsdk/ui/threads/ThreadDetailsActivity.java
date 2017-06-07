@@ -94,7 +94,7 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
 
     private void loadData(){
 
-        // Admin data
+        // Admin bundle
         if (StringUtils.isNotBlank(thread.getCreatorEntityId()))
         {
             admin = DaoCore.fetchEntityWithEntityID(BUser.class, thread.getCreatorEntityId());
@@ -161,7 +161,7 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         // CoreThread name
         txtThreadName.setText(Strings.nameForThread(thread));
 
-        // CoreThread users data
+        // CoreThread users bundle
         contactsFragment = new ContactsFragment();
         contactsFragment.setInflateMenu(false);
 

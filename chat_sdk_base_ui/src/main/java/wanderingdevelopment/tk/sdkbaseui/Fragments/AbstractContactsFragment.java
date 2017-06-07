@@ -27,13 +27,13 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.chat.ChatHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import wanderingdevelopment.tk.sdkbaseui.Activities.SearchActivity;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.chat.ChatSDKChatHelper;
 import wanderingdevelopment.tk.sdkbaseui.Adapters.UsersListAdapter;
 import wanderingdevelopment.tk.sdkbaseui.Adapters.AbstractUsersListAdapter;
 import co.chatsdk.core.dao.DaoCore;
@@ -67,7 +67,7 @@ public class AbstractContactsFragment extends BaseFragment {
 
     /** When a user clicked he will be added to the current thread.*/
     public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
-    /** Used for the share intent, When a user press on a user the attached data from the share intent will be sent to the selected user.*/
+    /** Used for the share intent, When a user press on a user the attached bundle from the share intent will be sent to the selected user.*/
     public static final int CLICK_MODE_SHARE_CONTENT = 2992;
     /** Open profile activity when user is clicked.*/
     public static final int CLICK_MODE_SHOW_PROFILE = 2993;
@@ -115,7 +115,7 @@ public class AbstractContactsFragment extends BaseFragment {
      * #CLICK_MODE_SHOW_PROFILE */
     protected int clickMode;
 
-    /** Extra data for the loading mode/ click mode, for example this is used as thread id/entityID for loading mode {@link #CLICK_MODE_ADD_USER_TO_THREAD}
+    /** Extra bundle for the loading mode/ click mode, for example this is used as thread id/entityID for loading mode {@link #CLICK_MODE_ADD_USER_TO_THREAD}
      *  Look in {@link #loadSourceUsers()} or in {@link #setListClickMode()} for more examples. */
     protected Object extraData ="";
 
@@ -338,13 +338,13 @@ public class AbstractContactsFragment extends BaseFragment {
                                             Intent intent = new Intent(getActivity(), chatSDKUiHelper.getChatActivity());
                                             intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
 
-                                            // Checking the kind of the instace data
+                                            // Checking the kind of the instace bundle
                                             // Uri is used for images
                                             if (extraData instanceof Uri)
-                                                intent.putExtra(ChatSDKChatHelper.SHARED_FILE_URI, ((Uri) extraData));
+                                                intent.putExtra(ChatHelper.SHARED_FILE_URI, ((Uri) extraData));
                                                 // String is for text.
                                             else if (extraData instanceof String)
-                                                intent.putExtra(ChatSDKChatHelper.SHARED_TEXT, ((String) extraData));
+                                                intent.putExtra(ChatHelper.SHARED_TEXT, ((String) extraData));
                                             else {
                                                 showToast(getString(R.string.abstract_contact_fragment_share_with_contact_toast_fail_unknown_type));
                                                 return;
