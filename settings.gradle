@@ -1,1 +1,1 @@
-include ':app', ':facebook', ':firebase_plugin', ':sdk', ':chat_sdk_base_ui', ':chat_sdk_core', ':green_dao_storage_adapter'
+include ':app', ':facebook', ':firebase_plugin', ':sdk', ':chat_sdk_base_ui', ':chat_sdk_core'

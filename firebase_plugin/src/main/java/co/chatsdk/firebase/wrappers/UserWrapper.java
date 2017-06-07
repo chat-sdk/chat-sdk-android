@@ -13,7 +13,7 @@ import android.support.annotation.NonNull;
 import co.chatsdk.core.NM;
 import co.chatsdk.firebase.FirebasePaths;
 
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.BLinkedAccount;
 import co.chatsdk.core.dao.BUser;
@@ -385,54 +385,54 @@ public class UserWrapper {
         return channel;
     }
     
-    public Completable addThreadWithEntityID(final String entityID){
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-
-                DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(model.getEntityID()).child(entityID);
-
-                HashMap<String, Object> value = new HashMap<>();
-                value.put(DaoDefines.Keys.Null, "");
-
-                userThreadsRef.setValue(value, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                        if (firebaseError == null) {
-                            e.onComplete();
-                        }
-                        else {
-                            e.onError(firebaseError.toException());
-                        }
-                    }
-                });
-
-            }
-        });
-    }
-    
-    public Completable removeThreadWithEntityID(final String entityID){
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-
-                DatabaseReference userThreadRef = FirebasePaths.userThreadsRef(model.getEntityID()).child(entityID);
-
-                userThreadRef.removeValue(new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                        if (firebaseError != null) {
-                            e.onError(firebaseError.toException());
-                        }
-                        else {
-                            e.onComplete();
-                        }
-                    }
-                });
-
-            }
-        });
-    }
+//    public Completable addThreadWithEntityID(final String entityID){
+//        return Completable.create(new CompletableOnSubscribe() {
+//            @Override
+//            public void subscribe(final CompletableEmitter e) throws Exception {
+//
+//                DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(model.getEntityID()).child(entityID);
+//
+//                HashMap<String, Object> value = new HashMap<>();
+//                value.put(DaoDefines.Keys.Null, "");
+//
+//                userThreadsRef.setValue(value, new DatabaseReference.CompletionListener() {
+//                    @Override
+//                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
+//                        if (firebaseError == null) {
+//                            e.onComplete();
+//                        }
+//                        else {
+//                            e.onError(firebaseError.toException());
+//                        }
+//                    }
+//                });
+//
+//            }
+//        });
+//    }
+//
+//    public Completable removeThreadWithEntityID(final String entityID){
+//        return Completable.create(new CompletableOnSubscribe() {
+//            @Override
+//            public void subscribe(final CompletableEmitter e) throws Exception {
+//
+//                DatabaseReference userThreadRef = FirebasePaths.userThreadsRef(model.getEntityID()).child(entityID);
+//
+//                userThreadRef.removeValue(new DatabaseReference.CompletionListener() {
+//                    @Override
+//                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
+//                        if (firebaseError != null) {
+//                            e.onError(firebaseError.toException());
+//                        }
+//                        else {
+//                            e.onComplete();
+//                        }
+//                    }
+//                });
+//
+//            }
+//        });
+//    }
     
     public Completable updateIndex(){
         return Completable.create(new CompletableOnSubscribe() {

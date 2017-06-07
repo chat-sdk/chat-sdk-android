@@ -22,7 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.AccountType;

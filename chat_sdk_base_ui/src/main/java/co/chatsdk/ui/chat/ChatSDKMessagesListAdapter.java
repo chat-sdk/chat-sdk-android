@@ -10,7 +10,6 @@ package co.chatsdk.ui.chat;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
@@ -30,6 +29,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
@@ -43,7 +43,7 @@ import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 import co.chatsdk.core.dao.DaoCore;
 
-import wanderingdevelopment.tk.sdkbaseui.adapter.MessageItemSorter;
+import wanderingdevelopment.tk.sdkbaseui.Adapters.MessageItemSorter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -130,20 +130,6 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
         init();
     }
-
-//    public ChatSDKMessagesListAdapter(AppCompatActivity activity, Long userID, List<MessageListItem> listData){
-//        activity = activity;
-//
-//        this.userID = userID;
-//
-//        if (listData == null)
-//            listData = new ArrayList<MessageListItem>();
-//
-//        this.listData = listData;
-//
-//        init();
-//
-//    }
 
     private void init() {
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
@@ -550,7 +536,7 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
      * @return true if the item is added to the list.
      * */
     public boolean addRow(BMessage message){
-        return addRow(MessageListItem.fromBMessage(message, userID, maxWidth, customDateFormat));
+        return addRow(new MessageListItem(message, maxWidth));
     }
 
     /**
@@ -652,40 +638,19 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
     /**
      * The MessageListItem holds the BMessage object so we wont need to query data about the message each time we inflate a row.
      * */
-    public static class MessageListItem{
+    public static class MessageListItem {
+
         public String entityId, profilePicUrl, time, text, resourcePath;
-        private int type, status, color, rowType;
+        private int status, rowType;
         private long sender, timeInMillis;
         private long id;
         private int[] dimensions = null;
         private String url;
         private int delivered = BMessage.Delivered.No;
         private String dimensionsString;
-        
-        private MessageListItem(long id, String entityId, int type, int rowType, int status,
-                                long senderID, String profilePicUrl, String time,
-                                String text, String color, long timeInMillis, int delivered, String resourcePath, String dimensionsString) {
-            this.type = type;
-            this.id = id;
-            this.timeInMillis = timeInMillis;
-            this.status = status;
-            this.sender = senderID;
-            this.entityId = entityId;
-            this.profilePicUrl = profilePicUrl;
-            this.time = time;
-            this.text = text;
-            this.color = setColor(color);
-            this.rowType = rowType;
-            this.delivered = delivered;
-            this.resourcePath = resourcePath;
-            this.dimensionsString = dimensionsString;
-            
-            if (type == BMessage.Type.IMAGE || type == BMessage.Type.LOCATION)
-                url = getUrl(text, type);
-        }
 
 
-        public static MessageListItem fromBMessage(BMessage message, Long userID, int maxWidth, SimpleDateFormat simpleDateFormat){
+        public MessageListItem (BMessage message, int maxWidth) {
 
             // If null that means no custom format was added to the adapter so we use the default.
             if (simpleDateFormat == null)
@@ -693,24 +658,24 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
             BUser user = message.getSender();
 
-            MessageListItem msg = new MessageListItem( message.getId(),
-                    message.getEntityID(),
-                    message.getType(),
-                    getRowType(message.getType(), user.getId(), userID),
-                    message.getStatusOrNull(),
-                    user.getId(),
-                    user.getThumbnailPictureURL(),
-                    String.valueOf(simpleDateFormat.format(message.getDate().toDate())),
-                    message.getText(),
-                    user.getMessageColor(),
-                    message.getDate().toDate().getTime(),
-                    message.wasDelivered(),
-                    message.getResourcesPath(), 
-                    message.getImageDimensions());
+            id = message.getId();
+            entityId = message.getEntityID();
+            rowType = getRowType(message.getType(), user.getId(), NM.currentUser().getId());
+            status = message.getStatusOrNull();
+            sender = user.getId();
+            profilePicUrl = user.getThumbnailPictureURL();
+            time = String.valueOf(simpleDateFormat.format(message.getDate().toDate()));
+            text = message.getText();
+            this.rowType = getRowType(message.getType(), user.getId(), NM.currentUser().getId());
+            delivered = message.wasDelivered();
+            resourcePath = message.getResourcesPath();
+            this.dimensionsString = message.getImageDimensions();
+            timeInMillis = message.getDate().toDate().getTime();
+            dimensions = getDimensions(maxWidth);
 
-            msg.setDimension(maxWidth);
+            if (message.getType() == BMessage.Type.IMAGE || message.getType() == BMessage.Type.LOCATION)
+                url = getUrl(text, message.getType());
 
-            return msg;
         }
 
         public static List<MessageListItem> makeList(AppCompatActivity activity, Long userID, List<BMessage> messages, SimpleDateFormat simpleDateFormat){
@@ -720,23 +685,23 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
 
             int maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
 
-            MessageListItem i;
+            MessageListItem item;
             for (BMessage message : messages)
             {
-                i = fromBMessage(message, userID, maxWidth, simpleDateFormat);
+                item = new MessageListItem(message, maxWidth);
 
                     /*Fixme Due to old data*/
-                if (i.type != BMessage.Type.TEXT && i.dimensions == null)
+                if (message.getType() != BMessage.Type.TEXT && item.dimensions == null)
                 {
-                    Timber.d("Cant find dimensions, path: %s, dimensionsString: %s", i.resourcePath, i.dimensionsString);
+                    Timber.d("Cant find dimensions, path: %s, dimensionsString: %s", item.resourcePath, item.dimensionsString);
                     continue;
                 }
 
-                    /*Skip messages with no date.*/
+                /*Skip messages with no date.*/
                 if (message.getDate() == null)
                     continue;
 
-                list.add(i);
+                list.add(item);
             }
 
             // We need to reverse the list so the newest data would be on the top again.
@@ -770,35 +735,35 @@ public class ChatSDKMessagesListAdapter extends BaseAdapter{
                 return simpleDateFormat;
             }
         }
-
-        private static int getColorFromDec(String color){
-            String[] split = color.split(" ");
-
-            int bubbleColor = -1;
-
-            bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
-
-            return bubbleColor;
-        }
-
-        private static int setColor(String color){
-            // Coloring the message
-            int bubbleColor = -1;
-            if (color != null && !color.equals("Red"))
-            {
-                try{
-                    bubbleColor = Color.parseColor(color);
-                }
-                catch (Exception e){}
-
-                if (bubbleColor == -1)
-                {
-                    bubbleColor = getColorFromDec(color);
-                }
-            }
-
-            return bubbleColor;
-        }
+//
+//        private static int getColorFromDec(String color){
+//            String[] split = color.split(" ");
+//
+//            int bubbleColor = -1;
+//
+//            bubbleColor = Color.argb(Integer.parseInt(split[3]), (int) (255 * Float.parseFloat(split[0])), (int) (255 * Float.parseFloat(split[1])), (int) (255 * Float.parseFloat(split[2])));
+//
+//            return bubbleColor;
+//        }
+//
+//        private static int setColor(String color){
+//            // Coloring the message
+//            int bubbleColor = -1;
+//            if (color != null && !color.equals("Red"))
+//            {
+//                try{
+//                    bubbleColor = Color.parseColor(color);
+//                }
+//                catch (Exception e){}
+//
+//                if (bubbleColor == -1)
+//                {
+//                    bubbleColor = getColorFromDec(color);
+//                }
+//            }
+//
+//            return bubbleColor;
+//        }
 
         private static int getRowType(int messageType, long senderId, long curUserID){
             // Setting the row type.

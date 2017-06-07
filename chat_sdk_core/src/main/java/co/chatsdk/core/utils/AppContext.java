@@ -3,6 +3,8 @@ package co.chatsdk.core.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import wanderingdevelopment.tk.chatsdkcore.R;
+
 /**
  * Created by benjaminsmiley-andrews on 04/05/2017.
  */
@@ -21,6 +23,7 @@ public class AppContext {
     public static SharedPreferences getPreferences () {
         return context.getSharedPreferences(CHAT_SDK_SHRED_PREFS, Context.MODE_PRIVATE);
     }
+
 
 
 }

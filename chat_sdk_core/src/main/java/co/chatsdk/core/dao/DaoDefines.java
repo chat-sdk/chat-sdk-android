@@ -46,6 +46,7 @@ public class DaoDefines {
         public static final String Null = "null";
         public static final String CreationDate = "creation-date";
         public static final String Payload = "payload";
+        public static final String JSON = "JSON";
         public static final String Type = "type";
         public static final String Type_v4 = "type_v4";
         public static final String Online = "online";
@@ -61,6 +62,7 @@ public class DaoDefines {
         public static final String Deleted = "deleted";
         public static final String Leaved = "leaved";
         public static final String UserId = "user-id";
+        public static final String MessageText = "text";
 
         // For pushes
         public static final String ACTION = "action";

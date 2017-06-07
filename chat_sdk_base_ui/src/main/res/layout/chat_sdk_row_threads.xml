@@ -4,7 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:orientation="horizontal"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
     <View
         android:layout_width="5dp"
@@ -16,7 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
 
         <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
             style="@style/ThreadListCircleIconStyle"
@@ -39,7 +41,8 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 style="@style/TextViewStyle"
-                android:id="@+id/chat_sdk_txt"                />
+                android:id="@+id/chat_sdk_txt"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -49,7 +52,9 @@
                 android:ellipsize="end"
                 android:textStyle="italic"
                 style="@style/TextViewStyleSmall"
-                android:id="@+id/txt_last_message"/>
+                android:id="@+id/txt_last_message"
+                android:layout_marginLeft="2dp"
+                />
         </LinearLayout>
 
         <LinearLayout

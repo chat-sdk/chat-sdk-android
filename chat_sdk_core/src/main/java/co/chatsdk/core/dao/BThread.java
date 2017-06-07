@@ -27,7 +27,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -178,44 +178,6 @@ public class BThread implements CoreEntity {
             url = "";
 
         return url;
-    }
-
-    public String displayName(){
-        return displayName(getUsers());
-    }
-
-    public String displayName(List<BUser> users){
-
-        if (StringUtils.isNotEmpty(name))
-            return name;
-
-        if (type == null)
-            return "No name available...";
-
-        // Due to the data printing when the app run on debug this sometime is null.
-        BUser curUser = (BUser) NM.currentUser();
-
-        if (ThreadType.isPrivate(type)){
-            String name = "";
-
-            for (BUser user : getUsers()){
-                if (!user.getId().equals(curUser.getId()))
-                {
-                    String n = user.getMetaName();
-
-                    if (StringUtils.isNotEmpty(n)) {
-                        name += (!name.equals("") ? ", " : "") + n;
-                    }
-                }
-            }
-
-            return name;
-        }
-        else if (ThreadType.isPublic(type)) {
-            return name;
-        }
-
-        return "No name available...";
     }
 
     public Date lastMessageAdded(){

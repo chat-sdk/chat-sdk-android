@@ -17,7 +17,7 @@ import android.telephony.TelephonyManager;
 import com.braunster.chatsdk.R;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
 import io.reactivex.functions.Consumer;

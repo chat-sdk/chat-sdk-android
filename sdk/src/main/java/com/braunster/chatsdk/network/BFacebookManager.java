@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.types.AccountType;
 import io.reactivex.Completable;
 import io.reactivex.Single;

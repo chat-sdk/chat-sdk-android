@@ -60,5 +60,24 @@ public class PredicateFactory {
         };
     }
 
+    public static Predicate<NetworkEvent> privateThreadsUpdated () {
+        return type(
+                EventType.ThreadDetailsUpdated,
+                EventType.PrivateThreadAdded,
+                EventType.PrivateThreadRemoved,
+                EventType.MessageAdded,
+                EventType.ThreadUsersChanged
+        );
+    }
+
+    public static Predicate<NetworkEvent> publicThreadsUpdated () {
+        return type(
+                EventType.ThreadDetailsUpdated,
+                EventType.PublicThreadAdded,
+                EventType.PublicThreadRemoved,
+                EventType.MessageAdded
+        );
+    }
+
 
 }

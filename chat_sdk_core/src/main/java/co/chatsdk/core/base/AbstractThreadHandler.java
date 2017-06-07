@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
@@ -263,11 +263,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return createThread(name, Arrays.asList(users));
     }
 
-    public Flowable<BUser> addUsersToThread(BThread thread, BUser... users) {
+    public Completable addUsersToThread(BThread thread, BUser... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
-    public Flowable<BUser> removeUsersFromThread(BThread thread, BUser... users) {
+    public Completable removeUsersFromThread(BThread thread, BUser... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
     }
 

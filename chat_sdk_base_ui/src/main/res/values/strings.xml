@@ -43,7 +43,7 @@
     <string name="delete_thread_fail_toast">Unable to delete thread</string>
     <string name="delete_thread_success_toast">Thread is deleted</string>
 
-    <!--ChatSDKAbstractChatActivity-->
+    <!--ChatActivity-->
     <string name="chat_activity_no_more_messages_to_load_toast">There is no new messages to load&#8230;</string>
     <string name="chat_activity_add_item_text">Add contact to chat</string>
     <string name="chat_activity_show_users_item_text">Show thread users</string>
@@ -54,10 +54,10 @@
     <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Can\'t add user to thread.</string>
     <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Problem sharing contact, Unknown share type.</string>
 
-    <!--ChatSDKShareWithContactsActivity-->
+    <!--ShareWithContactsActivity-->
     <string name="share_activity_error_getting_share_data">Error getting share data</string>
 
-    <!--ChatSDKPickFriendsActivity-->
+    <!--PickFriendsActivity-->
     <string name="pick_friends_activity_no_users_selected_toast">Please select at least one user</string>
     <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Adding users to thread&#8230;</string>
     <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Creating thread&#8230;</string>
@@ -69,7 +69,7 @@
     <string name="exit">Exit</string>
     <string name="stay">Stay</string>
 
-    <!--ChatSDKSearchActivity-->
+    <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
     <string name="search_activity_no_user_found_toast">No match found</string>
     <string name="search_activity_no_contact_selected_toast">No contacts were selected</string>
@@ -120,7 +120,10 @@
     <string name="not_follower_content">is following you!</string>
     <string name="not_image_message">Image message</string>
     <string name="not_location_message">Location message</string>
-    
+    <string name="not_unknown_message">Unknown message</string>
+    <string name="not_no_messages">No Messages</string>
+    <string name="not_thread">Thread</string>
+
     <!--Error-->
     <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
     <string name="unable_to_save_file">Unable to save file&#8230;</string>

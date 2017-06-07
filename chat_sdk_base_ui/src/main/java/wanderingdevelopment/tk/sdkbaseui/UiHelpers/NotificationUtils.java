@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.MissingResourceException;
 
 import timber.log.Timber;
+import wanderingdevelopment.tk.sdkbaseui.utils.Strings;
 
 public class NotificationUtils {
 
@@ -166,8 +167,6 @@ public class NotificationUtils {
         createAlertNotification(context, id, resultIntent, data, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
 
-
-
     public static void createMessageNotification(Context context, BMessage message){
         createMessageNotification(context, message, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
@@ -184,12 +183,12 @@ public class NotificationUtils {
         resultIntent.putExtra(Defines.FROM_PUSH, true);
         resultIntent.putExtra(Defines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
 
-        String msgContent = message.getType() == BMessage.Type.TEXT ? message.getText() : message.getType() == BMessage.Type.IMAGE ? context.getString(R.string.not_image_message) : context.getString(R.string.not_location_message);
+        String messageContent = Strings.payloadAsString(message);
 
         String title = !StringUtils.isEmpty(
                 message.getSender().getMetaName()) ? message.getSender().getMetaName() : " ";
 
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getMetaName(), msgContent);
+        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getMetaName(), messageContent);
 
         getNotificationLines(context, message, data);
         
@@ -237,9 +236,7 @@ public class NotificationUtils {
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
                 message.getSender().getMetaName(),
-                message.getType() == BMessage.Type.TEXT ? message.getText()
-                : message.getType() == BMessage.Type.IMAGE ? context.getString(R.string.not_image_message)
-                : context.getString(R.string.not_location_message));
+                Strings.payloadAsString(message));
     }
  
     private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){

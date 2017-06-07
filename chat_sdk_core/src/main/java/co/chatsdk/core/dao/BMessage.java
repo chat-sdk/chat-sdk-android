@@ -13,9 +13,10 @@ import org.joda.time.DateTime;
 
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import co.chatsdk.core.interfaces.CoreEntity;
-
 
 @org.greenrobot.greendao.annotation.Entity
 public class BMessage implements CoreEntity {
@@ -193,12 +194,45 @@ public class BMessage implements CoreEntity {
         this.resourcesPath = resourcesPath;
     }
 
-    public String getText() {
+    public String getRawJSONPayload() {
         return this.text;
     }
 
+    public void setRawJSONPayload (String payload) {
+        this.text = payload;
+    }
+
+    public Object valueForKey (String key) {
+        String json = getRawJSONPayload();
+        if(json == null || json.length() == 0 ) {
+            return "";
+        }
+        try {
+            return new JSONObject(getRawJSONPayload()).get(key);
+        }
+        catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    public void setValueForKey (Object payload, String key) {
+        try {
+            String jsonString = getRawJSONPayload();
+            JSONObject json = jsonString != null ? new JSONObject(jsonString) : new JSONObject();
+
+            json.put(key, payload);
+            setRawJSONPayload(json.toString());
+        }
+        catch (JSONException e) {
+        }
+    }
+
+    public String getText() {
+        return valueForKey(DaoDefines.Keys.MessageText).toString();
+    }
+
     public void setText(String text) {
-        this.text = text;
+        setValueForKey(text, DaoDefines.Keys.MessageText);
     }
 
     public String getImageDimensions() {

@@ -10,7 +10,7 @@ public class Defines {
 
     /** This is the root path of all the app data,
      *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    public static final String RootPath = "firebase_v4_local_2/";
+    public static final String RootPath = "firebase_v4_local_3/";
 
     /**
      * The version name of the app, Here we are using the name from the BuildConfig.

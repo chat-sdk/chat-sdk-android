@@ -15,7 +15,7 @@ import android.text.TextWatcher;
 import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BUser;
 
 /**

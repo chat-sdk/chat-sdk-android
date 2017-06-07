@@ -1,6 +1,7 @@
 package co.chatsdk.core.handlers;
 
 import co.chatsdk.core.events.NetworkEvent;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
@@ -13,5 +14,6 @@ import io.reactivex.subjects.ReplaySubject;
 public interface EventHandler {
 
     public ReplaySubject<NetworkEvent> source ();
+    public Observable<NetworkEvent> sourceOnMain ();
 
 }

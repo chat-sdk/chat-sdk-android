@@ -22,6 +22,7 @@ import com.google.firebase.database.ChildEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,7 @@ public class MessageWrapper  {
         Map<String, Object> values = new HashMap<String, Object>();
 
         values.put(DaoDefines.Keys.Payload, model.getText());
+        values.put(DaoDefines.Keys.JSON, model.getRawJSONPayload());
         values.put(DaoDefines.Keys.Date, ServerValue.TIMESTAMP);
         values.put(DaoDefines.Keys.Type, model.getType());
         values.put(DaoDefines.Keys.UserFirebaseId, model.getSender().getEntityID());
@@ -60,46 +62,74 @@ public class MessageWrapper  {
         return values;
     }
 
+    private boolean contains (Map<String, Object> value, String key) {
+        return value.containsKey(key) && !value.get(key).equals("");
+    }
+
+    private String string (Map<String, Object> value, String key) {
+        if(contains(value, key)) {
+            return (String) value.get(key);
+        }
+        return null;
+    }
+
+    private Long long_ (Map<String, Object> value, String key) {
+        if(contains(value, key)) {
+            Object o = value.get(key);
+            if(o instanceof Long) {
+                return (Long) value.get(key);
+            }
+            if(o instanceof Integer) {
+                return ((Integer) value.get(key)).longValue();
+            }
+        }
+        return null;
+    }
+
     @SuppressWarnings("all") void deserialize(DataSnapshot snapshot) {
 
         Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
         if (DEBUG) Timber.v("deserialize, Value: %s", value);
         if (value == null) return;
-        if (value.containsKey(DaoDefines.Keys.Payload) && !value.get(DaoDefines.Keys.Payload).equals(""))
-        {
-            model.setText((String) value.get(DaoDefines.Keys.Payload));
+
+        String json = string(value, DaoDefines.Keys.JSON);
+
+        if(json != null) {
+            model.setRawJSONPayload(json);
+        }
+        else {
+            String text = string(value, DaoDefines.Keys.Payload);
+            if(text != null) {
+                model.setText(text);
+            }
+            else {
+                model.setText("");
+            }
         }
 
-        if (value.containsKey(DaoDefines.Keys.Type) && !value.get(DaoDefines.Keys.Type).equals(""))
-        {
-            if (value.get(DaoDefines.Keys.Type) instanceof Integer)
-                model.setType((Integer) value.get(DaoDefines.Keys.Type));
-            else
-                if (value.get(DaoDefines.Keys.Type) instanceof Long)
-                    model.setType( ((Long) value.get(DaoDefines.Keys.Type)).intValue() );
+        Long type = long_(value, DaoDefines.Keys.Type);
+        if(type != null) {
+            model.setType(type.intValue());
         }
 
-        if (value.containsKey(DaoDefines.Keys.Date) && !value.get(DaoDefines.Keys.Date).equals(""))
-            model.setDate( new DateTime( (Long) value.get(DaoDefines.Keys.Date) ) );
+        Long date = long_(value, DaoDefines.Keys.Date);
+        if(date != null) {
+            model.setDate(new DateTime(date));
+        }
 
-        if (value.containsKey(DaoDefines.Keys.UserFirebaseId) && !value.get(DaoDefines.Keys.UserFirebaseId).equals(""))
-        {
-            String userEntityId = (String) value.get(DaoDefines.Keys.UserFirebaseId);
-            BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, userEntityId);
-
-            // If there is no user saved in the db for this entity id,
-            // Create a new one and do a once on it to get all the details.
+        String senderID = string(value, DaoDefines.Keys.UserFirebaseId);
+        if(senderID != null) {
+            BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, senderID);
             if (user == null)
             {
-                user = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, userEntityId);
-
+                user = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, senderID);
                 UserWrapper.initWithModel(user).once();
             }
 
             model.setSender(user);
+
         }
 
-        // Updating the db
         DaoCore.updateEntity(model);
     }
 

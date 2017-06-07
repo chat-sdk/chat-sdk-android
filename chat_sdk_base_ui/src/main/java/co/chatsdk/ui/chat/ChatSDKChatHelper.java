@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BMessageDao;
 import co.chatsdk.core.dao.BThread;
@@ -31,7 +31,6 @@ import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
 import co.chatsdk.core.dao.sorter.MessageSorter;
 
 import co.chatsdk.core.dao.DaoCore;
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.braunster.chatsdk.object.ChatSDKThreadPool;
 import com.braunster.chatsdk.object.Cropper;
 import com.github.johnpersano.supertoasts.SuperCardToast;

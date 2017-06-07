@@ -36,13 +36,13 @@ public interface ThreadHandler {
     /**
      * Remove users from a thread
      */
-    Flowable<BUser> removeUsersFromThread(BThread thread, List<BUser> users);
-    Flowable<BUser> removeUsersFromThread(BThread thread, BUser... users);
+    Completable removeUsersFromThread(BThread thread, List<BUser> users);
+    Completable removeUsersFromThread(BThread thread, BUser... users);
     /**
      * Add users to a thread
      */
-    Flowable<BUser> addUsersToThread(BThread thread, List<BUser> users);
-    Flowable<BUser> addUsersToThread(BThread thread, BUser... users);
+    Completable addUsersToThread(BThread thread, List<BUser> users);
+    Completable addUsersToThread(BThread thread, BUser... users);
     /**
      * Lazy loading of messages this method will load
      * that are not already in memory

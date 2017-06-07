@@ -1,6 +1,7 @@
 package co.chatsdk.firebase;
 
 import com.braunster.chatsdk.object.ChatError;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
@@ -27,6 +28,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 
 /**
@@ -43,8 +45,8 @@ public class FirebaseSearchHandler implements SearchHandler {
      * indexes/[index ID (priority is: johnsmith)]/[entity ID of John Smith]
      *
      * This will allow us to find the user*/
-    @Override
-    public Observable<BUser> usersForIndex(final String index, final String value) {
+    //@Override
+    public Observable<BUser> usersForIndex2(final String index, final String value) {
         return Observable.create(new ObservableOnSubscribe<BUser>() {
             @Override
             public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
@@ -135,6 +137,47 @@ public class FirebaseSearchHandler implements SearchHandler {
                     @Override
                     public void onCancelled(DatabaseError firebaseError) {
                         e.onError(firebaseError.toException());
+                    }
+                });
+            }
+        });
+    }
+
+    public Observable<BUser> usersForIndex(final String index, final String value) {
+        return Observable.create(new ObservableOnSubscribe<BUser>() {
+            @Override
+            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+
+                if (StringUtils.isBlank(value))
+                {
+                    e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
+                    return;
+                }
+
+                final Query query = FirebasePaths.usersRef()
+                        .orderByChild(DaoDefines.Keys.Meta + '/' + index)
+                        .startAt(value)
+                        .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
+
+                final ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
+                    @Override
+                    public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
+                        final UserWrapper wrapper = new UserWrapper(snapshot);
+                        if(!wrapper.getModel().equals(NM.currentUser())) {
+                            e.onNext(wrapper.getModel());
+                        }
+                    }
+                }));
+
+                e.setDisposable(new Disposable() {
+                    @Override
+                    public void dispose() {
+                        query.removeEventListener(listener);
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return false;
                     }
                 });
             }

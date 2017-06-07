@@ -241,29 +241,4 @@ public class CircleImageView extends AppCompatImageView {
         mBitmapShader.setLocalMatrix(mShaderMatrix);
     }
 
-
-
-
-
-
-    public void loadFromFile(final String path){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap bitmap = BitmapFactory.decodeFile(path);
-                Message message = new Message();
-                message.obj = bitmap;
-                handler.sendMessage(message);
-            }
-        }).start();
-    }
-
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            setImageBitmap((Bitmap) msg.obj);
-        }
-    };
-
 }

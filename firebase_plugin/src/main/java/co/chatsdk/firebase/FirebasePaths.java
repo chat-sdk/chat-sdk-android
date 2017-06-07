@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.dao.DaoDefines;
+
 import static co.chatsdk.core.types.Defines.ServerUrl;
 
 public class FirebasePaths{
@@ -134,6 +136,22 @@ public class FirebasePaths{
         }
 
         return map;
+    }
+
+    public static PathBuilder userThreadsPath (String userID, String threadID) {
+        return new PathBuilder(DaoDefines.Keys.Users)
+                .a(userID)
+                .a(DaoDefines.Keys.Threads)
+                .a(threadID);
+
+    }
+
+    public static PathBuilder threadUsersPath (String threadID, String userID) {
+        return new PathBuilder(DaoDefines.Keys.Threads)
+                .a(threadID)
+                .a(DaoDefines.Keys.Users)
+                .a(userID);
+
     }
 
 //    public static int providerToInt(String provider){

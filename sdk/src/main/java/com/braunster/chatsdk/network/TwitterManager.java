@@ -14,7 +14,7 @@ import android.os.Message;
 import com.braunster.chatsdk.R;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.LoginType;

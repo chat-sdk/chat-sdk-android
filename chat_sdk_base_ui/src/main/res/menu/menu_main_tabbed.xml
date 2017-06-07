@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.MainTabbedActivity"
+    tools:context="wanderingdevelopment.tk.sdkbaseui.Activities.MainTabbedActivity"
     app:contentInsetLeft="0dp">
     <item
         android:id="@+id/action_settings"

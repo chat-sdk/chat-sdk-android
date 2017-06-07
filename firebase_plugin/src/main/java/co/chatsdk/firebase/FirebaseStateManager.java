@@ -1,6 +1,5 @@
 package co.chatsdk.firebase;
 
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -18,6 +17,9 @@ import co.chatsdk.core.utils.Executor;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.ReplaySubject;
 import timber.log.Timber;
@@ -70,21 +72,21 @@ public class FirebaseStateManager implements EventHandler {
                         public void accept(BThread thread) throws Exception {
                             eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                         }
-                    });
+                    }).subscribe();
 
                     thread.messagesOn().doOnNext(new Consumer<BMessage>() {
                         @Override
                         public void accept(BMessage message) throws Exception {
                             eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
                         }
-                    });
+                    }).subscribe();
 
                     thread.usersOn().doOnNext(new Consumer<BUser>() {
                         @Override
                         public void accept(BUser user) throws Exception {
                             eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
                         }
-                    });
+                    }).subscribe();
 
                     eventSource.onNext(NetworkEvent.privateThreadAdded(thread.getModel()));
 
@@ -111,7 +113,7 @@ public class FirebaseStateManager implements EventHandler {
                 // Make sure that we're not in the thread
                 // there's an edge case where the user could kill the app and remain
                 // a member of a public thread
-                thread.removeUser(UserWrapper.initWithModel(user));
+                NM.thread().removeUsersFromThread(thread.getModel(), user);
 
                 // Starting to listen to thread changes.
                 thread.on().doOnNext(new Consumer<BThread>() {
@@ -263,5 +265,10 @@ public class FirebaseStateManager implements EventHandler {
     public ReplaySubject<NetworkEvent> source () {
         return eventSource;
     }
+
+    public Observable<NetworkEvent> sourceOnMain () {
+        return eventSource.observeOn(AndroidSchedulers.mainThread());
+    }
+
 
 }

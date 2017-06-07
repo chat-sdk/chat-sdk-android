@@ -2,7 +2,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.braunster.chatsdk.wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.ChatSDKThreadsFragment">
+    tools:context="com.braunster.chatsdk.wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.PublicThreadsFragment">
     <item android:id="@+id/action_chat_sdk_add"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"

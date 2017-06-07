@@ -3,7 +3,7 @@ package co.chatsdk.firebase;
 import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;

@@ -18,6 +18,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import wanderingdevelopment.tk.sdkbaseui.Activities.EditProfileActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.PickFriendsActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.ShareWithContactsActivity;
+import co.chatsdk.ui.threads.ThreadDetailsActivity;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
 import com.github.johnpersano.supertoasts.SuperCardToast;
@@ -29,23 +33,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
-import co.chatsdk.ui.chat.ChatSDKAbstractChatActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractLoginActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKAbstractProfileActivity;
-import co.chatsdk.ui.chat.ChatSDKChatActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKEditProfileActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLocationActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKMainActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKPickFriendsActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKSearchActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKShareWithContactsActivity;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKThreadDetailsActivity;
+import co.chatsdk.ui.chat.ChatActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.AbstractLoginActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.ChatSDKLocationActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.LoginActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.MainActivity;
+import wanderingdevelopment.tk.sdkbaseui.Activities.SearchActivity;
 
 public class ChatSDKUiHelper implements UiLauncherInterface {
 
     public static final String TAG = ChatSDKUiHelper.class.getSimpleName();
     public static final boolean DEBUG = Debug.UiUtils;
+
+    public static final String USER_ID = "user_id";
+    public static final String USER_ENTITY_ID = "user_entity_id";
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener) {
@@ -107,7 +108,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
     /** If one of this toast are initialized it will be used across the app as the default toast.
      *  Each context can set it's own toast using the ui helper the sdk offers.
-     *  If you use the ChatSDKBaseActivity you can set your toast in any stage in the context lifecycle.*/
+     *  If you use the BaseActivity you can set your toast in any stage in the context lifecycle.*/
     private static SuperToast customAlertToast = null, customToast = null;
 
     private SuperToast toast, alertToast;
@@ -115,13 +116,13 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
     private WeakReference<Context> context;
     private Class chatActivity, mainActivity, loginActivity,
-            searchActivity = ChatSDKSearchActivity.class,
-            pickFriendsActivity = ChatSDKPickFriendsActivity.class,
-            shareWithFriendsActivity = ChatSDKShareWithContactsActivity.class,
+            searchActivity = SearchActivity.class,
+            pickFriendsActivity = PickFriendsActivity.class,
+            shareWithFriendsActivity = ShareWithContactsActivity.class,
             shareLocationActivity = ChatSDKLocationActivity.class,
-            editProfileActivity= ChatSDKEditProfileActivity.class,
+            editProfileActivity= EditProfileActivity.class,
             profileActivity = null,
-            threadDetailsActivity = ChatSDKThreadDetailsActivity.class;
+            threadDetailsActivity = ThreadDetailsActivity.class;
 
     public Class getLoginActivity() {
         return loginActivity;
@@ -153,7 +154,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
     }
 
     public static ChatSDKUiHelper initDefault(){
-        instance = new ChatSDKUiHelper(ChatSDKChatActivity.class, ChatSDKMainActivity.class, ChatSDKLoginActivity.class);
+        instance = new ChatSDKUiHelper(ChatActivity.class, MainActivity.class, LoginActivity.class);
         return getInstance();
     }
 
@@ -213,7 +214,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             return;
         
         Intent intent = new Intent(context.get(), chatActivity);
-        intent.putExtra(ChatSDKAbstractChatActivity.THREAD_ID, id);
+        intent.putExtra(ChatActivity.THREAD_ID, id);
         
         /**
          * Note
@@ -231,7 +232,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
     @Override
     public void startLoginActivity(boolean loggedOut){
         Intent intent = new Intent(context.get(), loginActivity);
-        intent.putExtra(ChatSDKAbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
+        intent.putExtra(AbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
         startActivity(intent);
     }
 
@@ -276,7 +277,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             return false;
 
         Intent intent = new Intent(context.get(), profileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ENTITY_ID, entityId);
+        intent.putExtra(USER_ENTITY_ID, entityId);
 
         startActivity(intent);
 
@@ -293,7 +294,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             return false;
 
         Intent intent = new Intent(context.get(), profileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
+        intent.putExtra(USER_ID, id);
 
         startActivity(intent);
 
@@ -310,7 +311,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             return;
 
         Intent intent = new Intent(context.get(), editProfileActivity);
-        intent.putExtra(ChatSDKAbstractProfileActivity.USER_ID, id);
+        intent.putExtra(USER_ID, id);
 
         startActivity(intent);
     }

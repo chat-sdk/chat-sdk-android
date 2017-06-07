@@ -1,7 +1,7 @@
 package co.chatsdk.firebase;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;

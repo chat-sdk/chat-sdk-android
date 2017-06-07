@@ -1,6 +1,6 @@
 package co.chatsdk.firebase;
 
-import com.braunster.androidchatsdk.firebaseplugin.firebase.backendless.ChatSDKReceiver;
+import co.chatsdk.firebase.backendless.ChatSDKReceiver;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -13,11 +13,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
@@ -25,22 +24,19 @@ import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.FirebaseDefines;
-import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -56,46 +52,106 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.*/
-    public Flowable<BUser> addUsersToThread(final BThread thread, final List<BUser> users) {
+    public Completable addUsersToThread(final BThread thread, final List<BUser> users) {
+        return setUserThreadLinkValue(thread, users, DaoDefines.Keys.Null);
 
-        if(thread == null) {
-            return Flowable.error(new Throwable("Thread cannot be null"));
-        }
-
-        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-        ArrayList<Single<BUser>> singles = new ArrayList<>();
-
-        for (final BUser user : users){
-            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
-                @Override
-                public BUser call () throws Exception {
-                    return user;
-                }
-            }));
-        }
-
-        return Single.merge(singles);
+//
+//        if(thread == null) {
+//            return Flowable.error(new Throwable("Thread cannot be null"));
+//        }
+//
+//        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
+//        ArrayList<Single<BUser>> singles = new ArrayList<>();
+//
+//        for (final BUser user : users){
+//            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+//                @Override
+//                public BUser call () throws Exception {
+//                    return user;
+//                }
+//            }));
+//        }
+//
+//        return Single.merge(singles);
     }
 
-    public Flowable<BUser> removeUsersFromThread(final BThread thread, List<BUser> users) {
+    /**
+     * This function is a convenience function to add or remove batches of users
+     * from threads. If the value is defined, it will populate the thread/users
+     * path with the user IDs. And add the thread ID to the user/threads path for
+     * private threads. If value is null, the users will be removed from the thread/users
+     * path and the thread will be removed from the user/threads path
+     * @param thread
+     * @param users
+     * @param value
+     * @return
+     */
+    public Completable setUserThreadLinkValue(final BThread thread, final List<BUser> users, final String value) {
+        Completable c = Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
 
-        if(thread == null) {
-            return Flowable.error(new Throwable("Thread cannot be null"));
-        }
+                DatabaseReference ref = FirebasePaths.firebaseRef();
+                final HashMap<String, Object> data = new HashMap<>();
 
-        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-        ArrayList<Single<BUser>> singles = new ArrayList<>();
+                for (BUser u : users) {
+                    PathBuilder threadUsersPath = FirebasePaths.threadUsersPath(thread.getEntityID(), u.getEntityID());
+                    PathBuilder userThreadsPath = FirebasePaths.userThreadsPath(u.getEntityID(), thread.getEntityID());
 
-        for (final BUser user : users){
-            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
-                @Override
-                public BUser call () throws Exception {
-                    return user;
+                    if (value != null) {
+                        threadUsersPath.a(DaoDefines.Keys.Null);
+                        userThreadsPath.a(DaoDefines.Keys.Null);
+                    }
+
+                    data.put(threadUsersPath.build(), value);
+
+                    if (thread.typeIs(ThreadType.Private)) {
+                        data.put(userThreadsPath.build(), value);
+                    }
+                    else if (value != null) {
+                        // TODO: Check this
+                        // If we add users to a public thread, make sure that they are removed if we
+                        // log off
+                        FirebasePaths.firebaseRef().child(threadUsersPath.build()).onDisconnect().removeValue();
+                    }
+
                 }
-            }));
-        }
 
-        return Single.merge(singles);
+                ref.updateChildren(data, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError == null) {
+                            e.onComplete();
+                        } else {
+                            e.onError(databaseError.toException());
+                        }
+                    }
+                });
+            }
+        });
+        return c;
+    }
+
+    public Completable removeUsersFromThread(final BThread thread, List<BUser> users) {
+        return setUserThreadLinkValue(thread, users, null);
+
+//        if(thread == null) {
+//            return Flowable.error(new Throwable("Thread cannot be null"));
+//        }
+//
+//        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
+//        ArrayList<Single<BUser>> singles = new ArrayList<>();
+//
+//        for (final BUser user : users){
+//            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+//                @Override
+//                public BUser call () throws Exception {
+//                    return user;
+//                }
+//            }));
+//        }
+//
+//        return Single.merge(singles);
     }
 
     public Completable pushThread(BThread thread) {
@@ -174,45 +230,46 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                         jointThread.setDeleted(false);
                         DaoCore.updateEntity(jointThread);
                         e.onSuccess(jointThread);
+                        return;
                     }
                 }
-                else {
 
-                    final BThread thread = new BThread();
-                    thread.setCreator(currentUser);
-                    thread.setCreatorEntityId(currentUser.getEntityID());
-                    thread.setCreationDate(new Date());
-                    thread.setName(name);
-                    thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+                final BThread thread = DaoCore.getEntityForClass(BThread.class);
+                DaoCore.createEntity(thread);
+                thread.setCreator(currentUser);
+                thread.setCreatorEntityId(currentUser.getEntityID());
+                thread.setCreationDate(new Date());
+                thread.setName(name);
+                thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
 
-                    // Save the thread to the database.
+                // Save the thread to the database.
+                e.onSuccess(thread);
 
-                    e.onSuccess(thread);
-
-                }
             }
         }).flatMap(new Function<BThread, SingleSource<? extends BThread>>() {
             @Override
             public SingleSource<? extends BThread> apply(final BThread thread) throws Exception {
-                return new SingleSource<BThread>() {
+                return Single.create(new SingleOnSubscribe<BThread>() {
                     @Override
-                    public void subscribe(final SingleObserver<? super BThread> observer) {
-
-                        ThreadWrapper wrapper = new ThreadWrapper(thread);
-                        wrapper.push().andThen(addUsersToThread(thread, users)).doOnComplete(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                observer.onSuccess(thread);
-                            }
-                        }).subscribe();
-
+                    public void subscribe(final SingleEmitter<BThread> e) throws Exception {
+                        if(thread.getEntityID() == null) {
+                            ThreadWrapper wrapper = new ThreadWrapper(thread);
+                            wrapper.push().concatWith(addUsersToThread(thread, users)).doOnComplete(new Action() {
+                                @Override
+                                public void run() throws Exception {
+                                    e.onSuccess(thread);
+                                }
+                            }).subscribe();
+                        }
+                        else {
+                            e.onSuccess(thread);
+                        }
                     }
-                };
+                });
             }
         }).doOnSuccess(new Consumer<BThread>() {
             @Override
             public void accept(BThread thread) throws Exception {
-                DaoCore.createEntity(thread);
                 DaoCore.connectUserAndThread(NM.currentUser(),thread);
                 DaoCore.updateEntity(thread);
             }

@@ -3,7 +3,7 @@ package co.chatsdk.core.base;
 import android.graphics.Bitmap;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
+
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.types.FileUploadResult;

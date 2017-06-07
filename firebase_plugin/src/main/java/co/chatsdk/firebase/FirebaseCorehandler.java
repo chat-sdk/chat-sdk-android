@@ -7,22 +7,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
-import co.chatsdk.core.dao.BMessage;
+
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.dao.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -135,64 +131,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         });
     }
 
-    public Observable<Thread> createThread (ArrayList<BUser> users, String name) {
-        return null;
-    }
-
-    public Observable<Thread> createThread (ArrayList<BUser> users) {
-        return null;
-    }
-
-    public Observable<BUser> addUsersToThread (ArrayList<BUser> users, Thread thread) {
-        return null;
-    }
-
-    public Observable<BUser> removeUsersFromThread (ArrayList<BUser> users, Thread thread) {
-        return null;
-    }
-
-    public Observable<Void> loadMoreMessagesForThread (Thread thread) {
-        return null;
-    }
-
-    public Observable<Void> deleteThread (Thread thread) {
-        return null;
-    }
-
-    public Observable<Void> leaveThread (Thread thread) {
-        return null;
-    }
-
-    public Observable<Void> joinThread (Thread thread) {
-        return null;
-    }
-
-    public Observable<Void> sendMessage(String text, String threadID)  {
-        return null;
-    }
-
-    public Observable<Void> sendMessage (BMessage message) {
-        return null;
-    }
-
-    public ArrayList<BMessage> messagesForThread (String threadID, boolean ascending)  {
-        return null;
-    }
-
-    public ArrayList<Thread> threadsWithType (ThreadType type) {
-        return null;
-    }
-
-    public void save() {
+    public void save () {
 
     }
-
-    public void sendLocalSystemMessageWithTextAndThreadEntityID(String text, String threadID) {
-
-    }
-
-    public void sendLocalSystemMessageWithTextTypeThreadEntityID(String text, bSystemMessageType type, String threadID) {
-
-    }
-
 }
