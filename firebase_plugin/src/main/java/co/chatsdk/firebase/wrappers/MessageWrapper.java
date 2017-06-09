@@ -22,7 +22,6 @@ import com.google.firebase.database.ChildEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class MessageWrapper  {
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(DaoDefines.Keys.Payload, model.getText());
+        values.put(DaoDefines.Keys.Payload, model.getTextString());
         values.put(DaoDefines.Keys.JSON, model.getRawJSONPayload());
         values.put(DaoDefines.Keys.Date, ServerValue.TIMESTAMP);
         values.put(DaoDefines.Keys.Type, model.getType());
@@ -100,10 +99,10 @@ public class MessageWrapper  {
         else {
             String text = string(value, DaoDefines.Keys.Payload);
             if(text != null) {
-                model.setText(text);
+                model.setTextString(text);
             }
             else {
-                model.setText("");
+                model.setTextString("");
             }
         }
 

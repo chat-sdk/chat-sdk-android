@@ -19,8 +19,6 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import co.chatsdk.firebase.wrappers.UserWrapper;
 
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.DaoCore;
@@ -32,10 +30,6 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
@@ -140,7 +134,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 
             message.setDate(date);
             message.setType(type);
-            message.setText(messagePayload);
+            message.setTextString(messagePayload);
             message.setEntityID(entityID);
             message.setIsRead(false);
 

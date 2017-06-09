@@ -227,11 +227,28 @@ public class BMessage implements CoreEntity {
         }
     }
 
-    public String getText() {
+    /**
+     * This is used internally - if you want the message text,
+     * you should use getTextString method instead.
+     * @return Raw JSON message payload
+     */
+    public String getText () {
+        return getRawJSONPayload();
+    }
+
+    public String getTextString() {
         return valueForKey(DaoDefines.Keys.MessageText).toString();
     }
 
+    /**
+     * This is used internally - if you want to set the message text,
+     * you should use setTextString method instead.
+     * @param text Raw JSON message payload
+     */
     public void setText(String text) {
+        setRawJSONPayload(text);
+    }
+    public void setTextString(String text) {
         setValueForKey(text, DaoDefines.Keys.MessageText);
     }
 

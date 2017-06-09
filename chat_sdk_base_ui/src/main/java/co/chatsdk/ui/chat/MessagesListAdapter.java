@@ -28,11 +28,20 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.koushikdutta.ion.Ion;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.core.utils.volley.ImageUtils;
 import wanderingdevelopment.tk.sdkbaseui.R;
 import co.chatsdk.core.defines.Debug;
@@ -108,8 +117,6 @@ public class MessagesListAdapter extends BaseAdapter{
     private LayoutInflater inflater;
 
     private int type = -1;
-
-    private int textColor = -1991;
 
     private ChatSDKUiHelper chatSDKUiHelper;
 
@@ -267,22 +274,20 @@ public class MessagesListAdapter extends BaseAdapter{
      * You can also just change one of the default loading type.
      *
      * */
-    protected void loadMessageData(ViewHolder holder, MessageListItem message){
+    protected void loadMessageData(ViewHolder holder, final MessageListItem message){
         switch (type)
         {
             case TYPE_TEXT_USER:
             case TYPE_TEXT_FRIEND:
 
-                holder.txtContent.setText(message.text == null ? "ERROR" : message.text);
+                holder.txtContent.setText(message.text == null ? "" : message.text);
 
                 // Show links in text view if has any.
                 holder.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
                 Linkify.addLinks(holder.txtContent, Linkify.ALL);
 
-                if (textColor != ChatSDKUiHelper.NULL)
-                    holder.txtContent.setTextColor(textColor);
-
                 animateContent((View) holder.txtContent.getParent(), null, message.delivered != BMessage.Delivered.No);
+
 
                 break;
 
@@ -299,10 +304,29 @@ public class MessagesListAdapter extends BaseAdapter{
             case TYPE_LOCATION_USER:
             case TYPE_LOCATION_FRIEND:
 
-                getBubbleImageViewFromRow(holder.image, holder.progressBar,  message);
+                double longitude = (Double) message.message.valueForKey(DaoDefines.Keys.MessageLongitude);
+                double latitude = (Double) message.message.valueForKey(DaoDefines.Keys.MessageLatitude);
+
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                int width = message.dimensions[0];
+                int height = message.dimensions[1];
+
+                Ion.with(holder.image).load(GoogleUtils.getMapImageURL(latLng, width, height));
+
+                // Getting the dimensions of the image so we can calc it final size and prepare room for it in the list view.
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.image.getLayoutParams();
+                params.width = width + holder.image.getImagePadding();
+                params.height = height + holder.image.getImagePadding();
+
+                holder.image.setLayoutParams(params);
+
+                holder.progressBar.setVisibility(View.INVISIBLE);
+
+                //getBubbleImageViewFromRow(holder.image, holder.progressBar,  message);
 
                 // Open google maps on click.
-                holder.image.setOnClickListener(new openGoogleMaps());
+                holder.image.setOnClickListener(new OpenGoogleMaps());
 
                 break;
         }
@@ -326,7 +350,6 @@ public class MessagesListAdapter extends BaseAdapter{
         // Set the time of the sending.
         holder.txtTime.setText(message.time);
         animateSides(holder.txtTime, sender, null);
-
 
         switch (message.delivered)
         {
@@ -410,33 +433,33 @@ public class MessagesListAdapter extends BaseAdapter{
         image.setTag(message.text);
 
         // Loading the url.
-        final ChatBubbleImageView.LoadDone loadDone = new ChatBubbleImageView.LoadDone() {
-
-            @Override
-            public void onDone() {
-                if (progressBar.getVisibility() == View.VISIBLE) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void immediate(boolean immediate) {
-                if (immediate){
-                    if (progressBar.getVisibility() == View.VISIBLE) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-
-                    animateContent(image, null, message.delivered != BMessage.Delivered.No);
-                }
-                else
-                {
-                    image.clearCanvas();
-                    if (progressBar.getVisibility() == View.INVISIBLE) {
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        };
+//        final ChatBubbleImageView.LoadDone loadDone = new ChatBubbleImageView.LoadDone() {
+//
+//            @Override
+//            public void onDone() {
+//                if (progressBar.getVisibility() == View.VISIBLE) {
+//                    progressBar.setVisibility(View.INVISIBLE);
+//                }
+//            }
+//
+//            @Override
+//            public void immediate(boolean immediate) {
+//                if (immediate){
+//                    if (progressBar.getVisibility() == View.VISIBLE) {
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                    }
+//
+//                    animateContent(image, null, message.delivered != BMessage.Delivered.No);
+//                }
+//                else
+//                {
+//                    image.clearCanvas();
+//                    if (progressBar.getVisibility() == View.INVISIBLE) {
+//                        progressBar.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
+//        };
 
         if (message.dimensions != null)
         {
@@ -449,18 +472,18 @@ public class MessagesListAdapter extends BaseAdapter{
             if (StringUtils.isNotEmpty(message.resourcePath) && new File(message.resourcePath).exists())
             {
                 // Saving the url so we could remove it later on.
-                if (saveCacheKeys)
-                    saveCacheKey(message.resourcePath + ChatBubbleImageView.URL_FIX);
+//                if (saveCacheKeys)
+//                    saveCacheKey(message.resourcePath + ChatBubbleImageView.URL_FIX);
                 
-                image.loadFromPath(message.resourcePath, loadDone, message.dimensions[0], message.dimensions[1]);
+                //image.loadFromPath(message.resourcePath, loadDone, message.dimensions[0], message.dimensions[1]);
             }
             else
             {
                 // Saving the url so we could remove it later on.
-                if (saveCacheKeys)
-                    saveCacheKey(message.url + ChatBubbleImageView.URL_FIX);
+//                if (saveCacheKeys)
+//                    saveCacheKey(message.url + ChatBubbleImageView.URL_FIX);
 
-                image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
+//                image.loadFromUrl(message.url, loadDone, message.dimensions[0], message.dimensions[1]);
             }
         }
         else if (DEBUG) Timber.d("ImageMessage dimensions is null");
@@ -584,7 +607,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 if (!Defines.Options.SaveImagesToDir)
                     popupWindow = DialogUtils.getImageDialog(activity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
                 else
-                    popupWindow = DialogUtils.getImageMessageDialog(activity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL, message.asBMessage());
+                    popupWindow = DialogUtils.getImageMessageDialog(activity, imageUrl, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL, message.message);
 
                 if (popupWindow == null)
                     chatSDKUiHelper.showToast(activity.getString(R.string.message_adapter_load_image_fail));
@@ -600,7 +623,7 @@ public class MessagesListAdapter extends BaseAdapter{
     /**
      * Click listener for the view location button for location messages. The click will open Google Maps for the location.
      * */
-    public class openGoogleMaps implements View.OnClickListener{
+    public class OpenGoogleMaps implements View.OnClickListener{
         @Override
         public void onClick(View v) {
             if (v.getTag() == null)
@@ -640,6 +663,7 @@ public class MessagesListAdapter extends BaseAdapter{
      * */
     public static class MessageListItem {
 
+        private BMessage message;
         public String entityId, profilePicUrl, time, text, resourcePath;
         private int status, rowType;
         private long sender, timeInMillis;
@@ -658,15 +682,17 @@ public class MessagesListAdapter extends BaseAdapter{
 
             BUser user = message.getSender();
 
+            boolean isCurrentUser = user.getId().equals(NM.currentUser().getId());
+
+            this.message = message;
             id = message.getId();
             entityId = message.getEntityID();
-            rowType = getRowType(message.getType(), user.getId(), NM.currentUser().getId());
+            rowType = getRowType(message.getType(), isCurrentUser);
             status = message.getStatusOrNull();
             sender = user.getId();
             profilePicUrl = user.getThumbnailPictureURL();
             time = String.valueOf(simpleDateFormat.format(message.getDate().toDate()));
-            text = message.getText();
-            this.rowType = getRowType(message.getType(), user.getId(), NM.currentUser().getId());
+            text = message.getTextString();
             delivered = message.wasDelivered();
             resourcePath = message.getResourcesPath();
             this.dimensionsString = message.getImageDimensions();
@@ -735,34 +761,18 @@ public class MessagesListAdapter extends BaseAdapter{
             }
         }
 
-        private static int getRowType(int messageType, long senderId, long curUserID){
-            // Setting the row type.
-            int type;
+        private static int getRowType(int messageType, boolean isCurrentUser){
             switch (messageType)
             {
                 case BMessage.Type.TEXT:
-                    if (senderId == curUserID)
-                        type = TYPE_TEXT_USER;
-                    else type = TYPE_TEXT_FRIEND;
-                    break;
-
+                    return isCurrentUser ? TYPE_TEXT_USER : TYPE_TEXT_FRIEND;
                 case BMessage.Type.LOCATION:
-                    if (senderId == curUserID)
-                        type = TYPE_LOCATION_USER;
-                    else type = TYPE_LOCATION_FRIEND;
-                    break;
-
+                    return isCurrentUser ? TYPE_LOCATION_USER : TYPE_LOCATION_FRIEND;
                 case BMessage.Type.IMAGE:
-                    if (senderId == curUserID)
-                        type = TYPE_IMAGE_USER;
-                    else type = TYPE_IMAGE_FRIEND;
-                    break;
-
+                    return isCurrentUser ? TYPE_IMAGE_USER : TYPE_IMAGE_FRIEND;
                 default:
-                    type = -1;
+                    return -1;
             }
-
-            return type;
         }
 
         private static String getUrl(String text, int type){
@@ -840,9 +850,6 @@ public class MessagesListAdapter extends BaseAdapter{
             return timeInMillis;
         }
 
-        public BMessage asBMessage(){
-            return DaoCore.fetchEntityWithEntityID(BMessage.class, entityId);
-        }
     }
 
     /**
@@ -906,16 +913,6 @@ public class MessagesListAdapter extends BaseAdapter{
         view.setAnimation(AnimationUtils.loadAnimation(activity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
         view.getAnimation().setAnimationListener(animationListener);
         view.animate();
-    }
-
-    /**
-     * Set the message text color.
-     *
-     * The default is the color defined in the layout file that will be inflated.
-     *
-     * */
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
     }
 
     /**

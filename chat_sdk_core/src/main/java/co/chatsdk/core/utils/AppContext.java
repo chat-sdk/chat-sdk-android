@@ -15,6 +15,7 @@ public class AppContext {
     private static final String CHAT_SDK_SHRED_PREFS = "ChatSDK_Prefs";
 
     public static Context context;
+    public static String googleMapsAPIKey;
 
     public static void init(Context ctx) {
         context = ctx.getApplicationContext();

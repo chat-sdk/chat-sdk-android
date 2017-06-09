@@ -175,15 +175,6 @@ public class UserWrapper {
             default: break;
         }
 
-        // CoreMessage Color.
-        if (StringUtils.isEmpty(model.getMessageColor()))
-        {
-            if (StringUtils.isNotEmpty(DaoDefines.Defaults.MessageColor))
-            {
-                model.setMessageColor(DaoDefines.Defaults.MessageColor);
-            }
-        }
-
         if (StringUtils.isEmpty(model.getMetaName()))
         {
             model.setMetaName(Defines.getDefaultUserName());

@@ -48,11 +48,6 @@ public class BNetworkManager {
         VolleyUtils.init(context);
         DaoCore.init(context);
 
-        //Bug Sense
-        if (BNetworkManager.BUGSENSE_ENABLED && StringUtils.isNotEmpty( context.getString(R.string.bug_sense_key) )) {
-            BugSenseHandler.initAndStartSession(context, context.getString(R.string.bug_sense_key));
-            BugSenseHandler.addCrashExtraData("Version", BuildConfig.VERSION_NAME);
-        }
     }
 
     public static BNetworkManager sharedManager(){

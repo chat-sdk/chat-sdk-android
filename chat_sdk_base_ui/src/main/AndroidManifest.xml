@@ -16,7 +16,7 @@
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_id"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.co.chatsdk.ui.threads.ThreadDetailsActivity"
+        <activity android:name="co.chatsdk.ui.threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 

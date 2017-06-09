@@ -29,7 +29,7 @@ public class Strings {
             if (message.getType() != null) {
                 switch (message.getType()) {
                     case BMessage.Type.TEXT:
-                        return message.getText();
+                        return message.getTextString();
                     case BMessage.Type.IMAGE:
                         return t(R.string.not_image_message);
                     case BMessage.Type.LOCATION:

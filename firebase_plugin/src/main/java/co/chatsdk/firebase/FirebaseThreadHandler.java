@@ -354,7 +354,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         for (BUser user : users)
             channels.add(user.getPushChannel());
 
-        String messageText = message.getText();
+        String messageText = message.getTextString();
 
         if (message.getType() == BMessage.Type.LOCATION)
             messageText = "Location CoreMessage";
@@ -375,7 +375,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             data.put(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
             data.put(DaoDefines.Keys.MESSAGE_SENDER_NAME, message.getSender().getMetaName());
             data.put(DaoDefines.Keys.MESSAGE_TYPE, message.getType());
-            data.put(DaoDefines.Keys.MESSAGE_PAYLOAD, message.getText());
+            data.put(DaoDefines.Keys.MESSAGE_PAYLOAD, message.getTextString());
             //For iOS
             data.put(DaoDefines.Keys.BADGE, DaoDefines.Keys.INCREMENT);
             data.put(DaoDefines.Keys.ALERT, fullText);

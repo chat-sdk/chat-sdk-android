@@ -109,6 +109,7 @@ public class ChatHelper {
         loadMessages(true, false, 0, 0);
     }
 
+    // TODO: Refactor this
     public void loadMessages(final boolean retain, final boolean hideListView, final int offsetOrPos, final int amountToLoad){
 
         if (messagesListAdapter == null || listMessages == null || progressBar == null || activity == null)
@@ -302,16 +303,12 @@ public class ChatHelper {
         listMessages.getAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                if (DEBUG) Timber.v("onAnimationStart");
-
                 if (progressBar!= null)
                     progressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (DEBUG) Timber.v("onAnimationEnd");
-
                 listMessages.setVisibility(View.VISIBLE);
             }
 
@@ -356,39 +353,6 @@ public class ChatHelper {
 
         SuperCardToast.onRestoreState(savedInstanceState, activity.get());
     }
-
-    /** Send an image message.
-     * @param filePath the path to the image file that need to be sent.*/
-    public  void sendImageMessage(final String filePath){
-        if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
-        sendingMessageToast();
-
-
-        NM.thread().sendMessageWithImage(filePath, thread).subscribe(new Observer<ImageUploadResult>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onNext(ImageUploadResult value) {
-                uiHelper.setProgress(value.progress.asFraction());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                uiHelper.dismissProgressCardWithSmallDelay();
-                uiHelper.showToast(R.string.unable_to_send_image_message);
-            }
-
-            @Override
-            public void onComplete() {
-                if (DEBUG) Timber.v("Image is sent");
-                uiHelper.dismissProgressCardWithSmallDelay();
-            }
-        });
-
-    }
-
 
     public void setThread(BThread thread) {
         this.thread = thread;

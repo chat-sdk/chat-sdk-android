@@ -38,6 +38,8 @@ public class AppObj extends MultiDexApplication {
         }
 
         AppContext.init(getApplicationContext());
+        AppContext.googleMapsAPIKey = context.getResources().getString(R.string.google_api_key);
+
         NetworkManager.shared().a = new FirebaseNetworkAdapter();
         //StorageManager.shared().a = DaoCore.getDaoCore(getApplicationContext());
 

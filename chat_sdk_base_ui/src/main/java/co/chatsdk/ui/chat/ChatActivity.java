@@ -818,6 +818,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
     }
 
+
+
     /**
      * Show a dialog containing all the users in this chat.
      */

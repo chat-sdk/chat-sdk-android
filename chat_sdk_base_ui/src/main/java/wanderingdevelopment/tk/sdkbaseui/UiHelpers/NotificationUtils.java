@@ -312,7 +312,7 @@ public class NotificationUtils {
         }
         else if (DEBUG)
             Timber.i("addLine, message was read? %s, payload: %s",
-                    message == null? "message is null" : message.wasRead(), message == null ? "null" : message.getText());
+                    message == null? "message is null" : message.wasRead(), message == null ? "null" : message.getTextString());
         
         return false;
     }

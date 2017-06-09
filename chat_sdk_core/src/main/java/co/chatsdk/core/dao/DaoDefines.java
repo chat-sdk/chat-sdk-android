@@ -14,10 +14,9 @@ public class DaoDefines {
      * */
     public static boolean EnableFollowers = true;
 
-    public static final class Defaults{
-        public static final String MessageColor = "0.635294 0.552941 0.686275 1";
-        public static final String BubbleDefaultColor = "#27ae60";
-        public static final String BubbleDefaultPressedColor = "#3498db";
+    public static final class Defaults {
+        public static final String BubbleDefaultColorMe = "#abcff4";
+        public static final String BubbleDefaultColorReply = "#d7d4d3";
         public static final int SDKExitMode = Exit.EXIT_MODE_DOUBLE_BACK;
     }
 
@@ -63,6 +62,15 @@ public class DaoDefines {
         public static final String Leaved = "leaved";
         public static final String UserId = "user-id";
         public static final String MessageText = "text";
+        public static final String MessageLongitude = "longitude";
+        public static final String MessageLatitude = "latitude";
+        public static final String MessageImageURL = "image-url";
+        public static final String MessageThumbnailURL = "thumbnail-url";
+        public static final String MessageImageWidth = "image-width";
+        public static final String MessageImageHeight = "image-height";
+        public static final String MessageVideoURL = "video-url";
+        public static final String MessageAudioURL = "audio-url";
+        public static final String MessageAudioLength = "audio-length";
 
         // For pushes
         public static final String ACTION = "action";

@@ -62,7 +62,7 @@ public interface ThreadHandler {
      * Send different types of message to a particular thread
      */
     Completable sendMessageWithText(String text, BThread thread);
-    Observable<ImageUploadResult> sendMessageWithLocation(String filePath, LatLng location, BThread thread);
+    Completable sendMessageWithLocation(String filePath, LatLng location, BThread thread);
     Observable<ImageUploadResult> sendMessageWithImage(String filePath, BThread thread);
     /**
      * Send a message object

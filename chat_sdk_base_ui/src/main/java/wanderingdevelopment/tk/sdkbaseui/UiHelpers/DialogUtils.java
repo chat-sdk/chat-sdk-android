@@ -319,7 +319,7 @@ public class DialogUtils {
         popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
         popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
 
-        if (!Defines.Options.LocationEnabled || context.getString(R.string.google_maps_api_key).isEmpty()){
+        if (!Defines.Options.LocationEnabled){
             popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
         }
         

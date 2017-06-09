@@ -378,7 +378,11 @@ public class ImageUtils {
         if (bitmap == null)
             throw  new NullPointerException("Bitmap cannot be null");
 
-        return WIDTH + bitmap.getWidth() +  DIVIDER + HEIGHT + bitmap.getHeight();
+        return getDimensionAsString(bitmap.getWidth(), bitmap.getHeight());
+    }
+
+    public static String getDimensionAsString(int width, int height){
+        return WIDTH + width +  DIVIDER + HEIGHT + height;
     }
 
     public static int[] getDimensionsFromString(String dimensions){
