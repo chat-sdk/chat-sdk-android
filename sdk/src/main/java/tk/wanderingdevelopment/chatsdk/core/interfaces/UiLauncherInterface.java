@@ -21,8 +21,6 @@ public interface UiLauncherInterface {
 
     void startShareWithFriendsActivity();
 
-    void startShareLocationActivityActivity();
-
     boolean startProfileActivity(String entityId);
 
     boolean startProfileActivity(long id);
@@ -59,8 +57,6 @@ public interface UiLauncherInterface {
 
     Class getSearchActivity();
 
-    Class getShareLocationActivity();
-
     Class getThreadDetailsActivity();
 
     Class getPickFriendsActivity();
@@ -68,8 +64,6 @@ public interface UiLauncherInterface {
     void setPickFriendsActivity(Class pickFriendsActivity);
 
     void setShareWithFriendsActivity(Class shareWithFriendsActivity);
-
-    void setShareLocationActivity(Class shareLocationActivity);
 
     void setProfileActivity(Class profileActivity);
 

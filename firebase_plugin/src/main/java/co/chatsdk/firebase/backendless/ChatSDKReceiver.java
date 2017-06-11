@@ -32,7 +32,7 @@ import org.json.JSONObject;
 
 import timber.log.Timber;
 
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.NotificationUtils;
+import co.chatsdk.ui.UiHelpers.NotificationUtils;
 
 /**
  *

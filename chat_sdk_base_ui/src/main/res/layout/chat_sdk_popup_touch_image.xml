@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/chat_sdk_shadow">
 
-    <wanderingdevelopment.tk.sdkbaseui.view.TouchImageView
+    <co.chatsdk.ui.view.TouchImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_popup_image_imageview"

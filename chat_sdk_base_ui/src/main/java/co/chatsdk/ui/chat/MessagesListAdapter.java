@@ -28,11 +28,6 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.koushikdutta.ion.Ion;
 
@@ -43,16 +38,15 @@ import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.core.utils.volley.ImageUtils;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.UiHelpers.DialogUtils;
 
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
+import co.chatsdk.ui.UiHelpers.ChatSDKUiHelper;
 import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.utils.volley.VolleyUtils;
-import co.chatsdk.core.dao.DaoCore;
 
-import wanderingdevelopment.tk.sdkbaseui.Adapters.MessageItemSorter;
+import co.chatsdk.ui.Adapters.MessageItemSorter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -64,7 +58,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
+import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
 
 /**
@@ -296,6 +290,22 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 getBubbleImageViewFromRow(holder.image, holder.progressBar, message);
 
+                String url = (String) message.message.valueForKey(DaoDefines.Keys.MessageImageURL);
+
+                Ion.with(holder.image).load(url);
+
+                int width = message.dimensions[0];
+                int height = message.dimensions[1];
+
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.image.getLayoutParams();
+                params.width = width + holder.image.getImagePadding();
+                params.height = height + holder.image.getImagePadding();
+
+                holder.image.setLayoutParams(params);
+
+                holder.progressBar.setVisibility(View.INVISIBLE);
+
+
                 // Show the image in a dialog on click.
                 holder.image.setOnClickListener(new showImageDialogClickListener(message));
 
@@ -309,13 +319,13 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
-                int width = message.dimensions[0];
-                int height = message.dimensions[1];
+                width = message.dimensions[0];
+                height = message.dimensions[1];
 
                 Ion.with(holder.image).load(GoogleUtils.getMapImageURL(latLng, width, height));
 
                 // Getting the dimensions of the image so we can calc it final size and prepare room for it in the list view.
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.image.getLayoutParams();
+                params = (RelativeLayout.LayoutParams) holder.image.getLayoutParams();
                 params.width = width + holder.image.getImagePadding();
                 params.height = height + holder.image.getImagePadding();
 

@@ -15,7 +15,7 @@ import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
 import timber.log.Timber;
 import tk.wanderingdevelopment.chatsdk.core.interfaces.UiLauncherInterface;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
+import co.chatsdk.ui.UiHelpers.ChatSDKUiHelper;
 
 /**
  * Created by itzik on 6/8/2014.

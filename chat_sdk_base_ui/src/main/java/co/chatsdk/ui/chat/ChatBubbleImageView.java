@@ -31,7 +31,7 @@ import com.android.volley.toolbox.ImageLoader;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.volley.ImageUtils;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.core.utils.volley.VolleyUtils;

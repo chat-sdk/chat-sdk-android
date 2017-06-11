@@ -8,7 +8,7 @@
     style="@style/RowStyle"
     android:id="@+id/chat_sdk_root_view_image_friend">
 
-    <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+    <co.chatsdk.ui.view.CircleImageView
         style="@style/CircleIconStyle"
         android:id="@+id/img_user_image"
         android:layout_centerVertical="true"

@@ -41,24 +41,25 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.view.CircleImageView;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
-import wanderingdevelopment.tk.sdkbaseui.Activities.BaseActivity;
-import wanderingdevelopment.tk.sdkbaseui.Activities.BaseThreadActivity;
-import wanderingdevelopment.tk.sdkbaseui.Activities.PickFriendsActivity;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.Activities.BaseActivity;
+import co.chatsdk.ui.Activities.BaseThreadActivity;
+import co.chatsdk.ui.Activities.PickFriendsActivity;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import co.chatsdk.core.defines.Debug;
 
-import wanderingdevelopment.tk.sdkbaseui.Fragments.ContactsFragment;
+import co.chatsdk.ui.Fragments.ContactsFragment;
 
 import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
+import co.chatsdk.ui.UiHelpers.MakeThreadImage;
 
 import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
@@ -71,8 +72,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-import wanderingdevelopment.tk.sdkbaseui.utils.Strings;
-import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
+import co.chatsdk.ui.utils.Strings;
+//import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
 
 public class ChatActivity extends BaseActivity implements AbsListView.OnScrollListener {

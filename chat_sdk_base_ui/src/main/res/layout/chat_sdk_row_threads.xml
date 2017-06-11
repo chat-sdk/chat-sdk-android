@@ -20,7 +20,7 @@
         android:orientation="horizontal"
         >
 
-        <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+        <co.chatsdk.ui.view.CircleImageView
             style="@style/ThreadListCircleIconStyle"
             android:layout_alignParentLeft="true"
             android:id="@+id/img_thread_image"/>

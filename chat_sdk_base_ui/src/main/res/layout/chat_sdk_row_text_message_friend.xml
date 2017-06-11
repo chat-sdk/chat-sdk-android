@@ -6,40 +6,44 @@
     style="@style/RowStyle"
     android:id="@+id/chat_sdk_root_view_text_friend">
 
-    <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/img_user_image"-->
+        <!--android:layout_width="10dp"-->
+        <!--android:layout_height="10dp"-->
+        <!--android:src="@drawable/ic_profile"-->
+        <!--app:civ_border_width="2dp"-->
+        <!--app:civ_border_color="#FF000000"/>-->
+
+    <co.chatsdk.ui.view.CircleImageView
         style="@style/CircleIconStyle"
         android:id="@+id/img_user_image"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_profile"
-        android:layout_margin="5dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="2dp"
         android:layout_alignParentLeft="true"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/content"
         android:layout_toLeftOf="@id/txt_time"
         android:layout_toRightOf="@+id/img_user_image"
         android:layout_centerVertical="true"
-        android:orientation="horizontal">
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bubble_left">
-            <TextView
+        android:orientation="vertical" >
+
+        <TextView
+                android:id="@+id/txt_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Messahe texx"
-                android:layout_centerVertical="true"
-                android:id="@+id/txt_content"
-                android:padding="7dp"
-                android:layout_marginLeft="3dp"
-                style="@style/TextViewStyle"/>
-            </FrameLayout>
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:text="Message text"
+                android:background="@drawable/message_received_2"/>
 
-<!--        <wanderingdevelopment.tk.sdkbaseui.view.ChatBubbleTextView
+        <!--        <co.chatsdk.ui.view.ChatBubbleTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"

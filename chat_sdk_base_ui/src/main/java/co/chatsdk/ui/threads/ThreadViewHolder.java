@@ -6,10 +6,9 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import timber.log.Timber;
-import wanderingdevelopment.tk.sdkbaseui.R;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
-import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.UiHelpers.MakeThreadImage;
+import co.chatsdk.ui.view.CircleImageView;
 
 /**
  * Created by benjaminsmiley-andrews on 07/06/2017.

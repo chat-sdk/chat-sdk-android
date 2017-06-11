@@ -30,14 +30,9 @@ import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.chat.ChatActivity;
 import io.reactivex.functions.Consumer;
-import wanderingdevelopment.tk.sdkbaseui.Fragments.BaseFragment;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.Fragments.BaseFragment;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by itzik on 6/17/2014.

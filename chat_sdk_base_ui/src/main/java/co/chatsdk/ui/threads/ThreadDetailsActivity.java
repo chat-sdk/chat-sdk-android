@@ -29,14 +29,14 @@ import co.chatsdk.core.utils.volley.ImageUtils;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
-import wanderingdevelopment.tk.sdkbaseui.Activities.BaseThreadActivity;
-import wanderingdevelopment.tk.sdkbaseui.Fragments.AbstractContactsFragment;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.Activities.BaseThreadActivity;
+import co.chatsdk.ui.Fragments.AbstractContactsFragment;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import wanderingdevelopment.tk.sdkbaseui.Fragments.ContactsFragment;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
-import wanderingdevelopment.tk.sdkbaseui.utils.ChatSDKIntentClickListener;
+import co.chatsdk.ui.Fragments.ContactsFragment;
+import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.utils.ChatSDKIntentClickListener;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 import co.chatsdk.core.dao.DaoCore;
 
@@ -47,10 +47,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
-import wanderingdevelopment.tk.sdkbaseui.utils.Strings;
-import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
+import co.chatsdk.ui.utils.Strings;
+import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
+import co.chatsdk.ui.UiHelpers.MakeThreadImage;
 
 /**
  * Created by braunster on 24/11/14.

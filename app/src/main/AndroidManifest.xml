@@ -25,7 +25,7 @@
         >
 
         <activity
-            android:name="wanderingdevelopment.tk.sdkbaseui.Activities.LoginActivity"
+            android:name="co.chatsdk.ui.Activities.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/SdkTheme"

@@ -63,6 +63,7 @@ dependencies {
     compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
     compile 'com.google.android.gms:play-services:9.0.2'
     compile 'com.koushikdutta.ion:ion:2.+'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
 
 }
 

@@ -28,7 +28,7 @@
             android:layout_centerInParent="true"
             android:visibility="visible"/>
 
-        <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+        <co.chatsdk.ui.view.CircleImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_users"
@@ -45,7 +45,7 @@
         android:layout_margin="5dp"
         android:layout_height="wrap_content">
 
-        <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+        <co.chatsdk.ui.view.CircleImageView
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:src="@drawable/ic_profile"

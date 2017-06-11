@@ -5,7 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+    <co.chatsdk.ui.view.CircleImageView
         style="@style/CircleIconStyle"
         android:id="@+id/img_profile_picture"
         android:layout_alignParentLeft="true"

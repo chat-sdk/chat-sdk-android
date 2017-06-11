@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="wanderingdevelopment.tk.sdkbaseui">
+    package="co.chatsdk.ui">
 
     // For capturing photos in profile and chat UI
     <uses-feature android:name="android.hardware.camera"
@@ -16,28 +16,25 @@
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_id"/>
 
-        <activity android:name="co.chatsdk.ui.threads.ThreadDetailsActivity"
+        <activity android:name=".threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="co.chatsdk.ui.chat.ChatActivity"
+        <activity android:name=".chat.ChatActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.MainActivity"
+        <activity android:name=".Activities.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.PickFriendsActivity"
+        <activity android:name=".Activities.PickFriendsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.ChatSDKLocationActivity"
-            android:theme="@style/SdkTheme"/>
-
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.SearchActivity"
+        <activity android:name=".Activities.SearchActivity"
             android:theme="@style/SdkTheme">
             <intent-filter>
                 <action android:name="com.braunster.chatsdk.ACTION_SEARCH_AND_ADD_USERS"/>
@@ -45,11 +42,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.EditProfileActivity"
+        <activity android:name=".Activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="wanderingdevelopment.tk.sdkbaseui.Activities.ShareWithContactsActivity"
+        <activity android:name=".Activities.ShareWithContactsActivity"
             android:theme="@style/SdkTheme"
             android:noHistory="true">
 

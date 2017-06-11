@@ -15,18 +15,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import co.chatsdk.core.NM;
-
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BMessageDao;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.types.ImageUploadResult;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
+import co.chatsdk.ui.UiHelpers.ChatSDKUiHelper;
 
 import co.chatsdk.core.dao.sorter.MessageSorter;
 

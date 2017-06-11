@@ -9,8 +9,6 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 
-import wanderingdevelopment.tk.sdkbaseui.Activities.ChatSDKLocationActivity;
-
 /**
  * Created by benjaminsmiley-andrews on 23/05/2017.
  */
@@ -47,18 +45,11 @@ public class LocationSelector {
         if (resultCode == AppCompatActivity.RESULT_CANCELED) {
             if (data.getExtras() == null)
                 return;
-
-            if (data.getExtras().containsKey(ChatSDKLocationActivity.ERROR)) {
-                throw new Exception(data.getExtras().getString(ChatSDKLocationActivity.ERROR));
-            }
-
         }
         else if (resultCode == AppCompatActivity.RESULT_OK) {
             // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
             if(resultHandler != null) {
                 Place place = PlacePicker.getPlace(activity, data);
-//                String filePath = bundle.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, null);
-
                 resultHandler.result("", place.getLatLng());
             }
         }

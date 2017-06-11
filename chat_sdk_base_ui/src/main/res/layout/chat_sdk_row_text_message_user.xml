@@ -31,7 +31,7 @@
                 android:layout_marginRight="3dp"
                 style="@style/TextViewStyle"/>
         </FrameLayout>
-<!--        <wanderingdevelopment.tk.sdkbaseui.view.ChatBubbleTextView
+<!--        <co.chatsdk.ui.view.ChatBubbleTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -52,7 +52,7 @@
         android:layout_centerVertical="true"
         style="@style/MessageDateStyle"/>
 
-    <wanderingdevelopment.tk.sdkbaseui.view.CircleImageView
+    <co.chatsdk.ui.view.CircleImageView
         style="@style/CircleIconStyle"
         android:id="@+id/img_user_image"
         android:layout_centerVertical="true"

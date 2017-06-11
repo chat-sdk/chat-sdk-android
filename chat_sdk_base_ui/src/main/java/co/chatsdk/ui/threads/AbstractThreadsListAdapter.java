@@ -16,10 +16,10 @@ import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.dao.DaoCore;
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.MakeThreadImage;
+import co.chatsdk.ui.UiHelpers.MakeThreadImage;
 import co.chatsdk.core.utils.volley.VolleyUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import wanderingdevelopment.tk.sdkbaseui.utils.Strings;
+import co.chatsdk.ui.utils.Strings;
 import timber.log.Timber;
 
 /**

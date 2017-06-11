@@ -19,10 +19,10 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.DialogUtils;
-import wanderingdevelopment.tk.sdkbaseui.utils.Utils;
+import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.utils.Utils;
 import com.github.johnpersano.supertoasts.SuperToast;
 
 public class TextInputView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{

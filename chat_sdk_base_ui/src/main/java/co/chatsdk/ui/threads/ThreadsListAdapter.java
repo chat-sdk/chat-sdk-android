@@ -14,12 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import wanderingdevelopment.tk.sdkbaseui.R;
+import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
 import java.util.List;
 
-import wanderingdevelopment.tk.sdkbaseui.view.CircleImageView;
+import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
 
 /**
