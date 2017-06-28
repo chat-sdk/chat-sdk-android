@@ -57,11 +57,11 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
     @Override
     protected void initViews(){
         super.initViews();
+
         facebookLogin.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
         facebookLogin.setBackgroundResource(R.drawable.ic_facebook);
 
-        if (integratedWithFacebook)
-        {
+        if (integratedWithFacebook) {
 
             facebookLogin.setReadPermissions(Arrays.asList("email", "user_friends"));
         }
@@ -111,11 +111,6 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
     @Override
     protected void afterLogin(){
         super.afterLogin();
-
-        // Updating the version name.
-        //BUser curUser = NM.currentUser();
-        
-
 
         startMainActivity();
     }

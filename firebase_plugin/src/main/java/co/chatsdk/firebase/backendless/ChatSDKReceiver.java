@@ -23,13 +23,14 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.DaoCore;
 
-import com.braunster.chatsdk.network.BNetworkManager;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.ui.UiHelpers.UIHelper;
 import timber.log.Timber;
 
 import co.chatsdk.ui.UiHelpers.NotificationUtils;
@@ -60,7 +61,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
     @Override
     public boolean onMessage(final Context context, Intent intent) {
 
-        if (!BNetworkManager.preferences.getBoolean(co.chatsdk.core.types.Defines.Prefs.PushEnabled, BNetworkManager.PushEnabledDefaultValue))
+        if (!AppContext.getPreferences().getBoolean(co.chatsdk.core.types.Defines.Prefs.PushEnabled, false))
             return false;
 
         try {
@@ -234,7 +235,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
         {
             if (DEBUG) Timber.d("no auth user");
-            resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getLoginActivity());
+            resultIntent = new Intent(context, UIHelper.getInstance().getLoginActivity());
 
             // Posting the notification.
             try {
@@ -256,7 +257,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                 return;
             }
             // Open main activity
-            else resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
+            else resultIntent = new Intent(context, UIHelper.getInstance().getMainActivity());
 
             // Posting the notification.
             try {
@@ -277,7 +278,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         final JSONObject json;
         try {
             json = new JSONObject(intent.getExtras().getString("message"));
-            Intent resultIntent = new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
+            Intent resultIntent = new Intent(context, UIHelper.getInstance().getMainActivity());
             NotificationUtils.createAlertNotification(context, Defines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
                             json.getString(DaoDefines.Keys.CONTENT)));

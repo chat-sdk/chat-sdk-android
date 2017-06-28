@@ -2,13 +2,10 @@ package co.chatsdk.core.base;
 
 import android.graphics.Bitmap;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.joda.time.DateTime;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,16 +28,20 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
 import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.core.utils.volley.ImageUtils;
-import co.chatsdk.core.utils.volley.VolleyUtils;
+import co.chatsdk.core.utils.ImageUtils;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.internal.observers.SubscriberCompletableObserver;
 
 
 /**
@@ -58,33 +59,47 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Completable sendMessageWithText(String text, BThread thread) {
+    public Completable sendMessageWithText(final String text, final BThread thread) {
+        Single<BMessage> single = Single.create(new SingleOnSubscribe<BMessage>() {
+            @Override
+            public void subscribe(final SingleEmitter<BMessage> e) throws Exception {
+                final BMessage message = new BMessage();
+                message.setTextString(text);
+                message.setThread(thread);
+                message.setType(BMessage.Type.TEXT);
+                message.setSender(NM.currentUser());
+                message.setStatus(BMessage.Status.SENDING);
+                message.setDelivered(BMessage.Delivered.No);
 
-        final BMessage message = new BMessage();
-        message.setTextString(text);
-        //message.setThreadId(threadId);
-        message.setThread(thread);
-        message.setType(BMessage.Type.TEXT);
-        message.setSender(NM.currentUser());
-        message.setStatus(BMessage.Status.SENDING);
-        message.setDelivered(BMessage.Delivered.No);
+                DaoCore.createEntity(message);
 
-        DaoCore.createEntity(message);
+                // Setting the temporary time of the message to be just after the last message that
+                // was added to the thread.
+                // Using this method we are avoiding time differences between the server time and the
+                // device local time.
+                Date date = message.getThread().getLastMessageAdded();
+                if (date == null)
+                    date = new Date();
 
-        // Setting the temporary time of the message to be just after the last message that
-        // was added to the thread.
-        // Using this method we are avoiding time differences between the server time and the
-        // device local time.
-        Date date = message.getThread().getLastMessageAdded();
-        if (date == null)
-            date = new Date();
+                message.setDate( new DateTime(date.getTime() + 1) );
 
-        message.setDate( new DateTime(date.getTime() + 1) );
+                DaoCore.updateEntity(message);
 
-        DaoCore.updateEntity(message);
+                e.onSuccess(message);
+            }
+        });
 
-        return implSendMessage(message);
-
+        return single.flatMapCompletable(new Function<BMessage, Completable>() {
+            @Override
+            public Completable apply(final BMessage message) throws Exception {
+            return implSendMessage(message).doOnComplete(new Action() {
+                @Override
+                public void run() throws Exception {
+                    DaoCore.updateEntity(message);
+                }
+            });
+            }
+        });
     }
 
     /**
@@ -156,7 +171,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             }
         });
 
-        Completable c = single.flatMapCompletable(new Function<BMessage, Completable>() {
+        return single.flatMapCompletable(new Function<BMessage, Completable>() {
             @Override
             public Completable apply(final BMessage message) throws Exception {
                 return implSendMessage(message).doOnComplete(new Action() {
@@ -167,49 +182,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 });
             }
         });
-        c.subscribe();
-        return c;
-
-//        return NM.upload().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
-//            @Override
-//            public void accept(ImageUploadResult result) throws Exception {
-//                if(result.isComplete()) {
-//                    // Add the LatLng data to the message and the image url and thumbnail url
-//                    message.setTextString(String.valueOf(location.latitude)
-//                            + Defines.DIVIDER
-//                            + String.valueOf(location.longitude)
-//                            + Defines.DIVIDER + result.imageURL
-//                            + Defines.DIVIDER + result.thumbnailURL
-//                            + Defines.DIVIDER + message.getImageDimensions());
-//
-//                    message.setValueForKey(location.longitude, DaoDefines.Keys.MessageLongitude);
-//                    message.setValueForKey(location.latitude, DaoDefines.Keys.MessageLatitude);
-//                    message.setValueForKey(image.getWidth(), DaoDefines.Keys.MessageImageWidth);
-//                    message.setValueForKey(image.getHeight(), DaoDefines.Keys.MessageImageHeight);
-//                    message.setValueForKey(result.imageURL, DaoDefines.Keys.MessageImageURL);
-//                    message.setValueForKey(result.thumbnailURL, DaoDefines.Keys.MessageThumbnailURL);
-//
-//                }
-//            }
-//        }).doOnComplete(new Action() {
-//            @Override
-//            public void run() throws Exception {
-//                // Sending the message, After it was uploaded to the server we can delte the file.
-//                implSendMessage(message).doOnComplete(new Action() {
-//                    @Override
-//                    public void run() throws Exception {
-//                        DaoCore.updateEntity(message);
-//                    }
-//                }).subscribe();
-//
-//            }
-//        }).doOnError(new Consumer<Throwable>() {
-//            @Override
-//            public void accept(Throwable throwable) throws Exception {
-//                new File(filePath).delete();
-//            }
-//        });
-
     }
 
     /**
@@ -222,61 +194,68 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the message is sent to.
      */
-    public Observable<ImageUploadResult> sendMessageWithImage(final String filePath, BThread thread) {
+    public Observable<ImageUploadResult> sendMessageWithImage(final String filePath, final BThread thread) {
 
-        final BMessage message = new BMessage();
-        message.setThread(thread);
-        message.setType(BMessage.Type.IMAGE);
-        message.setSender(NM.currentUser());
-        message.setStatus(BMessage.Status.SENDING);
-        message.setDelivered(BMessage.Delivered.No);
-
-        DaoCore.createEntity(message);
-
-        // Setting the temporary time of the message to be just after the last message that
-        // was added to the thread.
-        // Using this method we are avoiding time differences between the server time and the
-        // device local time.
-        Date date = message.getThread().getLastMessageAdded();
-        if (date == null)
-            date = new Date();
-
-        message.setDate(new DateTime(date.getTime() + 1));
-
-        message.setResourcesPath(filePath);
-
-        DaoCore.updateEntity(message);
-
-        final Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
-
-        Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
-                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
-
-        message.setImageDimensions(ImageUtils.getDimensionAsString(image));
-
-        VolleyUtils.getBitmapCache().put(
-                VolleyUtils.BitmapCache.getCacheKey(message.getResourcesPath()),
-                thumbnail);
-
-        return NM.upload().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+        return Observable.create(new ObservableOnSubscribe<ImageUploadResult>() {
             @Override
-            public void accept(ImageUploadResult result) throws Exception {
-                if(result.isComplete()) {
-                    message.setTextString(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
+            public void subscribe(final ObservableEmitter<ImageUploadResult> e) throws Exception {
 
-                    message.setValueForKey(image.getWidth(), DaoDefines.Keys.MessageImageWidth);
-                    message.setValueForKey(image.getHeight(), DaoDefines.Keys.MessageImageHeight);
-                    message.setValueForKey(result.imageURL, DaoDefines.Keys.MessageImageURL);
-                    message.setValueForKey(result.thumbnailURL, DaoDefines.Keys.MessageThumbnailURL);
+                final BMessage message = new BMessage();
+                message.setThread(thread);
+                message.setType(BMessage.Type.IMAGE);
+                message.setSender(NM.currentUser());
+                message.setStatus(BMessage.Status.SENDING);
+                message.setDelivered(BMessage.Delivered.No);
 
-                    DaoCore.updateEntity(message);
-                }
-            }
-        }).doOnComplete(new Action() {
-            @Override
-            public void run() throws Exception {
-                implSendMessage(message);
+                DaoCore.createEntity(message);
+
+                // Setting the temporary time of the message to be just after the last message that
+                // was added to the thread.
+                // Using this method we are avoiding time differences between the server time and the
+                // device local time.
+                Date date = message.getThread().getLastMessageAdded();
+                if (date == null)
+                    date = new Date();
+
+                message.setDate(new DateTime(date.getTime() + 1));
+
+                message.setResourcesPath(filePath);
+
+                DaoCore.updateEntity(message);
+
+                final Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
+
+                Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
+                        Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
+                        Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
+
+                message.setImageDimensions(ImageUtils.getDimensionAsString(image));
+
+                NM.upload().uploadImage(image, thumbnail).doOnNext(new Consumer<ImageUploadResult>() {
+                    @Override
+                    public void accept(ImageUploadResult result) throws Exception {
+                        if(!result.isComplete()) {
+                            e.onNext(result);
+                        }
+                        else {
+                            message.setTextString(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
+
+                            message.setValueForKey(image.getWidth(), DaoDefines.Keys.MessageImageWidth);
+                            message.setValueForKey(image.getHeight(), DaoDefines.Keys.MessageImageHeight);
+                            message.setValueForKey(result.imageURL, DaoDefines.Keys.MessageImageURL);
+                            message.setValueForKey(result.thumbnailURL, DaoDefines.Keys.MessageThumbnailURL);
+
+                            DaoCore.updateEntity(message);
+
+                            implSendMessage(message).subscribe(new Action() {
+                                @Override
+                                public void run() throws Exception {
+                                    e.onComplete();
+                                }
+                            });
+                        }
+                    }
+                }).subscribe();
             }
         });
 

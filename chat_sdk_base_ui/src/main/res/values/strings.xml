@@ -114,13 +114,13 @@
 
     <!--Notification-->
     <string name="not_message_title">Message</string>
-    <string name="not_message_ticker">You got a new message</string>
+    <string name="not_message_ticker">You have a new message</string>
     <string name="not_follower_title">New Follower</string>
     <string name="not_follower_ticker">You got a new follower</string>
     <string name="not_follower_content">is following you!</string>
-    <string name="not_image_message">Image message</string>
-    <string name="not_location_message">Location message</string>
-    <string name="not_unknown_message">Unknown message</string>
+    <string name="not_image_message">Image</string>
+    <string name="not_location_message">Location</string>
+    <string name="not_unknown_message">Unknown Message</string>
     <string name="not_no_messages">No Messages</string>
     <string name="not_thread">Thread</string>
 

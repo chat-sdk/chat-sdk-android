@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 
 /***
  * Convenience class for starting activities built into the Chat SDK.
- * Replaces god class ChatSDKUiHelper
+ * Replaces god class UIHelper
  */
 public class ActivityLauncher {
 

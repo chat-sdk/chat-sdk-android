@@ -26,6 +26,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
 import com.braunster.chatsdk.network.BFacebookManager;
+import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -110,7 +111,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         BFacebookManager.logout(getActivity());
 
         NM.auth().logout();
-        chatSDKUiHelper.startLoginActivity(true);
+        UIHelper.startLoginActivity(true);
     }
 
     /** Fetching the user details from the user's metadata.*/
@@ -163,7 +164,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
 
         if (DEBUG) Timber.d("loading user details, Name: %s, Status: %s, Country: %s, Location: %s", name, status, country, location);
 
-        chatSDKProfileHelper.loadProfilePic(loginType);
+        Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getMetaPictureUrl());
     }
 
     @Override
@@ -187,7 +188,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         
         if (item.getItemId() == R.id.action_chat_sdk_edit)
         {
-            chatSDKUiHelper.startEditProfileActivity(NM.currentUser().getId());
+            UIHelper.startEditProfileActivity(NM.currentUser().getId());
 
             getActivity().overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
             return true;

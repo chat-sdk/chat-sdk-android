@@ -25,10 +25,9 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.UiHelpers.ChatSDKProfileHelper;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import com.braunster.chatsdk.object.Cropper;
-
-import co.chatsdk.ui.view.CircleImageView;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -71,7 +70,7 @@ public abstract class AbstractProfileFragment extends BaseFragment {
         progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
         profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
 
-        chatSDKProfileHelper = new ChatSDKProfileHelper((AppCompatActivity) getActivity(), profileCircleImageView, progressBar, chatSDKUiHelper, mainView);
+        chatSDKProfileHelper = new ChatSDKProfileHelper((AppCompatActivity) getActivity(), profileCircleImageView, progressBar, UIHelper, mainView);
         chatSDKProfileHelper.setFragment(this);
     }
 

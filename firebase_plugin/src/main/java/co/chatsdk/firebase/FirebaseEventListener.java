@@ -54,67 +54,38 @@ public class FirebaseEventListener implements ChildEventListener {
         return this;
     }
 
-    private void run (Runnable runnable) {
-        Executor.getInstance().execute(runnable);
-    }
-
     @Override
     public void onChildAdded(final DataSnapshot var1, final String var2) {
         if(onChildAdded != null) {
-            run(new Runnable() {
-                @Override
-                public void run() {
-                    onChildAdded.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            onChildAdded.trigger(var1, var2, hasValue(var1));
         }
     }
 
     @Override
     public void onChildChanged(final DataSnapshot var1, final String var2) {
         if(onChildChanged != null) {
-            run(new Runnable() {
-                @Override
-                public void run() {
-                    onChildChanged.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            onChildChanged.trigger(var1, var2, hasValue(var1));
         }
     }
 
     @Override
     public void onChildRemoved(final DataSnapshot var1) {
         if(onChildRemoved != null) {
-            run(new Runnable() {
-                @Override
-                public void run() {
-                    onChildRemoved.trigger(var1, hasValue(var1));
-                }
-            });
+            onChildRemoved.trigger(var1, hasValue(var1));
         }
     }
 
     @Override
     public void onChildMoved(final DataSnapshot var1, final String var2) {
         if(onChildMoved != null) {
-            run(new Runnable() {
-                @Override
-                public void run() {
-                    onChildMoved.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            onChildMoved.trigger(var1, var2, hasValue(var1));
         }
     }
 
     @Override
     public void onCancelled(final DatabaseError var1) {
         if(onCancelled != null) {
-            run(new Runnable() {
-                @Override
-                public void run() {
-                    onCancelled.trigger(var1);
-                }
-            });
+            onCancelled.trigger(var1);
         }
     }
 

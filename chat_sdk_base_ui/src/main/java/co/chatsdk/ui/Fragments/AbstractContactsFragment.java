@@ -243,7 +243,7 @@ public class AbstractContactsFragment extends BaseFragment {
         // Each user that will be found in the search activity will be automatically added as a contact.
         if (id == R.id.action_chat_sdk_add)
         {
-            Intent intent = new Intent(getActivity(), chatSDKUiHelper.getSearchActivity());
+            Intent intent = new Intent(getActivity(), UIHelper.getSearchActivity());
 
             startActivityForResult(intent, SearchActivity.GET_CONTACTS_ADDED_REQUEST);
             return true;
@@ -324,40 +324,40 @@ public class AbstractContactsFragment extends BaseFragment {
                                     .doOnError(new Consumer<Throwable>() {
                                         @Override
                                         public void accept(Throwable throwable) throws Exception {
-                                            chatSDKUiHelper.showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                            UIHelper.showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
                                         }
                                     }).subscribe();
 
                             break;
 
-                        case CLICK_MODE_SHARE_CONTENT:
-                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, currentUser)
-                                    .doOnSuccess(new Consumer<BThread>() {
-                                        @Override
-                                        public void accept(final BThread thread) throws Exception {
-                                            Intent intent = new Intent(getActivity(), chatSDKUiHelper.getChatActivity());
-                                            intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
-
-                                            // Checking the kind of the instace bundle
-                                            // Uri is used for images
-                                            if (extraData instanceof Uri)
-                                                intent.putExtra(ChatHelper.SHARED_FILE_URI, ((Uri) extraData));
-                                                // String is for text.
-                                            else if (extraData instanceof String)
-                                                intent.putExtra(ChatHelper.SHARED_TEXT, ((String) extraData));
-                                            else {
-                                                showToast(getString(R.string.abstract_contact_fragment_share_with_contact_toast_fail_unknown_type));
-                                                return;
-                                            }
-
-                                            if (contactListListener != null)
-                                                contactListListener.onContactClicked(clickedUser);
-
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                                            startActivity(intent);
-                                        }
-                                    }).subscribe();
-                            break;
+//                        case CLICK_MODE_SHARE_CONTENT:
+//                            createAndOpenThreadWithUsers(clickedUser.getMetaName(), clickedUser, currentUser)
+//                                    .doOnSuccess(new Consumer<BThread>() {
+//                                        @Override
+//                                        public void accept(final BThread thread) throws Exception {
+//                                            Intent intent = new Intent(getActivity(), UIHelper.getChatActivity());
+//                                            intent.putExtra(ChatActivity.THREAD_ID, thread.getId());
+//
+//                                            // Checking the kind of the instace bundle
+//                                            // Uri is used for images
+//                                            if (extraData instanceof Uri)
+//                                                intent.putExtra(ChatHelper.SHARED_FILE_URI, ((Uri) extraData));
+//                                                // String is for text.
+//                                            else if (extraData instanceof String)
+//                                                intent.putExtra(ChatHelper.SHARED_TEXT, ((String) extraData));
+//                                            else {
+//                                                showToast(getString(R.string.abstract_contact_fragment_share_with_contact_toast_fail_unknown_type));
+//                                                return;
+//                                            }
+//
+//                                            if (contactListListener != null)
+//                                                contactListListener.onContactClicked(clickedUser);
+//
+//                                            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//                                            startActivity(intent);
+//                                        }
+//                                    }).subscribe();
+//                            break;
 
                         case CLICK_MODE_NONE:
 
@@ -561,7 +561,6 @@ public class AbstractContactsFragment extends BaseFragment {
 
         if (adapter!=null)
         {
-            adapter.setTextColor(textColor);
             adapter.notifyDataSetChanged();
         }
     }

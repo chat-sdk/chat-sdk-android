@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.interfaces.CoreEntity;
 import timber.log.Timber;
 
@@ -318,10 +319,9 @@ public class BUser implements CoreEntity {
 //        return values;
 //    }
 
-//    public boolean isMe(){
-//        return getId().longValue()
-//                == NM.currentUser().getId().longValue();
-//    }
+    public boolean isMe(){
+        return getId().longValue() == NM.currentUser().getId().longValue();
+    }
 
     public String toString() {
         return String.format("BUser, id: %s meta: %s", id, getMetadata());

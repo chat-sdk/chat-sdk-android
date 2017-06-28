@@ -7,7 +7,7 @@
 --------------------------
 # Share images and links with app is now supported.
 # Improvements in the messages list.
-# Added a toast card so the user will have feedback that is message is on its way to the recipient.
+# Added a toast card so the user will have feedback that is messageItem is on its way to the recipient.
 # The location received is opend in google maps with mark.
 
 ##########################
@@ -24,7 +24,7 @@
 -----------NEW------------
 # App does double auth when login.
 -----------OLD------------
-# Need to Handle push notification for a message that already received.
+# Need to Handle push notification for a messageItem that already received.
 # User details are not indexed until the metadata is changed in the profile fragment.
 # Some old messages create notification when entering the app. and when opening the app after a push has been received.
 # Threads fragment can show the loading indicator for the all login process need to be fixed.

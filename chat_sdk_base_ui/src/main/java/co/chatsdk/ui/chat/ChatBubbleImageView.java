@@ -17,31 +17,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-
-import co.chatsdk.core.dao.DaoDefines;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.utils.volley.ImageUtils;
-import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.core.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.lang.ref.WeakReference;
-
-import timber.log.Timber;
 
 public class ChatBubbleImageView extends AppCompatImageView /*implements View.OnTouchListener */{
 

@@ -7,8 +7,12 @@
 
 package co.chatsdk.ui.chat;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +27,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,16 +38,21 @@ import android.widget.TextView;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.BMessageDao;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
 import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.view.CircleImageView;
+import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.threads.ThreadImageBuilder;
+import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
@@ -50,30 +60,26 @@ import co.chatsdk.ui.Activities.BaseActivity;
 import co.chatsdk.ui.Activities.BaseThreadActivity;
 import co.chatsdk.ui.Activities.PickFriendsActivity;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.Fragments.ContactsFragment;
 
 import co.chatsdk.core.events.PredicateFactory;
-import co.chatsdk.core.utils.volley.VolleyUtils;
-
-import co.chatsdk.ui.UiHelpers.MakeThreadImage;
 
 import co.chatsdk.core.dao.DaoCore;
-import com.braunster.chatsdk.thread.ChatSDKImageMessagesThreadPool;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 import co.chatsdk.ui.utils.Strings;
-//import co.chatsdk.ui.view.CircleImageView;
+
 import timber.log.Timber;
 
 public class ChatActivity extends BaseActivity implements AbsListView.OnScrollListener {
@@ -84,7 +90,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public static final int ADD_USERS = 103;
     public static final int SHOW_DETAILS = 200;
 
+    private enum ListPosition {
+        Top, Current, Bottom
+    }
+
     public static final String ACTION_CHAT_CLOSED = "braunster.chat.action.chat_closed";
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     /**
      * The key to get the thread long id.
@@ -99,19 +115,21 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     protected View actionBarView;
 
-    protected ChatHelper chatHelper;
-
     protected TextInputView textInputView;
     protected ListView listMessages;
     protected MessagesListAdapter messagesListAdapter;
     protected BThread thread;
+
+    private Disposable messageAddedDisposable;
+    private Disposable threadChangedDisposable;
 
     protected ProgressBar progressBar;
     protected int listPos = -1;
 
     protected Bundle bundle;
 
-    private boolean queueStopped = false;
+    /** Keeping track of the amount of messages that was read in this thread.*/
+    private int readCount = 0;
 
     /**
      * If set to false in onCreate the menu items wont be inflated in the menu.
@@ -123,8 +141,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      * Save the scroll state of the messages list.
      */
     protected boolean scrolling = false;
-
-    private boolean created = true;
 
     private PhotoSelector photoSelector = new PhotoSelector();
     private LocationSelector locationSelector = new LocationSelector();
@@ -140,9 +156,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         super.onCreate(savedInstanceState);
 
         setCardToastEnabled(true);
-
-        chatHelper = new ChatHelper(this, thread, chatSDKUiHelper);
-        chatHelper.restoreSavedInstance(savedInstanceState);
 
         initViews();
 
@@ -192,144 +205,45 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         if (DEBUG) Timber.d("initActionBar");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
-            ActionBar ab = readyActionBarToCustomView();
+            final ActionBar ab = readyActionBarToCustomView();
 
-            /*http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides*/
-
+            /*
+             * http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides
+             */
             actionBarView = inflateActionBarView(R.layout.chat_sdk_actionbar_chat_activity);
 
             boolean changed;
 
             TextView txtName = (TextView) actionBarView.findViewById(R.id.chat_sdk_name);
-            changed = setThreadName(txtName);
 
-
-            final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.chat_sdk_circle_image);
-            final ImageView imageView = (ImageView) actionBarView.findViewById(R.id.chat_sdk_round_corner_image);
-
-            final View.OnClickListener onClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            };
-
-            changed = setThreadImage(circleImageView, imageView, onClickListener) || changed;
-
-            if (changed)
-                ab.setCustomView(actionBarView);
-        }
-    }
-
-    /**
-     * Setting the thread name in the action bar.
-     */
-    protected boolean setThreadName(TextView txtName) {
-
-        String displayName = Strings.nameForThread(thread);
-
-        if (StringUtils.isBlank(displayName))
-            return false;
-
-        if (txtName.getText() == null || !displayName.equals(txtName.getText().toString())) {
-            // Set the title of the screen, This is used for the label in the screen overview on lollipop devices.
+            String displayName = Strings.nameForThread(thread);
             setTitle(displayName);
 
-            txtName.setText(displayName);
-            txtName.setOnClickListener(new View.OnClickListener() {
+            final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.chat_sdk_circle_image);
+
+            ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
                 @Override
-                public void onClick(View v) {
-                    showToast(((TextView) v).getText().toString());
+                public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
+                    circleImageView.setImageBitmap(bitmap);
+                    circleImageView.setVisibility(View.VISIBLE);
+//                    circleImageView.bringToFront();
+                    ab.setCustomView(actionBarView);
                 }
             });
 
-            return true;
+            ab.setCustomView(actionBarView);
         }
-
-        return false;
-    }
-
-    /**
-     * Setting the thread image in the action bar.
-     */
-    protected boolean setThreadImage(final CircleImageView circleImageView, final ImageView imageView, final View.OnClickListener onClickListener) {
-        final String imageUrl = thread.threadImageUrl();
-
-        if (circleImageView.getTag() == null || StringUtils.isEmpty(imageUrl) || !imageUrl.equals(circleImageView.getTag())) {
-            if (StringUtils.isEmpty(imageUrl))
-                setRoundCornerDefault(circleImageView, imageView, onClickListener);
-            else {
-                if (imageUrl.split(",").length > 1) {
-                    int size = getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
-                    new MakeThreadImage(imageUrl.split(","), size, size, thread.getEntityID(), circleImageView);
-                    circleImageView.setOnClickListener(onClickListener);
-                    circleImageView.setVisibility(View.VISIBLE);
-                    circleImageView.bringToFront();
-                } else
-                    VolleyUtils.getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            if (response.getBitmap() != null) {
-                                circleImageView.setTag(imageUrl);
-                                circleImageView.setVisibility(View.INVISIBLE);
-                                imageView.setVisibility(View.INVISIBLE);
-                                circleImageView.setImageBitmap(response.getBitmap());
-                                circleImageView.setVisibility(View.VISIBLE);
-
-                                // setting the task description again so the thread image will be seeing.
-                                setTaskDescription(response.getBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
-
-                                circleImageView.setOnClickListener(onClickListener);
-
-                                circleImageView.bringToFront();
-                            }
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            setRoundCornerDefault(circleImageView, imageView, onClickListener);
-                        }
-
-
-                    });
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Set the default image for this thread in the action bar.
-     */
-    protected void setRoundCornerDefault(CircleImageView circleImageView, ImageView roundedCornerImageView, View.OnClickListener onClickListener) {
-        circleImageView.setVisibility(View.INVISIBLE);
-        roundedCornerImageView.setVisibility(View.INVISIBLE);
-
-        if (thread.typeIs(ThreadType.Public)) {
-            roundedCornerImageView.setImageResource(R.drawable.ic_users);
-        } else if (thread.getUsers().size() < 3 || thread.typeIs(ThreadType.Private1to1)) {
-            roundedCornerImageView.setImageResource(R.drawable.ic_profile);
-        } else {
-            roundedCornerImageView.setImageResource(R.drawable.ic_users);
-        }
-
-        roundedCornerImageView.setVisibility(View.VISIBLE);
-
-        roundedCornerImageView.bringToFront();
-
-        roundedCornerImageView.setOnClickListener(onClickListener);
     }
 
     protected void initViews() {
+
         final Activity activity = this;
 
         setContentView(R.layout.chat_sdk_activity_chat);
 
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = (TextInputView) findViewById(R.id.chat_sdk_message_box);
-        textInputView.setAlertToast(chatSDKUiHelper.getAlertToast());
+        textInputView.setAlertToast(UIHelper.getInstance().getAlertToast());
         textInputView.setMessageSendListener(new TextInputView.MessageSendListener() {
             @Override
             public void onSendPressed(String text) {
@@ -356,6 +270,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             @Override
             public void onTakePhotoPressed() {
 
+                verifyStoragePermissions(activity);
+
                 photoSelector = new PhotoSelector();
 
                 try {
@@ -365,13 +281,16 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         }
                     });
                 } catch (Exception e) {
-                    chatSDKUiHelper.dismissProgressCard();
-                    chatSDKUiHelper.showToast(e.getMessage());
+                    UIHelper.getInstance().dismissProgressCard();
+                    UIHelper.getInstance().showToast(e.getMessage());
                 }
             }
 
             @Override
             public void onPickImagePressed() {
+
+                verifyStoragePermissions(activity);
+
                 photoSelector.startPickImageActivity(activity, new PhotoSelector.Result() {
                     @Override
                     public void result(String result) {
@@ -388,8 +307,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
-        chatHelper.setProgressBar(progressBar);
-
         final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.ptr_layout);
 
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -397,15 +314,27 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             public void onRefresh() {
                 if (DEBUG) Timber.d("onRefreshStarted");
 
-                NM.thread().loadMoreMessagesForThread(thread).subscribe(new BiConsumer<List<BMessage>, Throwable>() {
+                List<MessageListItem> items = messagesListAdapter.getMessageItems();
+                BMessage firstMessage = null;
+                if(items.size() > 0) {
+                    firstMessage = items.get(0).message;
+                }
+
+                NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<BMessage>, Throwable>() {
                     @Override
-                    public void accept(List<BMessage> bMessages, Throwable throwable) throws Exception {
+                    public void accept(List<BMessage> messages, Throwable throwable) throws Exception {
                         if (throwable == null) {
-                            if (bMessages.size() < 2)
+                            if (messages.size() < 2)
                                 showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
                             else {
+                                for(BMessage m : messages) {
+                                    messagesListAdapter.addRow(m);
+                                }
+
+                                scrollListTo(messages.size(), false);
+
                                 // Saving the position in the list so we could back to it after the update.
-                                chatHelper.loadMessages(true, false, -1, messagesListAdapter.getCount() + bMessages.size());
+                                //loadMessages(false, messages.size(), ListPosition.Current);
                             }
 
                         }
@@ -417,14 +346,33 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         listMessages = (ListView) findViewById(R.id.list_chat);
 
-        chatHelper.setListMessages(listMessages);
-
         if (messagesListAdapter == null) {
-            messagesListAdapter = new MessagesListAdapter(ChatActivity.this, NM.currentUser().getId());
+            messagesListAdapter = new MessagesListAdapter(ChatActivity.this);
         }
 
         listMessages.setAdapter(messagesListAdapter);
-        chatHelper.setMessagesListAdapter(messagesListAdapter);
+        listMessages.setOnScrollListener(this);
+    }
+
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 
     /**
@@ -445,7 +393,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        chatSDKUiHelper.showToast(R.string.unable_to_send_message);
+                        UIHelper.getInstance().showToast(R.string.unable_to_send_message);
                     }
                 }).subscribe();
 
@@ -461,76 +409,59 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        chatSDKUiHelper.showToast(R.string.unable_to_send_location_message);
+                        UIHelper.getInstance().showToast(R.string.unable_to_send_location_message);
                     }
                 })
                 .doOnTerminate(new Action() {
                     @Override
                     public void run() throws Exception {
-                        chatSDKUiHelper.dismissProgressCardWithSmallDelay();
+                        UIHelper.getInstance().dismissProgressCardWithSmallDelay();
                     }
                 }).subscribe();
-
-
-        // TODO: BEN1 Add this in
-        // Adding the message after it was prepared bt the NetworkAdapter.
-//        String path = bundle.getExtras().getString(ChatSDKLocationActivity.SNAP_SHOT_PATH, "");
-//        if (StringUtils.isNotBlank(path))
-//        {
-//            if (messagesListAdapter != null)
-//            {
-//                messagesListAdapter.addRow(message);
-//                scrollListTo(messagesListAdapter.getCount(), true);
-//            }
-//        }
-
 
     }
 
     private void showSendingMessageToast() {
-        chatSDKUiHelper.initCardToast();
-        chatSDKUiHelper.showProgressCard("Sending...");
+        UIHelper.getInstance().initCardToast();
+        UIHelper.getInstance().showProgressCard(R.string.sending);
     }
 
     /**
-     * Send an image message.
+     * Send an imageView message.
      *
-     * @param filePath the path to the image file that need to be sent.
+     * @param filePath the path to the imageView file that need to be sent.
      */
     public void sendImageMessage(final String filePath) {
-        if (DEBUG) Timber.v("sendImfageMessage, Path: %s", filePath);
+        if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
 
-        showSendingMessageToast();
 
         NM.thread().sendMessageWithImage(filePath, thread)
                 .doOnNext(new Consumer<ImageUploadResult>() {
                     @Override
                     public void accept(ImageUploadResult value) throws Exception {
-                        chatSDKUiHelper.setProgress(value.progress.asFraction());
+                        UIHelper.getInstance().setProgress(value.progress.asFraction());
+                    }
+                })
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        messagesListAdapter.notifyDataSetChanged();
                     }
                 })
                 .doOnTerminate(new Action() {
                     @Override
                     public void run() throws Exception {
-                        chatSDKUiHelper.dismissProgressCardWithSmallDelay();
+                        UIHelper.getInstance().dismissProgressCardWithSmallDelay();
                     }
                 })
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        chatSDKUiHelper.showToast(R.string.unable_to_send_image_message);
+                        UIHelper.getInstance().showToast(R.string.unable_to_send_image_message);
                     }
                 }).subscribe();
 
-
-        // TODO: BEN1 Add this!
-
-//        // Adding the message after it was prepared bt the NetworkAdapter.
-//        if (messagesListAdapter != null)
-//        {
-//            messagesListAdapter.addRow(message);
-//            scrollListTo(messagesListAdapter.getCount(), true);
-//        }
+        messagesListAdapter.notifyDataSetChanged();
 
     }
 
@@ -544,8 +475,37 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         // Save the list position
         outState.putInt(LIST_POS, listMessages.getFirstVisiblePosition());
-        chatHelper.onSavedInstanceBundle(outState);
     }
+
+
+//    public void onSavedInstanceBundle(Bundle outState){
+//        if (StringUtils.isNotEmpty(selectedFilePath))
+//        {
+//            outState.putString(SELECTED_FILE_PATH, selectedFilePath);
+//        }
+//
+//        outState.putInt(LOADED_MESSAGES_AMOUNT, loadedMessagesAmount);
+//        outState.putInt(READ_COUNT, readCount);
+//        outState.putString(FILE_NAME, mFileName);
+//
+//        SuperCardToast.onSaveState(outState);
+//    }
+//
+//    public void restoreSavedInstance(Bundle savedInstanceState){
+//        if (savedInstanceState == null)
+//            return;
+//
+//        if (!hasActivity())
+//            return;
+//
+//        selectedFilePath = savedInstanceState.getString(SELECTED_FILE_PATH);
+//        loadedMessagesAmount = savedInstanceState.getInt(LOADED_MESSAGES_AMOUNT, 0);
+//        readCount = savedInstanceState.getInt(READ_COUNT);
+//        mFileName = savedInstanceState.getString(FILE_NAME);
+//
+//        SuperCardToast.onRestoreState(savedInstanceState, activity.get());
+//    }
+
 
     @Override
     protected void onStart() {
@@ -558,6 +518,63 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.start(client, getIndexApiAction());
+
+
+        messageAddedDisposable = NM.events().sourceOnMain()
+                .filter(PredicateFactory.type(EventType.MessageAdded))
+                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+
+                        BMessage message = networkEvent.message;
+
+                        // Check that the message is relevant to the current thread.
+                        if (message.getThreadId() != thread.getId().intValue()) {
+                            return;
+                        }
+
+                        //Set as read.
+                        markAsRead(message);
+
+                        boolean isAdded = messagesListAdapter.addRow(message);
+
+                        // Check if the message from the current user, If so return so we wont vibrate for the user messages.
+                        if (message.getSender().isMe()) {
+                            if (isAdded) {
+                                scrollListTo(ListPosition.Bottom, listMessages.getLastVisiblePosition() <= 2);
+                            }
+                        }
+                        else {
+                            // If the user is near the bottom, then we scroll down when a message comes in
+                            if(listMessages.getLastVisiblePosition() < 5) {
+                                scrollListTo(ListPosition.Bottom, true);
+                            }
+                            //Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+                            //v.vibrate(Defines.VIBRATION_DURATION);
+                        }
+
+                        message.setDelivered(BMessage.Delivered.Yes);
+                        DaoCore.updateEntity(message);
+
+                    }
+                });
+
+        threadChangedDisposable = NM.events().sourceOnMain()
+                .filter(PredicateFactory.type(
+                        EventType.PrivateThreadAdded,
+                        EventType.PrivateThreadRemoved,
+                        EventType.PublicThreadAdded,
+                        EventType.PublicThreadRemoved,
+                        EventType.ThreadDetailsUpdated,
+                        EventType.ThreadUsersChanged))
+                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        updateChat();
+                    }
+                });
 
     }
 
@@ -594,66 +611,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
-        NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(EventType.MessageAdded))
-                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        BMessage message = networkEvent.message;
-
-                        // Check that the message is relevant to the current thread.
-                        if (message.getThreadId() != thread.getId().intValue()) {
-                            return;
-                        }
-
-                        //Set as read.
-                        chatHelper.markAsRead(message);
-
-                        boolean isAdded = messagesListAdapter.addRow(message);
-
-                        BUser currentUser = NM.currentUser();
-
-                        // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                        if (message.getSender().getEntityID().equals(currentUser.getEntityID())) {
-                            if (isAdded) {
-                                chatHelper.scrollListTo(-1, true);
-                            }
-                        } else {
-                            Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
-                            v.vibrate(Defines.VIBRATION_DURATION);
-                        }
-
-                        message.setDelivered(BMessage.Delivered.Yes);
-                        DaoCore.updateEntity(message);
-
-                    }
-                });
-
-        NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(
-                        EventType.PrivateThreadAdded,
-                        EventType.PrivateThreadRemoved,
-                        EventType.PublicThreadAdded,
-                        EventType.PublicThreadRemoved,
-                        EventType.ThreadDetailsUpdated,
-                        EventType.ThreadUsersChanged))
-                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        updateChat();
-                    }
-                });
 
         // If the activity is just been created we load regularly, else we load and retain position
-        if (!created)
-            chatHelper.loadMessagesAndRetainCurrentPos();
-        else {
-            chatHelper.loadMessages(listPos);
-        }
+        loadMessages(true, -1, ListPosition.Bottom);
 
-        created = false;
     }
 
     @Override
@@ -669,11 +630,21 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected void onStop() {
         super.onStop();
 
+        if(messageAddedDisposable != null) {
+            messageAddedDisposable.dispose();
+            messageAddedDisposable = null;
+        }
+
+        if(threadChangedDisposable != null) {
+            threadChangedDisposable.dispose();
+            threadChangedDisposable = null;
+        }
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.end(client, getIndexApiAction());
 
-        if (chatHelper.getReadCount() > 0) {
+        if (readCount > 0) {
             sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
         }
 
@@ -685,6 +656,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.disconnect();
+
+
     }
 
     /**
@@ -703,14 +676,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         if (!updateThreadFromBundle(intent.getExtras()))
             return;
 
-        created = true;
-
         if (messagesListAdapter != null)
             messagesListAdapter.clear();
 
         initActionBar();
-
-        //chatHelper.checkIfWantToShare(intent);
     }
 
     @Override
@@ -723,9 +692,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             photoSelector.handleResult(this, requestCode, resultCode, data);
             locationSelector.handleResult(this, requestCode, resultCode, data);
         } catch (Exception e) {
-            chatSDKUiHelper.dismissProgressCard();
+            UIHelper.getInstance().dismissProgressCard();
             if (e.getMessage() != null && e.getMessage().length() > 0) {
-                chatSDKUiHelper.showToast(e.getMessage());
+                UIHelper.getInstance().showToast(e.getMessage());
             }
         }
 
@@ -743,8 +712,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 if (data != null && data.getExtras() != null && data.getExtras().containsKey(THREAD_ID)) {
                     if (!updateThreadFromBundle(data.getExtras()))
                         return;
-
-                    created = true;
 
                     if (messagesListAdapter != null)
                         messagesListAdapter.clear();
@@ -809,17 +776,16 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     protected void startAddUsersActivity() {
         // Showing the pick friends activity.
-        Intent intent = new Intent(this, chatSDKUiHelper.getPickFriendsActivity());
+        Intent intent = new Intent(this, UIHelper.getInstance().getPickFriendsActivity());
         intent.putExtra(PickFriendsActivity.MODE, PickFriendsActivity.MODE_ADD_TO_CONVERSATION);
         intent.putExtra(BaseThreadActivity.THREAD_ID, thread.getId());
+        intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
         startActivityForResult(intent, ADD_USERS);
 
         overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
     }
-
-
 
     /**
      * Show a dialog containing all the users in this chat.
@@ -830,12 +796,13 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     /**
-     * Open the thread details activity, Admin user can change thread name an image there.
+     * Open the thread details activity, Admin user can change thread name an imageView there.
      */
     protected void openThreadDetailsActivity() {
         // Showing the pick friends activity.
-        Intent intent = new Intent(this, chatSDKUiHelper.getThreadDetailsActivity());
+        Intent intent = new Intent(this, UIHelper.getInstance().getThreadDetailsActivity());
         intent.putExtra(THREAD_ID, thread.getId());
+        intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
         startActivityForResult(intent, SHOW_DETAILS);
@@ -860,7 +827,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void onAuthenticated() {
         super.onAuthenticated();
         if (DEBUG) Timber.v("onAuthenticated");
-        chatHelper.loadMessagesAndRetainCurrentPos();
+        loadMessages(false, -1, ListPosition.Bottom);
     }
 
 
@@ -885,15 +852,15 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     BThreadDao.Properties.Id,
                     this.bundle.getLong(THREAD_ID));
         }
+        if (this.bundle.containsKey(LIST_POS)) {
+            listPos = (Integer) this.bundle.get(LIST_POS);
+            scrollListTo(ListPosition.Current, false);
+        }
 
         if (thread == null) {
             if (DEBUG) Timber.e("No Thread found for given ID.");
             finish();
             return false;
-        }
-        else {
-            this.thread = thread;
-            chatHelper.setThread(thread);
         }
 
         return true;
@@ -902,12 +869,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     /**
      * Update chat current thread using the {@link ChatActivity#bundle} bundle saved.
      * Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
-     * Finally update the action bar for thread image and name, The update will occur only if needed so free to call.
+     * Finally update the action bar for thread imageView and name, The update will occur only if needed so free to call.
      */
     private void updateChat() {
-
-
-
         updateThreadFromBundle(this.bundle);
         supportInvalidateOptionsMenu();
         initActionBar();
@@ -936,32 +900,18 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             if (DEBUG) Timber.d("onBackPressed, From Push");
             bundle.remove(Defines.FROM_PUSH);
 
-            chatSDKUiHelper.startMainActivity();
+            UIHelper.getInstance().startMainActivity();
             return;
         }
         super.onBackPressed();
     }
 
     /**
-     * Used for pausing the volley image loader while the user is scrolling so the scroll will be smooth.
+     * Used for pausing the volley imageView loader while the user is scrolling so the scroll will be smooth.
      */
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         scrolling = scrollState != SCROLL_STATE_IDLE;
-
-        // Pause disk cache access to ensure smoother scrolling
-        if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-            VolleyUtils.getRequestQueue().stop();
-            ChatSDKImageMessagesThreadPool.getInstance().getThreadPool().pause();
-            queueStopped = true;
-        }
-
-        // Pause disk cache access to ensure smoother scrolling
-        if (queueStopped && !scrolling) {
-            ChatSDKImageMessagesThreadPool.getInstance().getThreadPool().resume();
-            VolleyUtils.getRequestQueue().start();
-            queueStopped = false;
-        }
 
         messagesListAdapter.setScrolling(scrolling);
     }
@@ -971,7 +921,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
+        listPos = firstVisibleItem;
     }
 
     /**
@@ -990,101 +940,211 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 .build();
     }
 
-//    public void checkIfWantToShare(Intent intent){
-//        if (DEBUG) Timber.v("checkIfWantToShare");
-//
-//        if (intent.getExtras() == null || intent.getExtras().isEmpty()) {
-//            return;
-//        }
-//
-//        if (intent.getExtras().containsKey(SHARED_FILE_URI))
-//        {
-//            if (DEBUG) Timber.i("Want to share URI");
-//
-//            try{
-//                String path = Utils.getRealPathFromURI(activity.get(), (Uri) intent.getExtras().get(SHARED_FILE_URI));
-//
-//                if (DEBUG) Timber.d("Path from uri: " + path);
-//
-//                uiHelper.showProgressCard(R.string.sending);
-//
-//                sendImageMessage(path);
-//            }
-//            catch (NullPointerException e){
-//                uiHelper.showToast(R.string.unable_to_fetch_image);
-//            }
-//
-//            // removing the key so we wont send again,
-//            intent.getExtras().remove(SHARED_FILE_URI);
-//
-//            intent.removeExtra(SHARED_FILE_URI);
-//
-//            shared = true;
-//        }
-//        else if (intent.getExtras().containsKey(SHARED_TEXT))
-//        {
-//            if (DEBUG) Timber.i("Want to share Text");
-//
-//            String text =intent.getExtras().getString(SHARED_TEXT);
-//
-//            // removing the key so we wont send again,
-//            intent.getExtras().remove(SHARED_TEXT);
-//
-//            sendMessageWithText(text, false);
-//
-//            intent.removeExtra(SHARED_TEXT);
-//
-//            shared = true;
-//        }
-//        else if (intent.getExtras().containsKey(SHARED_FILE_PATH))
-//        {
-//            if (DEBUG) Timber.i("Want to share File from path");
-//            uiHelper.showProgressCard("Sending...");
-//
-//            String path =intent.getStringExtra(SHARED_FILE_PATH);
-//
-//            // removing the key so we wont send again,
-//            intent.getExtras().remove(SHARED_FILE_PATH);
-//
-//            sendImageMessage(path);
-//
-//            intent.removeExtra(SHARED_FILE_PATH);
-//
-//            shared = true;
-//        }
-//        else if (intent.getExtras().containsKey(SHARE_LOCATION)){
-//            if (DEBUG) Timber.i("Want to share Location");
-//            // FIXME pull text from string resource for language control
-//            uiHelper.showProgressCard(R.string.sending);
-//
-//            //TODO: BEN1
-//            this.sendLocationMessage(intent);
 
+    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition){
 
-//            BNetworkManager.getThreadsInterface().sendMessageWithLocation(intent.getExtras().getString(SHARE_LOCATION, null),
-//                    new LatLng(intent.getDoubleExtra(LAT, 0), intent.getDoubleExtra(LNG, 0)),
-//                    thread.getId())
-//                    .done(new DoneCallback<BMessage>() {
-//                        @Override
-//                        public void onDone(BMessage message) {
-//                            if (DEBUG) Timber.v("Image is sent");
+        if (showLoadingIndicator) {
+            listMessages.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                final int listSize = messagesListAdapter.getCount();
+
+                final List<BMessage> messages;
+
+                // Load maximum number of messages
+                if(amountToLoad <= 0) {
+                    messages = getMessagesForThreadID(thread.getId(), listSize + Defines.MAX_MESSAGES_TO_PULL);
+                }
+                else {
+                    // The idea is that if we want to load 10 messages and we already have
+                    // 10 in the list, in total we want to end up with 20 messages
+                    messages = getMessagesForThreadID(thread.getId(), listSize + amountToLoad);
+                }
+
+                markAsRead(messages);
+
+                // Sorting the message by date to make sure the list looks ok.
+                Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
+
+                ChatActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.INVISIBLE);
+
+                        messagesListAdapter.setMessages(messages);
+
+                        if (listMessages.getVisibility() == View.INVISIBLE) {
+                            animateListView();
+                        }
+
+                        scrollListTo(toPosition, !showLoadingIndicator);
+
+                    }
+                });
+//?
 //
-//                            uiHelper.dismissProgressCardWithSmallDelay();
-//                        }
-//                    })
-//                    .fail(new FailCallback<ChatError>() {
+//                loadedMessagesAmount = messages.size();
+//
+//                markAsRead(messages);
+//
+//                // Setting the new message to the adapter.
+//                final List<MessageListItem> list = messagesListAdapter.makeList(messages);
+//
+//                if (list.size() == 0)
+//                {
+//                    activity.get().runOnUiThread(new Runnable() {
 //                        @Override
-//                        public void onFail(ChatError chatError) {
-//                            uiHelper.dismissProgressCardWithSmallDelay();
-//                            uiHelper.showToast(R.string.unable_to_send_location_message);
+//                        public void run() {
+//                            progressBar.setVisibility(View.INVISIBLE);
+//                            listMessages.setVisibility(View.VISIBLE);
 //                        }
 //                    });
+//                    return;
+//                }
 //
-//            intent.removeExtra(SHARE_LOCATION);
+//                activity.get().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        messagesListAdapter.setListData(list);
 //
-//            shared = true;
-//        }
-//    }
+//                        // restoring the old position after the load is done.
+//                        if (retain)
+//                        {
+//                            int newDataSize = messagesListAdapter.getCount();
+//                            final int index = listMessages.getFirstVisiblePosition() + newDataSize - listSize + offsetOrPos;
+//                            View v = listMessages.getChildAt(0);
+//                            final int top = (v == null) ? -1 : v.getTop();
+//
+//                            listMessages.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    listMessages.setSelectionFromTop(index, top);
+//
+//                                    if (listMessages.getVisibility() == View.INVISIBLE)
+//                                        animateListView();
+//                                }
+//                            });
+//                        }
+//                        // If list view is visible smooth scroll else dirty.
+//                        else scrollListTo(offsetOrPos,  !showLoadingIndicator);
+//                    }
+//                });
+            }
+        });
+    }
+
+    public void markAsRead(List<BMessage> messages){
+        for (BMessage m : messages)
+        {
+            m.setIsRead(true);
+            DaoCore.updateEntity(m);
+            readCount++;
+        }
+    }
+
+    public void markAsRead(BMessage message){
+        message.setIsRead(true);
+        DaoCore.updateEntity(message);
+        readCount++;
+    }
+
+    public void scrollListTo(final int position, final boolean animated) {
+        listMessages.post(new Runnable() {
+            @Override
+            public void run() {
+
+                listPos = position;
+
+                if (animated) {
+                    listMessages.smoothScrollToPosition(listPos);
+                }
+                else {
+                    listMessages.setSelection(listPos);
+                }
+
+                if (listMessages.getVisibility() == View.INVISIBLE)
+                    animateListView();
+            }
+        });
+    }
+
+    public void scrollListTo(final ListPosition position, final boolean animated) {
+
+        int pos = 0;
+
+        switch (position) {
+            case Top:
+                pos = 0;
+                break;
+            case Current:
+                pos = listPos == -1 ? messagesListAdapter.getCount() - 1 : listPos;
+                break;
+            case Bottom:
+                pos = messagesListAdapter.getCount() - 1;
+                break;
+        }
+
+        scrollListTo(pos, animated);
+    }
+
+    public void animateListView() {
+
+        if (listMessages == null)
+            return;
+
+        if (DEBUG) Timber.v("animateListView");
+
+        listMessages.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_expand));
+        listMessages.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                if (progressBar!= null)
+                    progressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                listMessages.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        listMessages.getAnimation().start();
+    }
+
+    /**
+     * Get all messages for given thread id ordered Ascending/Descending
+     */
+    public List<BMessage> getMessagesForThreadID(Long id, int limit) {
+        List<BMessage> list ;
+
+        QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
+        qb.where(BMessageDao.Properties.ThreadId.eq(id));
+
+        // Making sure no null messages infected the sort.
+        qb.where(BMessageDao.Properties.Date.isNotNull());
+        qb.where(BMessageDao.Properties.SenderId.isNotNull());
+
+        qb.orderDesc(BMessageDao.Properties.Date);
+
+        if (limit != -1)
+            qb.limit(limit);
+
+        list = qb.list();
+
+        return list;
+    }
 
 
 }

@@ -5,7 +5,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
@@ -18,9 +17,9 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
 import timber.log.Timber;
 
@@ -28,18 +27,18 @@ import timber.log.Timber;
  * Created by benjaminsmiley-andrews on 10/05/2017.
  */
 
-public class FirebaseStateManager implements EventHandler {
+public class FirebaseEventHandler implements EventHandler {
 
     private static final boolean DEBUG = Debug.StateManager;
 
-    final private ReplaySubject<NetworkEvent> eventSource = ReplaySubject.create();
+    final private PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
 
-    private static FirebaseStateManager instance;
+    private static FirebaseEventHandler instance;
     boolean isOn = false;
 
-    public static FirebaseStateManager shared() {
+    public static FirebaseEventHandler shared() {
         if (instance == null) {
-            instance = new FirebaseStateManager();
+            instance = new FirebaseEventHandler();
         }
         return instance;
     }
@@ -62,9 +61,7 @@ public class FirebaseStateManager implements EventHandler {
                 if(hasValue) {
                     final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                    if(!thread.getModel().hasUser(user)) {
-                        DaoCore.connectUserAndThread(user, thread.getModel());
-                    }
+                    DaoCore.connectUserAndThread(user, thread.getModel());
 
                     // Starting to listen to thread changes.
                     thread.on().doOnNext(new Consumer<BThread>() {
@@ -262,7 +259,7 @@ public class FirebaseStateManager implements EventHandler {
         }
     }
 
-    public ReplaySubject<NetworkEvent> source () {
+    public PublishSubject<NetworkEvent> source () {
         return eventSource;
     }
 

@@ -100,6 +100,8 @@ public class UserWrapper {
 
         String name = authData.getDisplayName();
         String email = authData.getEmail();
+        String profileURL = authData.getPhotoUrl().toString();
+
         String token = null;
         Object tokenObject = NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.TokenKey);
         if(tokenObject != null) {
@@ -108,22 +110,26 @@ public class UserWrapper {
         String uid = authData.getUid();
 
         BLinkedAccount linkedAccount;
-        
+
+        // Setting the name.
+        if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName())) {
+            model.setMetaName(name);
+        }
+
+        // Setting the email.//
+        if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail())) {
+            model.setMetaEmail(email);
+        }
+
+        if (StringUtils.isNotBlank(profileURL) && StringUtils.isBlank(model.getMetaPictureUrl())) {
+            model.setMetaPictureUrl(profileURL);
+            model.setMetaPictureThumbnail(profileURL);
+        }
+
+
         switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
         {
             case Defines.ProviderInt.Facebook:
-                // Setting the name.
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
-                {
-                    model.setMetaName(name);
-                }
-
-                // Setting the email.//
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
-                {
-                    model.setMetaEmail(email);
-                }
-
                 linkedAccount = model.getAccountWithType(BLinkedAccount.Type.FACEBOOK);
                 if (linkedAccount == null)
                 {
@@ -137,16 +143,6 @@ public class UserWrapper {
                 break;
 
             case Defines.ProviderInt.Twitter:
-                // Setting the name
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
-                    model.setMetaName(name);
-
-                // Setting the email.//
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
-                {
-                    model.setMetaEmail(email);
-                }
-
                 TwitterManager.userId = uid;
 
                 linkedAccount = model.getAccountWithType(BLinkedAccount.Type.TWITTER);
@@ -162,14 +158,6 @@ public class UserWrapper {
                 break;
 
             case Defines.ProviderInt.Password:
-                // Setting the name
-                if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getMetaName()))
-                    model.setMetaName(name);
-
-                if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getMetaEmail()))
-                {
-                    model.setMetaEmail(email);
-                }
                 break;
 
             default: break;
@@ -178,6 +166,13 @@ public class UserWrapper {
         if (StringUtils.isEmpty(model.getMetaName()))
         {
             model.setMetaName(Defines.getDefaultUserName());
+        }
+        if(StringUtils.isEmpty(model.getMetaPictureUrl())) {
+            String url = Defines.getDefaultImageUrl("http://robohash.org/" + name,
+                    Defines.ImageProperties.INITIALS_IMAGE_SIZE,
+                    Defines.ImageProperties.INITIALS_IMAGE_SIZE);
+            model.setMetaPictureUrl(url);
+            model.setMetaPictureThumbnail(url);
         }
         
         // Save the bundle

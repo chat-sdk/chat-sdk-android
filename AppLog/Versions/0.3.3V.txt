@@ -7,14 +7,14 @@
 --------------------------
 # Parse Receiver now check if user is authenticated, If so the result intent will direct the user when pressed on the notification to  the chat fot this chat.
   If the user is not authenticated the user will be directed to the LoginActivity.
-  Currently if the user or thread does not exist in the db i will ignore the message.
-  Also ignoring message for other users and ones that already on the db indicating that they are already seen by the user.
-  All the data of the message is passed on a json with the parse push.
+  Currently if the user or thread does not exist in the db i will ignore the messageItem.
+  Also ignoring messageItem for other users and ones that already on the db indicating that they are already seen by the user.
+  All the data of the messageItem is passed on a json with the parse push.
 
 ##########################
         BUG FIX
 --------------------------
-# Need to Handle push notification for a message that already received.
+# Need to Handle push notification for a messageItem that already received.
 
 ##########################
         BUG REPORT

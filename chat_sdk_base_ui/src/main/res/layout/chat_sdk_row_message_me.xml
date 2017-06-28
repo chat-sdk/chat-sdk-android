@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/RowStyle"
+    android:id="@+id/chat_sdk_root_view_text_user">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/content"
+        android:layout_toLeftOf="@+id/img_user_image"
+        android:layout_toRightOf="@+id/txt_time"
+        android:layout_centerVertical="true"
+        android:gravity="right"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:gravity="center_vertical"
+            android:text="Message text"
+            android:background="@drawable/message_sent_2"/>
+
+    </LinearLayout>
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chat_sdk_image"
+        android:layout_toLeftOf="@id/img_user_image"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_marginRight="4dp"
+        app:riv_corner_radius="10dp"
+        android:visibility="visible"/>
+
+    <at.grabner.circleprogress.CircleProgressView
+        android:id="@+id/chat_sdk_progress_view"
+        android:layout_toRightOf="@id/img_user_image"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--<ProgressBar-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_toRightOf="@id/img_user_image"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_alignRight="@id/chat_sdk_image"-->
+        <!--android:id="@+id/chat_sdk_progress_bar"/>-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Time"
+        android:id="@+id/txt_time"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        style="@style/MessageDateStyle"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/img_user_image"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/ic_profile"
+        app:civ_border_width="0dp"
+        app:civ_border_color="#FF000000"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>

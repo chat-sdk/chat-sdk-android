@@ -7,30 +7,33 @@
 
 package co.chatsdk.ui.Adapters;
 
-import co.chatsdk.ui.chat.MessagesListAdapter;
-import co.chatsdk.core.dao.DaoCore;
-
 import java.util.Comparator;
 
-import static co.chatsdk.ui.chat.MessagesListAdapter.MessageListItem;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.ui.chat.MessageListItem;
 
-public class MessageItemSorter implements Comparator<MessagesListAdapter.MessageListItem> {
+public class MessageItemSorter implements Comparator<MessageListItem> {
     public static final int ORDER_TYPE_ASC = DaoCore.ORDER_ASC;
     public static final int ORDER_TYPE_DESC = DaoCore.ORDER_DESC;
 
     private int order = ORDER_TYPE_DESC;
-
-    public MessageItemSorter(){}
 
     public MessageItemSorter(int order) {
         this.order = order;
     }
 
     @Override
-    public int compare(MessageListItem x, MessageListItem y) {
-
-        if (order == ORDER_TYPE_ASC)
-            return (x == null || y == null) ? -1 : x.getTimeInMillis() > y.getTimeInMillis() ? -1 : 1;
-        else return (x == null || y == null) ? 1 : x.getTimeInMillis() > y.getTimeInMillis()? 1 : -1 ;
+    public int compare(MessageListItem m1, MessageListItem m2) {
+        if(m1 == null || m2 == null) {
+            return 0;
+        }
+        else {
+            if (order == ORDER_TYPE_ASC) {
+                return m1.getTimeInMillis() > m2.getTimeInMillis() ? -1 : 1;
+            }
+            else {
+                return m1.getTimeInMillis() > m2.getTimeInMillis() ? 1 : -1;
+            }
+        }
     }
 }

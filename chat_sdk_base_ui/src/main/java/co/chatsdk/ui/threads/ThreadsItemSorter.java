@@ -10,7 +10,7 @@ package co.chatsdk.ui.threads;
 import java.util.Comparator;
 import java.util.Date;
 
-public class ThreadsItemSorter implements Comparator<AbstractThreadsListAdapter.ThreadListItem> {
+public class ThreadsItemSorter implements Comparator<ThreadsListAdapter.ThreadListItem> {
     public static final int ORDER_TYPE_ASC = 0;
     public static final int ORDER_TYPE_DESC = 1;
 
@@ -23,7 +23,7 @@ public class ThreadsItemSorter implements Comparator<AbstractThreadsListAdapter.
     }
 
     @Override
-    public int compare(AbstractThreadsListAdapter.ThreadListItem t1, AbstractThreadsListAdapter.ThreadListItem t2) {
+    public int compare(ThreadsListAdapter.ThreadListItem t1, ThreadsListAdapter.ThreadListItem t2) {
 
         Date x, y;
         if (t1.getLastMessageDate() == null)

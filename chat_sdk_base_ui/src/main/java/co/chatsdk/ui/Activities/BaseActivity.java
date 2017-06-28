@@ -27,6 +27,7 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.UiHelpers.UIHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
@@ -34,7 +35,7 @@ import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.UiHelpers.DialogUtils;
-import co.chatsdk.ui.UiHelpers.ChatSDKUiHelper;
+
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -81,15 +82,9 @@ public class BaseActivity extends AppCompatActivity {
      * You cant use the card toast until onResume is called due to the config of the card toast. If you need it you can call initCardToast.*/
     private boolean enableCardToast = false;
 
-    protected ChatSDKUiHelper chatSDKUiHelper;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(this);
 
         if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
         {
@@ -176,7 +171,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onResume();
 
         if (enableCardToast)
-            chatSDKUiHelper.initCardToast();
+            UIHelper.getInstance().initCardToast();
 
         if (DEBUG) Timber.v("onResumed, From login: %s, Check online: %s", fromLoginActivity, checkOnlineOnResumed);
 
@@ -264,7 +259,7 @@ public class BaseActivity extends AppCompatActivity {
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.
      * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext*/
     public void setupTouchUIToDismissKeyboard(View view) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideSoftKeyboard(BaseActivity.this);
@@ -274,7 +269,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideSoftKeyboard(BaseActivity.this);
@@ -284,24 +279,25 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+        UIHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
     }
 
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(AppCompatActivity activity) {
-        ChatSDKUiHelper.hideSoftKeyboard(activity);
+        UIHelper.hideSoftKeyboard(activity);
     }
 
     /** Show a SuperToast with the given text. */
     protected void showToast(String text){
-        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
+        if (StringUtils.isEmpty(text))
             return;
-        chatSDKUiHelper.getToast().setText(text);
-        chatSDKUiHelper.getToast().show();
+
+        UIHelper.getInstance().getToast().setText(text);
+        UIHelper.getInstance().getToast().show();
     }
 
     protected void showProgressCard(String text){
-        chatSDKUiHelper.showProgressCard(text);
+        UIHelper.getInstance().showProgressCard(text);
     }
 
     protected void dismissProgressCard(){
@@ -313,7 +309,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void dismissProgressCard(long delay){
-        chatSDKUiHelper.dismissProgressCard(delay);
+        UIHelper.getInstance().dismissProgressCard(delay);
     }
 
     /** Authenticates the current user.*/
@@ -360,33 +356,27 @@ public class BaseActivity extends AppCompatActivity {
     /** Start the chat activity for the given thread id.
      * @param id is the long value of local db id.*/
     public void startChatActivityForID(long id){
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startChatActivityForID(id);
+        UIHelper.getInstance().startChatActivityForID(id);
     }
 
     public void startLoginActivity(boolean loggedOut){
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startLoginActivity(loggedOut);
+        UIHelper.getInstance().startLoginActivity(loggedOut);
     }
 
     public void startMainActivity(){
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startMainActivity();
+        UIHelper.getInstance().startMainActivity();
     }
 
     public void startSearchActivity() {
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startSearchActivity();
+        UIHelper.getInstance().startSearchActivity();
     }
 
     public void startPickFriendsActivity() {
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startPickFriendsActivity();
+        UIHelper.getInstance().startPickFriendsActivity();
     }
 
     public void startShareWithFriendsActivity() {
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startShareWithFriendsActivity();
+        UIHelper.getInstance().startShareWithFriendsActivity();
     }
 
     protected void showProgDialog(String message){
@@ -489,23 +479,20 @@ public class BaseActivity extends AppCompatActivity {
 
     /*Getters and Setters*/
     public void setAlertToast(SuperToast alertToast) {
-        chatSDKUiHelper.setAlertToast(alertToast);
+        UIHelper.getInstance().setAlertToast(alertToast);
     }
 
-    public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
-        this.chatSDKUiHelper = chatSDKUiHelper;
-    }
 
     public void setToast(SuperToast toast) {
-        chatSDKUiHelper.setToast(toast);
+        UIHelper.getInstance().setToast(toast);
     }
 
     public SuperToast getToast() {
-        return chatSDKUiHelper.getToast();
+        return UIHelper.getInstance().getToast();
     }
 
     public SuperToast getAlertToast() {
-        return chatSDKUiHelper.getAlertToast();
+        return UIHelper.getInstance().getAlertToast();
     }
 }
 

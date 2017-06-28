@@ -17,15 +17,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.ImageUtils;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
@@ -37,10 +35,10 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.Fragments.ContactsFragment;
 import co.chatsdk.ui.UiHelpers.DialogUtils;
 import co.chatsdk.ui.utils.ChatSDKIntentClickListener;
-import co.chatsdk.core.utils.volley.VolleyUtils;
 import co.chatsdk.core.dao.DaoCore;
 
 import com.braunster.chatsdk.object.Cropper;
+import com.koushikdutta.ion.Ion;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,9 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 
 import co.chatsdk.ui.utils.Strings;
-import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
-import co.chatsdk.ui.UiHelpers.MakeThreadImage;
 
 /**
  * Created by braunster on 24/11/14.
@@ -92,64 +88,37 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         imageThread = (CircleImageView) findViewById(R.id.chat_sdk_thread_image_view);
     }
 
-    private void loadData(){
+    private void loadData () {
 
         // Admin bundle
         if (StringUtils.isNotBlank(thread.getCreatorEntityId()))
         {
             admin = DaoCore.fetchEntityWithEntityID(BUser.class, thread.getCreatorEntityId());
 
-            if (admin!=null)
+            if (admin != null)
             {
-                if (StringUtils.isNotBlank(admin.getThumbnailPictureURL()))
-                    VolleyUtils.getImageLoader().get(admin.getThumbnailPictureURL(), new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            if (response.getBitmap() != null) {
-                                imageAdmin.setImageBitmap(response.getBitmap());
-                            }
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                        }
-                    });
-
+                if (StringUtils.isNotBlank(admin.getThumbnailPictureURL())) {
+                    Ion.with(imageAdmin).placeholder(R.drawable.icn_32_profile_placeholder).load(admin.getThumbnailPictureURL());
+                }
                 txtAdminName.setText(admin.getMetaName());
             }
         }
 
-        //CoreThread image
-        final String imageUrl = thread.threadImageUrl();
-        if (StringUtils.isNotEmpty(imageUrl))
-        {
-            // Check if there is a image saved in the cahce for this thread.
-//            if (thread.getType()== BThread.Type.Private)
-                if (imageUrl.split(",").length > 1)
-                {
-                    int size = getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
-                    new MakeThreadImage(imageUrl.split(","), size, size, thread.getEntityID(), imageThread).setProgressBar((android.widget.ProgressBar) findViewById(R.id.chat_sdk_progress_bar));
+        final String imageUrl = thread.getImageUrl();
+        if (StringUtils.isNotEmpty(imageUrl)) {
+            ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
+                @Override
+                public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
+                    if (throwable == null) {
+                        imageThread.setImageBitmap(bitmap);
+                        findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
+                        imageThread.setVisibility(View.VISIBLE);
+                    } else {
+                        imageThread.setImageResource(R.drawable.ic_users);
+                        findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
+                    }
                 }
-                else
-                    VolleyUtils.getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            if (response.getBitmap() != null) {
-                                imageThread.setImageBitmap(response.getBitmap());
-                                findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
-                                imageThread.setVisibility(View.VISIBLE);
-                            }
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            imageThread.setImageResource(R.drawable.ic_users);
-                            findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
-                        }
-
-
-                    });
+            });
         }
         else
         {
@@ -351,7 +320,7 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
                     @Override
                     public void onNext(FileUploadResult value) {
                         if(value.isComplete()) {
-                            thread.setImageUrl(value.url);
+                            thread.setImageURL(value.url);
                             DaoCore.updateEntity(thread);
                         }
                     }

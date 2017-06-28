@@ -39,11 +39,8 @@ import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.UiHelpers.OpenFromPushChecker;
 import co.chatsdk.ui.Adapters.PagerAdapterTabs;
 import co.chatsdk.core.events.PredicateFactory;
-import com.braunster.chatsdk.object.ChatSDKThreadPool;
 
 import org.apache.commons.lang3.StringUtils;
-
-import timber.log.Timber;
 
 
 public class MainActivity extends BaseActivity {
@@ -117,49 +114,39 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
                         if(networkEvent.message != null) {
-                            NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            if(!networkEvent.message.getSender().isMe()) {
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            }
                         }
                     }
                 });
 
-        ChatSDKThreadPool.getInstance().execute(new Runnable() {
+
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void run() {
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                    private int lastPage = 0;
-                    private int refreshContactsInterval = 4000;
-                    private long lastContactsRefresh = 0;
+            }
 
-                    @Override
-                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                if (DEBUG) Log.v(TAG, "onPageScrolled");
-                    }
+            @Override
+            public void onPageSelected(int position) {
+                //pageAdapterPos = position;
+            }
 
-                    @Override
-                    public void onPageSelected(int position) {
-                        if (DEBUG)
-                            Timber.v("onPageSelected, Pos: %s, Last: %s", position, lastPage);
-
-                        pageAdapterPos = position;
-
-                        lastPage = position;
-                    }
-
-                    @Override
-                    public void onPageScrollStateChanged(int state) {
-//                if (DEBUG) Log.v(TAG, "onPageScrollStateChanged");
-                    }
-                });
-
-                IntentFilter intentFilter = new IntentFilter(Action_Contacts_Added);
-                intentFilter.addAction(Action_clear_data);
-                intentFilter.addAction(Action_Refresh_Fragment);
-
-                registerReceiver(mainReceiver, intentFilter);
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
         });
 
+    }
+
+    @Override
+    protected void onPause () {
+        super.onPause();
+        if(messageAddedDisposable != null) {
+            messageAddedDisposable.dispose();
+            messageAddedDisposable = null;
+        }
     }
 
     @Override
@@ -191,7 +178,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
+        //outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
         mOpenFromPushChecker.onSaveInstanceState(outState);
     }
 

@@ -56,7 +56,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     private static final String TAG = FirebaseAuthenticationHandler.class.getSimpleName();
     private static boolean DEBUG = Debug.FirebaseAuthenticationHandler;
 
-
     public Completable authenticateWithCachedToken() {
         return Single.create(new SingleOnSubscribe<FirebaseUser>() {
             @Override
@@ -238,7 +237,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
                     DaoCore.updateEntity(wrapper.getModel());
 
-                    FirebaseStateManager.shared().userOn(wrapper.getModel().getEntityID());
+                    FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
 
                     // TODO push a default image of the user to the cloud.
                     // TODO: This shouldn't return the error... Would lead to a race condition
@@ -288,7 +287,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         BUser user = NM.currentUser();
 
         // Stop listening to user related alerts. (added message or thread.)
-        FirebaseStateManager.shared().userOff(user.getEntityID());
+        FirebaseEventHandler.shared().userOff(user.getEntityID());
 
         // Removing the push channel
         if (NM.push() != null)

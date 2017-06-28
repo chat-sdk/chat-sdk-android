@@ -5,10 +5,13 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.core.utils.volley;
+package co.chatsdk.core.utils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,6 +23,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
+import android.support.v4.app.ActivityCompat;
 
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
@@ -30,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 
 public class ImageUtils {
@@ -75,7 +80,11 @@ public class ImageUtils {
         return finalImage;
     }
 
-    /** Constructing a bitmap with the given text written in it.*/
+    public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull List<Bitmap> bitmaps) {
+        return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[bitmaps.size()]));
+    }
+
+        /** Constructing a bitmap with the given text written in it.*/
     public static Bitmap getInitialsBitmap(int backGroundColor, int textColor, String initials){
 
         int size = Defines.ImageProperties.INITIALS_IMAGE_SIZE;
@@ -253,7 +262,7 @@ public class ImageUtils {
     /*http://voidcanvas.com/whatsapp-like-image-compression-in-android/*/
     public static Bitmap getCompressed(String filePath, float maxWidth, float maxHeight){
 
-        Bitmap scaledBitmap = null;
+        Bitmap scaledBitmap;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -307,7 +316,6 @@ public class ImageUtils {
             bmp = BitmapFactory.decodeFile(filePath, options);
         } catch (OutOfMemoryError exception) {
             exception.printStackTrace();
-
         }
         
         if (actualHeight <= 0 || actualWidth <= 0)

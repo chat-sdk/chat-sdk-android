@@ -100,12 +100,6 @@ public class BThread implements CoreEntity {
         this.creatorId = creatorId;
     }
 
-    // KEEP METHODS - put your custom methods here
-//    @Override
-//    public BPath getBPath() {
-//        return new BPath().addPathComponent(FirebasePaths.BThreadPath, getEntityID());
-//    }
-
     public void setMessages(List<BMessage> messages) {
         this.messages = messages;
     }
@@ -128,56 +122,6 @@ public class BThread implements CoreEntity {
                 users.add(data.getBUser());
 
         return users;
-    }
-
-    public String threadImageUrl(){
-        if (StringUtils.isNotBlank(imageUrl))
-            return imageUrl;
-
-        return threadImageUrl(getUsers());
-    }
-
-    /** Retrieve the thread usable image url, Only for private threads.
-     *  If the thread as two users the other user(not the current) image url will be used.
-     *  If thread has more users then we will take 2/3 first users images that we could find, This will be used to make a combine image for the thread. */
-    public String threadImageUrl(List<BUser> users){
-        String url = "";
-        String curUserEntity = NM.currentUser().getEntityID();
-
-        if (typeIs(ThreadType.Private)) {
-            if (users.size() == 2) {
-                if (!users.get(0).getEntityID().equals(curUserEntity))
-                    url = users.get(0).getThumbnailPictureURL();
-                else if (!users.get(1).getEntityID().equals(curUserEntity))
-                    url = users.get(1).getThumbnailPictureURL();
-            }
-            else if (users.size() > 2){
-                int urlsAmount = 0;
-                int targetAmount = users.size() == 3 ? 2 : 3;
-
-                for (BUser user : users){
-                    if (!user.getEntityID().equals(curUserEntity))
-                    {
-                        // Skip users that does not have thumbnail url
-                        if (StringUtils.isBlank(user.getThumbnailPictureURL()))
-                            continue;
-
-                        urlsAmount++;
-
-                        url += user.getThumbnailPictureURL() + (urlsAmount == targetAmount ? "" : ",");
-
-                        if (urlsAmount == targetAmount)
-                            break;
-                    }
-                }
-            }
-        }
-
-        // If the thumbnail is null.
-        if (url == null)
-            url = "";
-
-        return url;
     }
 
     public Date lastMessageAdded(){
@@ -229,12 +173,6 @@ public class BThread implements CoreEntity {
                 DaoCore.fetchEntityWithProperties(UserThreadLink.class,
                         new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
 
-/*        for (BUser u : getUsers())
-        {
-            if (u.getId().longValue() ==  user.getId().longValue())
-               return true;
-        }*/
-
         return data != null;
     }
 
@@ -253,10 +191,8 @@ public class BThread implements CoreEntity {
 
     public boolean isLastMessageWasRead(){
         List<BMessage> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
-        return messages == null || messages.size() == 0 || getMessagesWithOrder(DaoCore.ORDER_DESC).get(0).wasRead();
+        return messages == null || messages.size() == 0 || messages.get(0).wasRead();
     }
-
-
 
     public boolean isDeleted(){
         return deleted != null && deleted;
@@ -345,12 +281,12 @@ public class BThread implements CoreEntity {
         this.creatorEntityId = creatorEntityId;
     }
 
-    public String getImageUrl() {
-        return this.imageUrl;
+    public void setImageURL(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public String getImageURL () {
+        return imageUrl;
     }
 
     public String getRootKey() {
@@ -515,6 +451,14 @@ public class BThread implements CoreEntity {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getBThreadDao() : null;
+    }
+
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
  

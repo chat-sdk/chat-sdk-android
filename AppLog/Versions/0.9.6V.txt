@@ -27,7 +27,7 @@
 
 * Message notification that is being created using the notification manager createMessageNotification are now stack
   in an Inbox style notification and the last sender image is also added to the notification.
-  The inbox max amount of message shown could be changed by BDefines.MaxInboxNotificationLines.
+  The inbox max amount of messageItem shown could be changed by BDefines.MaxInboxNotificationLines.
 
 ##########################
         BUG FIX

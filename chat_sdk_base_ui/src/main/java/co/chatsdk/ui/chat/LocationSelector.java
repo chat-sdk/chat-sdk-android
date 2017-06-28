@@ -47,7 +47,7 @@ public class LocationSelector {
                 return;
         }
         else if (resultCode == AppCompatActivity.RESULT_OK) {
-            // Send the message, Params Latitude, Longitude, Base64 Representation of the image of the location, threadId.
+            // Send the message, Params Latitude, Longitude, Base64 Representation of the imageView of the location, threadId.
             if(resultHandler != null) {
                 Place place = PlacePicker.getPlace(activity, data);
                 resultHandler.result("", place.getLatLng());

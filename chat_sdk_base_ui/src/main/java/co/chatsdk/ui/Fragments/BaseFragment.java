@@ -23,12 +23,12 @@ import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
+import co.chatsdk.ui.UiHelpers.UIHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.UiHelpers.ChatSDKUiHelper;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,13 +45,13 @@ public abstract class BaseFragment extends DialogFragment {
     private ProgressDialog progressDialog;
 
     protected View mainView;
-    protected ChatSDKUiHelper chatSDKUiHelper;
+    protected UIHelper UIHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(getActivity());
+        UIHelper = UIHelper.getInstance();
     }
 
     @Override
@@ -82,27 +82,27 @@ public abstract class BaseFragment extends DialogFragment {
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public void setupTouchUIToDismissKeyboard(View view) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                ChatSDKUiHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
+                UIHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
                 return false;
             }
         });
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                ChatSDKUiHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
+                UIHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
                 return false;
             }
         }, exceptIDs);
     }
 
     public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
-        ChatSDKUiHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+        UIHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
     }
 
     public void initViews() {
@@ -111,22 +111,22 @@ public abstract class BaseFragment extends DialogFragment {
 
     /** Show a SuperToast with the given text. */
     protected void showToast(String text){
-        if (chatSDKUiHelper==null || StringUtils.isEmpty(text))
+        if (UIHelper ==null || StringUtils.isEmpty(text))
             return;
-        chatSDKUiHelper.getToast().setText(text);
-        chatSDKUiHelper.getToast().show();
+        UIHelper.getToast().setText(text);
+        UIHelper.getToast().show();
     }
 
     /** Start the chat activity for the given thread id.
      * @param id is the long value of local db id.*/
     public void startChatActivityForID(long id){
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startChatActivityForID(id);
+        if (UIHelper != null)
+            UIHelper.startChatActivityForID(id);
     }
 
     public void startPickFriendsActivity() {
-        if (chatSDKUiHelper != null)
-            chatSDKUiHelper.startPickFriendsActivity();
+        if (UIHelper != null)
+            UIHelper.startPickFriendsActivity();
     }
 
     /** Create or fetch chat for users, Opens the chat when done.*/
@@ -262,8 +262,8 @@ public abstract class BaseFragment extends DialogFragment {
         }
     }
 
-    public void setChatSDKUiHelper(ChatSDKUiHelper chatSDKUiHelper) {
-        this.chatSDKUiHelper = chatSDKUiHelper;
+    public void setUIHelper(UIHelper UIHelper) {
+        this.UIHelper = UIHelper;
     }
 
 }

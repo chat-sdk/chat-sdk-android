@@ -13,31 +13,22 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
-import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.ImageUploadResult;
-import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.ImageUtils;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Completable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import co.chatsdk.ui.R;
 
 import co.chatsdk.ui.utils.ChatSDKIntentClickListener;
-import co.chatsdk.core.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.network.BFacebookManager;
-import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.Cropper;
 import com.soundcloud.android.crop.Crop;
 
@@ -45,18 +36,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
-import co.chatsdk.ui.view.CircleImageView;
 import timber.log.Timber;
 
 // TODO: Refactor this class
 public class ChatSDKProfileHelper {
 
     public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
-
-    private static final String LAST_IMAGE_PATH = "last_image_path";
 
     private static final String TAG = ChatSDKProfileHelper.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -72,52 +58,17 @@ public class ChatSDKProfileHelper {
 
     private AppCompatActivity activity;
 
-    private ChatSDKUiHelper uiHelper;
+    private UIHelper uiHelper;
 
     private View mainView;
     private PostProfilePic postProfilePic;
 
-    public ChatSDKProfileHelper(AppCompatActivity activity, CircleImageView profileCircleImageView, ProgressBar progressBar, ChatSDKUiHelper uiHelper, View mainView) {
+    public ChatSDKProfileHelper(AppCompatActivity activity, CircleImageView profileCircleImageView, ProgressBar progressBar, UIHelper uiHelper, View mainView) {
         this.profileCircleImageView = profileCircleImageView;
         this.progressBar = progressBar;
         this.activity = activity;
         this.uiHelper = uiHelper;
         this.mainView = mainView;
-    }
-
-    private static String lastImageLoadedPath = "";
-
-    //TODO: The image should be added to the user when they login
-    @Deprecated
-    public void loadProfilePic(int loginType){
-        profileCircleImageView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-
-        if (StringUtils.isNotEmpty(lastImageLoadedPath))
-        {
-            setProfilePicFromPath(lastImageLoadedPath);
-            return;
-        }
-
-        switch (loginType)
-        {
-            case AccountType.Facebook:
-                getProfileFromFacebook();
-                break;
-
-            case AccountType.Password:
-            case AccountType.Custom:
-            case AccountType.Register:
-                setProfilePicFromURL(NM.currentUser().metaStringForKey(DaoDefines.Keys.PictureURL), false);
-                break;
-
-            case AccountType.Anonymous:
-                setInitialsProfilePic(Defines.InitialsForAnonymous, true);
-
-            case AccountType.Twitter:
-                getProfileFromTwitter();
-                break;
-        }
     }
 
     private class PostProfilePic implements Runnable{
@@ -141,9 +92,6 @@ public class ChatSDKProfileHelper {
         // load image into imageview
         final int size = mainView.findViewById(R.id.frame_profile_image_container).getMeasuredHeight();
 
-        if (loadFromUrl != null)
-            loadFromUrl.setKilled(true);
-
         if (postProfilePic != null)
             profileCircleImageView.removeCallbacks(postProfilePic);
 
@@ -159,101 +107,6 @@ public class ChatSDKProfileHelper {
             progressBar.setVisibility(View.GONE);
             profileCircleImageView.setVisibility(View.VISIBLE);
         }
-    }
-
-    public class LoadFromUrl implements ImageLoader.ImageListener{
-        private boolean killed = false;
-
-        private boolean saveAfterLoad = false;
-
-        public LoadFromUrl(){
-
-        }
-
-        public LoadFromUrl(boolean saveAfterLoad){
-            this.saveAfterLoad = saveAfterLoad;
-        }
-
-        public void setKilled(boolean killed) {
-            this.killed = killed;
-        }
-
-        @Override
-        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
-
-            if (killed)
-                return;
-
-            if (response.getBitmap() != null) {
-                setProfilePic(response.getBitmap());
-
-                if (saveAfterLoad)
-                    createTempFileAndSave(response.getBitmap());
-            }
-        }
-
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            if (DEBUG) Timber.e("Image Load Error: %s", error.getMessage());
-            setInitialsProfilePic(false);
-        }
-    };
-
-    private LoadFromUrl loadFromUrl;
-
-    public void setProfilePicFromURL(String url, boolean saveAfterLoad){
-
-        if (DEBUG) Timber.v("setProfilePicFromURL, Url: %s", url);
-
-        // Set default.
-        if (StringUtils.isEmpty(url))
-        {
-            // Loading the user image from robohash.
-            String name = NM.currentUser().getMetaName();
-            url = Defines.getDefaultImageUrl("http://robohash.org/" + name,
-                    Defines.ImageProperties.INITIALS_IMAGE_SIZE,
-                    Defines.ImageProperties.INITIALS_IMAGE_SIZE);
-            
-            saveAfterLoad = true;
-        }
-
-        if (loadFromUrl != null)
-            loadFromUrl.setKilled(true);
-
-        loadFromUrl = new LoadFromUrl(saveAfterLoad);
-
-        VolleyUtils.getImageLoader().get(url, loadFromUrl);
-    }
-
-    /** Only for current user.*/
-    public Completable saveProfilePicToServer(String path, boolean setAsPic) {
-
-        //  Loading the bitmap
-        if (setAsPic)
-        {
-            setProfilePicFromPath(path);
-        }
-
-        return saveProfilePicToServer(path);
-    }
-
-    /** Only for current user.*/
-    public void setProfilePicFromPath(String path){
-        Bitmap b = ImageUtils.loadBitmapFromFile(path);
-
-        if (b == null)
-        {
-            b = ImageUtils.loadBitmapFromFile(activity.getCacheDir().getPath() + path);
-            if (b == null)
-            {
-                uiHelper.showToast(R.string.unable_to_save_file);
-                if (DEBUG) Timber.e("Cant save image to backendless file path is invalid: " + activity.getCacheDir().getPath() + path);
-                return;
-            }
-        }
-
-        setProfilePic(b);
     }
 
     /** Only for current user.*/
@@ -280,82 +133,6 @@ public class ChatSDKProfileHelper {
                 return Completable.complete();
             }
         });
-    }
-
-    private void getProfileFromFacebook (){
-        // Use facebook profile picture only if has no other picture saved.
-        String imageUrl;
-        imageUrl = NM.currentUser().getMetaPictureUrl();
-
-        if (StringUtils.isNotEmpty(imageUrl))
-            setProfilePicFromURL(imageUrl, false);
-        else
-        {
-            // Load the profile picture from facebook.
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-                    HttpURLConnection client = null;
-                    try {
-                        String facebookId;
-                        String authId;
-                        authId = NM.currentUser().getEntityID();
-
-                        facebookId = authId.replace(Defines.ProviderString.Facebook + ":", "");
-                        
-                        if (DEBUG) Timber.d("Facebook Id: %s", facebookId);
-
-                        String facebookImageUrl = BFacebookManager.getPicUrl(facebookId);
-                        HttpURLConnection con = (HttpURLConnection) (new URL(facebookImageUrl).openConnection());
-                        con.setInstanceFollowRedirects(false);
-                        con.connect();
-                        int responseCode = con.getResponseCode();
-                        System.out.println(responseCode);
-                        String location = con.getHeaderField("Location");
-                        System.out.println(location);
-                        
-                        return location;
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(String s) {
-                    super.onPostExecute(s);
-                    setProfilePicFromURL(s, true);
-                }
-            }.execute();
-        }
-
-    }
-
-    private void getProfileFromTwitter(){
-        // Use facebook profile picture only if has no other picture saved.
-        String savedUrl = NM.currentUser().getMetaPictureUrl();
-
-        if (StringUtils.isNotEmpty(savedUrl))
-            setProfilePicFromURL(savedUrl, false);
-        else {
-            String imageUrl = TwitterManager.profileImageUrl;
-
-            if (DEBUG) Timber.d("Twitter profile pic url: %s", TwitterManager.profileImageUrl);
-
-            if (StringUtils.isNotEmpty(imageUrl))
-            {
-                // The default image suppied by twitter is 48px on 48px image so we want a bigget one.
-                imageUrl = imageUrl.replace("_normal", "");
-                setProfilePicFromURL(imageUrl, true);
-            }
-            else
-            {
-                if (DEBUG) Timber.d("cant get twitter profile picture.");
-                setInitialsProfilePic(false);
-            }
-        }
     }
 
     private void setInitialsProfilePic(boolean save){
@@ -391,7 +168,7 @@ public class ChatSDKProfileHelper {
         try {
             File tmp = File.createTempFile("Pic", ".jpg", activity.getCacheDir());
             ImageUtils.saveBitmapToFile(tmp, bitmap);
-            saveProfilePicToServer(tmp.getPath(), false);
+            saveProfilePicToServer(tmp.getPath());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -456,20 +233,8 @@ public class ChatSDKProfileHelper {
 
             try
             {
-                File image;
-                Uri uri = Crop.getOutput(data);
-
-                if (DEBUG) Timber.d("Fetch image URI: %s", uri.toString());
-                image = new File(this.activity.getCacheDir(), "cropped.jpg");
-
-                lastImageLoadedPath = image.getPath();
-
-                saveProfilePicToServer(lastImageLoadedPath, true).doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        lastImageLoadedPath = "";
-                    }
-                }).subscribe();
+                File image = new File(this.activity.getCacheDir(), "cropped.jpg");
+                saveProfilePicToServer(image.getPath()).subscribe();
 
                 return HANDLED;
             }

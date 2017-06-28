@@ -7,11 +7,11 @@
 --------------------------
 # Better listview scrolling
 # Design fixes from assembla
-# multiline message supported
+# multiline messageItem supported
 # Sending image/location indicator changed.
 # Contact Headers inside the list is now diabled form clicks and not showing highlight.
 # Keyboard is not dismissed in the chat activity when scrolling or flinging.
-# Image message loading indicator is now on top of the bubble background.
+# Image messageItem loading indicator is now on top of the bubble background.
 # Messages now appear on top even if all messages dosent fill the screen.
 # Message adapter upgrade.
 

@@ -6,13 +6,13 @@
         NEW FEATURES
 --------------------------
 # Chat bubbles support color.
-# User profile pic added to the message row.
+# User profile pic added to the messageItem row.
 # Plus icon in the contacts fragment open search activity and auto add each contact found.
 # multi select users in the PickFriendsActivity to open one chat with all of them - Check box and a button to create the thread.
 # Add contacts to thread from within the thread.
 # support location in the new bubbles view.
 # Loading icon while loading location and image messages.
-# fix the size of the message send option popup.
+# fix the size of the messageItem send option popup.
 # Select the location to send from google maps. Older version used only the current location.
 # Take a photo option from chat.
 ##########################
@@ -44,8 +44,8 @@
 # Listeners not always removed. For now there is a workaround that solve that.
 # Push notification received for wrong user due to multiple connection to more then one user on the same device.
 # Once a user delete a thread he wont receive any new messages i this thread.
-  The other user will have to delete the old one and start a new if he wants to send him a new message.
-  If the user that deleted the thread send a new message it will appear as a new thread at the other user application.
+  The other user will have to delete the old one and start a new if he wants to send him a new messageItem.
+  If the user that deleted the thread send a new messageItem it will appear as a new thread at the other user application.
 # Taken images are saved to the camera folder and not the app public image folder.
 -----------SOLVED----------
 # Cache images from thread and contacts so decoding from Base64 wont be slow. Handled by using images from server and loading using the Volley library.
@@ -54,8 +54,8 @@
 ##########################
           TODO
 --------------------------
-# How to change the message details(color, textColor, textSize etc...
-# Don't refresh all threads for each added message if thread is already exist on the list just update that thread.
+# How to change the messageItem details(color, textColor, textSize etc...
+# Don't refresh all threads for each added messageItem if thread is already exist on the list just update that thread.
 # Show thread image in the threads list.
-# Add a dialog or something like that when sending a message so the user will know that its processed and sent.
-  Currently the user has a delay until he see the message in the chat.
+# Add a dialog or something like that when sending a messageItem so the user will know that its processed and sent.
+  Currently the user has a delay until he see the messageItem in the chat.

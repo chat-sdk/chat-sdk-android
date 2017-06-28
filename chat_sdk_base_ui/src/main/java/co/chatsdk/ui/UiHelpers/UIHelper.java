@@ -39,24 +39,57 @@ import co.chatsdk.ui.Activities.LoginActivity;
 import co.chatsdk.ui.Activities.MainActivity;
 import co.chatsdk.ui.Activities.SearchActivity;
 
-public class ChatSDKUiHelper implements UiLauncherInterface {
+public class UIHelper implements UiLauncherInterface {
 
-    public static final String TAG = ChatSDKUiHelper.class.getSimpleName();
+    public static final String TAG = UIHelper.class.getSimpleName();
     public static final boolean DEBUG = Debug.UiUtils;
 
     public static final String USER_ID = "user_id";
     public static final String USER_ENTITY_ID = "user_entity_id";
 
-    public static final int NULL = -1991;
+    private SuperToast toast, alertToast;
+    private SuperCardToast superCardToastProgress;
+
+    private WeakReference<Context> context;
+
+    private Class chatActivity;
+    private Class mainActivity;
+    private Class loginActivity;
+    private Class searchActivity = SearchActivity.class;
+    private Class pickFriendsActivity = PickFriendsActivity.class;
+    private Class shareWithFriendsActivity = ShareWithContactsActivity.class;
+    private Class editProfileActivity= EditProfileActivity.class;
+    private Class profileActivity = null;
+    private Class threadDetailsActivity = ThreadDetailsActivity.class;
+
+    private static UIHelper instance;
+
+    /** Instance only contains the classes that need to be used, Dont try to use toast from instance.*/
+    public static UIHelper getInstance() {
+        if(instance == null) {
+
+            instance = new UIHelper();
+
+            instance.chatActivity = ChatActivity.class;
+            instance.mainActivity = MainActivity.class;
+            instance.loginActivity = LoginActivity.class;
+        }
+
+        return instance;
+    }
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener) {
         setupTouchUIToDismissKeyboard(view, onTouchListener, -1);
     }
 
+    public void setContext (Context context) {
+        this.context = new WeakReference<Context>(context);
+    }
+
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, Integer... exceptIDs) {
 
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> ids = new ArrayList<>();
         if (exceptIDs != null)
             ids = Arrays.asList(exceptIDs);
 
@@ -94,34 +127,6 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
-    public static ChatSDKUiHelper instance;
-
-    /** Instance only contains the classes that need to be used, Dont try to use toast from instance.*/
-    public static ChatSDKUiHelper getInstance() {
-        if (instance == null) throw new NullPointerException("You need to init ui helper before using the sdk, " +
-                "You can use default init if you want to test the sdk or use default components." +
-                "The use of this class is to make the BaseComponents of the SDK Ui adapt to your LoginActivity, MainActivity and ChatActivity. ");
-
-        return instance;
-    }
-
-
-    /** If one of this toast are initialized it will be used across the app as the default toast.
-     *  Each context can set it's own toast using the ui helper the sdk offers.
-     *  If you use the BaseActivity you can set your toast in any stage in the context lifecycle.*/
-    private static SuperToast customAlertToast = null, customToast = null;
-
-    private SuperToast toast, alertToast;
-    private SuperCardToast superCardToastProgress;
-
-    private WeakReference<Context> context;
-    private Class chatActivity, mainActivity, loginActivity,
-            searchActivity = SearchActivity.class,
-            pickFriendsActivity = PickFriendsActivity.class,
-            shareWithFriendsActivity = ShareWithContactsActivity.class,
-            editProfileActivity= EditProfileActivity.class,
-            profileActivity = null,
-            threadDetailsActivity = ThreadDetailsActivity.class;
 
     public Class getLoginActivity() {
         return loginActivity;
@@ -148,78 +153,16 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         return searchActivity;
     }
 
-    public static ChatSDKUiHelper initDefault(){
-        instance = new ChatSDKUiHelper(ChatActivity.class, MainActivity.class, LoginActivity.class);
-        return getInstance();
-    }
-
-    public static ChatSDKUiHelper init(Class chatActivity, Class mainActivity, Class loginActivity) {
-        instance = new ChatSDKUiHelper(chatActivity, mainActivity, loginActivity);
-        return getInstance();
-    }
-
-    public ChatSDKUiHelper(Class chatActivity, Class mainActivity, Class loginActivity) {
-        this.chatActivity = chatActivity;
-        this.mainActivity = mainActivity;
-        this.loginActivity = loginActivity;
-    }
-
-    public ChatSDKUiHelper(Context context, Class chatActivity, Class mainActivity, Class loginActivity) {
-        this.chatActivity = chatActivity;
-        this.mainActivity = mainActivity;
-        this.loginActivity = loginActivity;
-        this.context = new WeakReference<Context>(context);
-
-        init();
-    }
-
-    public ChatSDKUiHelper(Context context, Class chatActivity, Class mainActivity, Class loginActivity, Class searchActivity, Class pickFriendsActivity, Class shareWithFriendsActivity, Class profileActivity) {
-        this.context = new WeakReference<Context>(context);
-        this.chatActivity = chatActivity;
-        this.mainActivity = mainActivity;
-        this.loginActivity = loginActivity;
-        this.searchActivity = searchActivity;
-        this.pickFriendsActivity = pickFriendsActivity;
-        this.shareWithFriendsActivity = shareWithFriendsActivity;
-        this.profileActivity = profileActivity;
-
-        init();
-    }
-
-    public ChatSDKUiHelper get(Context context){
-        return new ChatSDKUiHelper(context, chatActivity, mainActivity, loginActivity, searchActivity, pickFriendsActivity, shareWithFriendsActivity, profileActivity);
-    }
-
-    private void init(){
-        if (customToast != null)
-            setToast(customToast);
-        else initDefaultToast();
-
-        if (customAlertToast != null)
-            setAlertToast(customAlertToast);
-        else initDefaultAlertToast();
-    }
-
     /** Start the chat activity for given thread id.*/
     @Override
     public void startChatActivityForID(long id){
-        
+
         if (colleted())
             return;
-        
+
         Intent intent = new Intent(context.get(), chatActivity);
         intent.putExtra(ChatActivity.THREAD_ID, id);
-        
-        /**
-         * Note
-         *
-         * * Not sure if do needed
-         * 
-         * There could be problems when this is activated but i am not sure if the activity should be recreated each time its called.
-         * * * *
-         **/
-//        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        
+
         startActivity(intent);
     }
 
@@ -258,7 +201,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
         if (colleted())
             return false;
-        
+
         if (profileActivity==null)
             return false;
 
@@ -302,48 +245,16 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         startActivity(intent);
     }
 
-    
-    
-    
-    public interface ChatSDKUiHelperInterface{
-        /** Start the chat activity for given thread id.*/
-        public void startChatActivityForID(long id);
-
-        public void startLoginActivity(boolean loggedOut);
-
-        public void startMainActivity();
-
-        public void startSearchActivity();
-
-        public void startPickFriendsActivity();
-
-        public void startShareWithFriendsActivity();
-
-        public void startShareLocationActivityActivity();
-    }
-
-    private void initDefaultAlertToast(){
-        if (colleted())
-            return;
-        
-        alertToast = new SuperToast(context.get());
-        alertToast.setDuration(SuperToast.Duration.MEDIUM);
-        alertToast.setBackground(SuperToast.Background.RED);
-        alertToast.setTextColor(Color.WHITE);
-        alertToast.setAnimations(SuperToast.Animations.FLYIN);
-
-    }
-
-    private void initDefaultToast(){
-        if (colleted())
-            return;
-        
-        toast = new SuperToast(context.get());
-        toast.setDuration(SuperToast.Duration.MEDIUM);
-        toast.setBackground(SuperToast.Background.BLUE);
-        toast.setTextColor(Color.WHITE);
-        toast.setAnimations(SuperToast.Animations.FLYIN);
-
+    @Override
+    public SuperToast getToast(){
+        if(toast == null) {
+            toast = new SuperToast(context.get());
+            toast.setDuration(SuperToast.Duration.MEDIUM);
+            toast.setBackground(SuperToast.Background.BLUE);
+            toast.setTextColor(Color.WHITE);
+            toast.setAnimations(SuperToast.Animations.FLYIN);
+        }
+        return toast;
     }
 
     /** You should pass שמ Activity and not a context if you want to use this.*/
@@ -352,21 +263,13 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
         if (colleted())
             return;
-        
+
         if (context.get() instanceof AppCompatActivity)
         {
-            if (superCardToastProgress != null)
-                return;
+            if (superCardToastProgress == null) {
 
-            try {
-                superCardToastProgress = new SuperCardToast((AppCompatActivity) context.get(), SuperToast.Type.PROGRESS);
-                superCardToastProgress.setIndeterminate(true);
-                superCardToastProgress.setBackground(SuperToast.Background.WHITE);
-                superCardToastProgress.setTextColor(Color.BLACK);
-                superCardToastProgress.setSwipeToDismiss(true);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
         }
     }
 
@@ -410,7 +313,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         if (colleted())
             return;
 
-        if (context.get() instanceof AppCompatActivity) {
+//        if (context.get() instanceof AppCompatActivity) {
 
             initCardToast();
 
@@ -427,7 +330,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
             if (!superCardToastProgress.isShowing())
                 superCardToastProgress.show();
 
-        }
+//        }
     }
 
     /** You should pass שמ Activity and not a context if you want to use this.*/
@@ -439,15 +342,15 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
     /*Getters and Setters*/
     @Override
     public void showToast(String text){
-        alertToast.setText(text);
-        alertToast.show();
+        getAlertToast().setText(text);
+        getAlertToast().show();
     }
 
     @Override
     public void showToast(@StringRes int resourceId){
         if (context.get() == null)
             return;
-        
+
         showToast(context.get().getString(resourceId));
     }
 
@@ -463,20 +366,14 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
 
     @Override
     public SuperToast getAlertToast() {
+        if(alertToast == null) {
+            alertToast = new SuperToast(context.get());
+            alertToast.setDuration(SuperToast.Duration.MEDIUM);
+            alertToast.setBackground(SuperToast.Background.RED);
+            alertToast.setTextColor(Color.WHITE);
+            alertToast.setAnimations(SuperToast.Animations.FLYIN);
+        }
         return alertToast;
-    }
-
-    @Override
-    public SuperToast getToast() {
-        return toast;
-    }
-
-    public static void setCustomToast(SuperToast customToast) {
-        ChatSDKUiHelper.customToast = customToast;
-    }
-
-    public static void setCustomAlertToast(SuperToast customAlertToast) {
-        ChatSDKUiHelper.customAlertToast = customAlertToast;
     }
 
     @Override
@@ -499,7 +396,8 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
     public void setProfileActivity(Class profileActivity) {
         this.profileActivity = profileActivity;
     }
-    
+
+    @Deprecated
     private boolean colleted(){
         return context == null || context.get() == null;
         
@@ -509,6 +407,7 @@ public class ChatSDKUiHelper implements UiLauncherInterface {
         if (colleted())
             return;
 
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.get().startActivity(intent);
     }
     

@@ -110,7 +110,7 @@ public class PublicThreadsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(NM.thread().getThreads(ThreadType.Public));
+        adapter.setAllItems(NM.thread().getThreads(ThreadType.Public));
     }
 
     @Override

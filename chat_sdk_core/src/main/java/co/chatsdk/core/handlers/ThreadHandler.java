@@ -47,7 +47,7 @@ public interface ThreadHandler {
      * Lazy loading of messages this method will load
      * that are not already in memory
      */
-    Single<List<BMessage>> loadMoreMessagesForThread(BThread thread);
+    Single<List<BMessage>> loadMoreMessagesForThread(BMessage fromMessage, BThread thread);
 
     /**
      * This method deletes an existing thread. It deletes the thread from memory

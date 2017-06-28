@@ -12,10 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.koushikdutta.ion.Ion;
+
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.utils.volley.VolleyUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,25 +78,11 @@ public class UsersListAdapter extends AbstractUsersListAdapter<AbstractUsersList
 
         holder.textView.setText(userItem.getText());
 
-        if (textColor!=-1991)
-            holder.textView.setTextColor(textColor);
-
         if (getItemViewType(position) == TYPE_USER)
         {
            if (userItem.fromURL)
             {
-                int size = holder.profilePicture.getHeight();
-
-                if (userItem.pictureThumbnailURL != null )
-                {
-                    if (holder.profilePicLoader!=null)
-                        holder.profilePicLoader.kill();
-
-                    holder.profilePicLoader = new ProfilePicLoader(holder.profilePicture);
-
-                    VolleyUtils.getImageLoader().get(userItem.pictureThumbnailURL, holder.profilePicLoader, size, size);
-                }
-                else holder.profilePicture.setImageResource(R.drawable.ic_profile);
+                Ion.with(holder.profilePicture).placeholder(R.drawable.icn_32_profile_placeholder).load(userItem.pictureThumbnailURL);
             }
             else
             {
@@ -108,7 +95,7 @@ public class UsersListAdapter extends AbstractUsersListAdapter<AbstractUsersList
                 }
                 else
                 {
-                    holder.profilePicture.setImageResource(R.drawable.ic_profile);
+                    holder.profilePicture.setImageResource(R.drawable.icn_32_profile_placeholder);
                 }
             }
 

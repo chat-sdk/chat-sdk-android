@@ -8,6 +8,7 @@
 package co.chatsdk.ui.UiHelpers;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Point;
@@ -39,23 +40,22 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.ImageUtils;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.utils.Utils;
-import co.chatsdk.core.utils.volley.VolleyUtils;
 import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.TwitterManager;
 import com.braunster.chatsdk.object.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
 import co.chatsdk.ui.view.TouchImageView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +81,7 @@ public class DialogUtils {
 
 
 
-        private ChatSDKUiHelper chatSDKUiHelper;
+        private UIHelper UIHelper;
 
         public static ChatSDKEditTextDialog getInstace(){
             ChatSDKEditTextDialog f = new ChatSDKEditTextDialog();
@@ -97,7 +97,7 @@ public class DialogUtils {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
-            chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(getActivity());
+            UIHelper = UIHelper.getInstance();
 
             View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
             mEditText = (EditText) view.findViewById(R.id.et_enter);
@@ -130,7 +130,7 @@ public class DialogUtils {
             if (EditorInfo.IME_ACTION_DONE == actionId) {
                 if (mEditText.getText().toString().isEmpty())
                 {
-                    SuperToast toast = chatSDKUiHelper.getAlertToast();
+                    SuperToast toast = UIHelper.getAlertToast();
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.setText("Please enter chat name");
                     toast.show();
@@ -376,7 +376,7 @@ public class DialogUtils {
 
         private String data;
 
-        private ChatSDKUiHelper chatSDKUiHelper;
+        private UIHelper UIHelper;
 
         private String imageName = "";
 
@@ -384,7 +384,7 @@ public class DialogUtils {
 
         /** Type indicate from where to load the file.*/
         public enum LoadTypes{
-            LOAD_FROM_PATH, LOAD_FROM_URL, LOAD_FROM_LRU_CACHE;
+            LOAD_FROM_PATH, LOAD_FROM_URL;
         }
 
         public ImagePopupWindow(Context ctx, View popupView, int width, int height, boolean focusable) {
@@ -394,7 +394,7 @@ public class DialogUtils {
 
             this.popupView = popupView;
 
-            chatSDKUiHelper = ChatSDKUiHelper.getInstance().get(context);
+            UIHelper = UIHelper.getInstance();
         }
 
         public void load(){
@@ -414,56 +414,46 @@ public class DialogUtils {
 
                 case LOAD_FROM_URL:
                     if (DEBUG) Timber.d("load from url");
-                    VolleyUtils.getImageLoader().get(data, new ImageLoader.ImageListener() {
+
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    Ion.with(context).load(data).asBitmap().setCallback(new FutureCallback<Bitmap>() {
                         @Override
-                        public void onResponse(final ImageLoader.ImageContainer response, boolean isImmediate) {
+                        public void onCompleted(Exception e, Bitmap result) {
+                            if(e != null) {
+                                imageView.setImageBitmap(result);
 
-                            if (isImmediate && response.getBitmap() == null)
-                                progressBar.setVisibility(View.VISIBLE);
-
-                            if (response.getBitmap() != null)
-                            {
-                                imageView.setImageBitmap(response.getBitmap());
-
-                                if (saveToDir)
-                                {
+                                if (saveToDir) {
                                     File file, dir = Utils.ImageSaver.getAlbumStorageDir(context, Utils.ImageSaver.IMAGE_DIR_NAME);
-                                    if (dir != null)
+                                    if (dir != null) {
                                         if(dir.exists()) {
                                             file = new File(dir, imageName + ".jpg");
 
-                                            if (!file.exists())
-                                            {
-                                                ImageUtils.saveBitmapToFile(file, response.getBitmap());
+                                            if (!file.exists()) {
+                                                ImageUtils.saveBitmapToFile(file, result);
 
                                                 ImageUtils.scanFilePathForGallery(context, file.getPath());
-                                                
-                                                // If the message name is equal to a message entity id we 
+
+                                                // If the message name is equal to a message entity id we
                                                 // save the image path to the message object so we could use it instead of downloading images.
                                                 BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, imageName);
-                                                
-                                                if (message != null)
-                                                {
+
+                                                if (message != null) {
                                                     message.setResourcesPath(file.getPath());
                                                     DaoCore.updateEntity(message);
                                                 }
-                                                
-                                            }
-                                            else if (DEBUG) Timber.d("Image is already saved in image dir");
-                                        }
-                                }
 
+                                            }
+                                        }
+                                    }
+                                }
                                 animateIn(imageView, progressBar);
                             }
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                            else {
+                                UIHelper.showToast(R.string.unable_to_fetch_image);
+                                dismiss();
+                            }
                             progressBar.setVisibility(View.GONE);
-
-                            chatSDKUiHelper.showToast(R.string.unable_to_fetch_image);
-
-                            dismiss();
                         }
                     });
                     break;
@@ -473,11 +463,6 @@ public class DialogUtils {
                     imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
                     animateIn(imageView, progressBar);
                     break;
-
-                case LOAD_FROM_LRU_CACHE:
-                    if (DEBUG) Timber.d("load from cache");
-                    imageView.setImageBitmap(VolleyUtils.getBitmapCache().getBitmap(data));
-                    animateIn(imageView, progressBar);
             }
         }
 

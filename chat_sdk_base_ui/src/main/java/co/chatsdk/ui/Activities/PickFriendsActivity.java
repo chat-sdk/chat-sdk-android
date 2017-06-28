@@ -26,6 +26,7 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.ui.UiHelpers.UIHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
@@ -270,7 +271,7 @@ public class PickFriendsActivity extends BaseActivity {
         View.OnClickListener searchClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chatSDKUiHelper.startSearchActivity();
+                UIHelper.getInstance().startSearchActivity();
             }
         };
 

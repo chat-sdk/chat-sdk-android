@@ -16,11 +16,7 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.BUser;
@@ -35,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import co.chatsdk.ui.view.CircleImageView;
+import de.hdodenhof.circleimageview.CircleImageView;
 import timber.log.Timber;
 
 /**
@@ -67,8 +63,6 @@ public abstract class AbstractUsersListAdapter<E extends AbstractUsersListAdapte
 
     protected boolean filtering = false;
 
-    protected int textColor =-1991;
-
     protected ProfilePicClickListener profilePicClickListener;
 
     protected UserListItemMaker<E> itemMaker = null;
@@ -77,8 +71,6 @@ public abstract class AbstractUsersListAdapter<E extends AbstractUsersListAdapte
         public CircleImageView profilePicture;
         public TextView textView;
         public CheckBox checkBox;
-
-        public AbstractProfilePicLoader profilePicLoader;
     }
 
     public AbstractUsersListAdapter(AppCompatActivity activity){
@@ -369,7 +361,7 @@ public abstract class AbstractUsersListAdapter<E extends AbstractUsersListAdapte
     /**
      * Filtering the user list by user name
      *
-     * @param startWith the search input. This will be matched against user name in the listData.
+     * @param startWith the search input. This will be matched against user name in the listItems.
      * * */
     public void filterStartWith(String startWith){
         filtering = true;
@@ -476,22 +468,11 @@ public abstract class AbstractUsersListAdapter<E extends AbstractUsersListAdapte
         notifyDataSetChanged();
     }
 
-
-    
-    
-
     /** 
      * Set the item maker of the list, The item maker will be used for converting the Buser items to list Items.
      * * * */
     public void setItemMaker(UserListItemMaker<E> itemMaker){
         this.itemMaker = itemMaker;
-    }
-
-    /**
-     * Text color that should be used for text bubbles
-     * * * */
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
     }
 
     /**
@@ -525,53 +506,10 @@ public abstract class AbstractUsersListAdapter<E extends AbstractUsersListAdapte
         public void onClick(View profilePicView, BUser user);
     }
 
-    protected abstract class AbstractProfilePicLoader implements ImageLoader.ImageListener{
-        public abstract void kill();
-        protected boolean killed = false;
-    }
-
-    protected class ProfilePicLoader extends AbstractProfilePicLoader{
-
-        private ImageView profilePic;
-
-        public ProfilePicLoader(CircleImageView profilePic) {
-            this.profilePic = profilePic;
-        }
-
-        @Override
-        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-            if (isImmediate && response.getBitmap() == null)
-            {
-                profilePic.setImageResource(R.drawable.ic_profile);
-                return;
-            }
-
-            if (response.getBitmap() != null && !killed) {
-                // load image into imageview
-                profilePic.setImageBitmap(response.getBitmap());
-            }
-        }
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            if (!killed)
-                profilePic.setImageResource(R.drawable.ic_profile);
-        }
-
-        @Override
-        public void kill(){
-            killed = true;
-        }
-    }
-
-
-    
-    
     /**
      * Initialize the item maker of the list, The item maker will be used for converting the Buser items to list Items.
      * * * */
     protected abstract void initMaker();
-
 
     protected static String getHeaderWithSize(String header, int size){
         return header + " (" + size + ")";

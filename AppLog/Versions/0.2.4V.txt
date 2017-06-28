@@ -11,7 +11,7 @@
   Also the added data wont be parsed.
 # Another design for contacts list, Not expandable, but a list with headers.
 # Delete contact - Deleting the contact dosent delete the thread with that contact.
-  If user send message to this former contact he will be added again to the contact list. - Not 100% tested!
+  If user send messageItem to this former contact he will be added again to the contact list. - Not 100% tested!
 # New Icons for profile fragment.
 # New icons for the tab page adapter.
 # Profile picture is now saved as a file to parse and the url is saved in the metadata.

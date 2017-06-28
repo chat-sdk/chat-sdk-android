@@ -44,8 +44,8 @@ import io.reactivex.functions.Function;
 
 public class FirebaseThreadHandler extends AbstractThreadHandler {
 
-    public Single<List<BMessage>> loadMoreMessagesForThread(BThread thread) {
-        return new ThreadWrapper(thread).loadMoreMessages(FirebaseDefines.NumberOfMessagesPerBatch);
+    public Single<List<BMessage>> loadMoreMessagesForThread(BMessage fromMessage, BThread thread) {
+        return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
     }
 
     /** Add given users list to the given thread.

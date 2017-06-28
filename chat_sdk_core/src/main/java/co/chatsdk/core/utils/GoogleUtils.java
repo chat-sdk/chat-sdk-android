@@ -18,7 +18,7 @@ public class GoogleUtils {
 
         String api = "https://maps.googleapis.com/maps/api/staticmap";
         String markers = "markers="+location.latitude+","+location.longitude;
-        String size = "zoom=17&size="+width+"x"+ height;
+        String size = "zoom=20&size="+width+"x"+ height;
         String key = "key=" + googleMapsAPIKey;
 
         return api + "?" + markers + "&" + size + "&" + key;

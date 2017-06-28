@@ -23,7 +23,7 @@
 #App thinks its still authing
 # Threads fragment can show the loading indicator for the whole login process need to be fixed.
 -----------OLD------------
-# Need to Handle push notification for a message that already received.
+# Need to Handle push notification for a messageItem that already received.
 # User details are not indexed until the metadata is changed in the profile fragment.
 # Some old messages create notification when entering the app. and when opening the app after a push has been received.
 

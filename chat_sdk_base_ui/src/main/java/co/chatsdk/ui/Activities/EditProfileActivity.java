@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import co.chatsdk.ui.UiHelpers.UIHelper;
 import timber.log.Timber;
 
 /**
@@ -226,7 +227,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
         BFacebookManager.logout(this);
 
         NM.auth().logout();
-        chatSDKUiHelper.startLoginActivity(true);
+        UIHelper.getInstance().startLoginActivity(true);
     }
     
     private void setSelected(TextView textView, boolean selected){
@@ -286,7 +287,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
             catch (Exception e)
             {
                 Timber.e(e.getCause(), getString(R.string.unable_to_open_app_in_settings));
-                chatSDKUiHelper.showToast(R.string.unable_to_open_app_in_settings);
+                UIHelper.getInstance().showToast(R.string.unable_to_open_app_in_settings);
             }
 
         }

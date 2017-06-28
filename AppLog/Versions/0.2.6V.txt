@@ -15,7 +15,7 @@
 ##########################
         BUG FIX
 --------------------------
-# Chat bubble is fixed to the available width that the image view has, i.e between the user profile pic to the time stamp of the message.
+# Chat bubble is fixed to the available width that the image view has, i.e between the user profile pic to the time stamp of the messageItem.
 # User online and offline status is not always correct a the the contacts fragment.
 # Heap size is growing inside a chat and when loading contacts.
 # Event manager listen to current user details change.
@@ -36,16 +36,16 @@
           ISSUE
 --------------------------
 # Once a user delete a thread he wont receive any new messages i this thread.
-  The other user will have to delete the old one and start a new if he wants to send him a new message.
-  If the user that deleted the thread send a new message it will appear as a new thread at the other user application.
+  The other user will have to delete the old one and start a new if he wants to send him a new messageItem.
+  If the user that deleted the thread send a new messageItem it will appear as a new thread at the other user application.
 
 -----------SOLVED----------
 
 ##########################
           TODO
 --------------------------
-# How to change the message details(color, textColor, textSize etc...
-# Don't refresh all threads for each added message if thread is already exist on the list just update that thread.
-# Add a dialog or something like that when sending a message so the user will know that its processed and sent.
-  Currently the user has a delay until he see the message in the chat.
+# How to change the messageItem details(color, textColor, textSize etc...
+# Don't refresh all threads for each added messageItem if thread is already exist on the list just update that thread.
+# Add a dialog or something like that when sending a messageItem so the user will know that its processed and sent.
+  Currently the user has a delay until he see the messageItem in the chat.
 # Save taken pictures in the app public image folder, Currently saved to the camera folder..

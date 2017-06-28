@@ -43,7 +43,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     private static boolean DEBUG = Debug.ConversationsFragment;
 
     protected ListView listThreads;
-    protected AbstractThreadsListAdapter adapter;
+    protected ThreadsListAdapter adapter;
     protected ProgressBar progressBar;
 
     protected boolean inflateMenuItems = true;
@@ -128,7 +128,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         if (mainView == null)
             return;
 
-        adapter.setThreadItems(NM.thread().getThreads(ThreadType.Private));
+        adapter.setAllItems(NM.thread().getThreads(ThreadType.Private));
     }
 
     @Override
@@ -150,7 +150,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         if (adapter != null)
         {
 
-            adapter.getThreadItems().clear();
+            adapter.getAllItems().clear();
             adapter.notifyDataSetChanged();
         }
     }
@@ -212,7 +212,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     }
 
 
-    public void setAdapter(AbstractThreadsListAdapter adapter) {
+    public void setAdapter(ThreadsListAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -235,7 +235,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         }
     };
 
-    public AbstractThreadsListAdapter getAdapter() {
+    public ThreadsListAdapter getAdapter() {
         return adapter;
     }
 

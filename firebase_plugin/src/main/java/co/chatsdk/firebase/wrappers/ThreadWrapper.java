@@ -8,6 +8,8 @@
 package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.BMessageDao;
+import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.firebase.FirebasePaths;
 
 
@@ -32,7 +34,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +47,7 @@ import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -175,7 +178,7 @@ public class ThreadWrapper  {
 
                 threadDeletedDate().subscribe(new Consumer<Long>() {
                     @Override
-                    public void accept(Long timestamp) throws Exception {
+                    public void accept(Long deletedTimestamp) throws Exception {
 
                         Query query = ref;
 
@@ -184,21 +187,18 @@ public class ThreadWrapper  {
                         Long startTimestamp = null;
 
                         if(messages.size() > 0) {
-                            startTimestamp = messages.get(0).getDate().toDate().getTime();
-                        }
-                        else {
-                            startTimestamp = model.lastMessageAdded().getTime() - (long) (10 * Defines.Time.Years);
+                            startTimestamp = messages.get(0).getDate().toDate().getTime() + 1;
                         }
 
-                        if(timestamp > 0) {
-                            startTimestamp = timestamp;
+                        if(deletedTimestamp > 0) {
+                            startTimestamp = deletedTimestamp;
                         }
 
-                        startTimestamp -= 1;
+                        if(startTimestamp != null) {
+                            query = query.startAt(startTimestamp);
+                        }
 
-                        query = query.orderByPriority().startAt(startTimestamp);
-
-                        query = query.limitToFirst(Defines.MAX_MESSAGES_TO_PULL);
+                        query = query.orderByPriority().limitToLast(Defines.MAX_MESSAGES_TO_PULL);
 
                         ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
                             @Override
@@ -406,88 +406,110 @@ public class ThreadWrapper  {
         });
     }
 
-    public Single<BThread> recoverPrivateThread() {
-        return Single.create(new SingleOnSubscribe<BThread>() {
-            @Override
-            public void subscribe(final SingleEmitter<BThread> e) throws Exception {
+//    public Single<BThread> recoverPrivateThread() {
+//        return Single.create(new SingleOnSubscribe<BThread>() {
+//            @Override
+//            public void subscribe(final SingleEmitter<BThread> e) throws Exception {
+//
+//                if (DEBUG) Timber.v("recoverPrivateThread");
+//
+//                // Removing the deleted value from firebase.
+//                DatabaseReference threadUserRef = FirebasePaths.threadUsersRef(model.getEntityID())
+//                        .child(NM.currentUser().getEntityID())
+//                        .child(DaoDefines.Keys.Deleted);
+//
+//                threadUserRef.removeValue();
+//
+//                model.setDeleted(false);
+//                loadMoreMessages().doOnSuccess(new Consumer<List<BMessage>>() {
+//                    @Override
+//                    public void accept(List<BMessage> messages) throws Exception {
+//                        model.setMessages(messages);
+//                        DaoCore.updateEntity(model);
+//                        e.onSuccess(model);
+//                    }
+//                });
+//            }
+//        });
+//    }
 
-                if (DEBUG) Timber.v("recoverPrivateThread");
-
-                // Removing the deleted value from firebase.
-                DatabaseReference threadUserRef = FirebasePaths.threadUsersRef(model.getEntityID())
-                        .child(NM.currentUser().getEntityID())
-                        .child(DaoDefines.Keys.Deleted);
-
-                threadUserRef.removeValue();
-
-                model.setDeleted(false);
-                loadMoreMessages().doOnSuccess(new Consumer<List<BMessage>>() {
-                    @Override
-                    public void accept(List<BMessage> messages) throws Exception {
-                        model.setMessages(messages);
-                        DaoCore.updateEntity(model);
-                        e.onSuccess(model);
-                    }
-                });
-            }
-        });
+    public Single<List<BMessage>> loadMoreMessages(BMessage fromMessage){
+        return loadMoreMessages(fromMessage, Defines.MAX_MESSAGES_TO_PULL);
     }
 
-    public Single<List<BMessage>> loadMoreMessages(){
-        return loadMoreMessages(100);
-    }
-
-    public Single<List<BMessage>> loadMoreMessages(final Integer numberOfMessages){
+    public Single<List<BMessage>> loadMoreMessages(final BMessage fromMessage, final Integer numberOfMessages){
         return Single.create(new SingleOnSubscribe<List<BMessage>>() {
             @Override
             public void subscribe(final SingleEmitter<List<BMessage>> e) throws Exception {
-                List<BMessage> messages = model.getMessagesWithOrder(DaoCore.ORDER_ASC);
 
-                long endDate;
+                // First try to load the messages from the local database
+                Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
-                if(messages.size() > 0) {
-                    BMessage earliestMessage = messages.get(0);
-                    endDate = earliestMessage.getDate().toDate().getTime();
+                QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
+                qb.where(BMessageDao.Properties.ThreadId.eq(model.getId()));
+
+                // Making sure no null messages infected the sort.
+                qb.where(BMessageDao.Properties.Date.isNotNull());
+
+                qb.where(BMessageDao.Properties.Date.lt(messageDate.getTime()));
+
+                qb.limit(numberOfMessages + 1);
+                qb.orderDesc(BMessageDao.Properties.Date);
+
+                List<BMessage> list = qb.list();
+
+                if(!list.isEmpty()) {
+                    Collections.sort(list, new MessageSorter(DaoCore.ORDER_DESC));
+                    e.onSuccess(list);
+                    return;
                 }
                 else {
-                    endDate = new Date().getTime();
-                }
 
-                DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
+                    Date endDate;
 
-                Query query = messageRef.orderByPriority().endAt(endDate).limitToLast(numberOfMessages + 1);
+                    if(fromMessage != null) {
+                        endDate = fromMessage.getDate().toDate();
+                    }
+                    else {
+                        endDate = new Date();
+                    }
 
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.getValue() != null)
-                        {
-                            if (DEBUG) Timber.d("MessagesSnapShot: %s", snapshot.getValue().toString());
+                    DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                            List<BMessage> messages = new ArrayList<BMessage>();
+                    Query query = messageRef.orderByPriority().endAt(endDate.getTime() - 1).limitToLast(numberOfMessages + 1);
 
-                            MessageWrapper message;
-                            for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.getValue() != null)
                             {
-                                message = new MessageWrapper(snapshot.child(key));
-                                message.getModel().setThread(model);
-                                DaoCore.updateEntity(message.getModel());
+                                if (DEBUG) Timber.d("MessagesSnapShot: %s", snapshot.getValue().toString());
 
-                                messages.add(message.getModel());
+                                List<BMessage> messages = new ArrayList<BMessage>();
+
+                                MessageWrapper message;
+                                for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
+                                {
+                                    message = new MessageWrapper(snapshot.child(key));
+                                    message.getModel().setThread(model);
+                                    message.setDelivered(BMessage.Delivered.Yes);
+
+                                    DaoCore.updateEntity(message.getModel());
+                                    messages.add(message.getModel());
+                                }
+                                e.onSuccess(messages);
                             }
-                            e.onSuccess(messages);
+                            else
+                            {
+                                e.onSuccess(new ArrayList<BMessage>());
+                            }
                         }
-                        else
-                        {
-                            e.onSuccess(new ArrayList<BMessage>());
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError firebaseError) {
-                        e.onError(firebaseError.toException());
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError firebaseError) {
+                            e.onError(firebaseError.toException());
+                        }
+                    });                }
             }
         });
     }
@@ -504,7 +526,7 @@ public class ThreadWrapper  {
         // Else we will push the saved creation date from the db.
         // No treating this as so can cause problems with firebase security rules.
         if (model.getCreationDate() == null) {
-            nestedMap.put(DaoDefines.Keys.CreationDate, FirebaseDefines.getServerTimestamp());
+            nestedMap.put(DaoDefines.Keys.CreationDate, ServerValue.TIMESTAMP);
         }
         else {
             nestedMap.put(DaoDefines.Keys.CreationDate, model.getCreationDate().getTime());
@@ -596,7 +618,7 @@ public class ThreadWrapper  {
             }
         }
 
-        this.model.setImageUrl((String) value.get(DaoDefines.Keys.ImageUrl));
+        this.model.setImageURL((String) value.get(DaoDefines.Keys.ImageUrl));
         this.model.setCreatorEntityId((String) value.get(DaoDefines.Keys.CreatorEntityId));
         
         DaoCore.updateEntity(this.model);

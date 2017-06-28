@@ -25,6 +25,7 @@ import co.chatsdk.core.defines.Debug;
 
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.braunster.chatsdk.object.SaveIndexDetailsTextWatcher;
+import com.koushikdutta.ion.Ion;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -33,10 +34,6 @@ public class ProfileFragment extends AbstractProfileFragment {
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
     private static boolean DEBUG = Debug.ProfileFragment;
-
-    private static final String S_I_D_NAME = "saved_name_data";
-    private static final String S_I_D_PHONE = "saved_phones_data";
-    private static final String S_I_D_EMAIL = "saved_email_data";
 
     private EditText etName, etMail, etPhone;
 
@@ -56,7 +53,7 @@ public class ProfileFragment extends AbstractProfileFragment {
 
         if (savedInstanceState != null)
         {
-            setDetails(getLoginType(), savedInstanceState);
+            setDetails(getLoginType());
         }
         else
         {
@@ -131,10 +128,6 @@ public class ProfileFragment extends AbstractProfileFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        
-        outState.putString(S_I_D_NAME, etName.getText().toString());
-        outState.putString(S_I_D_EMAIL, etMail.getText().toString());
-        outState.putString(S_I_D_PHONE, etPhone.getText().toString());
     }
 
     @Override
@@ -143,7 +136,7 @@ public class ProfileFragment extends AbstractProfileFragment {
         BFacebookManager.logout(getActivity());
 
         NM.auth().logout();
-        chatSDKUiHelper.startLoginActivity(true);
+        UIHelper.startLoginActivity(true);
     }
 
     /*############################################*/
@@ -160,16 +153,9 @@ public class ProfileFragment extends AbstractProfileFragment {
         etPhone.setText(user.metaStringForKey(DaoDefines.Keys.Phone));
         etMail.setText(user.getMetaEmail());
 
-        chatSDKProfileHelper.loadProfilePic(loginType);
+        Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getMetaPictureUrl());
     }
 
-    private void setDetails(int loginType, Bundle bundle){
-        etName.setText(bundle.getString(S_I_D_NAME));
-        etPhone.setText(bundle.getString(S_I_D_PHONE));
-        etMail.setText(bundle.getString(S_I_D_EMAIL));
-
-        chatSDKProfileHelper.loadProfilePic(loginType);
-    }
 
     /*############################################*/
 }

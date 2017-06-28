@@ -5,7 +5,7 @@
 ##########################
         NEW FEATURES
 --------------------------
-- Added helper to handle message notification clicks for main activity. OpenFromPushChecker.
+- Added helper to handle messageItem notification clicks for main activity. OpenFromPushChecker.
 - Screen now wakes up when receiving a notification. Tested on 4.3 - 5.0.1
 - Removed ActionBarPullToRefresh library, Now using the android stock view SwipeToRefresh
 - Better memory handling.

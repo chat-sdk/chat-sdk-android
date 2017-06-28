@@ -19,21 +19,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.core.utils.volley.VolleyUtils;
-import com.braunster.chatsdk.network.BNetworkManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 
+import co.chatsdk.ui.threads.ThreadImageBuilder;
+import io.reactivex.functions.BiConsumer;
 import timber.log.Timber;
 import co.chatsdk.ui.utils.Strings;
 
@@ -159,9 +155,6 @@ public class NotificationUtils {
         wakeScreen(context);
     }
 
-
-
-
     /** Create and alert notification that the connection has lost.*/
     public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
         createAlertNotification(context, id, resultIntent, data, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
@@ -191,45 +184,18 @@ public class NotificationUtils {
         final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getMetaName(), messageContent);
 
         getNotificationLines(context, message, data);
-        
-        Bitmap threadImage = null;
-        if (message.getThread() != null)
-        {
-            final String urls[] = message.getThread().threadImageUrl().split(",");
 
-            if (urls.length > 1)
-            {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(MakeThreadImage.getCacheKey(message.getThread().getEntityID(), urls.length));
+        ThreadImageBuilder.getBitmapForThread(context, message.getThread()).subscribe(new BiConsumer<Bitmap, Throwable>() {
+            @Override
+            public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
+                if(throwable == null) {
+                    createAlertNotification(context, id, resultIntent, data, bitmap, smallIconResID, soundUri, number);
+                }
+                else {
+                    createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
+                }
             }
-            else if (urls.length == 1)
-            {
-                threadImage = VolleyUtils.getBitmapCache().getBitmap(VolleyUtils.BitmapCache.getCacheKey(urls[0]));
-            }
-            
-            // Trying to load the sender image.
-            if (threadImage == null && message.getSender() != null
-                    && StringUtils.isNotEmpty(message.getSender().getMetaPictureUrl()))
-            {
-                VolleyUtils.getImageLoader().get(message.getSender().getMetaPictureUrl(), new ImageLoader.ImageListener() {
-                    @Override
-                    public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                        if (imageContainer.getBitmap() != null)
-                            createAlertNotification(context, id, resultIntent, data, imageContainer.getBitmap(), smallIconResID, soundUri, number);
-                    }
-
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
-                    }
-                });
-                
-                return;
-            }
-
-            createAlertNotification(context, id, resultIntent, data,threadImage, smallIconResID, soundUri, number);
-        }
-        
-        
+        });
     }
     
  
@@ -320,11 +286,9 @@ public class NotificationUtils {
     private static boolean validateLinesAndMessagesSize(List<BMessage> m, int minMessagesSize, ArrayList<String> lines){
         return m.size() > minMessagesSize && lines.size() < Defines.Options.MaxInboxNotificationLines;
     }
-  
-    
-    
+
     private static Intent getChatResultIntent(Context context){
-        return new Intent(context, BNetworkManager.getUiLauncherInterface().getMainActivity());
+        return new Intent(context, UIHelper.getInstance().getMainActivity());
     }
 
     /** Cancel the ongoing notification that controls the connection state and play/stop*/

@@ -336,12 +336,14 @@ public class DaoCore {
 
     public static void connectUserAndThread(BUser user, BThread thread){
         if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
-        UserThreadLink linkData = new UserThreadLink();
-        linkData.setThreadId(thread.getId());
-        linkData.setBThread(thread);
-        linkData.setUserId(user.getId());
-        linkData.setBUser(user);
-        createEntity(linkData);
+        if(!thread.hasUser(user)) {
+            UserThreadLink linkData = new UserThreadLink();
+            linkData.setThreadId(thread.getId());
+            linkData.setBThread(thread);
+            linkData.setUserId(user.getId());
+            linkData.setBUser(user);
+            createEntity(linkData);
+        }
     }
 
     public static void breakUserAndThread(BUser user, BThread thread){

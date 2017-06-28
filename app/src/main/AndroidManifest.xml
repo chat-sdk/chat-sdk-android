@@ -12,6 +12,8 @@
         android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.braunster.androidchatsdk.app.permission.C2D_MESSAGE" />
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!--For contact import-->
 <!--    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
 

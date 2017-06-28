@@ -10,7 +10,7 @@ import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.ImageUploadResult;
 import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
-import co.chatsdk.core.utils.volley.ImageUtils;
+import co.chatsdk.core.utils.ImageUtils;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
