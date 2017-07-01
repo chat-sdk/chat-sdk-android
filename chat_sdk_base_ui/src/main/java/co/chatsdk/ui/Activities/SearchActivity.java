@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -34,7 +34,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.Adapters.UsersListAdapter;
+import co.chatsdk.ui.adapters.UsersListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

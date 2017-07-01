@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 import android.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
@@ -23,7 +23,7 @@ import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;

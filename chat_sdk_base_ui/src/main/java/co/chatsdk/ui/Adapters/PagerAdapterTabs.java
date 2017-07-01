@@ -5,19 +5,21 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Adapters;
+package co.chatsdk.ui.adapters;
 
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import co.chatsdk.ui.Fragments.ContactsFragment;
+import com.astuetz.PagerSlidingTabStrip;
+
+import co.chatsdk.ui.fragments.ContactsFragment;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
-import co.chatsdk.ui.pagersslidingtabstrip.PagerSlidingTabStrip;
+
 import co.chatsdk.ui.R;
 
-import co.chatsdk.ui.Fragments.BaseFragment;
-import co.chatsdk.ui.Fragments.ProfileFragment;
+import co.chatsdk.ui.fragments.BaseFragment;
+import co.chatsdk.ui.profile.ProfileFragment;
 import co.chatsdk.ui.threads.PublicThreadsFragment;
 
 /**

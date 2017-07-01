@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;

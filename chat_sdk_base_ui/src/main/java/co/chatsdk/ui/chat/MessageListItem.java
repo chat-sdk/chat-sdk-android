@@ -23,10 +23,11 @@ public class MessageListItem {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
     public BMessage message;
-    public String entityId, profilePicUrl, time, text, resourcePath;
+    public float progress;
     private long timeInMillis;
+
+    @Deprecated
     private int[] dimensions = null;
-    private String dimensionsString;
 
     public MessageListItem (BMessage message, int maxWidth) {
 
@@ -37,16 +38,22 @@ public class MessageListItem {
         BUser user = message.getSender();
 
         this.message = message;
-        entityId = message.getEntityID();
-        profilePicUrl = user.getThumbnailPictureURL();
-        time = String.valueOf(simpleDateFormat.format(message.getDate().toDate()));
-        text = message.getTextString();
-        resourcePath = message.getResourcesPath();
-        this.dimensionsString = message.getImageDimensions();
         timeInMillis = message.getDate().toDate().getTime();
 
         dimensions = getDimensions(maxWidth);
 
+    }
+
+    public String getEntityID () {
+        return message.getEntityID();
+    }
+
+    public String getTime () {
+        return String.valueOf(simpleDateFormat.format(message.getDate().toDate()));
+    }
+
+    public String getText () {
+        return message.getText();
     }
 
     public boolean isMine () {
@@ -73,38 +80,12 @@ public class MessageListItem {
         return dimensions[0];
     }
 
-    public int height () {
-        return dimensions[1];
+    public String getProfilePicUrl () {
+        return message.getSender().getMetaPictureUrl();
     }
 
-    public static List<MessageListItem> makeList(AppCompatActivity activity, List<BMessage> messages){
-
-        List<MessageListItem> list = new ArrayList<>();
-
-        int maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
-
-        MessageListItem item;
-        for (BMessage message : messages)
-        {
-            item = new MessageListItem(message, maxWidth);
-
-            if (message.getType() != BMessage.Type.TEXT && item.dimensions == null)
-            {
-                Timber.d("Cant find dimensions, path: %s, dimensionsString: %s", item.resourcePath, item.dimensionsString);
-                continue;
-            }
-
-            // Skip messages with no date
-            if (message.getDate() == null)
-                continue;
-
-            list.add(item);
-        }
-
-        // We need to reverse the list so the newest bundle would be on the top again.
-        Collections.reverse(list);
-
-        return list;
+    public int height () {
+        return dimensions[1];
     }
 
     private static SimpleDateFormat getFormat(BMessage message){
@@ -133,44 +114,13 @@ public class MessageListItem {
         }
     }
 
-    private static String getUrl(String text, int type){
-
-        if (StringUtils.isBlank(text))
-            return "";
-
-        String url = "";
-        String [] urls = text.split(Defines.DIVIDER);
-        if (type == BMessage.Type.IMAGE)
-        {
-            if (urls.length > 1)
-            {
-                url = urls[1];
-            }
-            else url = urls[0];
-        }
-        else if (type == BMessage.Type.LOCATION)
-        {
-            if (urls.length == 1)
-                urls = text.split("&");
-
-            try {
-                if (urls.length > 3)
-                    url = urls[3];
-                else url = urls[2];
-            } catch (Exception e) {
-//                e.printStackTrace();
-            }
-        }
-
-        return url;
-    }
-
+    @Deprecated
     private int[] getDimensions(int maxWidth){
 
-        if (StringUtils.isNotEmpty(text)) {
+        if (StringUtils.isNotEmpty(getText())) {
 
             try {
-                String[] data = text.split(Defines.DIVIDER);
+                String[] data = getText().split(Defines.DIVIDER);
                 dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
                 dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
 
@@ -180,14 +130,20 @@ public class MessageListItem {
             }catch (Exception e){  dimensions = null;}
 
         }
-        else if (StringUtils.isNotEmpty(dimensionsString)) {
+        else if (StringUtils.isNotEmpty(message.getImageDimensions())) {
 
-            dimensions = ImageUtils.getDimensionsFromString(dimensionsString);
-            dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+            dimensions = ImageUtils.getDimensionsFromString(message.getImageDimensions());
 
         }
 
         return dimensions;
+    }
+
+    public boolean isValid () {
+        if(messageType() == BMessage.Type.IMAGE && dimensions == null) {
+            return false;
+        }
+        return true;
     }
 
     public boolean equals (MessageListItem item) {

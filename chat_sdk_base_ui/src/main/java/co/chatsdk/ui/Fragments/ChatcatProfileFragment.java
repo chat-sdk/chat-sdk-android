@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,7 +21,7 @@ import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
-import co.chatsdk.ui.Activities.EditProfileActivity;
+import co.chatsdk.ui.activities.EditProfileActivity;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -30,6 +30,8 @@ import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.ui.profile.AbstractProfileFragment;
+import de.hdodenhof.circleimageview.CircleImageView;
 import timber.log.Timber;
 
 /**
@@ -71,6 +73,8 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         super.initViews();
 
         setupTouchUIToDismissKeyboard(mainView, R.id.chat_sdk_circle_ing_profile_pic);
+
+
 
         // Changing the weight of the view according to orientation.
         // This will make sure (hopefully) there is enough space to show the views in landscape mode.

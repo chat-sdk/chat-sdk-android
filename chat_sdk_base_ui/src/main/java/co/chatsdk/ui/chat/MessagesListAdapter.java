@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,12 +26,13 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import at.grabner.circleprogress.CircleProgressView;
 import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.sorter.MessageSorter;
-import co.chatsdk.ui.Adapters.MessageItemSorter;
+import co.chatsdk.ui.adapters.MessageItemSorter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,11 +56,10 @@ public class MessagesListAdapter extends BaseAdapter{
         CircleProgressView progressView;
     }
 
-    int maxWidth;
-
     private AppCompatActivity activity;
 
-    private List<MessageListItem> listData = new ArrayList<>();
+    private List<MessageListItem> messageItems = new ArrayList<>();
+    private List<BMessage> messages = new ArrayList<>();
 
     private boolean isScrolling = false;
 
@@ -68,12 +67,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
     public MessagesListAdapter(AppCompatActivity activity) {
         this.activity = activity;
-        init();
-    }
-
-    private void init() {
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
-        maxWidth =  (activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width));
     }
 
     @Override
@@ -83,35 +77,35 @@ public class MessagesListAdapter extends BaseAdapter{
 
     @Override
     public int getItemViewType(int position) {
-        return listData.get(position).isMine() ? 0 : 1;
+        return messageItems.get(position).isMine() ? 0 : 1;
     }
 
     @Override
     public int getCount() {
-        return listData.size();
+        return messageItems.size();
     }
 
     @Override
     public MessageListItem getItem(int i) {
-        return listData.get(i);
+        return messageItems.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return listData.get(i).getId();
+        return messageItems.get(i).getId();
     }
 
     @Override
     public View getView(int position, View row, ViewGroup viewGroup) {
 
-        final MessageListItem messageItem = listData.get(position);
+        final MessageListItem messageItem = messageItems.get(position);
 
         if (row == null) {
             row = inflateRow(messageItem);
         }
         ViewHolder holder = (ViewHolder) row.getTag();
 
-        loadData(row, holder, messageItem);
+        updateMessageCell(row, holder, messageItem);
 
         return row;
     }
@@ -163,11 +157,12 @@ public class MessagesListAdapter extends BaseAdapter{
      * For example load online status for each user.
      *
      * */
-    protected void loadData(View row, ViewHolder holder, MessageListItem messageItem){
+    protected void updateMessageCell(View row, ViewHolder holder, MessageListItem messageItem){
 
         holder.progressView.setVisibility(View.INVISIBLE);
         holder.imageView.setVisibility(View.INVISIBLE);
         holder.messageTextView.setVisibility(View.INVISIBLE);
+
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.imageView.getLayoutParams();
 
@@ -177,7 +172,7 @@ public class MessagesListAdapter extends BaseAdapter{
         if (messageItem.messageType() == BMessage.Type.TEXT) {
 
             holder.messageTextView.setVisibility(View.VISIBLE);
-            holder.messageTextView.setText(messageItem.text == null ? "" : messageItem.text);
+            holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
 
             // Show links in text view if has any.
             holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -212,22 +207,37 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 String url = (String) messageItem.message.valueForKey(DaoDefines.Keys.MessageImageURL);
 
-                Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(url);
+                if(url == null || url.isEmpty()) {
+                    Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder);
+                }
+                else {
+                    Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(url);
+                }
 
                 // Show the imageView in a dialog on click.
-                holder.imageView.setOnClickListener(new ImageMessageClickListener(activity, messageItem));
+                holder.imageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
         }
 
         holder.imageView.setLayoutParams(params);
         holder.imageView.requestLayout();
 
+        // Progress
+        // Not tested
+        if (messageItem.progress > 0 && messageItem.progress < 1) {
+            holder.progressView.setVisibility(View.VISIBLE);
+            holder.progressView.setValue(messageItem.progress);
+            holder.progressView.setMaxValue(1);
+        }
+        else {
+            holder.progressView.setVisibility(View.INVISIBLE);
+        }
 
         // Load the user's profile image
-        Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.profilePicUrl);
+        Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
 
         // Set the time of the sending.
-        holder.timeTextView.setText(messageItem.time);
+        holder.timeTextView.setText(messageItem.getTime());
         animateSides(holder.timeTextView, messageItem.isMine(), null);
 
         row.setAlpha(messageItem.delivered() ? 1.0f : 0.5f);
@@ -235,7 +245,7 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public List<MessageListItem> getMessageItems() {
-        return listData;
+        return messageItems;
     }
 
 
@@ -243,29 +253,41 @@ public class MessagesListAdapter extends BaseAdapter{
      * Add a new message to the list.
      * @return true if the item is added to the list.
      * */
-    public boolean addRow(MessageListItem newItem){
+    private boolean addRow(MessageListItem newItem){
+        return addRow(newItem, true, true);
+    }
+
+    private boolean addRow(MessageListItem newItem, boolean sort, boolean notify){
         // Bad bundle.
         if (newItem == null)
             return false;
 
+
         // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.entityId == null && (newItem.delivered() || newItem.status() != BMessage.Status.SENDING))
+        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != BMessage.Status.SENDING))
         {
-            if (DEBUG) Timber.d("CoreMessage has no entity and was sent.: ", newItem.text);
+            if (DEBUG) Timber.d("CoreMessage has no entity and was sent.: ", newItem.getText());
             return false;
         }
 
-        Timber.d("Checking if exist");
-
-        if(!listData.contains(newItem)) {
-            listData.add(newItem);
+        if(!messageItems.contains(newItem)) {
+            messageItems.add(newItem);
         }
 
-        Collections.sort(listData, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+        if(sort) {
+            Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+        }
 
-        notifyDataSetChanged();
+        if(notify) {
+            notifyDataSetChanged();
+        }
 
         return true;
+    }
+
+    public void sortItemsAndNotify () {
+        Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+        notifyDataSetChanged();
     }
 
     /**
@@ -273,34 +295,65 @@ public class MessagesListAdapter extends BaseAdapter{
      * @return true if the item is added to the list.
      * */
     public boolean addRow(BMessage message){
-        return addRow(new MessageListItem(message, maxWidth));
+        return addRow(message, true, true);
+    }
+
+    public boolean addRow(BMessage message, boolean sort, boolean notify){
+        if(!messages.contains(message) && message != null) {
+            MessageListItem item = new MessageListItem(message, maxWidth());
+
+            // It's possible that if
+            if(item.isValid()) {
+                messages.add(message);
+                return addRow(item, sort, notify);
+            }
+            else {
+                Timber.v("Invalid message - the message will be deleted");
+                DaoCore.deleteEntity(message);
+            }
+        }
+        return false;
+    }
+
+    public int maxWidth () {
+        return activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
     }
 
     /**
      * Clear the messages list.
      * */
     public void clear(){
-        listData.clear();
+        messageItems.clear();
+        messages.clear();
         notifyDataSetChanged();
     }
-
-    /**
-     * Converts a the messages list from BMessage to MessageListItem list.
-     *
-     * Here the custom date format is used to create the modified date format.
-     *
-     * */
-    public List<MessageListItem> makeList(List<BMessage> list){
-        return MessageListItem.makeList(activity, list);
-    }
-
-    /**
-     * Set the messages list bundle.
-     * */
 
     public void setMessages(List<BMessage> messages) {
-        this.listData = makeList(messages);
+
+        clear();
+
+        for (BMessage message : messages) {
+            addRow(message, false, false);
+        }
+        sortItemsAndNotify();
+    }
+
+    // Untested because upload progress doesn't work
+    public void setProgressForMessage (BMessage message, float progress) {
+        MessageListItem item = messageListItemForMessage(message);
+        if(item != null) {
+            item.progress = progress;
+        }
         notifyDataSetChanged();
+    }
+
+    public MessageListItem messageListItemForMessage (BMessage message) {
+        for(MessageListItem i : messageItems) {
+            if(i.message.equals(message)) {
+                return i;
+            }
+        }
+        return null;
     }
 
     /**
@@ -338,6 +391,10 @@ public class MessagesListAdapter extends BaseAdapter{
         view.setAnimation(AnimationUtils.loadAnimation(activity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
         view.getAnimation().setAnimationListener(animationListener);
         view.animate();
+    }
+
+    public int size () {
+        return messageItems.size();
     }
 
 }

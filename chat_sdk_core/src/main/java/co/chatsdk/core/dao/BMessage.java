@@ -6,6 +6,7 @@ package co.chatsdk.core.dao;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
@@ -252,6 +253,7 @@ public class BMessage implements CoreEntity {
         setValueForKey(text, DaoDefines.Keys.MessageText);
     }
 
+    @Deprecated
     public String getImageDimensions() {
         return this.imageDimensions;
     }

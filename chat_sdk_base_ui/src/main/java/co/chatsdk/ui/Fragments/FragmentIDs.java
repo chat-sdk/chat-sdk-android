@@ -1,4 +1,4 @@
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 /**
  * Created by benjaminsmiley-andrews on 07/06/2017.

@@ -5,13 +5,18 @@
     android:layout_height="match_parent"
     android:background="@color/chat_sdk_shadow">
 
-    <co.chatsdk.ui.view.TouchImageView
+    <!--<co.chatsdk.ui.view.TouchImageView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:id="@+id/chat_sdk_popup_image_imageview"-->
+        <!--android:visibility="invisible"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--/>-->
+
+    <uk.co.senab.photoview.PhotoView
+        android:id="@+id/photo_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/chat_sdk_popup_image_imageview"
-        android:visibility="invisible"
-        android:layout_centerInParent="true"
-        />
+        android:layout_height="match_parent"/>
 
     <ProgressBar
         android:layout_width="wrap_content"

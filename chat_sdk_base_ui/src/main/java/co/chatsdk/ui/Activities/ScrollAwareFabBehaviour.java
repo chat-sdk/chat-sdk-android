@@ -1,4 +1,4 @@
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

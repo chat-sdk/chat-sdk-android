@@ -29,7 +29,7 @@ public class FirebaseUploadHandler extends BaseUploadHandler {
     private static final boolean DEBUG = Debug.BFirebaseUploadHandler;
 
     public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
-        Observable<FileUploadResult> o = Observable.create(new ObservableOnSubscribe<FileUploadResult>() {
+        return Observable.create(new ObservableOnSubscribe<FileUploadResult>() {
             @Override
             public void subscribe(final ObservableEmitter<FileUploadResult> e) throws Exception {
 
@@ -47,6 +47,9 @@ public class FirebaseUploadHandler extends BaseUploadHandler {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
+
+                        // TODO: With Firebase this appears to be broken
+                        //e.onNext(result);
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -54,6 +57,7 @@ public class FirebaseUploadHandler extends BaseUploadHandler {
                         result.name = name;
                         result.mimeType = mimeType;
                         result.url = taskSnapshot.getDownloadUrl().toString();
+                        result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
                         e.onNext(result);
                         e.onComplete();
                     }
@@ -67,8 +71,6 @@ public class FirebaseUploadHandler extends BaseUploadHandler {
 
             }
         });
-        o.subscribe();
-        return o;
     }
 
 

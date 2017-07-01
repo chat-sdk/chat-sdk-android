@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.Utils;
 import com.github.johnpersano.supertoasts.SuperToast;
 

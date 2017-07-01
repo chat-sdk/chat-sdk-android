@@ -30,7 +30,7 @@ import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.chat.ChatActivity;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.Fragments.BaseFragment;
+import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -211,20 +211,6 @@ public class PrivateThreadsFragment extends BaseFragment {
         }
     }
 
-
-    public void setAdapter(ThreadsListAdapter adapter) {
-        this.adapter = adapter;
-    }
-
-    public void setInflateMenuItems(boolean inflateMenuItems) {
-        this.inflateMenuItems = inflateMenuItems;
-    }
-
-    public void filterThreads(String text){
-        adapter.filterItems(text);
-    }
-
-
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -234,9 +220,5 @@ public class PrivateThreadsFragment extends BaseFragment {
             }
         }
     };
-
-    public ThreadsListAdapter getAdapter() {
-        return adapter;
-    }
 
 }

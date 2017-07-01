@@ -5,7 +5,7 @@
  * Last Modification at: 4/2/15 4:25 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -41,7 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 import timber.log.Timber;
 
 /**

@@ -13,7 +13,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         app:layoutManager="LinearLayoutManager"
-        tools:context=".Fragments.ThreadListFragment"
+        tools:context=".fragments.ThreadListFragment"
         tools:listitem="@layout/fragment_thread_item" />
 
     <include layout="@layout/fab_layout"/>

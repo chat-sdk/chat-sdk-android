@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Adapters;
+package co.chatsdk.ui.adapters;
 
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;

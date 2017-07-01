@@ -5,12 +5,12 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 
-import co.chatsdk.ui.Fragments.ContactsFragment;
+import co.chatsdk.ui.fragments.ContactsFragment;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.R;
 

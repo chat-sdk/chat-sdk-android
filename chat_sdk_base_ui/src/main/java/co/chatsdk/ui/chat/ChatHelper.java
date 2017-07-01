@@ -7,34 +7,6 @@
 
 package co.chatsdk.ui.chat;
 
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BMessageDao;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.UiHelpers.UIHelper;
-import co.chatsdk.core.dao.sorter.MessageSorter;
-import co.chatsdk.core.dao.DaoCore;
-import com.github.johnpersano.supertoasts.SuperCardToast;
-
-import org.apache.commons.lang3.StringUtils;
-import org.greenrobot.greendao.query.QueryBuilder;
-
-import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.List;
-
-import timber.log.Timber;
-
 @Deprecated
 public class ChatHelper {
 

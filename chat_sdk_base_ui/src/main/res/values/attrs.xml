@@ -17,17 +17,6 @@
         <attr name="border_color" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="ChatBubbleImageView">
-        <attr name="bubble_gravity"/>
-        <attr name="bubble_with_click_indicator"/>
-        <attr name="bubble_color"/>
-        <attr name="bubble_background"/>
-        <attr name="bubble_tip_size" format="dimension"/>
-        <attr name="bubble_image_corner_radius" format="dimension"/>
-        <attr name="bubble_pressed_color" format="color"/>
-        <attr name="image_padding" format="dimension"/>
-    </declare-styleable>
-
     <declare-styleable name="ChatBubbleTextView">
         <attr name="bubble_gravity"/>
         <attr name="bubble_background"/>

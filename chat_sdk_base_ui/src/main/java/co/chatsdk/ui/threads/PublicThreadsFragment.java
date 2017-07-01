@@ -29,10 +29,10 @@ import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.interfaces.ThreadType;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.Fragments.BaseFragment;
+import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.helpers.DialogUtils;
 
 
 import timber.log.Timber;

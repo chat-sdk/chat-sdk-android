@@ -57,7 +57,7 @@ public class DaoDefines {
         public static final String Users = "users";
 
         public static final String ImageUrl = "image-url";
-        public static final String CreatorEntityId = "creator-firebase-id";
+        public static final String CreatorEntityId = "creator-entity-id";
         public static final String Deleted = "deleted";
         public static final String Leaved = "leaved";
         public static final String UserId = "user-id";

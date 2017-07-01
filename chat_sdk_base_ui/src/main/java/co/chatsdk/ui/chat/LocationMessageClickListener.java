@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Locale;
 
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.

@@ -15,30 +15,26 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.ImageUtils;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
-import co.chatsdk.ui.Activities.BaseThreadActivity;
-import co.chatsdk.ui.Fragments.AbstractContactsFragment;
+import co.chatsdk.ui.activities.BaseThreadActivity;
+import co.chatsdk.ui.fragments.AbstractContactsFragment;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.Fragments.ContactsFragment;
-import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.fragments.ContactsFragment;
+import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ChatSDKIntentClickListener;
 import co.chatsdk.core.dao.DaoCore;
 
 import com.braunster.chatsdk.object.Cropper;
-import com.koushikdutta.ion.Ion;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,12 +54,13 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
 
     private static final int THREAD_PIC = 1991;
 
-    private CircleImageView imageThread, imageAdmin;
-    private TextView txtAdminName, txtThreadName;
+    private CircleImageView threadImageView;
+    private ProgressBar progressBar;
 
     private ContactsFragment contactsFragment;
 
     private BUser admin;
+    private ActionBar actionBar;
 
     private Cropper crop;
 
@@ -72,69 +69,97 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_activity_thread_details);
 
-        initActionBar();
-
         initViews();
 
         loadData();
     }
 
     private void initViews() {
-        txtAdminName = (TextView) findViewById(R.id.chat_sdk_txt_admin_name);
 
-        txtThreadName = (TextView) findViewById(R.id.chat_sdk_txt_thread_name);
+        actionBar = getSupportActionBar();
+        actionBar.setTitle(Strings.nameForThread(thread));
+        actionBar.setHomeButtonEnabled(true);
 
-        imageAdmin = (CircleImageView) findViewById(R.id.chat_sdk_admin_image_view);
-        imageThread = (CircleImageView) findViewById(R.id.chat_sdk_thread_image_view);
+        final View actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_activity_thread_details, null);
+
+        // Allow the thread name to be modified by a long click
+        actionBarView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                DialogUtils.ChatSDKEditTextDialog textDialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
+                textDialog.setTitleAndListen(getString(R.string.thread_details_activity_change_name_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
+                    @Override
+                    public void onFinished(String s) {
+                        actionBar.setTitle(s);
+                        thread.setName(s);
+                        DaoCore.updateEntity(thread);
+
+                        NM.thread().pushThread(thread);
+                    }
+                });
+
+                textDialog.show(getSupportFragmentManager(), DialogUtils.ChatSDKEditTextDialog.class.getSimpleName());
+                return true;
+            }
+        });
+
+        threadImageView = (CircleImageView) findViewById(R.id.chat_sdk_thread_image_view);
+        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progress_bar);
     }
 
     private void loadData () {
 
-        // Admin bundle
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()))
-        {
-            admin = DaoCore.fetchEntityWithEntityID(BUser.class, thread.getCreatorEntityId());
+        progressBar.setVisibility(View.VISIBLE);
+        threadImageView.setVisibility(View.INVISIBLE);
 
-            if (admin != null)
-            {
-                if (StringUtils.isNotBlank(admin.getThumbnailPictureURL())) {
-                    Ion.with(imageAdmin).placeholder(R.drawable.icn_32_profile_placeholder).load(admin.getThumbnailPictureURL());
-                }
-                txtAdminName.setText(admin.getMetaName());
+        ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
+            @Override
+            public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
+                    threadImageView.setImageBitmap(bitmap);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    threadImageView.setVisibility(View.VISIBLE);
             }
-        }
-
-        final String imageUrl = thread.getImageUrl();
-        if (StringUtils.isNotEmpty(imageUrl)) {
-            ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
-                @Override
-                public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                    if (throwable == null) {
-                        imageThread.setImageBitmap(bitmap);
-                        findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
-                        imageThread.setVisibility(View.VISIBLE);
-                    } else {
-                        imageThread.setImageResource(R.drawable.ic_users);
-                        findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
-                    }
-                }
-            });
-        }
-        else
-        {
-            findViewById(R.id.chat_sdk_progress_bar).setVisibility(View.INVISIBLE);
-            imageThread.setImageResource(R.drawable.ic_users);
-            imageThread.setVisibility(View.VISIBLE);
-        }
-
-        // CoreThread name
-        txtThreadName.setText(Strings.nameForThread(thread));
+        });
 
         // CoreThread users bundle
         contactsFragment = new ContactsFragment();
         contactsFragment.setInflateMenu(false);
 
-        contactsFragment.setOnItemClickListener(getItemClickListener());
+        contactsFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                final Intent intent = new Intent();
+
+                BUser otherUser = contactsFragment.getAdapter().getItem(position).asBUser();
+                BUser currentUser = NM.currentUser();
+
+                NM.thread().createThread("", otherUser, currentUser)
+                        .subscribe(new BiConsumer<BThread, Throwable>() {
+                            @Override
+                            public void accept(final BThread thread, Throwable throwable) throws Exception {
+                                if (throwable == null) {
+                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            intent.putExtra(THREAD_ID, thread.getId());
+                                            setResult(RESULT_OK, intent);
+                                            finish();
+                                        }
+                                    });
+                                } else {
+                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            showToast(getString(R.string.create_thread_with_users_fail_toast));
+                                            dismissProgDialog();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+            }
+        });
 
         contactsFragment.setLoadingMode(AbstractContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
@@ -144,111 +169,19 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
     }
 
-    private AdapterView.OnItemClickListener getItemClickListener(){
-        return new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                final Intent intent = new Intent();
-
-                showProgDialog("Opening thread.");
-
-                BUser otherUser = contactsFragment.getAdapter().getItem(position).asBUser();
-                BUser currentUser = NM.currentUser();
-
-                NM.thread().createThread("", otherUser, currentUser)
-                        .subscribe(new BiConsumer<BThread, Throwable>() {
-                            @Override
-                            public void accept(final BThread thread, Throwable throwable) throws Exception {
-                                if(throwable == null) {
-                                    if (thread == null) {
-                                        if (DEBUG) Timber.e("thread added is null");
-                                        return;
-                                    }
-
-                                    if (isOnMainThread()) {
-                                        intent.putExtra(THREAD_ID, thread.getId());
-                                        setResult(RESULT_OK, intent);
-                                        finish();
-                                    }
-                                    else {
-                                        ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                intent.putExtra(THREAD_ID, thread.getId());
-                                                setResult(RESULT_OK, intent);
-                                                finish();
-                                            }
-                                        });
-                                    }
-                                }
-                                else {
-                                    if (isOnMainThread()) {
-                                        showToast(getString(R.string.create_thread_with_users_fail_toast));
-                                        dismissProgDialog();
-                                    }
-                                    else {
-                                        ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                showToast(getString(R.string.create_thread_with_users_fail_toast));
-                                                dismissProgDialog();
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        });
-            }
-        };
-    }
-
-    protected void initActionBar(){
-        ActionBar ab = getSupportActionBar();
-        if (ab!=null)
-        {
-            ab.setTitle(getString(R.string.thread_details_activity_title));
-            ab.setHomeButtonEnabled(true);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
 
         // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NM.currentUser().getEntityID()))
-        {
-            imageThread.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
-
-            txtThreadName.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-
-                    DialogUtils.ChatSDKEditTextDialog textDialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
-                    textDialog.setTitleAndListen(getString(R.string.thread_details_activity_change_name_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
-                        @Override
-                        public void onFinished(String s) {
-                            txtThreadName.setText(s);
-                            thread.setName(s);
-                            DaoCore.updateEntity(thread);
-
-                            NM.thread().pushThread(thread);
-                        }
-                    });
-
-                    textDialog.show(getSupportFragmentManager(), DialogUtils.ChatSDKEditTextDialog.class.getSimpleName());
-                    return true;
-                }
-            });
+        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NM.currentUser().getEntityID())) {
+            threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
         }
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-        //BNetworkManager.getCoreInterface().getEventManager().removeEventByTag(this.getClass().getSimpleName());
     }
 
     @Override
@@ -308,33 +241,33 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
                     }
                 }
 
-                imageThread.setImageBitmap(b);
+                threadImageView.setImageBitmap(b);
 
-                Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
-
-                NM.upload().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onNext(FileUploadResult value) {
-                        if(value.isComplete()) {
-                            thread.setImageURL(value.url);
-                            DaoCore.updateEntity(thread);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        showToast(getString(R.string.unable_to_save_file));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        NM.thread().pushThread(thread);
-                    }
-                });
+//                Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
+//
+//                NM.upload().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//
+//                    @Override
+//                    public void onNext(FileUploadResult value) {
+//                        if(value.isComplete()) {
+//                            thread.setImageURL(value.url);
+//                            DaoCore.updateEntity(thread);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        showToast(getString(R.string.unable_to_save_file));
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        NM.thread().pushThread(thread);
+//                    }
+//                });
 
             }
             catch (NullPointerException e){

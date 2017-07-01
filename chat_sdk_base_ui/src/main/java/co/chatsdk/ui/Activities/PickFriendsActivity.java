@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -26,12 +26,12 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.Adapters.UsersListAdapter;
+import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.core.dao.DaoCore;
 
 import java.util.List;

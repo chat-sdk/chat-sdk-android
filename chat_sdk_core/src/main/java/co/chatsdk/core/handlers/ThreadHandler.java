@@ -2,16 +2,13 @@ package co.chatsdk.core.handlers;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.types.ImageUploadResult;
+import co.chatsdk.core.types.MessageUploadResult;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -63,7 +60,7 @@ public interface ThreadHandler {
      */
     Completable sendMessageWithText(String text, BThread thread);
     Completable sendMessageWithLocation(String filePath, LatLng location, BThread thread);
-    Observable<ImageUploadResult> sendMessageWithImage(String filePath, BThread thread);
+    Observable<MessageUploadResult> sendMessageWithImage(String filePath, BThread thread);
     /**
      * Send a message object
      */

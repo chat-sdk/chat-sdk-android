@@ -406,33 +406,6 @@ public class ThreadWrapper  {
         });
     }
 
-//    public Single<BThread> recoverPrivateThread() {
-//        return Single.create(new SingleOnSubscribe<BThread>() {
-//            @Override
-//            public void subscribe(final SingleEmitter<BThread> e) throws Exception {
-//
-//                if (DEBUG) Timber.v("recoverPrivateThread");
-//
-//                // Removing the deleted value from firebase.
-//                DatabaseReference threadUserRef = FirebasePaths.threadUsersRef(model.getEntityID())
-//                        .child(NM.currentUser().getEntityID())
-//                        .child(DaoDefines.Keys.Deleted);
-//
-//                threadUserRef.removeValue();
-//
-//                model.setDeleted(false);
-//                loadMoreMessages().doOnSuccess(new Consumer<List<BMessage>>() {
-//                    @Override
-//                    public void accept(List<BMessage> messages) throws Exception {
-//                        model.setMessages(messages);
-//                        DaoCore.updateEntity(model);
-//                        e.onSuccess(model);
-//                    }
-//                });
-//            }
-//        });
-//    }
-
     public Single<List<BMessage>> loadMoreMessages(BMessage fromMessage){
         return loadMoreMessages(fromMessage, Defines.MAX_MESSAGES_TO_PULL);
     }
@@ -583,6 +556,11 @@ public class ThreadWrapper  {
             }
         }
 
+        String creatorEntityID = (String) value.get(DaoDefines.Keys.CreatorEntityId);
+        if (creatorEntityID != null) {
+            this.model.setCreatorEntityId(creatorEntityID);
+        }
+
         long type = ThreadType.PrivateGroup;
         // First check to see if the new type value exists
         if(value.containsKey(DaoDefines.Keys.Type_v4)) {
@@ -661,70 +639,6 @@ public class ThreadWrapper  {
     }
 
     /**
-     * Add the thread from the given user threads ref.
-     **/
-//    public Completable addUserWithEntityID(final String entityID){
-//        Completable c = Completable.create(new CompletableOnSubscribe() {
-//            @Override
-//            public void subscribe(final CompletableEmitter e) throws Exception {
-//
-//                final DatabaseReference ref = FirebasePaths.threadUsersRef(entityID)
-//                        .child(entityID);
-//
-//                // When we disconnect, we leave all our public threads
-//                if(model.typeIs(ThreadType.Public)) {
-//                    ref.onDisconnect().removeValue();
-//                }
-//
-//                Map<String, Object> value = new HashMap<String, Object>();
-//                value.put(DaoDefines.Keys.Null, "");
-//
-//                ref.setValue(value, new DatabaseReference.CompletionListener() {
-//                    @Override
-//                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-//                        if(firebaseError == null) {
-//                            e.onComplete();
-//                        }
-//                        else {
-//                            e.onError(firebaseError.toException());
-//                        }
-//                    }
-//                });
-//
-//            }
-//        });
-//        c.subscribe();
-//        return c;
-//    }
-
-    /**
-     *Remove the thread from the given user threads ref.
-     **/
-//    public Completable removeUserWithEntityID(final String entityID){
-//        Completable c = Completable.create(new CompletableOnSubscribe() {
-//            @Override
-//            public void subscribe(final CompletableEmitter e) throws Exception {
-//
-//                DatabaseReference ref = FirebasePaths.threadUsersRef(entityID);
-//
-//                ref.removeValue(new DatabaseReference.CompletionListener() {
-//                    @Override
-//                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-//                        if(databaseError != null) {
-//                            e.onError(databaseError.toException());
-//                        }
-//                        else {
-//                            e.onComplete();
-//                        }
-//                    }
-//                });
-//            }
-//        });
-//        c.subscribe();
-//        return c;
-//    }
-
-    /**
      * Removing a user from thread.
      * If the thread is private the thread will be removed from the user thread ref.
      **/
@@ -756,51 +670,6 @@ public class ThreadWrapper  {
         c.subscribe();
         return c;
     }
-
-    /**
-     * Adding a user to the thread. 
-     * If the thread is private the thread will be added to the user thread ref.
-     **/
-//    public Completable addUser(final UserWrapper user) {
-//        Completable c = Completable.create(new CompletableOnSubscribe() {
-//            @Override
-//            public void subscribe(final CompletableEmitter e) throws Exception {
-//                DatabaseReference ref = FirebasePaths.firebaseRef();
-//                final HashMap<String, Object> bundle = new HashMap<>();
-//                bundle.put("threads/" + model.getEntityID() + "/users/" + user.getModel().getEntityID(), DaoDefines.Keys.Null);
-//
-//                if(model.typeIs(ThreadType.Private)) {
-//                    bundle.put("users/" + user.getModel().getEntityID() + "/threads/" + model.getEntityID(), DaoDefines.Keys.Null);
-//                }
-//                ref.updateChildren(bundle, new DatabaseReference.CompletionListener() {
-//                    @Override
-//                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-//                        if(databaseError == null) {
-//                            e.onComplete();
-//                        }
-//                        else {
-//                            e.onError(databaseError.toException());
-//                        }
-//                    }
-//                });
-//            }
-//        });
-//
-////        Completable c = addUserWithEntityID(user.getModel().getEntityID()).andThen(new CompletableSource() {
-////            @Override
-////            public void subscribe(CompletableObserver cs) {
-////                // If the thread is private we are adding the thread to the user.
-////                if(model.typeIs(ThreadType.Private)) {
-////                    user.addThreadWithEntityID(model.getEntityID()).subscribe(cs);
-////                }
-////                else {
-////                    cs.onComplete();
-////                }
-////            }
-////        });
-//        c.subscribe();
-//        return c;
-//    }
 
     private void updateReadReceipts() {
         if(NM.readReceipts() != null) {

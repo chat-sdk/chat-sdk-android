@@ -30,10 +30,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 import timber.log.Timber;
 
-import co.chatsdk.ui.UiHelpers.NotificationUtils;
+import co.chatsdk.ui.helpers.NotificationUtils;
 
 /**
  *

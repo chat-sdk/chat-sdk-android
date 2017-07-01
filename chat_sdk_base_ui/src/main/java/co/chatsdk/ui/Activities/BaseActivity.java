@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:32 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -27,14 +27,14 @@ import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.UiHelpers.DialogUtils;
+import co.chatsdk.ui.helpers.DialogUtils;
 
 import com.braunster.chatsdk.network.BFacebookManager;
 import com.facebook.Session;
@@ -296,21 +296,21 @@ public class BaseActivity extends AppCompatActivity {
         UIHelper.getInstance().getToast().show();
     }
 
-    protected void showProgressCard(String text){
-        UIHelper.getInstance().showProgressCard(text);
-    }
+//    protected void showProgressCard(String text){
+//        UIHelper.getInstance().showProgressCard(text);
+//    }
+//
+//    protected void dismissProgressCard(){
+//        dismissProgressCard(0);
+//    }
+//
+//    protected void dismissProgressCardWithSmallDelay(){
+//        dismissProgressCard(1500);
+//    }
 
-    protected void dismissProgressCard(){
-        dismissProgressCard(0);
-    }
-
-    protected void dismissProgressCardWithSmallDelay(){
-        dismissProgressCard(1500);
-    }
-
-    protected void dismissProgressCard(long delay){
-        UIHelper.getInstance().dismissProgressCard(delay);
-    }
+//    protected void dismissProgressCard(long delay){
+//        UIHelper.getInstance().dismissProgressCard(delay);
+//    }
 
     /** Authenticates the current user.*/
     public Completable authenticate(){

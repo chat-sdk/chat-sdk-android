@@ -12,7 +12,7 @@ import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
 import timber.log.Timber;
-import co.chatsdk.ui.UiHelpers.UIHelper;
+import co.chatsdk.ui.helpers.UIHelper;
 
 /**
  * Created by itzik on 6/8/2014.

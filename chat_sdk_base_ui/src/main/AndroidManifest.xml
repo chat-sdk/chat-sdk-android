@@ -24,16 +24,16 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".Activities.MainActivity"
+        <activity android:name=".activities.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".Activities.PickFriendsActivity"
+        <activity android:name=".activities.PickFriendsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".Activities.SearchActivity"
+        <activity android:name=".activities.SearchActivity"
             android:theme="@style/SdkTheme">
             <intent-filter>
                 <action android:name="com.braunster.chatsdk.ACTION_SEARCH_AND_ADD_USERS"/>
@@ -41,11 +41,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activities.EditProfileActivity"
+        <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".Activities.ShareWithContactsActivity"
+        <activity android:name=".activities.ShareWithContactsActivity"
             android:theme="@style/SdkTheme"
             android:noHistory="true">
 

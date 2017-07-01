@@ -5,18 +5,19 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Activities;
+package co.chatsdk.ui.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.astuetz.PagerSlidingTabStrip;
 
 import co.chatsdk.core.NM;
 
@@ -27,17 +28,17 @@ import co.chatsdk.core.types.Defines;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.Fragments.BaseFragment;
-import co.chatsdk.ui.Fragments.FragmentIDs;
-import co.chatsdk.ui.pagersslidingtabstrip.PagerSlidingTabStrip;
+import co.chatsdk.ui.fragments.BaseFragment;
+import co.chatsdk.ui.fragments.FragmentIDs;
+
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.UiHelpers.ExitHelper;
-import co.chatsdk.ui.UiHelpers.NotificationUtils;
+import co.chatsdk.ui.helpers.ExitHelper;
+import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.utils.Utils;
-import co.chatsdk.ui.UiHelpers.OpenFromPushChecker;
-import co.chatsdk.ui.Adapters.PagerAdapterTabs;
+import co.chatsdk.ui.helpers.OpenFromPushChecker;
+import co.chatsdk.ui.adapters.PagerAdapterTabs;
 import co.chatsdk.core.events.PredicateFactory;
 
 import org.apache.commons.lang3.StringUtils;

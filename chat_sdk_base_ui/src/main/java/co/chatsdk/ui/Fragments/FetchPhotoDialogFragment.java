@@ -1,4 +1,4 @@
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

@@ -5,10 +5,9 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -26,16 +25,14 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BThreadDao;
 import co.chatsdk.core.dao.BUser;
-import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.chat.ChatHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.Activities.SearchActivity;
+import co.chatsdk.ui.activities.SearchActivity;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.Adapters.UsersListAdapter;
-import co.chatsdk.ui.Adapters.AbstractUsersListAdapter;
+import co.chatsdk.ui.adapters.UsersListAdapter;
+import co.chatsdk.ui.adapters.AbstractUsersListAdapter;
 import co.chatsdk.core.dao.DaoCore;
 
 import java.util.List;

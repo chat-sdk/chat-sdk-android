@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.Fragments;
+package co.chatsdk.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

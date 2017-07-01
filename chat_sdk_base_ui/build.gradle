@@ -66,6 +66,9 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.makeramen:roundedimageview:2.3.0'
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.3'
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
 }
 
 

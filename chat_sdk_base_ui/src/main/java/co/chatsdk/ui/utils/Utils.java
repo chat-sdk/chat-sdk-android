@@ -65,11 +65,11 @@ public class Utils {
 //            if(!cacheDir.exists())
 //                cacheDir.mkdirs();
 //
-//            File old = new File(cacheDir, "ImageUploadResult.jpg");
+//            File old = new File(cacheDir, "MessageUploadResult.jpg");
 //            if (old.exists())
 //                old.delete();
 //
-//            File f = new File(cacheDir, "ImageUploadResult.jpg");
+//            File f = new File(cacheDir, "MessageUploadResult.jpg");
 //
 //            InputStream is;
 //            try {
