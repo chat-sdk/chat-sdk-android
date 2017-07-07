@@ -1,1 +1,1 @@
-include ':app', ':facebook', ':firebase_network_adapter', ':sdk', ':chat_sdk_base_ui', ':chat_sdk_core', ':xmpp_network_adapter'
+include ':app', ':facebook', ':chat_sdk_firebase_adapter', ':chat_sdk_social_login', ':chat_sdk_ui', ':chat_sdk_core', ':chat_sdk_xmpp_adapter'

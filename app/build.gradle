@@ -74,10 +74,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':firebase_network_adapter')
+    compile project(':chat_sdk_firebase_adapter')
     compile 'com.android.support:multidex:1.0.1'
-    compile project(path: ':chat_sdk_base_ui')
-    compile project(path: ':xmpp_network_adapter')
+    compile project(path: ':chat_sdk_ui')
+    compile project(path: ':chat_sdk_xmpp_adapter')
     //compile project(path: ':sdk')
 
     // Add RxJava

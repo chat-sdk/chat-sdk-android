@@ -136,7 +136,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     /**
      * @return the save auth id saved in the preference manager.
-     * The preference manager is initialized when the BNetworkManager.Init(context) is called.
+     * The preference manager is initialized when the NetworkManager.Init(context) is called.
      */
     public String getCurrentUserEntityID() {
         return AppContext.getPreferences().getString(Defines.Prefs.AuthenticationID, "");
