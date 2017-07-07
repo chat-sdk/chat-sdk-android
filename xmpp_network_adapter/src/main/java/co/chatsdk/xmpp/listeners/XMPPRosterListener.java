@@ -43,9 +43,9 @@ public class XMPPRosterListener implements RosterListener {
 
     @Override
     public void entriesAdded(Collection<String> addresses) {
-        for(String address : addresses) {
-            Timber.v("Added to roster " + entry);
-            XMPPManager.shared().userManager.updateUserFromVCard(new JID(address)).subscribe(new BiConsumer<BUser, Throwable>() {
+        for(String jid : addresses) {
+            Timber.v("Added to roster " + jid);
+            XMPPManager.shared().userManager.updateUserFromVCard(new JID(jid)).subscribe(new BiConsumer<BUser, Throwable>() {
                 @Override
                 public void accept(BUser user, Throwable throwable) throws Exception {
 
