@@ -5,11 +5,13 @@ package co.chatsdk.core.dao;
 // KEEP INCLUDES - put your custom includes here
 
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.types.ConnectionType;
 
 @org.greenrobot.greendao.annotation.Entity
 public class ContactLink implements CoreEntity {
@@ -18,6 +20,10 @@ public class ContactLink implements CoreEntity {
     private Long id;
     private Long userId;
     private Long linkOwnerBUserDaoId;
+
+
+    @NotNull
+    private int type;
 
     public Long getId() {
         return this.id;
@@ -37,6 +43,22 @@ public class ContactLink implements CoreEntity {
 
     public Long getLinkOwnerBUserDaoId() {
         return this.linkOwnerBUserDaoId;
+    }
+
+    public void setConnectionType (ConnectionType type) {
+        this.type = type.ordinal();
+    }
+
+    public ConnectionType getConnectionType () {
+        return ConnectionType.values()[this.type];
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public void setEntityID (String entityID) {
@@ -168,11 +190,12 @@ public class ContactLink implements CoreEntity {
     private transient Long BUser__resolvedKey;
     @Generated(hash = 416171141)
     private transient Long linkOwnerBUser__resolvedKey;
-    @Generated(hash = 320515496)
-    public ContactLink(Long id, Long userId, Long linkOwnerBUserDaoId) {
+    @Generated(hash = 1857621306)
+    public ContactLink(Long id, Long userId, Long linkOwnerBUserDaoId, int type) {
         this.id = id;
         this.userId = userId;
         this.linkOwnerBUserDaoId = linkOwnerBUserDaoId;
+        this.type = type;
     }
 
     @Generated(hash = 48143975)

@@ -8,6 +8,8 @@
 package co.chatsdk.ui.profile;
 
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -21,13 +23,22 @@ import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.ui.R;
 
 import com.braunster.chatsdk.network.BFacebookManager;
 import co.chatsdk.ui.helpers.SaveIndexDetailsTextWatcher;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import timber.log.Timber;
 
+import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+
+import java.io.File;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -37,6 +48,7 @@ public class ProfileFragment extends AbstractProfileFragment {
     private static final String TAG = ProfileFragment.class.getSimpleName();
 
     private EditText etName, etMail, etPhone;
+    private boolean imageLoading;
 
     public static ProfileFragment newInstance() {
         ProfileFragment f = new ProfileFragment();
@@ -50,6 +62,15 @@ public class ProfileFragment extends AbstractProfileFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
+        NM.events().sourceOnMain().filter(PredicateFactory.type(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
+            @Override
+            public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
+                if(networkEvent.user.equals(NM.currentUser())) {
+                    loadData();
+                }
+            }
+        });
+
         initViews(inflater);
         loadData();
 
@@ -57,9 +78,7 @@ public class ProfileFragment extends AbstractProfileFragment {
     }
 
     public void initViews(LayoutInflater inflater){
-        if (inflater != null)
-            mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
-        else return;
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_profile, null);
 
         super.initViews();
 
@@ -67,18 +86,17 @@ public class ProfileFragment extends AbstractProfileFragment {
 
         // Changing the weight of the view according to orientation.
         // This will make sure (hopefully) there is enough space to show the views in landscape mode.
+
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
+
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE){
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
             layoutParams.weight = 3;
-            mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
         }
-        else
-        {
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mainView.findViewById(R.id.linear).getLayoutParams();
+        else {
             layoutParams.weight = 2;
-            mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
         }
+        mainView.findViewById(R.id.linear).setLayoutParams(layoutParams);
 
         etName = (EditText) mainView.findViewById(R.id.chat_sdk_et_name);
         etMail = (EditText) mainView.findViewById(R.id.chat_sdk_et_mail);
@@ -88,6 +106,8 @@ public class ProfileFragment extends AbstractProfileFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        //loadData();
 
         // Setting a listener to text change, The listener will take cate of indexing the bundle.
         TextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Email);
@@ -136,23 +156,30 @@ public class ProfileFragment extends AbstractProfileFragment {
     /* UI*/
     /** Fetching the user details from the user's metadata.*/
     private void setDetails(){
-        if (mainView == null || getActivity() == null)
-        {
-            return;
-        }
 
         BUser user = NM.currentUser();
-        etName.setText(user.getMetaName());
+        etName.setText(user.getName());
         etPhone.setText(user.metaStringForKey(DaoDefines.Keys.Phone));
-        etMail.setText(user.getMetaEmail());
+        etMail.setText(user.getEmail());
 
-        Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getMetaPictureUrl()).setCallback(new FutureCallback<ImageView>() {
-            @Override
-            public void onCompleted(Exception e, ImageView result) {
-                progressBar.setVisibility(View.INVISIBLE);
-                profileCircleImageView.setVisibility(View.VISIBLE);
-            }
-        });
+        // Check to see if we can load the bitmap locally
+        Bitmap bitmap = BitmapFactory.decodeFile(user.getAvatarURL());
+        if(bitmap != null) {
+            profileCircleImageView.setImageBitmap(bitmap);
+            profileCircleImageView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+        else {
+            // Load the remote image
+            Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getAvatarURL()).setCallback(new FutureCallback<ImageView>() {
+                @Override
+                public void onCompleted(Exception e, ImageView result) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    profileCircleImageView.setVisibility(View.VISIBLE);
+                    imageLoading = false;
+                }
+            });
+        }
     }
 
 

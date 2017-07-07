@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import co.chatsdk.ui.activities.EditProfileActivity;
+import co.chatsdk.ui.profile.EditProfileActivity;
 import co.chatsdk.ui.activities.PickFriendsActivity;
 import co.chatsdk.ui.activities.ShareWithContactsActivity;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
@@ -59,21 +59,18 @@ public class UIHelper {
     private Class profileActivity = null;
     private Class threadDetailsActivity = ThreadDetailsActivity.class;
 
-    private static UIHelper instance;
+    private final static UIHelper instance = new UIHelper();
 
-    /** Instance only contains the classes that need to be used, Dont try to use toast from instance.*/
-    public static UIHelper getInstance() {
-        if(instance == null) {
+    protected UIHelper () {
+        chatActivity = ChatActivity.class;
+        mainActivity = MainActivity.class;
+        loginActivity = LoginActivity.class;
+    }
 
-            instance = new UIHelper();
-
-            instance.chatActivity = ChatActivity.class;
-            instance.mainActivity = MainActivity.class;
-            instance.loginActivity = LoginActivity.class;
-        }
-
+    public static UIHelper getInstance () {
         return instance;
     }
+
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener) {

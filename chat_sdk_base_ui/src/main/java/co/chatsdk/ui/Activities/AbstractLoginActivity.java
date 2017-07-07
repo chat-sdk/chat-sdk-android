@@ -98,7 +98,7 @@ public class AbstractLoginActivity extends BaseActivity {
         // Indexing the user.
         BUser currentUser = NM.currentUser();
         if(currentUser != null) {
-            NM.core().pushUser();
+            NM.core().pushUser().subscribe();
         }
 
         Intent logout = new Intent(MainActivity.Action_clear_data);

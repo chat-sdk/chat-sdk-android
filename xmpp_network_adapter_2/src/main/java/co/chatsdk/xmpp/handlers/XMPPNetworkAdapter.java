@@ -1,0 +1,21 @@
+package co.chatsdk.xmpp.handlers;
+
+import co.chatsdk.core.base.BaseNetworkAdapter;
+
+/**
+ * Created by benjaminsmiley-andrews on 03/07/2017.
+ */
+
+public class XMPPNetworkAdapter extends BaseNetworkAdapter {
+
+    public XMPPNetworkAdapter () {
+
+        this.core = new XMPPCoreHandler();
+        this.auth = new XMPPAuthenticationHandler();
+        this.events = new XMPPEventHandler();
+        this.thread = new XMPPThreadHandler();
+        this.search = new XMPPSearchHandler();
+        this.contact = new XMPPContactHandler();
+    }
+
+}

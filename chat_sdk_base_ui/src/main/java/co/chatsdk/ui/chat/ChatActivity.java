@@ -59,7 +59,7 @@ import co.chatsdk.ui.activities.PickFriendsActivity;
 
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.fragments.ContactsFragment;
+import co.chatsdk.ui.contacts.ContactsFragment;
 
 import co.chatsdk.core.events.PredicateFactory;
 

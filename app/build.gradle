@@ -74,16 +74,17 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':firebase_plugin')
+    compile project(':firebase_network_adapter')
     compile 'com.android.support:multidex:1.0.1'
     compile project(path: ':chat_sdk_base_ui')
+    compile project(path: ':xmpp_network_adapter_2')
     //compile project(path: ':sdk')
 
     // Add RxJava
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+//    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
+//    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
 
 }
 

@@ -1,21 +1,14 @@
 package co.chatsdk.ui.chat;
 
-import android.support.v7.app.AppCompatActivity;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import co.chatsdk.core.dao.BMessage;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.ui.R;
-import timber.log.Timber;
 
 public class MessageListItem {
 
@@ -81,7 +74,7 @@ public class MessageListItem {
     }
 
     public String getProfilePicUrl () {
-        return message.getSender().getMetaPictureUrl();
+        return message.getSender().getAvatarURL();
     }
 
     public int height () {

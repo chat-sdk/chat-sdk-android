@@ -6,43 +6,32 @@
     android:id="@+id/chat_sdk_root_view"
     android:layout_height="match_parent">
 
-    <!--Logout buttons, not used button is now in the action bar.-->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:id="@+id/chat_sdk_logout_button_container">
-
-        <com.facebook.widget.LoginButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/chat_sdk_facebook_button"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/chat_sdk_logout_button"
-            android:text="@string/logout"
-            android:visibility="gone"
-            />
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_margin="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/chat_sdk_logout_button_container">
+        android:layout_alignParentBottom="true">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="center"
             android:id="@+id/frame_profile_image_container"
             android:layout_weight="1">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@drawable/ic_profile"
+                android:id="@+id/chat_sdk_circle_ing_profile_pic"
+                app:border_color="@android:color/black"
+                android:visibility="invisible"
+                app:civ_border_width="0dp"
+                app:civ_border_color="#FF000000"
+                android:layout_gravity="center"/>
 
             <ProgressBar
                 android:layout_width="match_parent"
@@ -51,22 +40,12 @@
                 android:id="@id/chat_sdk_progressbar"
                 android:visibility="visible"/>
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_profile"
-                style="@style/CircleIconStyle"
-                android:id="@+id/chat_sdk_circle_ing_profile_pic"
-                app:border_color="@android:color/black"
-                android:visibility="gone"
-                android:layout_gravity="center"/>
-
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/linear"
             android:layout_weight="3"

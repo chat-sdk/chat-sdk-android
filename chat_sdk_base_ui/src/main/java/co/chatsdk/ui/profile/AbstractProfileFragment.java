@@ -8,6 +8,9 @@
 package co.chatsdk.ui.profile;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -19,30 +22,39 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.soundcloud.android.crop.Crop;
+
+import java.io.File;
+
 import co.chatsdk.core.NM;
 
+import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.types.MessageUploadResult;
+import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.helpers.ChatSDKProfileHelper;
+import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import com.braunster.chatsdk.object.Cropper;
+import co.chatsdk.ui.utils.Cropper;
+import id.zelory.compressor.Compressor;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
+
+import static co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener.PROFILE_PIC;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public abstract class AbstractProfileFragment extends BaseFragment {
 
-    protected static final int PHOTO_PICKER_ID = 100;
-
-    private static final String TAG = AbstractProfileFragment.class.getSimpleName();
-    private static boolean DEBUG = Debug.ProfileFragment;
-
-    private static final String LOGIN_TYPE = "login_type";
-
-    protected ChatSDKProfileHelper chatSDKProfileHelper;
+    public static final int ERROR = 1991, NOT_HANDLED = 1992, HANDLED = 1993;
 
     protected Cropper crop;
 
@@ -71,9 +83,6 @@ public abstract class AbstractProfileFragment extends BaseFragment {
 
         progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
         profileCircleImageView = (CircleImageView) mainView.findViewById(R.id.chat_sdk_circle_ing_profile_pic);
-
-        chatSDKProfileHelper = new ChatSDKProfileHelper((AppCompatActivity) getActivity(), profileCircleImageView, progressBar, UIHelper, mainView);
-        chatSDKProfileHelper.setFragment(this);
     }
 
     @Override
@@ -81,8 +90,9 @@ public abstract class AbstractProfileFragment extends BaseFragment {
         super.onResume();
 
         // Long click will open the gallery so the user can change is picture.
-        if (clickableProfilePic)
-            profileCircleImageView.setOnClickListener(ChatSDKProfileHelper.getProfilePicClickListener((AppCompatActivity) getActivity(), this));
+        if (clickableProfilePic) {
+            profileCircleImageView.setOnClickListener(new ProfilePictureChooserOnClickListener((AppCompatActivity) getActivity(), this));
+        }
 
     }
 
@@ -104,7 +114,32 @@ public abstract class AbstractProfileFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        chatSDKProfileHelper.handleResult(requestCode, resultCode, data);
+
+        if (requestCode == PROFILE_PIC)
+        {
+            if (resultCode == AppCompatActivity.RESULT_OK)
+            {
+                Uri uri = data.getData();
+
+                Uri outputUri = Uri.fromFile(new File(getActivity().getCacheDir(), "cropped.jpg"));
+                crop = new Cropper(uri);
+
+                Intent cropIntent = crop.getIntent(getActivity(), outputUri);
+                int request = Crop.REQUEST_CROP + PROFILE_PIC;
+
+                getActivity().startActivityFromFragment(this, cropIntent, request);
+            }
+        }
+        else  if (requestCode == Crop.REQUEST_CROP + PROFILE_PIC) {
+            try
+            {
+                File image = new File(getActivity().getCacheDir(), "cropped.jpg");
+                saveProfilePicToServer(image.getPath()).subscribe();
+            }
+            catch (NullPointerException e){
+                UIHelper.getInstance().showToast(R.string.unable_to_fetch_image);
+            }
+        }
     }
 
     @Override
@@ -135,15 +170,56 @@ public abstract class AbstractProfileFragment extends BaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setProfilePicClickable(boolean clickableProfilePic) {
-        this.clickableProfilePic = clickableProfilePic;
-    }
-
     public abstract void logout();
 
     public void enableActionBarItems(boolean enableActionBarItems) {
         this.enableActionBarItems = enableActionBarItems;
     }
 
+    private Completable saveProfilePicToServer(final String path){
+        return Single.create(new SingleOnSubscribe<File>() {
+            @Override
+            public void subscribe(SingleEmitter<File> e) throws Exception {
+                File image = new Compressor(getActivity())
+                        .setMaxHeight(Defines.ImageProperties.MAX_HEIGHT_IN_PX)
+                        .setMaxWidth(Defines.ImageProperties.MAX_WIDTH_IN_PX)
+                        .compressToFile(new File(path));
+                e.onSuccess(image);
+            }
+        }).flatMapCompletable(new Function<File, CompletableSource>() {
+            @Override
+            public CompletableSource apply(@NonNull File file) throws Exception {
+
+                // Saving the image to backendless.
+                final BUser currentUser = NM.currentUser();
+
+                // TODO: Are we handling the error here
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
+                if(NM.upload() != null) {
+                    return NM.upload().uploadImage(bitmap).flatMapCompletable(new Function<MessageUploadResult, Completable>() {
+                        @Override
+                        public Completable apply(MessageUploadResult profileImageUploadResult) throws Exception {
+
+
+                            currentUser.setAvatarURL(profileImageUploadResult.imageURL);
+                            currentUser.setThumbnailURL(profileImageUploadResult.thumbnailURL);
+
+                            return Completable.complete();
+                        }
+                    });
+                }
+                else {
+
+                    // Move the image to the standard profile URL
+                    String path = ImageUtils.saveToInternalStorage(bitmap, currentUser.getEntityID());
+
+                    currentUser.setAvatarURL(path);
+                    // Reset the hash code to force the image to be uploaded
+                    currentUser.setAvatarHash("");
+                    return Completable.complete();
+                }
+            }
+        }).concatWith(NM.core().pushUser());
+    }
 
 }

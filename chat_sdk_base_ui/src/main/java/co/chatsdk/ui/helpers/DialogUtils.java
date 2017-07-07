@@ -51,7 +51,7 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.TwitterManager;
-import com.braunster.chatsdk.object.ChatError;
+import co.chatsdk.core.types.ChatError;
 import com.github.johnpersano.supertoasts.SuperToast;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;

@@ -18,5 +18,6 @@ public enum EventType {
     MessageAdded,
     ThreadUsersChanged,
     UserMetaUpdated,
-
+    ContactsChanged,
+    Logout,
 }

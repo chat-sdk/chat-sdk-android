@@ -335,7 +335,7 @@ public class DaoCore {
 
 
     public static void connectUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
+        if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         if(!thread.hasUser(user)) {
             UserThreadLink linkData = new UserThreadLink();
             linkData.setThreadId(thread.getId());
@@ -347,7 +347,7 @@ public class DaoCore {
     }
 
     public static void breakUserAndThread(BUser user, BThread thread){
-        if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getMetaName(), thread.getId());
+        if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         DaoCore.deleteEntity(linkData);
     }
@@ -379,5 +379,16 @@ public class DaoCore {
 
         return o;
     }
+
+    public static <T extends Object> T createOrReplace(T entity){
+
+        if (entity==null)
+            return null;
+
+        asyncSession.insertOrReplace(entity);
+
+        return entity;
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package co.chatsdk.core.dao;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.types.ConnectionType;
 import timber.log.Timber;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +37,8 @@ public class BUser implements CoreEntity {
     private String entityID;
     private Integer authenticationType;
     private String messageColor;
-    private java.util.Date lastOnline;
-    private java.util.Date lastUpdated;
+    private Date lastOnline;
+    private Date lastUpdated;
     private Boolean online;
     private String metadata;
 
@@ -61,9 +63,9 @@ public class BUser implements CoreEntity {
         this.id = id;
     }
 
-    @Generated(hash = 932829735)
-    public BUser(Long id, String entityID, Integer authenticationType, String messageColor, java.util.Date lastOnline, java.util.Date lastUpdated,
-            Boolean online, String metadata) {
+    @Generated(hash = 1325497291)
+    public BUser(Long id, String entityID, Integer authenticationType, String messageColor, Date lastOnline, Date lastUpdated, Boolean online,
+            String metadata) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationType = authenticationType;
@@ -95,38 +97,73 @@ public class BUser implements CoreEntity {
     }
 
     public List<BUser> getContacts() {
+        return getContacts(ConnectionType.Contact);
+    }
+
+    public List<BUser> getContacts(ConnectionType type) {
         List<BUser> contactList = new ArrayList<>();
-        List<ContactLink> contactLinks;
+
         // For some reason the default ContactLinks do not persist, have to find in DB
-        contactLinks = DaoCore.fetchEntitiesWithProperty(ContactLink.class,
+        List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperty(ContactLink.class,
                 ContactLinkDao.Properties.LinkOwnerBUserDaoId, this.getId());
+
         for (ContactLink contactLink : contactLinks){
-            contactList.add(contactLink.getBUser());
+            if(contactLink.getConnectionType().equals(type)) {
+                contactList.add(contactLink.getBUser());
+            }
         }
 
         return contactList;
     }
 
-    @Keep
-    public void addContact(BUser newContact) {
-        if (newContact.equals(this))
+    public void addContact(BUser user, ConnectionType type) {
+        if (user.equals(this)) {
             return;
+        }
 
         // Retrieve contacts
-        List contacts = getContacts();
+        List contacts = getContacts(type);
+
         // Check if user is already in contact list
-        if ( contacts.contains(newContact)) return;
+        if (contacts.contains(user)) {
+            return;
+        }
 
         ContactLink contactLink = new ContactLink();
+        contactLink.setConnectionType(type);
         // Set link owner
         contactLink.setLinkOwnerBUser(this);
         contactLink.setLinkOwnerBUserDaoId(this.getId());
         // Set contact
-        contactLink.setBUser(newContact);
-        contactLink.setUserId(newContact.getId());
+        contactLink.setBUser(user);
+        contactLink.setUserId(user.getId());
         // insert contact link entity into DB
         daoSession.insertOrReplace(contactLink);
+        daoSession.update(this);
+    }
 
+    public void deleteContact (BUser user) {
+        deleteContact(user, ConnectionType.Contact);
+    }
+
+    public void deleteContact (BUser user, ConnectionType type) {
+        // For some reason the default ContactLinks do not persist, have to find in DB
+        Property [] properties = {
+                ContactLinkDao.Properties.LinkOwnerBUserDaoId,
+                ContactLinkDao.Properties.Type
+        };
+
+        List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperties(ContactLink.class,
+                properties, this.getId(), type.ordinal());
+
+        for(ContactLink link : contactLinks) {
+            DaoCore.deleteEntity(link);
+        }
+        daoSession.update(this);
+    }
+
+    public void addContact(BUser user) {
+        addContact(user, ConnectionType.Contact);
     }
 
     private FollowerLink fetchFollower(BUser follower, int type){
@@ -192,44 +229,115 @@ public class BUser implements CoreEntity {
     public boolean follows(BUser user){
         return fetchFollower(user, FollowerLink.Type.FOLLOWS) != null;
     }
-    
-    public void setMetaPictureUrl(String imageUrl) {
-        setMetadataString(DaoDefines.Keys.PictureURL, imageUrl);
+
+    public void setAvatarURL(String imageUrl, String hash) {
+        setAvatarURL(imageUrl);
+        setAvatarHash(hash);
     }
 
-    public String getMetaPictureUrl() {
-        return metaStringForKey(DaoDefines.Keys.PictureURL);
+    public void setAvatarURL(String imageUrl) {
+        setMetaString(DaoDefines.Keys.AvatarURL, imageUrl);
     }
 
-    public String getThumbnailPictureURL() {
-        return metaStringForKey(DaoDefines.Keys.PictureURLThumbnail);
+    public String getAvatarURL() {
+        return metaStringForKey(DaoDefines.Keys.AvatarURL);
     }
 
-    public void setMetaPictureThumbnail(String thumbnailUrl) {
-        setMetadataString(DaoDefines.Keys.PictureURLThumbnail, thumbnailUrl);
+    public void setAvatarHash(String hash) {
+        setMetaString(DaoDefines.Keys.AvatarHash, hash);
     }
 
-    public void setMetaName(String name) {
-        setMetadataString(DaoDefines.Keys.Name, name);
+    public String getAvatarHash() {
+        return metaStringForKey(DaoDefines.Keys.AvatarHash);
     }
 
-    public String getMetaName() {
+    @Deprecated
+    public String getThumbnailURL() {
+        return metaStringForKey(DaoDefines.Keys.AvatarThumbnailURL);
+    }
+
+    @Deprecated
+    public void setThumbnailURL(String thumbnailUrl) {
+        setMetaString(DaoDefines.Keys.AvatarThumbnailURL, thumbnailUrl);
+    }
+
+    public void setName(String name) {
+        setMetaString(DaoDefines.Keys.Name, name);
+    }
+
+    public String getName() {
         return metaStringForKey(DaoDefines.Keys.Name);
     }
 
-    public void setMetaEmail(String email) {
-        setMetadataString(DaoDefines.Keys.Email, email);
+    public void setEmail(String email) {
+        setMetaString(DaoDefines.Keys.Email, email);
     }
 
-    public String getMetaEmail() {
+    public String getEmail() {
         return metaStringForKey(DaoDefines.Keys.Email);
+    }
+
+    public String getCountryCode () {
+        return metaStringForKey(DaoDefines.Keys.CountryCode);
+    }
+
+    public void setCountryCode (String code) {
+        setMetaString(DaoDefines.Keys.CountryCode, code);
+    }
+
+    public void setDateOfBirth (String date) {
+        setMetaString(date, DaoDefines.Keys.DateOfBirth);
+    }
+
+    public void setStatus (String status) {
+        setMetaString(DaoDefines.Keys.Status, status);
+    }
+
+    public String getStatus () {
+        return metaStringForKey(DaoDefines.Keys.Status);
+    }
+
+    public String getDateOfBirth () {
+        return metaStringForKey(DaoDefines.Keys.DateOfBirth);
+    }
+
+    public String getPhoneNumber () {
+        return metaStringForKey(DaoDefines.Keys.Phone);
+    }
+
+    public void setPhoneNumber (String phoneNumber) {
+        setMetaString(phoneNumber, DaoDefines.Keys.Phone);
+    }
+
+    public void setAvailability (String availability) {
+        setMetaString(availability, DaoDefines.Keys.Availability);
+    }
+
+    public String getState () {
+        return metaStringForKey(DaoDefines.Keys.State);
+    }
+
+    public void setState (String state) {
+        setMetaString(state, DaoDefines.Keys.State);
+    }
+
+    public String getAvailability () {
+        return metaStringForKey(DaoDefines.Keys.Availability);
+    }
+
+    public String getLocation () {
+        return metaStringForKey(DaoDefines.Keys.Location);
+    }
+
+    public void setLocation (String location) {
+        setMetaString(DaoDefines.Keys.Location, location);
     }
 
     public String metaStringForKey(String key){
         return (String) metaMap().get(key);
     }
 
-    public void setMetadataString(String key, String value){
+    public void setMetaString(String key, String value){
         Map<String, Object> map = metaMap();
         map.put(key, value);
         
@@ -289,9 +397,6 @@ public class BUser implements CoreEntity {
         }
     }
 
-    
-    
-    
     public boolean hasThread(BThread thread){
         UserThreadLink data =
                 DaoCore.fetchEntityWithProperties(UserThreadLink.class,
@@ -306,18 +411,6 @@ public class BUser implements CoreEntity {
 
         return USER_PREFIX + (entityID.replace(":","_"));
     }
-
-//    public Map<String, String> getUserIndexMap(){
-//        Map<String, String> values = new HashMap<String, String>();
-//        values.put(DaoDefines.Keys.Name, processForQuery(getMetaName()));
-//        values.put(DaoDefines.Keys.Email, processForQuery(getMetaEmail()));
-//
-//        String phoneNumber = metaStringForKey(DaoDefines.Keys.Phone);
-//        if (DaoDefines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber))
-//            values.put(DaoDefines.Keys.Phone, processForQuery(phoneNumber));
-//
-//        return values;
-//    }
 
     public boolean isMe(){
         return getId().longValue() == NM.currentUser().getId().longValue();

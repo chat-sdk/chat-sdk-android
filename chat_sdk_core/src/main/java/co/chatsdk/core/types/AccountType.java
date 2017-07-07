@@ -4,6 +4,7 @@ package co.chatsdk.core.types;
  * Created by benjaminsmiley-andrews on 02/05/2017.
  */
 
+@Deprecated
 public class AccountType {
 
     /**

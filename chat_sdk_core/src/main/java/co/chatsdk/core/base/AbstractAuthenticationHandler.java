@@ -6,9 +6,21 @@ import java.util.Map;
 
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.handlers.AuthenticationHandler;
+import co.chatsdk.core.types.AccountDetails;
+import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.types.LoginType;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.defines.Debug;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -68,6 +80,58 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         else if (DEBUG) Timber.e("Cant add this -->  %s to the prefs.", value);
 
         keyValuesEditor.apply();
+    }
+
+    public Completable authenticateWithMap (final Map<String, Object> details) {
+        return Single.create(new SingleOnSubscribe<AccountDetails>() {
+            @Override
+            public void subscribe(SingleEmitter<AccountDetails> e) throws Exception {
+
+                AccountDetails accountDetails = new AccountDetails();
+
+                final int loginType = (Integer) details.get(LoginType.TypeKey);
+
+                String password = (String) details.get(LoginType.PasswordKey);
+                String email = (String) details.get(LoginType.EmailKey);
+                String token = (String) details.get(Defines.Prefs.TokenKey);
+
+                switch (loginType) {
+                    case AccountType.Password:
+                        accountDetails = AccountDetails.username(email, password);
+                        break;
+                    case AccountType.Register:
+                        accountDetails = AccountDetails.register(email, password);
+                        break;
+                    case AccountType.Facebook:
+                        accountDetails = AccountDetails.facebook();
+                        break;
+                    case AccountType.Twitter:
+                        accountDetails = AccountDetails.twitter();
+                        break;
+                    case AccountType.Google:
+                        accountDetails = AccountDetails.google();
+                        break;
+                    case AccountType.Anonymous:
+                        accountDetails = AccountDetails.anonymous();
+                        break;
+                    case AccountType.Custom:
+                        accountDetails = AccountDetails.custom(token);
+                        break;
+                }
+
+                if(accountDetails != null) {
+                    e.onSuccess(accountDetails);
+                }
+                else {
+                    e.onError(new Throwable("No valid login method defined"));
+                }
+            }
+        }).flatMapCompletable(new Function<AccountDetails, Completable>() {
+            @Override
+            public Completable apply(AccountDetails accountDetails) throws Exception {
+                return authenticate(accountDetails);
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**

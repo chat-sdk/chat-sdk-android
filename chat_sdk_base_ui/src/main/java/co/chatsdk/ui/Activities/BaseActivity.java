@@ -166,58 +166,41 @@ public class BaseActivity extends AppCompatActivity {
             uiHelper.onPause();
     }
 
+    protected void onAuthenticated () {
+
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (enableCardToast)
+        if (enableCardToast) {
             UIHelper.getInstance().initCardToast();
+        }
 
-        if (DEBUG) Timber.v("onResumed, From login: %s, Check online: %s", fromLoginActivity, checkOnlineOnResumed);
-
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
+        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
             uiHelper.onResume();
+        }
 
-        if (checkOnlineOnResumed && !fromLoginActivity)
-        {
-            if(DEBUG) Timber.d("Check online on resumed");
-            getWindow().getDecorView().post(new Runnable() {
+        if (checkOnlineOnResumed && !fromLoginActivity) {
+
+            authenticate().subscribe(new CompletableObserver() {
                 @Override
-                public void run() {
-                    NM.core().isOnline().subscribe(new BiConsumer<Boolean, Throwable>() {
-                        @Override
-                        public void accept(Boolean online, Throwable throwable) throws Exception {
-                            if(throwable == null) {
-                                if(DEBUG) Timber.d("Check done, ", online);
+                public void onSubscribe(Disposable d) {
+                }
 
-                                if (!online)
-                                {
-                                    authenticate().subscribe(new CompletableObserver() {
-                                        @Override
-                                        public void onSubscribe(Disposable d) {
-                                        }
+                @Override
+                public void onComplete() {
+                    NM.core().goOnline();
+                    onAuthenticated();
+                }
 
-                                        @Override
-                                        public void onComplete() {
-                                            if (DEBUG) Timber.d("Authenticated!");
-                                            onAuthenticated();
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            if (DEBUG) Timber.d("Authenticated Failed!");
-                                            onAuthenticationFailed();
-                                        }
-                                    });
-
-                                }
-                            }
-                        }
-                    });
-
+                @Override
+                public void onError(Throwable e) {
+                    onAuthenticationFailed();
                 }
             });
-        }
+     }
 
         fromLoginActivity = false;
     }
@@ -459,10 +442,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public void setCardToastEnabled(boolean enableCardToast) {
         this.enableCardToast = enableCardToast;
-    }
-
-    public void onAuthenticated() {
-
     }
 
     public void onAuthenticationFailed() {

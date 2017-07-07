@@ -11,6 +11,7 @@ import co.chatsdk.firebase.backendless.BackendlessHandler;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
+import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
 import timber.log.Timber;
 import co.chatsdk.ui.helpers.UIHelper;
 
@@ -37,7 +38,8 @@ public class AppObj extends MultiDexApplication {
         AppContext.init(getApplicationContext());
         AppContext.googleMapsAPIKey = context.getResources().getString(R.string.google_api_key);
 
-        NetworkManager.shared().a = new FirebaseNetworkAdapter();
+        NetworkManager.shared().a = new XMPPNetworkAdapter();
+//        NetworkManager.shared().a = new FirebaseNetworkAdapter();
 
         String backendlessAppKey = context.getString(com.braunster.chatsdk.R.string.backendless_app_id);
         String backendlessSecret = context.getString(com.braunster.chatsdk.R.string.backendless_secret_key);

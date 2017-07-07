@@ -22,19 +22,20 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.BThread;
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.utils.ImageUtils;
+
+import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
 import co.chatsdk.ui.activities.BaseThreadActivity;
-import co.chatsdk.ui.fragments.AbstractContactsFragment;
+import co.chatsdk.ui.contacts.AbstractContactsFragment;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
-import co.chatsdk.ui.fragments.ContactsFragment;
+import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.helpers.DialogUtils;
-import co.chatsdk.ui.utils.ChatSDKIntentClickListener;
 import co.chatsdk.core.dao.DaoCore;
 
-import com.braunster.chatsdk.object.Cropper;
+import co.chatsdk.ui.utils.Cropper;
 import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
@@ -175,7 +176,8 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
 
         // Only if the current user is the admin of this thread.
         if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NM.currentUser().getEntityID())) {
-            threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
+            //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
+            threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
         }
     }
 

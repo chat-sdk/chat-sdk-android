@@ -35,8 +35,11 @@ public class DaoDefines {
         public static final String Key = "key";
         public static final String Value = "value";
         public static final String Phone = "phone";
-        public static final String PictureURL = "pictureURL";
-        public static final String PictureURLThumbnail = "pictureURLThumbnail";
+        public static final String AvatarURL = "pictureURL";
+        public static final String AvatarHash = "avatarHash";
+        public static final String AvatarThumbnailURL = "pictureURLThumbnail";
+        public static final String Availability = "availability";
+        public static final String State = "state";
 
         public static final String LastMessageAdded = "last-message-added";
         public static final String UserFirebaseId = "user-firebase-id";
@@ -97,7 +100,7 @@ public class DaoDefines {
 
         // CoreUser details
         public static final String Gender = "gender";
-        public static final String Country = "country";
+        public static final String CountryCode = "country-code";
         public static final String Location = "location";
         public static final String DateOfBirth = "date-of-birth";
         public static final String Status = "status";

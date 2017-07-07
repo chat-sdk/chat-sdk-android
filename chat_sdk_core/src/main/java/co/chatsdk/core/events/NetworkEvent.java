@@ -83,6 +83,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.UserMetaUpdated, null, null, user);
     }
 
+    public static NetworkEvent logout () {
+        return new NetworkEvent(EventType.Logout);
+    }
+
     public Predicate<NetworkEvent> filter () {
         return new Predicate<NetworkEvent>() {
             @Override

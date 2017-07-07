@@ -28,6 +28,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property UserId = new Property(1, Long.class, "userId", false, "USER_ID");
         public final static Property LinkOwnerBUserDaoId = new Property(2, Long.class, "linkOwnerBUserDaoId", false, "LINK_OWNER_BUSER_DAO_ID");
+        public final static Property Type = new Property(3, int.class, "type", false, "TYPE");
     }
 
     private DaoSession daoSession;
@@ -48,7 +49,8 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"CONTACT_LINK\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"USER_ID\" INTEGER," + // 1: userId
-                "\"LINK_OWNER_BUSER_DAO_ID\" INTEGER);"); // 2: linkOwnerBUserDaoId
+                "\"LINK_OWNER_BUSER_DAO_ID\" INTEGER," + // 2: linkOwnerBUserDaoId
+                "\"TYPE\" INTEGER NOT NULL );"); // 3: type
     }
 
     /** Drops the underlying database table. */
@@ -75,6 +77,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         if (linkOwnerBUserDaoId != null) {
             stmt.bindLong(3, linkOwnerBUserDaoId);
         }
+        stmt.bindLong(4, entity.getType());
     }
 
     @Override
@@ -95,6 +98,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         if (linkOwnerBUserDaoId != null) {
             stmt.bindLong(3, linkOwnerBUserDaoId);
         }
+        stmt.bindLong(4, entity.getType());
     }
 
     @Override
@@ -113,7 +117,8 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         ContactLink entity = new ContactLink( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // userId
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // linkOwnerBUserDaoId
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // linkOwnerBUserDaoId
+            cursor.getInt(offset + 3) // type
         );
         return entity;
     }
@@ -123,6 +128,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUserId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
         entity.setLinkOwnerBUserDaoId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setType(cursor.getInt(offset + 3));
      }
     
     @Override

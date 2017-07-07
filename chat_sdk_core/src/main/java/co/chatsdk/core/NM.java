@@ -2,6 +2,7 @@ package co.chatsdk.core;
 
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.handlers.AuthenticationHandler;
+import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
@@ -52,6 +53,10 @@ public class NM {
 
     public static SearchHandler search () {
         return NetworkManager.shared().a.search;
+    }
+
+    public static ContactHandler contact () {
+        return NetworkManager.shared().a.contact;
     }
 
     public static ReadReceiptHandler readReceipts () {

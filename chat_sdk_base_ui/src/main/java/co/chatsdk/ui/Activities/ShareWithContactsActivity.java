@@ -10,7 +10,7 @@ package co.chatsdk.ui.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
-import co.chatsdk.ui.fragments.ContactsFragment;
+import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.R;
 

@@ -7,8 +7,6 @@
 
 package co.chatsdk.ui.helpers;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 
@@ -37,11 +35,6 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
     /** Contain the string that was last typed.*/
     private Editable editable;
 
-//    public SaveIndexDetailsTextWatcher(long indexDelay, String metaKey) {
-//        this.indexDelay = indexDelay;
-//        this.metaKey = metaKey;
-//    }
-
     public SaveIndexDetailsTextWatcher(String metaKey) {
         this.metaKey = metaKey;
     }
@@ -59,29 +52,20 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
         editable = s;
-        handler.removeCallbacks(indexRunnable);
-        handler.postDelayed(indexRunnable, INDEX_DELAY_DEFAULT);
+
+        if (StringUtils.isBlank(editable.toString()))
+            return;
+
+        BUser user = NM.currentUser();
+        String metadata = user.metaStringForKey(metaKey);
+
+        if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))
+            return;
+
+        user.setMetaString(metaKey, editable.toString());
+
+        NM.core().pushUser().subscribe();
+
     }
-
-    private Handler handler = new Handler(Looper.getMainLooper());
-
-    private Runnable indexRunnable = new Runnable() {
-        @Override
-        public void run() {
-
-            if (StringUtils.isBlank(editable.toString()))
-                return;
-
-            BUser user = NM.currentUser();
-            String metadata = user.metaStringForKey(metaKey);
-
-            if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))
-                return;
-
-            user.setMetadataString(metaKey, editable.toString());
-
-            NM.core().pushUser();
-        }
-    };
 
 }

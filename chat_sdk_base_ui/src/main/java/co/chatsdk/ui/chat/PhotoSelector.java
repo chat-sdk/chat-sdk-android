@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
 
-import com.braunster.chatsdk.object.Cropper;
+import co.chatsdk.ui.utils.Cropper;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;

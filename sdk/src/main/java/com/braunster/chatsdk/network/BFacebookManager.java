@@ -8,14 +8,12 @@
 package com.braunster.chatsdk.network;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.object.ChatError;
+import co.chatsdk.core.types.ChatError;
 import com.facebook.FacebookOperationCanceledException;
-import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -23,12 +21,7 @@ import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 

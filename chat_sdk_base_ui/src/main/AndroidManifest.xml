@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.EditProfileActivity"
+        <activity android:name=".profile.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 

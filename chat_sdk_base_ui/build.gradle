@@ -68,6 +68,8 @@ dependencies {
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.3'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+    compile 'id.zelory:compressor:2.0.0'
+    compile 'com.kaopiz:kprogresshud:1.1.0'
 
 }
 

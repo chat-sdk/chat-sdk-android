@@ -13,7 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.astuetz.PagerSlidingTabStrip;
 
-import co.chatsdk.ui.fragments.ContactsFragment;
+import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 
 import co.chatsdk.ui.R;

@@ -92,8 +92,8 @@ public class ThreadImageBuilder {
                 List<BUser> users = thread.getUsers();
 
                 for (BUser user : users){
-                    if (!user.isMe() && !StringUtils.isBlank(user.getThumbnailPictureURL())) {
-                        urls.add(user.getThumbnailPictureURL());
+                    if (!user.isMe() && !StringUtils.isBlank(user.getThumbnailURL())) {
+                        urls.add(user.getThumbnailURL());
                     }
                 }
             }

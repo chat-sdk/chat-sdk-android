@@ -19,7 +19,7 @@ import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.LoginType;
 import co.chatsdk.core.defines.Debug;
-import com.braunster.chatsdk.object.ChatError;
+import co.chatsdk.core.types.ChatError;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -40,9 +40,6 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 

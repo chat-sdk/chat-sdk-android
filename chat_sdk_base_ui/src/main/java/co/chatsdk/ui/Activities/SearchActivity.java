@@ -24,17 +24,21 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
+
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.types.ConnectionType;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.adapters.UsersListAdapter;
+import co.chatsdk.ui.contacts.UsersListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +48,9 @@ import java.util.List;
  */
 public class SearchActivity extends BaseActivity {
 
-    private static final String TAG = SearchActivity.class.getSimpleName();
-    private static final boolean DEBUG = Debug.SearchActivity;
-
     /** Request code for on activity result. For the add when found mode.
      * In the result intent there will be list of all the users entity id that were found and added.*/
     public static final int GET_CONTACTS_ADDED_REQUEST = 10;
-
-    public static final String USER_IDS_LIST = "User_Ids_List";
 
     private ImageView btnSearch;
     private Button btnAddContacts;
@@ -142,32 +141,46 @@ public class SearchActivity extends BaseActivity {
                     return;
                 }
 
-                BUser currentUser = NM.currentUser();
-                String[] entitiesIDs = new String[adapter.getSelectedCount()];
-                BUser user;
+                ArrayList<Completable> completables = new ArrayList<>();
+
                 for (int i = 0; i < adapter.getSelectedCount(); i++) {
-                    int pos = -1;
-                    if (adapter.getSelectedUsersPositions().valueAt(i))
-                        pos = adapter.getSelectedUsersPositions().keyAt(i);
+                    if (adapter.getSelectedUsersPositions().valueAt(i)) {
+                        int pos = adapter.getSelectedUsersPositions().keyAt(i);
+                        BUser user = adapter.getUserItems().get(pos).asBUser();
 
-                    user = adapter.getUserItems().get(pos).asBUser();
-                    currentUser.addContact(user);
-                    entitiesIDs[i] = user.getEntityID();
+                        completables.add(NM.contact().addContact(user, ConnectionType.Contact));
+                    }
                 }
 
-                DaoCore.updateEntity(currentUser);
+//                final KProgressHUD hud = KProgressHUD.create(SearchActivity.this)
+//                        .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+//                        .setAnimationSpeed(3)
+//                        .setDimAmount(0.3f)
+//                        .setCancellable(false)
+//                        .show();
 
-                showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
+                final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
+                dialog.setMessage(getString(R.string.alert_save_contact));
+                dialog.show();
 
-                Intent intent = new Intent(MainActivity.Action_Contacts_Added);
-                intent.putExtra(USER_IDS_LIST, entitiesIDs);
-                sendBroadcast(intent);
+                Completable.merge(completables)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
 
-                if(disposable != null) {
-                    disposable.dispose();
-                }
+                        if(disposable != null) {
+                            disposable.dispose();
+                        }
 
-                finish();
+                        dialog.dismiss();
+//                        hud.dismiss();
+
+                        finish();
+                    }
+                });
+
             }
         });
 
@@ -196,7 +209,6 @@ public class SearchActivity extends BaseActivity {
 
             adapter.clear();
 
-            final List<String> userIds = new ArrayList<>();
             final List<BUser> users = new ArrayList<>();
 
             disposable = NM.search().usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
@@ -204,17 +216,21 @@ public class SearchActivity extends BaseActivity {
                     .doOnNext(new Consumer<BUser>() {
                         @Override
                         public void accept(BUser u) throws Exception {
-                            NM.currentUser().addContact(u);
-                            userIds.add(u.getEntityID());
+
                             users.add(u);
                             adapter.setBUserItems(users, true);
-                            chSelectAll.setEnabled(true);
 
                             hideSoftKeyboard(SearchActivity.this);
-
                             dialog.dismiss();
                         }
-                    }).doOnError(new Consumer<Throwable>() {
+                    })
+                    .doOnComplete(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            chSelectAll.setEnabled(users.size() > 1);
+                        }
+                    })
+                    .doOnError(new Consumer<Throwable>() {
                         @Override
                         public void accept(Throwable throwable) throws Exception {
                             showToast(getString(R.string.search_activity_no_user_found_toast));

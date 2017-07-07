@@ -11,13 +11,10 @@ import timber.log.Timber;
 
 public class StorageManager {
 
-    private static StorageManager instance;
+    private final static StorageManager instance = new StorageManager();
     public StorageAdapter a;
 
-    public static StorageManager shared(){
-        if (instance == null) {
-            instance = new StorageManager();
-        }
+    public static StorageManager shared() {
         return instance;
     }
 

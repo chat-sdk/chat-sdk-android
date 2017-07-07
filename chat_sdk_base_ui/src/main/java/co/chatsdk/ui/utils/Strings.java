@@ -60,7 +60,7 @@ public class Strings {
 
             for (BUser user : thread.getUsers()){
                 if (!user.getId().equals(currentUser.getId())) {
-                    String n = user.getMetaName();
+                    String n = user.getName();
 
                     if (StringUtils.isNotEmpty(n)) {
                         name += (!name.equals("") ? ", " : "") + n;

@@ -87,11 +87,14 @@
     <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160;is created.</string>
     <string name="add_public_chat_dialog_toast_error_before_thread_name">Failed to create public thread&#160;</string>
 
+    <!--Save Contact Dialog-->
+    <string name="alert_save_contact">Saving</string>
+
     <!--Delete Contact Dialog-->
-    <string name="alert_delete_contact">"Are you sure you want to delete this contact?</string>
+    <string name="alert_delete_contact">Are you sure you want to delete this contact?</string>
 
     <!--Delete CoreThread Dialog-->
-    <string name="alert_delete_thread">"Are you sure you want to delete this thread?</string>
+    <string name="alert_delete_thread">Are you sure you want to delete this thread?</string>
 
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>

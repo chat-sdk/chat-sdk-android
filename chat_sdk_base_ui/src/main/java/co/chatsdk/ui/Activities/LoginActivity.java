@@ -73,6 +73,10 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
         etEmail = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
 
+        // TODO: Remove this
+        etEmail.setText("ben");
+        etPass.setText("123456");
+
         appIconImage = (ImageView) findViewById(R.id.app_icon);
 
         appIconImage.post(new Runnable() {

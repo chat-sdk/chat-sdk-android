@@ -31,7 +31,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.adapters.UsersListAdapter;
+import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.core.dao.DaoCore;
 
 import java.util.List;
@@ -143,7 +143,7 @@ public class PickFriendsActivity extends BaseActivity {
     }
 
     private void initList(){
-        final List<BUser> list = NM.currentUser().getContacts();
+        final List<BUser> list = NM.contact().contacts();
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
@@ -221,7 +221,7 @@ public class PickFriendsActivity extends BaseActivity {
 
                             users[i] = listAdapter.getUserItems().get(pos).asBUser();
 
-                            if (DEBUG) Timber.d("Selected CoreUser[%s]: ", users[i].getMetaName());
+                            if (DEBUG) Timber.d("Selected CoreUser[%s]: ", users[i].getName());
 
                         }
 

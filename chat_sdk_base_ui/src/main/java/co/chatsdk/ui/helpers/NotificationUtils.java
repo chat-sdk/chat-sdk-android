@@ -179,9 +179,9 @@ public class NotificationUtils {
         String messageContent = Strings.payloadAsString(message);
 
         String title = !StringUtils.isEmpty(
-                message.getSender().getMetaName()) ? message.getSender().getMetaName() : " ";
+                message.getSender().getName()) ? message.getSender().getName() : " ";
 
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getMetaName(), messageContent);
+        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getName(), messageContent);
 
         getNotificationLines(context, message, data);
 
@@ -201,7 +201,7 @@ public class NotificationUtils {
  
     private static String getMessageContent(Context context, BMessage message){
         return String.format("%s: %s",
-                message.getSender().getMetaName(),
+                message.getSender().getName(),
                 Strings.payloadAsString(message));
     }
  
@@ -270,7 +270,7 @@ public class NotificationUtils {
         {
             lines.add(getMessageContent(context, message));
 
-            String senderName = message.getSender().getMetaName();
+            String senderName = message.getSender().getName();
             if (!senders.contains(senderName))
                 senders.add(senderName);
 
