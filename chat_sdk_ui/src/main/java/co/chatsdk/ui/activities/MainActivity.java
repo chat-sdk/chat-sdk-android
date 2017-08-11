@@ -10,12 +10,14 @@ package co.chatsdk.ui.activities;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Network;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.astuetz.PagerSlidingTabStrip;
 
@@ -39,14 +41,12 @@ import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
-import co.chatsdk.core.events.PredicateFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
 
 public class MainActivity extends BaseActivity {
 
-    private static boolean DEBUG = Debug.MainActivity;
     private ExitHelper exitHelper;
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
@@ -109,8 +109,8 @@ public class MainActivity extends BaseActivity {
 
         // TODO: Check this
         messageAddedDisposable = NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(EventType.MessageAdded))
-                .filter(PredicateFactory.threadType(ThreadType.Private))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .filter(NetworkEvent.filterThreadType(ThreadType.Private))
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
@@ -204,8 +204,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_chat_sdk, menu);
-        return true;
+        //getMenuInflater().inflate(R.menu.menu_chat_sdk, menu);
+        return false;
     }
 
     @Override

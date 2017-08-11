@@ -20,8 +20,8 @@ import android.os.Bundle;
 import android.os.PowerManager;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
@@ -160,15 +160,15 @@ public class NotificationUtils {
         createAlertNotification(context, id, resultIntent, data, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
 
-    public static void createMessageNotification(Context context, BMessage message){
+    public static void createMessageNotification(Context context, Message message){
         createMessageNotification(context, message, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
     }
     
-    public static void createMessageNotification(Context context, BMessage message, int smallIconResID, Uri soundUri, int number){
+    public static void createMessageNotification(Context context, Message message, int smallIconResID, Uri soundUri, int number){
         createMessageNotification(context, Defines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
     }
 
-    public static void createMessageNotification(final Context context, final int id, BMessage message, final int smallIconResID, final Uri soundUri, final int number){
+    public static void createMessageNotification(final Context context, final int id, Message message, final int smallIconResID, final Uri soundUri, final int number){
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
@@ -199,14 +199,14 @@ public class NotificationUtils {
     }
     
  
-    private static String getMessageContent(Context context, BMessage message){
+    private static String getMessageContent(Context context, Message message){
         return String.format("%s: %s",
                 message.getSender().getName(),
                 Strings.payloadAsString(message));
     }
  
-    private static ArrayList<String> getNotificationLines(Context context, BMessage message, Bundle data){
-        List<BThread> threads = NM.thread().getThreads(ThreadType.Private);
+    private static ArrayList<String> getNotificationLines(Context context, Message message, Bundle data){
+        List<Thread> threads = NM.thread().getThreads(ThreadType.Private);
 
         if (DEBUG) Timber.v("getNotification, CoreThread size: %s", threads == null ? "0" : threads.size());
 
@@ -217,12 +217,12 @@ public class NotificationUtils {
         ArrayList<String> senders = new ArrayList<>();
         
         int linesCount = 0;
-        List<BMessage> m;
+        List<Message> m;
 
         // Getting the lines to use for this message notification
         // A max of three lines could be added from each thread.
-        // There is also a max amount of lines to use defined in DaoDefines.MaxInboxNotificationLines.
-        for (BThread t : threads)
+        // There is also a max amount of lines to use defined in Keys.MaxInboxNotificationLines.
+        for (Thread t : threads)
         {
             m = t.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
@@ -264,7 +264,7 @@ public class NotificationUtils {
         return lines;
     }
     
-    private static boolean addLine(Context context, BMessage message, ArrayList<String> lines, ArrayList<String> senders){
+    private static boolean addLine(Context context, Message message, ArrayList<String> lines, ArrayList<String> senders){
 
         if(message != null && !message.wasRead())
         {
@@ -283,7 +283,7 @@ public class NotificationUtils {
         return false;
     }
   
-    private static boolean validateLinesAndMessagesSize(List<BMessage> m, int minMessagesSize, ArrayList<String> lines){
+    private static boolean validateLinesAndMessagesSize(List<Message> m, int minMessagesSize, ArrayList<String> lines){
         return m.size() > minMessagesSize && lines.size() < Defines.Options.MaxInboxNotificationLines;
     }
 

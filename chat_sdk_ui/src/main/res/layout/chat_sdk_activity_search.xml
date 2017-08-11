@@ -18,6 +18,7 @@
             android:id="@+id/chat_sdk_et_search_input"
             android:imeOptions="actionSearch"
             android:inputType="text"
+            android:backgroundTint="@color/chat_blue"
             android:layout_weight="1" />
 
         <ImageView
@@ -30,20 +31,10 @@
             android:layout_gravity="right" />
     </LinearLayout>
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/chat_sdk_search_linear"
-        android:id="@+id/chat_sdk_chk_select_all"
-        android:enabled="false"
-        android:layout_alignParentRight="true"
-        android:paddingRight="8dp"
-        android:text="@string/select_all"/>
-
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/chat_sdk_chk_select_all"
+        android:layout_below="@id/chat_sdk_search_linear"
         android:layout_above="@id/chat_sdk_btn_add_contacts"
         android:id="@+id/chat_sdk_list_search_results"
         android:layout_gravity="center_horizontal"

@@ -4,9 +4,10 @@ package co.chatsdk.core.dao;
 
 // KEEP INCLUDES - put your custom includes here
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
@@ -17,10 +18,15 @@ import org.greenrobot.greendao.DaoException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.Key;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import co.chatsdk.core.interfaces.CoreEntity;
 
 @org.greenrobot.greendao.annotation.Entity
-public class BMessage implements CoreEntity {
+public class Message implements CoreEntity {
 
     public static final class Type{
         public static final int TEXT = 0, IMAGE = 2, LOCATION = 1;
@@ -53,7 +59,6 @@ public class BMessage implements CoreEntity {
 
     @Id
     private Long id;
-    private String entityID;
 
     @Convert(converter = DateTimeConverter.class, columnType = Long.class)
     private DateTime date;
@@ -67,22 +72,20 @@ public class BMessage implements CoreEntity {
     private Integer delivered;
     private Long senderId;
     private Long threadId;
+    private String entityID;
 
     @ToOne(joinProperty = "senderId")
-    private BUser Sender;
-
+    private User Sender;
 
     @ToOne(joinProperty = "threadId")
-    private BThread thread;
+    private Thread thread;
 
     @Transient
-    public static final String TAG = BMessage.class.getSimpleName();
+    public static final String TAG = Message.class.getSimpleName();
     //@Transient
-    //public static final boolean DEBUG = Debug.BMessage;
+    //public static final boolean DEBUG = Debug.Message;
     @Transient
     public String color = null;
-    @Transient
-    public String fontName = null;
     @Transient
     public String textColor = null;
     @Transient
@@ -91,19 +94,14 @@ public class BMessage implements CoreEntity {
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
     /** Used for active entity operations. */
-    @Generated(hash = 1248547475)
-    private transient BMessageDao myDao;
-    @Generated(hash = 1974258785)
-    private transient Long thread__resolvedKey;
-    @Generated(hash = 1667105234)
-    private transient Long Sender__resolvedKey;
+    @Generated(hash = 859287859)
+    private transient MessageDao myDao;
 
-
-
-    @Generated(hash = 1345507635)
-    public BMessage(Long id, String entityID, DateTime date, Boolean isRead, String resources, String resourcesPath, String text, String imageDimensions, Integer type, Integer status, Integer delivered, Long senderId, Long threadId) {
+    @Generated(hash = 1883941140)
+    public Message(Long id, DateTime date, Boolean isRead, String resources, String resourcesPath,
+            String text, String imageDimensions, Integer type, Integer status, Integer delivered,
+            Long senderId, Long threadId, String entityID) {
         this.id = id;
-        this.entityID = entityID;
         this.date = date;
         this.isRead = isRead;
         this.resources = resources;
@@ -115,11 +113,18 @@ public class BMessage implements CoreEntity {
         this.delivered = delivered;
         this.senderId = senderId;
         this.threadId = threadId;
+        this.entityID = entityID;
     }
 
-    @Generated(hash = 1345317104)
-    public BMessage() {
+    @Generated(hash = 637306882)
+    public Message() {
     }
+
+    @Generated(hash = 1667105234)
+    private transient Long Sender__resolvedKey;
+    @Generated(hash = 1974258785)
+    private transient Long thread__resolvedKey;
+
 
     public String color() {
         return getSender().getMessageColor();
@@ -144,7 +149,7 @@ public class BMessage implements CoreEntity {
 
     @Override
     public String toString() {
-        return String.format("BMessage, id: %s, type: %s, Sender: %s", id, type, getSender());
+        return String.format("Message, id: %s, type: %s, Sender: %s", id, type, getSender());
     }
 
     public Long getId() {
@@ -216,6 +221,12 @@ public class BMessage implements CoreEntity {
         }
     }
 
+    public LatLng getLocation () {
+        Double latitude = (Double) valueForKey(Keys.MessageLatitude);
+        Double longitude = (Double) valueForKey(Keys.MessageLongitude);
+        return new LatLng(latitude, longitude);
+    }
+
     public void setValueForKey (Object payload, String key) {
         try {
             String jsonString = getRawJSONPayload();
@@ -225,6 +236,23 @@ public class BMessage implements CoreEntity {
             setRawJSONPayload(json.toString());
         }
         catch (JSONException e) {
+        }
+    }
+
+    public HashMap<String, Object> values () {
+        HashMap<String, Object> values = new HashMap<>();
+        try {
+            JSONObject json = new JSONObject(getRawJSONPayload());
+
+            for(Iterator<String> iter = json.keys(); iter.hasNext(); ) {
+                String key = iter.next();
+                values.put(key, json.get(key));
+            }
+        }
+        catch (JSONException e) {
+        }
+        finally {
+            return values;
         }
     }
 
@@ -238,7 +266,7 @@ public class BMessage implements CoreEntity {
     }
 
     public String getTextString() {
-        return valueForKey(DaoDefines.Keys.MessageText).toString();
+        return valueForKey(Keys.MessageText).toString();
     }
 
     /**
@@ -250,7 +278,7 @@ public class BMessage implements CoreEntity {
         setRawJSONPayload(text);
     }
     public void setTextString(String text) {
-        setValueForKey(text, DaoDefines.Keys.MessageText);
+        setValueForKey(text, Keys.MessageText);
     }
 
     @Deprecated
@@ -305,16 +333,16 @@ public class BMessage implements CoreEntity {
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 245464515)
-    public BUser getSender() {
+    @Generated(hash = 304244433)
+    public User getSender() {
         Long __key = this.senderId;
         if (Sender__resolvedKey == null || !Sender__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BUserDao targetDao = daoSession.getBUserDao();
-            BUser SenderNew = targetDao.load(__key);
+            UserDao targetDao = daoSession.getUserDao();
+            User SenderNew = targetDao.load(__key);
             synchronized (this) {
                 Sender = SenderNew;
                 Sender__resolvedKey = __key;
@@ -324,8 +352,8 @@ public class BMessage implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1850943564)
-    public void setSender(BUser Sender) {
+    @Generated(hash = 1509869518)
+    public void setSender(User Sender) {
         synchronized (this) {
             this.Sender = Sender;
             senderId = Sender == null ? null : Sender.getId();
@@ -334,16 +362,16 @@ public class BMessage implements CoreEntity {
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 198122087)
-    public BThread getThread() {
+    @Generated(hash = 1483947909)
+    public Thread getThread() {
         Long __key = this.threadId;
         if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BThreadDao targetDao = daoSession.getBThreadDao();
-            BThread threadNew = targetDao.load(__key);
+            ThreadDao targetDao = daoSession.getThreadDao();
+            Thread threadNew = targetDao.load(__key);
             synchronized (this) {
                 thread = threadNew;
                 thread__resolvedKey = __key;
@@ -353,8 +381,8 @@ public class BMessage implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1616164599)
-    public void setThread(BThread thread) {
+    @Generated(hash = 1938921797)
+    public void setThread(Thread thread) {
         synchronized (this) {
             this.thread = thread;
             threadId = thread == null ? null : thread.getId();
@@ -399,10 +427,10 @@ public class BMessage implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1425244845)
+    @Generated(hash = 747015224)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getBMessageDao() : null;
+        myDao = daoSession != null ? daoSession.getMessageDao() : null;
     }
 
 

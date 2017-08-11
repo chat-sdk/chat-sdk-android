@@ -26,8 +26,14 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.v4.app.ActivityCompat;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -438,7 +444,7 @@ public class ImageUtils {
     }
 
     public static String saveToInternalStorage(Bitmap bitmapImage, String name){
-        ContextWrapper cw = new ContextWrapper(AppContext.context);
+        ContextWrapper cw = new ContextWrapper(AppContext.shared().context());
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         // Create imageDir
@@ -461,6 +467,35 @@ public class ImageUtils {
         }
 
         return mypath.toString();
+    }
+
+    public static Single<Bitmap> bitmapForURL (final String url) {
+        return Single.create(new SingleOnSubscribe<Bitmap>() {
+            @Override
+            public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
+                // Try to load it locally if it existsw
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(url, options);
+                if(bitmap != null) {
+                    e.onSuccess(bitmap);
+                }
+                else {
+                    Ion.with(AppContext.shared().context()).load(url).asBitmap().setCallback(new FutureCallback<Bitmap>() {
+                        @Override
+                        public void onCompleted(Exception exception, Bitmap result) {
+                            if(exception == null) {
+                                e.onSuccess(result);
+                            }
+                            else {
+                                e.onError(exception);
+                            }
+                        }
+                    });
+
+                }
+            }
+        });
     }
 }
 

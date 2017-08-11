@@ -1,5 +1,9 @@
 package co.chatsdk.firebase;
 
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.firebase.backendless.ChatSDKReceiver;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,11 +22,7 @@ import java.util.List;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractThreadHandler;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
@@ -44,16 +44,24 @@ import io.reactivex.functions.Function;
 
 public class FirebaseThreadHandler extends AbstractThreadHandler {
 
-    public Single<List<BMessage>> loadMoreMessagesForThread(BMessage fromMessage, BThread thread) {
-        return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
+    public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage,final Thread thread) {
+        return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(new Function<List<Message>, SingleSource<? extends List<Message>>>() {
+            @Override
+            public SingleSource<? extends List<Message>> apply(List<Message> messages) throws Exception {
+                if(messages.isEmpty()) {
+                    return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
+                }
+                return Single.just(messages);
+            }
+        });
     }
 
     /** Add given users list to the given thread.
      * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.*/
-    public Completable addUsersToThread(final BThread thread, final List<BUser> users) {
-        return setUserThreadLinkValue(thread, users, DaoDefines.Keys.Null);
+    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+        return setUserThreadLinkValue(thread, users, Keys.Null);
 
 //
 //        if(thread == null) {
@@ -61,12 +69,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 //        }
 //
 //        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-//        ArrayList<Single<BUser>> singles = new ArrayList<>();
+//        ArrayList<Single<User>> singles = new ArrayList<>();
 //
-//        for (final BUser user : users){
-//            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+//        for (final User user : users){
+//            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<User>() {
 //                @Override
-//                public BUser call () throws Exception {
+//                public User call () throws Exception {
 //                    return user;
 //                }
 //            }));
@@ -86,7 +94,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @param value
      * @return
      */
-    public Completable setUserThreadLinkValue(final BThread thread, final List<BUser> users, final String value) {
+    public Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final String value) {
         Completable c = Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
@@ -94,13 +102,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 DatabaseReference ref = FirebasePaths.firebaseRef();
                 final HashMap<String, Object> data = new HashMap<>();
 
-                for (BUser u : users) {
+                for (User u : users) {
                     PathBuilder threadUsersPath = FirebasePaths.threadUsersPath(thread.getEntityID(), u.getEntityID());
                     PathBuilder userThreadsPath = FirebasePaths.userThreadsPath(u.getEntityID(), thread.getEntityID());
 
                     if (value != null) {
-                        threadUsersPath.a(DaoDefines.Keys.Null);
-                        userThreadsPath.a(DaoDefines.Keys.Null);
+                        threadUsersPath.a(Keys.Null);
+                        userThreadsPath.a(Keys.Null);
                     }
 
                     data.put(threadUsersPath.build(), value);
@@ -132,7 +140,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return c;
     }
 
-    public Completable removeUsersFromThread(final BThread thread, List<BUser> users) {
+    public Completable removeUsersFromThread(final Thread thread, List<User> users) {
         return setUserThreadLinkValue(thread, users, null);
 
 //        if(thread == null) {
@@ -140,12 +148,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 //        }
 //
 //        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-//        ArrayList<Single<BUser>> singles = new ArrayList<>();
+//        ArrayList<Single<User>> singles = new ArrayList<>();
 //
-//        for (final BUser user : users){
-//            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<BUser>() {
+//        for (final User user : users){
+//            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<User>() {
 //                @Override
-//                public BUser call () throws Exception {
+//                public User call () throws Exception {
 //                    return user;
 //                }
 //            }));
@@ -154,7 +162,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 //        return Single.merge(singles);
     }
 
-    public Completable pushThread(BThread thread) {
+    public Completable pushThread(Thread thread) {
         return new ThreadWrapper(thread).push();
     }
 
@@ -162,15 +170,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.*/
-    public Completable sendMessage(final BMessage message){
+    public Completable sendMessage(final Message message){
         return new MessageWrapper(message).send().doOnComplete(new Action() {
             @Override
             public void run() throws Exception {
-                // Setting the time stamp for the last message added to the thread.
-                DatabaseReference threadRef = FirebasePaths.threadRef(message.getThread().getEntityID()).child(FirebasePaths.DetailsPath);
-
-                threadRef.updateChildren(FirebasePaths.getMap(new String[]{DaoDefines.Keys.LastMessageAdded}, ServerValue.TIMESTAMP));
-
                 // Pushing the message to all offline users. we cant push it before the message was
                 // uploaded as the date is saved by the firebase server using the timestamp.
                 pushForMessage(message);
@@ -186,16 +189,16 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      *  For any item adding failure the "onItemFailed will be called.
      *   If the main task will fail the error object in the "onMainFinished" method will be called."
      **/
-    public Single<BThread> createThread(final List<BUser> users) {
+    public Single<Thread> createThread(final List<User> users) {
         return createThread(null, users);
     }
 
-    public Single<BThread> createThread(final String name, final List<BUser> users) {
-        return Single.create(new SingleOnSubscribe<BThread>() {
+    public Single<Thread> createThread(final String name, final List<User> users) {
+        return Single.create(new SingleOnSubscribe<Thread>() {
             @Override
-            public void subscribe(final SingleEmitter<BThread> e) throws Exception {
+            public void subscribe(final SingleEmitter<Thread> e) throws Exception {
 
-                BUser currentUser = NM.currentUser();
+                User currentUser = NM.currentUser();
 
                 if(!users.contains(currentUser)) {
                     users.add(currentUser);
@@ -203,10 +206,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 if(users.size() == 2) {
 
-                    BUser otherUser = null;
-                    BThread jointThread = null;
+                    User otherUser = null;
+                    Thread jointThread = null;
 
-                    for(BUser user : users) {
+                    for(User user : users) {
                         if(!user.equals(currentUser)) {
                             otherUser = user;
                             break;
@@ -216,7 +219,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     // Check to see if a thread already exists with these
                     // two users
 
-                    for(BThread thread : getThreads(ThreadType.Private1to1)) {
+                    for(Thread thread : getThreads(ThreadType.Private1to1)) {
                         if(thread.getUsers().size() == 2 &&
                                 thread.getUsers().contains(currentUser) &&
                                 thread.getUsers().contains(otherUser))
@@ -234,7 +237,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 }
 
-                final BThread thread = DaoCore.getEntityForClass(BThread.class);
+                final Thread thread = DaoCore.getEntityForClass(Thread.class);
                 DaoCore.createEntity(thread);
                 thread.setCreator(currentUser);
                 thread.setCreatorEntityId(currentUser.getEntityID());
@@ -246,12 +249,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 e.onSuccess(thread);
 
             }
-        }).flatMap(new Function<BThread, SingleSource<? extends BThread>>() {
+        }).flatMap(new Function<Thread, SingleSource<? extends Thread>>() {
             @Override
-            public SingleSource<? extends BThread> apply(final BThread thread) throws Exception {
-                return Single.create(new SingleOnSubscribe<BThread>() {
+            public SingleSource<? extends Thread> apply(final Thread thread) throws Exception {
+                return Single.create(new SingleOnSubscribe<Thread>() {
                     @Override
-                    public void subscribe(final SingleEmitter<BThread> e) throws Exception {
+                    public void subscribe(final SingleEmitter<Thread> e) throws Exception {
                         if(thread.getEntityID() == null) {
                             ThreadWrapper wrapper = new ThreadWrapper(thread);
                             wrapper.push().concatWith(addUsersToThread(thread, users)).doOnComplete(new Action() {
@@ -267,25 +270,24 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 });
             }
-        }).doOnSuccess(new Consumer<BThread>() {
+        }).doOnSuccess(new Consumer<Thread>() {
             @Override
-            public void accept(BThread thread) throws Exception {
-                DaoCore.connectUserAndThread(NM.currentUser(),thread);
-                DaoCore.updateEntity(thread);
+            public void accept(Thread thread) throws Exception {
+                thread.addUser(NM.currentUser());
             }
         });
     }
 
-    public Completable deleteThread(BThread thread) {
+    public Completable deleteThread(Thread thread) {
         return deleteThreadWithEntityID(thread.getEntityID());
     }
 
     public Completable deleteThreadWithEntityID(final String entityID) {
-        final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, entityID);
+        final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
         return new ThreadWrapper(thread).deleteThread();
     }
 
-    protected void pushForMessage(final BMessage message){
+    protected void pushForMessage(final Message message){
         if (NM.push() == null)
             return;
 
@@ -301,9 +303,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 public void onDataChange(DataSnapshot snapshot) {
                     Long date = null;
                     try {
-                        date = (Long) snapshot.child(DaoDefines.Keys.Date).getValue();
+                        date = (Long) snapshot.child(Keys.Date).getValue();
                     } catch (ClassCastException e) {
-                        date = (((Double)snapshot.child(DaoDefines.Keys.Date).getValue()).longValue());
+                        date = (((Double)snapshot.child(Keys.Date).getValue()).longValue());
                     }
                     finally {
                         if (date != null)
@@ -317,10 +319,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     if (message.getDate()==null)
                         return;
 
-                    BUser currentUser = NM.currentUser();
-                    List<BUser> users = new ArrayList<BUser>();
+                    User currentUser = NM.currentUser();
+                    List<User> users = new ArrayList<User>();
 
-                    for (BUser user : message.getThread().getUsers())
+                    for (User user : message.getThread().getUsers())
                         if (!user.equals(currentUser))
                             if (!user.equals(currentUser)) {
                                 // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
@@ -341,7 +343,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }
     }
 
-    protected void pushToUsers(BMessage message, List<BUser> users){
+    protected void pushToUsers(Message message, List<User> users){
 
         if (NM.push() == null || users.size() == 0)
             return;
@@ -351,14 +353,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         // channel. In this case user_[user id] this means that we can
         // send a push to a specific user if we know their user id.
         List<String> channels = new ArrayList<String>();
-        for (BUser user : users)
+        for (User user : users)
             channels.add(user.getPushChannel());
 
         String messageText = message.getTextString();
 
-        if (message.getType() == BMessage.Type.LOCATION)
+        if (message.getType() == Message.Type.LOCATION)
             messageText = "Location CoreMessage";
-        else if (message.getType() == BMessage.Type.IMAGE)
+        else if (message.getType() == Message.Type.IMAGE)
             messageText = "Picture CoreMessage";
 
         String sender = message.getSender().getName();
@@ -366,21 +368,21 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
         JSONObject data = new JSONObject();
         try {
-            data.put(DaoDefines.Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+            data.put(Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
 
-            data.put(DaoDefines.Keys.CONTENT, fullText);
-            data.put(DaoDefines.Keys.MESSAGE_ENTITY_ID, message.getEntityID());
-            data.put(DaoDefines.Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
-            data.put(DaoDefines.Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
-            data.put(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
-            data.put(DaoDefines.Keys.MESSAGE_SENDER_NAME, message.getSender().getName());
-            data.put(DaoDefines.Keys.MESSAGE_TYPE, message.getType());
-            data.put(DaoDefines.Keys.MESSAGE_PAYLOAD, message.getTextString());
+            data.put(Keys.CONTENT, fullText);
+            data.put(Keys.MESSAGE_ENTITY_ID, message.getEntityID());
+            data.put(Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
+            data.put(Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
+            data.put(Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
+            data.put(Keys.MESSAGE_SENDER_NAME, message.getSender().getName());
+            data.put(Keys.MESSAGE_TYPE, message.getType());
+            data.put(Keys.MESSAGE_PAYLOAD, message.getTextString());
             //For iOS
-            data.put(DaoDefines.Keys.BADGE, DaoDefines.Keys.INCREMENT);
-            data.put(DaoDefines.Keys.ALERT, fullText);
+            data.put(Keys.BADGE, Keys.INCREMENT);
+            data.put(Keys.ALERT, fullText);
             // For making sound in iOS
-            data.put(DaoDefines.Keys.SOUND, DaoDefines.Keys.Default);
+            data.put(Keys.SOUND, Keys.Default);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -388,11 +390,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         NM.push().pushToChannels(channels, data);
     }
 
-    public Completable leaveThread (BThread thread) {
+    public Completable leaveThread (Thread thread) {
         return null;
     }
 
-    public Completable joinThread (BThread thread) {
+    public Completable joinThread (Thread thread) {
         return null;
     }
 

@@ -14,10 +14,10 @@ import com.backendless.push.BackendlessBroadcastReceiver;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 
 import co.chatsdk.core.defines.Debug;
@@ -61,18 +61,18 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
     @Override
     public boolean onMessage(final Context context, Intent intent) {
 
-        if (!AppContext.getPreferences().getBoolean(co.chatsdk.core.types.Defines.Prefs.PushEnabled, false))
+        if (!AppContext.shared().getPreferences().getBoolean(co.chatsdk.core.types.Defines.Prefs.PushEnabled, false))
             return false;
 
         try {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
-            String action = json.getString(DaoDefines.Keys.ACTION);
+            String action = json.getString(Keys.ACTION);
 
             if (action.equals(ACTION_MESSAGE))
             {
                 // Getting the push channel used.
-                String channel = json.getString(DaoDefines.Keys.Channel);
+                String channel = json.getString(Keys.Channel);
 
                 if (DEBUG) Timber.d("got action: %s, on channel: %s ", action , channel);
 
@@ -100,28 +100,28 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             final JSONObject json = new JSONObject(intent.getExtras().getString("message"));
 
             // If the push is not for the current user we ignore it.
-            BUser user = NM.currentUser();
+            User user = NM.currentUser();
             if (user != null && !channel.equals(user.getPushChannel()))
                 return;
 
             // Extracting the message bundle from the push json.
-            String entityID = json.getString(DaoDefines.Keys.MESSAGE_ENTITY_ID);
-            final String threadEntityID = json.getString(DaoDefines.Keys.THREAD_ENTITY_ID);
-            final String senderEntityId = json.getString(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID);
+            String entityID = json.getString(Keys.MESSAGE_ENTITY_ID);
+            final String threadEntityID = json.getString(Keys.THREAD_ENTITY_ID);
+            final String senderEntityId = json.getString(Keys.MESSAGE_SENDER_ENTITY_ID);
 
             // Getting the sender and the thread.
-            BUser sender = DaoCore.fetchEntityWithEntityID(BUser.class, senderEntityId);
-            final BThread thread = DaoCore.fetchEntityWithEntityID(BThread.class, threadEntityID);
+            User sender = DaoCore.fetchEntityWithEntityID(User.class, senderEntityId);
+            final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, threadEntityID);
 
-            final Long dateLong = json.getLong(DaoDefines.Keys.MESSAGE_DATE);
+            final Long dateLong = json.getLong(Keys.MESSAGE_DATE);
             final DateTime date = new DateTime(dateLong);
-            final Integer type = json.getInt(DaoDefines.Keys.MESSAGE_TYPE);
-            final String messagePayload = (json.getString(DaoDefines.Keys.MESSAGE_PAYLOAD));
+            final Integer type = json.getInt(Keys.MESSAGE_TYPE);
+            final String messagePayload = (json.getString(Keys.MESSAGE_PAYLOAD));
 
             if (DEBUG) Timber.d("Pushed message entity id: %s", entityID);
             if (DEBUG) Timber.d("Pushed message thread entity id: %s", threadEntityID);
 
-            BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, entityID);
+            Message message = DaoCore.fetchEntityWithEntityID(Message.class, entityID);
 
             // If the message isn't null that means the user already got notification for this message,
             // So we are ignoring it.
@@ -131,7 +131,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             }
 
             // Creating the new message.
-            message = new BMessage();
+            message = new Message();
 
             message.setDate(date);
             message.setType(type);
@@ -168,7 +168,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 //                if (DEBUG) Timber.d("CoreEntity is null,Is null? Sender: %s, CoreThread: %s", sender== null, thread==null);
 //
 //                // Getting the user and the thread from firebase
-//                final BMessage finalMessage = message;
+//                final Message finalMessage = message;
 //
 //                final UserWrapper userWrapper = UserWrapper.initWithEntityId(senderEntityId);
 //
@@ -176,7 +176,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 //                            @Override
 //                            public void subscribe(CompletableObserver cs) {
 //
-//                                final BUser user = userWrapper.getModel();
+//                                final User user = userWrapper.getModel();
 //
 //                                // Adding the user as the sender.
 //                                finalMessage.setSender(user);
@@ -188,7 +188,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 //                                    threadWrapper.once().doOnComplete(new Action() {
 //                                        @Override
 //                                        public void run() throws Exception {
-//                                            BUser currentUser = NM.currentUser();
+//                                            User currentUser = NM.currentUser();
 //                                            // Add the current user to the thread if needed.
 //
 //                                            if (!threadWrapper.getModel().hasUser(currentUser)) {
@@ -224,7 +224,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
 //        }
     }
 
-    private void postMessageNotification(Context context, JSONObject json, BThread thread, BMessage message, boolean messageIsValid){
+    private void postMessageNotification(Context context, JSONObject json, Thread thread, Message message, boolean messageIsValid){
         Timber.v("receiver postmessage notification");
         if (DEBUG) Timber.v("postMessageNotification: messageIsValid: %s", messageIsValid);
 
@@ -241,7 +241,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             try {
                 NotificationUtils.createAlertNotification(context, Defines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(DaoDefines.Keys.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
@@ -263,7 +263,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             try {
                 NotificationUtils.createAlertNotification(context, Defines.MESSAGE_NOTIFICATION_ID, resultIntent,
                         NotificationUtils.getDataBundle(context.getString(R.string.not_message_title),
-                                context.getString(R.string.not_message_ticker), json.getString(DaoDefines.Keys.CONTENT)));
+                                context.getString(R.string.not_message_ticker), json.getString(Keys.CONTENT)));
             } catch (JSONException e) {
                 if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
             }
@@ -281,7 +281,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
             Intent resultIntent = new Intent(context, UIHelper.getInstance().getMainActivity());
             NotificationUtils.createAlertNotification(context, Defines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
-                            json.getString(DaoDefines.Keys.CONTENT)));
+                            json.getString(Keys.CONTENT)));
         } catch (JSONException e) {
             if (DEBUG) Timber.e(e.getCause(), "JSONException: %s", e.getMessage());
         }

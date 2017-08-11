@@ -4,13 +4,18 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.firebase.FirebaseModule;
+import co.chatsdk.firebase.FirebaseUploadHandler;
 import co.chatsdk.firebase.backendless.BackendlessHandler;
 
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
+import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.xmpp.XMPPModule;
 import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
 import timber.log.Timber;
 import co.chatsdk.ui.helpers.UIHelper;
@@ -35,17 +40,18 @@ public class AppObj extends MultiDexApplication {
             Timber.plant(Timber.asTree());
         }
 
-        AppContext.init(getApplicationContext());
-        AppContext.googleMapsAPIKey = context.getResources().getString(R.string.google_api_key);
+        AppContext.shared().setContext(getApplicationContext());
+        AppContext.shared().setGoogleMapsAPIKey(context.getResources().getString(R.string.google_api_key));
 
-        NetworkManager.shared().a = new XMPPNetworkAdapter();
-//        NetworkManager.shared().a = new FirebaseNetworkAdapter();
+        new XMPPModule().activate();
+//        new FirebaseModule().activate();
 
         String backendlessAppKey = context.getString(com.braunster.chatsdk.R.string.backendless_app_id);
         String backendlessSecret = context.getString(com.braunster.chatsdk.R.string.backendless_secret_key);
         String backendlessVersion = context.getString(com.braunster.chatsdk.R.string.backendless_app_version);
 
         NetworkManager.shared().a.push = new BackendlessHandler(context, backendlessAppKey, backendlessSecret, backendlessVersion);
+        NetworkManager.shared().a.upload = new FirebaseUploadHandler();
 
         // Needed?
         DaoCore.init(context);

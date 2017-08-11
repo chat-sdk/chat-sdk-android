@@ -15,11 +15,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ThreadViewHolder {
 
-    public TextView txtName;
-    public TextView txtDate;
-    public TextView txtLastMsg;
-    public TextView txtUnreadMessagesAmount;
-    public CircleImageView imgIcon;
+    public TextView nameTextView;
+    public TextView dateTextView;
+    public TextView lastMessageTextView;
+    public TextView unreadMessageCountTextView;
+    public CircleImageView imageView;
     public View indicator;
 
     public void showUnreadIndicator(){

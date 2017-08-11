@@ -24,13 +24,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.kaopiz.kprogresshud.KProgressHUD;
-
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -57,7 +54,6 @@ public class SearchActivity extends BaseActivity {
     private EditText etInput;
     private ListView listResults;
     private UsersListAdapter adapter;
-    private CheckBox chSelectAll;
 
     private Disposable disposable;
 
@@ -82,8 +78,6 @@ public class SearchActivity extends BaseActivity {
         btnAddContacts = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         etInput = (EditText) findViewById(R.id.chat_sdk_et_search_input);
         listResults = (ListView) findViewById(R.id.chat_sdk_list_search_results);
-        chSelectAll = (CheckBox) findViewById(R.id.chat_sdk_chk_select_all);
-
     }
 
     @Override
@@ -146,18 +140,11 @@ public class SearchActivity extends BaseActivity {
                 for (int i = 0; i < adapter.getSelectedCount(); i++) {
                     if (adapter.getSelectedUsersPositions().valueAt(i)) {
                         int pos = adapter.getSelectedUsersPositions().keyAt(i);
-                        BUser user = adapter.getUserItems().get(pos).asBUser();
+                        User user = adapter.getUserItems().get(pos).getUser();
 
                         completables.add(NM.contact().addContact(user, ConnectionType.Contact));
                     }
                 }
-
-//                final KProgressHUD hud = KProgressHUD.create(SearchActivity.this)
-//                        .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-//                        .setAnimationSpeed(3)
-//                        .setDimAmount(0.3f)
-//                        .setCancellable(false)
-//                        .show();
 
                 final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
                 dialog.setMessage(getString(R.string.alert_save_contact));
@@ -175,8 +162,6 @@ public class SearchActivity extends BaseActivity {
                         }
 
                         dialog.dismiss();
-//                        hud.dismiss();
-
                         finish();
                     }
                 });
@@ -184,14 +169,6 @@ public class SearchActivity extends BaseActivity {
             }
         });
 
-        chSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
-                    adapter.selectAll();
-                else adapter.clearSelection();
-            }
-        });
     }
     
     private View.OnClickListener searchOnClickListener = new View.OnClickListener() {
@@ -207,27 +184,21 @@ public class SearchActivity extends BaseActivity {
             dialog.setMessage(getString(R.string.search_activity_prog_dialog_init_message));
             dialog.show();
 
+            // Clear the list of users
             adapter.clear();
 
-            final List<BUser> users = new ArrayList<>();
+            final List<User> users = new ArrayList<>();
 
-            disposable = NM.search().usersForIndex(DaoDefines.Keys.Name, etInput.getText().toString())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(new Consumer<BUser>() {
+            disposable = NM.search().usersForIndex(Keys.Name, etInput.getText().toString())
+                    .doOnNext(new Consumer<User>() {
                         @Override
-                        public void accept(BUser u) throws Exception {
+                        public void accept(User u) throws Exception {
 
                             users.add(u);
-                            adapter.setBUserItems(users, true);
+                            adapter.setUsers(users, true);
 
                             hideSoftKeyboard(SearchActivity.this);
                             dialog.dismiss();
-                        }
-                    })
-                    .doOnComplete(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            chSelectAll.setEnabled(users.size() > 1);
                         }
                     })
                     .doOnError(new Consumer<Throwable>() {
@@ -235,9 +206,14 @@ public class SearchActivity extends BaseActivity {
                         public void accept(Throwable throwable) throws Exception {
                             showToast(getString(R.string.search_activity_no_user_found_toast));
                             dialog.dismiss();
-
-                            chSelectAll.setEnabled(false);
-
+                        }
+                    }).doOnComplete(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            dialog.dismiss();
+                            if(users.size() == 0) {
+                                showToast(getString(R.string.search_activity_no_user_found_toast));
+                            }
                         }
                     }).subscribe();
 

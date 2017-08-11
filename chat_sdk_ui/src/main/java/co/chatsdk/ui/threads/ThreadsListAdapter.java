@@ -16,10 +16,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -28,10 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import co.chatsdk.ui.utils.Strings;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
 import timber.log.Timber;
@@ -46,7 +41,6 @@ public class ThreadsListAdapter extends BaseAdapter {
     protected List<ThreadListItem> allItems = new ArrayList<>();
     protected List<ThreadListItem> listItems = new ArrayList<>();
 
-    public static final int TYPE_THREAD = 0;
 
     protected String filterText = "";
     protected boolean filtering = false;
@@ -75,7 +69,7 @@ public class ThreadsListAdapter extends BaseAdapter {
     /** Disabling the header vies from clicks.*/
     @Override
     public boolean isEnabled(int position) {
-        return getItemViewType(position) == TYPE_THREAD;
+        return getItemViewType(position) == ThreadListItem.CELL_TYPE_THREAD;
     }
 
     @Override
@@ -101,23 +95,24 @@ public class ThreadsListAdapter extends BaseAdapter {
 
             holder = new ThreadViewHolder();
             row =  ( (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_threads, null);
-            holder.txtName = (TextView) row.findViewById(R.id.chat_sdk_txt);
-            holder.txtLastMsg = (TextView) row.findViewById(R.id.txt_last_message);
-            holder.txtDate = (TextView) row.findViewById(R.id.txt_last_message_date);
-            holder.imgIcon = (CircleImageView) row.findViewById(R.id.img_thread_image);
-            holder.txtUnreadMessagesAmount= (TextView) row.findViewById(R.id.txt_unread_messages);
+            holder.nameTextView = (TextView) row.findViewById(R.id.chat_sdk_txt);
+            holder.lastMessageTextView = (TextView) row.findViewById(R.id.txt_last_message);
+            holder.dateTextView = (TextView) row.findViewById(R.id.txt_last_message_date);
+            holder.imageView = (CircleImageView) row.findViewById(R.id.img_thread_image);
+            holder.unreadMessageCountTextView = (TextView) row.findViewById(R.id.txt_unread_messages);
             holder.indicator = row.findViewById(R.id.chat_sdk_indicator);
 
             row.setTag(holder);
         }
-        else
+        else {
             holder = (ThreadViewHolder) row.getTag();
+        }
 
-        holder.txtName.setText(thread.getName());
+        holder.nameTextView.setText(thread.getName());
 
-        if(thread.getThread().getLastMessageAdded() != null) {
-            holder.txtDate.setText(thread.getLastMessageDateAsString());
-            holder.txtLastMsg.setText(thread.getLastMessageText());
+        if(thread.getThread().getLastMessageAddedDate() != null) {
+            holder.dateTextView.setText(thread.getLastMessageDateAsString());
+            holder.lastMessageTextView.setText(thread.getLastMessageText());
         }
         else {
             // TODO: Maybe add a messages saying no messages
@@ -126,25 +121,25 @@ public class ThreadsListAdapter extends BaseAdapter {
         int unreadMessageCount = thread.getUnreadMessagesCount();
         if (DEBUG) Timber.d("Unread messages amount: %s", unreadMessageCount);
 
-        if (unreadMessageCount != 0 &&  thread.getIsPrivate()) {
+        if (unreadMessageCount != 0 && thread.getIsPrivate()) {
 
-            holder.txtUnreadMessagesAmount.setText(String.valueOf(unreadMessageCount));
-            holder.txtUnreadMessagesAmount.setVisibility(View.VISIBLE);
+            holder.unreadMessageCountTextView.setText(String.valueOf(unreadMessageCount));
+            holder.unreadMessageCountTextView.setVisibility(View.VISIBLE);
 
             holder.showUnreadIndicator();
         }
         else {
             holder.hideUnreadIndicator();
-            holder.txtUnreadMessagesAmount.setVisibility(View.INVISIBLE);
+            holder.unreadMessageCountTextView.setVisibility(View.INVISIBLE);
         }
 
         // This should be quick because we're loding the image using iON so
         // they will be cached
-        ThreadImageBuilder.getBitmapForThread(AppContext.context, getItem(position).getThread()).subscribe(new BiConsumer<Bitmap, Throwable>() {
+        ThreadImageBuilder.getBitmapForThread(AppContext.shared().context(), getItem(position).getThread()).subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                 if(throwable == null) {
-                    holder.imgIcon.setImageBitmap(bitmap);
+                    holder.imageView.setImageBitmap(bitmap);
                 }
                 else {
                     // TODO: Handle Error
@@ -157,30 +152,34 @@ public class ThreadsListAdapter extends BaseAdapter {
 
 
     public void addRow (ThreadListItem thread){
-        allItems.add(thread);
-
-        notifyDataSetChanged();
+        addRow(thread, true);
     }
 
-    public void addRow(BThread thread){
+    public void addRow (ThreadListItem thread, boolean notify){
+        allItems.add(thread);
+        if(notify) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void addRow(Thread thread){
+        addRow(thread, true);
+    }
+
+    public void addRow(Thread thread, boolean notify){
         addRow(new ThreadListItem(thread));
     }
 
-    public void setAllItems(List<BThread> threads) {
+    public void setAllItems(List<Thread> threads) {
 
         this.listItems.clear();
         this.allItems.clear();
 
-        for (BThread thread : threads) {
-            addRow(thread);
+        for (Thread thread : threads) {
+            addRow(thread, false);
         }
 
         this.listItems = allItems;
-
-        if (filtering) {
-            filterItems(filterText);
-        }
-        else sort();
 
         notifyDataSetChanged();
     }
@@ -227,7 +226,7 @@ public class ThreadsListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public ThreadListItem replaceOrAddItem(BThread thread){
+    public ThreadListItem replaceOrAddItem(Thread thread){
 
         boolean replaced = false;
         boolean exist = false;
@@ -272,95 +271,4 @@ public class ThreadsListAdapter extends BaseAdapter {
         return allItems;
     }
 
-    public static class ThreadListItem {
-
-        private BThread thread;
-
-        public ThreadListItem (BThread thread) {
-            this.thread = thread;
-        }
-
-        public String getEntityID () {
-            return thread.getEntityID();
-        }
-
-        public String getName () {
-            return Strings.nameForThread(thread);
-        }
-
-        public boolean getIsPrivate () {
-            return thread.typeIs(ThreadType.Private);
-        }
-
-        public Integer getType () {
-            return TYPE_THREAD;
-        }
-
-        public String getLastMessageDateAsString () {
-            if(getLastMessageDate() != null) {
-                return Strings.dateTime(getLastMessageDate());
-            }
-            return null;
-        }
-
-        public String getLastMessageText () {
-            String messageText = Strings.t(R.string.not_no_messages);
-
-            List<BMessage> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-            if (messages.size() > 0) {
-                BMessage message = messages.get(0);
-                messageText = Strings.payloadAsString(message);
-            }
-            return messageText;
-        }
-
-        public int getUserCount() {
-            return thread.getUsers().size();
-        }
-
-        public int getUnreadMessagesCount() {
-            return thread.getUnreadMessagesAmount();
-        }
-
-        public long getId () {
-            return thread.getId();
-        }
-
-        public Date getLastMessageDate () {
-            return thread.getLastMessageAdded();
-        }
-
-        public BThread getThread () {
-            return thread;
-        }
-
-        public static boolean compare(ThreadListItem newThread , ThreadListItem oldThread){
-
-            if (newThread.getLastMessageDate() == null || oldThread.getLastMessageDate() == null)
-                return true;
-
-            if (newThread.getLastMessageDate().getTime() > oldThread.getLastMessageDate().getTime()) {
-                return true;
-            }
-
-            if (!newThread.getName().equals(oldThread.getName()))
-            {
-                return true;
-            }
-
-            if (newThread.getUserCount() != oldThread.getUserCount())
-            {
-                return true;
-            }
-
-            if (StringUtils.isEmpty(newThread.thread.getImageURL()) && StringUtils.isEmpty(oldThread.thread.getImageURL()))
-            {
-                return false;
-            }
-
-            return !newThread.thread.getImageURL().equals(oldThread.thread.getImageURL());
-        }
-
-    }
 }

@@ -5,7 +5,5 @@ package co.chatsdk.core.handlers;
  */
 
 public interface Module {
-
-    //-(void) activate;
     public void activate();
 }

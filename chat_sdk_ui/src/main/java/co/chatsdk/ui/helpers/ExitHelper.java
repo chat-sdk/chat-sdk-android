@@ -12,7 +12,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.ui.R;
 
 import com.github.johnpersano.supertoasts.SuperToast;
@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Helper to create special exit to your app.
- * See {@link DaoDefines.Exit} for setting the app exit action.
+ * See {@link Keys.Exit} for setting the app exit action.
  *
  */
 public class ExitHelper {
@@ -36,15 +36,15 @@ public class ExitHelper {
     }
 
     public void triggerExit() {
-        switch (DaoDefines.Defaults.SDKExitMode)
+        switch (Keys.Defaults.SDKExitMode)
         {
-            case DaoDefines.Exit.EXIT_MODE_DIALOG:
+            case Keys.Exit.EXIT_MODE_DIALOG:
                 // Show alert dialog, Positive response is just dismiss the dialog, Negative will close the app.
                 DialogUtils.showToastDialog(activity, "", activity.getResources().getString(R.string.alert_exit), activity.getResources().getString(R.string.exit),
                         activity.getResources().getString(R.string.stay), null, new CloseApp());
                 break;
 
-            case DaoDefines.Exit.EXIT_MODE_DOUBLE_BACK:
+            case Keys.Exit.EXIT_MODE_DOUBLE_BACK:
                 if (doubleBackToExitPressedOnce) {
                     try {
                         new CloseApp().call();
@@ -59,13 +59,13 @@ public class ExitHelper {
                     public void run() {
                         doubleBackToExitPressedOnce = false;
                     }
-                }, DaoDefines.Exit.DOUBLE_CLICK_INTERVAL);
+                }, Keys.Exit.DOUBLE_CLICK_INTERVAL);
 
                 this.doubleBackToExitPressedOnce = true;
                 showToast( activity.getString(R.string.exit_helper_double_tap_toast) );
                 break;
 
-            case DaoDefines.Exit.EXIT_MODE_NONE:
+            case Keys.Exit.EXIT_MODE_NONE:
                 try {
                     new CloseApp().call();
                 } catch (Exception e) {

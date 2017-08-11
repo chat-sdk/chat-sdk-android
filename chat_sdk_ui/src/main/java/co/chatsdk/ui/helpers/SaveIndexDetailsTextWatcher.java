@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 
 /**
  * Created by braunster on 04/11/14.
@@ -56,7 +56,7 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
         if (StringUtils.isBlank(editable.toString()))
             return;
 
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
         String metadata = user.metaStringForKey(metaKey);
 
         if (StringUtils.isNotBlank(metadata) && metadata.equals(editable.toString()))

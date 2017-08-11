@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
 
 import static co.chatsdk.core.types.Defines.ServerUrl;
 
@@ -47,7 +47,7 @@ public class FirebasePaths{
     /** @return The main databse ref.*/
     public static DatabaseReference firebaseRef(){
         if (StringUtils.isBlank(ServerUrl))
-            throw new NullPointerException("Please set the server url in DaoDefines class");
+            throw new NullPointerException("Please set the server url in Keys class");
 
         return fb(ServerUrl);
     }
@@ -139,45 +139,45 @@ public class FirebasePaths{
     }
 
     public static PathBuilder userThreadsPath (String userID, String threadID) {
-        return new PathBuilder(DaoDefines.Keys.Users)
+        return new PathBuilder(Keys.Users)
                 .a(userID)
-                .a(DaoDefines.Keys.Threads)
+                .a(Keys.Threads)
                 .a(threadID);
 
     }
 
     public static PathBuilder threadUsersPath (String threadID, String userID) {
-        return new PathBuilder(DaoDefines.Keys.Threads)
+        return new PathBuilder(Keys.Threads)
                 .a(threadID)
-                .a(DaoDefines.Keys.Users)
+                .a(Keys.Users)
                 .a(userID);
 
     }
 
 //    public static int providerToInt(String provider){
-//        if (provider.equals(DaoDefines.ProviderString.Password))
+//        if (provider.equals(Keys.ProviderString.Password))
 //        {
-//            return DaoDefines.ProviderInt.Password;
+//            return Keys.ProviderInt.Password;
 //        }
-//        else if (provider.equals(DaoDefines.ProviderString.Facebook))
+//        else if (provider.equals(Keys.ProviderString.Facebook))
 //        {
-//            return DaoDefines.ProviderInt.Facebook;
+//            return Keys.ProviderInt.Facebook;
 //        }
-//        else if (provider.equals(DaoDefines.ProviderString.Google))
+//        else if (provider.equals(Keys.ProviderString.Google))
 //        {
-//            return DaoDefines.ProviderInt.Google;
+//            return Keys.ProviderInt.Google;
 //        }
-//        else if (provider.equals(DaoDefines.ProviderString.Twitter))
+//        else if (provider.equals(Keys.ProviderString.Twitter))
 //        {
-//            return DaoDefines.ProviderInt.Twitter;
+//            return Keys.ProviderInt.Twitter;
 //        }
-//        else if (provider.equals(DaoDefines.ProviderString.Anonymous))
+//        else if (provider.equals(Keys.ProviderString.Anonymous))
 //        {
-//            return DaoDefines.ProviderInt.Anonymous;
+//            return Keys.ProviderInt.Anonymous;
 //        }
-//        else if (provider.equals(DaoDefines.ProviderString.Custom))
+//        else if (provider.equals(Keys.ProviderString.Custom))
 //        {
-//            return DaoDefines.ProviderInt.Custom;
+//            return Keys.ProviderInt.Custom;
 //        }
 //
 //        throw new IllegalArgumentException("No provider was found matching requested. Provider: " + provider);
@@ -186,18 +186,18 @@ public class FirebasePaths{
 //    public static String providerToString(int provider){
 //
 //        switch (provider){
-//            case DaoDefines.ProviderInt.Password:
-//                return DaoDefines.ProviderString.Password;
-//            case DaoDefines.ProviderInt.Facebook:
-//                return DaoDefines.ProviderString.Facebook;
-//            case DaoDefines.ProviderInt.Google:
-//                return DaoDefines.ProviderString.Google;
-//            case DaoDefines.ProviderInt.Twitter:
-//                return DaoDefines.ProviderString.Twitter;
-//            case DaoDefines.ProviderInt.Anonymous:
-//                return DaoDefines.ProviderString.Anonymous;
-//            case DaoDefines.ProviderInt.Custom:
-//                return DaoDefines.ProviderString.Custom;
+//            case Keys.ProviderInt.Password:
+//                return Keys.ProviderString.Password;
+//            case Keys.ProviderInt.Facebook:
+//                return Keys.ProviderString.Facebook;
+//            case Keys.ProviderInt.Google:
+//                return Keys.ProviderString.Google;
+//            case Keys.ProviderInt.Twitter:
+//                return Keys.ProviderString.Twitter;
+//            case Keys.ProviderInt.Anonymous:
+//                return Keys.ProviderString.Anonymous;
+//            case Keys.ProviderInt.Custom:
+//                return Keys.ProviderString.Custom;
 //
 //            default:
 //                /*return ProviderString.Password;*/

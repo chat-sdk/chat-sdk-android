@@ -9,4 +9,9 @@ public class XMPPDefines {
     public static String Available  = "available";
     public static String Unavailable  = "unavailable";
 
+    public static String MessageNamespace = "co.chatsdk.Message";
+    public static String Extras = "extras";
+    public static String Type = "message-type";
+
+
 }

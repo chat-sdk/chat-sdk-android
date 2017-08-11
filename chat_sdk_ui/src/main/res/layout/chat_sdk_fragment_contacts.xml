@@ -18,6 +18,7 @@
         android:cacheColorHint="@android:color/transparent"
         android:scrollbars="none"
         android:divider="@null"
+        android:descendantFocusability="blocksDescendants"
         android:id="@+id/chat_sdk_list_contacts"/>
 
 </FrameLayout>

@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
@@ -33,7 +33,7 @@ import io.reactivex.Single;
     /**
     * Return the current user data
     */
-    BUser currentUserModel();
+    User currentUserModel();
 
     /**
     * Mark the user as online

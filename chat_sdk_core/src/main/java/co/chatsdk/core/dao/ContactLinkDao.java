@@ -27,7 +27,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property UserId = new Property(1, Long.class, "userId", false, "USER_ID");
-        public final static Property LinkOwnerBUserDaoId = new Property(2, Long.class, "linkOwnerBUserDaoId", false, "LINK_OWNER_BUSER_DAO_ID");
+        public final static Property LinkOwnerUserDaoId = new Property(2, Long.class, "linkOwnerUserDaoId", false, "LINK_OWNER_USER_DAO_ID");
         public final static Property Type = new Property(3, int.class, "type", false, "TYPE");
     }
 
@@ -49,7 +49,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"CONTACT_LINK\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"USER_ID\" INTEGER," + // 1: userId
-                "\"LINK_OWNER_BUSER_DAO_ID\" INTEGER," + // 2: linkOwnerBUserDaoId
+                "\"LINK_OWNER_USER_DAO_ID\" INTEGER," + // 2: linkOwnerUserDaoId
                 "\"TYPE\" INTEGER NOT NULL );"); // 3: type
     }
 
@@ -73,9 +73,9 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
             stmt.bindLong(2, userId);
         }
  
-        Long linkOwnerBUserDaoId = entity.getLinkOwnerBUserDaoId();
-        if (linkOwnerBUserDaoId != null) {
-            stmt.bindLong(3, linkOwnerBUserDaoId);
+        Long linkOwnerUserDaoId = entity.getLinkOwnerUserDaoId();
+        if (linkOwnerUserDaoId != null) {
+            stmt.bindLong(3, linkOwnerUserDaoId);
         }
         stmt.bindLong(4, entity.getType());
     }
@@ -94,9 +94,9 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
             stmt.bindLong(2, userId);
         }
  
-        Long linkOwnerBUserDaoId = entity.getLinkOwnerBUserDaoId();
-        if (linkOwnerBUserDaoId != null) {
-            stmt.bindLong(3, linkOwnerBUserDaoId);
+        Long linkOwnerUserDaoId = entity.getLinkOwnerUserDaoId();
+        if (linkOwnerUserDaoId != null) {
+            stmt.bindLong(3, linkOwnerUserDaoId);
         }
         stmt.bindLong(4, entity.getType());
     }
@@ -117,7 +117,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         ContactLink entity = new ContactLink( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // userId
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // linkOwnerBUserDaoId
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // linkOwnerUserDaoId
             cursor.getInt(offset + 3) // type
         );
         return entity;
@@ -127,7 +127,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
     public void readEntity(Cursor cursor, ContactLink entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUserId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
-        entity.setLinkOwnerBUserDaoId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setLinkOwnerUserDaoId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
         entity.setType(cursor.getInt(offset + 3));
      }
     
@@ -163,12 +163,12 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getUserDao().getAllColumns());
             builder.append(" FROM CONTACT_LINK T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.\"USER_ID\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN BUSER T1 ON T.\"LINK_OWNER_BUSER_DAO_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN USER T0 ON T.\"USER_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN USER T1 ON T.\"LINK_OWNER_USER_DAO_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -179,12 +179,12 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         ContactLink entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BUser BUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUser(BUser);
-        offset += daoSession.getBUserDao().getAllColumns().length;
+        User user = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+        entity.setUser(user);
+        offset += daoSession.getUserDao().getAllColumns().length;
 
-        BUser linkOwnerBUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setLinkOwnerBUser(linkOwnerBUser);
+        User linkOwnerUser = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+        entity.setLinkOwnerUser(linkOwnerUser);
 
         return entity;    
     }

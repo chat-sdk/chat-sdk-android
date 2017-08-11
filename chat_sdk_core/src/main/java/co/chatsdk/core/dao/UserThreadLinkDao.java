@@ -34,7 +34,7 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
 
     private DaoSession daoSession;
 
-    private Query<UserThreadLink> bThread_UserThreadLinksQuery;
+    private Query<UserThreadLink> thread_UserThreadLinksQuery;
 
     public UserThreadLinkDao(DaoConfig config) {
         super(config);
@@ -153,17 +153,17 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "userThreadLinks" to-many relationship of BThread. */
-    public List<UserThreadLink> _queryBThread_UserThreadLinks(Long threadId) {
+    /** Internal query to resolve the "userThreadLinks" to-many relationship of Thread. */
+    public List<UserThreadLink> _queryThread_UserThreadLinks(Long threadId) {
         synchronized (this) {
-            if (bThread_UserThreadLinksQuery == null) {
+            if (thread_UserThreadLinksQuery == null) {
                 QueryBuilder<UserThreadLink> queryBuilder = queryBuilder();
                 queryBuilder.join(UserThreadLink.class, UserThreadLinkDao.Properties.UserId)
                     .where(UserThreadLinkDao.Properties.ThreadId.eq(threadId));
-                bThread_UserThreadLinksQuery = queryBuilder.build();
+                thread_UserThreadLinksQuery = queryBuilder.build();
             }
         }
-        Query<UserThreadLink> query = bThread_UserThreadLinksQuery.forCurrentThread();
+        Query<UserThreadLink> query = thread_UserThreadLinksQuery.forCurrentThread();
         query.setParameter(0, threadId);
         return query.list();
     }
@@ -175,12 +175,12 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getBThreadDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getThreadDao().getAllColumns());
             builder.append(" FROM USER_THREAD_LINK T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.\"USER_ID\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN BTHREAD T1 ON T.\"THREAD_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN USER T0 ON T.\"USER_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN THREAD T1 ON T.\"THREAD_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -191,12 +191,12 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
         UserThreadLink entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BUser bUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUser(bUser);
-        offset += daoSession.getBUserDao().getAllColumns().length;
+        User user = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+        entity.setUser(user);
+        offset += daoSession.getUserDao().getAllColumns().length;
 
-        BThread bThread = loadCurrentOther(daoSession.getBThreadDao(), cursor, offset);
-        entity.setBThread(bThread);
+        Thread thread = loadCurrentOther(daoSession.getThreadDao(), cursor, offset);
+        entity.setThread(thread);
 
         return entity;    
     }

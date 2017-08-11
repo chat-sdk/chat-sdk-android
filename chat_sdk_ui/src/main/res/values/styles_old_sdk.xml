@@ -60,7 +60,7 @@
 
     <!--Row Margins-->
     <style name="RowStyle">
-        <item name="android:padding">7dp</item>
+        <item name="android:padding">2dp</item>
     </style>
 
     <!--View Pager-->

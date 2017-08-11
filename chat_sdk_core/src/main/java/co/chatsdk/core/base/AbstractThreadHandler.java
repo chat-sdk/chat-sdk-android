@@ -11,17 +11,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BThreadDao;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+//import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.dao.UserThreadLink;
+import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.dao.sorter.ThreadsSorter;
+import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -47,6 +50,21 @@ import io.reactivex.functions.Function;
 
 public abstract class AbstractThreadHandler implements ThreadHandler {
 
+    public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage, final Thread thread) {
+        return Single.create(new SingleOnSubscribe<List<Message>>() {
+            @Override
+            public void subscribe(final SingleEmitter<List<Message>> e) throws Exception {
+
+                Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
+
+                // First try to load the messages from the database
+                List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
+                e.onSuccess(list);
+            }
+        });
+    }
+
+
     /**
      * Preparing a text message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
@@ -56,31 +74,24 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Completable sendMessageWithText(final String text, final BThread thread) {
-        Single<BMessage> single = Single.create(new SingleOnSubscribe<BMessage>() {
+    public Completable sendMessageWithText(final String text, final Thread thread) {
+        return Single.create(new SingleOnSubscribe<Message>() {
             @Override
-            public void subscribe(final SingleEmitter<BMessage> e) throws Exception {
-                final BMessage message = new BMessage();
+            public void subscribe(SingleEmitter<Message> e) throws Exception {
+                final Message message = newMessage();
+
+                Thread.currentThread();
+
                 message.setTextString(text);
-                message.setThread(thread);
-                message.setType(BMessage.Type.TEXT);
-                message.setSender(NM.currentUser());
-                message.setStatus(BMessage.Status.SENDING);
-                message.setDelivered(BMessage.Delivered.No);
-                message.setDate(new DateTime(System.currentTimeMillis()));
+                message.setType(Message.Type.TEXT);
 
-                DaoCore.createEntity(message);
-
-
-                DaoCore.updateEntity(message);
+                thread.addMessage(message);
 
                 e.onSuccess(message);
             }
-        });
-
-        return single.flatMapCompletable(new Function<BMessage, Completable>() {
+        }).flatMapCompletable(new Function<Message, Completable>() {
             @Override
-            public Completable apply(final BMessage message) throws Exception {
+            public Completable apply(final Message message) throws Exception {
             return implSendMessage(message).doOnComplete(new Action() {
                 @Override
                 public void run() throws Exception {
@@ -89,6 +100,17 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             });
             }
         });
+    }
+
+    private Message newMessage () {
+        Message message = new Message();
+        DaoCore.createEntity(message);
+        message.setSender(NM.currentUser());
+        message.setStatus(Message.Status.SENDING);
+        message.setDelivered(Message.Delivered.No);
+        message.setDate(new DateTime(System.currentTimeMillis()));
+        message.setEntityID(UUID.randomUUID().toString());
+        return message;
     }
 
     /**
@@ -102,33 +124,20 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * @param location     is the Latitude and Longitude of the picked location.
      * @param thread       the thread that the message is sent to.
      */
-    public Completable sendMessageWithLocation(final String filePath, final LatLng location, final BThread thread) {
-        Single<BMessage> single = Single.create(new SingleOnSubscribe<BMessage>() {
+    public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
+        return Single.create(new SingleOnSubscribe<Message>() {
             @Override
-            public void subscribe(final SingleEmitter<BMessage> e) throws Exception {
+            public void subscribe(final SingleEmitter<Message> e) throws Exception {
 
-                final BMessage message = new BMessage();
-                message.setThread(thread);
-                message.setType(BMessage.Type.LOCATION);
-                message.setStatus(BMessage.Status.SENDING);
-                message.setDelivered(BMessage.Delivered.No);
-                message.setSender(NM.currentUser());
+                final Message message = newMessage();
+
+                message.setType(Message.Type.LOCATION);
                 message.setResourcesPath(filePath);
-                message.setDate(new DateTime(System.currentTimeMillis()));
 
-                DaoCore.createEntity(message);
-
-
-                DaoCore.updateEntity(message);
+                thread.addMessage(message);
 
                 int maxSize = Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE;
                 String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
-
-//        final Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
-//
-//        Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
-//                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-//                Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
                 message.setImageDimensions(ImageUtils.getDimensionAsString(maxSize, maxSize));
 
@@ -141,24 +150,21 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                         + Defines.DIVIDER + imageURL
                         + Defines.DIVIDER + message.getImageDimensions());
 
-                message.setValueForKey(location.longitude, DaoDefines.Keys.MessageLongitude);
-                message.setValueForKey(location.latitude, DaoDefines.Keys.MessageLatitude);
-                message.setValueForKey(maxSize, DaoDefines.Keys.MessageImageWidth);
-                message.setValueForKey(maxSize, DaoDefines.Keys.MessageImageHeight);
-                message.setValueForKey(imageURL, DaoDefines.Keys.MessageImageURL);
-                message.setValueForKey(imageURL, DaoDefines.Keys.MessageThumbnailURL);
+                message.setValueForKey(location.longitude, Keys.MessageLongitude);
+                message.setValueForKey(location.latitude, Keys.MessageLatitude);
+                message.setValueForKey(maxSize, Keys.MessageImageWidth);
+                message.setValueForKey(maxSize, Keys.MessageImageHeight);
+                message.setValueForKey(imageURL, Keys.MessageImageURL);
+                message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
 
                 e.onSuccess(message);
             }
-        });
-
-        return single.flatMapCompletable(new Function<BMessage, Completable>() {
+        }).flatMapCompletable(new Function<Message, Completable>() {
             @Override
-            public Completable apply(final BMessage message) throws Exception {
+            public Completable apply(final Message message) throws Exception {
                 return implSendMessage(message).doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        DaoCore.updateEntity(message);
                     }
                 });
             }
@@ -175,32 +181,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the message is sent to.
      */
-    public Observable<MessageUploadResult> sendMessageWithImage(final String filePath, final BThread thread) {
-
+    public Observable<MessageUploadResult> sendMessageWithImage(final String filePath, final Thread thread) {
         return Observable.create(new ObservableOnSubscribe<MessageUploadResult>() {
             @Override
             public void subscribe(final ObservableEmitter<MessageUploadResult> e) throws Exception {
 
-                final BMessage message = new BMessage();
-                message.setThread(thread);
-                message.setType(BMessage.Type.IMAGE);
-                message.setSender(NM.currentUser());
-                message.setStatus(BMessage.Status.SENDING);
-                message.setDelivered(BMessage.Delivered.No);
-                message.setDate(new DateTime(System.currentTimeMillis()));
+                final Message message = newMessage();
 
-                DaoCore.createEntity(message);
-
-
+                message.setType(Message.Type.IMAGE);
                 message.setResourcesPath(filePath);
 
-                DaoCore.updateEntity(message);
+                thread.addMessage(message);
 
                 final Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
-
-//                Bitmap thumbnail = ImageUtils.getCompressed(message.getResourcesPath(),
-//                        Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE,
-//                        Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE);
 
                 message.setImageDimensions(ImageUtils.getDimensionAsString(image));
 
@@ -217,24 +210,26 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                             message.setTextString(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
 
-                            message.setValueForKey(image.getWidth(), DaoDefines.Keys.MessageImageWidth);
-                            message.setValueForKey(image.getHeight(), DaoDefines.Keys.MessageImageHeight);
-                            message.setValueForKey(result.imageURL, DaoDefines.Keys.MessageImageURL);
-                            message.setValueForKey(result.thumbnailURL, DaoDefines.Keys.MessageThumbnailURL);
+                            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
+                            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
+                            message.setValueForKey(result.imageURL, Keys.MessageImageURL);
+                            message.setValueForKey(result.thumbnailURL, Keys.MessageThumbnailURL);
 
-                            DaoCore.updateEntity(message);
-
-                            implSendMessage(message).subscribe(new Action() {
-                                @Override
-                                public void run() throws Exception {
-                                    e.onComplete();
-                                }
-                            });
                         }
 
                         result.message = message;
                         e.onNext(result);
 
+                    }
+                }).doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        implSendMessage(message).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onComplete();
+                            }
+                        });
                     }
                 }).subscribe();
             }
@@ -242,26 +237,37 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     }
 
-    private Completable implSendMessage(final BMessage message) {
-        return sendMessage(message).doOnComplete(new Action() {
+    private Completable implSendMessage(final Message message) {
+        return Single.create(new SingleOnSubscribe<Message>() {
+            @Override
+            public void subscribe(SingleEmitter<Message> e) throws Exception {
+                // Set default message properties
+                e.onSuccess(message);
+            }
+        }).flatMapCompletable(new Function<Message, Completable>() {
+            @Override
+            public Completable apply(Message message) throws Exception {
+                return sendMessage(message);
+            }
+        }).doOnComplete(new Action() {
             @Override
             public void run() throws Exception {
-                message.setStatus(BMessage.Status.SENT);
+                message.setStatus(Message.Status.SENT);
                 DaoCore.updateEntity(message);
             }
         }).doOnError(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                message.setStatus(BMessage.Status.FAILED);
+                message.setStatus(Message.Status.FAILED);
             }
         });
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){
-        List<BThread> threads = getThreads(ThreadType.Private, false);
+        List<Thread> threads = getThreads(ThreadType.Private, false);
 
         int count = 0;
-        for (BThread t : threads)
+        for (Thread t : threads)
         {
             if (onePerThread)
             {
@@ -279,50 +285,46 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return count;
     }
 
-    public Single<BThread> createThread(String name, BUser... users) {
+    public Single<Thread> createThread(String name, User... users) {
         return createThread(name, Arrays.asList(users));
     }
 
-    public Completable addUsersToThread(BThread thread, BUser... users) {
+    public Single<Thread> createThread(List<User> users) {
+        return createThread(null, users);
+    }
+
+    public Completable addUsersToThread(Thread thread, User... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
-    public Completable removeUsersFromThread(BThread thread, BUser... users) {
+    public Completable removeUsersFromThread(Thread thread, User... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
     }
 
-    public List<BThread> getThreads(int type) {
+    public List<Thread> getThreads(int type) {
         return getThreads(type, false);
     }
 
-    public List<BThread> getThreads(int type, boolean allowDeleted){
+    public List<Thread> getThreads(int type, boolean allowDeleted){
+
         if(ThreadType.isPublic(type)) {
-            return DaoCore.fetchEntitiesWithProperty(BThread.class, BThreadDao.Properties.Type, type);
+            return StorageManager.shared().fetchThreadsWithType(ThreadType.PublicGroup);
         }
 
-        // Freshen up the data by calling reset before getting the list
-        List<UserThreadLink> links = DaoCore.fetchEntitiesOfClass(UserThreadLink.class);
+        // We may access this method post authentication
+        if(NM.currentUser() == null) {
+            return new ArrayList<>();
+        }
 
-        // In case the list is empty
-        if (links == null) return null;
+        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, NM.currentUser().getId());
 
-        List<BThread> threads = new ArrayList<>();
-        BUser currentUser = NM.currentUser();
+        List<Thread> threads = new ArrayList<>();
 
         // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
-        for (UserThreadLink link : links ){
-            BThread thread = link.getBThread();
-            BUser user = link.getBUser();
-
-            if(user == null || !user.equals(currentUser)) {
-                continue;
+        for (UserThreadLink link : links) {
+            if(link.getThread().typeIs(type)) {
+                threads.add(link.getThread());
             }
-
-            if (thread == null || (thread.isDeleted() && !allowDeleted) || !thread.typeIs(type)) {
-                continue;
-            }
-
-            threads.add(link.getBThread());
         }
 
         // Sort the threads list before returning
@@ -331,11 +333,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return threads;
     }
 
-    public void sendLocalSystemMessage(String text, BThread thread) {
+    public void sendLocalSystemMessage(String text, Thread thread) {
 
     }
 
-    public void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, BThread thread) {
+    public void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, Thread thread) {
 
     }
 

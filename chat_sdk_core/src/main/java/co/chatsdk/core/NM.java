@@ -1,6 +1,6 @@
 package co.chatsdk.core;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
@@ -47,7 +47,7 @@ public class NM {
         return NetworkManager.shared().a.events;
     }
 
-    public static BUser currentUser () {
+    public static User currentUser () {
         return NM.core().currentUserModel();
     }
 

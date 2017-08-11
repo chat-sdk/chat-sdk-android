@@ -19,13 +19,12 @@ import android.widget.TextView;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
 import com.braunster.chatsdk.network.FacebookManager;
-import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -112,7 +111,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         FacebookManager.logout(getActivity());
 
         NM.auth().logout();
-        UIHelper.startLoginActivity(true);
+        uiHelper.startLoginActivity(true);
     }
 
     /** Fetching the user details from the user's metadata.*/
@@ -121,18 +120,18 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
             return;
         }
 
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
 
         String name = user.getName();
 
         if (StringUtils.isNotEmpty(name))
             ((TextView) mainView.findViewById(R.id.chat_sdk_txt_name)).setText(name);
 
-        String country = user.metaStringForKey(DaoDefines.Keys.CountryCode);
+        String country = user.metaStringForKey(Keys.CountryCode);
 
-        String status = user.metaStringForKey(DaoDefines.Keys.Status);
+        String status = user.metaStringForKey(Keys.Status);
 
-        String location = user.metaStringForKey(DaoDefines.Keys.Location);
+        String location = user.metaStringForKey(Keys.Location);
 
         // Loading the user country icon, If not exist we will hide the icon.
         if (StringUtils.isNotEmpty(country))
@@ -165,7 +164,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
 
         if (DEBUG) Timber.d("loading user details, Name: %s, Status: %s, CountryCode: %s, Location: %s", name, status, country, location);
 
-        Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getAvatarURL());
+        user.putAvatar(profileCircleImageView);
     }
 
     @Override
@@ -189,7 +188,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         
         if (item.getItemId() == R.id.action_chat_sdk_edit)
         {
-            UIHelper.startEditProfileActivity(NM.currentUser().getId());
+            uiHelper.startEditProfileActivity(NM.currentUser().getId());
 
             getActivity().overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
             return true;

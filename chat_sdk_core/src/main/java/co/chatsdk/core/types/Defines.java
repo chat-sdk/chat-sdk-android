@@ -40,8 +40,6 @@ public class Defines {
         return "Chatcat" + String.valueOf(new Random().nextInt(1000) + 1);
     }
 
-
-
     /**
      * If true anonymous login is possible.
      * */

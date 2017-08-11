@@ -56,7 +56,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      */
     public void setLoginInfo(Map<String, Object> values) {
 
-        SharedPreferences.Editor keyValuesEditor = AppContext.getPreferences().edit();
+        SharedPreferences.Editor keyValuesEditor = AppContext.shared().getPreferences().edit();
 
         for (String s : values.keySet()) {
             if (values.get(s) instanceof Integer)
@@ -72,7 +72,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public void addLoginInfoData(String key, Object value){
-        SharedPreferences.Editor keyValuesEditor = AppContext.getPreferences().edit();
+        SharedPreferences.Editor keyValuesEditor = AppContext.shared().getPreferences().edit();
         if (value instanceof Integer)
             keyValuesEditor.putInt(key, (Integer) value);
         else if (value instanceof String)
@@ -139,11 +139,11 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      * The preference manager is initialized when the NetworkManager.Init(context) is called.
      */
     public String getCurrentUserEntityID() {
-        return AppContext.getPreferences().getString(Defines.Prefs.AuthenticationID, "");
+        return AppContext.shared().getPreferences().getString(Defines.Prefs.AuthenticationID, "");
     }
 
     public Map<String, ?> getLoginInfo() {
-        return AppContext.getPreferences().getAll();
+        return AppContext.shared().getPreferences().getAll();
     }
 
 }

@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.R;
@@ -22,17 +22,17 @@ import co.chatsdk.ui.R;
 public class Strings {
 
     public static String t (@StringRes int resId) {
-        return AppContext.context.getString(resId);
+        return AppContext.shared().context().getString(resId);
     }
 
-    public static String payloadAsString (BMessage message) {
+    public static String payloadAsString (Message message) {
             if (message.getType() != null) {
                 switch (message.getType()) {
-                    case BMessage.Type.TEXT:
+                    case Message.Type.TEXT:
                         return message.getTextString();
-                    case BMessage.Type.IMAGE:
+                    case Message.Type.IMAGE:
                         return t(R.string.not_image_message);
-                    case BMessage.Type.LOCATION:
+                    case Message.Type.LOCATION:
                         return t(R.string.not_location_message);
                 }
             }
@@ -47,18 +47,18 @@ public class Strings {
         return new SimpleDateFormat("dd/MM/yy").format(date);
     }
 
-    public static String nameForThread (BThread thread) {
+    public static String nameForThread (Thread thread) {
 
         if (StringUtils.isNotEmpty(thread.getName()))
             return thread.getName();
 
         // Due to the bundle printing when the app run on debug this sometime is null.
-        BUser currentUser = NM.currentUser();
+        User currentUser = NM.currentUser();
         String name = "";
 
         if (thread.typeIs(ThreadType.Private)) {
 
-            for (BUser user : thread.getUsers()){
+            for (User user : thread.getUsers()){
                 if (!user.getId().equals(currentUser.getId())) {
                     String n = user.getName();
 

@@ -38,7 +38,13 @@ dependencies {
     compile ('org.igniterealtime.smack:smack-android-extensions:4.1.8', {
         exclude group: 'xpp3', module: 'xpp3'
     })
+    compile ('org.igniterealtime.smack:smack-experimental:4.1.8', {
+        exclude group: 'xpp3', module: 'xpp3'
+    })
+
+
     compile project(path: ':chat_sdk_core')
+    compile project(path: ':chat_sdk_ui')
     compile 'com.koushikdutta.ion:ion:2.+'
     compile 'id.zelory:compressor:2.0.0'
 

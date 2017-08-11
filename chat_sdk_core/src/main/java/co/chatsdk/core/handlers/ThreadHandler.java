@@ -4,9 +4,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.MessageUploadResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -19,52 +19,47 @@ import io.reactivex.Single;
 public interface ThreadHandler {
 
     /**
-     * Create thread for given users.
-     * When the thread is added to the server the "onMainFinished" will be invoked,
-     * If an error occurred the error object would not be null.
-     * For each user that was succesfully added the "onItem" method will be called,
-     * For any item adding failure the "onItemFailed will be called.
-     * If the main task will fail the error object in the "onMainFinished" method will be called.
+     * The list of users should not contain the current user.
      */
-    Single<BThread> createThread(String name, List<BUser> users);
-    Single<BThread> createThread(List<BUser> users);
-    Single<BThread> createThread(String name, BUser... users);
+    Single<Thread> createThread(String name, List<User> users);
+    Single<Thread> createThread(List<User> users);
+    Single<Thread> createThread(String name, User... users);
 
     /**
      * Remove users from a thread
      */
-    Completable removeUsersFromThread(BThread thread, List<BUser> users);
-    Completable removeUsersFromThread(BThread thread, BUser... users);
+    Completable removeUsersFromThread(Thread thread, List<User> users);
+    Completable removeUsersFromThread(Thread thread, User... users);
     /**
      * Add users to a thread
      */
-    Completable addUsersToThread(BThread thread, List<BUser> users);
-    Completable addUsersToThread(BThread thread, BUser... users);
+    Completable addUsersToThread(Thread thread, List<User> users);
+    Completable addUsersToThread(Thread thread, User... users);
     /**
      * Lazy loading of messages this method will load
      * that are not already in memory
      */
-    Single<List<BMessage>> loadMoreMessagesForThread(BMessage fromMessage, BThread thread);
+    Single<List<Message>> loadMoreMessagesForThread(Message fromMessage, Thread thread);
 
     /**
      * This method deletes an existing thread. It deletes the thread from memory
      * and removes the user from the thread so the user no longer recieves notifications
      * from the thread
      */
-    Completable deleteThread(BThread thread);
-    Completable leaveThread (BThread thread);
-    Completable joinThread (BThread thread);
+    Completable deleteThread(Thread thread);
+    Completable leaveThread (Thread thread);
+    Completable joinThread (Thread thread);
 
     /**
      * Send different types of message to a particular thread
      */
-    Completable sendMessageWithText(String text, BThread thread);
-    Completable sendMessageWithLocation(String filePath, LatLng location, BThread thread);
-    Observable<MessageUploadResult> sendMessageWithImage(String filePath, BThread thread);
+    Completable sendMessageWithText(String text, Thread thread);
+    Completable sendMessageWithLocation(String filePath, LatLng location, Thread thread);
+    Observable<MessageUploadResult> sendMessageWithImage(String filePath, Thread thread);
     /**
      * Send a message object
      */
-    Completable sendMessage(BMessage message);
+    Completable sendMessage(Message message);
 
     int getUnreadMessagesAmount(boolean onePerThread);
 
@@ -72,16 +67,16 @@ public interface ThreadHandler {
     /**
      * Get the messages for a particular thread
      */
-    //List<BMessage> messagesForThread (String threadID, boolean ascending);
+    //List<Message> messagesForThread (String threadID, boolean ascending);
 
     /**
      * Get a list of all threads
      */
-    List<BThread> getThreads (int type, boolean allowDeleted);
-    List<BThread> getThreads (int type);
+    List<Thread> getThreads (int type, boolean allowDeleted);
+    List<Thread> getThreads (int type);
 
-    void sendLocalSystemMessage(String text, BThread thread);
-    void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, BThread thread);
+    void sendLocalSystemMessage(String text, Thread thread);
+    void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, Thread thread);
 
-    Completable pushThread(BThread thread);
+    Completable pushThread(Thread thread);
 }

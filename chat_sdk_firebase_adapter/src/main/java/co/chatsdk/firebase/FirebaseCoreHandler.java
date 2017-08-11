@@ -8,7 +8,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.DaoCore;
 
@@ -47,7 +47,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void setUserOnline() {
-        BUser current = NM.currentUser();
+        User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
             UserWrapper.initWithModel(currentUserModel()).goOnline();
@@ -55,7 +55,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void setUserOffline() {
-        BUser current = NM.currentUser();
+        User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
             UserWrapper.initWithModel(currentUserModel()).goOffline();
@@ -78,7 +78,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable updateLastOnline () {
-        BUser currentUser  = NM.currentUser();
+        User currentUser  = NM.currentUser();
         currentUser.setLastOnline(new Date());
         DaoCore.updateEntity(currentUser);
         return pushUser();

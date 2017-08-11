@@ -24,9 +24,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.chat.ChatActivity;
 import io.reactivex.functions.Consumer;
@@ -38,9 +37,6 @@ import co.chatsdk.core.defines.Debug;
  * Created by itzik on 6/17/2014.
  */
 public class PrivateThreadsFragment extends BaseFragment {
-
-    private static final String TAG = PrivateThreadsFragment.class.getSimpleName();
-    private static boolean DEBUG = Debug.ConversationsFragment;
 
     protected ListView listThreads;
     protected ThreadsListAdapter adapter;
@@ -63,17 +59,14 @@ public class PrivateThreadsFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(inflateMenuItems);
 
-        getActivity().registerReceiver(receiver, new IntentFilter(ChatActivity.ACTION_CHAT_CLOSED));
-
         NM.events().sourceOnMain()
-                .filter(PredicateFactory.privateThreadsUpdated())
+                .filter(NetworkEvent.filterPrivateThreadsUpdated())
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(NetworkEvent networkEvent) throws Exception {
                 loadData();
             }
         });
-
     }
 
     @Override
@@ -87,26 +80,25 @@ public class PrivateThreadsFragment extends BaseFragment {
 
         // Create the adapter only if null, This is here so we wont
         // override the adapter given from the extended class with setAdapter.
-        if (adapter == null)
+        if (adapter == null) {
             adapter = new ThreadsListAdapter((AppCompatActivity) getActivity());
+        }
 
         listThreads.setAdapter(adapter);
         listThreads.setClickable(true);
 
-        if (onItemClickListener==null)
-        {
+        if (onItemClickListener == null) {
             onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    startChatActivityForID(adapter.getItem(position).getId());
+                    startChatActivityForThreadID(adapter.getItem(position).getId());
                 }
             };
         }
 
         listThreads.setOnItemClickListener(onItemClickListener);
 
-        if (onItemLongClickListener== null)
-        {
+        if (onItemLongClickListener == null) {
             onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -124,10 +116,6 @@ public class PrivateThreadsFragment extends BaseFragment {
     @Override
     public void loadData() {
         super.loadData();
-
-        if (mainView == null)
-            return;
-
         adapter.setAllItems(NM.thread().getThreads(ThreadType.Private));
     }
 
@@ -137,7 +125,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         if (adapter.getCount() == 0)
             return;
 
-        adapter.replaceOrAddItem((BThread) entity);
+        adapter.replaceOrAddItem((Thread) entity);
         if (progressBar.getVisibility() == View.VISIBLE)
         {
             progressBar.setVisibility(View.GONE);
@@ -147,9 +135,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
     @Override
     public void clearData() {
-        if (adapter != null)
-        {
-
+        if (adapter != null) {
             adapter.getAllItems().clear();
             adapter.notifyDataSetChanged();
         }
@@ -161,6 +147,7 @@ public class PrivateThreadsFragment extends BaseFragment {
             return;
 
         super.onCreateOptionsMenu(menu, inflater);
+        // TODO: Localise
         MenuItem item =
                 menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Conversation");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -205,20 +192,6 @@ public class PrivateThreadsFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            getActivity().unregisterReceiver(receiver);
-        } catch (Exception e) {
-        }
     }
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(ChatActivity.ACTION_CHAT_CLOSED))
-            {
-                loadData();
-            }
-        }
-    };
 
 }

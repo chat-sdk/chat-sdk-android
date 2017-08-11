@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -8,8 +8,8 @@ import co.chatsdk.core.dao.BThread;
 
 public interface TypingIndicatorHandler {
 
-    public void typingOn (BThread thread);
-    public void typingOff (BThread thread);
+    public void typingOn (Thread thread);
+    public void typingOff (Thread thread);
 //
 //    -(RXPromise *) setChatState: (bChatState) state forThread: (id<PThread>) thread;
 }

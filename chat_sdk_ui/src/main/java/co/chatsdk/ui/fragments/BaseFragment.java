@@ -21,8 +21,8 @@ import android.view.ViewGroup;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
@@ -45,13 +45,13 @@ public abstract class BaseFragment extends DialogFragment {
     private ProgressDialog progressDialog;
 
     protected View mainView;
-    protected UIHelper UIHelper;
+    protected UIHelper uiHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UIHelper = UIHelper.getInstance();
+        uiHelper = uiHelper.getInstance();
     }
 
     @Override
@@ -82,27 +82,27 @@ public abstract class BaseFragment extends DialogFragment {
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.*/
     public void setupTouchUIToDismissKeyboard(View view) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        uiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                UIHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
+                uiHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
                 return false;
             }
         });
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        uiHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                UIHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
+                uiHelper.hideSoftKeyboard((AppCompatActivity) getActivity());
                 return false;
             }
         }, exceptIDs);
     }
 
     public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+        uiHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
     }
 
     public void initViews() {
@@ -111,36 +111,34 @@ public abstract class BaseFragment extends DialogFragment {
 
     /** Show a SuperToast with the given text. */
     protected void showToast(String text){
-        if (UIHelper ==null || StringUtils.isEmpty(text))
-            return;
-        UIHelper.getToast().setText(text);
-        UIHelper.getToast().show();
+        if (!StringUtils.isEmpty(text)) {
+            uiHelper.getToast().setText(text);
+            uiHelper.getToast().show();
+        }
     }
 
     /** Start the chat activity for the given thread id.
      * @param id is the long value of local db id.*/
-    public void startChatActivityForID(long id){
-        if (UIHelper != null)
-            UIHelper.startChatActivityForID(id);
+    public void startChatActivityForThreadID(long id){
+        uiHelper.startChatActivityForID(id);
     }
 
     public void startPickFriendsActivity() {
-        if (UIHelper != null)
-            UIHelper.startPickFriendsActivity();
+        uiHelper.startPickFriendsActivity();
     }
 
     /** Create or fetch chat for users, Opens the chat when done.*/
-    protected Single<BThread> createAndOpenThreadWithUsers(String name, BUser...users){
+    protected Single<Thread> createAndOpenThreadWithUsers(String name, User...users){
         return createThreadWithUsers(name, true, users);
     }
     /** Create or fetch chat for users. Opens the chat if wanted.*/
-    protected Single<BThread> createThreadWithUsers(String name, final boolean openChatWhenDone, BUser... users) {
-        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<BThread>() {
+    protected Single<Thread> createThreadWithUsers(String name, final boolean openChatWhenDone, User... users) {
+        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<Thread>() {
             @Override
-            public void accept(BThread thread) throws Exception {
+            public void accept(Thread thread) throws Exception {
                 if (thread != null) {
                     if (openChatWhenDone)
-                        startChatActivityForID(thread.getId());
+                        startChatActivityForThreadID(thread.getId());
                 }
             }
         }).doOnError(new Consumer<Throwable>() {
@@ -234,8 +232,8 @@ public abstract class BaseFragment extends DialogFragment {
 
     protected class DeleteThread implements Callable {
 
-        private BThread thread;
-        public DeleteThread(BThread thread){
+        private Thread thread;
+        public DeleteThread(Thread thread){
             this.thread = thread;
         }
 
@@ -262,8 +260,8 @@ public abstract class BaseFragment extends DialogFragment {
         }
     }
 
-    public void setUIHelper(UIHelper UIHelper) {
-        this.UIHelper = UIHelper;
+    public void setUiHelper(UIHelper uiHelper) {
+        this.uiHelper = uiHelper;
     }
 
 }

@@ -204,94 +204,6 @@ public class DaoCore {
         return qb.listLazy();
     }
 
-//    public static <T extends CoreEntity> T fetchOrCreateEntityWithID(Class<T> c, Object entityId){
-//
-//        T entity = fetchEntityWithEntityID(c, entityId);
-//
-//        if (entity == null)
-//        {
-//            entity = getEntityForClass(c);
-//
-//            if(entityId instanceof String) {
-//                entity.setEntityID((String) entityId);
-//            }
-//            else {
-//                entity.setEntityID(entityId.toString());
-//                Timber.v("ERROR!!! The entity must always be a string");
-//            }
-//
-//            entity = createEntity(entity);
-//        }
-//
-//        // TODO: HERE !!!
-//        return entity;
-//    }
-
-//    public static <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, Object entityId){
-//
-//        T entity = null;
-//        //T entity = fetchEntityWithEntityID(c, entityId);
-////
-//        if (entity == null)
-//        {
-//            entity = getEntityForClass(c);
-//
-////            if(entityId instanceof String) {
-////                entity.setEntityID((String) entityId);
-////            }
-////            else {
-////                entity.setEntityID(entityId.toString());
-////                Timber.v("ERROR!!! The entity must always be a string");
-////            }
-////
-////            entity = createEntity(entity);
-//        }
-//
-//        return null;
-//    }
-
-//    /** Fetch an CoreEntity for given property and class.
-//     * If no CoreEntity found a new one will be created.
-//     * The calling method have to handle the the inserting
-//     * of the given value if a new CoreEntity was created.
-//     *
-//     * @return and object that Extends the CoreEntity object.
-//     * The object will be created from the given class.*/
-//
-//
-//    @SuppressWarnings("unchecked") private static <T extends CoreEntity> T fetchOrCreateEntityWithProperty(Class<T> c, Property property, Object value){
-//        T entity = fetchEntityWithProperty(c, property, value);
-//
-//        if (entity != null)
-//            return entity;
-//
-//        // Create the new entity.
-//        Class<T> clazz = null;
-//        T o = null;
-//        try {
-//            clazz = (Class<T>) Class.forName(c.getName());
-//            Constructor<T> ctor =  clazz.getConstructor(c);
-//            o = (T) ctor.newInstance();
-//        } catch (ClassNotFoundException e) {
-////                e.printStackTrace();
-//        } catch (NoSuchMethodException e) {
-////                e.printStackTrace();
-//        } catch (InvocationTargetException e) {
-////                e.printStackTrace();
-//        } catch (InstantiationException e) {
-////                e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-////                e.printStackTrace();
-//        }
-//
-//        if (o != null)
-//        {
-//            return createEntity(o);
-//        }
-//
-//        return null;
-//    }
-
     /* Update, Create and Delete*/
     public static  <T extends CoreEntity> T createEntity(T entity){
         if (DEBUG) Timber.v("createEntity");
@@ -334,19 +246,19 @@ public class DaoCore {
     }
 
 
-    public static void connectUserAndThread(BUser user, BThread thread){
+    public static void connectUserAndThread(User user, Thread thread){
         if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         if(!thread.hasUser(user)) {
             UserThreadLink linkData = new UserThreadLink();
             linkData.setThreadId(thread.getId());
-            linkData.setBThread(thread);
+            linkData.setThread(thread);
             linkData.setUserId(user.getId());
-            linkData.setBUser(user);
+            linkData.setUser(user);
             createEntity(linkData);
         }
     }
 
-    public static void breakUserAndThread(BUser user, BThread thread){
+    public static void breakUserAndThread(User user, Thread thread){
         if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         DaoCore.deleteEntity(linkData);

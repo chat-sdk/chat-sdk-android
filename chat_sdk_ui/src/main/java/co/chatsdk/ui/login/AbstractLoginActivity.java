@@ -5,18 +5,20 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.activities;
+package co.chatsdk.ui.login;
 
 import android.content.Intent;
 import android.widget.EditText;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.LoginType;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.activities.MainActivity;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import co.chatsdk.core.defines.Debug;
@@ -96,7 +98,7 @@ public class AbstractLoginActivity extends BaseActivity {
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin(){
         // Indexing the user.
-        BUser currentUser = NM.currentUser();
+        User currentUser = NM.currentUser();
         if(currentUser != null) {
             NM.core().pushUser().subscribe();
         }
@@ -132,6 +134,7 @@ public class AbstractLoginActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 toastErrorMessage(e, false);
+                e.printStackTrace();
                 dismissProgDialog();
             }
         });

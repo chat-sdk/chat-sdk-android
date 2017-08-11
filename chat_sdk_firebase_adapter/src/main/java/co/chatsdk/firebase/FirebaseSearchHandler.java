@@ -1,5 +1,7 @@
 package co.chatsdk.firebase;
 
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.ChatError;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -17,8 +19,6 @@ import java.util.Objects;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.firebase.wrappers.UserWrapper;
@@ -46,10 +46,10 @@ public class FirebaseSearchHandler implements SearchHandler {
      *
      * This will allow us to find the user*/
     //@Override
-    public Observable<BUser> usersForIndex2(final String index, final String value) {
-        return Observable.create(new ObservableOnSubscribe<BUser>() {
+    public Observable<User> usersForIndex2(final String index, final String value) {
+        return Observable.create(new ObservableOnSubscribe<User>() {
             @Override
-            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+            public void subscribe(final ObservableEmitter<User> e) throws Exception {
                 if (StringUtils.isBlank(value))
                 {
                     e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
@@ -66,7 +66,7 @@ public class FirebaseSearchHandler implements SearchHandler {
 
                             Map<String, Objects> values = (Map<String, Objects>) snapshot.getValue();
 
-                            final List<BUser> usersToGo = new ArrayList<BUser>();
+                            final List<User> usersToGo = new ArrayList<User>();
                             List<String> keys = new ArrayList<String>();
 
                             // So we dont have to call the db for each key.
@@ -78,21 +78,21 @@ public class FirebaseSearchHandler implements SearchHandler {
                                     keys.add(key);
 
                             // Fetch or create users in the local db.
-                            BUser bUser;
+                            User bUser;
                             if (keys.size() > 0) {
                                 for (String entityID : keys) {
                                     // Making sure that we wont try to get users with a null object id in the index section
                                     // If we will try the query will never end and there would be no result from the index.
-                                    if(StringUtils.isNotBlank(entityID) && !entityID.equals(DaoDefines.Keys.Null) && !entityID.equals("(null)"))
+                                    if(StringUtils.isNotBlank(entityID) && !entityID.equals(Keys.Null) && !entityID.equals("(null)"))
                                     {
-                                        bUser = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, entityID);
+                                        bUser = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityID);
                                         usersToGo.add(bUser);
                                     }
                                 }
 
                                 ArrayList<Completable> completables = new ArrayList<>();
 
-                                for (final BUser user : usersToGo) {
+                                for (final User user : usersToGo) {
 
                                     completables.add(UserWrapper.initWithModel(user).once().andThen(new CompletableSource() {
                                         @Override
@@ -143,10 +143,10 @@ public class FirebaseSearchHandler implements SearchHandler {
         });
     }
 
-    public Observable<BUser> usersForIndex(final String index, final String value) {
-        return Observable.create(new ObservableOnSubscribe<BUser>() {
+    public Observable<User> usersForIndex(final String index, final String value) {
+        return Observable.create(new ObservableOnSubscribe<User>() {
             @Override
-            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+            public void subscribe(final ObservableEmitter<User> e) throws Exception {
 
                 if (StringUtils.isBlank(value))
                 {
@@ -155,7 +155,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                 }
 
                 final Query query = FirebasePaths.usersRef()
-                        .orderByChild(DaoDefines.Keys.Meta + '/' + index)
+                        .orderByChild(Keys.Meta + '/' + index)
                         .startAt(value)
                         .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
 

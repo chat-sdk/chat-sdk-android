@@ -28,7 +28,7 @@ import java.io.File;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageUploadResult;
 import co.chatsdk.core.utils.ImageUtils;
@@ -137,7 +137,7 @@ public abstract class AbstractProfileFragment extends BaseFragment {
                 saveProfilePicToServer(image.getPath()).subscribe();
             }
             catch (NullPointerException e){
-                UIHelper.getInstance().showToast(R.string.unable_to_fetch_image);
+                uiHelper.getInstance().showToast(R.string.unable_to_fetch_image);
             }
         }
     }
@@ -191,7 +191,7 @@ public abstract class AbstractProfileFragment extends BaseFragment {
             public CompletableSource apply(@NonNull File file) throws Exception {
 
                 // Saving the image to backendless.
-                final BUser currentUser = NM.currentUser();
+                final User currentUser = NM.currentUser();
 
                 // TODO: Are we handling the error here
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());

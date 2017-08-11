@@ -16,6 +16,7 @@ public class XMPPNetworkAdapter extends BaseNetworkAdapter {
         this.thread = new XMPPThreadHandler();
         this.search = new XMPPSearchHandler();
         this.contact = new XMPPContactHandler();
+        this.thread = new XMPPThreadHandler();
     }
 
 }

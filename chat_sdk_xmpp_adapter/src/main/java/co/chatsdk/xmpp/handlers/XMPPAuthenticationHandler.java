@@ -8,14 +8,13 @@ import java.util.Map;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.xmpp.XMPPAuthenticationManager;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.utils.JID;
 import co.chatsdk.xmpp.utils.KeyStorage;
@@ -32,11 +31,9 @@ import io.reactivex.functions.Function;
 
 public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    XMPPAuthenticationManager manager;
     KeyStorage keyStorage = new KeyStorage();
 
     public XMPPAuthenticationHandler () {
-        manager = new XMPPAuthenticationManager();
     }
 
     @Override
@@ -66,15 +63,16 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
         switch (details.type) {
             case Username:
-                return manager.login(details.username, details.password).doOnComplete(onComplete);
+                return XMPPManager.shared().login(details.username, details.password).doOnComplete(onComplete);
             case Register:
-                return manager.register(details.username, details.password);
+                return XMPPManager.shared().register(details.username, details.password);
         }
 
         return null;
     }
 
     private void userAuthenticationCompletedWithJID (JID jid) {
+
 
         final Map<String, Object> loginInfoMap =  new HashMap<String, Object>();
 
@@ -85,17 +83,16 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {
 
-            BUser user = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, jid.bare());
+            User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.bare());
 
-            for(BThread thread : NM.thread().getThreads(ThreadType.PrivateGroup)) {
-                // TODO: Join any MUC rooms
-            }
 
             XMPPManager.shared().goOnline(user);
 
             if(NM.push() != null) {
                 NM.push().subscribeToPushChannel(jid.bare());
             }
+
+            XMPPManager.shared().performPostAuthenticationSetup();
 
         }
 
@@ -136,7 +133,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         if(NM.push() != null) {
             NM.push().unsubscribeToPushChannel(NM.currentUser().getEntityID());
         }
-        manager.logout();
+        XMPPManager.shared().logout();
         setLoginInfo(new HashMap<String, Object>());
 
         NM.events().source().onNext(NetworkEvent.logout());

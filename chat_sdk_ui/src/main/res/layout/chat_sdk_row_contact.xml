@@ -14,7 +14,10 @@
         android:layout_marginLeft="8dp"
         android:layout_centerVertical="true"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        />
 
     <TextView
         android:layout_width="match_parent"
@@ -37,7 +40,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:padding="10dp"
-        android:focusable="false"
         android:layout_centerVertical="true"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:enabled="true"
+        android:buttonTint="@color/chat_blue"/>
 </RelativeLayout>

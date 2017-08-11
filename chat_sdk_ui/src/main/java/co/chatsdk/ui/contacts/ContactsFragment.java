@@ -7,21 +7,120 @@
 
 package co.chatsdk.ui.contacts;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.ui.fragments.BaseFragment;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import co.chatsdk.ui.activities.SearchActivity;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
+import co.chatsdk.core.dao.DaoCore;
+
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ContactsFragment extends AbstractContactsFragment {
+public class ContactsFragment extends BaseFragment {
+
+    private static boolean DEBUG = Debug.ContactsFragment;
+
+    /** Loading all the current user contacts.*/
+    public static final int MODE_LOAD_CONTACTS = 1991;
+
+    /** Loading all users for given thread id mode*/
+    public static final int MODE_LOAD_THREAD_USERS = 1992;
+
+    /** Using the users that was given to the fragment in to initializer;*/
+    public static final int MODE_USE_SOURCE = 1995;
+
+    public static final int MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD = 1996;
+
+    /** When a user clicked he will be added to the current thread.*/
+    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
+    /** Used for the share intent, When a user press on a user the attached bundle from the share intent will be sent to the selected user.*/
+    public static final int CLICK_MODE_SHARE_CONTENT = 2992;
+    /** Open profile activity when user is clicked.*/
+    public static final int CLICK_MODE_SHOW_PROFILE = 2993;
+    /** Nothing happen on list item click.*/
+    public static final int CLICK_MODE_NONE = 2994;
+
+    public static final String LOADING_MODE = "Loading_Mode";
+    public static final String CLICK_MODE = "Click_Mode";
+    public static final String IS_DIALOG = "is_dialog";
+
+    /** The text color that the adapter will use, Use -1 to set adapter to default color.*/
+    protected int textColor = -1991;
+
+    protected UsersListAdapter adapter;
+    protected ProgressBar progressBar;
+    protected ListView listView;
+
+    /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
+     * {@link #loadingMode}*/
+    protected List<User> sourceUsers = null;
+
+    /** Used when the fragment is shown as a dialog*/
+    protected String title = "";
+
+    /** Determine which users will be loaded to this fragment.
+     *
+     * @see
+     *  #MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD,
+     *  #MODE_LOAD_CONTACTS
+     *  #MODE_LOAD_FOLLOWERS
+     *  #MODE_LOAD_FOLLOWS
+     *  #MODE_LOAD_THREAD_USERS
+     *  #MODE_USE_SOURCE
+     *  */
+    protected int loadingMode;
+
+    /** Determine what happen after a user is clicked.
+     *
+     * @see
+     * #CLICK_MODE_ADD_USER_TO_THREAD
+     * #CLICK_MODE_SHARE_CONTENT
+     * #CLICK_MODE_SHOW_PROFILEs */
+    protected int clickMode;
+
+    /** Extra bundle for the loading mode/ click mode, for example this is used as thread id/entityID for loading mode {@link #CLICK_MODE_ADD_USER_TO_THREAD}
+     *  Look in {@link #loadSourceUsers()} or in {@link #setListClickMode()} for more examples. */
+    protected Object extraData ="";
+
+    /** If true the fragment will listen to users details change and updates.*/
+    protected boolean withUpdates = true;
+
+    /** Set to false if you dont want any menu item to be inflated for this fragment.
+     *  This should be set before the fragment transaction,
+     *  if you extends the fragment you can call it in {@link #onCreate(android.os.Bundle)}
+     *  <B>see </B>{@link #setInflateMenu(boolean inflate)}*/
+    protected boolean inflateMenu = true;
+
+    /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
+    private boolean isDialog = false;
 
     public static ContactsFragment newInstance() {
         ContactsFragment f = new ContactsFragment();
@@ -36,26 +135,6 @@ public class ContactsFragment extends AbstractContactsFragment {
         f.setLoadingMode(loadingMode);
         f.setClickMode(clickMode);
         f.setExtraData(extraData);
-        return f;
-    }
-
-    public static ContactsFragment newInstance(int loadingMode, int clickMode, List<BUser> sourceUsers, Object extraData) {
-        ContactsFragment f = new ContactsFragment();
-        f.setLoadingMode(loadingMode);
-        f.setClickMode(clickMode);
-        f.setExtraData(extraData);
-        f.setSourceUsers(sourceUsers);
-        return f;
-    }
-
-    public static ContactsFragment newDialogInstance(int mode, String extraData, String title) {
-        ContactsFragment f = new ContactsFragment();
-        f.setDialog();
-        f.setTitle(title);
-        f.setExtraData(extraData);
-        f.setLoadingMode(mode);
-        Bundle b = new Bundle();
-        f.setArguments(b);
         return f;
     }
 
@@ -87,9 +166,63 @@ public class ContactsFragment extends AbstractContactsFragment {
         return f;
     }
 
+    public void setDialog(){
+        this.isDialog = true;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+
+    public void setLoadingMode(int loadingMode){
+        this.loadingMode = loadingMode;
+    }
+
+    public void setExtraData(Object extraData){
+        this.extraData = extraData;
+    }
+
+    public void setClickMode(int clickMode) {
+        this.clickMode = clickMode;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null)
+        {
+            loadingMode = savedInstanceState.getInt(LOADING_MODE);
+            clickMode = savedInstanceState.getInt(CLICK_MODE);
+            isDialog = savedInstanceState.getBoolean(IS_DIALOG);
+        }
+
+        if (!isDialog) {
+            setHasOptionsMenu(true);
+            setRetainInstance(true);
+        }
+
+        NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterContactsChanged())
+                .subscribe(new Consumer<NetworkEvent>() {
+            @Override
+            public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
+                loadData();
+            }
+        });
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+        if (isDialog) {
+            if(title.equals("")) {
+                getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+            }
+            else {
+                getDialog().setTitle(title);
+            }
+        }
 
         mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
 
@@ -100,4 +233,213 @@ public class ContactsFragment extends AbstractContactsFragment {
         return mainView;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(LOADING_MODE, loadingMode);
+        outState.putBoolean(IS_DIALOG, isDialog);
+    }
+
+    @Override
+    public void initViews(){
+        listView = (ListView) mainView.findViewById(R.id.chat_sdk_list_contacts);
+
+        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
+
+        // Create the adapter only if null this is here so we wont
+        // override the adapter given from the extended class with setAdapter.
+        if (adapter == null) {
+            adapter = new UsersListAdapter((AppCompatActivity) getActivity());
+        }
+
+        setTextColor(textColor);
+
+        listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        if (!inflateMenu)
+            return;
+
+        MenuItem item =
+                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Chat");
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        item.setIcon(R.drawable.ic_plus);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        /* Cant use switch in the library*/
+        int id = item.getItemId();
+
+        // Each user that will be found in the search activity will be automatically added as a contact.
+        if (id == R.id.action_chat_sdk_add)
+        {
+            Intent intent = new Intent(getActivity(), uiHelper.getSearchActivity());
+
+            startActivityForResult(intent, SearchActivity.GET_CONTACTS_ADDED_REQUEST);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void loadData () {
+
+        loadSourceUsers();
+
+        if (NM.currentUser() != null) {
+            adapter.setUsers(sourceUsers, true);
+            setListClickMode();
+        }
+    }
+
+    @Override
+    public void clearData() {
+        if (adapter != null)
+        {
+            adapter.getUserItems().clear();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void setListClickMode () {
+
+        adapter.setRowClickListener(new UsersListAdapter.RowClickListener() {
+            @Override
+            public void click(int position) {
+                final User clickedUser = DaoCore.fetchEntityWithEntityID(User.class, adapter.getItem(position).getEntityID());
+                final User currentUser = NM.currentUser();
+
+                switch (clickMode) {
+                    case CLICK_MODE_ADD_USER_TO_THREAD:
+
+                        Thread thread = null;
+                        if (extraData instanceof Long) {
+                            thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                        }
+                        else if (extraData instanceof String) {
+                            thread = StorageManager.shared().fetchThreadWithEntityID((String) extraData);
+                        }
+
+                        if(thread != null) {
+                            NM.thread().addUsersToThread(thread, clickedUser)
+                                    .doOnComplete(new Action() {
+                                        @Override
+                                        public void run() throws Exception {
+                                            showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
+
+                                            if (isDialog) {
+                                                getDialog().dismiss();
+                                            }
+
+                                        }
+                                    })
+                                    .doOnError(new Consumer<Throwable>() {
+                                        @Override
+                                        public void accept(Throwable throwable) throws Exception {
+                                            uiHelper.showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                        }
+                                    }).subscribe();
+                        }
+                        break;
+
+                    case CLICK_MODE_NONE:
+                        break;
+                    default:
+                        createAndOpenThreadWithUsers(clickedUser.getName(), clickedUser, currentUser)
+                                .doOnSuccess(new Consumer<Thread>() {
+                                    @Override
+                                    public void accept(Thread thread) throws Exception {
+
+                                        // This listener is used only because that if we dismiss the dialog before the thread creation has been done
+                                        // The contact dialog could not open the new chat activity because getActivity() will be null.
+                                        if (isDialog)
+                                            getDialog().dismiss();
+
+                                    }
+                                }).observeOn(AndroidSchedulers.mainThread()).subscribe();
+                }
+            }
+        });
+
+    }
+
+    public void filterListStartWith(String filter){
+        adapter.filterStartWith(filter);
+    }
+
+    private void loadSourceUsers () {
+        if (loadingMode != MODE_USE_SOURCE)
+            // If this is not a dialog we will load the contacts of the user.
+            switch (loadingMode) {
+                case MODE_LOAD_CONTACTS:
+                    if (DEBUG) Timber.d("Mode - Contacts");
+                    sourceUsers = NM.contact().contacts();
+                    Timber.d("Contacts: " + sourceUsers.size());
+                    break;
+
+                case MODE_LOAD_THREAD_USERS:
+                    if (DEBUG) Timber.d("Mode - CoreThread Users");
+                    Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
+
+                    // Remove the current user from the list.
+                    List<User> users = thread.getUsers();
+                    users.remove(NM.currentUser());
+
+                    sourceUsers = users;
+                    break;
+
+                case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
+                    List<User> users1 = NM.contact().contacts();
+                    thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                    List<User> threadUser = thread.getUsers();
+                    users1.removeAll(threadUser);
+                    sourceUsers = users1;
+                    break;
+            }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    public void setInflateMenu(boolean inflateMenu) {
+        this.inflateMenu = inflateMenu;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+
+        if (adapter!=null)
+        {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    public void withUpdates(boolean withUpdates) {
+        this.withUpdates = withUpdates;
+    }
+
+    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+        listView.setOnItemClickListener(onItemClickListener);
+    }
 }

@@ -5,33 +5,40 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
+import timber.log.Timber;
 
 public class MessageListItem {
 
     // TODO: Move this to settings
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
-    public BMessage message;
+    public Message message;
     public float progress;
     private long timeInMillis;
 
     @Deprecated
     private int[] dimensions = null;
 
-    public MessageListItem (BMessage message, int maxWidth) {
+    public MessageListItem (Message message, int maxWidth) {
 
         // If null that means no custom format was added to the adapter so we use the default.
         if (simpleDateFormat == null)
             simpleDateFormat = getFormat(message);
 
-        BUser user = message.getSender();
+        User user = message.getSender();
 
         this.message = message;
-        timeInMillis = message.getDate().toDate().getTime();
+
+        if (message.getDate() != null) {
+            timeInMillis = message.getDate().toDate().getTime();
+        }
+        else {
+            Timber.v("");
+        }
 
         dimensions = getDimensions(maxWidth);
 
@@ -46,7 +53,7 @@ public class MessageListItem {
     }
 
     public String getText () {
-        return message.getText();
+        return message.getTextString();
     }
 
     public boolean isMine () {
@@ -62,7 +69,7 @@ public class MessageListItem {
     }
 
     public boolean delivered () {
-        return message.wasDelivered() == BMessage.Delivered.Yes;
+        return message.wasDelivered() == Message.Delivered.Yes;
     }
 
     public Integer status () {
@@ -81,7 +88,7 @@ public class MessageListItem {
         return dimensions[1];
     }
 
-    private static SimpleDateFormat getFormat(BMessage message){
+    private static SimpleDateFormat getFormat(Message message){
 
         Date curTime = new Date();
         long interval = (curTime.getTime() - message.getDate().toDate().getTime()) / 1000L;
@@ -133,7 +140,7 @@ public class MessageListItem {
     }
 
     public boolean isValid () {
-        if(messageType() == BMessage.Type.IMAGE && dimensions == null) {
+        if(messageType() == Message.Type.IMAGE && dimensions == null) {
             return false;
         }
         return true;

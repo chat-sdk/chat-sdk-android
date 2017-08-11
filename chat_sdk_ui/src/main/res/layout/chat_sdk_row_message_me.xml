@@ -14,6 +14,7 @@
         android:layout_toRightOf="@+id/txt_time"
         android:layout_centerVertical="true"
         android:gravity="right"
+        android:layout_margin="0dp"
         android:orientation="vertical">
 
         <TextView
@@ -45,14 +46,6 @@
         android:layout_centerVertical="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!--<ProgressBar-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_toRightOf="@id/img_user_image"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:layout_alignRight="@id/chat_sdk_image"-->
-        <!--android:id="@+id/chat_sdk_progress_bar"/>-->
 
     <TextView
         android:layout_width="wrap_content"

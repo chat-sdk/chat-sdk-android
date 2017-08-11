@@ -7,174 +7,352 @@
 
 package co.chatsdk.ui.contacts;
 
-import android.graphics.Bitmap;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
+import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
-import com.koushikdutta.ion.Ion;
-
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import timber.log.Timber;
 
-/**
- * Created by itzik on 6/16/2014.
- */
-public class UsersListAdapter extends AbstractUsersListAdapter<AbstractUsersListAdapter.AbstractUserListItem> {
+public class UsersListAdapter extends BaseAdapter {
 
-    private static final String TAG = UsersListAdapter.class.getSimpleName();
+    private AppCompatActivity mActivity;
+
+    private List<UserListItem> listData = new ArrayList<>();
+    private List<UserListItem> userItems = new ArrayList<>();
+    private List<String> userIDs = new ArrayList<>();
+    private RowClickListener rowClickListener;
+    private RowClickListener profileImageClickListener;
+
+    public static final int TYPE_USER = 1991;
+
+    protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
+
+    protected boolean isMultiSelect = false;
+
+    protected boolean filtering = false;
+
+    public class ViewHolder {
+        public CircleImageView profilePicture;
+        public TextView textView;
+        public CheckBox checkBox;
+    }
+
     private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
 
-    public UsersListAdapter(AppCompatActivity activity) {
-        super(activity);
-        init();
+    public UsersListAdapter(AppCompatActivity activity){
+        this(activity, null, false);
     }
 
-    public UsersListAdapter(AppCompatActivity activity, boolean isMultiSelect) {
-        super(activity, isMultiSelect);
-        init();
+    public UsersListAdapter(AppCompatActivity activity, boolean isMultiSelect){
+        this(activity, null, isMultiSelect);
     }
 
-    public UsersListAdapter(AppCompatActivity activity, List<AbstractUserListItem> listData) {
-        super(activity, listData);
-        init();
-    }
+    public UsersListAdapter(AppCompatActivity activity, List<UserListItem> userItems, boolean multiSelect){
+        mActivity = activity;
 
-    public UsersListAdapter(AppCompatActivity activity, List<AbstractUserListItem> listData, boolean multiSelect) {
-        super(activity, listData, multiSelect);
-        init();
-    }
+        if (userItems == null) {
+            userItems = new ArrayList<>();
+        }
 
-    private void init(){
-        comparator = new Comparator<AbstractUserListItem>() {
-            @Override
-            public int compare(AbstractUserListItem lhs, AbstractUserListItem rhs) {
-                return lhs.getText().toLowerCase().compareTo(rhs.getText().toLowerCase());
-            }
-        };
+        setUserItems(userItems);
+
+        this.isMultiSelect = multiSelect;
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
-        row = view;
+    public int getViewTypeCount() {
+        return 1;
+    }
+
+    @Override
+    public View getView(final int position, View view, ViewGroup viewGroup) {
+        View row = view;
 
         final ViewHolder holder;
-        final AbstractUserListItem userItem = userItems.get(position);
+        final UserListItem userItem = userItems.get(position);
 
         // If the row is null or the View inside the row is not good for the current item.
-        if (row == null || userItem.getResourceID() != row.getId())
-        {
+        if (row == null || userItem.getResourceID() != row.getId()) {
             holder  = new ViewHolder();
-            row =  rowForType(holder, position);
+            row = rowForType(holder, position);
         }
-        else holder = (ViewHolder) row.getTag();
+        else {
+            holder = (ViewHolder) row.getTag();
+        }
 
         holder.textView.setText(userItem.getText());
 
-        if (getItemViewType(position) == TYPE_USER)
-        {
-           if (userItem.fromURL)
-            {
-                Ion.with(holder.profilePicture).placeholder(R.drawable.icn_32_profile_placeholder).load(userItem.pictureThumbnailURL);
-            }
-            else
-            {
-                if (DEBUG) Timber.i("Loading profile picture from the db");
-
-                Bitmap bitmap = userItems.get(position).getPicture();
-                if (bitmap != null)
-                {
-                    holder.profilePicture.setImageBitmap(bitmap);
-                }
-                else
-                {
-                    holder.profilePicture.setImageResource(R.drawable.icn_32_profile_placeholder);
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(UsersListAdapter.this.rowClickListener != null) {
+                    UsersListAdapter.this.rowClickListener.click(position);
                 }
             }
+        });
 
-            if (profilePicClickListener!=null)
-            {
-                holder.profilePicture.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        profilePicClickListener.onClick(v, userItem.asBUser());
+        if (getItemViewType(position) == TYPE_USER) {
+
+            userItem.getUser().putAvatar(holder.profilePicture).subscribe();
+
+            // If this is included then the outer click won't work
+
+            holder.profilePicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(UsersListAdapter.this.profileImageClickListener != null) {
+                        UsersListAdapter.this.profileImageClickListener.click(position);
                     }
-                });
-            }
+                }
+            });
         }
 
         return row;
     }
 
+    public void setRowClickListener (RowClickListener listener) {
+        this.rowClickListener = listener;
+    }
+
+    public void setProfileImageClickListener (RowClickListener listener) {
+        this.profileImageClickListener = listener;
+    }
+
     @Override
-    public void initMaker() {
-        itemMaker = new UserListItemMaker<AbstractUserListItem>() {
-            @Override
-            public AbstractUserListItem fromBUser(BUser user) {
-                return  new AbstractUserListItem(R.layout.chat_sdk_row_contact,
-                        user.getEntityID(),
-                        user.getName(),
-                        user.getThumbnailURL(),
-                        user.getAvatarURL(),
-                        TYPE_USER,
-                        user.getOnline() == null ? false : user.getOnline());
-            }
+    public int getItemViewType(int position) {
+        return userItems.get(position).getItemType();
+    }
 
-            @Override
-            public AbstractUserListItem getHeader(String type) {
-                return new AbstractUserListItem(R.layout.chat_sdk_list_header, type, TYPE_HEADER);
-            }
+    @Override
+    public int getCount() {
+        return userItems.size();
+    }
 
-            @Override
-            public List<AbstractUserListItem> getListWithHeaders(List<AbstractUserListItem> list) {
+    @Override
+    public UserListItem getItem(int i) {
+        return userItems.get(i);
+    }
 
+    @Override
+    public long getItemId(int i) {
+        return 0;
+    }
 
-                List<AbstractUserListItem> listData = new ArrayList<AbstractUserListItem>();
+    protected View rowForType(ViewHolder holder, final int position){
+        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View row =  inflater.inflate(userItems.get(position).getResourceID(), null);
 
-                List<AbstractUserListItem> onlineUsers = new ArrayList<AbstractUserListItem>();
-                List<AbstractUserListItem> offlineUsers = new ArrayList<AbstractUserListItem>();
+        holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
 
-                sortList(onlineUsers);
-                sortList(offlineUsers);
+        if (getItemViewType(position) == TYPE_USER) {
+            holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
 
-                for (AbstractUserListItem user: list){
-                    if (user.online) {
-                        onlineUsers.add(user);
+            if (isMultiSelect) {
+                holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
+                holder.checkBox.setVisibility(View.VISIBLE);
+                holder.checkBox.setChecked(selectedUsersPositions.get(position));
+                holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        setViewSelected(position, isChecked);
                     }
-                    else offlineUsers.add(user);
-                }
+                });
+            }
+        }
 
-                if (onlineUsers.size() == 0 && offlineUsers.size() == 0)
-                {
-                    listData.add(getHeader(H_NO_CONTACTS));
-                }
-                else if (onlineUsers.size() == 0){
-                    listData.add(getHeader(H_NO_ONLINE));
-                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
-                    listData.addAll(offlineUsers);
-                }
-                else if (offlineUsers.size() == 0){
-                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                    listData.addAll(onlineUsers);
-                    listData.add(getHeader(H_NO_OFFLINE));
-                }
-                else {
-                    listData.add(getHeader(getHeaderWithSize(H_ONLINE, onlineUsers.size())));
-                    listData.addAll(onlineUsers);
-                    listData.add(getHeader(getHeaderWithSize(H_OFFLINE, offlineUsers.size())));
-                    listData.addAll(offlineUsers);
-                }
+        row.setTag(holder);
 
-                return listData;
+        return row;
+    }
+
+    /** Disabling the header vies from clicks.*/
+    @Override
+    public boolean isEnabled(int position) {
+        return false;
+    }
+
+    public void setUsers(List<User> users, boolean sort) {
+        ArrayList<UserListItem> items = new ArrayList<>();
+        for(User user : users) {
+            items.add(new UserListItem(user, R.layout.chat_sdk_row_contact, TYPE_USER));
+        }
+
+        setUserItems(items, sort);
+    }
+
+    public void setUserItems(List<UserListItem> userItems, boolean sort) {
+        filtering = false;
+
+        if (DEBUG) Timber.v("setUserItems, size: %s", (userItems == null ? "NULL" : userItems.size()));
+        
+        this.userItems.clear();
+        this.listData.clear();
+
+        userIDs.clear();
+
+        this.userItems = userItems;
+        this.listData = userItems;
+
+        if (sort)
+            sortList(userItems);
+
+        for (UserListItem item : userItems)
+            userIDs.add(item.getEntityID());
+
+        notifyDataSetChanged();
+    }
+
+    public void setUserItems(List<UserListItem> userItems) {
+        setUserItems(userItems, false);
+    }
+
+    public List<UserListItem> getUserItems() {
+        return userItems;
+    }
+
+    /** 
+     *  Clear the list.
+     * 
+     *  Calls notifyDataSetChanged.
+     * * */
+    public void clear(){
+        userItems.clear();
+        listData.clear();
+        clearSelection();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Filtering the user list by user name
+     *
+     * @param startWith the search input. This will be matched against user name in the listItems.
+     * * */
+    public void filterStartWith(String startWith){
+        filtering = true;
+
+        if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
+        {
+            this.userItems = listData;
+        }
+        else
+        {
+            startWith = startWith.trim();
+
+            List<UserListItem> filteredUsers = new ArrayList<>();
+
+            for (UserListItem u : listData)
+            {
+                if (u.getText().toLowerCase().startsWith(startWith.toLowerCase()))
+                    filteredUsers.add(u);
+            }
+
+            this.userItems = filteredUsers;
+        }
+
+        sortList(userItems);
+
+        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
+
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Sorting a given list using the internal comparator.
+     * 
+     * This will be used each time after setting the user item
+     * * */
+    protected void sortList(List<UserListItem> list){
+        Comparator comparator = new Comparator<UserListItem>() {
+            @Override
+            public int compare(UserListItem lhs, UserListItem rhs) {
+                return lhs.getText().toLowerCase().compareTo(rhs.getText().toLowerCase());
             }
         };
+        Collections.sort(list, comparator);
+    }
+
+    /**
+     * Toggle the selection state of a list item for a given position
+     * @param position the position in the list of the item that need to be toggled
+     *                 
+     * notifyDataSetChanged will be called.
+     * * */
+    public boolean toggleSelection(int position){
+        boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
+        notifyDataSetChanged();
+        return selected;
+    }
+
+    /**
+     * Set the selection state of a list item for a given position and value
+     * @param position the position in the list of the item that need to be toggled.
+     * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
+     * * */
+    public boolean setViewSelected(int position, boolean selected){
+        if (selected)
+            selectedUsersPositions.put(position, true);
+        else
+            selectedUsersPositions.delete(position);
+
+        return selected;
+    }
+
+    public SparseBooleanArray getSelectedUsersPositions() {
+        return selectedUsersPositions;
+    }
+
+    /**
+     * Get the amount of selected users.
+     * * * */
+    public int getSelectedCount(){
+        return selectedUsersPositions.size();
+    }
+
+    /**
+     * Select all users
+     * 
+     * notifyDataSetChanged will be called.
+     */
+    public void selectAll() {
+        for (int i = 0; i < userItems.size(); i++) {
+            setViewSelected(i, true);
+        }
+
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Clear the selection of all users.
+     * 
+     * notifyDataSetChanged will be called.
+     */
+    public void clearSelection(){
+        selectedUsersPositions = new SparseBooleanArray();
+        notifyDataSetChanged();
+    }
+
+    public interface RowClickListener {
+         void click (int position);
     }
 
 }

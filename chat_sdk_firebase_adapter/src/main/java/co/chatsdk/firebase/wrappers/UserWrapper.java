@@ -11,13 +11,13 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.LinkedAccount;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.firebase.FirebasePaths;
 
 
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.BLinkedAccount;
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
@@ -51,16 +51,16 @@ import timber.log.Timber;
 
 public class UserWrapper {
 
-    private static final boolean DEBUG = Debug.BUser;
+    private static final boolean DEBUG = Debug.User;
     
     private static final String USER_PREFIX = "user";
-    private BUser model;
+    private User model;
 
     public static UserWrapper initWithAuthData(FirebaseUser authData){
         return new UserWrapper(authData);
     }
 
-    public static UserWrapper initWithModel(BUser user){
+    public static UserWrapper initWithModel(User user){
         return new UserWrapper(user);
     }
     
@@ -69,21 +69,21 @@ public class UserWrapper {
     }
 
     public static UserWrapper initWithEntityId(String entityId){
-        BUser model = (BUser) StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, entityId);
+        User model = (User) StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityId);
         return initWithModel(model);
     }
     
     private UserWrapper(FirebaseUser authData){
-        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, authData.getUid());
+        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
         updateUserFromAuthData(authData);
     }
 
-    public UserWrapper(BUser model) {
+    public UserWrapper(User model) {
         this.model = model;
     }
     
     public UserWrapper(DataSnapshot snapshot){
-        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, snapshot.getKey());
+        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
         deserialize((Map<String, Object>) snapshot.getValue());
     }
     
@@ -109,7 +109,7 @@ public class UserWrapper {
         }
         String uid = authData.getUid();
 
-        BLinkedAccount linkedAccount;
+        LinkedAccount linkedAccount;
 
         // Setting the name.
         if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName())) {
@@ -130,11 +130,11 @@ public class UserWrapper {
         switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
         {
             case Defines.ProviderInt.Facebook:
-                linkedAccount = model.getAccountWithType(BLinkedAccount.Type.FACEBOOK);
+                linkedAccount = model.getAccountWithType(LinkedAccount.Type.FACEBOOK);
                 if (linkedAccount == null)
                 {
-                    linkedAccount = new BLinkedAccount();
-                    linkedAccount.setType(BLinkedAccount.Type.FACEBOOK);
+                    linkedAccount = new LinkedAccount();
+                    linkedAccount.setType(LinkedAccount.Type.FACEBOOK);
                     linkedAccount.setUserId(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
@@ -145,11 +145,11 @@ public class UserWrapper {
             case Defines.ProviderInt.Twitter:
                 TwitterManager.userId = uid;
 
-                linkedAccount = model.getAccountWithType(BLinkedAccount.Type.TWITTER);
+                linkedAccount = model.getAccountWithType(LinkedAccount.Type.TWITTER);
                 if (linkedAccount == null)
                 {
-                    linkedAccount = new BLinkedAccount();
-                    linkedAccount.setType(BLinkedAccount.Type.TWITTER);
+                    linkedAccount = new LinkedAccount();
+                    linkedAccount.setType(LinkedAccount.Type.TWITTER);
                     linkedAccount.setUserId(model.getId());
                     DaoCore.createEntity(linkedAccount);
                 }
@@ -204,10 +204,10 @@ public class UserWrapper {
         });
     }
 
-    public Observable<BUser> metaOn() {
-        return Observable.create(new ObservableOnSubscribe<BUser>() {
+    public Observable<User> metaOn() {
+        return Observable.create(new ObservableOnSubscribe<User>() {
             @Override
-            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+            public void subscribe(final ObservableEmitter<User> e) throws Exception {
 
                 final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
 
@@ -246,11 +246,11 @@ public class UserWrapper {
         
         if (value != null)
         {
-            if (value.containsKey(DaoDefines.Keys.Online) && !value.get(DaoDefines.Keys.Online).equals(""))
-                model.setOnline((Boolean) value.get(DaoDefines.Keys.Online));
+            if (value.containsKey(Keys.Online) && !value.get(Keys.Online).equals(""))
+                model.setOnline((Boolean) value.get(Keys.Online));
 
-            if (value.containsKey(DaoDefines.Keys.Color) && !value.get(DaoDefines.Keys.Color).equals("")) {
-                model.setMessageColor((String) value.get(DaoDefines.Keys.Color));
+            if (value.containsKey(Keys.Color) && !value.get(Keys.Color).equals("")) {
+                model.setMessageColor((String) value.get(Keys.Color));
             }
 
             // The entity update is called in the deserializeMeta.
@@ -286,9 +286,9 @@ public class UserWrapper {
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(DaoDefines.Keys.Color, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
-        values.put(DaoDefines.Keys.Meta, model.metaMap());
-        values.put(DaoDefines.Keys.LastOnline, ServerValue.TIMESTAMP);
+        values.put(Keys.Color, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
+        values.put(Keys.Meta, model.metaMap());
+        values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
 
         return values;
     }
@@ -380,13 +380,13 @@ public class UserWrapper {
 
                 String name = model.getName();
                 String email = model.getEmail();
-                String phoneNumber = model.metaStringForKey(DaoDefines.Keys.Phone);
+                String phoneNumber = model.metaStringForKey(Keys.Phone);
 
-                values.put(DaoDefines.Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
-                values.put(DaoDefines.Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
+                values.put(Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
+                values.put(Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
 
                 if (Defines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber)) {
-                    values.put(DaoDefines.Keys.Phone, processForQuery(phoneNumber));
+                    values.put(Keys.Phone, processForQuery(phoneNumber));
                 }
 
                 final DatabaseReference ref = FirebasePaths.indexRef().child(model.getEntityID());
@@ -432,7 +432,7 @@ public class UserWrapper {
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
     }
 
-    public BUser getModel () {
+    public User getModel () {
         return model;
     }
 

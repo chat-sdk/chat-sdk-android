@@ -10,7 +10,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.util.SHA1;
+import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
@@ -19,17 +19,17 @@ import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.KeyValue;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.ImageUtils;
@@ -37,7 +37,9 @@ import co.chatsdk.xmpp.utils.JID;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -48,7 +50,10 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -58,9 +63,7 @@ import timber.log.Timber;
  * Created by kykrueger on 2016-10-23.
  */
 
-public class XmppUsersManager {
-
-    Context context;
+public class XMPPUsersManager {
 
     public static String Voice = "VOICE";
     public static String Locality = "LOCALITY";
@@ -71,8 +74,10 @@ public class XmppUsersManager {
 
     public static String ContactGroupName = "Contacts";
 
-    public XmppUsersManager (){
-        context = AppContext.context;
+    private WeakReference<XMPPManager> manager;
+
+    public XMPPUsersManager(XMPPManager manager){
+        this.manager = new WeakReference<>(manager);
     }
 
 
@@ -80,7 +85,7 @@ public class XmppUsersManager {
         return Observable.create(new ObservableOnSubscribe<RosterEntry>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<RosterEntry> e) throws Exception {
-                Roster roster = XMPPManager.shared().roster();
+                Roster roster = manager.get().roster();
                 for(RosterEntry entry : roster.getEntries()) {
                     e.onNext(entry);
                 }
@@ -89,20 +94,20 @@ public class XmppUsersManager {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Observable<BUser> getAllAddedUsers() {
-        return getRosterEntries().flatMap(new Function<RosterEntry, ObservableSource<BUser>>() {
+    public Observable<User> getAllAddedUsers() {
+        return getRosterEntries().flatMap(new Function<RosterEntry, ObservableSource<User>>() {
             @Override
-            public ObservableSource<BUser> apply(RosterEntry rosterEntry) throws Exception {
+            public ObservableSource<User> apply(RosterEntry rosterEntry) throws Exception {
                 return updateUserFromVCard(new JID(rosterEntry.getUser())).toObservable();
             }
         });
     }
 
-    public Completable addUserToRoster (final BUser user) {
+    public Completable addUserToRoster (final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                Roster roster = XMPPManager.shared().roster();
+                Roster roster = manager.get().roster();
                 String [] groups = {ContactGroupName};
                 roster.createEntry(user.getEntityID(), user.getName(), groups);
                 e.onComplete();
@@ -110,11 +115,11 @@ public class XmppUsersManager {
         }).concatWith(subscribeToUser(user)).subscribeOn(Schedulers.single());
     }
 
-    public Completable removeUserFromRoster (final BUser user) {
+    public Completable removeUserFromRoster (final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                Roster roster = XMPPManager.shared().roster();
+                Roster roster = manager.get().roster();
                 RosterEntry entry = null;
                 for(RosterEntry en : roster.getEntries()) {
                     if(en.getUser().equals(user.getEntityID())) {
@@ -130,13 +135,11 @@ public class XmppUsersManager {
         }).concatWith(unsubscribeFromUser(user)).subscribeOn(Schedulers.single());
     }
 
-
-
     public Single<List<KeyValue>> getAvailableSearchFields () {
         return Single.create(new SingleOnSubscribe<List<KeyValue>>() {
             @Override
             public void subscribe(@NonNull SingleEmitter<List<KeyValue>> e) throws Exception {
-                Form searchForm = XMPPManager.shared().userSearchManager().getSearchForm(XMPPManager.shared().searchService);
+                Form searchForm = manager.get().userSearchManager().getSearchForm(manager.get().searchService);
                 List<FormField> fields = searchForm.getFields();
                 ArrayList<KeyValue> stringFields = new ArrayList<>();
                 for(FormField f : fields) {
@@ -152,12 +155,12 @@ public class XmppUsersManager {
             @Override
             public void subscribe(ObservableEmitter<JID> e) throws Exception {
 
-                UserSearchManager userSearchManager = XMPPManager.shared().userSearchManager();
-                Form searchForm = userSearchManager.getSearchForm(XMPPManager.shared().searchService);
+                UserSearchManager userSearchManager = manager.get().userSearchManager();
+                Form searchForm = userSearchManager.getSearchForm(manager.get().searchService);
                 Form answerForm = searchForm.createAnswerForm();
                 answerForm.setAnswer(searchIndex, searchValue);
 
-                ReportedData data = userSearchManager.getSearchResults(answerForm, XMPPManager.shared().searchService);
+                ReportedData data = userSearchManager.getSearchResults(answerForm, manager.get().searchService);
 
                 for(ReportedData.Row row : data.getRows()) {
                     List<String> values = row.getValues("jid");
@@ -176,53 +179,53 @@ public class XmppUsersManager {
         return Single.create(new SingleOnSubscribe<VCard>() {
             @Override
             public void subscribe(SingleEmitter<VCard> e) throws Exception {
-                AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
+                AbstractXMPPConnection conn = manager.get().getConnection();
 
                 VCardManager vCardManager = VCardManager.getInstanceFor(conn);
                 VCard vCard = vCardManager.loadVCard(jid.bare());
 
                 e.onSuccess(vCard);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Single<BUser> updateUserFromVCard (final JID jid) {
-        return vCardForUser(jid).flatMap(new Function<VCard, SingleSource<? extends BUser>>() {
+    public Single<User> updateUserFromVCard (final JID jid) {
+        return vCardForUser(jid).flatMap(new Function<VCard, SingleSource<? extends User>>() {
             @Override
-            public SingleSource<? extends BUser> apply(VCard vCard) throws Exception {
+            public SingleSource<? extends User> apply(VCard vCard) throws Exception {
                 return Single.just(vCardToUser(vCard));
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Completable subscribeToUser (final BUser user) {
+    public Completable subscribeToUser (final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
                 Presence request = new Presence(Presence.Type.subscribe);
                 request.setTo(user.getEntityID());
-                XMPPManager.shared().getConnection().sendStanza(request);
+                manager.get().getConnection().sendStanza(request);
                 e.onComplete();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Completable unsubscribeFromUser (final BUser user) {
+    public Completable unsubscribeFromUser (final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
                 Presence request = new Presence(Presence.Type.unsubscribe);
                 request.setTo(user.getEntityID());
-                XMPPManager.shared().getConnection().sendStanza(request);
+                manager.get().getConnection().sendStanza(request);
                 e.onComplete();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public BUser vCardToUser(VCard vCard) {
+    public User vCardToUser(VCard vCard) {
 
         JID jid = new JID(vCard.getFrom());
-        BUser user = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, jid.bare());
+        User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.bare());
 
         String name = vCard.getField(Name);
         if(name != null && !name.isEmpty()) {
@@ -265,7 +268,7 @@ public class XmppUsersManager {
 
         byte[] avatarData = vCard.getAvatar();
 
-        if(avatarData.length > 0 && !vCard.getAvatarHash().equals(user.getAvatarHash())) {
+        if(avatarData != null && avatarData.length > 0 && !vCard.getAvatarHash().equals(user.getAvatarHash())) {
             Bitmap bmp = BitmapFactory.decodeByteArray(avatarData, 0, avatarData.length);
             String url = ImageUtils.saveToInternalStorage(bmp, jid.bare());
             user.setAvatarURL(url, vCard.getAvatarHash());
@@ -278,12 +281,12 @@ public class XmppUsersManager {
         return user;
     }
 
-    public Completable updateMyvCardWithUser(final BUser user) {
+    public Completable updateMyvCardWithUser(final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {
 
-                VCardManager vCardManager = VCardManager.getInstanceFor(XMPPManager.shared().getConnection());
+                VCardManager vCardManager = VCardManager.getInstanceFor(manager.get().getConnection());
 
                 VCard vCard = vCardManager.loadVCard();
 
@@ -333,7 +336,7 @@ public class XmppUsersManager {
                     String pictureURL = user.getAvatarURL();
                     if(pictureURL != null && !pictureURL.isEmpty()) {
                         // Check to see if the picture has changed
-                        File compress = new Compressor(AppContext.context)
+                        File compress = new Compressor(AppContext.shared().context())
                                 .setMaxHeight(50)
                                 .setMaxWidth(50)
                                 .compressToFile(new File(pictureURL));
@@ -364,4 +367,52 @@ public class XmppUsersManager {
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
+
+    public void loadContactsFromRoster () {
+        clearContacts();
+        // Add the contacts from the roster
+
+        RosterGroup group = manager.get().roster().getGroup(ContactGroupName);
+        if(group != null) {
+            List<RosterEntry> entries = group.getEntries();
+            for(RosterEntry entry : entries) {
+                Timber.d("RosterContactAdded");
+                addContact(entry.getUser()).subscribe();
+            }
+        }
+    }
+
+    public void updateUserFromRoster (User user) {
+        Roster roster = manager.get().roster();
+        RosterEntry entry = roster.getEntry(user.getEntityID());
+        if(entry != null) {
+            user.setPresenceSubscription(entry.getType().toString());
+        }
+    }
+
+    public Completable addContact (String jid) {
+        return updateUserFromVCard(new JID(jid)).flatMapCompletable(new Function<User, CompletableSource>() {
+            @Override
+            public CompletableSource apply(@NonNull User user) throws Exception {
+                updateUserFromRoster(user);
+                return NM.contact().addContact(user, ConnectionType.Contact);
+            }
+        });
+    }
+
+    public void deleteContact (String jid) {
+        User user = StorageManager.shared().fetchUserWithEntityID(jid);
+        NM.contact().deleteContact(user, ConnectionType.Contact).subscribe();
+    }
+
+    public void clearContacts () {
+        List<User> contacts = NM.contact().contacts();
+        for(User user : contacts) {
+            // Delete straight from the user because otherwise we
+            // would also remove them from the roster
+            NM.currentUser().deleteContact(user, ConnectionType.Contact);
+        }
+    }
+
+
 }

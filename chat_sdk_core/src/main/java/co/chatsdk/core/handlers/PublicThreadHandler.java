@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 import io.reactivex.Single;
 
 /**
@@ -12,6 +12,6 @@ public interface PublicThreadHandler {
     /**
      * @brief Create a public group thread with a name. This can be used for group discussion
      */
-    public Single<BThread> createPublicThreadWithName(final String name);
-    public Single<BThread> createPublicThreadWithName(final String name, final String entityID);
+    public Single<Thread> createPublicThreadWithName(final String name);
+    public Single<Thread> createPublicThreadWithName(final String name, final String entityID);
 }

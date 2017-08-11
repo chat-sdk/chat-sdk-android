@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import io.reactivex.Observable;
 
 /**
@@ -9,7 +9,7 @@ import io.reactivex.Observable;
 
 public interface SearchHandler {
 
-    public Observable<BUser> usersForIndex(final String index, final String value);
+    public Observable<User> usersForIndex(final String index, final String value);
     /**
      * @brief Methods to handle search
      */

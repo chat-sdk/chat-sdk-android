@@ -8,11 +8,18 @@
 package co.chatsdk.ui.adapters;
 
 
+import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.astuetz.PagerSlidingTabStrip;
 
+import java.util.List;
+
+import co.chatsdk.core.InterfaceManager;
+import co.chatsdk.core.Tab;
+import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 
@@ -27,52 +34,30 @@ import co.chatsdk.ui.threads.PublicThreadsFragment;
  */
 public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
-    protected BaseFragment[] fragments;
-    private String[] titles;
-    private int[] icons;
+    protected List<Tab> tabs;
 
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
-
-        fragments = new BaseFragment[] {
-                PrivateThreadsFragment.newInstance(),
-                PublicThreadsFragment.newInstance(),
-                ContactsFragment.newInstance(),
-                ProfileFragment.newInstance()
-        };
-
-        titles = new String [] {
-                "Conversations",
-                "Chat Rooms",
-                "Contacts",
-                "Profile"
-        };
-
-        icons = new int[] {
-                R.drawable.ic_action_private,
-                R.drawable.ic_action_public,
-                R.drawable.ic_action_contacts,
-                R.drawable.ic_action_user
-        };
+        tabs = InterfaceManager.shared().a.defaultTabs();
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return titles[position];
+        return tabs.get(position).title;
     }
 
     @Override
     public int getCount() {
-        return titles.length;
+        return tabs.size();
     }
 
     @Override
-    public BaseFragment getItem(int position) {
-        return fragments[position];
+    public Fragment getItem(int position) {
+        return tabs.get(position).fragment;
     }
 
     @Override
     public int getPageIconResId(int position) {
-        return icons[position];
+        return tabs.get(position).icon;
     }
 }

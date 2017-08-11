@@ -4,16 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-
-import org.apache.commons.lang3.StringUtils;
-
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
@@ -29,14 +26,16 @@ import io.reactivex.functions.Consumer;
 
 public class ThreadImageBuilder {
 
-    public static Single<Bitmap> getBitmapForThread (final Context context, final BThread thread) {
+    public static Single<Bitmap> getBitmapForThread (final Context context, final Thread thread) {
         return Single.create(new SingleOnSubscribe<Bitmap>() {
             @Override
             public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
-                final List<String> urls = userThumbnailURLs(thread);
+
+                List<User> users = thread.getUsers();
+                users.remove(NM.currentUser());
 
                 // If the URL is empty
-                if (urls.size() == 0) {
+                if (users.size() == 0 && thread.getImageURL() == null) {
                     e.onSuccess(defaultBitmap(context, thread));
                 }
                 else {
@@ -44,12 +43,16 @@ public class ThreadImageBuilder {
                     final ArrayList<Bitmap> bitmaps = new ArrayList<>();
                     ArrayList<Single<Bitmap>> singles = new ArrayList<>();
 
-                    for(String url : urls) {
-                        // Only allow a maximum of 4 images
-                        if(singles.size() >= 4) {
-                            break;
+                    if(thread.getImageURL() != null) {
+                        singles.add(thread.image());
+                    }
+                    else {
+                        for(User u : users) {
+                            if(singles.size() >= 4) {
+                                break;
+                            }
+                            singles.add(u.avatar());
                         }
-                        singles.add(getBitmapForURL(context, url));
                     }
 
                     Single.merge(singles).doOnNext(new Consumer<Bitmap>() {
@@ -80,53 +83,14 @@ public class ThreadImageBuilder {
         });
     }
 
-    public static List<String> userThumbnailURLs (BThread thread) {
-        ArrayList<String> urls = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(thread.getImageURL())) {
-            urls.add(thread.getImageURL());
-        }
-        else {
-            if(thread.typeIs(ThreadType.Private)) {
-
-                List<BUser> users = thread.getUsers();
-
-                for (BUser user : users){
-                    if (!user.isMe() && !StringUtils.isBlank(user.getThumbnailURL())) {
-                        urls.add(user.getThumbnailURL());
-                    }
-                }
-            }
-        }
-        return urls;
-    }
-
-
-    public static Single<Bitmap> getBitmapForURL (final Context context, final String url) {
-        return Single.create(new SingleOnSubscribe<Bitmap>() {
-            @Override
-            public void subscribe(final SingleEmitter<Bitmap> e) {
-                Ion.with(context).load(url).asBitmap().setCallback(new FutureCallback<Bitmap>() {
-                    @Override
-                    public void onCompleted(Exception exception, Bitmap result) {
-                        if(exception == null) {
-                            e.onSuccess(result);
-                        }
-                        else {
-                            e.onError(exception);
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    public static Bitmap defaultBitmap (Context context, BThread thread) {
+    public static Bitmap defaultBitmap (Context context, Thread thread) {
         if (thread.typeIs(ThreadType.Public)) {
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_users);
-        } else if (thread.getUsers().size() < 3 || thread.typeIs(ThreadType.Private1to1)) {
+        }
+        else if (thread.getUsers().size() < 3 || thread.typeIs(ThreadType.Private1to1)) {
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.icn_32_profile_placeholder);
-        } else {
+        }
+        else {
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_users);
         }
     }

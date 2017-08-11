@@ -19,11 +19,40 @@ public class ContactLink implements CoreEntity {
     @Id
     private Long id;
     private Long userId;
-    private Long linkOwnerBUserDaoId;
+    private Long linkOwnerUserDaoId;
 
 
     @NotNull
     private int type;
+
+    @ToOne(joinProperty = "userId")
+    private User user;
+    @ToOne(joinProperty = "linkOwnerUserDaoId")
+    private User linkOwnerUser;
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+    /** Used for active entity operations. */
+    @Generated(hash = 1108094631)
+    private transient ContactLinkDao myDao;
+    @Generated(hash = 1405958224)
+    public ContactLink(Long id, Long userId, Long linkOwnerUserDaoId, int type) {
+        this.id = id;
+        this.userId = userId;
+        this.linkOwnerUserDaoId = linkOwnerUserDaoId;
+        this.type = type;
+    }
+
+    @Generated(hash = 48143975)
+    public ContactLink() {
+    }
+
+    @Generated(hash = 251390918)
+    private transient Long user__resolvedKey;
+    @Generated(hash = 53129048)
+    private transient Long linkOwnerUser__resolvedKey;
+    /** Used to resolve relations */
+
 
     public Long getId() {
         return this.id;
@@ -41,8 +70,8 @@ public class ContactLink implements CoreEntity {
         this.userId = userId;
     }
 
-    public Long getLinkOwnerBUserDaoId() {
-        return this.linkOwnerBUserDaoId;
+    public Long getLinkOwnerUserDaoId() {
+        return this.linkOwnerUserDaoId;
     }
 
     public void setConnectionType (ConnectionType type) {
@@ -61,75 +90,73 @@ public class ContactLink implements CoreEntity {
         this.type = type;
     }
 
-    public void setEntityID (String entityID) {
-
-    }
+    public void setEntityID (String entityID) {}
 
     public String getEntityID () {
         return id.toString();
     }
 
-    public void setLinkOwnerBUserDaoId(Long linkOwnerBUserDaoId) {
-        this.linkOwnerBUserDaoId = linkOwnerBUserDaoId;
+    public void setLinkOwnerUserDaoId(Long linkOwnerUserDaoId) {
+        this.linkOwnerUserDaoId = linkOwnerUserDaoId;
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1250968650)
-    public BUser getBUser() {
+    @Generated(hash = 859885876)
+    public User getUser() {
         Long __key = this.userId;
-        if (BUser__resolvedKey == null || !BUser__resolvedKey.equals(__key)) {
+        if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BUserDao targetDao = daoSession.getBUserDao();
-            BUser BUserNew = targetDao.load(__key);
+            UserDao targetDao = daoSession.getUserDao();
+            User userNew = targetDao.load(__key);
             synchronized (this) {
-                BUser = BUserNew;
-                BUser__resolvedKey = __key;
+                user = userNew;
+                user__resolvedKey = __key;
             }
         }
-        return BUser;
+        return user;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1505773358)
-    public void setBUser(BUser BUser) {
+    @Generated(hash = 1065606912)
+    public void setUser(User user) {
         synchronized (this) {
-            this.BUser = BUser;
-            userId = BUser == null ? null : BUser.getId();
-            BUser__resolvedKey = userId;
+            this.user = user;
+            userId = user == null ? null : user.getId();
+            user__resolvedKey = userId;
         }
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 2018954378)
-    public BUser getLinkOwnerBUser() {
-        Long __key = this.linkOwnerBUserDaoId;
-        if (linkOwnerBUser__resolvedKey == null
-                || !linkOwnerBUser__resolvedKey.equals(__key)) {
+    @Generated(hash = 731615395)
+    public User getLinkOwnerUser() {
+        Long __key = this.linkOwnerUserDaoId;
+        if (linkOwnerUser__resolvedKey == null
+                || !linkOwnerUser__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BUserDao targetDao = daoSession.getBUserDao();
-            BUser linkOwnerBUserNew = targetDao.load(__key);
+            UserDao targetDao = daoSession.getUserDao();
+            User linkOwnerUserNew = targetDao.load(__key);
             synchronized (this) {
-                linkOwnerBUser = linkOwnerBUserNew;
-                linkOwnerBUser__resolvedKey = __key;
+                linkOwnerUser = linkOwnerUserNew;
+                linkOwnerUser__resolvedKey = __key;
             }
         }
-        return linkOwnerBUser;
+        return linkOwnerUser;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 2037961454)
-    public void setLinkOwnerBUser(BUser linkOwnerBUser) {
+    @Generated(hash = 1247524206)
+    public void setLinkOwnerUser(User linkOwnerUser) {
         synchronized (this) {
-            this.linkOwnerBUser = linkOwnerBUser;
-            linkOwnerBUserDaoId = linkOwnerBUser == null ? null
-                    : linkOwnerBUser.getId();
-            linkOwnerBUser__resolvedKey = linkOwnerBUserDaoId;
+            this.linkOwnerUser = linkOwnerUser;
+            linkOwnerUserDaoId = linkOwnerUser == null ? null
+                    : linkOwnerUser.getId();
+            linkOwnerUser__resolvedKey = linkOwnerUserDaoId;
         }
     }
 
@@ -176,30 +203,7 @@ public class ContactLink implements CoreEntity {
         myDao = daoSession != null ? daoSession.getContactLinkDao() : null;
     }
 
-    @ToOne(joinProperty = "userId")
-    private BUser BUser;
-    @ToOne(joinProperty = "linkOwnerBUserDaoId")
-    private BUser linkOwnerBUser;
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
-    /** Used for active entity operations. */
-    @Generated(hash = 1108094631)
-    private transient ContactLinkDao myDao;
-    @Generated(hash = 2128182758)
-    private transient Long BUser__resolvedKey;
-    @Generated(hash = 416171141)
-    private transient Long linkOwnerBUser__resolvedKey;
-    @Generated(hash = 1857621306)
-    public ContactLink(Long id, Long userId, Long linkOwnerBUserDaoId, int type) {
-        this.id = id;
-        this.userId = userId;
-        this.linkOwnerBUserDaoId = linkOwnerBUserDaoId;
-        this.type = type;
-    }
 
-    @Generated(hash = 48143975)
-    public ContactLink() {
-    }
+
 
 }

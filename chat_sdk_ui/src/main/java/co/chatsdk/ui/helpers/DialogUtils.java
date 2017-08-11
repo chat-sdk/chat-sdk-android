@@ -16,7 +16,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.Gravity;
@@ -40,7 +39,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
 import io.reactivex.functions.Action;
@@ -267,7 +266,7 @@ public class DialogUtils {
 
         Handler handler = new Handler(){
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(android.os.Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what)
                 {
@@ -435,7 +434,7 @@ public class DialogUtils {
 
                                                 // If the message name is equal to a message entity id we
                                                 // save the image path to the message object so we could use it instead of downloading images.
-                                                BMessage message = DaoCore.fetchEntityWithEntityID(BMessage.class, imageName);
+                                                Message message = DaoCore.fetchEntityWithEntityID(Message.class, imageName);
 
                                                 if (message != null) {
                                                     message.setResourcesPath(file.getPath());

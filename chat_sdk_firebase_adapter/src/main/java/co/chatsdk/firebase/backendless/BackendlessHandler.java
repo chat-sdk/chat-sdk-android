@@ -13,7 +13,7 @@ import com.backendless.messaging.PushPolicyEnum;
 import com.backendless.services.messaging.MessageStatus;
 import com.braunster.androidchatsdk.firebaseplugin.R;
 
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.defines.Debug;
 
 import org.json.JSONException;
@@ -88,10 +88,10 @@ public class BackendlessHandler implements PushHandler {
         // Configure the header
         PublishOptions publishOptions = new PublishOptions();
         try {
-        publishOptions.putHeader("android-ticker-text", data.getString(DaoDefines.Keys.CONTENT));
-        publishOptions.putHeader("android-content-title", "CoreMessage from " + data.getString(DaoDefines.Keys.MESSAGE_SENDER_NAME));
-        publishOptions.putHeader("android-content-text", data.getString(DaoDefines.Keys.MESSAGE_PAYLOAD));
-        publishOptions.setPublisherId(data.getString(DaoDefines.Keys.MESSAGE_SENDER_ENTITY_ID));
+        publishOptions.putHeader("android-ticker-text", data.getString(Keys.CONTENT));
+        publishOptions.putHeader("android-content-title", "CoreMessage from " + data.getString(Keys.MESSAGE_SENDER_NAME));
+        publishOptions.putHeader("android-content-text", data.getString(Keys.MESSAGE_PAYLOAD));
+        publishOptions.setPublisherId(data.getString(Keys.MESSAGE_SENDER_ENTITY_ID));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -104,7 +104,7 @@ public class BackendlessHandler implements PushHandler {
         // Publish a push notification to each channel
         for(final String channel : channels) {
             try {
-                data.put(DaoDefines.Keys.Channel, channel);
+                data.put(Keys.Channel, channel);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

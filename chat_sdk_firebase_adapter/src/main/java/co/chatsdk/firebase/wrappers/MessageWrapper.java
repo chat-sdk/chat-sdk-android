@@ -7,11 +7,12 @@
 
 package co.chatsdk.firebase.wrappers;
 
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
 
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +27,6 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.dao.DaoDefines;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
@@ -37,25 +37,25 @@ public class MessageWrapper  {
     private final String TAG = this.getClass().getSimpleName();
     private static boolean DEBUG = true;
     private ChildEventListener readReceiptListener;
-    private BMessage model;
+    private Message model;
 
-    public MessageWrapper(BMessage model){
+    public MessageWrapper(Message model){
         this.model = model;
     }
 
     public MessageWrapper(DataSnapshot snapshot){
-        this.model = StorageManager.shared().fetchOrCreateEntityWithEntityID(BMessage.class, snapshot.getKey());
+        this.model = StorageManager.shared().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
         deserialize(snapshot);
     }
 
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(DaoDefines.Keys.Payload, model.getTextString());
-        values.put(DaoDefines.Keys.JSON, model.getRawJSONPayload());
-        values.put(DaoDefines.Keys.Date, ServerValue.TIMESTAMP);
-        values.put(DaoDefines.Keys.Type, model.getType());
-        values.put(DaoDefines.Keys.UserFirebaseId, model.getSender().getEntityID());
+        values.put(Keys.Payload, model.getTextString());
+        values.put(Keys.JSON, model.getRawJSONPayload());
+        values.put(Keys.Date, ServerValue.TIMESTAMP);
+        values.put(Keys.Type, model.getType());
+        values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
 
 
         return values;
@@ -91,13 +91,13 @@ public class MessageWrapper  {
         if (DEBUG) Timber.v("deserialize, Value: %s", value);
         if (value == null) return;
 
-        String json = string(value, DaoDefines.Keys.JSON);
+        String json = string(value, Keys.JSON);
 
         if(json != null) {
             model.setRawJSONPayload(json);
         }
         else {
-            String text = string(value, DaoDefines.Keys.Payload);
+            String text = string(value, Keys.Payload);
             if(text != null) {
                 model.setTextString(text);
             }
@@ -106,22 +106,22 @@ public class MessageWrapper  {
             }
         }
 
-        Long type = long_(value, DaoDefines.Keys.Type);
+        Long type = long_(value, Keys.Type);
         if(type != null) {
             model.setType(type.intValue());
         }
 
-        Long date = long_(value, DaoDefines.Keys.Date);
+        Long date = long_(value, Keys.Date);
         if(date != null) {
             model.setDate(new DateTime(date));
         }
 
-        String senderID = string(value, DaoDefines.Keys.UserFirebaseId);
+        String senderID = string(value, Keys.UserFirebaseId);
         if(senderID != null) {
-            BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, senderID);
+            User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
             if (user == null)
             {
-                user = StorageManager.shared().fetchOrCreateEntityWithEntityID(BUser.class, senderID);
+                user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, senderID);
                 UserWrapper.initWithModel(user).once();
             }
 
@@ -184,7 +184,7 @@ public class MessageWrapper  {
         }
     }
 
-    public BMessage getModel() {
+    public Message getModel() {
         return model;
     }
 

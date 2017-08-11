@@ -2,8 +2,6 @@ package co.chatsdk.xmpp.listeners;
 
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.chat.ChatManager;
-import org.jivesoftware.smack.roster.Roster;
 
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
@@ -16,8 +14,12 @@ import io.reactivex.subjects.BehaviorSubject;
 public class XMPPConnectionListener implements ConnectionListener {
 
     public BehaviorSubject<ConnectionStatus> connectionStatusSource = BehaviorSubject.create();
-    public XMPPRosterListener rosterListener = new XMPPRosterListener();
+    public XMPPRosterListener rosterListener;
     public XMPPChatManagerListener chatManagerListener = new XMPPChatManagerListener();
+
+    public XMPPConnectionListener (XMPPManager manager) {
+        rosterListener = new XMPPRosterListener(manager);
+    }
 
     @Override
     public void authenticated(XMPPConnection connection, boolean resumed) {

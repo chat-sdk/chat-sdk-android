@@ -19,22 +19,31 @@ public class UserThreadLink implements CoreEntity {
     private Long userId;
     private Long threadId;
 
-
-
     @ToOne(joinProperty = "userId")
-    private BUser bUser;
+    private User user;
     @ToOne(joinProperty = "threadId")
-    private BThread bThread;
+    private Thread thread;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
     /** Used for active entity operations. */
     @Generated(hash = 1486061129)
     private transient UserThreadLinkDao myDao;
-    @Generated(hash = 226855027)
-    private transient Long bUser__resolvedKey;
-    @Generated(hash = 1121973162)
-    private transient Long bThread__resolvedKey;
+
+    @Generated(hash = 1628597386)
+    public UserThreadLink(Long id, Long userId, Long threadId) {
+        this.id = id;
+        this.userId = userId;
+        this.threadId = threadId;
+    }
+
+    @Generated(hash = 1452575878)
+    public UserThreadLink() {
+    }
+    @Generated(hash = 251390918)
+    private transient Long user__resolvedKey;
+    @Generated(hash = 1974258785)
+    private transient Long thread__resolvedKey;
 
     public void setEntityID (String entityID) {
 
@@ -45,15 +54,6 @@ public class UserThreadLink implements CoreEntity {
     }
 
 
-    @Generated(hash = 1628597386)
-    public UserThreadLink(Long id, Long userId, Long threadId) {
-        this.id = id;
-        this.userId = userId;
-        this.threadId = threadId;
-    }
-    @Generated(hash = 1452575878)
-    public UserThreadLink() {
-    }
     public Long getId() {
         return this.id;
     }
@@ -74,60 +74,60 @@ public class UserThreadLink implements CoreEntity {
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1701642235)
-    public BUser getBUser() {
+    @Generated(hash = 859885876)
+    public User getUser() {
         Long __key = this.userId;
-        if (bUser__resolvedKey == null || !bUser__resolvedKey.equals(__key)) {
+        if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BUserDao targetDao = daoSession.getBUserDao();
-            BUser bUserNew = targetDao.load(__key);
+            UserDao targetDao = daoSession.getUserDao();
+            User userNew = targetDao.load(__key);
             synchronized (this) {
-                bUser = bUserNew;
-                bUser__resolvedKey = __key;
+                user = userNew;
+                user__resolvedKey = __key;
             }
         }
-        return bUser;
+        return user;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1454431172)
-    public void setBUser(BUser bUser) {
+    @Generated(hash = 1065606912)
+    public void setUser(User user) {
         synchronized (this) {
-            this.bUser = bUser;
-            userId = bUser == null ? null : bUser.getId();
-            bUser__resolvedKey = userId;
+            this.user = user;
+            userId = user == null ? null : user.getId();
+            user__resolvedKey = userId;
         }
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 814214276)
-    public BThread getBThread() {
+    @Generated(hash = 1483947909)
+    public Thread getThread() {
         Long __key = this.threadId;
-        if (bThread__resolvedKey == null || !bThread__resolvedKey.equals(__key)) {
+        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            BThreadDao targetDao = daoSession.getBThreadDao();
-            BThread bThreadNew = targetDao.load(__key);
+            ThreadDao targetDao = daoSession.getThreadDao();
+            Thread threadNew = targetDao.load(__key);
             synchronized (this) {
-                bThread = bThreadNew;
-                bThread__resolvedKey = __key;
+                thread = threadNew;
+                thread__resolvedKey = __key;
             }
         }
-        return bThread;
+        return thread;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1312423644)
-    public void setBThread(BThread bThread) {
+    @Generated(hash = 1938921797)
+    public void setThread(Thread thread) {
         synchronized (this) {
-            this.bThread = bThread;
-            threadId = bThread == null ? null : bThread.getId();
-            bThread__resolvedKey = threadId;
+            this.thread = thread;
+            threadId = thread == null ? null : thread.getId();
+            thread__resolvedKey = threadId;
         }
     }
 

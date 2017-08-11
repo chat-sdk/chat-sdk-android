@@ -1,9 +1,8 @@
 package co.chatsdk.core.handlers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
 
@@ -16,16 +15,16 @@ public interface ContactHandler {
     /**
     * @brief Get a list of the user's contacts
     */
-    List<BUser> contacts();
+    List<User> contacts();
 
     /**
     * @brief Get a list of the user's contacts
     */
-    List<BUser> contactsWithType (ConnectionType type);
+    List<User> contactsWithType (ConnectionType type);
 
     /**
     * @brief Add a user to contacts
     */
-    Completable addContact (BUser user, ConnectionType type);
-    Completable deleteContact (BUser user, ConnectionType type);
+    Completable addContact (User user, ConnectionType type);
+    Completable deleteContact (User user, ConnectionType type);
 }

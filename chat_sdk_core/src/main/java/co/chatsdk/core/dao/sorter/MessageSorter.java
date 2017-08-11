@@ -10,10 +10,10 @@ package co.chatsdk.core.dao.sorter;
 
 import java.util.Comparator;
 
-import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
 
-public class MessageSorter implements Comparator<BMessage> {
+public class MessageSorter implements Comparator<Message> {
     public static final int ORDER_TYPE_ASC = DaoCore.ORDER_ASC;
     public static final int ORDER_TYPE_DESC = DaoCore.ORDER_DESC;
 
@@ -26,7 +26,7 @@ public class MessageSorter implements Comparator<BMessage> {
     }
 
     @Override
-    public int compare(BMessage x, BMessage y) {
+    public int compare(Message x, Message y) {
         if (order == ORDER_TYPE_ASC)
             return (x == null || y == null) ? -1 : (x.getDate().toDate() == null || y.getDate().toDate() == null ) ? -1 : x.getDate().toDate().compareTo(y.getDate().toDate());
         else return (x == null || y == null) ? 1 : (x.getDate().toDate() == null || y.getDate().toDate() == null ) ? -1 : y.getDate().toDate().compareTo(x.getDate().toDate());

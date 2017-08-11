@@ -23,13 +23,14 @@ import android.view.View;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
@@ -45,6 +46,7 @@ import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import timber.log.Timber;
@@ -174,10 +176,6 @@ public class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (enableCardToast) {
-            UIHelper.getInstance().initCardToast();
-        }
-
         if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
             uiHelper.onResume();
         }
@@ -280,7 +278,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 //    protected void showProgressCard(String text){
-//        UIHelper.getInstance().showProgressCard(text);
+//        uiHelper.getInstance().showProgressCard(text);
 //    }
 //
 //    protected void dismissProgressCard(){
@@ -292,7 +290,7 @@ public class BaseActivity extends AppCompatActivity {
 //    }
 
 //    protected void dismissProgressCard(long delay){
-//        UIHelper.getInstance().dismissProgressCard(delay);
+//        uiHelper.getInstance().dismissProgressCard(delay);
 //    }
 
     /** Authenticates the current user.*/
@@ -301,10 +299,10 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
-    protected void createAndOpenThreadWithUsers(String name, BUser...users){
-        NM.thread().createThread(name, users).subscribe(new BiConsumer<BThread, Throwable>() {
+    protected void createAndOpenThreadWithUsers(String name, List<User> users){
+        NM.thread().createThread(name, users).subscribe(new BiConsumer<Thread, Throwable>() {
             @Override
-            public void accept(final BThread thread, Throwable throwable) throws Exception {
+            public void accept(final Thread thread, Throwable throwable) throws Exception {
                 if(throwable == null) {
                     dismissProgDialog();
 
@@ -313,14 +311,7 @@ public class BaseActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (isOnMainThread()) {
-                        startChatActivityForID(thread.getId());
-                    } else BaseActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            startChatActivityForID(thread.getId());
-                        }
-                    });
+                    startChatActivityForID(thread.getId());
                 }
                 else {
                     if (isOnMainThread())
@@ -334,6 +325,10 @@ public class BaseActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    protected void createAndOpenThreadWithUsers(String name, User... users){
+        createAndOpenThreadWithUsers(name, users);
     }
 
     /** Start the chat activity for the given thread id.

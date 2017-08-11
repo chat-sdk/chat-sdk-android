@@ -10,9 +10,9 @@ package co.chatsdk.core.dao.sorter;
 import java.util.Comparator;
 import java.util.Date;
 
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 
-public class ThreadsSorter implements Comparator<BThread> {
+public class ThreadsSorter implements Comparator<Thread> {
     public static final int ORDER_TYPE_ASC = 0;
     public static final int ORDER_TYPE_DESC = 1;
 
@@ -25,21 +25,12 @@ public class ThreadsSorter implements Comparator<BThread> {
     }
 
     @Override
-    public int compare(BThread t1, BThread t2) {
-        Date x, y;
-        if (t1.lastMessageAdded() == null)
-        {
-            x = new Date();
+    public int compare(Thread t1, Thread t2) {
+        if (order == ORDER_TYPE_ASC) {
+            return t1.lastMessageAddedDate().compareTo(t2.lastMessageAddedDate());
         }
-        else x = t1.lastMessageAdded();
-
-        if(t2.lastMessageAdded() == null)
-        {
-            y = new Date();
-        } else y = t2.lastMessageAdded();
-
-            if (order == ORDER_TYPE_ASC)
-                return x.compareTo(y);
-            else return y.compareTo(x);
+        else {
+            return t2.lastMessageAddedDate().compareTo(t1.lastMessageAddedDate());
+        }
     }
 }

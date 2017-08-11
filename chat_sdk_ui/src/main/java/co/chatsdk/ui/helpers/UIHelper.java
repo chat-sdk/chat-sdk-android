@@ -31,8 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.activities.AbstractLoginActivity;
-import co.chatsdk.ui.activities.LoginActivity;
+import co.chatsdk.ui.login.AbstractLoginActivity;
+import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.activities.MainActivity;
 import co.chatsdk.ui.activities.SearchActivity;
 
@@ -148,10 +148,6 @@ public class UIHelper {
 
     /** Start the chat activity for given thread id.*/
     public void startChatActivityForID(long id){
-
-        if (colleted())
-            return;
-
         Intent intent = new Intent(context.get(), chatActivity);
         intent.putExtra(ChatActivity.THREAD_ID, id);
 
@@ -177,16 +173,10 @@ public class UIHelper {
     }
 
     public void startShareWithFriendsActivity(){
-        if (colleted())
-            return;
-
         startActivity(shareWithFriendsActivity);
     }
 
     public boolean startProfileActivity(String entityId){
-
-        if (colleted())
-            return false;
 
         if (profileActivity==null)
             return false;
@@ -200,10 +190,6 @@ public class UIHelper {
     }
 
     public boolean startProfileActivity(long id){
-
-        if (colleted())
-            return false;
-
         if (profileActivity==null)
             return false;
 
@@ -216,10 +202,6 @@ public class UIHelper {
     }
 
     public void startEditProfileActivity(long id){
-
-        if (colleted())
-           return;
-
         if (editProfileActivity==null)
             return;
 
@@ -239,84 +221,6 @@ public class UIHelper {
         }
         return toast;
     }
-
-    /** You should pass שמ Activity and not a context if you want to use this.*/
-    public void initCardToast(){
-
-        if (colleted())
-            return;
-
-        if (context.get() instanceof AppCompatActivity)
-        {
-            if (superCardToastProgress == null) {
-
-            }
-
-        }
-    }
-
-    /** You should pass שמ Activity and not a context if you want to use this.*/
-//    public void dismissProgressCard(){
-//        dismissProgressCard(0);
-//    }
-
-    /** You should pass Activity and not a context if you want to use this.*/
-//    public void dismissProgressCardWithSmallDelay(){
-//        dismissProgressCard(1500);
-//    }
-
-    /** You should pass שמ Activity and not a context if you want to use this.*/
-//    @Override
-//    public void dismissProgressCard(long delay){
-//        if (superCardToastProgress == null)
-//            return;
-//
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                superCardToastProgress.dismiss();
-//            }
-//        }, delay);
-//    }
-//
-//    public void setProgress (float progress) {
-//        if (superCardToastProgress != null) {
-//            superCardToastProgress.setMaxProgress(1000);
-//            superCardToastProgress.setProgress(Math.round(1000 * progress));
-//        }
-//    }
-
-    /** You should pass שמ Activity and not a context if you want to use this.*/
-//    @Override
-//    public void showProgressCard(String text){
-//
-//        if (colleted())
-//            return;
-//
-////        if (context.get() instanceof AppCompatActivity) {
-//
-//            initCardToast();
-//
-//            View decorView = ((AppCompatActivity) context.get()).getWindow().getDecorView().findViewById(android.R.id.content);
-//            ViewGroup viewGroup = superCardToastProgress.getViewGroup();
-//
-//            if (viewGroup!=null && superCardToastProgress.getView()!= null && viewGroup.findViewById(superCardToastProgress.getView().getId()) != null)
-//                viewGroup.removeView(superCardToastProgress.getView());
-//
-//            decorView.findViewById(R.id.card_container).bringToFront();
-//
-//            superCardToastProgress.setText(text);
-//
-//            if (!superCardToastProgress.isShowing())
-//                superCardToastProgress.show();
-//
-////        }
-//    }
-
-    /** You should pass שמ Activity and not a context if you want to use this.*/
-//    public void showProgressCard(@StringRes int resourceId){
-//        showProgressCard(context.get().getString(resourceId));
-//    }
 
     /*Getters and Setters*/
     public void showToast(String text){
@@ -366,26 +270,12 @@ public class UIHelper {
         this.profileActivity = profileActivity;
     }
 
-    @Deprecated
-    private boolean colleted(){
-        return context == null || context.get() == null;
-        
-    }
-
     private void startActivity(Intent intent){
-        if (colleted())
-            return;
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.get().startActivity(intent);
     }
     
     private void startActivity(Class activity){
-        if (colleted())
-        {
-            return;
-        }
-
         startActivity(new Intent(context.get(), activity));
     }
 }

@@ -13,7 +13,7 @@ import co.chatsdk.core.interfaces.CoreEntity;
 
 @Entity
 @Deprecated
-public class BLinkedAccount implements CoreEntity {
+public class LinkedAccount implements CoreEntity {
 
     @Keep
     public static class Type{
@@ -29,16 +29,16 @@ public class BLinkedAccount implements CoreEntity {
     private Integer type;
     private Long userId;
 
-    @Generated(hash = 1200143068)
-    public BLinkedAccount(Long id, String Token, Integer type, Long userId) {
+    @Generated(hash = 1562734868)
+    public LinkedAccount(Long id, String Token, Integer type, Long userId) {
         this.id = id;
         this.Token = Token;
         this.type = type;
         this.userId = userId;
     }
 
-    @Generated(hash = 44749052)
-    public BLinkedAccount() {
+    @Generated(hash = 146239875)
+    public LinkedAccount() {
     }
 
     public void setEntityID (String entityID) {

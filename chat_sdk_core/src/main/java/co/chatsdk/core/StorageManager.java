@@ -1,6 +1,20 @@
 package co.chatsdk.core;
 
+import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.MessageDao;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.ThreadDao;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.dao.UserThreadLink;
+import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.StorageAdapter;
 import timber.log.Timber;
@@ -38,6 +52,69 @@ public class StorageManager {
         }
 
         return entity;
+    }
+
+    public User fetchUserWithEntityID (String entityID) {
+        return DaoCore.fetchEntityWithEntityID(User.class, entityID);
+    }
+
+    public List<Thread> fetchThreadsWithType (int type) {
+        return DaoCore.fetchEntitiesWithProperty(Thread.class, ThreadDao.Properties.Type, type);
+    }
+
+    public Thread fetchThreadWithID (long threadID) {
+        return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.Id, threadID);
+    }
+
+    public Thread fetchThreadWithEntityID (String entityID) {
+        return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
+    }
+
+    public Thread fetchThreadWithUsers (List<User> users) {
+        for(Thread t : allThreads()) {
+            if(t.getUsers().equals(users)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public List<Thread> allThreads () {
+        List<UserThreadLink> links =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, NM.currentUser().getId());
+        ArrayList<Thread> threads = new ArrayList<>();
+        for(UserThreadLink link : links) {
+            threads.add(link.getThread());
+        }
+        return threads;
+    }
+
+    public List<Message> fetchMessagesForThreadWithID (long threadID, int limit) {
+        return fetchMessagesForThreadWithID(threadID, limit, null);
+    }
+
+    public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
+        List<Message> list ;
+
+        QueryBuilder<Message> qb = DaoCore.daoSession.queryBuilder(Message.class);
+        qb.where(MessageDao.Properties.ThreadId.eq(threadID));
+
+        // Making sure no null messages infected the sort.
+        qb.where(MessageDao.Properties.Date.isNotNull());
+        qb.where(MessageDao.Properties.SenderId.isNotNull());
+
+        if(olderThan != null) {
+            qb.where(MessageDao.Properties.Date.lt(olderThan.getTime()));
+        }
+
+        qb.orderDesc(MessageDao.Properties.Date);
+
+        if (limit != -1)
+            qb.limit(limit);
+
+        list = qb.list();
+
+        return list;
+
     }
 
 }

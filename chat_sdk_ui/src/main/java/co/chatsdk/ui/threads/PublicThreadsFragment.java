@@ -22,10 +22,9 @@ import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.core.interfaces.ThreadType;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -66,7 +65,7 @@ public class PublicThreadsFragment extends BaseFragment {
         init(inflater);
 
         NM.events().sourceOnMain()
-                .filter(PredicateFactory.type((EventType.MessageAdded)))
+                .filter(NetworkEvent.filterType((EventType.MessageAdded)))
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(NetworkEvent networkEvent) throws Exception {
@@ -98,7 +97,7 @@ public class PublicThreadsFragment extends BaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startChatActivityForID(adapter.getItem(position).getId());
+                startChatActivityForThreadID(adapter.getItem(position).getId());
             }
         });
     }
@@ -116,7 +115,7 @@ public class PublicThreadsFragment extends BaseFragment {
     @Override
     public void refreshForEntity(Object entity) {
         super.refreshForEntity(entity);
-        adapter.replaceOrAddItem((BThread) entity);
+        adapter.replaceOrAddItem((Thread) entity);
     }
 
     @Override
@@ -145,9 +144,9 @@ public class PublicThreadsFragment extends BaseFragment {
                     showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
 
                     NM.publicThread().createPublicThreadWithName(s)
-                            .doOnSuccess(new Consumer<BThread>() {
+                            .doOnSuccess(new Consumer<Thread>() {
                                 @Override
-                                public void accept(final BThread thread) throws Exception {
+                                public void accept(final Thread thread) throws Exception {
                                     // Add the current user to the thread.
                                     // TODO: Check if this is needed - maybe we add the user when the chat view opens
                                     NM.thread().addUsersToThread(thread, NM.currentUser())

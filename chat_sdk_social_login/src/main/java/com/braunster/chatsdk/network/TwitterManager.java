@@ -15,7 +15,7 @@ import com.braunster.chatsdk.R;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.LoginType;
 import co.chatsdk.core.defines.Debug;
@@ -127,13 +127,13 @@ public class TwitterManager {
 
                             userId = json.getString("id");
 
-                            profileImageUrl = json.getString(DaoDefines.Keys.ThirdPartyData.ImageURL);
+                            profileImageUrl = json.getString(Keys.ThirdParty.ImageURL);
 
                             if (DEBUG) Timber.i("profileImageUrl: %s", profileImageUrl);
 
                             final Map<String, Object> data = new HashMap<String, Object>();
 
-                            data.put(DaoDefines.Keys.UserId, json.get("id"));
+                            data.put(Keys.UserId, json.get("id"));
                             data.put(LoginType.TypeKey, AccountType.Twitter);
 
                             NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {

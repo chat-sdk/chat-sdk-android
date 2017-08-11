@@ -24,8 +24,8 @@ import android.widget.TextView;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
 
@@ -92,9 +92,9 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
      * Load the user bundle from the database.
      * */
     private void loadCurrentData(){
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
         
-        String gender = user.metaStringForKey(DaoDefines.Keys.Gender);
+        String gender = user.metaStringForKey(Keys.Gender);
         
         if (StringUtils.isEmpty(gender) || gender.equals(Male))
         {
@@ -109,16 +109,16 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
             setSelected(txtFemale, true);
         }
         
-        String countryCode = user.metaStringForKey(DaoDefines.Keys.CountryCode);
+        String countryCode = user.metaStringForKey(Keys.CountryCode);
         
         if (StringUtils.isNotEmpty(countryCode)){
             loadCountryFlag(countryCode);
         }
         
         String name = user.getName();
-        String location = user.metaStringForKey(DaoDefines.Keys.Location);
-        String dateOfBirth = user.metaStringForKey(DaoDefines.Keys.DateOfBirth);
-        String status = user.metaStringForKey(DaoDefines.Keys.Status);
+        String location = user.metaStringForKey(Keys.Location);
+        String dateOfBirth = user.metaStringForKey(Keys.DateOfBirth);
+        String status = user.metaStringForKey(Keys.Status);
 
        if (StringUtils.isNotEmpty(name))
            etName.setText(name);
@@ -171,17 +171,17 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
      * Save the user details before closing the screen.
      * */
     private void saveDetailsBeforeClose(){
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
 
         if (!etName.getText().toString().isEmpty()) {
             user.setName(etName.getText().toString());
         }
 
-        user.setMetaString(DaoDefines.Keys.DateOfBirth, txtDateOfBirth.getText().toString());
+        user.setMetaString(Keys.DateOfBirth, txtDateOfBirth.getText().toString());
 
-        user.setMetaString(DaoDefines.Keys.Status, etStatus.getText().toString());
+        user.setMetaString(Keys.Status, etStatus.getText().toString());
 
-        user.setMetaString(DaoDefines.Keys.Location, etLocation.getText().toString());
+        user.setMetaString(Keys.Location, etLocation.getText().toString());
     }
     
     @Override
@@ -198,7 +198,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
 
                 setSelected(txtMale, true);
 
-                NM.currentUser().setMetaString(DaoDefines.Keys.Gender, "male");
+                NM.currentUser().setMetaString(Keys.Gender, "male");
             }
         });
 
@@ -213,7 +213,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
 
                 setSelected(txtFemale, true);
 
-                NM.currentUser().setMetaString(DaoDefines.Keys.Gender, "female");
+                NM.currentUser().setMetaString(Keys.Gender, "female");
             }
         });
 
@@ -312,7 +312,7 @@ public class EditProfileActivity extends BaseActivity implements OnClickListener
             picker.setListener(new CountryPickerListener() {
                 @Override
                 public void onSelectCountry(String name, String code, String dialCode, int resId) {
-                    NM.currentUser().setMetaString(DaoDefines.Keys.CountryCode, code);
+                    NM.currentUser().setMetaString(Keys.CountryCode, code);
                     loadCountryFlag(code);
                     picker.dismiss();
                 }

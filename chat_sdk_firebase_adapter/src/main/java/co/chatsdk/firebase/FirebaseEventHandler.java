@@ -5,9 +5,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.events.NetworkEvent;
@@ -20,7 +20,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.ReplaySubject;
 import timber.log.Timber;
 
 /**
@@ -52,7 +51,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         if (DEBUG) Timber.v("userOn, EntityID: %s", entityID);
 
-        final BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, entityID);
+        final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
         ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
@@ -61,26 +60,26 @@ public class FirebaseEventHandler implements EventHandler {
                 if(hasValue) {
                     final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                    DaoCore.connectUserAndThread(user, thread.getModel());
+                    thread.getModel().addUser(user);
 
                     // Starting to listen to thread changes.
-                    thread.on().doOnNext(new Consumer<BThread>() {
+                    thread.on().doOnNext(new Consumer<Thread>() {
                         @Override
-                        public void accept(BThread thread) throws Exception {
+                        public void accept(Thread thread) throws Exception {
                             eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                         }
                     }).subscribe();
 
-                    thread.messagesOn().doOnNext(new Consumer<BMessage>() {
+                    thread.messagesOn().doOnNext(new Consumer<Message>() {
                         @Override
-                        public void accept(BMessage message) throws Exception {
+                        public void accept(Message message) throws Exception {
                             eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
                         }
                     }).subscribe();
 
-                    thread.usersOn().doOnNext(new Consumer<BUser>() {
+                    thread.usersOn().doOnNext(new Consumer<User>() {
                         @Override
-                        public void accept(BUser user) throws Exception {
+                        public void accept(User user) throws Exception {
                             eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
                         }
                     }).subscribe();
@@ -113,23 +112,23 @@ public class FirebaseEventHandler implements EventHandler {
                 NM.thread().removeUsersFromThread(thread.getModel(), user);
 
                 // Starting to listen to thread changes.
-                thread.on().doOnNext(new Consumer<BThread>() {
+                thread.on().doOnNext(new Consumer<Thread>() {
                     @Override
-                    public void accept(BThread thread) throws Exception {
+                    public void accept(Thread thread) throws Exception {
                         eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                     }
                 }).subscribe();
 
-                thread.messagesOn().doOnNext(new Consumer<BMessage>() {
+                thread.messagesOn().doOnNext(new Consumer<Message>() {
                     @Override
-                    public void accept(BMessage message) throws Exception {
+                    public void accept(Message message) throws Exception {
                         eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
                     }
                 }).subscribe();
 
-                thread.usersOn().doOnNext(new Consumer<BUser>() {
+                thread.usersOn().doOnNext(new Consumer<User>() {
                     @Override
-                    public void accept(BUser user) throws Exception {
+                    public void accept(User user) throws Exception {
                         eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
                     }
                 }).subscribe();
@@ -162,7 +161,7 @@ public class FirebaseEventHandler implements EventHandler {
 //
 //
 //
-//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getBUser());
+//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
 //                wrapper.once();
 //                wrapper.metaOn();
 
@@ -190,7 +189,7 @@ public class FirebaseEventHandler implements EventHandler {
                 // TODO: Implement this
 //                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
 //
-//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getBUser());
+//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
 //                wrapper.once();
 //                wrapper.metaOn();
 
@@ -212,10 +211,10 @@ public class FirebaseEventHandler implements EventHandler {
         Executor.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                for (BUser contact : NM.contact().contacts()) {
-                    UserWrapper.initWithModel(contact).metaOn().subscribe(new Consumer<BUser>() {
+                for (User contact : NM.contact().contacts()) {
+                    UserWrapper.initWithModel(contact).metaOn().subscribe(new Consumer<User>() {
                         @Override
-                        public void accept(BUser user) throws Exception {
+                        public void accept(User user) throws Exception {
                             eventSource.onNext(NetworkEvent.userMetaUpdated(user));
                         }
                     });
@@ -229,7 +228,7 @@ public class FirebaseEventHandler implements EventHandler {
         isOn = false;
         if (DEBUG) Timber.v("userOff, EntityID: $s", entityID);
 
-        final BUser user = DaoCore.fetchEntityWithEntityID(BUser.class, entityID);
+        final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
         FirebaseReferenceManager.shared().removeListener(FirebasePaths.userThreadsRef(entityID));
         FirebaseReferenceManager.shared().removeListener(FirebasePaths.publicThreadsRef());
@@ -237,7 +236,7 @@ public class FirebaseEventHandler implements EventHandler {
         FirebaseReferenceManager.shared().removeListener(FirebasePaths.userFollowingRef(entityID));
 
         ThreadWrapper wrapper;
-        for (BThread thread : NM.thread().getThreads(ThreadType.All))
+        for (Thread thread : NM.thread().getThreads(ThreadType.All))
         {
             wrapper = new ThreadWrapper(thread);
 
@@ -249,7 +248,7 @@ public class FirebaseEventHandler implements EventHandler {
         Executor.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                for (BUser contact : NM.contact().contacts())
+                for (User contact : NM.contact().contacts())
                     UserWrapper.initWithModel(contact).metaOff();
             }
         });

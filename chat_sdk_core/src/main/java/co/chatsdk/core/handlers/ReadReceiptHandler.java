@@ -1,6 +1,6 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.dao.BThread;
+import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -8,7 +8,7 @@ import co.chatsdk.core.dao.BThread;
 
 public interface ReadReceiptHandler {
 
-    public void updateReadReceipts(BThread thread);
-    public void markRead (BThread thread);
+    public void updateReadReceipts(Thread thread);
+    public void markRead (Thread thread);
 
 }

@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.Defines;
@@ -140,7 +140,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             setLoginInfo(loginInfoMap);
 
                             e.onSuccess(task.getResult().getUser());
-                        } else {
+                        }
+                        else {
                             e.onError(ChatError.getExceptionError(task.getException()));
                         }
                     }
@@ -276,7 +277,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable logout() {
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
 
         // Stop listening to user related alerts. (added message or thread.)
         FirebaseEventHandler.shared().userOff(user.getEntityID());
@@ -333,7 +334,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public boolean facebookEnabled(){
-        return StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.facebook_id));
+        return StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.facebook_id));
     }
 
     public boolean googleEnabled(){
@@ -341,11 +342,11 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public boolean twitterEnabled(){
-        return (StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_consumer_key))
-                && StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_consumer_secret)))
+        return (StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_consumer_key))
+                && StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_consumer_secret)))
                 ||
-               (StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_access_token))
-                        && StringUtils.isNotEmpty(AppContext.context.getString(com.braunster.chatsdk.R.string.twitter_access_token_secret)));
+               (StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_access_token))
+                        && StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_access_token_secret)));
     }
 
 

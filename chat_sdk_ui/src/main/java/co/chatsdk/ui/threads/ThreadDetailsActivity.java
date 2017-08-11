@@ -13,21 +13,23 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.utils.ImageUtils;
 
+import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
-import co.chatsdk.ui.activities.BaseThreadActivity;
-import co.chatsdk.ui.contacts.AbstractContactsFragment;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -48,19 +50,25 @@ import timber.log.Timber;
 /**
  * Created by braunster on 24/11/14.
  */
-public class ThreadDetailsActivity extends BaseThreadActivity {
+public class ThreadDetailsActivity extends BaseActivity {
 
-    private static final String TAG = ThreadDetailsActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.ThreadDetailsActivity;
 
+    /** The key to get the thread long id.*/
+    public static final String THREAD_ID = "thread_id";
+
     private static final int THREAD_PIC = 1991;
+
+    /** Set true if you want slide down animation for this activity exit. */
+    protected boolean animateExit = false;
+
+    protected Thread thread;
 
     private CircleImageView threadImageView;
     private ProgressBar progressBar;
 
     private ContactsFragment contactsFragment;
 
-    private BUser admin;
     private ActionBar actionBar;
 
     private Cropper crop;
@@ -68,6 +76,19 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            getDataFromBundle(savedInstanceState);
+        }
+        else {
+            if (getIntent().getExtras() != null) {
+                getDataFromBundle(getIntent().getExtras());
+            }
+            else {
+                finish();
+            }
+        }
+
         setContentView(R.layout.chat_sdk_activity_thread_details);
 
         initViews();
@@ -127,45 +148,45 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         contactsFragment = new ContactsFragment();
         contactsFragment.setInflateMenu(false);
 
-        contactsFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                final Intent intent = new Intent();
+//        contactsFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+//                final Intent intent = new Intent();
+//
+//                User otherUser = contactsFragment.getAdapter().getItem(position).getUser();
+//                User currentUser = NM.currentUser();
+//
+//                NM.thread().createThread("", otherUser, currentUser)
+//                        .subscribe(new BiConsumer<Thread, Throwable>() {
+//                            @Override
+//                            public void accept(final Thread thread, Throwable throwable) throws Exception {
+//                                if (throwable == null) {
+//                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            intent.putExtra(THREAD_ID, thread.getId());
+//                                            setResult(RESULT_OK, intent);
+//                                            finish();
+//                                        }
+//                                    });
+//                                } else {
+//                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            showToast(getString(R.string.create_thread_with_users_fail_toast));
+//                                            dismissProgDialog();
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        });
+//            }
+//        });
 
-                BUser otherUser = contactsFragment.getAdapter().getItem(position).asBUser();
-                BUser currentUser = NM.currentUser();
-
-                NM.thread().createThread("", otherUser, currentUser)
-                        .subscribe(new BiConsumer<BThread, Throwable>() {
-                            @Override
-                            public void accept(final BThread thread, Throwable throwable) throws Exception {
-                                if (throwable == null) {
-                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            intent.putExtra(THREAD_ID, thread.getId());
-                                            setResult(RESULT_OK, intent);
-                                            finish();
-                                        }
-                                    });
-                                } else {
-                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            showToast(getString(R.string.create_thread_with_users_fail_toast));
-                                            dismissProgDialog();
-                                        }
-                                    });
-                                }
-                            }
-                        });
-            }
-        });
-
-        contactsFragment.setLoadingMode(AbstractContactsFragment.MODE_LOAD_THREAD_USERS);
+        contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
         contactsFragment.withUpdates(true);
-        contactsFragment.setClickMode(AbstractContactsFragment.CLICK_MODE_NONE);
+        contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_NONE);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
     }
@@ -189,10 +210,11 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
     @Override
     public void onBackPressed() {
         setResult(AppCompatActivity.RESULT_OK);
-        finish();
 
-        if (animateExit)
+        finish();
+        if (animateExit) {
             overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+        }
     }
 
     @Override
@@ -279,6 +301,48 @@ public class ThreadDetailsActivity extends BaseThreadActivity {
         }
 
 
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        getDataFromBundle(intent.getExtras());
+    }
+
+    private void getDataFromBundle(Bundle bundle){
+        if (bundle == null) {
+            return;
+        }
+
+        animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+
+        Long threadID = bundle.getLong(THREAD_ID);
+
+        if(threadID > 0) {
+            thread = StorageManager.shared().fetchThreadWithID(threadID);
+        }
+        else {
+            finish();
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(THREAD_ID, thread.getId());
+        outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home)
+        {
+            onBackPressed();
+        }
+        return true;
     }
 
 

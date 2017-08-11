@@ -28,7 +28,7 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Type = new Property(1, Integer.class, "type", false, "TYPE");
         public final static Property UserId = new Property(2, Long.class, "userId", false, "USER_ID");
-        public final static Property LinkOwnerBUserDaoId = new Property(3, Long.class, "linkOwnerBUserDaoId", false, "LINK_OWNER_BUSER_DAO_ID");
+        public final static Property LinkOwnerUserDaoId = new Property(3, Long.class, "linkOwnerUserDaoId", false, "LINK_OWNER_USER_DAO_ID");
     }
 
     private DaoSession daoSession;
@@ -50,7 +50,7 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"TYPE\" INTEGER," + // 1: type
                 "\"USER_ID\" INTEGER," + // 2: userId
-                "\"LINK_OWNER_BUSER_DAO_ID\" INTEGER);"); // 3: linkOwnerBUserDaoId
+                "\"LINK_OWNER_USER_DAO_ID\" INTEGER);"); // 3: linkOwnerUserDaoId
     }
 
     /** Drops the underlying database table. */
@@ -78,9 +78,9 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
             stmt.bindLong(3, userId);
         }
  
-        Long linkOwnerBUserDaoId = entity.getLinkOwnerBUserDaoId();
-        if (linkOwnerBUserDaoId != null) {
-            stmt.bindLong(4, linkOwnerBUserDaoId);
+        Long linkOwnerUserDaoId = entity.getLinkOwnerUserDaoId();
+        if (linkOwnerUserDaoId != null) {
+            stmt.bindLong(4, linkOwnerUserDaoId);
         }
     }
 
@@ -103,9 +103,9 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
             stmt.bindLong(3, userId);
         }
  
-        Long linkOwnerBUserDaoId = entity.getLinkOwnerBUserDaoId();
-        if (linkOwnerBUserDaoId != null) {
-            stmt.bindLong(4, linkOwnerBUserDaoId);
+        Long linkOwnerUserDaoId = entity.getLinkOwnerUserDaoId();
+        if (linkOwnerUserDaoId != null) {
+            stmt.bindLong(4, linkOwnerUserDaoId);
         }
     }
 
@@ -126,7 +126,7 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getInt(offset + 1), // type
             cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // userId
-            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // linkOwnerBUserDaoId
+            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // linkOwnerUserDaoId
         );
         return entity;
     }
@@ -136,7 +136,7 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setType(cursor.isNull(offset + 1) ? null : cursor.getInt(offset + 1));
         entity.setUserId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
-        entity.setLinkOwnerBUserDaoId(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
+        entity.setLinkOwnerUserDaoId(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
      }
     
     @Override
@@ -171,12 +171,12 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getBUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getUserDao().getAllColumns());
             builder.append(" FROM FOLLOWER_LINK T");
-            builder.append(" LEFT JOIN BUSER T0 ON T.\"USER_ID\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN BUSER T1 ON T.\"LINK_OWNER_BUSER_DAO_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN USER T0 ON T.\"USER_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN USER T1 ON T.\"LINK_OWNER_USER_DAO_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -187,12 +187,12 @@ public class FollowerLinkDao extends AbstractDao<FollowerLink, Long> {
         FollowerLink entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        BUser BUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setBUser(BUser);
-        offset += daoSession.getBUserDao().getAllColumns().length;
+        User User = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+        entity.setUser(User);
+        offset += daoSession.getUserDao().getAllColumns().length;
 
-        BUser linkOwnerBUser = loadCurrentOther(daoSession.getBUserDao(), cursor, offset);
-        entity.setLinkOwnerBUser(linkOwnerBUser);
+        User linkOwnerUser = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
+        entity.setLinkOwnerUser(linkOwnerUser);
 
         return entity;    
     }

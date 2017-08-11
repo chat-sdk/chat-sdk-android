@@ -29,6 +29,7 @@
             android:layout_width="match_parent"
             android:id="@+id/ptr_layout"
             android:layout_height="match_parent">
+
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -37,6 +38,7 @@
                 android:layout_below="@id/card_container"
                 android:layout_above="@+id/linear"
                 android:scrollbars="none"
+                android:dividerHeight="0dp"
                 android:divider="@null"
                 android:listSelector="@android:color/transparent"
                 android:descendantFocusability="afterDescendants"/>

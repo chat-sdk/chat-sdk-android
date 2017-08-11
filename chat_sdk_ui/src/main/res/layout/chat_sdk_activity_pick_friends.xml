@@ -80,17 +80,7 @@
             android:layout_alignParentLeft="true"
             android:id="@+id/textView3"/>
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:id="@+id/chat_sdk_chk_select_all"
-            android:paddingRight="8dp"
-            android:enabled="false"
-            android:text="@string/select_all"/>
         </RelativeLayout>
-
 
     <ListView
         android:layout_width="fill_parent"

@@ -25,9 +25,9 @@ import com.koushikdutta.ion.Ion;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import at.grabner.circleprogress.CircleProgressView;
-import co.chatsdk.core.dao.BMessage;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.DaoDefines;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -59,7 +59,7 @@ public class MessagesListAdapter extends BaseAdapter{
     private AppCompatActivity activity;
 
     private List<MessageListItem> messageItems = new ArrayList<>();
-    private List<BMessage> messages = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
     private boolean isScrolling = false;
 
@@ -133,14 +133,14 @@ public class MessagesListAdapter extends BaseAdapter{
 
         switch (item.messageType())
         {
-            case BMessage.Type.TEXT:
+            case Message.Type.TEXT:
                 holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
                 holder.messageTextView.setVisibility(View.VISIBLE);
                 holder.progressView.setVisibility(View.INVISIBLE);
                 holder.imageView.setVisibility(View.INVISIBLE);
                 break;
-            case BMessage.Type.IMAGE:
-            case BMessage.Type.LOCATION:
+            case Message.Type.IMAGE:
+            case Message.Type.LOCATION:
                 holder.messageTextView.setVisibility(View.INVISIBLE);
                 holder.progressView.setVisibility(View.VISIBLE);
                 holder.imageView.setVisibility(View.VISIBLE);
@@ -169,7 +169,7 @@ public class MessagesListAdapter extends BaseAdapter{
         params.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
         params.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
 
-        if (messageItem.messageType() == BMessage.Type.TEXT) {
+        if (messageItem.messageType() == Message.Type.TEXT) {
 
             holder.messageTextView.setVisibility(View.VISIBLE);
             holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
@@ -184,16 +184,16 @@ public class MessagesListAdapter extends BaseAdapter{
             animateContent((View) holder.messageTextView.getParent(), null, messageItem.delivered());
         }
 
-        if (messageItem.messageType() == BMessage.Type.LOCATION || messageItem.messageType() == BMessage.Type.IMAGE) {
+        if (messageItem.messageType() == Message.Type.LOCATION || messageItem.messageType() == Message.Type.IMAGE) {
 
             holder.imageView.setVisibility(View.VISIBLE);
 
             int width = messageItem.width();
             int height = messageItem.height();
 
-            if (messageItem.messageType() == BMessage.Type.LOCATION) {
-                double longitude = (Double) messageItem.message.valueForKey(DaoDefines.Keys.MessageLongitude);
-                double latitude = (Double) messageItem.message.valueForKey(DaoDefines.Keys.MessageLatitude);
+            if (messageItem.messageType() == Message.Type.LOCATION) {
+                double longitude = (Double) messageItem.message.valueForKey(Keys.MessageLongitude);
+                double latitude = (Double) messageItem.message.valueForKey(Keys.MessageLatitude);
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
@@ -203,9 +203,9 @@ public class MessagesListAdapter extends BaseAdapter{
                 holder.imageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
             }
 
-            if (messageItem.messageType() == BMessage.Type.IMAGE) {
+            if (messageItem.messageType() == Message.Type.IMAGE) {
 
-                String url = (String) messageItem.message.valueForKey(DaoDefines.Keys.MessageImageURL);
+                String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
                 if(url == null || url.isEmpty()) {
                     Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder);
@@ -264,7 +264,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
 
         // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != BMessage.Status.SENDING))
+        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != Message.Status.SENDING))
         {
             if (DEBUG) Timber.d("CoreMessage has no entity and was sent.: ", newItem.getText());
             return false;
@@ -294,11 +294,11 @@ public class MessagesListAdapter extends BaseAdapter{
      * Add a new message to the list.
      * @return true if the item is added to the list.
      * */
-    public boolean addRow(BMessage message){
+    public boolean addRow(Message message){
         return addRow(message, true, true);
     }
 
-    public boolean addRow(BMessage message, boolean sort, boolean notify){
+    public boolean addRow(Message message, boolean sort, boolean notify){
         if(!messages.contains(message) && message != null) {
             MessageListItem item = new MessageListItem(message, maxWidth());
 
@@ -328,18 +328,18 @@ public class MessagesListAdapter extends BaseAdapter{
         notifyDataSetChanged();
     }
 
-    public void setMessages(List<BMessage> messages) {
+    public void setMessages(List<Message> messages) {
 
         clear();
 
-        for (BMessage message : messages) {
+        for (Message message : messages) {
             addRow(message, false, false);
         }
         sortItemsAndNotify();
     }
 
     // Untested because upload progress doesn't work
-    public void setProgressForMessage (BMessage message, float progress) {
+    public void setProgressForMessage (Message message, float progress) {
         MessageListItem item = messageListItemForMessage(message);
         if(item != null) {
             item.progress = progress;
@@ -347,7 +347,7 @@ public class MessagesListAdapter extends BaseAdapter{
         notifyDataSetChanged();
     }
 
-    public MessageListItem messageListItemForMessage (BMessage message) {
+    public MessageListItem messageListItemForMessage (Message message) {
         for(MessageListItem i : messageItems) {
             if(i.message.equals(message)) {
                 return i;

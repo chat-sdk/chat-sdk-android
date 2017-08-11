@@ -8,16 +8,14 @@
 package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.BMessageDao;
-import co.chatsdk.core.dao.sorter.MessageSorter;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.firebase.FirebasePaths;
 
 
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.core.interfaces.ThreadType;
@@ -32,10 +30,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import org.greenrobot.greendao.query.QueryBuilder;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,29 +53,29 @@ import timber.log.Timber;
 
 public class ThreadWrapper  {
     
-    public static final boolean DEBUG = Debug.BThread;
+    public static final boolean DEBUG = Debug.Thread;
 
-    private BThread model;
+    private Thread model;
 
-    public ThreadWrapper(BThread thread){
+    public ThreadWrapper(Thread thread){
         this.model = thread;
     }
     
     public ThreadWrapper(String entityId){
-        this(StorageManager.shared().fetchOrCreateEntityWithEntityID(BThread.class, entityId));
+        this(StorageManager.shared().fetchOrCreateEntityWithEntityID(Thread.class, entityId));
     }
 
-    public BThread getModel(){
+    public Thread getModel(){
         return model;
     }
 
     /**
      * Start listening to thread details changes.
      **/
-    public Observable<BThread> on() {
-        return Observable.create(new ObservableOnSubscribe<BThread>() {
+    public Observable<Thread> on() {
+        return Observable.create(new ObservableOnSubscribe<Thread>() {
             @Override
-            public void subscribe(final ObservableEmitter<BThread> e) throws Exception {
+            public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
 
                 DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
@@ -160,10 +155,10 @@ public class ThreadWrapper  {
     /**
      * Start listening to incoming messages.
      **/
-    public Observable<BMessage> messagesOn(){
-        return Observable.create(new ObservableOnSubscribe<BMessage>() {
+    public Observable<Message> messagesOn(){
+        return Observable.create(new ObservableOnSubscribe<Message>() {
             @Override
-            public void subscribe(final ObservableEmitter<BMessage> e) throws Exception {
+            public void subscribe(final ObservableEmitter<Message> e) throws Exception {
 
                 updateReadReceipts();
 
@@ -180,7 +175,7 @@ public class ThreadWrapper  {
 
                         Query query = ref;
 
-                        final List<BMessage> messages = model.getMessagesWithOrder(DaoCore.ORDER_DESC);
+                        final List<Message> messages = model.getMessagesWithOrder(DaoCore.ORDER_DESC);
 
                         Long startTimestamp = null;
 
@@ -206,15 +201,16 @@ public class ThreadWrapper  {
                                     model.setDeleted(false);
 
                                     MessageWrapper message = new MessageWrapper(snapshot);
-                                    boolean newMessage = message.getModel().getDelivered() == BMessage.Delivered.No;
+                                    boolean newMessage = message.getModel().getDelivered() == Message.Delivered.No;
 
-                                    message.setDelivered(BMessage.Delivered.Yes);
+                                    message.setDelivered(Message.Delivered.Yes);
 
                                     // Update the thread
                                     DaoCore.updateEntity(model);
 
                                     // Update the message.
-                                    message.getModel().setThread(model);
+                                    model.addMessage(message.getModel());
+
                                     DaoCore.updateEntity(message.getModel());
 
                                     if (newMessage) {
@@ -249,10 +245,10 @@ public class ThreadWrapper  {
     /**
      * Start listening to users added to this thread.
      **/
-    public Observable<BUser> usersOn() {
-        return Observable.create(new ObservableOnSubscribe<BUser>() {
+    public Observable<User> usersOn() {
+        return Observable.create(new ObservableOnSubscribe<User>() {
             @Override
-            public void subscribe(final ObservableEmitter<BUser> e) throws Exception {
+            public void subscribe(final ObservableEmitter<User> e) throws Exception {
 
                 final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
@@ -265,13 +261,10 @@ public class ThreadWrapper  {
                     @Override
                     public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
                         final UserWrapper user = new UserWrapper(snapshot);
-                        if (!model.hasUser(user.getModel())) {
-                            DaoCore.connectUserAndThread(user.getModel(), model);
-                            DaoCore.updateEntity(model);
-                        }
-                        user.metaOn().subscribe(new Consumer<BUser>() {
+                        model.addUser(user.getModel());
+                        user.metaOn().subscribe(new Consumer<User>() {
                             @Override
-                            public void accept(BUser user) throws Exception {
+                            public void accept(User user) throws Exception {
                                 e.onNext(user);
                             }
                         });
@@ -310,12 +303,12 @@ public class ThreadWrapper  {
         return Single.create(new SingleOnSubscribe<Long>() {
             @Override
             public void subscribe(final SingleEmitter<Long> e) {
-                BUser user = NM.currentUser();
+                User user = NM.currentUser();
 
                 DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
                         .child(FirebasePaths.UsersPath)
                         .child(user.getEntityID())
-                        .child(DaoDefines.Keys.Deleted);;
+                        .child(Keys.Deleted);;
 
                 currentThreadUser.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -355,23 +348,23 @@ public class ThreadWrapper  {
                     e.onComplete();
                 }
                 else {
-                    List<BMessage> messages = model.getMessages();
+                    List<Message> messages = model.getMessages();
 
-                    for (BMessage m : messages) {
+                    for (Message m : messages) {
                         DaoCore.deleteEntity(m);
                     }
 
                     DaoCore.updateEntity(model);
 
-                    final BUser currentUser = NM.currentUser();
+                    final User currentUser = NM.currentUser();
 
                     DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
                             .child(currentUser.getEntityID());
 
                     if(model.typeIs(ThreadType.Private) && model.getUsers().size() == 2) {
                         HashMap<String, Object> value = new HashMap<>();
-                        value.put(DaoDefines.Keys.Name, currentUser.getName());
-                        value.put(DaoDefines.Keys.Deleted, ServerValue.TIMESTAMP);
+                        value.put(Keys.Name, currentUser.getName());
+                        value.put(Keys.Deleted, ServerValue.TIMESTAMP);
 
                         currentThreadUser.setValue(value, new DatabaseReference.CompletionListener() {
                             @Override
@@ -404,50 +397,31 @@ public class ThreadWrapper  {
         });
     }
 
-    public Single<List<BMessage>> loadMoreMessages(BMessage fromMessage){
+    public Single<List<Message>> loadMoreMessages(Message fromMessage){
         return loadMoreMessages(fromMessage, Defines.MAX_MESSAGES_TO_PULL);
     }
 
-    public Single<List<BMessage>> loadMoreMessages(final BMessage fromMessage, final Integer numberOfMessages){
-        return Single.create(new SingleOnSubscribe<List<BMessage>>() {
+    public Single<List<Message>> loadMoreMessages(final Message fromMessage, final Integer numberOfMessages){
+        return Single.create(new SingleOnSubscribe<List<Message>>() {
             @Override
-            public void subscribe(final SingleEmitter<List<BMessage>> e) throws Exception {
+            public void subscribe(final SingleEmitter<List<Message>> e) throws Exception {
 
-                // First try to load the messages from the local database
                 Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
-                QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-                qb.where(BMessageDao.Properties.ThreadId.eq(model.getId()));
-
-                // Making sure no null messages infected the sort.
-                qb.where(BMessageDao.Properties.Date.isNotNull());
-
-                qb.where(BMessageDao.Properties.Date.lt(messageDate.getTime()));
-
-                qb.limit(numberOfMessages + 1);
-                qb.orderDesc(BMessageDao.Properties.Date);
-
-                List<BMessage> list = qb.list();
+                // First try to load the messages from the database
+                List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
 
                 if(!list.isEmpty()) {
-                    Collections.sort(list, new MessageSorter(DaoCore.ORDER_DESC));
                     e.onSuccess(list);
-                    return;
                 }
                 else {
-
-                    Date endDate;
-
-                    if(fromMessage != null) {
-                        endDate = fromMessage.getDate().toDate();
-                    }
-                    else {
-                        endDate = new Date();
-                    }
+                    Date endDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
                     DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                    Query query = messageRef.orderByPriority().endAt(endDate.getTime() - 1).limitToLast(numberOfMessages + 1);
+                    Query query = messageRef.orderByPriority()
+                            .endAt(endDate.getTime() - 1)
+                            .limitToLast(numberOfMessages + 1);
 
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -456,14 +430,15 @@ public class ThreadWrapper  {
                             {
                                 if (DEBUG) Timber.d("MessagesSnapShot: %s", snapshot.getValue().toString());
 
-                                List<BMessage> messages = new ArrayList<BMessage>();
+                                List<Message> messages = new ArrayList<Message>();
 
                                 MessageWrapper message;
                                 for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
                                 {
                                     message = new MessageWrapper(snapshot.child(key));
-                                    message.getModel().setThread(model);
-                                    message.setDelivered(BMessage.Delivered.Yes);
+                                    model.addMessage(message.getModel());
+
+                                    message.setDelivered(Message.Delivered.Yes);
 
                                     DaoCore.updateEntity(message.getModel());
                                     messages.add(message.getModel());
@@ -472,7 +447,7 @@ public class ThreadWrapper  {
                             }
                             else
                             {
-                                e.onSuccess(new ArrayList<BMessage>());
+                                e.onSuccess(new ArrayList<Message>());
                             }
                         }
 
@@ -480,7 +455,8 @@ public class ThreadWrapper  {
                         public void onCancelled(DatabaseError firebaseError) {
                             e.onError(firebaseError.toException());
                         }
-                    });                }
+                    });
+                }
             }
         });
     }
@@ -497,26 +473,23 @@ public class ThreadWrapper  {
         // Else we will push the saved creation date from the db.
         // No treating this as so can cause problems with firebase security rules.
         if (model.getCreationDate() == null) {
-            nestedMap.put(DaoDefines.Keys.CreationDate, ServerValue.TIMESTAMP);
+            nestedMap.put(Keys.CreationDate, ServerValue.TIMESTAMP);
         }
         else {
-            nestedMap.put(DaoDefines.Keys.CreationDate, model.getCreationDate().getTime());
+            nestedMap.put(Keys.CreationDate, model.getCreationDate().getTime());
         }
 
-        nestedMap.put(DaoDefines.Keys.Name, model.getName());
+        nestedMap.put(Keys.Name, model.getName());
 
         // This is the legacy type
         int type = model.typeIs(ThreadType.Public) ? 1 : 0;
 
-        nestedMap.put(DaoDefines.Keys.Type, type);
-        nestedMap.put(DaoDefines.Keys.Type_v4, model.getType());
+        nestedMap.put(Keys.Type, type);
+        nestedMap.put(Keys.Type_v4, model.getType());
 
-        if (model.getLastMessageAdded() != null)
-            nestedMap.put(DaoDefines.Keys.LastMessageAdded, model.getLastMessageAdded().getTime());
+        nestedMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
 
-        nestedMap.put(DaoDefines.Keys.CreatorEntityId, this.model.getCreatorEntityId());
-
-        nestedMap.put(DaoDefines.Keys.ImageUrl, this.model.getImageUrl());
+        nestedMap.put(Keys.ImageUrl, this.model.getImageUrl());
 
         value.put(FirebasePaths.DetailsPath, nestedMap);
                 
@@ -536,66 +509,47 @@ public class ThreadWrapper  {
             return;
         }
 
-        if (value.containsKey(DaoDefines.Keys.CreationDate))
+        if (value.containsKey(Keys.CreationDate))
         {
-            if (value.get(DaoDefines.Keys.CreationDate) instanceof Long)
+            if (value.get(Keys.CreationDate) instanceof Long)
             {
-                Long data = (Long) value.get(DaoDefines.Keys.CreationDate);
+                Long data = (Long) value.get(Keys.CreationDate);
                 if (data != null && data > 0) {
                     this.model.setCreationDate(new Date(data));
                 }
             }
-            else if (value.get(DaoDefines.Keys.CreationDate) instanceof Double)
+            else if (value.get(Keys.CreationDate) instanceof Double)
             {
-                Double data = (Double) value.get(DaoDefines.Keys.CreationDate);
+                Double data = (Double) value.get(Keys.CreationDate);
                 if (data != null && data > 0) {
                     this.model.setCreationDate(new Date(data.longValue()));
                 }
             }
         }
 
-        String creatorEntityID = (String) value.get(DaoDefines.Keys.CreatorEntityId);
+        String creatorEntityID = (String) value.get(Keys.CreatorEntityId);
         if (creatorEntityID != null) {
             this.model.setCreatorEntityId(creatorEntityID);
         }
 
         long type = ThreadType.PrivateGroup;
         // First check to see if the new type value exists
-        if(value.containsKey(DaoDefines.Keys.Type_v4)) {
-            type = (Long) value.get(DaoDefines.Keys.Type_v4);
+        if(value.containsKey(Keys.Type_v4)) {
+            type = (Long) value.get(Keys.Type_v4);
         }
         // Handle the legacy value
-        else if (value.containsKey(DaoDefines.Keys.Type)) {
-            type = ((Long) value.get(DaoDefines.Keys.Type));
+        else if (value.containsKey(Keys.Type)) {
+            type = ((Long) value.get(Keys.Type));
             type = (type == ThreadType.PrivateV3) ? ThreadType.PrivateGroup : ThreadType.PublicGroup;
         }
         model.setType((int)type);
 
-        if (value.containsKey(DaoDefines.Keys.Name) && !value.get(DaoDefines.Keys.Name).equals("")) {
-            this.model.setName((String) value.get(DaoDefines.Keys.Name));
+        if (value.containsKey(Keys.Name) && !value.get(Keys.Name).equals("")) {
+            this.model.setName((String) value.get(Keys.Name));
         }
 
-        Long lastMessageAdded = 0L;
-        Object o = value.get(DaoDefines.Keys.LastMessageAdded);
-
-        if (o instanceof Long) {
-            lastMessageAdded = (Long) o;
-        }
-
-        else if (o instanceof Double) {
-            lastMessageAdded = ((Double) o).longValue();
-        }
-
-        if (lastMessageAdded != null && lastMessageAdded > 0)
-        {
-            Date date = new Date(lastMessageAdded);
-            if (this.model.getLastMessageAdded() == null || date.getTime() > this.model.getLastMessageAdded() .getTime()) {
-                this.model.setLastMessageAdded(date);
-            }
-        }
-
-        this.model.setImageURL((String) value.get(DaoDefines.Keys.ImageUrl));
-        this.model.setCreatorEntityId((String) value.get(DaoDefines.Keys.CreatorEntityId));
+        this.model.setImageURL((String) value.get(Keys.ImageUrl));
+        this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
         
         DaoCore.updateEntity(this.model);
     }
@@ -640,7 +594,7 @@ public class ThreadWrapper  {
      * Removing a user from thread.
      * If the thread is private the thread will be removed from the user thread ref.
      **/
-    private Completable removeUser(final BUser user){
+    private Completable removeUser(final User user){
         Completable c = Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {

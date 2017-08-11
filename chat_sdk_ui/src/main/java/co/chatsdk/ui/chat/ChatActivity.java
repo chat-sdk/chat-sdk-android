@@ -34,11 +34,10 @@ import android.widget.TextView;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BMessage;
-import co.chatsdk.core.dao.BMessageDao;
-import co.chatsdk.core.dao.BThread;
-import co.chatsdk.core.dao.BThreadDao;
-import co.chatsdk.core.dao.BUser;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -54,14 +53,11 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.activities.BaseThreadActivity;
 import co.chatsdk.ui.activities.PickFriendsActivity;
 
 import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.contacts.ContactsFragment;
-
-import co.chatsdk.core.events.PredicateFactory;
 
 import co.chatsdk.core.dao.DaoCore;
 import com.google.android.gms.appindexing.AppIndex;
@@ -70,7 +66,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
-import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -115,7 +110,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected TextInputView textInputView;
     protected ListView listMessages;
     protected MessagesListAdapter messagesListAdapter;
-    protected BThread thread;
+    protected Thread thread;
 
     private Disposable messageAddedDisposable;
     private Disposable threadChangedDisposable;
@@ -315,19 +310,19 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 if (DEBUG) Timber.d("onRefreshStarted");
 
                 List<MessageListItem> items = messagesListAdapter.getMessageItems();
-                BMessage firstMessage = null;
+                Message firstMessage = null;
                 if(items.size() > 0) {
                     firstMessage = items.get(0).message;
                 }
 
-                NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<BMessage>, Throwable>() {
+                NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
                     @Override
-                    public void accept(List<BMessage> messages, Throwable throwable) throws Exception {
+                    public void accept(List<Message> messages, Throwable throwable) throws Exception {
                         if (throwable == null) {
                             if (messages.size() < 2)
                                 showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
                             else {
-                                for(BMessage m : messages) {
+                                for(Message m : messages) {
                                     messagesListAdapter.addRow(m);
                                 }
 
@@ -484,13 +479,13 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
 
         messageAddedDisposable = NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(EventType.MessageAdded))
-                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
 
-                        BMessage message = networkEvent.message;
+                        Message message = networkEvent.message;
 
                         // Check that the message is relevant to the current thread.
                         if (message.getThreadId() != thread.getId().intValue()) {
@@ -517,21 +512,21 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                             //v.vibrate(Defines.VIBRATION_DURATION);
                         }
 
-                        message.setDelivered(BMessage.Delivered.Yes);
+                        message.setDelivered(Message.Delivered.Yes);
                         DaoCore.updateEntity(message);
 
                     }
                 });
 
         threadChangedDisposable = NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(
+                .filter(NetworkEvent.filterType(
                         EventType.PrivateThreadAdded,
                         EventType.PrivateThreadRemoved,
                         EventType.PublicThreadAdded,
                         EventType.PublicThreadRemoved,
                         EventType.ThreadDetailsUpdated,
                         EventType.ThreadUsersChanged))
-                .filter(PredicateFactory.threadEntityID(thread.getEntityID()))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
@@ -540,7 +535,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 });
 
         userUpdatedDisposable = NM.events().sourceOnMain()
-                .filter(PredicateFactory.type(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
                         messagesListAdapter.notifyDataSetChanged();
@@ -560,7 +555,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         if (thread != null && thread.typeIs(ThreadType.Public)) {
-            BUser currentUser = NM.currentUser();
+            User currentUser = NM.currentUser();
             NM.thread().addUsersToThread(thread, currentUser).subscribe();
         }
 
@@ -583,7 +578,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
-
+        messagesListAdapter.notifyDataSetChanged();
 
     }
 
@@ -708,7 +703,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             return super.onCreateOptionsMenu(menu);
 
         // Adding the add user option only if group chat is enabled.
-        if (Defines.Options.GroupEnabled) {
+        if (Defines.Options.GroupEnabled && thread.typeIs(ThreadType.Group)) {
             MenuItem item =
                     menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -745,7 +740,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         // Showing the pick friends activity.
         Intent intent = new Intent(this, UIHelper.getInstance().getPickFriendsActivity());
         intent.putExtra(PickFriendsActivity.MODE, PickFriendsActivity.MODE_ADD_TO_CONVERSATION);
-        intent.putExtra(BaseThreadActivity.THREAD_ID, thread.getId());
+        intent.putExtra(THREAD_ID, thread.getId());
         intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
@@ -777,18 +772,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
     }
 
-    /**
-     * Not used, show a dialog containing all the user in this chat with custom title and option to show or hide headers.
-     *
-     * @param withHeaders if true the list will contain its headers for users.
-     * @param title       the title of the dialog.
-     */
-    protected void showUsersDialog(String title, boolean withHeaders) {
-        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), title, true);
-        contactsFragment.setWithHeaders(withHeaders);
-        contactsFragment.setTitle(title);
-        contactsFragment.show(getSupportFragmentManager(), "Contacts");
-    }
+//    /**
+//     * Not used, show a dialog containing all the user in this chat with custom title and option to show or hide headers.
+//     *
+//     * @param withHeaders if true the list will contain its headers for users.
+//     * @param title       the title of the dialog.
+//     */
+//    protected void showUsersDialog(String title, boolean withHeaders) {
+//        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), title, true);
+//        contactsFragment.setTitle(title);
+//        contactsFragment.show(getSupportFragmentManager(), "Contacts");
+//    }
 
     @Override
     public void onAuthenticated() {
@@ -815,9 +809,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         if (this.bundle.containsKey(THREAD_ID)) {
-            thread = DaoCore.fetchEntityWithProperty(BThread.class,
-                    BThreadDao.Properties.Id,
-                    this.bundle.getLong(THREAD_ID));
+            thread = StorageManager.shared().fetchThreadWithID(this.bundle.getLong(THREAD_ID));
         }
         if (this.bundle.containsKey(LIST_POS)) {
             listPos = (Integer) this.bundle.get(LIST_POS);
@@ -924,16 +916,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
                 final int listSize = messagesListAdapter.getCount();
 
-                final List<BMessage> messages;
+                int toLoad = amountToLoad > 0 ? amountToLoad : Defines.MAX_MESSAGES_TO_PULL;
 
-                // Load maximum number of messages
-                if (amountToLoad <= 0) {
-                    messages = getMessagesForThreadID(thread.getId(), listSize + Defines.MAX_MESSAGES_TO_PULL);
-                } else {
-                    // The idea is that if we want to load 10 messages and we already have
-                    // 10 in the list, in total we want to end up with 20 messages
-                    messages = getMessagesForThreadID(thread.getId(), listSize + amountToLoad);
-                }
+                final List<Message> messages = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), listSize + toLoad);
 
                 markAsRead(messages);
 
@@ -959,8 +944,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         });
     }
 
-    public void markAsRead(List<BMessage> messages){
-        for (BMessage m : messages)
+    public void markAsRead(List<Message> messages){
+        for (Message m : messages)
         {
             m.setIsRead(true);
             DaoCore.updateEntity(m);
@@ -968,7 +953,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
     }
 
-    public void markAsRead(BMessage message){
+    public void markAsRead(Message message){
         message.setIsRead(true);
         DaoCore.updateEntity(message);
         readCount++;
@@ -1040,29 +1025,5 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         });
         listMessages.getAnimation().start();
     }
-
-    /**
-     * Get all messages for given thread id ordered Ascending/Descending
-     */
-    public List<BMessage> getMessagesForThreadID(Long id, int limit) {
-        List<BMessage> list ;
-
-        QueryBuilder<BMessage> qb = DaoCore.daoSession.queryBuilder(BMessage.class);
-        qb.where(BMessageDao.Properties.ThreadId.eq(id));
-
-        // Making sure no null messages infected the sort.
-        qb.where(BMessageDao.Properties.Date.isNotNull());
-        qb.where(BMessageDao.Properties.SenderId.isNotNull());
-
-        qb.orderDesc(BMessageDao.Properties.Date);
-
-        if (limit != -1)
-            qb.limit(limit);
-
-        list = qb.list();
-
-        return list;
-    }
-
 
 }

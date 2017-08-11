@@ -14,7 +14,7 @@ public interface PushHandler {
     public boolean unsubscribeToPushChannel(String channel);
 
     public void pushToChannels(Collection<String> channels, JSONObject data);
-    //public void pushForMesasge(BMessage message);
+    //public void pushForMesasge(Message message);
 
 
 }

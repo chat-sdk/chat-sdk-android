@@ -14,7 +14,7 @@ public class GoogleUtils {
 
     public static String getMapImageURL (LatLng location, int width, int height) {
 
-        String googleMapsAPIKey = AppContext.googleMapsAPIKey;
+        String googleMapsAPIKey = AppContext.shared().googleMapsAPIKey();
 
         String api = "https://maps.googleapis.com/maps/api/staticmap";
         String markers = "markers="+location.latitude+","+location.longitude;

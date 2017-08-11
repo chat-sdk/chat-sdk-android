@@ -8,33 +8,27 @@
 package co.chatsdk.ui.profile;
 
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.BUser;
-import co.chatsdk.core.dao.DaoDefines;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.events.PredicateFactory;
 import co.chatsdk.ui.R;
 
 import com.braunster.chatsdk.network.FacebookManager;
 import co.chatsdk.ui.helpers.SaveIndexDetailsTextWatcher;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -58,7 +52,7 @@ public class ProfileFragment extends AbstractProfileFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        NM.events().sourceOnMain().filter(PredicateFactory.type(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
+        NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
                 if(networkEvent.user.equals(NM.currentUser())) {
@@ -106,9 +100,9 @@ public class ProfileFragment extends AbstractProfileFragment {
         //loadData();
 
         // Setting a listener to text change, The listener will take cate of indexing the bundle.
-        TextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Email);
-        TextWatcher nameTextWatcher= new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Name);
-        TextWatcher phoneTextWatcher = new SaveIndexDetailsTextWatcher(DaoDefines.Keys.Phone);
+        TextWatcher emailTextWatcher = new SaveIndexDetailsTextWatcher(Keys.Email);
+        TextWatcher nameTextWatcher= new SaveIndexDetailsTextWatcher(Keys.Name);
+        TextWatcher phoneTextWatcher = new SaveIndexDetailsTextWatcher(Keys.Phone);
 
         etMail.addTextChangedListener(emailTextWatcher);
         etName.addTextChangedListener(nameTextWatcher);
@@ -145,37 +139,28 @@ public class ProfileFragment extends AbstractProfileFragment {
         FacebookManager.logout(getActivity());
 
         NM.auth().logout();
-        UIHelper.startLoginActivity(true);
+        uiHelper.startLoginActivity(true);
     }
 
     /*############################################*/
     /* UI*/
     /** Fetching the user details from the user's metadata.*/
-    private void setDetails(){
+    private void setDetails () {
 
-        BUser user = NM.currentUser();
+        User user = NM.currentUser();
         etName.setText(user.getName());
-        etPhone.setText(user.metaStringForKey(DaoDefines.Keys.Phone));
+        etPhone.setText(user.metaStringForKey(Keys.Phone));
         etMail.setText(user.getEmail());
 
-        // Check to see if we can load the bitmap locally
-        Bitmap bitmap = BitmapFactory.decodeFile(user.getAvatarURL());
-        if(bitmap != null) {
-            profileCircleImageView.setImageBitmap(bitmap);
-            profileCircleImageView.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.INVISIBLE);
-        }
-        else {
-            // Load the remote image
-            Ion.with(profileCircleImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(user.getAvatarURL()).setCallback(new FutureCallback<ImageView>() {
-                @Override
-                public void onCompleted(Exception e, ImageView result) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    profileCircleImageView.setVisibility(View.VISIBLE);
-                    imageLoading = false;
-                }
-            });
-        }
+        progressBar.setVisibility(View.VISIBLE);
+
+        user.putAvatar(profileCircleImageView).subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                profileCircleImageView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
 

@@ -2,14 +2,11 @@ package co.chatsdk.xmpp.handlers;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractCoreHandler;
-import co.chatsdk.core.dao.BUser;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.

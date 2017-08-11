@@ -6,6 +6,8 @@ package co.chatsdk.core.interfaces;
 
 public class ThreadType {
 
+//    ThreadType
+
     public static int PrivateGroup = 0x1;
     public static int Private1to1 = 0x2;
     public static int PublicGroup = 0x4;
