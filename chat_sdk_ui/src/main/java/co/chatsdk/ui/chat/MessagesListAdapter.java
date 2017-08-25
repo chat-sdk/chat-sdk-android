@@ -181,7 +181,7 @@ public class MessagesListAdapter extends BaseAdapter{
             params.width = 0;
             params.height = 0;
 
-            animateContent((View) holder.messageTextView.getParent(), null, messageItem.delivered());
+//            animateContent((View) holder.messageTextView.getParent(), null, messageItem.delivered());
         }
 
         if (messageItem.messageType() == Message.Type.LOCATION || messageItem.messageType() == Message.Type.IMAGE) {
@@ -238,7 +238,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
-        animateSides(holder.timeTextView, messageItem.isMine(), null);
+        //animateSides(holder.timeTextView, messageItem.isMine(), null);
 
         row.setAlpha(messageItem.delivered() ? 1.0f : 0.5f);
 
@@ -369,29 +369,29 @@ public class MessagesListAdapter extends BaseAdapter{
     /**
      * Animating the sides of the row, For example animating the user profile imageView and the message date.
      * */
-    private void animateSides(View view, boolean fromLeft, Animation.AnimationListener animationListener){
-        if (!isScrolling)
-            return;
-
-        if (fromLeft)
-            view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_left));
-        else view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_right));
-
-        view.getAnimation().setAnimationListener(animationListener);
-        view.animate();
-    }
-
-    /**
-     *  Animating the center part of the row, For example the imageView in an imageView message or the text in text message.
-     * */
-    private void animateContent(View view, Animation.AnimationListener animationListener, boolean showFull){
-        if (!isScrolling)
-            return;
-
-        view.setAnimation(AnimationUtils.loadAnimation(activity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
-        view.getAnimation().setAnimationListener(animationListener);
-        view.animate();
-    }
+//    private void animateSides(View view, boolean fromLeft, Animation.AnimationListener animationListener){
+//        if (!isScrolling)
+//            return;
+//
+//        if (fromLeft)
+//            view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_left));
+//        else view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_right));
+//
+//        view.getAnimation().setAnimationListener(animationListener);
+//        view.animate();
+//    }
+//
+//    /**
+//     *  Animating the center part of the row, For example the imageView in an imageView message or the text in text message.
+//     * */
+//    private void animateContent(View view, Animation.AnimationListener animationListener, boolean showFull){
+//        if (!isScrolling)
+//            return;
+//
+//        view.setAnimation(AnimationUtils.loadAnimation(activity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
+//        view.getAnimation().setAnimationListener(animationListener);
+//        view.animate();
+//    }
 
     public int size () {
         return messageItems.size();

@@ -24,12 +24,20 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
+        <activity android:name=".profile.EditProfileActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/SdkTheme"/>
+
+        <activity android:name=".profile.ProfileActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/SdkTheme"/>
+
         <activity android:name=".activities.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".activities.PickFriendsActivity"
+        <activity android:name=".activities.SelectContactActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
@@ -41,7 +49,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".profile.EditProfileActivity"
+        <activity android:name=".profile.EditProfileActivity2"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 

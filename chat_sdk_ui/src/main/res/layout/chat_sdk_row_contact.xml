@@ -1,47 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        style="@style/CircleIconStyle"
         android:id="@+id/img_profile_picture"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="8dp"
+        style="@style/CircleIconStyle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        />
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Contact Name"
-        style="@style/TextViewStyle"
         android:id="@+id/chat_sdk_txt"
-        android:layout_centerVertical="true"
-        android:maxLines="1"
+        style="@style/TextViewStyle"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:ellipsize="end"
-        android:layout_toRightOf="@id/img_profile_picture"
-        android:layout_toEndOf="@id/img_profile_picture"
-        android:layout_toLeftOf="@+id/checkbox"
-        android:layout_toStartOf="@id/checkbox"/>
+        android:maxLines="1"
+        android:text="Contact Name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/img_profile_picture"
+        app:layout_constraintRight_toLeftOf="@+id/checkbox"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
 
     <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@id/checkbox"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:padding="10dp"
-        android:layout_centerVertical="true"
-        android:visibility="invisible"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="6dp"
+        android:buttonTint="@color/chat_blue"
         android:enabled="true"
-        android:buttonTint="@color/chat_blue"/>
-</RelativeLayout>
+        android:padding="10dp"
+        android:visibility="invisible"
+        app:layout_constraintBaseline_toBaselineOf="@+id/chat_sdk_txt"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintBaseline_creator="1"
+        tools:layout_constraintRight_creator="1" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="0dp"
+        android:text="TextView"
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/img_profile_picture"
+        app:layout_constraintRight_toLeftOf="@+id/checkbox"
+        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_txt" />
+
+    <ImageView
+        android:id="@+id/ivAvailability"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icn_20_online" />
+</android.support.constraint.ConstraintLayout>

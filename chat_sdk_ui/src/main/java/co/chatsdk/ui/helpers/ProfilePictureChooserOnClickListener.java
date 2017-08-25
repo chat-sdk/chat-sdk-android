@@ -13,6 +13,7 @@ import co.chatsdk.ui.profile.AbstractProfileFragment;
  * Created by benjaminsmiley-andrews on 05/07/2017.
  */
 
+@Deprecated
 public class ProfilePictureChooserOnClickListener implements View.OnClickListener {
 
     public static final int PROFILE_PIC = 100;
@@ -25,8 +26,8 @@ public class ProfilePictureChooserOnClickListener implements View.OnClickListene
     }
 
     public ProfilePictureChooserOnClickListener(AppCompatActivity activity, Fragment fragment) {
-        this.activity = new WeakReference<AppCompatActivity>(activity);
-        this.fragment = new WeakReference<Fragment>(fragment);
+        this.activity = new WeakReference<>(activity);
+        this.fragment = new WeakReference<>(fragment);
     }
 
     @Override

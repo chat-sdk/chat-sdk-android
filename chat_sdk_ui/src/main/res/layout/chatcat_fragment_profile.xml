@@ -47,7 +47,7 @@
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_profile"
                 style="@style/CircleIconStyle"
-                android:id="@+id/chat_sdk_circle_ing_profile_pic"
+                android:id="@+id/ivAvatar"
                 app:border_color="@android:color/black"
                 android:visibility="gone"
                 android:layout_gravity="center"/>

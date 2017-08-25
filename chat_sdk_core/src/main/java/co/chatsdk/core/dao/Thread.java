@@ -26,6 +26,7 @@ import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import co.chatsdk.core.dao.sorter.MessageSorter;
@@ -209,7 +210,9 @@ public class Thread implements CoreEntity {
         if (limit != -1)
             qb.limit(limit);
 
-        for(Message m : qb.list()) {
+        Query<Message> query = qb.build().forCurrentThread();
+
+        for(Message m : query.list()) {
             list.add(m);
         }
 
@@ -220,23 +223,11 @@ public class Thread implements CoreEntity {
 
     public void addMessage (Message message) {
         lastMessage = message;
-        //message.setThread(this);
         message.setThreadId(this.getId());
+        message.update();
+
         update();
-
         resetMessages();
-//        addMessage(message);
-//        DaoCore.daoSession.insert(message);
-        List<Message> list = new ArrayList<>() ;/*= DaoCore.fetchEntitiesWithProperty(Message.class, BMessageDao.Properties.OwnerThread, getId());*/
-
-        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
-
-        List<Message> list2 = getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-
-        list = qb.list();
-        Timber.v("");
-
     }
 
     public boolean hasUser(User user){

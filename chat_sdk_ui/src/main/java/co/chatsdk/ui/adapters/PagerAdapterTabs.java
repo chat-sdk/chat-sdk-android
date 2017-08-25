@@ -8,7 +8,6 @@
 package co.chatsdk.ui.adapters;
 
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -19,15 +18,6 @@ import java.util.List;
 
 import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.threads.PrivateThreadsFragment;
-
-import co.chatsdk.ui.R;
-
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.profile.ProfileFragment;
-import co.chatsdk.ui.threads.PublicThreadsFragment;
 
 /**
  * Created by itzik on 6/16/2014.

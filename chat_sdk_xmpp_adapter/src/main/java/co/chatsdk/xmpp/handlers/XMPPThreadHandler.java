@@ -3,13 +3,11 @@ package co.chatsdk.xmpp.handlers;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jxmpp.jid.impl.JidCreate;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
@@ -30,9 +28,11 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.
@@ -82,7 +82,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                     });
                 }
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -133,7 +133,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                     ChatManager chatManager = XMPPManager.shared().chatManager();
                     Chat chat = chatManager.getThreadChat(message.getThread().getEntityID());
                     if(chat == null) {
-                        chat = chatManager.createChat(message.getThread().getEntityID());
+                        chat = chatManager.createChat(JidCreate.entityBareFrom(message.getThread().getEntityID()));
                     }
                     chat.sendMessage(builder.build());
                 }
@@ -153,7 +153,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 e.onComplete();
 
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

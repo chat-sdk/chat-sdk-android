@@ -34,7 +34,7 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static boolean DEBUG = Debug.LoginActivity;
 
-    private Button btnLogin, btnReg, btnAnon, btnTwitter;
+    private Button btnLogin, btnReg, btnAnon, btnTwitter, btnGoogle;
     private ImageView appIconImage;
 
     @Override
@@ -72,10 +72,24 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
         etEmail = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
+        btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
+
+        if(!NM.auth().accountTypeEnabled(AccountType.Facebook)) {
+            facebookLogin.setVisibility(View.INVISIBLE);
+        }
+        if(!NM.auth().accountTypeEnabled(AccountType.Twitter)) {
+            btnTwitter.setVisibility(View.INVISIBLE);
+        }
+        if(!NM.auth().accountTypeEnabled(AccountType.Google)) {
+            btnGoogle.setVisibility(View.INVISIBLE);
+        }
+        if(!NM.auth().accountTypeEnabled(AccountType.Anonymous)) {
+            btnAnon.setVisibility(View.INVISIBLE);
+        }
 
         // TODO: Remove this
-        etEmail.setText("ben");
-        etPass.setText("123456");
+//        etEmail.setText("ben");
+//        etPass.setText("123456");
 
         appIconImage = (ImageView) findViewById(R.id.app_icon);
 

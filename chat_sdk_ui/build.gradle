@@ -37,7 +37,12 @@ android {
 }
 
 repositories {
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
+    maven {
+        url 'https://maven.google.com'
+    }
 }
 
 dependencies {
@@ -47,20 +52,24 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
-    compile 'com.github.johnpersano:supertoasts:1.3.4.1@aar'
     compile 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
+    compile "com.android.support:support-v4:" + project.ANDROID_SUPPORT_VERSION
+    compile "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
+    compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
+
+    // Seems to be an issue with Android Studio... Not actually a problem
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
     testCompile 'junit:junit:4.12'
     compile 'de.hdodenhof:circleimageview:2.1.0'
+
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
 
     compile project(path: ':chat_sdk_social_login')
     compile project(path: ':chat_sdk_core')
     compile 'com.google.android.gms:play-services-appindexing:9.0.2'
 
-    compile "com.android.support:support-v4:" + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
     compile 'com.google.android.gms:play-services:9.0.2'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.makeramen:roundedimageview:2.3.0'
@@ -70,6 +79,5 @@ dependencies {
     compile 'id.zelory:compressor:2.0.0'
     compile 'com.kaopiz:kprogresshud:1.1.0'
 
+
 }
-
-

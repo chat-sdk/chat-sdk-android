@@ -1,6 +1,8 @@
 package co.chatsdk.xmpp.handlers;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,22 +10,25 @@ import java.util.Map;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.utils.JID;
 import co.chatsdk.xmpp.utils.KeyStorage;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.
@@ -43,53 +48,65 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
     @Override
     public Completable authenticate (final AccountDetails details) {
-
-        // If we're already authenticated just finish
-        if(XMPPManager.shared().isConnectedAndAuthenticated()) {
-             return Completable.complete();
-        }
-
-        Action onComplete = new Action() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void run() throws Exception {
-                keyStorage.put(KeyStorage.UsernameKey, details.username);
-                keyStorage.put(KeyStorage.PasswordKey, details.password);
+            public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
+                // If we're already authenticated just finish
+                if(XMPPManager.shared().isConnectedAndAuthenticated()) {
+                    e.onComplete();
+                    return;
+                }
 
-                JID jid = new JID(details.username, XMPPManager.shared().serviceName);
+                switch (details.type) {
+                    case Username:
+                        XMPPManager.shared().login(details.username, details.password).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                keyStorage.put(KeyStorage.UsernameKey, details.username);
+                                keyStorage.put(KeyStorage.PasswordKey, details.password);
 
-                userAuthenticationCompletedWithJID(jid);
+                                String jidString = details.username + "@" + XMPPManager.shared().serviceName.toString();
+
+                                Timber.v("Authentication Complete");
+
+                                userAuthenticationCompletedWithJID(JidCreate.bareFrom(jidString));
+                                Timber.v("Setup tasks complete");
+                                e.onComplete();
+                            }
+                        });
+                        return;
+                    case Register:
+                        XMPPManager.shared().register(details.username, details.password).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onComplete();
+                            }
+                        });
+                        return;
+                }
+                e.onComplete();
             }
-        };
-
-        switch (details.type) {
-            case Username:
-                return XMPPManager.shared().login(details.username, details.password).doOnComplete(onComplete);
-            case Register:
-                return XMPPManager.shared().register(details.username, details.password);
-        }
-
-        return null;
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    private void userAuthenticationCompletedWithJID (JID jid) {
-
+    private void userAuthenticationCompletedWithJID (Jid jid) {
 
         final Map<String, Object> loginInfoMap =  new HashMap<String, Object>();
 
-        loginInfoMap.put(Defines.Prefs.AuthenticationID, jid.bare());
+        loginInfoMap.put(Defines.Prefs.AuthenticationID, jid.asBareJid().toString());
 
         setLoginInfo(loginInfoMap);
 
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {
 
-            User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.bare());
+            User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
 
 
             XMPPManager.shared().goOnline(user);
 
             if(NM.push() != null) {
-                NM.push().subscribeToPushChannel(jid.bare());
+                NM.push().subscribeToPushChannel(jid.asBareJid().toString());
             }
 
             XMPPManager.shared().performPostAuthenticationSetup();
@@ -120,7 +137,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                     e.onError(new Throwable("Login details not valid"));
                 }
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

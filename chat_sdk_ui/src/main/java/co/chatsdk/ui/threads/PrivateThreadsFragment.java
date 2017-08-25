@@ -7,10 +7,6 @@
 
 package co.chatsdk.ui.threads;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -27,11 +23,10 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -69,7 +64,6 @@ public class PrivateThreadsFragment extends BaseFragment {
         });
     }
 
-    @Override
     public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
         progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progress_bar);
@@ -91,7 +85,7 @@ public class PrivateThreadsFragment extends BaseFragment {
             onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    startChatActivityForThreadID(adapter.getItem(position).getId());
+                    UIHelper.shared().startChatActivityForID(adapter.getItem(position).getId());
                 }
             };
         }

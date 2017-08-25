@@ -13,10 +13,10 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import co.chatsdk.core.dao.User;
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import timber.log.Timber;
 
@@ -52,9 +53,11 @@ public class UsersListAdapter extends BaseAdapter {
     protected boolean filtering = false;
 
     public class ViewHolder {
-        public CircleImageView profilePicture;
-        public TextView textView;
+        public CircleImageView avatarImageView;
+        public TextView nameTextView;
         public CheckBox checkBox;
+        public TextView statusTextView;
+        public ImageView availabilityImageView;
     }
 
     private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
@@ -100,7 +103,9 @@ public class UsersListAdapter extends BaseAdapter {
             holder = (ViewHolder) row.getTag();
         }
 
-        holder.textView.setText(userItem.getText());
+        holder.nameTextView.setText(userItem.getText());
+        holder.availabilityImageView.setImageResource(userItem.getAvailability());
+        holder.statusTextView.setText(userItem.getStatus());
 
         row.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,11 +118,11 @@ public class UsersListAdapter extends BaseAdapter {
 
         if (getItemViewType(position) == TYPE_USER) {
 
-            userItem.getUser().putAvatar(holder.profilePicture).subscribe();
+            UserAvatarHelper.loadAvatar(userItem.getUser(), holder.avatarImageView).subscribe();
 
             // If this is included then the outer click won't work
 
-            holder.profilePicture.setOnClickListener(new View.OnClickListener() {
+            holder.avatarImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(UsersListAdapter.this.profileImageClickListener != null) {
@@ -131,7 +136,11 @@ public class UsersListAdapter extends BaseAdapter {
     }
 
     public void setRowClickListener (RowClickListener listener) {
-        this.rowClickListener = listener;
+        rowClickListener = listener;
+    }
+
+    public RowClickListener getRowClickListener () {
+        return rowClickListener;
     }
 
     public void setProfileImageClickListener (RowClickListener listener) {
@@ -162,22 +171,25 @@ public class UsersListAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row =  inflater.inflate(userItems.get(position).getResourceID(), null);
 
-        holder.textView = (TextView) row.findViewById(R.id.chat_sdk_txt);
+        holder.nameTextView = (TextView) row.findViewById(R.id.chat_sdk_txt);
+        holder.statusTextView = (TextView) row.findViewById(R.id.tvStatus);
+        holder.availabilityImageView = (ImageView) row.findViewById(R.id.ivAvailability);
+        holder.avatarImageView = (CircleImageView) row.findViewById(R.id.img_profile_picture);
 
-        if (getItemViewType(position) == TYPE_USER) {
-            holder.profilePicture = (CircleImageView) row.findViewById(R.id.img_profile_picture);
-
-            if (isMultiSelect) {
-                holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
-                holder.checkBox.setVisibility(View.VISIBLE);
-                holder.checkBox.setChecked(selectedUsersPositions.get(position));
-                holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        setViewSelected(position, isChecked);
-                    }
-                });
-            }
+        if (isMultiSelect) {
+            holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
+            holder.checkBox.setVisibility(View.VISIBLE);
+            holder.checkBox.setChecked(selectedUsersPositions.get(position));
+            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    setViewSelected(position, isChecked);
+                }
+            });
+            holder.availabilityImageView.setVisibility(View.INVISIBLE);
+        }
+        else {
+            holder.availabilityImageView.setVisibility(View.VISIBLE);
         }
 
         row.setTag(holder);
@@ -196,7 +208,6 @@ public class UsersListAdapter extends BaseAdapter {
         for(User user : users) {
             items.add(new UserListItem(user, R.layout.chat_sdk_row_contact, TYPE_USER));
         }
-
         setUserItems(items, sort);
     }
 

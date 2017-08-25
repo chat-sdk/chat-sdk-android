@@ -57,7 +57,7 @@
     <!--ShareWithContactsActivity-->
     <string name="share_activity_error_getting_share_data">Error getting share data</string>
 
-    <!--PickFriendsActivity-->
+    <!--SelectContactActivity-->
     <string name="pick_friends_activity_no_users_selected_toast">Please select at least one user</string>
     <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Adding users to thread&#8230;</string>
     <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Creating thread&#8230;</string>
@@ -112,10 +112,14 @@
 
     <string name="chat_sdk__action_settings">action_setting</string>
     <string name="action_logout">Logout</string>
+    <string name="action_save">Save</string>
+    <string name="action_chat">Chat</string>
+    <string name="action_settings">Settings</string>
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>
     <string name="done_show_again">Done show again</string>
     <string name="double_back_press_exit">Use double back button pressed to exit</string>
+    <string name="subscription">Presence Subscription</string>
 
     <!--Notification-->
     <string name="not_message_title">Message</string>
@@ -142,6 +146,25 @@
     <string name="unable_to_catch_image">Unable to catch image</string>
     <string name="status">Status</string>
     <string name="location_hint">Location</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="email_hint">Email</string>
+
+    <string name="availability">Availability</string>
+    <string name="details">Details</string>
+    <string name="country">Country</string>
+    <string name="dateOfBirth">Date of birth</string>
+    <string name="follows">Follows</string>
+    <string name="followed">Followed</string>
+    <string name="block">Block</string>
+    <string name="blocked">Blocked</string>
+    <string name="unblock">Unblock</string>
+    <string name="user_blocked">User blocked</string>
+    <string name="user_unblocked">User unblocked</string>
+    <string name="user_deleted">User deleted</string>
+    <string name="user_entity_id_not_set">User Entity ID not set</string>
+    <string name="typing">Typing...</string>
+
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="action_edit">Edit</string>
@@ -150,10 +173,25 @@
     <string name="app_info">App Info</string>
     <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>
 
+    <string name="select_country">Select Country</string>
+
+    <string name="availability_unavailable">Unavailable</string>
+    <string name="availability_available">Available</string>
+    <string name="availability_away">Away</string>
+    <string name="availability_busy">Busy</string>
+    <string name="availability_extended_away">Extended Away</string>
+
     <!--Tabs-->
     <string name="conversations">Conversations</string>
     <string name="chat_rooms">Chat Rooms</string>
     <string name="contacts">Contacts</string>
     <string name="profile">Profile</string>
+
+    <string-array name="availability_states">
+        <item>Available</item>
+        <item>Away</item>
+        <item>Extended Away</item>
+        <item>Busy</item>
+    </string-array>
 
 </resources>

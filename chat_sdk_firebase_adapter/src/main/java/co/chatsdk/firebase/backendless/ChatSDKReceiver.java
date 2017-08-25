@@ -235,7 +235,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
         {
             if (DEBUG) Timber.d("no auth user");
-            resultIntent = new Intent(context, UIHelper.getInstance().getLoginActivity());
+            resultIntent = new Intent(context, UIHelper.shared().getLoginActivity());
 
             // Posting the notification.
             try {
@@ -257,7 +257,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
                 return;
             }
             // Open main activity
-            else resultIntent = new Intent(context, UIHelper.getInstance().getMainActivity());
+            else resultIntent = new Intent(context, UIHelper.shared().getMainActivity());
 
             // Posting the notification.
             try {
@@ -278,7 +278,7 @@ public class ChatSDKReceiver extends BackendlessBroadcastReceiver {
         final JSONObject json;
         try {
             json = new JSONObject(intent.getExtras().getString("message"));
-            Intent resultIntent = new Intent(context, UIHelper.getInstance().getMainActivity());
+            Intent resultIntent = new Intent(context, UIHelper.shared().getMainActivity());
             NotificationUtils.createAlertNotification(context, Defines.FOLLOWER_NOTIFICATION_ID, resultIntent,
                     NotificationUtils.getDataBundle(context.getString(R.string.not_follower_title), context.getString(R.string.not_follower_ticker),
                             json.getString(Keys.CONTENT)));

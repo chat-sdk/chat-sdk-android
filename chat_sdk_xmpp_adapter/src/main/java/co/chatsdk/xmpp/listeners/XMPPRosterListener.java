@@ -1,21 +1,15 @@
 package co.chatsdk.xmpp.listeners;
 
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterListener;
+import org.jxmpp.jid.Jid;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.List;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.utils.JID;
-import io.reactivex.functions.BiConsumer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -30,38 +24,38 @@ public class XMPPRosterListener implements RosterListener {
 
     public XMPPRosterListener (XMPPManager manager) {
         this.manager = new WeakReference<>(manager);
-        // Clear down the contacts stored locally
+        presenceEventSource.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public void entriesAdded(Collection<Jid> addresses) {
+        for(Jid jid : addresses) {
+            Timber.v("Added to roster " + jid.toString());
+            manager.get().userManager.addContact(jid.asBareJid()).subscribe();
+        }
+    }
+
+    @Override
+    public void entriesUpdated(Collection<Jid> addresses) {
+        for(Jid jid : addresses) {
+            Timber.v("Updated in roster " + jid.toString());
+        }
+    }
+
+    @Override
+    public void entriesDeleted(Collection<Jid> addresses) {
+        for(Jid jid : addresses) {
+
+            manager.get().userManager.deleteContact(jid.asBareJid().toString());
+            Timber.v("Deleted from roster " + jid);
+        }
     }
 
     @Override
     public void presenceChanged(Presence presence) {
-        String name = presence.getFrom();
         // Recommended to freshen the presence
-        Presence freshPresence = Roster.getInstanceFor(manager.get().getConnection()).getPresence(name);
+        Presence freshPresence = manager.get().roster().getPresence(presence.getFrom().asBareJid());
         presenceEventSource.onNext(freshPresence);
-    }
-
-    @Override
-    public void entriesAdded(Collection<String> addresses) {
-        for(String jid : addresses) {
-            Timber.v("Added to roster " + jid);
-            manager.get().userManager.addContact(jid).subscribe();
-        }
-    }
-
-    @Override
-    public void entriesUpdated(Collection<String> addresses) {
-        for(String entry : addresses) {
-            Timber.v("Updated in roster " + entry);
-        }
-    }
-
-    @Override
-    public void entriesDeleted(Collection<String> addresses) {
-        for(String jid : addresses) {
-            manager.get().userManager.deleteContact(jid);
-            Timber.v("Deleted from roster " + jid);
-        }
     }
 
 }

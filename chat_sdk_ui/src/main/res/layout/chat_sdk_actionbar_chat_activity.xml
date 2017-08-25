@@ -1,34 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/chat_sdk_image_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="4dp"
-        android:id="@+id/chat_sdk_image_container">
+        android:layout_margin="0dp">
+
+        <TextView
+            android:id="@+id/tvName"
+            style="@style/TextViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="name"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@+id/ivAvatar"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <de.hdodenhof.circleimageview.CircleImageView
-            style="@style/CircleIconStyle"
-            android:layout_height="@dimen/chat_sdk_chat_action_barcircle_image_view_size"
-            android:layout_width="@dimen/chat_sdk_chat_action_barcircle_image_view_size"
-            android:layout_gravity="center_vertical"
-            android:id="@+id/chat_sdk_circle_image"
-            android:visibility="invisible"/>
-        </FrameLayout>
+            android:id="@+id/ivAvatar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/icn_100_profile" />
+
+        <TextView
+            android:id="@+id/tvTyping"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@+id/tvName"
+            app:layout_constraintLeft_toRightOf="@+id/ivAvatar"
+            android:layout_marginLeft="12dp" />
+    </android.support.constraint.ConstraintLayout>
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        style="@style/TextViewStyle"
-        android:text="name"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:textColor="@android:color/white"
-        android:id="@+id/chat_sdk_name"/>
 </LinearLayout>

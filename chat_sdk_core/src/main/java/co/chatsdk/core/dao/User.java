@@ -176,7 +176,9 @@ public class User implements CoreEntity {
                 properties, this.getId(), type.ordinal());
 
         for(ContactLink link : contactLinks) {
-            DaoCore.deleteEntity(link);
+            if(link.getUser().equals(user)) {
+                DaoCore.deleteEntity(link);
+            }
         }
         daoSession.update(this);
     }
@@ -315,7 +317,7 @@ public class User implements CoreEntity {
     }
 
     public void setDateOfBirth (String date) {
-        setMetaString(date, Keys.DateOfBirth);
+        setMetaString(Keys.DateOfBirth, date);
     }
 
     public void setStatus (String status) {
@@ -335,11 +337,11 @@ public class User implements CoreEntity {
     }
 
     public void setPhoneNumber (String phoneNumber) {
-        setMetaString(phoneNumber, Keys.Phone);
+        setMetaString(Keys.Phone, phoneNumber);
     }
 
     public void setAvailability (String availability) {
-        setMetaString(availability, Keys.Availability);
+        setMetaString(Keys.Availability, availability);
     }
 
     public String getState () {
@@ -347,7 +349,7 @@ public class User implements CoreEntity {
     }
 
     public void setState (String state) {
-        setMetaString(state, Keys.State);
+        setMetaString(Keys.State, state);
     }
 
     public String getAvailability () {
@@ -383,47 +385,7 @@ public class User implements CoreEntity {
         this.metadata = new JSONObject(metadata).toString();
     }
 
-    public Completable putAvatar(final ImageView imageView) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
 
-                Bitmap image = BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
-                        R.drawable.icn_32_profile_placeholder);
-
-                imageView.setImageBitmap(image);
-
-                avatar().subscribe(new BiConsumer<Bitmap, Throwable>() {
-                    @Override
-                    public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                        imageView.setImageBitmap(bitmap);
-                        e.onComplete();
-                    }
-                });
-            }
-        });
-    }
-
-    public Single<Bitmap> avatar() {
-        return Single.create(new SingleOnSubscribe<Bitmap>() {
-            @Override
-            public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
-                if(getAvatarURL() == null) {
-                    e.onSuccess(BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
-                            R.drawable.icn_32_profile_placeholder));
-                }
-                else {
-                    ImageUtils.bitmapForURL(getAvatarURL()).subscribe(new BiConsumer<Bitmap, Throwable>() {
-                        @Override
-                        public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                            e.onSuccess(bitmap);
-                        }
-                    });
-                }
-            }
-        });
-    }
-    
     @Deprecated
     /**
      * This is for maintaining compatibility with older chat versions, It will be removed in a few versions.

@@ -1,22 +1,20 @@
 package co.chatsdk.ui;
 
+import android.app.Activity;
 import android.support.v4.app.Fragment;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.profile.ProfileFragment;
+import co.chatsdk.ui.profile.ProfileFragment2;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 import co.chatsdk.ui.threads.PublicThreadsFragment;
-
-/**
- * Created by benjaminsmiley-andrews on 12/07/2017.
- */
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -49,7 +47,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Tab profileTab() {
-        return new Tab(R.string.profile, R.drawable.ic_action_user, profileFragment());
+        return new Tab (R.string.profile, R.drawable.ic_action_user, ProfileFragment.newInstance(NM.currentUser()));
+    }
+
+    @Override
+    public Activity profileActivity(User user) {
+        return null;
     }
 
     @Override
@@ -69,8 +72,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Fragment profileFragment() {
-        return ProfileFragment.newInstance();
+        return ProfileFragment2.newInstance();
     }
+
 
 
 }

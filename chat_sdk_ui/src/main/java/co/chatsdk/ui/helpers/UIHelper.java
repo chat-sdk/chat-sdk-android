@@ -9,21 +9,24 @@ package co.chatsdk.ui.helpers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.activities.SelectContactActivity;
 import co.chatsdk.ui.profile.EditProfileActivity;
-import co.chatsdk.ui.activities.PickFriendsActivity;
+import co.chatsdk.ui.profile.EditProfileActivity2;
 import co.chatsdk.ui.activities.ShareWithContactsActivity;
+import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
-import co.chatsdk.core.defines.Debug;
-import com.github.johnpersano.supertoasts.SuperCardToast;
-import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -35,39 +38,34 @@ import co.chatsdk.ui.login.AbstractLoginActivity;
 import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.activities.MainActivity;
 import co.chatsdk.ui.activities.SearchActivity;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 
 public class UIHelper {
 
     public static final String TAG = UIHelper.class.getSimpleName();
-    public static final boolean DEBUG = Debug.UiUtils;
 
-    public static final String USER_ID = "user_id";
-    public static final String USER_ENTITY_ID = "user_entity_id";
-
-    private SuperToast toast, alertToast;
-    private SuperCardToast superCardToastProgress;
+    public static String USER_ENTITY_ID = "USER_ENTITY_ID";
 
     private WeakReference<Context> context;
 
-    private Class chatActivity;
-    private Class mainActivity;
-    private Class loginActivity;
+    private Class chatActivity = ChatActivity.class;
+    private Class mainActivity = MainActivity.class;
+    private Class loginActivity = LoginActivity.class;
     private Class searchActivity = SearchActivity.class;
-    private Class pickFriendsActivity = PickFriendsActivity.class;
+    private Class pickFriendsActivity = SelectContactActivity.class;
     private Class shareWithFriendsActivity = ShareWithContactsActivity.class;
-    private Class editProfileActivity= EditProfileActivity.class;
-    private Class profileActivity = null;
+    private Class editProfileActivity2 = EditProfileActivity2.class;
+    private Class editProfileActivity = EditProfileActivity.class;
+    private Class profileActivity = ProfileActivity.class;
     private Class threadDetailsActivity = ThreadDetailsActivity.class;
 
     private final static UIHelper instance = new UIHelper();
 
     protected UIHelper () {
-        chatActivity = ChatActivity.class;
-        mainActivity = MainActivity.class;
-        loginActivity = LoginActivity.class;
     }
 
-    public static UIHelper getInstance () {
+    public static UIHelper shared() {
         return instance;
     }
 
@@ -160,6 +158,13 @@ public class UIHelper {
         startActivity(intent);
     }
 
+    public void startEditProfileActivity(boolean loggedOut, User user){
+        Intent intent = new Intent(context.get(), editProfileActivity);
+//        intent.putExtra(AbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
+        intent.putExtra(USER_ENTITY_ID, user.getEntityID());
+        startActivity(intent);
+    }
+
     public void startMainActivity(){
         startActivity(mainActivity);
     }
@@ -189,43 +194,8 @@ public class UIHelper {
         return true;
     }
 
-    public boolean startProfileActivity(long id){
-        if (profileActivity==null)
-            return false;
-
-        Intent intent = new Intent(context.get(), profileActivity);
-        intent.putExtra(USER_ID, id);
-
-        startActivity(intent);
-
-        return true;
-    }
-
-    public void startEditProfileActivity(long id){
-        if (editProfileActivity==null)
-            return;
-
-        Intent intent = new Intent(context.get(), editProfileActivity);
-        intent.putExtra(USER_ID, id);
-
-        startActivity(intent);
-    }
-
-    public SuperToast getToast(){
-        if(toast == null) {
-            toast = new SuperToast(context.get());
-            toast.setDuration(SuperToast.Duration.MEDIUM);
-            toast.setBackground(SuperToast.Background.BLUE);
-            toast.setTextColor(Color.WHITE);
-            toast.setAnimations(SuperToast.Animations.FLYIN);
-        }
-        return toast;
-    }
-
-    /*Getters and Setters*/
     public void showToast(String text){
-        getAlertToast().setText(text);
-        getAlertToast().show();
+        Toast.makeText(context.get(), text, Toast.LENGTH_SHORT).show();
     }
 
     public void showToast(@StringRes int resourceId){
@@ -233,41 +203,6 @@ public class UIHelper {
             return;
 
         showToast(context.get().getString(resourceId));
-    }
-
-    public void setAlertToast(SuperToast alertToast) {
-        this.alertToast = alertToast;
-    }
-
-    public void setToast(SuperToast toast) {
-        this.toast = toast;
-    }
-
-    public SuperToast getAlertToast() {
-        if(alertToast == null) {
-            alertToast = new SuperToast(context.get());
-            alertToast.setDuration(SuperToast.Duration.MEDIUM);
-            alertToast.setBackground(SuperToast.Background.RED);
-            alertToast.setTextColor(Color.WHITE);
-            alertToast.setAnimations(SuperToast.Animations.FLYIN);
-        }
-        return alertToast;
-    }
-
-    public void setSearchActivity(Class searchActivity) {
-        this.searchActivity = searchActivity;
-    }
-
-    public void setPickFriendsActivity(Class pickFriendsActivity) {
-        this.pickFriendsActivity = pickFriendsActivity;
-    }
-
-    public void setShareWithFriendsActivity(Class shareWithFriendsActivity) {
-        this.shareWithFriendsActivity = shareWithFriendsActivity;
-    }
-
-    public void setProfileActivity(Class profileActivity) {
-        this.profileActivity = profileActivity;
     }
 
     private void startActivity(Intent intent){
@@ -278,6 +213,28 @@ public class UIHelper {
     private void startActivity(Class activity){
         startActivity(new Intent(context.get(), activity));
     }
+
+    /** Create or fetch chat for users, Opens the chat when done.*/
+    public Single<Thread> createAndOpenThreadWithUsers(final Context context, String name, List<User> users) {
+        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<Thread>() {
+            @Override
+            public void accept(Thread thread) throws Exception {
+                if (thread != null) {
+                    startChatActivityForID(thread.getId());
+                }
+            }
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                showToast(context.getString(R.string.create_thread_with_users_fail_toast));
+            }
+        });
+    }
+
+    public Single<Thread> createAndOpenThreadWithUsers(final Context context, String name, User...users){
+        return createAndOpenThreadWithUsers(context, name, Arrays.asList(users));
+    }
+
 }
 
 

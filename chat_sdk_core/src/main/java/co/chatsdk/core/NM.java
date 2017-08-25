@@ -2,9 +2,11 @@ package co.chatsdk.core;
 
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AuthenticationHandler;
+import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
+import co.chatsdk.core.handlers.LastOnlineHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
@@ -57,6 +59,14 @@ public class NM {
 
     public static ContactHandler contact () {
         return NetworkManager.shared().a.contact;
+    }
+
+    public static BlockingHandler blocking () {
+        return NetworkManager.shared().a.blocking;
+    }
+
+    public static LastOnlineHandler lastOnline () {
+        return NetworkManager.shared().a.lastOnline;
     }
 
     public static ReadReceiptHandler readReceipts () {

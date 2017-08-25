@@ -288,7 +288,7 @@ public class NotificationUtils {
     }
 
     private static Intent getChatResultIntent(Context context){
-        return new Intent(context, UIHelper.getInstance().getMainActivity());
+        return new Intent(context, UIHelper.shared().getMainActivity());
     }
 
     /** Cancel the ongoing notification that controls the connection state and play/stop*/

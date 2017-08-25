@@ -28,11 +28,14 @@ import com.braunster.chatsdk.network.FacebookManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.UserAvatarHelper;
 import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
  */
+@Deprecated
 public class ChatcatProfileFragment extends AbstractProfileFragment {
 
 
@@ -68,7 +71,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
 
         super.initViews();
 
-        setupTouchUIToDismissKeyboard(mainView, R.id.chat_sdk_circle_ing_profile_pic);
+        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
 
 
 
@@ -106,12 +109,12 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
     }
 
     @Override
-    public void logout() {
+    public void showSettings() {
         // Logout and return to the login activity.
         FacebookManager.logout(getActivity());
 
         NM.auth().logout();
-        uiHelper.startLoginActivity(true);
+        UIHelper.shared().startLoginActivity(true);
     }
 
     /** Fetching the user details from the user's metadata.*/
@@ -136,7 +139,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         // Loading the user country icon, If not exist we will hide the icon.
         if (StringUtils.isNotEmpty(country))
         {
-            ((ImageView) mainView.findViewById(R.id.chat_sdk_country_ic)).setImageResource(EditProfileActivity.getResId(country));
+            ((ImageView) mainView.findViewById(R.id.chat_sdk_country_ic)).setImageResource(EditProfileActivity2.getResId(country));
             mainView.findViewById(R.id.chat_sdk_country_ic).setVisibility(View.VISIBLE);
         }
         else mainView.findViewById(R.id.chat_sdk_country_ic).setVisibility(View.INVISIBLE);
@@ -164,7 +167,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
 
         if (DEBUG) Timber.d("loading user details, Name: %s, Status: %s, CountryCode: %s, Location: %s", name, status, country, location);
 
-        user.putAvatar(profileCircleImageView);
+        UserAvatarHelper.loadAvatar(user, profileCircleImageView).subscribe();
     }
 
     @Override
@@ -188,7 +191,7 @@ public class ChatcatProfileFragment extends AbstractProfileFragment {
         
         if (item.getItemId() == R.id.action_chat_sdk_edit)
         {
-            uiHelper.startEditProfileActivity(NM.currentUser().getId());
+//            UIHelper.shared().startEditProfileActivity(NM.currentUser().getId());
 
             getActivity().overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
             return true;

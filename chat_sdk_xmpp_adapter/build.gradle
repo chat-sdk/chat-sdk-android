@@ -29,19 +29,38 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
 
-    compile('org.igniterealtime.smack:smack-extensions:4.1.8', {
+//    compile('org.igniterealtime.smack:smack-extensions:4.1.8', {
+//        exclude group: 'xpp3', module: 'xpp3'
+//    })
+//    compile('org.igniterealtime.smack:smack-tcp:4.1.8', {
+//        exclude group: 'xpp3', module: 'xpp3'
+//    })
+//    compile ('org.igniterealtime.smack:smack-android-extensions:4.1.8', {
+//        exclude group: 'xpp3', module: 'xpp3'
+//    })
+//    compile ('org.igniterealtime.smack:smack-experimental:4.1.8', {
+//        exclude group: 'xpp3', module: 'xpp3'
+//    })
+
+    compile ("org.igniterealtime.smack:smack-android:4.2.0", {
         exclude group: 'xpp3', module: 'xpp3'
     })
-    compile('org.igniterealtime.smack:smack-tcp:4.1.8', {
+    // Optional for XMPPTCPConnection
+    compile ("org.igniterealtime.smack:smack-tcp:4.2.0", {
         exclude group: 'xpp3', module: 'xpp3'
     })
-    compile ('org.igniterealtime.smack:smack-android-extensions:4.1.8', {
+    // Optional for XMPP-IM (RFC 6121) support (Roster, Threaded Chats, …)
+    compile ("org.igniterealtime.smack:smack-im:4.2.0", {
         exclude group: 'xpp3', module: 'xpp3'
     })
-    compile ('org.igniterealtime.smack:smack-experimental:4.1.8', {
+    // Optional for XMPP extensions support
+    compile ("org.igniterealtime.smack:smack-extensions:4.2.0", {
         exclude group: 'xpp3', module: 'xpp3'
     })
 
+    compile ("org.igniterealtime.smack:smack-experimental:4.2.0", {
+        exclude group: 'xpp3', module: 'xpp3'
+    })
 
     compile project(path: ':chat_sdk_core')
     compile project(path: ':chat_sdk_ui')

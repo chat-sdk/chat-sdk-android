@@ -18,7 +18,7 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
-//import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.UserThreadLink;
@@ -80,7 +80,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public void subscribe(SingleEmitter<Message> e) throws Exception {
                 final Message message = newMessage();
 
-                Thread.currentThread();
+//                java.lang.Thread.currentThread();
 
                 message.setTextString(text);
                 message.setType(Message.Type.TEXT);

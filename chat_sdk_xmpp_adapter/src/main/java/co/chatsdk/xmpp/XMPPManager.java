@@ -7,38 +7,54 @@ import com.example.chatsdkxmppadapter.R;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ReconnectionManager;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.PresenceEventListener;
 import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntries;
 import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.roster.SubscribeListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.blocking.BlockingCommandManager;
 import org.jivesoftware.smackx.carbons.CarbonManager;
+import org.jivesoftware.smackx.chatstates.ChatStateManager;
+import org.jivesoftware.smackx.iqlast.LastActivityManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.FullJid;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.stringprep.XmppStringprepException;
+
+import java.util.ArrayList;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.xmpp.defines.XMPPDefines;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
 import co.chatsdk.xmpp.listeners.XMPPChatManagerListener;
 import co.chatsdk.xmpp.listeners.XMPPConnectionListener;
 import co.chatsdk.xmpp.listeners.XMPPRosterListener;
-import co.chatsdk.xmpp.utils.JID;
+import co.chatsdk.xmpp.utils.PresenceHelper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -50,10 +66,10 @@ import io.reactivex.schedulers.Schedulers;
 
 public class XMPPManager {
 
-    public String serviceName;
+    public DomainBareJid serviceName;
     public String serviceHost;
     public int servicePort;
-    public String searchService;
+    public DomainBareJid searchService;
 
     // The main XMPP connection
     private AbstractXMPPConnection connection = null;
@@ -66,6 +82,7 @@ public class XMPPManager {
     // Managers
     public XMPPUsersManager userManager;
     public XMPPMUCManager mucManager;
+    public XMPPTypingIndicatorManager typingIndicatorManager;
 
     // Smack Managers
     private UserSearchManager userSearchManager;
@@ -75,6 +92,8 @@ public class XMPPManager {
     public static XMPPManager shared() {
         return instance;
     }
+
+    private DisposableList disposables = new DisposableList();
 
     protected XMPPManager() {
 
@@ -87,11 +106,20 @@ public class XMPPManager {
 
         // Managers
         userManager = new XMPPUsersManager(this);
+        typingIndicatorManager = new XMPPTypingIndicatorManager();
 
         serviceHost = context.getString(R.string.service_host);
-        serviceName = context.getString(R.string.service_name);
+        String serviceNameString = context.getString(R.string.service_name);
         servicePort = new Integer(context.getString(R.string.service_port));
-        searchService = context.getString(R.string.search_service);
+        String searchServiceString = context.getString(R.string.search_service);
+
+        try {
+            searchService = JidCreate.domainBareFrom(searchServiceString);
+            serviceName = JidCreate.domainBareFrom(serviceNameString);
+        }
+        catch (XmppStringprepException e) {
+            e.printStackTrace();
+        }
 
         // We accept all roster invitations
         Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
@@ -105,44 +133,35 @@ public class XMPPManager {
 
         // Be careful using this because there can be a race condition
         // between this and the login method
-        connectionListener.connectionStatusSource.subscribe(new Consumer<ConnectionStatus>() {
+        disposables.add(connectionListener.connectionStatusSource.subscribe(new Consumer<ConnectionStatus>() {
             @Override
             public void accept(ConnectionStatus connectionStatus) throws Exception {
                 if (connectionStatus == ConnectionStatus.Authenticated) {
                     CarbonManager.getInstanceFor(getConnection()).enableCarbons();
                 }
             }
-        });
+        }));
 
         // Listen to presence updates and update data accordingly
-        getRosterListener().presenceEventSource.subscribe(new Consumer<Presence>() {
+        disposables.add(getRosterListener().presenceEventSource.subscribe(new Consumer<Presence>() {
             @Override
             public void accept(final Presence presence) throws Exception {
-                JID jid = new JID(presence.getFrom());
-
-                userManager.updateUserFromVCard(jid).subscribe(new BiConsumer<User, Throwable>() {
+                userManager.updateUserFromVCard(presence.getFrom()).subscribe(new BiConsumer<User, Throwable>() {
                     @Override
                     public void accept(User user, Throwable throwable) throws Exception {
-                        // TODO: Notify the global event bus
-                        if(presence.getType().toString().equalsIgnoreCase(XMPPDefines.Unavailable)){
-                            user.setOnline(false);
-                        } else {
-                            user.setOnline(true);
-                        }
-                        user.setAvailability(presence.getType().toString());
-                        user.setStatus(presence.getStatus());
-                        user.setStatus(presence.getMode().toString());
+                        PresenceHelper.updateUserFromPresence(user, presence);
+                        NM.events().source().onNext(NetworkEvent.userMetaUpdated(user));
                     }
                 });
             }
-        });
+        }));
 
 
     }
 
     public void performPostAuthenticationSetup () {
 
-        userManager.loadContactsFromRoster();
+        disposables.add(userManager.loadContactsFromRoster().subscribe());
         roster().addRosterListener(rosterListener);
 
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
@@ -151,14 +170,14 @@ public class XMPPManager {
         mucManager = new XMPPMUCManager(this);
 
         for(final Thread thread : NM.thread().getThreads(ThreadType.PrivateGroup)) {
-            mucManager.joinRoomWithJID(thread.getEntityID()).subscribe(new BiConsumer<MultiUserChat, Throwable>() {
+            disposables.add(mucManager.joinRoomWithJID(thread.getEntityID()).subscribe(new BiConsumer<MultiUserChat, Throwable>() {
                 @Override
                 public void accept(MultiUserChat multiUserChat, Throwable throwable) throws Exception {
                     if(throwable != null) {
                         throwable.printStackTrace();
                     }
                 }
-            });
+            }));
         }
     }
 
@@ -166,8 +185,20 @@ public class XMPPManager {
         return Roster.getInstanceFor(getConnection());
     }
 
+    public BlockingCommandManager blockingCommandManager () {
+        return BlockingCommandManager.getInstanceFor(getConnection());
+    }
+
+    public LastActivityManager lastActivityManager () {
+        return LastActivityManager.getInstanceFor(getConnection());
+    }
+
     public ChatManager chatManager () {
         return ChatManager.getInstanceFor(getConnection());
+    }
+
+    public ChatStateManager chatStateManager () {
+        return ChatStateManager.getInstance(getConnection());
     }
 
     public UserSearchManager userSearchManager () {
@@ -265,7 +296,7 @@ public class XMPPManager {
         XMPPTCPConnectionConfiguration connectionConfig;
         connectionConfig = XMPPTCPConnectionConfiguration.builder()
                 .setUsernameAndPassword(userAlias, password)
-                .setServiceName(serviceName)
+                .setXmppDomain(serviceName)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                 .setHost(serviceHost)
                 .setPort(servicePort)
@@ -280,7 +311,7 @@ public class XMPPManager {
             public Completable apply(XMPPConnection xmppConnection) throws Exception {
 
                 if(xmppConnection.isConnected()) {
-                    return userManager.updateUserFromVCard(new JID(userJID)).toCompletable();
+                    return userManager.updateUserFromVCard(JidCreate.bareFrom(userJID)).toCompletable();
                 }
                 else {
                     return Completable.error(new Throwable("Connection is not connected"));
@@ -301,7 +332,7 @@ public class XMPPManager {
                 }
                 try {
                     accountManager.sensitiveOperationOverInsecureConnection(true);
-                    accountManager.createAccount(username, password);
+                    accountManager.createAccount(Localpart.from(username), password);
                     return Completable.complete();
                 }
                 catch (Exception exception) {
@@ -312,12 +343,31 @@ public class XMPPManager {
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public void logout(){
+    public void logout () {
+        getConnection().removeConnectionListener(connectionListener);
+        roster().removeRosterListener(rosterListener);
+        chatManager().removeChatListener(chatManagerListener);
+
+        disposables.dispose();
+        mucManager.dispose();
+        userManager.dispose();
+
         getConnection().disconnect();
     }
 
     public void goOnline (User user) {
+        Presence presence = PresenceHelper.presenceForUser(user);
+        try {
+            getConnection().sendStanza(presence);
+        }
+        catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
+
 
 }

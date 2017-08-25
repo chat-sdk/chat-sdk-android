@@ -3,6 +3,8 @@ package co.chatsdk.xmpp;
 import org.jivesoftware.smack.packet.DefaultExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.joda.time.DateTime;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.Date;
 
@@ -14,12 +16,13 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.xmpp.defines.XMPPDefines;
-import co.chatsdk.xmpp.utils.JID;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 11/07/2017.
@@ -28,7 +31,7 @@ import io.reactivex.functions.Consumer;
 public class XMPPMessageParser {
 
     public static Single<Message> parse (final org.jivesoftware.smack.packet.Message xmppMessage) {
-        return parse(xmppMessage, new JID(xmppMessage.getFrom()).bare());
+        return parse(xmppMessage, xmppMessage.getFrom().asBareJid().toString());
     }
 
     public static Single<Message> parse (final org.jivesoftware.smack.packet.Message xmppMessage, final String senderStringJID) {
@@ -42,11 +45,11 @@ public class XMPPMessageParser {
                     return;
                 }
 
-                JID threadJID = new JID(xmppMessage.getFrom());
-                JID senderJID = new JID(senderStringJID);
+                Jid threadJID = xmppMessage.getFrom();
+                Jid senderJID = JidCreate.bareFrom(senderStringJID);
 
                 // Don't handle the message if we sent it!
-                if(senderJID.bare().equals(NM.currentUser().getEntityID())) {
+                if(senderJID.asBareJid().toString().equals(NM.currentUser().getEntityID())) {
                     e.onSuccess(null);
                     return;
                 }
@@ -56,17 +59,17 @@ public class XMPPMessageParser {
 //                }
 
                 // Set the thread
-                Thread thread = StorageManager.shared().fetchThreadWithEntityID(threadJID.bare());
+                Thread thread = StorageManager.shared().fetchThreadWithEntityID(threadJID.asBareJid().toString());
                 if(thread == null) {
                     thread = DaoCore.getEntityForClass(Thread.class);
                     DaoCore.createEntity(thread);
-                    thread.setEntityID(senderJID.bare());
+                    thread.setEntityID(senderJID.asBareJid().toString());
                     thread.setType(ThreadType.Private1to1);
                     thread.setCreationDate(new Date());
-                    thread.setCreatorEntityId(senderJID.bare());
+                    thread.setCreatorEntityId(senderJID.asBareJid().toString());
 
                     // Add the sender
-                    User sender = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, senderJID.bare());
+                    User sender = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, senderJID.asBareJid().toString());
                     thread.addUsers(sender, NM.currentUser());
                 }
 
@@ -106,20 +109,28 @@ public class XMPPMessageParser {
                 }
 
                 //thread.update();
+                // Is this a new user?
+                User user = StorageManager.shared().fetchUserWithEntityID(senderStringJID);
+                if(user == null) {
+                    XMPPManager.shared().userManager.updateUserFromVCard(senderJID).subscribe(new Consumer<User>() {
+                        @Override
+                        public void accept(@NonNull User user) throws Exception {
+                            message.setSender(user);
+                            message.update();
+                            finalThread.addMessage(message);
 
-                XMPPManager.shared().userManager.updateUserFromVCard(senderJID).subscribe(new Consumer<User>() {
-                    @Override
-                    public void accept(@NonNull User user) throws Exception {
-                        message.setSender(user);
-                        message.update();
-                        finalThread.addMessage(message);
-
-
-                        e.onSuccess(message);
-                    }
-                });
+                            e.onSuccess(message);
+                        }
+                    });
+                }
+                else {
+                    message.setSender(user);
+                    message.update();
+                    finalThread.addMessage(message);
+                    e.onSuccess(message);
+                }
 
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 }

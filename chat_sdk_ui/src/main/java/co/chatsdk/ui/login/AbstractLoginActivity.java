@@ -13,6 +13,7 @@ import android.widget.EditText;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.LoginType;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.functions.Action;
 import timber.log.Timber;
 
 /**
@@ -69,7 +71,7 @@ public class AbstractLoginActivity extends BaseActivity {
         if (loginInfo != null && loginInfo.containsKey(Defines.Prefs.AccountTypeKey))
             if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
 
-                showProgDialog(getString(R.string.authenticating));
+                showProgressDialog(getString(R.string.authenticating));
 
                 authenticate().subscribe(new CompletableObserver() {
                     @Override
@@ -78,13 +80,13 @@ public class AbstractLoginActivity extends BaseActivity {
                     @Override
                     public void onComplete() {
                         if (DEBUG) Timber.d("Authenticated");
-                        dismissProgDialog();
+                        dismissProgressDialog();
                         afterLogin();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        dismissProgDialog();
+                        dismissProgressDialog();
                         if (DEBUG) Timber.d("Auth Failed");
                         //TODO: remove if not needed.
                         //if (chatError.code != ChatError.Code.NO_LOGIN_INFO)
@@ -106,22 +108,21 @@ public class AbstractLoginActivity extends BaseActivity {
         Intent logout = new Intent(MainActivity.Action_clear_data);
         sendBroadcast(logout);
 
-        dismissProgDialog();
+        dismissProgressDialog();
     }
 
     public void passwordLogin(){
         if (!checkFields())
             return;
 
-        showProgDialog(getString(R.string.connecting));
+        showProgressDialog(getString(R.string.connecting));
 
-        Map<String, Object> data = new HashMap<String, Object>();
+        AccountDetails details = new AccountDetails();
+        details.type = AccountDetails.Type.Username;
+        details.username = etEmail.getText().toString();
+        details.password = etPass.getText().toString();
 
-        data.put(LoginType.TypeKey, AccountType.Password);
-        data.put(LoginType.EmailKey, etEmail.getText().toString());
-        data.put(LoginType.PasswordKey, etPass.getText().toString());
-
-        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }
@@ -135,7 +136,7 @@ public class AbstractLoginActivity extends BaseActivity {
             public void onError(Throwable e) {
                 toastErrorMessage(e, false);
                 e.printStackTrace();
-                dismissProgDialog();
+                dismissProgressDialog();
             }
         });
     }
@@ -144,15 +145,14 @@ public class AbstractLoginActivity extends BaseActivity {
         if (!checkFields())
             return;
 
-        showProgDialog(getString(R.string.registering));
+        showProgressDialog(getString(R.string.registering));
 
-        Map<String, Object> data = new HashMap<String, Object>();
+        AccountDetails details = new AccountDetails();
+        details.type = AccountDetails.Type.Register;
+        details.username = etEmail.getText().toString();
+        details.password = etPass.getText().toString();
 
-        data.put(LoginType.TypeKey, AccountType.Register);
-        data.put(LoginType.EmailKey, etEmail.getText().toString());
-        data.put(LoginType.PasswordKey, etPass.getText().toString());
-
-        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {}
 
@@ -164,18 +164,18 @@ public class AbstractLoginActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 toastErrorMessage(e, false);
-                dismissProgDialog();
+                dismissProgressDialog();
             }
         });
     }
 
     public void anonymousLogin(){
-        showProgDialog(getString(R.string.connecting));
+        showProgressDialog(getString(R.string.connecting));
 
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put(LoginType.TypeKey, AccountType.Anonymous);
+        AccountDetails details = new AccountDetails();
+        details.type = AccountDetails.Type.Anonymous;
 
-        NM.auth().authenticateWithMap(data).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }
@@ -188,7 +188,7 @@ public class AbstractLoginActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 toastErrorMessage(e, false);
-                dismissProgDialog();
+                dismissProgressDialog();
             }
         });
 
@@ -208,7 +208,7 @@ public class AbstractLoginActivity extends BaseActivity {
             public void complete(Throwable e) {
                 if(e == null) {
                     dialog.dismiss();
-                    showProgDialog(getString(R.string.authenticating));
+                    showProgressDialog(getString(R.string.authenticating));
                     afterLogin();
                 }
                 else {
@@ -297,7 +297,7 @@ public class AbstractLoginActivity extends BaseActivity {
             {
                 return;
             }
-        }else showOrUpdateProgDialog(getString(R.string.authenticating));
+        }else showOrUpdateProgressDialog(getString(R.string.authenticating));
 
         FacebookManager.onSessionStateChange(session, state, exception).subscribe(new CompletableObserver() {
             @Override
@@ -315,7 +315,7 @@ public class AbstractLoginActivity extends BaseActivity {
                 if (DEBUG) Timber.i(TAG, "Error connecting to Facebook");
                 showToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
                 FacebookManager.logout(AbstractLoginActivity.this);
-                dismissProgDialog();
+                dismissProgressDialog();
             }
         });
     }

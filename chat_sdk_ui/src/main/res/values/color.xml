@@ -3,5 +3,6 @@
     <color name="me_color">#abcff4</color>
     <color name="reply_color">#d7d4d3</color>
     <color name="chat_bg">#e3e3e3</color>
-    <color name="chat_blue">#1c93db</color>
+    <color name="chat_blue">@color/sdkPrimary</color>
+    <color name="logout">#ae2020</color>
 </resources>

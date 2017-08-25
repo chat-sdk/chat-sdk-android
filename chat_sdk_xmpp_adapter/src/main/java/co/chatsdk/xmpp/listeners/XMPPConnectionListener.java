@@ -5,6 +5,8 @@ import org.jivesoftware.smack.XMPPConnection;
 
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -15,10 +17,10 @@ public class XMPPConnectionListener implements ConnectionListener {
 
     public BehaviorSubject<ConnectionStatus> connectionStatusSource = BehaviorSubject.create();
     public XMPPRosterListener rosterListener;
-    public XMPPChatManagerListener chatManagerListener = new XMPPChatManagerListener();
 
     public XMPPConnectionListener (XMPPManager manager) {
         rosterListener = new XMPPRosterListener(manager);
+        connectionStatusSource.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

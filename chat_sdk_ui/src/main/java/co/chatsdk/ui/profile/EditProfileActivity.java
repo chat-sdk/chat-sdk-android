@@ -1,324 +1,373 @@
-/*
- * Created by Itzik Braun on 2/4/2015.
- * Copyright (c) 2015 deluge. All rights reserved.
- *
- * Last Modification at: 4/2/15 4:25 PM
- */
-
 package co.chatsdk.ui.profile;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.BuildConfig;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Spinner;
 
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.ui.R;
-
-import com.braunster.chatsdk.network.FacebookManager;
-import com.mukesh.countrypicker.Country;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
+import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Field;
+import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.defines.Availability;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
-import timber.log.Timber;
+import co.chatsdk.ui.utils.Cropper;
+import co.chatsdk.ui.utils.UserAvatarHelper;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by braunster on 02/04/15.
+ * Created by ben on 8/14/17.
  */
-public class EditProfileActivity extends BaseActivity implements OnClickListener {
 
-    public static final String Male = "male", Female ="female";
-    
-    private TextView txtMale, txtFemale, txtDateOfBirth;
-    
-    private EditText etName, etLocation, etStatus;
-    
-    private ImageView imageCountryFlag;
-    
-    private boolean loggingOut = false;
-    
+public class EditProfileActivity extends BaseActivity {
+
+    public static final int PROFILE_PIC = 100;
+
+    private CircleImageView avatarImageView;
+    private EditText statusEditText;
+    private Spinner availabilitySpinner;
+    private EditText nameEditText;
+    private EditText locationEditText;
+    private EditText phoneNumberEditText;
+    private EditText emailEditText;
+    private Button countryButton;
+    private Button dateOfBirthButton;
+    private Button logoutButton;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private HashMap<String, Object> userMeta;
+    private String avatarURL;
+
+    private User currentUser;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        enableCheckOnlineOnResumed(true);
-        
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        setContentView(R.layout.chatcat_activity_edit_profile);
-        
+        setContentView(R.layout.chat_sdk_edit_profile);
+
+        String userEntityID = getIntent().getStringExtra(UIHelper.USER_ENTITY_ID);
+
+        if(userEntityID == null || userEntityID.isEmpty()) {
+            showToast("User Entity ID not set");
+            finish();
+            return;
+        }
+        else {
+            currentUser =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
+
+            // Save a copy of the data to see if it has changed
+            userMeta = new HashMap<>(currentUser.metaMap());
+        }
         initViews();
-        
-        loadCurrentData();
+
+
     }
 
-    private void initViews(){
-        txtFemale = (TextView) findViewById(R.id.btn_female);
-        txtMale = (TextView) findViewById(R.id.btn_male);
-        txtDateOfBirth = (TextView) findViewById(R.id.txt_date_of_birth);
-        
-        etName = (EditText) findViewById(R.id.chat_sdk_et_name);
-        etLocation = (EditText) findViewById(R.id.chat_sdk_et_location);
-        etStatus = (EditText) findViewById(R.id.chat_sdk_et_status);
+    private void initViews() {
 
-        imageCountryFlag = (ImageView) findViewById(R.id.chat_sdk_country_ic);
-    }
+        avatarImageView = (CircleImageView) findViewById(R.id.ivAvatar);
+        statusEditText = (EditText) findViewById(R.id.etStatus);
+        availabilitySpinner = (Spinner) findViewById(R.id.spAvailability);
+        nameEditText = (EditText) findViewById(R.id.etName);
+        locationEditText = (EditText) findViewById(R.id.etLocation);
+        phoneNumberEditText = (EditText) findViewById(R.id.etPhone);
+        emailEditText = (EditText) findViewById(R.id.etEmail);
 
-    /**
-     * Load the user bundle from the database.
-     * */
-    private void loadCurrentData(){
-        User user = NM.currentUser();
-        
-        String gender = user.metaStringForKey(Keys.Gender);
-        
-        if (StringUtils.isEmpty(gender) || gender.equals(Male))
-        {
-            setSelected(txtFemale, false);
+        countryButton = (Button) findViewById(R.id.btnCountry);
+        logoutButton = (Button) findViewById(R.id.btnLogout);
+        dateOfBirthButton = (Button) findViewById(R.id.btnDateOfBirth);
 
-            setSelected(txtMale, true);
-        }
-        else
-        {
-            setSelected(txtMale, false);
+        // Set the current user's information
+        String status = currentUser.getStatus();
+        String availability = currentUser.getAvailability();
+        String name = currentUser.getName();
+        String location = currentUser.getLocation();
+        String phoneNumber = currentUser.getPhoneNumber();
+        String email = currentUser.getEmail();
+        String countryCode = currentUser.getCountryCode();
+        String dateOfBirth = currentUser.getDateOfBirth();
 
-            setSelected(txtFemale, true);
-        }
-        
-        String countryCode = user.metaStringForKey(Keys.CountryCode);
-        
+        avatarImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                EditProfileActivity.this.startActivityForResult(intent, PROFILE_PIC);
+            }
+        });
+
+        UserAvatarHelper.loadAvatar(currentUser, avatarImageView).subscribe();
+
         if (StringUtils.isNotEmpty(countryCode)){
-            loadCountryFlag(countryCode);
-        }
-        
-        String name = user.getName();
-        String location = user.metaStringForKey(Keys.Location);
-        String dateOfBirth = user.metaStringForKey(Keys.DateOfBirth);
-        String status = user.metaStringForKey(Keys.Status);
-
-       if (StringUtils.isNotEmpty(name))
-           etName.setText(name);
-
-        if (StringUtils.isNotEmpty(location))
-            etLocation.setText(location);
-
-        if (StringUtils.isNotEmpty(dateOfBirth))
-            txtDateOfBirth.setText(dateOfBirth);
-
-        if (StringUtils.isNotEmpty(status))
-            etStatus.setText(status);
-    }
-
-
-    /**
-     * The drawable image name has the format "flag_$countryCode". We need to
-     * load the drawable dynamically from country code. Code from
-     * http://stackoverflow.com/
-     * questions/3042961/how-can-i-get-the-resource-id-of
-     * -an-image-if-i-know-its-name
-     *
-     * @param countryCode
-     * @return
-     */
-    public static int getResId(String countryCode) {
-        String drawableName = "flag_"
-                + countryCode.toLowerCase(Locale.ENGLISH);
-
-        if (BuildConfig.DEBUG) Log.v(Country.class.getSimpleName(), String.format("getResId, Name: %s", drawableName));
-
-        try {
-            Class<R.drawable> res = R.drawable.class;
-            Field field = res.getField(drawableName);
-            int drawableId = field.getInt(null);
-            return drawableId;
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (BuildConfig.DEBUG) Log.e(Country.class.getSimpleName(), "cant get the drawable id for country code");
-        }
-        return -1;
-    }
-
-    private void loadCountryFlag(String countryCode){
-        imageCountryFlag.setImageResource(this.getResId(countryCode));
-        imageCountryFlag.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * Save the user details before closing the screen.
-     * */
-    private void saveDetailsBeforeClose(){
-        User user = NM.currentUser();
-
-        if (!etName.getText().toString().isEmpty()) {
-            user.setName(etName.getText().toString());
+            Locale l = new Locale("", countryCode);
+            countryButton.setText(l.getDisplayCountry());
         }
 
-        user.setMetaString(Keys.DateOfBirth, txtDateOfBirth.getText().toString());
-
-        user.setMetaString(Keys.Status, etStatus.getText().toString());
-
-        user.setMetaString(Keys.Location, etLocation.getText().toString());
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        txtMale.setOnClickListener(new OnClickListener() {
+        countryButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
-                if (v.isSelected())
-                    return;
-
-                setSelected(txtFemale, false);
-
-                setSelected(txtMale, true);
-
-                NM.currentUser().setMetaString(Keys.Gender, "male");
+                final CountryPicker picker = CountryPicker.newInstance(getString(R.string.select_country));
+                picker.setListener(new CountryPickerListener() {
+                    @Override
+                    public void onSelectCountry(String name, String countryCode, String phoneExtension, int i) {
+                        countryButton.setText(name);
+                        currentUser.setCountryCode(countryCode);
+                        picker.dismiss();
+                    }
+                });
+                picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
             }
         });
 
-        txtFemale.setOnClickListener(new OnClickListener() {
+        if(!StringUtils.isEmpty(dateOfBirth)) {
+             dateOfBirthButton.setText(dateOfBirth);
+        }
+
+        dateOfBirthButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
 
-                if (v.isSelected())
-                    return;
-
-                setSelected(txtMale, false);
-
-                setSelected(txtFemale, true);
-
-                NM.currentUser().setMetaString(Keys.Gender, "female");
+                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        try {
+                            Date date = dateFormat.parse(day + "/" + month + "/" + year);
+                            dateOfBirthButton.setText(dateFormat.format(date));
+                            currentUser.setDateOfBirth(dateFormat.format(date));
+                        }
+                        catch (ParseException e) {
+                            EditProfileActivity.this.showToast(e.getLocalizedMessage());
+                        }
+                    }
+                };
+                DatePickerDialog dialog = new DatePickerDialog(EditProfileActivity.this, listener,
+                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH));
+                dialog.show();
             }
         });
 
-        findViewById(R.id.chat_sdk_logout_button).setOnClickListener(this);
-        findViewById(R.id.chat_sdk_app_info_button).setOnClickListener(this);
-        findViewById(R.id.chat_sdk_select_country_button).setOnClickListener(this);
-        findViewById(R.id.chat_sdk_pick_birth_date_button).setOnClickListener(this);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout();
+            }
+        });
+
+        statusEditText.setText(status);
+
+        if(!StringUtils.isEmpty(availability)) {
+            setAvailability(availability);
+        }
+
+        nameEditText.setText(name);
+        locationEditText.setText(location);
+        phoneNumberEditText.setText(phoneNumber);
+        emailEditText.setText(email);
+
+
     }
 
-    public void logout() {
-        // Logout and return to the login activity.
-        FacebookManager.logout(this);
-
+    private void logout () {
         NM.auth().logout();
-        UIHelper.getInstance().startLoginActivity(true);
+        UIHelper.shared().startLoginActivity(true);
     }
-    
-    private void setSelected(TextView textView, boolean selected){
-        
-        textView.setSelected(selected);
-        
-        if (selected)
-            textView.setTextColor(getResources().getColor(R.color.white));
-        else
-            textView.setTextColor(getResources().getColor(R.color.dark_gray));
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuItem item =
+                menu.add(Menu.NONE, R.id.action_chat_sdk_save, 12, getString(R.string.action_save));
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        item.setIcon(R.drawable.icn_24_save);
+
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        
-        if (item.getItemId() == android.R.id.home)
+
+        /* Cant use switch in the library*/
+        int id = item.getItemId();
+
+        if (id == R.id.action_chat_sdk_save)
         {
-            onBackPressed();
+            saveAndExit();
             return true;
         }
-        
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        
-        if (!loggingOut)
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PROFILE_PIC)
         {
-            saveDetailsBeforeClose();
+            if (resultCode == AppCompatActivity.RESULT_OK)
+            {
+                Uri uri = data.getData();
+
+                Uri outputUri = Uri.fromFile(new File(this.getCacheDir(), "cropped.jpg"));
+                Cropper crop = new Cropper(uri);
+
+                Intent cropIntent = crop.getIntent(this, outputUri);
+                int request = Crop.REQUEST_CROP;
+
+                this.startActivityForResult(cropIntent, request);
+            }
+        }
+        else  if (requestCode == Crop.REQUEST_CROP) {
+            try {
+                File image = new File(this.getCacheDir(), "cropped.jpg");
+                avatarURL = image.getAbsolutePath();
+                avatarImageView.setImageBitmap(new BitmapFactory().decodeFile(avatarURL));
+                if(!StringUtils.isEmpty(avatarURL)) {
+                    currentUser.setAvatarURL(avatarURL);
+                }
+            }
+            catch (NullPointerException e){
+                UIHelper.shared().showToast(R.string.unable_to_fetch_image);
+            }
+        }
+    }
+
+    private void saveAndExit () {
+
+        String status = statusEditText.getText().toString();
+        String availability = getAvailability();
+        String name = nameEditText.getText().toString();
+        String location = locationEditText.getText().toString();
+        String phoneNumber = phoneNumberEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+
+        if(!StringUtils.isEmpty(status)) {
+            currentUser.setStatus(status);
+        }
+        if(!StringUtils.isEmpty(availability)) {
+            currentUser.setAvailability(availability);
+        }
+        if(!StringUtils.isEmpty(name)) {
+            currentUser.setName(name);
+        }
+        if(!StringUtils.isEmpty(location)) {
+            currentUser.setLocation(location);
+        }
+        if(!StringUtils.isEmpty(phoneNumber)) {
+            currentUser.setPhoneNumber(phoneNumber);
+        }
+        if(!StringUtils.isEmpty(email)) {
+            currentUser.setEmail(email);
+        }
+
+        boolean changed = !userMeta.equals(currentUser.metaMap());
+        boolean imageChanged = false;
+        boolean presenceChanged = false;
+
+        for(String key: currentUser.metaMap().keySet()) {
+            if(key.equals(Keys.AvatarURL)) {
+                imageChanged = valueChanged(currentUser.metaMap(), userMeta, key);
+            }
+            if(key.equals(Keys.Availability) || key.equals(Keys.Status)) {
+                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, key);
+            }
+        }
+
+        if(presenceChanged && !changed) {
+            // Send presence
+            NM.core().goOnline();
+        }
+
+        // TODO: Add this in for Firebase maybe move this to push user...
+//        if(imageChanged && avatarURL != null) {
+//            UserAvatarHelper.saveProfilePicToServer(avatarURL, this).subscribe();
+//        }
+//        else if (changed) {
+
+        if(changed) {
             NM.core().pushUser().subscribe();
         }
 
-
-        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+        finish();
     }
 
-    @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.chat_sdk_logout_button) {
-            loggingOut = true;
-            logout();
-        }
-        else if (i == R.id.chat_sdk_app_info_button) {
-            try {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
+    private boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {
+        return !h1.get(key).equals(h2.get(key));
+    }
 
-                startActivity(intent);
+    private int getIndex(Spinner spinner, String myString)
+    {
+        int index = 0;
+
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
+                index = i;
+                break;
             }
-            catch (Exception e)
-            {
-                Timber.e(e.getCause(), getString(R.string.unable_to_open_app_in_settings));
-                UIHelper.getInstance().showToast(R.string.unable_to_open_app_in_settings);
-            }
-
         }
-        else if (i == R.id.chat_sdk_pick_birth_date_button) {
-            final Calendar calendar = Calendar.getInstance();
+        return index;
+    }
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(EditProfileActivity.this, new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-
-                    calendar.set(year, monthOfYear, dayOfMonth);
-
-                    txtDateOfBirth.setText(new SimpleDateFormat(Defines.Options.DateOfBirthFormat).format(calendar.getTime()));
-                }
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-            datePickerDialog.show();
+    private String getAvailability () {
+        String a = availabilitySpinner.getSelectedItem().toString().toLowerCase();
+        if(a.equals("away")) {
+            return Availability.Away;
         }
-        else if (i == R.id.chat_sdk_select_country_button) {
-            final CountryPicker picker = new CountryPicker();
-
-            picker.setListener(new CountryPickerListener() {
-                @Override
-                public void onSelectCountry(String name, String code, String dialCode, int resId) {
-                    NM.currentUser().setMetaString(Keys.CountryCode, code);
-                    loadCountryFlag(code);
-                    picker.dismiss();
-                }
-            });
-
-            picker.show(this.getSupportFragmentManager(), "");
+        else if(a.equals("extended away")) {
+            return Availability.XA;
+        }
+        else if(a.equals("busy")) {
+            return Availability.Busy;
+        }
+        else {
+            return Availability.Available;
         }
     }
+
+    private void setAvailability (String a) {
+        String availability = "available";
+        if(a.equals(Availability.Away)) {
+            availability = "away";
+        }
+        else if(a.equals(Availability.XA)) {
+            availability = "extended away";
+        }
+        else if(a.equals(Availability.Busy)) {
+            availability = "busy";
+        }
+        availabilitySpinner.setSelection(getIndex(availabilitySpinner, availability));
+
+    }
+
 }

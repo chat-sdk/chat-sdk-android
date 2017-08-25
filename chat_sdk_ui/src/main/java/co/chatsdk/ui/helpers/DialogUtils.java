@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +50,7 @@ import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.core.dao.DaoCore;
 import com.braunster.chatsdk.network.TwitterManager;
 import co.chatsdk.core.types.ChatError;
-import com.github.johnpersano.supertoasts.SuperToast;
+
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -71,6 +70,8 @@ public class DialogUtils {
     public static final boolean DEBUG = Debug.DialogUtils;
 
     /** A dialog that contain editText, Response from dialog is received through the interface.*/
+    // TODO: Remove this
+    @Deprecated
     public static class ChatSDKEditTextDialog extends DialogFragment implements TextView.OnEditorActionListener {
 
         private EditText mEditText;
@@ -95,7 +96,7 @@ public class DialogUtils {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
-            UIHelper = UIHelper.getInstance();
+            UIHelper = UIHelper.shared();
 
             View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
             mEditText = (EditText) view.findViewById(R.id.et_enter);
@@ -126,14 +127,14 @@ public class DialogUtils {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             if (EditorInfo.IME_ACTION_DONE == actionId) {
-                if (mEditText.getText().toString().isEmpty())
-                {
-                    SuperToast toast = UIHelper.getAlertToast();
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.setText("Please enter chat name");
-                    toast.show();
-                    return true;
-                }
+//                if (mEditText.getText().toString().isEmpty())
+//                {
+//                    Toast toast = UIHelper.getToast();
+//                    toast.setGravity(Gravity.TOP, 0, 0);
+//                    toast.setText("Please enter chat name");
+//                    toast.show();
+//                    return true;
+//                }
 
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                         Context.INPUT_METHOD_SERVICE);
@@ -365,7 +366,7 @@ public class DialogUtils {
         return imagePopup;
     }
 
-    public static class ImagePopupWindow extends PopupWindow{
+    public static class ImagePopupWindow extends PopupWindow {
         private boolean saveToDir =false;
 
         private LoadTypes loadingType;
@@ -392,7 +393,7 @@ public class DialogUtils {
 
             this.popupView = popupView;
 
-            UIHelper = UIHelper.getInstance();
+            UIHelper = UIHelper.shared();
         }
 
         public void load (){

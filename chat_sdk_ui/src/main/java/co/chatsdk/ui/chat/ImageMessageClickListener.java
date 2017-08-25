@@ -54,7 +54,7 @@ public class ImageMessageClickListener implements View.OnClickListener {
     }
 
     private UIHelper helper () {
-        return UIHelper.getInstance();
+        return UIHelper.shared();
     }
 
 }

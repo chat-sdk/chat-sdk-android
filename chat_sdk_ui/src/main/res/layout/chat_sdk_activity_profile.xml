@@ -26,7 +26,7 @@
                 android:layout_width="140dp"
                 android:layout_height="140dp"
                 android:src="@drawable/ic_profile"
-                android:id="@+id/chat_sdk_circle_ing_profile_pic"
+                android:id="@+id/ivAvatar"
                 app:border_color="@android:color/black"
                 android:visibility="invisible"
                 app:civ_border_width="0dp"

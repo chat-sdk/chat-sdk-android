@@ -17,6 +17,7 @@ public class NetworkEvent {
     public Message message;
     public Thread thread;
     public User user;
+    public String text;
 
     public NetworkEvent(EventType type) {
         this.type = type;
@@ -95,6 +96,13 @@ public class NetworkEvent {
 
     public static NetworkEvent contactChanged (User user) {
         return new NetworkEvent(EventType.ContactChanged, null, null, user);
+    }
+
+    public static NetworkEvent typingStateChanged (String message, Thread thread) {
+        NetworkEvent event = new NetworkEvent(EventType.TypingStateChanged);
+        event.text = message;
+        event.thread = thread;
+        return event;
     }
 
     public static NetworkEvent logout () {

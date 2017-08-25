@@ -27,6 +27,7 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.utils.DisposableList;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;
@@ -59,11 +60,9 @@ public class MainActivity extends BaseActivity {
     public static final String Action_clear_data = "com.braunster.androidchatsdk.action.logged_out";
     public static final String Action_Refresh_Fragment = "com.braunster.androidchatsdk.action.refresh_fragment";
 
-    private int pageAdapterPos = -1;
-
     private OpenFromPushChecker mOpenFromPushChecker;
 
-    Disposable messageAddedDisposable;
+    DisposableList disposables = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +82,6 @@ public class MainActivity extends BaseActivity {
         firstTimeInApp();
         initViews();
 
-        enableCheckOnlineOnResumed(true);
-
         if (!fromLoginActivity && savedInstanceState != null)
         {
             pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
@@ -103,12 +100,10 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        if(messageAddedDisposable != null) {
-            messageAddedDisposable.dispose();
-        }
+        disposables.dispose();
 
         // TODO: Check this
-        messageAddedDisposable = NM.events().sourceOnMain()
+        disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
                 .subscribe(new Consumer<NetworkEvent>() {
@@ -120,7 +115,7 @@ public class MainActivity extends BaseActivity {
                             }
                         }
                     }
-                });
+                }));
 
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -144,10 +139,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause () {
         super.onPause();
-        if(messageAddedDisposable != null) {
-            messageAddedDisposable.dispose();
-            messageAddedDisposable = null;
-        }
+        disposables.dispose();
     }
 
     @Override

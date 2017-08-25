@@ -8,10 +8,15 @@
 package co.chatsdk.ui.chat;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -23,22 +28,17 @@ import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.Utils;
-import com.github.johnpersano.supertoasts.SuperToast;
 
 public class TextInputView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{
 
     public static final String TAG = TextInputView.class.getSimpleName();
     public static final boolean DEBUG = Debug.ChatMessageBoxView;
 
-    protected MessageBoxOptionsListener messageBoxOptionsListener;
-    protected MessageSendListener messageSendListener;
+    protected Listener listener;
     protected TextView btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
     protected PopupWindow optionPopup;
-
-    /** The alert toast that the app will use to alert the user.*/
-    protected SuperToast alertToast;
 
     public TextInputView(Context context) {
         super(context);
@@ -78,12 +78,32 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
 
         etMessage.setOnEditorActionListener(this);
         etMessage.setOnKeyListener(this);
+        etMessage.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+        etMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(listener != null) {
+                    listener.startTyping();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
     }
 
     /** Show the message option popup, From here the user can send images and location messages.*/
-    public void showOptionPopup(){
-        if (optionPopup!= null && optionPopup.isShowing())
-        {
+    public void showOptionPopup () {
+        if (optionPopup!= null && optionPopup.isShowing()) {
             return;
         }
 
@@ -91,9 +111,10 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         optionPopup.showAsDropDown(btnOptions);
     }
 
-    public void dismissOptionPopup(){
-        if (optionPopup != null)
+    public void dismissOptionPopup() {
+        if (optionPopup != null) {
             optionPopup.dismiss();
+        }
     }
 
     /* Implement listeners.*/
@@ -102,41 +123,38 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         int id= v.getId();
 
         if (id == R.id.chat_sdk_btn_chat_send_message) {
-            if (messageSendListener!=null)
-                messageSendListener.onSendPressed(getMessageText());
-        }
-        else if (id == R.id.chat_sdk_btn_options){
-            boolean b = false;
-            if (messageBoxOptionsListener != null) {
-                b = messageBoxOptionsListener.onOptionButtonPressed();
+            if (listener!=null) {
+                listener.onSendPressed(getMessageText());
             }
-
-            if (!b)
-                showOptionPopup();
+        }
+        else if (id == R.id.chat_sdk_btn_options) {
+            showOptionPopup();
         }
         else  if (id == R.id.chat_sdk_btn_choose_picture) {
             dismissOptionPopup();
-
-            if (messageBoxOptionsListener != null)
-                messageBoxOptionsListener.onPickImagePressed();
+            if (listener != null) {
+                listener.onPickImagePressed();
+            }
         }
         else  if (id == R.id.chat_sdk_btn_take_picture) {
-            if (!Utils.SystemChecks.checkCameraHardware(getContext()))
-            {
+            if (!Utils.SystemChecks.checkCameraHardware(getContext())) {
+                // TODO: Localize this
                 Toast.makeText(getContext(), "This device does not have a camera.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             dismissOptionPopup();
 
-            if (messageBoxOptionsListener != null)
-                messageBoxOptionsListener.onTakePhotoPressed();
+            if (listener != null) {
+                listener.onTakePhotoPressed();
+            }
         }
         else  if (id == R.id.chat_sdk_btn_location) {
             dismissOptionPopup();
 
-            if (messageBoxOptionsListener != null)
-                messageBoxOptionsListener.onLocationPressed();
+            if (listener != null) {
+                listener.onLocationPressed();
+            }
         }
     }
 
@@ -144,8 +162,8 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND)
-            if (messageSendListener!=null)
-                messageSendListener.onSendPressed(getMessageText());
+            if (listener!=null)
+                listener.onSendPressed(getMessageText());
 
         return false;
     }
@@ -153,6 +171,9 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // if enter is pressed start calculating
+        if(listener != null) {
+            listener.startTyping();
+        }
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
             int editTextLineCount = ((EditText) v).getLineCount();
             if (editTextLineCount >= getResources().getInteger(R.integer.chat_sdk_max_message_lines))
@@ -161,12 +182,8 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         return false;
     }
 
-    public void setMessageBoxOptionsListener(MessageBoxOptionsListener messageBoxOptionsListener) {
-        this.messageBoxOptionsListener = messageBoxOptionsListener;
-    }
-
-    public void setMessageSendListener(MessageSendListener messageSendListener) {
-        this.messageSendListener = messageSendListener;
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     public String getMessageText(){
@@ -177,30 +194,14 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         etMessage.getText().clear();
     }
 
-    /*Getters and Setters*/
-    public void setAlertToast(SuperToast alertToast) {
-        this.alertToast = alertToast;
+
+    public interface Listener {
+        void onLocationPressed();
+        void onTakePhotoPressed();
+        void onPickImagePressed();
+        void onSendPressed(String text);
+        void startTyping();
+        void stopTyping();
     }
 
-    public SuperToast getAlertToast() {
-        return alertToast;
-    }
-
-
-
-
-
-
-    public interface MessageBoxOptionsListener{
-        public void onLocationPressed();
-        public void onTakePhotoPressed();
-        public void onPickImagePressed();
-
-        /** Invoked when the option button pressed, If returned true the system wont show the option popup.*/
-        public boolean onOptionButtonPressed();
-    }
-
-    public interface MessageSendListener {
-        public void onSendPressed(String text);
-    }
 }

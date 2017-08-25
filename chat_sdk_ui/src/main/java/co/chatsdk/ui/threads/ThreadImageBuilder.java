@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.UserAvatarHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -51,7 +51,7 @@ public class ThreadImageBuilder {
                             if(singles.size() >= 4) {
                                 break;
                             }
-                            singles.add(u.avatar());
+                            singles.add(UserAvatarHelper.avatar(u));
                         }
                     }
 

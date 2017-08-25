@@ -1,31 +1,31 @@
 package co.chatsdk.xmpp;
 
-import android.util.Log;
-
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PresenceListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.util.PacketParserUtils;
+import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.muc.packet.MUCUser;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.jxmpp.jid.EntityJid;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +39,10 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.xmpp.utils.JID;
+import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.DisposableListenerList;
+import co.chatsdk.xmpp.listeners.XMPPChatMessageListener;
+import co.chatsdk.xmpp.listeners.XMPPChatParticipantListener;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
@@ -47,12 +50,14 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -68,17 +73,22 @@ public class XMPPMUCManager {
     private MultiUserChatManager chatManager;
     private HashMap<MultiUserChat, HashMap<String, String>> userLookup = new HashMap<>();
 
+    private DisposableList disposables = new DisposableList();
+    private DisposableListenerList disposableListeners = new DisposableListenerList();
+
     public XMPPMUCManager (XMPPManager manager_) {
         manager = new WeakReference<>(manager_);
         chatManager = MultiUserChatManager.getInstanceFor(manager.get().getConnection());
         chatManager.addInvitationListener(new InvitationListener() {
             @Override
-            public void invitationReceived(XMPPConnection conn, final MultiUserChat room, String inviter, String reason, String password, Message message) {
-                final Thread thread = threadForRoomID(room.getRoom());
+            public void invitationReceived(XMPPConnection conn, MultiUserChat room, EntityJid inviter, String reason,
+                                           String password, Message message, MUCUser.Invite invitation) {
+
+                final Thread thread = threadForRoomID(room.getRoom().toString());
                 joinRoom(room).subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-
+                        disposables.add(d);
                     }
 
                     @Override
@@ -96,13 +106,14 @@ public class XMPPMUCManager {
         });
     }
 
+
     public Single<Thread> createRoom (final String name, final String description, final ArrayList<User> users) {
         return Single.create(new SingleOnSubscribe<Thread>() {
             @Override
             public void subscribe(@NonNull final SingleEmitter<Thread> e) throws Exception {
                 // Create a new group chat
                 final String roomID = getRandomRoomID();
-                joinRoomWithJID(roomID).subscribe(new BiConsumer<MultiUserChat, Throwable>() {
+                disposables.add(joinRoomWithJID(roomID).subscribe(new BiConsumer<MultiUserChat, Throwable>() {
                     @Override
                     public void accept(MultiUserChat multiUserChat, Throwable throwable) throws Exception {
 
@@ -145,7 +156,7 @@ public class XMPPMUCManager {
                             comp.add(inviteUser(user, roomID));
                         }
 
-                        Completable.merge(comp).subscribe(new Action() {
+                        disposables.add(Completable.merge(comp).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 Thread thread = threadForRoomID(roomID);
@@ -154,10 +165,9 @@ public class XMPPMUCManager {
                                 NM.events().source().onNext(event);
                                 e.onSuccess(thread);
                             }
-                        });
-
+                        }));
                     }
-                });
+                }));
 
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
@@ -167,11 +177,11 @@ public class XMPPMUCManager {
         return Single.create(new SingleOnSubscribe<MultiUserChat>() {
             @Override
             public void subscribe(@NonNull final SingleEmitter<MultiUserChat> e) throws Exception {
-                final MultiUserChat chat = chatManager.getMultiUserChat(roomJID);
+                final MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(roomJID));
                 joinRoom(chat).subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-
+                        disposables.add(d);
                     }
 
                     @Override
@@ -194,79 +204,34 @@ public class XMPPMUCManager {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
 
-                JID jid = new JID(NM.currentUser().getEntityID());
-                Thread thread = threadForRoomID(jid.bare());
+                Jid jid = JidCreate.bareFrom(NM.currentUser().getEntityID());
+                Thread thread = threadForRoomID(chat.getRoom().toString());
                 thread.addUser(NM.currentUser());
 
-                chat.addMessageListener(new MessageListener() {
-                    @Override
-                    public void processMessage(Message xmppMessage) {
-                        String userJID = userJID(chat, xmppMessage.getFrom());
-                        Timber.d("Message: " + xmppMessage.getBody());
-                        XMPPMessageParser.parse(xmppMessage, userJID).subscribe(new BiConsumer<co.chatsdk.core.dao.Message, Throwable>() {
-                            @Override
-                            public void accept(co.chatsdk.core.dao.Message message, Throwable throwable) throws Exception {
-                                if(message != null) {
-                                    NetworkEvent event = NetworkEvent.messageAdded(message.getThread(), message);
-                                    NM.events().source().onNext(event);
-                                }
-                            }
-                        });
+                XMPPChatMessageListener chatMessageListener = new XMPPChatMessageListener(XMPPMUCManager.this, chat);
+                disposableListeners.add(chatMessageListener);
 
-                    }
-                });
+                XMPPChatParticipantListener chatParticipantListener = new XMPPChatParticipantListener(XMPPMUCManager.this, chat);
+                disposableListeners.add(chatParticipantListener);
+
+                chat.addMessageListener(chatMessageListener);
+
                 chat.addPresenceInterceptor(new PresenceListener() {
                     @Override
                     public void processPresence(Presence presence) {
                         Timber.v("presence: " + presence.toString());
                     }
                 });
-                chat.addParticipantListener(new PresenceListener() {
-                    @Override
-                    public void processPresence(Presence presence) {
-                        // Here we need to add the users to the lookup so we can
-                        // get from the user's room JID to their real JID
-                        ExtensionElement element = presence.getExtension("http://jabber.org/protocol/muc#user");
-                        String jid = null;
 
-                        try {
+                chat.addParticipantListener(chatParticipantListener);
 
-                            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                            factory.setNamespaceAware(true);
-                            XmlPullParser parser = factory.newPullParser();
-                            parser.setInput(new StringReader(element.toXML().toString()));
+                // Get the username from the JID
+                Localpart local = jid.getLocalpartOrNull();
+                if(local != null) {
+                    Resourcepart resourcepart = Resourcepart.from(local.toString());
 
-//                            parser.setInput(new StringReader("<foo>Hello World!</foo>"));
-                            while (parser.getEventType() != XmlPullParser.END_DOCUMENT) {
-                                String tagname = parser.getName();
-                                if(tagname != null && tagname.equalsIgnoreCase("item")) {
-                                    jid = parser.getAttributeValue(null, "jid");
-                                    break;
-                                }
-                                parser.next();
-                            }
-
-                            JID userJID = new JID(jid);
-
-                            Thread thread = threadForRoomID(new JID(chat.getRoom()).bare());
-                            User user = StorageManager.shared().fetchUserWithEntityID(userJID.bare());
-                            if(thread != null && user != null) {
-                                thread.addUser(user);
-                            }
-
-                            XMPPManager.shared().userManager.updateUserFromVCard(userJID).subscribe();
-
-                            parser.getAttributeCount();
-                        } catch (XmlPullParserException e1) {
-                            e1.printStackTrace();
-                        } catch (IOException e2) {
-                            e2.printStackTrace();
-                        }
-
-                        addUserToLookup(chat, presence.getFrom(), jid);
-                    }
-                });
-                chat.join(jid.user(), null, null, 1000);
+                    chat.join(chat.getEnterConfigurationBuilder(resourcepart).build());
+                }
 
                 e.onComplete();
             }
@@ -277,8 +242,8 @@ public class XMPPMUCManager {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                MultiUserChat chat = chatManager.getMultiUserChat(threadID);
-                chat.invite(user.getEntityID(), "");
+                MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(threadID));
+                chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
                 e.onComplete();
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
@@ -304,12 +269,18 @@ public class XMPPMUCManager {
     }
 
     public MultiUserChat chatForThreadID (String threadID) {
-        return chatManager.getMultiUserChat(threadID);
+        try {
+            return chatManager.getMultiUserChat(JidCreate.entityBareFrom(threadID));
+        }
+        catch (XmppStringprepException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void addUserToLookup (MultiUserChat room, String userRoomID, String userJID) {
         HashMap<String, String> map = lookupMapForRoom(room);
-        map.put(userRoomID, new JID(userJID).bare());
+        map.put(userRoomID, userJID);
     }
 
     public void removeUserFromLookup (MultiUserChat room, String userRoomID) {
@@ -328,5 +299,10 @@ public class XMPPMUCManager {
             userLookup.put(chat, map);
         }
         return map;
+    }
+
+    public void dispose () {
+        disposables.dispose();
+        disposableListeners.dispose();
     }
 }

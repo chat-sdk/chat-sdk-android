@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.ui.utils.AvailabilityHelper;
 
 /**
  * Created by benjaminsmiley-andrews on 14/07/2017.
@@ -41,6 +42,14 @@ public class UserListItem implements Serializable {
 
     public String getEntityID() {
         return user.getEntityID();
+    }
+
+    public String getStatus () {
+        return user.getStatus();
+    }
+
+    public int getAvailability () {
+        return AvailabilityHelper.imageResourceIdForAvailability(user.getAvailability());
     }
 
 }

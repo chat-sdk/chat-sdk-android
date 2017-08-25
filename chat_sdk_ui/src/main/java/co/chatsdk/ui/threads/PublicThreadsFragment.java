@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import co.chatsdk.core.NM;
 
@@ -26,6 +25,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.fragments.BaseFragment;
@@ -47,8 +47,6 @@ public class PublicThreadsFragment extends BaseFragment {
 
     private ListView listThreads;
     private ThreadsListAdapter adapter;
-    private ProgressBar progressBar;
-//    private UIUpdater uiUpdater;
 
     public static PublicThreadsFragment newInstance() {
         return new PublicThreadsFragment();
@@ -83,10 +81,8 @@ public class PublicThreadsFragment extends BaseFragment {
         initViews();
     }
 
-    @Override
     public void initViews() {
         listThreads = (ListView) mainView.findViewById(R.id.list_threads);
-        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progress_bar);
         initList();
     }
 
@@ -97,7 +93,7 @@ public class PublicThreadsFragment extends BaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startChatActivityForThreadID(adapter.getItem(position).getId());
+                UIHelper.shared().startChatActivityForID(adapter.getItem(position).getId());
             }
         });
     }

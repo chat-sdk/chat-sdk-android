@@ -21,5 +21,6 @@ public enum EventType {
     ContactAdded,
     ContactDeleted,
     ContactChanged,
+    TypingStateChanged,
     Logout,
 }

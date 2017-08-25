@@ -7,6 +7,8 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.
@@ -22,7 +24,8 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
                 XMPPManager.shared().goOnline(NM.currentUser());
                 e.onComplete();
             }
-        }).concatWith(XMPPManager.shared().userManager.updateMyvCardWithUser(NM.currentUser()));
+        }).concatWith(XMPPManager.shared().userManager.updateMyvCardWithUser(NM.currentUser()))
+                .subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

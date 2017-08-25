@@ -10,8 +10,10 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -45,7 +47,7 @@ public class XMPPContactHandler extends BaseContactHandler {
                 NM.events().source().onNext(NetworkEvent.contactAdded(user));
                 s.onComplete();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -57,6 +59,8 @@ public class XMPPContactHandler extends BaseContactHandler {
                     XMPPManager.shared().userManager.removeUserFromRoster(user).doOnComplete(new Action() {
                         @Override
                         public void run() throws Exception {
+                            XMPPContactHandler.super.deleteContact(user, type);
+                            NM.events().source().onNext(NetworkEvent.contactDeleted(user));
                             e.onComplete();
                         }
                     }).subscribe();
@@ -65,13 +69,6 @@ public class XMPPContactHandler extends BaseContactHandler {
                     e.onComplete();
                 }
             }
-        }).concatWith(new Completable() {
-            @Override
-            protected void subscribeActual(CompletableObserver s) {
-                XMPPContactHandler.super.deleteContact(user, type);
-                NM.events().source().onNext(NetworkEvent.contactDeleted(user));
-                s.onComplete();
-            }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 }

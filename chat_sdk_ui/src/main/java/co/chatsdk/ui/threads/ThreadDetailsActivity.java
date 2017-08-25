@@ -65,7 +65,6 @@ public class ThreadDetailsActivity extends BaseActivity {
     protected Thread thread;
 
     private CircleImageView threadImageView;
-    private ProgressBar progressBar;
 
     private ContactsFragment contactsFragment;
 
@@ -127,19 +126,16 @@ public class ThreadDetailsActivity extends BaseActivity {
         });
 
         threadImageView = (CircleImageView) findViewById(R.id.chat_sdk_thread_image_view);
-        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progress_bar);
     }
 
     private void loadData () {
 
-        progressBar.setVisibility(View.VISIBLE);
         threadImageView.setVisibility(View.INVISIBLE);
 
         ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                     threadImageView.setImageBitmap(bitmap);
-                    progressBar.setVisibility(View.INVISIBLE);
                     threadImageView.setVisibility(View.VISIBLE);
             }
         });
@@ -147,42 +143,6 @@ public class ThreadDetailsActivity extends BaseActivity {
         // CoreThread users bundle
         contactsFragment = new ContactsFragment();
         contactsFragment.setInflateMenu(false);
-
-//        contactsFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-//                final Intent intent = new Intent();
-//
-//                User otherUser = contactsFragment.getAdapter().getItem(position).getUser();
-//                User currentUser = NM.currentUser();
-//
-//                NM.thread().createThread("", otherUser, currentUser)
-//                        .subscribe(new BiConsumer<Thread, Throwable>() {
-//                            @Override
-//                            public void accept(final Thread thread, Throwable throwable) throws Exception {
-//                                if (throwable == null) {
-//                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            intent.putExtra(THREAD_ID, thread.getId());
-//                                            setResult(RESULT_OK, intent);
-//                                            finish();
-//                                        }
-//                                    });
-//                                } else {
-//                                    ThreadDetailsActivity.this.runOnUiThread(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            showToast(getString(R.string.create_thread_with_users_fail_toast));
-//                                            dismissProgDialog();
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
-//            }
-//        });
-
         contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
         contactsFragment.withUpdates(true);

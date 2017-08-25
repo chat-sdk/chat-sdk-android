@@ -4,19 +4,14 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NetworkManager;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.firebase.FirebaseModule;
 import co.chatsdk.firebase.FirebaseUploadHandler;
 import co.chatsdk.firebase.backendless.BackendlessHandler;
 
 import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
-import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.xmpp.XMPPModule;
-import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
 import timber.log.Timber;
 import co.chatsdk.ui.helpers.UIHelper;
 
@@ -58,6 +53,6 @@ public class AppObj extends MultiDexApplication {
 
         // Adapter init.
 
-        UIHelper.getInstance().setContext(context);
+        UIHelper.shared().setContext(context);
     }
 }

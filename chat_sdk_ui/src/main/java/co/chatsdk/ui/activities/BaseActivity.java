@@ -15,7 +15,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -23,31 +22,22 @@ import android.view.View;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.helpers.DialogUtils;
 
 import com.braunster.chatsdk.network.FacebookManager;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.github.johnpersano.supertoasts.SuperCardToast;
-import com.github.johnpersano.supertoasts.SuperToast;
 
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-import java.util.concurrent.Callable;
 
 import timber.log.Timber;
 
@@ -56,7 +46,6 @@ import timber.log.Timber;
  */
 public class BaseActivity extends AppCompatActivity {
 
-    private static final String TAG = BaseActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.BaseActivity;
 
     public static final String FROM_LOGIN = "From_Login";
@@ -64,13 +53,6 @@ public class BaseActivity extends AppCompatActivity {
     private UiLifecycleHelper uiHelper;
 
     private ProgressDialog progressDialog;
-
-    /** If true the app will check if the user is online each time the activity is resumed.
-     *  When the app is on the background the Android system can kill the app.
-     *  When the app is killed the firebase api will set the user online status to false.
-     *  Also all the listeners attached to the user, threads, friends etc.. are gone so each time the activity is resumed we will
-     *  check to see if the user is online and if not start the auth process for registering to all events.*/
-    private boolean checkOnlineOnResumed = false;
 
     /** If true the activity will implement facebook SDK components like sessionChangeState and the facebook UI helper.
      * This is good for caching a press on the logout button in the main activity or in any activity that will implement the facebook login button.*/
@@ -168,10 +150,6 @@ public class BaseActivity extends AppCompatActivity {
             uiHelper.onPause();
     }
 
-    protected void onAuthenticated () {
-
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -179,26 +157,6 @@ public class BaseActivity extends AppCompatActivity {
         if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
             uiHelper.onResume();
         }
-
-        if (checkOnlineOnResumed && !fromLoginActivity) {
-
-            authenticate().subscribe(new CompletableObserver() {
-                @Override
-                public void onSubscribe(Disposable d) {
-                }
-
-                @Override
-                public void onComplete() {
-                    NM.core().goOnline();
-                    onAuthenticated();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    onAuthenticationFailed();
-                }
-            });
-     }
 
         fromLoginActivity = false;
     }
@@ -222,7 +180,7 @@ public class BaseActivity extends AppCompatActivity {
         if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
             uiHelper.onDestroy();
 
-        dismissProgDialog();
+        dismissProgressDialog();
     }
 
     @Override
@@ -273,91 +231,31 @@ public class BaseActivity extends AppCompatActivity {
         if (StringUtils.isEmpty(text))
             return;
 
-        UIHelper.getInstance().getToast().setText(text);
-        UIHelper.getInstance().getToast().show();
+        UIHelper.shared().showToast(text);
     }
 
-//    protected void showProgressCard(String text){
-//        uiHelper.getInstance().showProgressCard(text);
-//    }
-//
-//    protected void dismissProgressCard(){
-//        dismissProgressCard(0);
-//    }
-//
-//    protected void dismissProgressCardWithSmallDelay(){
-//        dismissProgressCard(1500);
-//    }
 
-//    protected void dismissProgressCard(long delay){
-//        uiHelper.getInstance().dismissProgressCard(delay);
-//    }
 
     /** Authenticates the current user.*/
     public Completable authenticate(){
         return NM.auth().authenticateWithCachedToken();
     }
 
-    /** Create a thread for given users and name, When thread and all users are all pushed to the server the chat activity for this thread will be open.*/
-    protected void createAndOpenThreadWithUsers(String name, List<User> users){
-        NM.thread().createThread(name, users).subscribe(new BiConsumer<Thread, Throwable>() {
-            @Override
-            public void accept(final Thread thread, Throwable throwable) throws Exception {
-                if(throwable == null) {
-                    dismissProgDialog();
-
-                    if (thread == null) {
-                        if (DEBUG) Timber.e("thread added is null");
-                        return;
-                    }
-
-                    startChatActivityForID(thread.getId());
-                }
-                else {
-                    if (isOnMainThread())
-                        showToast(getString(R.string.create_thread_with_users_fail_toast));
-                    else BaseActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToast(getString(R.string.create_thread_with_users_fail_toast));
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    protected void createAndOpenThreadWithUsers(String name, User... users){
-        createAndOpenThreadWithUsers(name, users);
-    }
-
     /** Start the chat activity for the given thread id.
      * @param id is the long value of local db id.*/
     public void startChatActivityForID(long id){
-        UIHelper.getInstance().startChatActivityForID(id);
+        UIHelper.shared().startChatActivityForID(id);
     }
 
     public void startLoginActivity(boolean loggedOut){
-        UIHelper.getInstance().startLoginActivity(loggedOut);
+        UIHelper.shared().startLoginActivity(loggedOut);
     }
 
     public void startMainActivity(){
-        UIHelper.getInstance().startMainActivity();
+        UIHelper.shared().startMainActivity();
     }
 
-    public void startSearchActivity() {
-        UIHelper.getInstance().startSearchActivity();
-    }
-
-    public void startPickFriendsActivity() {
-        UIHelper.getInstance().startPickFriendsActivity();
-    }
-
-    public void startShareWithFriendsActivity() {
-        UIHelper.getInstance().startShareWithFriendsActivity();
-    }
-
-    protected void showProgDialog(String message){
+    protected void showProgressDialog(String message){
         if (progressDialog == null)
             progressDialog = new ProgressDialog(this);
 
@@ -369,7 +267,7 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void showOrUpdateProgDialog(String message){
+    protected void showOrUpdateProgressDialog(String message){
         if (progressDialog == null)
             progressDialog = new ProgressDialog(this);
 
@@ -381,17 +279,13 @@ public class BaseActivity extends AppCompatActivity {
         } else progressDialog.setMessage(message);
     }
 
-    protected void dismissProgDialog(){
+    protected void dismissProgressDialog(){
         // For handling orientation changed.
         try {
             if (progressDialog != null && progressDialog.isShowing())
                 progressDialog.dismiss();
         } catch (Exception e) {
         }
-    }
-
-    protected void showToastDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        DialogUtils.showToastDialog(this, title, alert, p, n, neg, pos);
     }
 
     protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
@@ -424,13 +318,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     };
 
-    /** When enabled the app will check the user online ref to see if he is not offline each time that the activity is resumed.
-     *  This method is good for times that the app is in the background and killed by the android system and we need to listen to all the user details again.
-     *  i.e Authenticate again.*/
-    public void enableCheckOnlineOnResumed(boolean checkOnlineOnResumed) {
-        this.checkOnlineOnResumed = checkOnlineOnResumed;
-    }
-
     public void enableFacebookIntegration(boolean integratedWithFacebook) {
         this.integratedWithFacebook = integratedWithFacebook;
     }
@@ -443,31 +330,6 @@ public class BaseActivity extends AppCompatActivity {
         startLoginActivity(true);
     }
 
-    protected boolean isOnMainThread() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /*Getters and Setters*/
-    public void setAlertToast(SuperToast alertToast) {
-        UIHelper.getInstance().setAlertToast(alertToast);
-    }
-
-
-    public void setToast(SuperToast toast) {
-        UIHelper.getInstance().setToast(toast);
-    }
-
-    public SuperToast getToast() {
-        return UIHelper.getInstance().getToast();
-    }
-
-    public SuperToast getAlertToast() {
-        return UIHelper.getInstance().getAlertToast();
-    }
 }
 
 
