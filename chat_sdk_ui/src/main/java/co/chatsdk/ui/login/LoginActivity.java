@@ -58,6 +58,7 @@ public class LoginActivity extends AbstractLoginActivity implements View.OnClick
     protected void initViews(){
         super.initViews();
 
+
         facebookLogin.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
         facebookLogin.setBackgroundResource(R.drawable.ic_facebook);
 

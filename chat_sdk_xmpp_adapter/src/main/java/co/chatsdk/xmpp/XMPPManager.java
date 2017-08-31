@@ -161,6 +161,8 @@ public class XMPPManager {
 
     public void performPostAuthenticationSetup () {
 
+        android.os.Debug.startMethodTracing("lsd");
+
         disposables.add(userManager.loadContactsFromRoster().subscribe());
         roster().addRosterListener(rosterListener);
 
@@ -179,6 +181,9 @@ public class XMPPManager {
                 }
             }));
         }
+
+        android.os.Debug.stopMethodTracing();
+
     }
 
     public Roster roster() {

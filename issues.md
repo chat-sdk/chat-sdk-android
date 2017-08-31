@@ -24,3 +24,5 @@
 * Edit profile view is too long
 * There is a pause between when the logging in dialog disappears and when the threads activity appears
 
+
+
