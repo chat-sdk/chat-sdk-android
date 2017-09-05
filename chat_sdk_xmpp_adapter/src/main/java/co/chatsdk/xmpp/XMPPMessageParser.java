@@ -1,6 +1,6 @@
 package co.chatsdk.xmpp;
 
-import org.jivesoftware.smack.packet.DefaultExtensionElement;
+import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.joda.time.DateTime;
 import org.jxmpp.jid.Jid;
@@ -99,9 +99,9 @@ public class XMPPMessageParser {
                 message.setDelivered(Message.Delivered.Yes);
 
                 // Does the message have an extension?
-                DefaultExtensionElement element = xmppMessage.getExtension(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
+                StandardExtensionElement element = xmppMessage.getExtension(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
                 if(element != null) {
-                    String type = element.getValue(XMPPDefines.Type);
+                    String type = element.getFirstElement(XMPPDefines.Type).getText();
                     message.setType(Integer.parseInt(type));
                 }
                 else {

@@ -2,9 +2,8 @@ package co.chatsdk.xmpp;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import org.jivesoftware.smack.packet.DefaultExtensionElement;
-import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.StandardExtensionElement;
 
 import java.util.HashMap;
 
@@ -17,11 +16,11 @@ import co.chatsdk.xmpp.defines.XMPPDefines;
 public class XMPPMessageBuilder {
 
     Message message = new Message();
-    DefaultExtensionElement extension = new DefaultExtensionElement(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
+    StandardExtensionElement.Builder extensionBuilder = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
 
     public XMPPMessageBuilder setValues (HashMap<String, Object> values) {
         for(String key : values.keySet()) {
-            extension.setValue(key, values.get(key).toString());
+            extensionBuilder.addElement(key, values.get(key).toString());
         }
         return this;
     }
@@ -37,7 +36,7 @@ public class XMPPMessageBuilder {
     }
 
     public XMPPMessageBuilder setType (Integer type) {
-        extension.setValue(XMPPDefines.Type, type.toString());
+        extensionBuilder.addElement(XMPPDefines.Type, type.toString());
         return this;
     }
 
@@ -47,7 +46,7 @@ public class XMPPMessageBuilder {
     }
 
     public Message build () {
-        message.addExtension(extension);
+        message.addExtension(extensionBuilder.build());
         return message;
     }
 
