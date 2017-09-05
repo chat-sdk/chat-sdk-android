@@ -323,7 +323,17 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {
-        return !h1.get(key).equals(h2.get(key));
+        Object o1 = h1.get(key);
+        Object o2 = h2.get(key);
+        if (o1 == null) {
+            if (o2 != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return !o1.equals(o2);
+        }
     }
 
     private int getIndex(Spinner spinner, String myString)

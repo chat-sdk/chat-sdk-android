@@ -349,13 +349,14 @@ public class XMPPUsersManager {
                 }
 
                 String date = user.getDateOfBirth();
-                changed = changed || date.equals(vCard.getField(DateOfBirth));
                 if (date != null) {
+                    changed = changed || date.equals(vCard.getField(DateOfBirth));
                     vCard.setField(DateOfBirth, date);
                 }
 
                 // Has the image changed?
-                if(!user.getAvatarHash().equals(vCard.getAvatarHash())) {
+                String avatarHash = user.getAvatarHash();
+                if(avatarHash != null && !user.getAvatarHash().equals(vCard.getAvatarHash())) {
                     changed = true;
 
                     String pictureURL = user.getAvatarURL();

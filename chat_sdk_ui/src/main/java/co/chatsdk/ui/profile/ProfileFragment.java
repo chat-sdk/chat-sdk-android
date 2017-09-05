@@ -272,8 +272,8 @@ public class ProfileFragment extends BaseFragment {
         dateOfBirthTextView.setText(user.getDateOfBirth());
 
         String presenceSubscription = user.getPresenceSubscription();
-        boolean follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
-        boolean followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
+        boolean follows = presenceSubscription != null ? presenceSubscription.equals("from") || presenceSubscription.equals("both") : false;
+        boolean followed = presenceSubscription != null ? presenceSubscription.equals("to") || presenceSubscription.equals("both") : false;
 
         if(follows) {
             followsImageView.setMaxHeight(followsHeight);
