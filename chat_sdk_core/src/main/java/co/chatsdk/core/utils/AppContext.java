@@ -5,11 +5,10 @@ import android.content.SharedPreferences;
 
 import java.lang.ref.WeakReference;
 
-import wanderingdevelopment.tk.chatsdkcore.R;
-
 /**
  * Created by benjaminsmiley-andrews on 04/05/2017.
  */
+
 
 public class AppContext {
 
@@ -17,7 +16,6 @@ public class AppContext {
     private static final String CHAT_SDK_SHRED_PREFS = "chat_sdk_prefs";
 
     private WeakReference<Context> context;
-    private String googleMapsAPIKey;
 
     protected AppContext () {
 
@@ -32,15 +30,6 @@ public class AppContext {
 
     public Context context () {
         return context.get();
-    }
-
-    @Deprecated
-    public void setGoogleMapsAPIKey (String key) {
-        googleMapsAPIKey = key;
-    }
-
-    public String googleMapsAPIKey () {
-        return googleMapsAPIKey;
     }
 
     public SharedPreferences getPreferences () {

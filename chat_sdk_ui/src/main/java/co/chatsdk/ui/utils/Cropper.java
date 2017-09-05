@@ -18,16 +18,15 @@ import com.soundcloud.android.crop.CropImageActivity;
 /**
  * Created by braunster on 04/09/14.
  */
-public class Cropper extends Crop {
+public class Cropper {
     private Uri source;
 
-    static interface Extra {
+    interface Extra {
         String ASPECT_X = "aspect_x";
         String ASPECT_Y = "aspect_y";
     }
 
     public Cropper(Uri source) {
-        super(source);
         this.source = source;
     }
 

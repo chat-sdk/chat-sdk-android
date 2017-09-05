@@ -14,6 +14,7 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.LinkedAccount;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.firebase.FirebasePaths;
 
 
@@ -22,7 +23,6 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
 
-import com.braunster.chatsdk.network.TwitterManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +46,8 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 
@@ -93,7 +95,7 @@ public class UserWrapper {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-        model.setAuthenticationType((Integer) NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
+//        model.setAuthenticationType((Integer) NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
@@ -102,14 +104,14 @@ public class UserWrapper {
         String email = authData.getEmail();
         String profileURL = authData.getPhotoUrl().toString();
 
-        String token = null;
-        Object tokenObject = NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.TokenKey);
-        if(tokenObject != null) {
-            token = tokenObject.toString();
-        }
-        String uid = authData.getUid();
-
-        LinkedAccount linkedAccount;
+//        String token = null;
+//        Object tokenObject = NM.auth().getLoginInfo().get(AuthKeys.Token);
+//        if(tokenObject != null) {
+//            token = tokenObject.toString();
+//        }
+//        String uid = authData.getUid();
+//
+//        LinkedAccount linkedAccount;
 
         // Setting the name.
         if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName())) {
@@ -127,41 +129,41 @@ public class UserWrapper {
         }
 
 
-        switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
-        {
-            case Defines.ProviderInt.Facebook:
-                linkedAccount = model.getAccountWithType(LinkedAccount.Type.FACEBOOK);
-                if (linkedAccount == null)
-                {
-                    linkedAccount = new LinkedAccount();
-                    linkedAccount.setType(LinkedAccount.Type.FACEBOOK);
-                    linkedAccount.setUserId(model.getId());
-                    DaoCore.createEntity(linkedAccount);
-                }
-                linkedAccount.setToken(token);
-
-                break;
-
-            case Defines.ProviderInt.Twitter:
-                TwitterManager.userId = uid;
-
-                linkedAccount = model.getAccountWithType(LinkedAccount.Type.TWITTER);
-                if (linkedAccount == null)
-                {
-                    linkedAccount = new LinkedAccount();
-                    linkedAccount.setType(LinkedAccount.Type.TWITTER);
-                    linkedAccount.setUserId(model.getId());
-                    DaoCore.createEntity(linkedAccount);
-                }
-                linkedAccount.setToken(token);
-
-                break;
-
-            case Defines.ProviderInt.Password:
-                break;
-
-            default: break;
-        }
+//        switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
+//        {
+//            case Defines.ProviderInt.Facebook:
+//                linkedAccount = model.getAccountWithType(LinkedAccount.Type.FACEBOOK);
+//                if (linkedAccount == null)
+//                {
+//                    linkedAccount = new LinkedAccount();
+//                    linkedAccount.setType(LinkedAccount.Type.FACEBOOK);
+//                    linkedAccount.setUserId(model.getId());
+//                    DaoCore.createEntity(linkedAccount);
+//                }
+//                linkedAccount.setToken(token);
+//
+//                break;
+//
+//            case Defines.ProviderInt.Twitter:
+//                TwitterManager.userId = uid;
+//
+//                linkedAccount = model.getAccountWithType(LinkedAccount.Type.TWITTER);
+//                if (linkedAccount == null)
+//                {
+//                    linkedAccount = new LinkedAccount();
+//                    linkedAccount.setType(LinkedAccount.Type.TWITTER);
+//                    linkedAccount.setUserId(model.getId());
+//                    DaoCore.createEntity(linkedAccount);
+//                }
+//                linkedAccount.setToken(token);
+//
+//                break;
+//
+//            case Defines.ProviderInt.Password:
+//                break;
+//
+//            default: break;
+//        }
 
         if (StringUtils.isEmpty(model.getName()))
         {
@@ -196,12 +198,12 @@ public class UserWrapper {
 
                     @Override
                     public void onCancelled(DatabaseError firebaseError) {
-                        e.onError(firebaseError.toException());
+//                        e.onError(firebaseError.toException());
                     }
                 });
 
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<User> metaOn() {
@@ -226,12 +228,12 @@ public class UserWrapper {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        e.onError(databaseError.toException());
+//                        e.onError(databaseError.toException());
                     }
                 });
                 FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
 

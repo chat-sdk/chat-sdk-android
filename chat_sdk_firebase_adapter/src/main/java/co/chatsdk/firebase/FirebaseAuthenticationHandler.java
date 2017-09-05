@@ -7,11 +7,10 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.AccountDetails;
+import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.DaoCore;
-import com.braunster.chatsdk.network.FacebookManager;
-import com.braunster.chatsdk.network.TwitterManager;
 import co.chatsdk.core.types.ChatError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,8 +41,10 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
@@ -61,31 +62,20 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         return Single.create(new SingleOnSubscribe<FirebaseUser>() {
             @Override
             public void subscribe(final SingleEmitter<FirebaseUser> e) throws Exception {
-                if (DEBUG) Timber.v("checkUserAuthenticatedWithCallback, %s", getLoginInfo().get(Defines.Prefs.AccountTypeKey));
 
-                if (isAuthenticating())
-                {
+                if (isAuthenticating()) {
                     if (DEBUG) Timber.d("Already Authing!, Status: %s", getAuthStatus().name());
                     e.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant run two auth in parallel"));
                 }
-                else
-                {
+                else {
                     setAuthStatus(AuthStatus.CHECKING_IF_AUTH);
-
-                    if (!getLoginInfo().containsKey(Defines.Prefs.AccountTypeKey))
-                    {
-                        if (DEBUG) Timber.d(TAG, "No account type key");
-                        e.onError(ChatError.getError(ChatError.Code.NO_LOGIN_INFO));
-                        return;
-                    }
 
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                    if (user!=null)
-                    {
+                    if (user != null) {
                         e.onSuccess(user);
                     }
-                    else{
+                    else {
                         e.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth bundle found"));
                     }
                 }
@@ -93,7 +83,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         }).flatMapCompletable(new Function<FirebaseUser, Completable>() {
             @Override
             public Completable apply(FirebaseUser firebaseUser) throws Exception {
-                return handleFAUser(firebaseUser);
+                return authenticateWithUser(firebaseUser);
             }
         }).doOnTerminate(new Action() {
             @Override
@@ -101,7 +91,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Whether we complete successfully or not, we set the status to idle
                 setAuthStateToIdle();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -124,21 +114,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     @Override
                     public void onComplete(@NonNull final Task<AuthResult> task) {
                         if(task.isComplete() && task.isSuccessful()) {
-
-                            FirebaseUser user = task.getResult().getUser();
-
-                            final Map<String, Object> loginInfoMap =  new HashMap<String, Object>();
-                            // Save the authentication ID for the current user
-                            // Set the current user
-
-                            String uid = user.getUid();
-                            if (DEBUG) Timber.v("Uid: " + uid);
-
-                            loginInfoMap.put(Defines.Prefs.AccountTypeKey, details.type);
-                            loginInfoMap.put(Defines.Prefs.AuthenticationID, uid);
-
-                            setLoginInfo(loginInfoMap);
-
                             e.onSuccess(task.getResult().getUser());
                         }
                         else {
@@ -151,31 +126,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 switch (details.type)
                 {
-                    case Facebook:
-
-                        String accessToken = FacebookManager.userFacebookAccessToken;
-
-                        addLoginInfoData(Defines.Prefs.TokenKey, accessToken);
-
-                        if (DEBUG) Timber.d(TAG, "Authenticating with fb, AccessToken: %s", accessToken);
-
-                        credential = FacebookAuthProvider.getCredential(accessToken);
-                        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
-                        break;
-
-                    case Twitter:
-                        String token = TwitterManager.accessToken.getToken();
-                        String secret = TwitterManager.accessToken.getSecret();
-
-                        addLoginInfoData(Defines.Prefs.TokenKey, token);
-
-                        if (DEBUG) Timber.d("authing with twitter, AccessToken: %s", token);
-
-                        credential = TwitterAuthProvider.getCredential(token, secret);
-                        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(resultHandler);
-
-                        break;
-
                     case Username:
                         FirebaseAuth.getInstance().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
                         break;
@@ -188,6 +138,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     case Custom:
                         FirebaseAuth.getInstance().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
                         break;
+                    // Should be handled by Social Login Module
+                    case Facebook:
+                    case Twitter:
                     default:
                         if (DEBUG) Timber.d("No login type was found");
                         e.onError(ChatError.getError(ChatError.Code.NO_LOGIN_TYPE, "No matching login type was found"));
@@ -197,7 +150,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         }).flatMapCompletable(new Function<FirebaseUser, Completable>() {
             @Override
             public Completable apply(FirebaseUser firebaseUser) throws Exception {
-                return handleFAUser(firebaseUser);
+                return authenticateWithUser(firebaseUser);
             }
         }).doOnTerminate(new Action() {
             @Override
@@ -205,48 +158,59 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Whether we complete successfully or not, we set the status to idle
                 setAuthStateToIdle();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Completable handleFAUser(final FirebaseUser authData){
+    public Completable authenticateWithUser (final FirebaseUser user) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
 
-        if (DEBUG) Timber.v("handleFAUser");
+                final Map<String, Object> loginInfoMap =  new HashMap<>();
+                // Save the authentication ID for the current user
+                // Set the current user
 
-        setAuthStatus(AuthStatus.HANDLING_F_USER);
+                String uid = user.getUid();
 
-        if (authData == null) {
-            // If the user isn't authenticated they'll need to login
-            return Completable.error(ChatError.getError(ChatError.Code.SESSION_CLOSED));
-        }
-        else {
+                loginInfoMap.put(AuthKeys.CurrentUserID, uid);
 
-            // Do a once() on the user to push its details to firebase.
-            final UserWrapper wrapper = UserWrapper.initWithAuthData(authData);
+                setLoginInfo(loginInfoMap);
 
-            return wrapper.once().andThen(new CompletableSource() {
-                @Override
-                public void subscribe(CompletableObserver cs) {
+                setAuthStatus(AuthStatus.HANDLING_F_USER);
 
-                    if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
-                    DaoCore.updateEntity(wrapper.getModel());
+                // Do a once() on the user to push its details to firebase.
+                final UserWrapper wrapper = UserWrapper.initWithAuthData(user);
 
-                    FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
+                wrapper.once().subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
 
-                    // TODO push a default image of the user to the cloud.
-                    // TODO: This shouldn't return the error... Would lead to a race condition
-                    if(!NM.push().subscribeToPushChannel(wrapper.pushChannel())) {
-                        // TODO: Handle this error
-                        Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
-                        //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
+                        if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
+                        DaoCore.updateEntity(wrapper.getModel());
+
+                        FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
+
+                        // TODO push a default image of the user to the cloud.
+                        // TODO: This shouldn't return the error... Would lead to a race condition
+                        if(!NM.push().subscribeToPushChannel(wrapper.pushChannel())) {
+                            // TODO: Handle this error
+                            Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
+                            //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
+                        }
+
+                        NM.core().goOnline();
+
+                        wrapper.push().subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onComplete();
+                            }
+                        });
+
                     }
-
-                    NM.core().goOnline();
-
-                    cs.onComplete();
-
-                }
-            }).andThen(wrapper.push());
-        }
+                });
+            }
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Boolean userAuthenticated() {
@@ -273,29 +237,39 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable logout() {
-        User user = NM.currentUser();
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter e) throws Exception {
 
-        // Stop listening to user related alerts. (added message or thread.)
-        FirebaseEventHandler.shared().userOff(user.getEntityID());
+                User user = NM.currentUser();
 
-        // Removing the push channel
-        if (NM.push() != null)
-            NM.push().unsubscribeToPushChannel(user.getPushChannel());
+                // Stop listening to user related alerts. (added message or thread.)
+                FirebaseEventHandler.shared().userOff(user.getEntityID());
 
-        // Login out
-        // TODO: Move this to the user wrapper
-        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
-        userOnlineRef.setValue(false);
+                // Removing the push channel
+                if (NM.push() != null)
+                    NM.push().unsubscribeToPushChannel(user.getPushChannel());
 
-        FirebaseAuth.getInstance().signOut();
+                // Login out
+                // TODO: Move this to the user wrapper
+                DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
+                userOnlineRef.setValue(false);
 
-        NM.events().source().onNext(NetworkEvent.logout());
+                FirebaseAuth.getInstance().signOut();
 
-        return Completable.complete();
+                NM.events().source().onNext(NetworkEvent.logout());
+
+                if(NM.socialLogin() != null) {
+                    NM.socialLogin().logout();
+                }
+
+                e.onComplete();
+            }
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable sendPasswordResetMail(final String email) {
@@ -317,37 +291,22 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Boolean accountTypeEnabled(int type) {
-        if(type == AccountType.Facebook) {
-            return facebookEnabled();
+    // TODO: Allow users to turn anonymous login off or on in settings
+    public Boolean accountTypeEnabled(AccountDetails.Type type) {
+        if(NM.socialLogin() != null) {
+            return NM.socialLogin().accountTypeEnabled(type);
         }
-        if(type == AccountType.Twitter) {
-            return twitterEnabled();
+        else {
+            if(type == AccountDetails.Type.Anonymous || type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
+                return true;
+            }
         }
-        if(type == AccountType.Google) {
-            return googleEnabled();
-        }
-        return true;
-    }
-
-    public boolean facebookEnabled(){
-        return StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.facebook_id));
-    }
-
-    public boolean googleEnabled(){
         return false;
     }
 
-    public boolean twitterEnabled(){
-        return (StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_consumer_key))
-                && StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_consumer_secret)))
-                ||
-               (StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_access_token))
-                        && StringUtils.isNotEmpty(AppContext.shared().context().getString(com.braunster.chatsdk.R.string.twitter_access_token_secret)));
-    }
 
 
 

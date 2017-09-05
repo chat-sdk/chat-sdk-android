@@ -1,21 +1,22 @@
 package co.chatsdk.xmpp;
 
+import android.Manifest;
 import android.content.Context;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.example.chatsdkxmppadapter.R;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ReconnectionManager;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.roster.PresenceEventListener;
 import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterEntries;
-import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.roster.SubscribeListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.blocking.BlockingCommandManager;
@@ -25,25 +26,28 @@ import org.jivesoftware.smackx.iqlast.LastActivityManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.search.UserSearchManager;
-import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.DomainBareJid;
-import org.jxmpp.jid.FullJid;
-import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
+import co.chatsdk.core.ChatSDK;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.xmpp.defines.XMPPDefines;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
 import co.chatsdk.xmpp.listeners.XMPPChatManagerListener;
 import co.chatsdk.xmpp.listeners.XMPPConnectionListener;
@@ -54,11 +58,12 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
 
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.
@@ -70,6 +75,9 @@ public class XMPPManager {
     public String serviceHost;
     public int servicePort;
     public DomainBareJid searchService;
+    public InetAddress serviceAddress;
+
+    public Resourcepart resource;
 
     // The main XMPP connection
     private AbstractXMPPConnection connection = null;
@@ -97,8 +105,6 @@ public class XMPPManager {
 
     protected XMPPManager() {
 
-        Context context = AppContext.shared().context();
-
         connectionListener = new XMPPConnectionListener(this);
         rosterListener = new XMPPRosterListener(this);
 
@@ -108,12 +114,19 @@ public class XMPPManager {
         userManager = new XMPPUsersManager(this);
         typingIndicatorManager = new XMPPTypingIndicatorManager();
 
-        serviceHost = context.getString(R.string.service_host);
-        String serviceNameString = context.getString(R.string.service_name);
-        servicePort = new Integer(context.getString(R.string.service_port));
-        String searchServiceString = context.getString(R.string.search_service);
+        serviceHost = ChatSDK.shared().xmppServiceHost();
+        String serviceNameString = ChatSDK.shared().xmppServiceName();
+        servicePort = ChatSDK.shared().xmppServicePort();
+        String searchServiceString = ChatSDK.shared().xmppSearchService();
+        try {
+            serviceAddress = InetAddress.getByName(serviceHost);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        String resourceName = ChatSDK.shared().xmppResource();
 
         try {
+            resource = Resourcepart.from(resourceName);
             searchService = JidCreate.domainBareFrom(searchServiceString);
             serviceName = JidCreate.domainBareFrom(serviceNameString);
         }
@@ -156,18 +169,30 @@ public class XMPPManager {
             }
         }));
 
+        if(debugModeEnabled()) {
+            System.setProperty("smack.debuggerClass","org.jivesoftware.smack.debugger.ConsoleDebugger");
+            System.setProperty("smack.debugEnabled", "true");
+            SmackConfiguration.DEBUG = true;
+        }
 
+    }
+
+    public boolean canWriteOnExternalStorage() {
+        // get the state of your external storage
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // if storage is mounted return true
+            return true;
+        }
+        return false;
     }
 
     public void performPostAuthenticationSetup () {
 
-        android.os.Debug.startMethodTracing("lsd");
+//        android.os.Debug.startMethodTracing("auth.trace");
 
         disposables.add(userManager.loadContactsFromRoster().subscribe());
         roster().addRosterListener(rosterListener);
-
-        ChatManager chatManager = ChatManager.getInstanceFor(connection);
-        chatManager.addChatListener(chatManagerListener);
 
         mucManager = new XMPPMUCManager(this);
 
@@ -182,7 +207,7 @@ public class XMPPManager {
             }));
         }
 
-        android.os.Debug.stopMethodTracing();
+//        android.os.Debug.stopMethodTracing();
 
     }
 
@@ -240,6 +265,8 @@ public class XMPPManager {
                 connection = new XMPPTCPConnection(config);
                 connection.setPacketReplyTimeout(50000);
 
+                chatManager().addChatListener(chatManagerListener);
+
                 try {
                     connection.connect();
                     e.onSuccess(connection);
@@ -269,6 +296,8 @@ public class XMPPManager {
 
                 connection.addConnectionListener(connectionListener);
 
+                chatManager().addChatListener(chatManagerListener);
+
                 try {
                     connection.connect();
                     connection.login();
@@ -283,31 +312,27 @@ public class XMPPManager {
     }
 
     private XMPPTCPConnectionConfiguration configureRegistrationConnection() {
-        XMPPTCPConnectionConfiguration connectionConfig;
-        connectionConfig = XMPPTCPConnectionConfiguration.builder()
+        return XMPPTCPConnectionConfiguration.builder()
                 .allowEmptyOrNullUsernames()
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                 .setDebuggerEnabled(true)
-                .setServiceName(serviceName)
-                .setHost(serviceHost)
+                .setXmppDomain(serviceName)
+                .setHostAddress(serviceAddress)
                 .setPort(servicePort)
-                .build();
-
-        return connectionConfig;
+                .setResource(resource)
+                .setDebuggerEnabled(debugModeEnabled()).build();
     }
 
     private XMPPTCPConnectionConfiguration configureConnection(String userAlias, String password){
-
-        XMPPTCPConnectionConfiguration connectionConfig;
-        connectionConfig = XMPPTCPConnectionConfiguration.builder()
+        return XMPPTCPConnectionConfiguration.builder()
                 .setUsernameAndPassword(userAlias, password)
                 .setXmppDomain(serviceName)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                .setHost(serviceHost)
+                .setHostAddress(serviceAddress)
                 .setPort(servicePort)
+                .setResource(resource)
+                .setDebuggerEnabled(debugModeEnabled())
                 .build();
-
-        return connectionConfig;
     }
 
     public Completable login (final String userJID, final String password){
@@ -323,6 +348,10 @@ public class XMPPManager {
                 }
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private boolean debugModeEnabled () {
+        return ChatSDK.shared().xmppDebugModeEnabled();
     }
 
     public Completable register(final String username, final String password){

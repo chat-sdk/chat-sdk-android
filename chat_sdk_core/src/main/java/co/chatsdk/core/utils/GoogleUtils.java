@@ -4,17 +4,15 @@ package co.chatsdk.core.utils;
  * Created by benjaminsmiley-andrews on 09/06/2017.
  */
 
-import android.content.Context;
-
 import com.google.android.gms.maps.model.LatLng;
 
-import wanderingdevelopment.tk.chatsdkcore.R;
+import co.chatsdk.core.ChatSDK;
 
 public class GoogleUtils {
 
     public static String getMapImageURL (LatLng location, int width, int height) {
 
-        String googleMapsAPIKey = AppContext.shared().googleMapsAPIKey();
+        String googleMapsAPIKey = ChatSDK.shared().googleMapsApiKey();
 
         String api = "https://maps.googleapis.com/maps/api/staticmap";
         String markers = "markers="+location.latitude+","+location.longitude;

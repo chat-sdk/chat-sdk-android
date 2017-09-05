@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.login.AbstractLoginActivity;
 import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.activities.MainActivity;
 import co.chatsdk.ui.activities.SearchActivity;
@@ -154,13 +153,13 @@ public class UIHelper {
 
     public void startLoginActivity(boolean loggedOut){
         Intent intent = new Intent(context.get(), loginActivity);
-        intent.putExtra(AbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
+        intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, loggedOut);
         startActivity(intent);
     }
 
     public void startEditProfileActivity(boolean loggedOut, User user){
         Intent intent = new Intent(context.get(), editProfileActivity);
-//        intent.putExtra(AbstractLoginActivity.FLAG_LOGGED_OUT, loggedOut);
+//        intent.putExtra(LoginActivity.FLAG_LOGGED_OUT, loggedOut);
         intent.putExtra(USER_ENTITY_ID, user.getEntityID());
         startActivity(intent);
     }

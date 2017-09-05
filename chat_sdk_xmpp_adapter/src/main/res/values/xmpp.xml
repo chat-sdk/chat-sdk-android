@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="service_name">server.chatcatapp.com</string>
-    <string name="service_host">server.chatcatapp.com</string>
-    <string name="service_port">5222</string>
-    <string name="search_service">vjud.server.chatcatapp.com</string>
-</resources>

@@ -29,7 +29,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
 
-import com.braunster.chatsdk.network.FacebookManager;
 import com.mukesh.countrypicker.Country;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
@@ -43,6 +42,7 @@ import java.util.Locale;
 
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
+import io.reactivex.functions.Action;
 import timber.log.Timber;
 
 /**
@@ -224,20 +224,24 @@ public class EditProfileActivity2 extends BaseActivity implements OnClickListene
 
     public void logout() {
         // Logout and return to the login activity.
-        FacebookManager.logout(this);
+//        FacebookManager.logout(this);
 
-        NM.auth().logout();
-        UIHelper.shared().startLoginActivity(true);
+        NM.auth().logout().subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                UIHelper.shared().startLoginActivity(true);
+            }
+        });
     }
     
     private void setSelected(TextView textView, boolean selected){
         
         textView.setSelected(selected);
         
-        if (selected)
-            textView.setTextColor(getResources().getColor(R.color.white));
-        else
-            textView.setTextColor(getResources().getColor(R.color.dark_gray));
+//        if (selected)
+//            textView.setTextColor(getResources().getColor(R.color.white));
+//        else
+//            textView.setTextColor(getResources().getColor(R.color.dark_gray));
 
     }
 

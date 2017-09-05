@@ -8,23 +8,6 @@ import java.util.Random;
 
 public class Defines {
 
-    /** This is the root path of all the app data,
-     *  This is helpful if you want to test new behavior and don't want to infect all the old thread. */
-    public static final String RootPath = "firebase_v4_local_3/";
-
-    /**
-     * The version name of the app, Here we are using the name from the BuildConfig.
-     * The best way to use it would be to change the value of this veriable in the application object
-     * to your own version name.
-     **/
-    //public static String BAppVersion = BuildConfig.VERSION_NAME;
-
-    /** The server url that is used to do all the API calls.*/
-    public static String ServerUrl = "https://chat-sdk-v4.firebaseio.com/" + RootPath;
-
-    /** The url that is used for the file uploads.*/
-    public static String FirebaseStoragePath = "gs://chat-sdk-v4.appspot.com";
-
     /**
      * The name of the app image directory that will be seen in the phone image galley
      * */
@@ -78,15 +61,6 @@ public class Defines {
     public static final String ContactDeveloper_Subject = "Report: ";
     public static final String ContactDeveloper_DialogTitle = "Contact Developer";
 
-    public static final class Prefs{
-        public static final String CurrentUserLoginInfo = "Current-CoreUser-Login-Info";
-        public static final String AuthenticationID = "authentication-id";
-        public static final String TokenKey = "token";
-        public static final String AccountTypeKey = "accounty-type";
-        public static final String ObjectKey = "object";
-        public static final String PushEnabled = "push-enabled";
-    }
-
     public static final class Time {
         public static final float Minutes = 60.0f;
         public static final float Hours = 60.0f * Minutes;
@@ -107,7 +81,7 @@ public class Defines {
         public static final float INITIALS_TEXT_SIZE = 150f;
     }
 
-    public static final class ProviderString{
+    public static final class ProviderString {
         public static final String Anonymous = "anonymous";
         public static final String Password = "password";
         public static final String Facebook = "facebook";

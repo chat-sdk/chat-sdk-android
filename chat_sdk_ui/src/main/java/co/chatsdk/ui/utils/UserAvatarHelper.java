@@ -57,15 +57,23 @@ public class UserAvatarHelper {
         return Single.create(new SingleOnSubscribe<Bitmap>() {
             @Override
             public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
+
+                final Bitmap defaultBitmap = BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
+                        R.drawable.icn_32_profile_placeholder);
+
                 if(user.getAvatarURL() == null) {
-                    e.onSuccess(BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
-                            wanderingdevelopment.tk.chatsdkcore.R.drawable.icn_32_profile_placeholder));
+                    e.onSuccess(defaultBitmap);
                 }
                 else {
                     ImageUtils.bitmapForURL(user.getAvatarURL()).subscribe(new BiConsumer<Bitmap, Throwable>() {
                         @Override
                         public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                            e.onSuccess(bitmap);
+                            if(bitmap != null) {
+                                e.onSuccess(bitmap);
+                            }
+                            else {
+                                e.onSuccess(defaultBitmap);
+                            }
                         }
                     });
                 }

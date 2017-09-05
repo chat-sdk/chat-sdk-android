@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.chatsdk.ui">
 
-    // For capturing photos in profile and chat UI
+    <!--For capturing photos in profile and chat UI-->
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -12,8 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/SdkTheme">
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_id"/>
+        <!--<meta-data android:name="com.facebook.sdk.ApplicationId"-->
+            <!--android:value="@string/facebook_id"/>-->
 
         <activity android:name=".threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"

@@ -22,6 +22,7 @@ import android.view.View;
 
 import co.chatsdk.core.NM;
 
+import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
@@ -31,11 +32,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.defines.Debug;
 
-import com.braunster.chatsdk.network.FacebookManager;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
-import com.github.johnpersano.supertoasts.SuperCardToast;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,7 +46,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public static final String FROM_LOGIN = "From_Login";
 
-    private UiLifecycleHelper uiHelper;
+//    private UiLifecycleHelper uiHelper;
 
     private ProgressDialog progressDialog;
 
@@ -70,27 +66,29 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-        {
-            uiHelper = new UiLifecycleHelper(this, callback);
-            uiHelper.onCreate(savedInstanceState);
+        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
+//            uiHelper = new UiLifecycleHelper(this, callback);
+//            uiHelper.onCreate(savedInstanceState);
         }
 
-        if (getIntent() != null && getIntent().getExtras() != null)
-        {
+        if (getIntent() != null && getIntent().getExtras() != null) {
             if (DEBUG) Timber.d("From login");
             fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
             // So we wont encounter this flag again.
             getIntent().removeExtra(FROM_LOGIN);
-        } else fromLoginActivity = false;
-
-        if (savedInstanceState != null)
-            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
-
-        if (enableCardToast)
-        {
-            SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
         }
+        else {
+            fromLoginActivity = false;
+        }
+
+        if (savedInstanceState != null) {
+            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
+        }
+
+//        if (enableCardToast)
+//        {
+//            SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
+//        }
 
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
@@ -146,17 +144,17 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-            uiHelper.onPause();
+//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
+//            uiHelper.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
-            uiHelper.onResume();
-        }
+//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
+//            uiHelper.onResume();
+//        }
 
         fromLoginActivity = false;
     }
@@ -177,8 +175,8 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-            uiHelper.onDestroy();
+//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
+//            uiHelper.onDestroy();
 
         dismissProgressDialog();
     }
@@ -187,12 +185,12 @@ public class BaseActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) uiHelper.onSaveInstanceState(outState);
+//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) uiHelper.onSaveInstanceState(outState);
 
         outState.putBoolean(FROM_LOGIN, fromLoginActivity);
 
-        if (enableCardToast)
-            SuperCardToast.onSaveState(outState);
+//        if (enableCardToast)
+//            SuperCardToast.onSaveState(outState);
     }
 
     /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.
@@ -288,35 +286,35 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
-        FacebookManager.onSessionStateChange(session, state, exception).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                if (DEBUG) Timber.e("onDoneWithError. Error: %s", throwable.getMessage());
-                // Facebook session is closed so we need to disconnect from firebase.
-                NM.auth().logout();
-                startLoginActivity(true);
-            }
-        });
-    }
+//    protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
+//        FacebookManager.onSessionStateChange(session, state, exception).doOnError(new Consumer<Throwable>() {
+//            @Override
+//            public void accept(Throwable throwable) throws Exception {
+//                if (DEBUG) Timber.e("onDoneWithError. Error: %s", throwable.getMessage());
+//                // Facebook session is closed so we need to disconnect from firebase.
+//                NM.auth().logout();
+//                startLoginActivity(true);
+//            }
+//        });
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(DEBUG) Timber.v("onActivityResult");
         
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-            uiHelper.onActivityResult(requestCode, resultCode, data);
+//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
+//            uiHelper.onActivityResult(requestCode, resultCode, data);
     }
 
-    // Facebook Login stuff.
-    private Session.StatusCallback callback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-                onSessionStateChange(session, state, exception);
-        }
-    };
+//    // Facebook Login stuff.
+//    private Session.StatusCallback callback = new Session.StatusCallback() {
+//        @Override
+//        public void call(Session session, SessionState state, Exception exception) {
+//            if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
+//                onSessionStateChange(session, state, exception);
+//        }
+//    };
 
     public void enableFacebookIntegration(boolean integratedWithFacebook) {
         this.integratedWithFacebook = integratedWithFacebook;

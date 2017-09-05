@@ -14,6 +14,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.utils.KeyStorage;
@@ -42,8 +43,8 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     }
 
     @Override
-    public Boolean accountTypeEnabled(int type) {
-        return type == AccountType.Password || type == AccountType.Register;
+    public Boolean accountTypeEnabled(AccountDetails.Type type) {
+        return type == AccountDetails.Type.Username || type == AccountDetails.Type.Register;
     }
 
     @Override
@@ -91,17 +92,12 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
 
-        final Map<String, Object> loginInfoMap =  new HashMap<String, Object>();
-
-        loginInfoMap.put(Defines.Prefs.AuthenticationID, jid.asBareJid().toString());
-
-        setLoginInfo(loginInfoMap);
+        addLoginInfoData(AuthKeys.CurrentUserID, jid.asBareJid().toString());
 
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {
 
             User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
-
 
             XMPPManager.shared().goOnline(user);
 
@@ -110,9 +106,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             }
 
             XMPPManager.shared().performPostAuthenticationSetup();
-
         }
-
     }
 
     @Override

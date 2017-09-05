@@ -58,12 +58,5 @@ public class Debug {
     /*Views*/
     public static final boolean ChatMessageBoxView = false;
 
-
-    
-    /*Receiver*/
-    public static final boolean ChatSDKReceiver = true;
-
-
-
     public static final boolean NotificationUtils = true;
 }

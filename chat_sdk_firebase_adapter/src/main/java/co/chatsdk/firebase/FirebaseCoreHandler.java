@@ -19,9 +19,13 @@ import java.util.Date;
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
@@ -31,19 +35,13 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseCoreHandler extends AbstractCoreHandler {
 
-    // TODO: Check this
-    private static boolean DEBUG = Debug.FirebaseNetworkAdapter;
-
     private UserWrapper currentUser(){
         return UserWrapper.initWithModel(currentUserModel());
     }
 
-
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public Completable pushUser () {
-        Completable c = currentUser().push();
-        c.subscribe();
-        return c;
+        return currentUser().push();
     }
 
     public void setUserOnline() {
@@ -59,7 +57,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
             UserWrapper.initWithModel(currentUserModel()).goOffline();
-            updateLastOnline();
+            updateLastOnline().subscribe();
         }
     }
 
@@ -78,10 +76,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable updateLastOnline () {
-        User currentUser  = NM.currentUser();
-        currentUser.setLastOnline(new Date());
-        DaoCore.updateEntity(currentUser);
-        return pushUser();
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter e) throws Exception {
+                User currentUser  = NM.currentUser();
+                currentUser.setLastOnline(new Date());
+                currentUser.update();
+            }
+        }).concatWith(pushUser());
     }
 
     public Single<Boolean> isOnline(){
@@ -98,7 +100,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
 
-                        updateLastOnline();
+                        updateLastOnline().subscribe();
 
                         e.onSuccess((Boolean) snapshot.getValue());
                     }
@@ -109,7 +111,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public void save () {

@@ -28,8 +28,10 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -181,7 +183,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public static String processForQuery(String query){

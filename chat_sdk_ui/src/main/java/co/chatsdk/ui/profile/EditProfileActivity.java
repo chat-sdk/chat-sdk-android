@@ -41,6 +41,7 @@ import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.Cropper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.functions.Action;
 
 /**
  * Created by ben on 8/14/17.
@@ -198,8 +199,12 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private void logout () {
-        NM.auth().logout();
-        UIHelper.shared().startLoginActivity(true);
+        NM.auth().logout().subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                UIHelper.shared().startLoginActivity(true);
+            }
+        });
     }
 
     @Override

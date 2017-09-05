@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088435112418:android:55b96633bb34c794",
+        "mobilesdk_app_id": "1:1088435112418:android:b48dafa6d44fad57",
         "android_client_info": {
-          "package_name": "com.braunster.androidchatsdk.firebaseplugin"
+          "package_name": "com.example.simonsmiley_andrews.addchatsdkandroid"
         }
       },
       "oauth_client": [
@@ -39,12 +39,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088435112418:android:2f90496f1e628df1",
+        "mobilesdk_app_id": "1:1088435112418:android:46bdc808f7259a67",
         "android_client_info": {
-          "package_name": "com.braunster.androidchatsdk.app"
+          "package_name": "co.chatsdk.android.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1088435112418-u2pgfd0d71kag3eneua4enu29c6opmbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.chatsdk.android.app",
+            "certificate_hash": "e4e36b1e2f9ac7d7b8e867e08c94cb1dbfaaf9c4"
+          }
+        },
         {
           "client_id": "1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com",
           "client_type": 3
@@ -60,8 +68,20 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088435112418-4cm46hg39okkf0skj2h5roj1q62anmec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.deluge.ChatSDKSwift"
+              }
+            },
+            {
+              "client_id": "1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
@@ -70,12 +90,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088435112418:android:a47e5a4c00163c12",
+        "mobilesdk_app_id": "1:1088435112418:android:0ce10c1fe6beefb5",
         "android_client_info": {
-          "package_name": "com.braunster.chatsdk"
+          "package_name": "co.chatsdk.firebase"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1088435112418-b8acml7kbch1bae2ngkicimg11qe9d5g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.chatsdk.firebase",
+            "certificate_hash": "e4e36b1e2f9ac7d7b8e867e08c94cb1dbfaaf9c4"
+          }
+        },
         {
           "client_id": "1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com",
           "client_type": 3
@@ -91,8 +119,20 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088435112418-4cm46hg39okkf0skj2h5roj1q62anmec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.deluge.ChatSDKSwift"
+              }
+            },
+            {
+              "client_id": "1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

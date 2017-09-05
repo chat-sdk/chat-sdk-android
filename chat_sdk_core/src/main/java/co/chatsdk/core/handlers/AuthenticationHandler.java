@@ -44,7 +44,7 @@ public interface AuthenticationHandler {
     * if you set the API key to @"" for Twitter Facebook or Google then it's automatically
     * disabled
     */
-    public Boolean accountTypeEnabled(int type);
+    public Boolean accountTypeEnabled(AccountDetails.Type type);
 
     /**
     * Get the user's stored login credentials
@@ -67,6 +67,10 @@ public interface AuthenticationHandler {
     * The view controller that should be displayed when the user isn't logged in
     */
 
-    public Completable changePassword(String email, String oldPassword, final String newPassword);
-    public Completable sendPasswordResetMail(String email);
+    void addLoginInfoData (String key, Object value);
+
+    Completable changePassword(String email, String oldPassword, final String newPassword);
+    Completable sendPasswordResetMail(String email);
+
+
 }

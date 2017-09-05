@@ -56,9 +56,9 @@ public class MainActivity extends BaseActivity {
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
     public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
 
-    public static final String Action_Contacts_Added = "com.braunster.androidchatsdk.action.contact_added";
-    public static final String Action_clear_data = "com.braunster.androidchatsdk.action.logged_out";
-    public static final String Action_Refresh_Fragment = "com.braunster.androidchatsdk.action.refresh_fragment";
+    public static final String Action_Contacts_Added = "co.chatsdk.action.contact_added";
+    public static final String Action_clear_data = "co.chatsdk.action.logged_out";
+    public static final String Action_Refresh_Fragment = "co.chatsdk.action.refresh_fragment";
 
     private OpenFromPushChecker mOpenFromPushChecker;
 
@@ -298,7 +298,7 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    private void clearData(){
+    private void clearData () {
         BaseFragment contacts = getFragment(FragmentIDs.Contacts);
 
         if (contacts != null)

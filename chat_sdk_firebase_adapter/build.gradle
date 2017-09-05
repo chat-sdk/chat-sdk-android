@@ -27,7 +27,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':chat_sdk_social_login')
+//    compile project(':chat_sdk_social_login')
     compile project(':chat_sdk_core')
     compile project(path: ':chat_sdk_ui')
 

@@ -10,9 +10,8 @@ import co.chatsdk.xmpp.ui.XMPPInterfaceAdapter;
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */
 
-public class XMPPModule implements Module {
-    @Override
-    public void activate() {
+public class XMPPModule {
+    public static void activate() {
         NetworkManager.shared().a = new XMPPNetworkAdapter();
         InterfaceManager.shared().a = new XMPPInterfaceAdapter();
     }

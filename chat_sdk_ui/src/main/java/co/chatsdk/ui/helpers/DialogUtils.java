@@ -48,15 +48,11 @@ import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.core.dao.DaoCore;
-import com.braunster.chatsdk.network.TwitterManager;
-import co.chatsdk.core.types.ChatError;
 
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.lang3.StringUtils;
-import org.scribe.model.Token;
-import org.scribe.oauth.OAuthService;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -149,163 +145,7 @@ public class DialogUtils {
         }
     }
 
-    public static class ChatSDKTwitterLoginDialog extends DialogFragment {
 
-        private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
-
-        protected EditText etPin;
-        private WebView webView;
-        private OAuthService service;
-        private Token requestToken;
-        private LinearLayout progressBar;
-        private Completion completion;
-
-        public interface Completion {
-            void complete(Throwable e);
-        }
-
-        public void addCompletionHandler (Completion c) {
-            completion = c;
-        }
-
-        /** indicator that the login process has started, It is used to keep the webview hiding when the onPageFinished mehod is evoked.*/
-        private boolean loginIn = false;
-
-        public static ChatSDKTwitterLoginDialog getInstance(){
-            ChatSDKTwitterLoginDialog dialog = new ChatSDKTwitterLoginDialog();
-            return dialog;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            final View view = inflater.inflate(R.layout.chat_sdk_dialog_twitter_login, null);
-
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
-            Display display = getActivity().getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            int width = size.x;
-            int height = size.y;
-
-            view.findViewById(R.id.content).setLayoutParams(new RelativeLayout.LayoutParams(width, height));
-
-            webView = (WebView) view.findViewById(R.id.webView);
-            etPin =  ((EditText)view.findViewById(R.id.chat_sdk_et_pin_code));
-            progressBar = (LinearLayout) view.findViewById(R.id.chat_sdk_progressbar);
-
-            webView.setWebViewClient(new WebViewClient(){
-
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
-                    if (DEBUG) Timber.v("shouldOverrideUrlLoading, Url: %s", url);
-
-                    if (url.startsWith(getString(R.string.twitter_callback_url) + "?denied"))
-                    {
-                        if(completion != null) {
-                            completion.complete(ChatError.getError(ChatError.Code.OPERATION_FAILED, "Cancelled."));
-                        }
-                        dismiss();
-                        return false;
-                    }
-
-                    if (!url.startsWith(getString(R.string.twitter_callback_url) + "?oauth_token"))
-                        return false;
-
-                    Uri uri = Uri.parse(url);
-                    String ver = uri.getQueryParameter("oauth_verifier");
-
-                    runVerifierThread(ver);
-
-                    ((TextView) progressBar.findViewById(R.id.chat_sdk_progressbar_text)).setText(getActivity().getResources().getString(R.string.connecting));
-                    webView.setVisibility(View.INVISIBLE);
-                    progressBar.setVisibility(View.VISIBLE);
-
-                    loginIn = true;
-
-                    return true;
-                }
-
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    if (DEBUG) Timber.v("onPageFinished, Url: %s", url );
-
-                    if (loginIn)
-                        return;
-
-                    progressBar.setVisibility(View.INVISIBLE);
-                    webView.setVisibility(View.VISIBLE);
-                }
-            });
-
-            etPin.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        if (etPin.getText().toString().isEmpty())
-                            return true;
-
-                        runVerifierThread(etPin.getText().toString());
-                    }
-                    return false;
-                }
-            });
-
-            view.findViewById(R.id.chat_sdk_btn_done).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    runVerifierThread(etPin.getText().toString());
-                }
-            });
-
-            TwitterManager.getAuthorizationURLThread(getActivity(), handler).start();
-
-            return view;
-        }
-
-        Handler handler = new Handler(){
-            @Override
-            public void handleMessage(android.os.Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what)
-                {
-                    case TwitterManager.ERROR:
-                        if(completion != null) {
-                            completion.complete((ChatError)msg.obj);
-                        }
-
-                        break;
-
-                    case TwitterManager.SUCCESS:
-                        webView.loadUrl((String) msg.obj);
-                        break;
-                }
-            }
-        };
-
-        public void runVerifierThread(String text) {
-            TwitterManager.runVerifierThread(getActivity(), etPin.getText().toString())
-                    .doOnComplete(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            if(completion != null) {
-                                completion.complete(null);
-                            }
-                        }
-                    })
-                    .doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            if(completion != null) {
-                                completion.complete(throwable);
-                            }
-                        }
-                    }).subscribe();
-        }
-
-    }
 
 
     /** A popup to select the type of message to send, "Text", "Image", "Location".*/

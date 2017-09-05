@@ -1,5 +1,7 @@
 package co.chatsdk.core;
 
+import com.google.android.gms.games.social.Social;
+
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
@@ -11,6 +13,7 @@ import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
+import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
@@ -67,6 +70,10 @@ public class NM {
 
     public static LastOnlineHandler lastOnline () {
         return NetworkManager.shared().a.lastOnline;
+    }
+
+    public static SocialLoginHandler socialLogin () {
+        return NetworkManager.shared().a.socialLogin;
     }
 
     public static ReadReceiptHandler readReceipts () {

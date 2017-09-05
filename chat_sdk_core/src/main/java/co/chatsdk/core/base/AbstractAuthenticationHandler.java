@@ -8,13 +8,11 @@ import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
+import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.types.LoginType;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.defines.Debug;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -31,7 +29,6 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     private static final boolean DEBUG = Debug.AbstractAuthenticationHandler;
     public static String provider = "";
-    public static String token = "";
 
     private AuthStatus authStatus = AuthStatus.IDLE;
 
@@ -71,13 +68,17 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         keyValuesEditor.apply();
     }
 
-    public void addLoginInfoData(String key, Object value){
+    public void addLoginInfoData (String key, Object value) {
         SharedPreferences.Editor keyValuesEditor = AppContext.shared().getPreferences().edit();
-        if (value instanceof Integer)
+        if (value instanceof Integer) {
             keyValuesEditor.putInt(key, (Integer) value);
-        else if (value instanceof String)
+        }
+        else if (value instanceof String) {
             keyValuesEditor.putString(key, (String) value);
-        else if (DEBUG) Timber.e("Cant add this -->  %s to the prefs.", value);
+        }
+        else if (DEBUG) {
+            Timber.e("Cant add this -->  %s to the prefs.", value);
+        }
 
         keyValuesEditor.apply();
     }
@@ -89,11 +90,11 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
                 AccountDetails accountDetails = new AccountDetails();
 
-                final int loginType = (Integer) details.get(LoginType.TypeKey);
+                int loginType = (Integer) details.get(AuthKeys.Type);
 
-                String password = (String) details.get(LoginType.PasswordKey);
-                String email = (String) details.get(LoginType.EmailKey);
-                String token = (String) details.get(Defines.Prefs.TokenKey);
+                String password = (String) details.get(AuthKeys.Password);
+                String email = (String) details.get(AuthKeys.Email);
+                String token = (String) details.get(AuthKeys.Token);
 
                 switch (loginType) {
                     case AccountType.Password:
@@ -139,7 +140,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      * The preference manager is initialized when the NetworkManager.Init(context) is called.
      */
     public String getCurrentUserEntityID() {
-        return AppContext.shared().getPreferences().getString(Defines.Prefs.AuthenticationID, "");
+        return (String) getLoginInfo().get(AuthKeys.CurrentUserID);
     }
 
     public Map<String, ?> getLoginInfo() {

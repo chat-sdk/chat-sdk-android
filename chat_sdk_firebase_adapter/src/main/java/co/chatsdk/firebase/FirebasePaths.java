@@ -15,13 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.ChatSDK;
 import co.chatsdk.core.dao.Keys;
 
-import static co.chatsdk.core.types.Defines.ServerUrl;
-
 public class FirebasePaths{
-
-    public static final char Separator = '/';
 
     public static final String UsersPath = "users";
     public static final String MessagesPath = "messages";
@@ -36,20 +33,14 @@ public class FirebasePaths{
     public static final String Image = "imaeg";
     public static final String Thumbnail = "thumbnail";
 
-    private String url;
-    private static StringBuilder builder = new StringBuilder();
-
-    private FirebasePaths(String url) {
-        this.url = url;
-    }
-
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main databse ref.*/
-    public static DatabaseReference firebaseRef(){
-        if (StringUtils.isBlank(ServerUrl))
+
+    public static DatabaseReference firebaseRef () {
+        if (StringUtils.isBlank(ChatSDK.shared().firebaseURL()))
             throw new NullPointerException("Please set the server url in Keys class");
 
-        return fb(ServerUrl);
+        return fb(ChatSDK.shared().firebaseURL());
     }
 
     /** @return Firebase object for give url.*/

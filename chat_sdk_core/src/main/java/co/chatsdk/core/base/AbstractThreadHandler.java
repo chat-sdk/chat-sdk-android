@@ -39,9 +39,11 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -61,7 +63,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
                 e.onSuccess(list);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
 
@@ -99,7 +101,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 }
             });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private Message newMessage () {
@@ -168,7 +170,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -233,7 +235,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                     }
                 }).subscribe();
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
 
     }
 
@@ -260,7 +262,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public void accept(Throwable throwable) throws Exception {
                 message.setStatus(Message.Status.FAILED);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){

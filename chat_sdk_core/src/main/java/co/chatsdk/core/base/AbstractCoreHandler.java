@@ -13,16 +13,17 @@ import co.chatsdk.core.handlers.CoreHandler;
 
 public abstract class AbstractCoreHandler implements CoreHandler {
 
+    private User cachedUser = null;
+
     public User currentUserModel(){
         String entityID = NM.auth().getCurrentUserEntityID();
 
-        if (StringUtils.isNotEmpty(entityID))
-        {
-            User currentUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
-
-            return currentUser;
+        if(cachedUser == null || !cachedUser.getEntityID().equals(entityID)) {
+            if (StringUtils.isNotEmpty(entityID)) {
+                cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
+            }
         }
-        return null;
+       return cachedUser;
     }
 
 }

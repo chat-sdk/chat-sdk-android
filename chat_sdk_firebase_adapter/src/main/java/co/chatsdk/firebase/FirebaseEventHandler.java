@@ -12,6 +12,7 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Executor;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
@@ -34,6 +35,7 @@ public class FirebaseEventHandler implements EventHandler {
 
     private static FirebaseEventHandler instance;
     boolean isOn = false;
+    private DisposableList disposableList = new DisposableList();
 
     public static FirebaseEventHandler shared() {
         if (instance == null) {
@@ -63,26 +65,26 @@ public class FirebaseEventHandler implements EventHandler {
                     thread.getModel().addUser(user);
 
                     // Starting to listen to thread changes.
-                    thread.on().doOnNext(new Consumer<Thread>() {
+                    disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {
                         @Override
                         public void accept(Thread thread) throws Exception {
                             eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                         }
-                    }).subscribe();
+                    }).subscribe());
 
-                    thread.messagesOn().doOnNext(new Consumer<Message>() {
+                    disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
                         @Override
                         public void accept(Message message) throws Exception {
                             eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
                         }
-                    }).subscribe();
+                    }).subscribe());
 
-                    thread.usersOn().doOnNext(new Consumer<User>() {
+                    disposableList.add(thread.usersOn().doOnNext(new Consumer<User>() {
                         @Override
                         public void accept(User user) throws Exception {
                             eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
                         }
-                    }).subscribe();
+                    }).subscribe());
 
                     eventSource.onNext(NetworkEvent.privateThreadAdded(thread.getModel()));
 
@@ -112,26 +114,26 @@ public class FirebaseEventHandler implements EventHandler {
                 NM.thread().removeUsersFromThread(thread.getModel(), user);
 
                 // Starting to listen to thread changes.
-                thread.on().doOnNext(new Consumer<Thread>() {
+                disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {
                     @Override
                     public void accept(Thread thread) throws Exception {
                         eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                     }
-                }).subscribe();
+                }).subscribe());
 
-                thread.messagesOn().doOnNext(new Consumer<Message>() {
+                disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
                     @Override
                     public void accept(Message message) throws Exception {
                         eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
                     }
-                }).subscribe();
+                }).subscribe());
 
-                thread.usersOn().doOnNext(new Consumer<User>() {
+                disposableList.add(thread.usersOn().doOnNext(new Consumer<User>() {
                     @Override
                     public void accept(User user) throws Exception {
                         eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
                     }
-                }).subscribe();
+                }).subscribe());
 
                 eventSource.onNext(NetworkEvent.publicThreadAdded(thread.getModel()));
             }
@@ -212,12 +214,12 @@ public class FirebaseEventHandler implements EventHandler {
             @Override
             public void run() {
                 for (User contact : NM.contact().contacts()) {
-                    UserWrapper.initWithModel(contact).metaOn().subscribe(new Consumer<User>() {
+                    disposableList.add(UserWrapper.initWithModel(contact).metaOn().subscribe(new Consumer<User>() {
                         @Override
                         public void accept(User user) throws Exception {
                             eventSource.onNext(NetworkEvent.userMetaUpdated(user));
                         }
-                    });
+                    }));
                 }
             }
         });
@@ -256,6 +258,8 @@ public class FirebaseEventHandler implements EventHandler {
         if (NM.push() != null) {
             NM.push().unsubscribeToPushChannel(user.getPushChannel());
         }
+
+        disposableList.dispose();
     }
 
     public PublishSubject<NetworkEvent> source () {

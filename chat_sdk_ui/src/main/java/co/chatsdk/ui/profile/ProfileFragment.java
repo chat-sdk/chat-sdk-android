@@ -12,8 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.backendless.utils.StringUtils;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -24,6 +22,7 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.core.utils.StringUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.helpers.UIHelper;
@@ -272,8 +271,13 @@ public class ProfileFragment extends BaseFragment {
         dateOfBirthTextView.setText(user.getDateOfBirth());
 
         String presenceSubscription = user.getPresenceSubscription();
-        boolean follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
-        boolean followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
+
+        boolean follows = false;
+        boolean followed = false;
+        if(presenceSubscription != null) {
+            follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
+            followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
+        }
 
         if(follows) {
             followsImageView.setMaxHeight(followsHeight);

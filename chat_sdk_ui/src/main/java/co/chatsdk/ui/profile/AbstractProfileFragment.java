@@ -93,10 +93,6 @@ public abstract class AbstractProfileFragment extends BaseFragment {
         }
     }
 
-    protected Integer getLoginType(){
-        return (Integer) NM.auth().getLoginInfo().get(Defines.Prefs.AccountTypeKey);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

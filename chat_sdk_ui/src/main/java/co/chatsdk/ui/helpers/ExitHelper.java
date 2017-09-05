@@ -11,11 +11,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.ui.R;
-
-import com.github.johnpersano.supertoasts.SuperToast;
 
 import java.util.concurrent.Callable;
 
@@ -28,11 +27,9 @@ public class ExitHelper {
 
     private AppCompatActivity activity;
     private boolean doubleBackToExitPressedOnce = false;
-    private SuperToast superToast;
 
     public ExitHelper(AppCompatActivity activity){
         this.activity = activity;
-        superToast = new SuperToast(activity);
     }
 
     public void triggerExit() {
@@ -88,13 +85,8 @@ public class ExitHelper {
         }
     }
 
-    protected void showToast(String text){
-        superToast.setDuration(SuperToast.Duration.MEDIUM);
-        superToast.setTextColor(Color.WHITE);
-        superToast.setAnimations(SuperToast.Animations.FLYIN);
-        superToast.setBackground(SuperToast.Background.RED);
-        superToast.setText(text);
-        superToast.show();
+    protected void showToast(String text) {
+        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
     }
 
 }

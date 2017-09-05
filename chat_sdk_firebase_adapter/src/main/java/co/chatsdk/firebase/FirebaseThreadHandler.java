@@ -4,11 +4,9 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.firebase.backendless.ChatSDKReceiver;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
@@ -34,9 +32,11 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -95,7 +95,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @return
      */
     public Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final String value) {
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
@@ -136,8 +136,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 });
             }
-        });
-        return c;
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -275,7 +274,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             public void accept(Thread thread) throws Exception {
                 thread.addUser(NM.currentUser());
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable deleteThread(Thread thread) {
@@ -283,8 +282,18 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable deleteThreadWithEntityID(final String entityID) {
-        final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
-        return new ThreadWrapper(thread).deleteThread();
+        return Single.create(new SingleOnSubscribe<Thread>() {
+            @Override
+            public void subscribe(SingleEmitter<Thread> e) throws Exception {
+                final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
+                e.onSuccess(thread);
+            }
+        }).flatMapCompletable(new Function<Thread, Completable>() {
+            @Override
+            public Completable apply(Thread thread) throws Exception {
+                return new ThreadWrapper(thread).deleteThread();
+            }
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     protected void pushForMessage(final Message message){
@@ -366,28 +375,29 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         String sender = message.getSender().getName();
         String fullText = sender + " " + messageText;
 
-        JSONObject data = new JSONObject();
-        try {
-            data.put(Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+//        JSONObject data = new JSONObject();
+//        try {
+//            data.put(Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
+//
+//            data.put(Keys.CONTENT, fullText);
+//            data.put(Keys.MESSAGE_ENTITY_ID, message.getEntityID());
+//            data.put(Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
+//            data.put(Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
+//            data.put(Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
+//            data.put(Keys.MESSAGE_SENDER_NAME, message.getSender().getName());
+//            data.put(Keys.MESSAGE_TYPE, message.getType());
+//            data.put(Keys.MESSAGE_PAYLOAD, message.getTextString());
+//            //For iOS
+//            data.put(Keys.BADGE, Keys.INCREMENT);
+//            data.put(Keys.ALERT, fullText);
+//            // For making sound in iOS
+//            data.put(Keys.SOUND, Keys.Default);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
-            data.put(Keys.CONTENT, fullText);
-            data.put(Keys.MESSAGE_ENTITY_ID, message.getEntityID());
-            data.put(Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
-            data.put(Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
-            data.put(Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
-            data.put(Keys.MESSAGE_SENDER_NAME, message.getSender().getName());
-            data.put(Keys.MESSAGE_TYPE, message.getType());
-            data.put(Keys.MESSAGE_PAYLOAD, message.getTextString());
-            //For iOS
-            data.put(Keys.BADGE, Keys.INCREMENT);
-            data.put(Keys.ALERT, fullText);
-            // For making sound in iOS
-            data.put(Keys.SOUND, Keys.Default);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        NM.push().pushToChannels(channels, data);
+        // TODO: Check this
+        //NM.push().pushToChannels(channels, data);
     }
 
     public Completable leaveThread (Thread thread) {
