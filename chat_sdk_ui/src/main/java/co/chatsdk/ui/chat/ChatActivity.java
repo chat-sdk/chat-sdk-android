@@ -24,8 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -55,7 +53,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.activities.BaseActivity;
@@ -117,8 +114,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected View actionBarView;
 
     protected TextInputView textInputView;
-    protected ListView listMessages;
-    protected MessagesListAdapter messagesListAdapter;
+    protected ListView messageListView;
+    protected MessagesListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView typingTextView;
 
@@ -328,11 +325,13 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             public void onRefresh() {
                 if (DEBUG) Timber.d("onRefreshStarted");
 
-                List<MessageListItem> items = messagesListAdapter.getMessageItems();
+                List<MessageListItem> items = messageListAdapter.getMessageItems();
                 Message firstMessage = null;
                 if(items.size() > 0) {
                     firstMessage = items.get(0).message;
                 }
+
+                final View topView = messageListView.getChildAt(0);
 
                 disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
                     @Override
@@ -343,15 +342,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                             }
                             else {
                                 for(Message m : messages) {
-                                    messagesListAdapter.addRow(m);
+                                    messageListAdapter.addRow(m, false, false);
                                 }
+                                messageListAdapter.notifyDataSetChanged();
 
-                                scrollListTo(messages.size(), false);
-
-                                // Saving the position in the list so we could back to it after the update.
-                                //loadMessages(false, messages.size(), ListPosition.Current);
+                                messageListView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                    messageListView.setSelection(messageListView.getPositionForView(topView));
+                                    }
+                                });
                             }
-
                         }
                         mSwipeRefresh.setRefreshing(false);
                     }
@@ -359,14 +360,14 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         });
 
-        listMessages = (ListView) findViewById(R.id.list_chat);
+        messageListView = (ListView) findViewById(R.id.list_chat);
 
-        if (messagesListAdapter == null) {
-            messagesListAdapter = new MessagesListAdapter(ChatActivity.this);
+        if (messageListAdapter == null) {
+            messageListAdapter = new MessagesListAdapter(ChatActivity.this);
         }
 
-        listMessages.setAdapter(messagesListAdapter);
-        listMessages.setOnScrollListener(this);
+        messageListView.setAdapter(messageListAdapter);
+        messageListView.setOnScrollListener(this);
     }
 
     /**
@@ -449,7 +450,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             @Override
             public void onNext(@NonNull MessageUploadResult messageUploadResult) {
-                messagesListAdapter.addRow(messageUploadResult.message);
+                messageListAdapter.addRow(messageUploadResult.message);
             }
 
             @Override
@@ -460,11 +461,11 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             @Override
             public void onComplete() {
-                messagesListAdapter.notifyDataSetChanged();
+                messageListAdapter.notifyDataSetChanged();
             }
         });
 
-        messagesListAdapter.notifyDataSetChanged();
+        messageListAdapter.notifyDataSetChanged();
 
     }
 
@@ -477,7 +478,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             outState.putLong(THREAD_ID, thread.getId());
 
         // Save the list position
-        outState.putInt(LIST_POS, listMessages.getFirstVisiblePosition());
+        outState.putInt(LIST_POS, messageListView.getFirstVisiblePosition());
     }
 
     @Override
@@ -510,17 +511,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         //Set as read.
                         markAsRead(message);
 
-                        boolean isAdded = messagesListAdapter.addRow(message);
+                        boolean isAdded = messageListAdapter.addRow(message);
 
                         // Check if the message from the current user, If so return so we wont vibrate for the user messages.
                         if (message.getSender().isMe()) {
                             if (isAdded) {
-                                scrollListTo(ListPosition.Bottom, listMessages.getLastVisiblePosition() > messagesListAdapter.size() - 2);
+                                scrollListTo(ListPosition.Bottom, messageListView.getLastVisiblePosition() > messageListAdapter.size() - 2);
                             }
                         }
                         else {
                             // If the user is near the bottom, then we scroll down when a message comes in
-                            if(listMessages.getLastVisiblePosition() > messagesListAdapter.size() - 5) {
+                            if(messageListView.getLastVisiblePosition() > messageListAdapter.size() - 5) {
                                 scrollListTo(ListPosition.Bottom, true);
                             }
                             //Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
@@ -545,7 +546,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
-                        messagesListAdapter.notifyDataSetChanged();
+                        messageListAdapter.notifyDataSetChanged();
                     }
                 }));
 
@@ -553,7 +554,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
-                        messagesListAdapter.notifyDataSetChanged();
+                        messageListAdapter.notifyDataSetChanged();
                     }
                 }));
 
@@ -608,7 +609,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
-        messagesListAdapter.notifyDataSetChanged();
+        messageListAdapter.notifyDataSetChanged();
 
     }
 
@@ -668,8 +669,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         if (!updateThreadFromBundle(intent.getExtras()))
             return;
 
-        if (messagesListAdapter != null)
-            messagesListAdapter.clear();
+        if (messageListAdapter != null)
+            messageListAdapter.clear();
 
         initActionBar();
     }
@@ -706,8 +707,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         return;
                     }
 
-                    if (messagesListAdapter != null) {
-                        messagesListAdapter.clear();
+                    if (messageListAdapter != null) {
+                        messageListAdapter.clear();
                     }
 
                     initActionBar();
@@ -906,7 +907,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         scrolling = scrollState != SCROLL_STATE_IDLE;
 
-        messagesListAdapter.setScrolling(scrolling);
+        messageListAdapter.setScrolling(scrolling);
     }
 
     /**
@@ -937,7 +938,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition){
 
         if (showLoadingIndicator) {
-            listMessages.setVisibility(View.INVISIBLE);
+            messageListView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
         else {
@@ -948,7 +949,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             @Override
             public void run() {
 
-                final int listSize = messagesListAdapter.getCount();
+                final int listSize = messageListAdapter.getCount();
 
                 int toLoad = amountToLoad > 0 ? amountToLoad : Defines.MAX_MESSAGES_TO_PULL;
 
@@ -964,12 +965,12 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     public void run() {
                         progressBar.setVisibility(View.INVISIBLE);
 
-                        messagesListAdapter.setMessages(messages);
+                        messageListAdapter.setMessages(messages);
 
                         if (showLoadingIndicator) {
                             //animateListView();
                         }
-                        listMessages.setVisibility(View.VISIBLE);
+                        messageListView.setVisibility(View.VISIBLE);
 
                         scrollListTo(toPosition, !showLoadingIndicator);
 
@@ -995,17 +996,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     public void scrollListTo(final int position, final boolean animated) {
-        listMessages.post(new Runnable() {
+        messageListView.post(new Runnable() {
             @Override
             public void run() {
 
                 listPos = position;
 
                 if (animated) {
-                    listMessages.smoothScrollToPosition(listPos);
+                    messageListView.smoothScrollToPosition(listPos);
                 }
                 else {
-                    listMessages.setSelection(listPos);
+                    messageListView.setSelection(listPos);
                 }
 
                 if (animated) {
@@ -1024,10 +1025,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 pos = 0;
                 break;
             case Current:
-                pos = listPos == -1 ? messagesListAdapter.getCount() - 1 : listPos;
+                pos = listPos == -1 ? messageListAdapter.getCount() - 1 : listPos;
                 break;
             case Bottom:
-                pos = messagesListAdapter.getCount() - 1;
+                pos = messageListAdapter.getCount() - 1;
                 break;
         }
 

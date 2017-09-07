@@ -14,10 +14,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.future.ImageViewFuture;
 import com.makeramen.roundedimageview.RoundedImageView;
@@ -52,6 +54,8 @@ public class MessagesListAdapter extends BaseAdapter{
         RoundedImageView imageView;
         TextView messageTextView;
         CircleProgressView progressView;
+        ImageViewFuture imageViewFuture;
+        ImageViewFuture profileImageViewFuture;
     }
 
     private AppCompatActivity activity;
@@ -155,12 +159,20 @@ public class MessagesListAdapter extends BaseAdapter{
      * For example load online status for each user.
      *
      * */
-    protected void updateMessageCell(View row, ViewHolder holder, MessageListItem messageItem){
+    protected void updateMessageCell(View row, final ViewHolder holder, MessageListItem messageItem){
 
         holder.progressView.setVisibility(View.INVISIBLE);
         holder.imageView.setVisibility(View.INVISIBLE);
         holder.messageTextView.setVisibility(View.INVISIBLE);
 
+        // If the previous future is still running, cancel it because we are loading a new image
+        if(holder.imageViewFuture != null && !holder.imageViewFuture.isDone()) {
+            holder.imageViewFuture.cancel();
+        }
+        // Load the user's profile image
+        if(holder.profileImageViewFuture != null && !holder.profileImageViewFuture.isDone()) {
+            holder.profileImageViewFuture.cancel();
+        }
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.imageView.getLayoutParams();
 
@@ -173,7 +185,7 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
 
             // Show links in text view if has any.
-            holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+//            holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
             params.width = 0;
             params.height = 0;
@@ -193,7 +205,8 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
-                Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(GoogleUtils.getMapImageURL(latLng, width, height));
+                holder.imageViewFuture = Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder)
+                        .load(GoogleUtils.getMapImageURL(latLng, width, height));
 
                 // Open google maps on click.
                 holder.imageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
@@ -204,10 +217,10 @@ public class MessagesListAdapter extends BaseAdapter{
                 String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
                 if(url == null || url.isEmpty()) {
-                    Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder);
+                    holder.imageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
                 }
                 else {
-                    Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(url);
+                    holder.imageViewFuture = Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(url);
                 }
 
                 // Show the imageView in a dialog on click.
@@ -229,8 +242,7 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.progressView.setVisibility(View.INVISIBLE);
         }
 
-        // Load the user's profile image
-        ImageViewFuture future = Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
+        holder.profileImageViewFuture = Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
@@ -245,14 +257,11 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     private boolean addRow(MessageListItem newItem, boolean sort, boolean notify){
-        // Bad bundle.
         if (newItem == null)
             return false;
 
-
-        // Dont add message that does not have entity id and the status of the message is not sending.
-        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != Message.Status.SENDING))
-        {
+        // Don't add message that does not have entity id and the status of the message is not sending.
+        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != Message.Status.SENDING)) {
             if (DEBUG) Timber.d("CoreMessage has no entity and was sent.: ", newItem.getText());
             return false;
         }
@@ -262,7 +271,7 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         if(sort) {
-            Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+            sort();
         }
 
         if(notify) {
@@ -270,6 +279,10 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         return true;
+    }
+
+    public void sort () {
+        Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
     }
 
     public void sortItemsAndNotify () {
@@ -352,33 +365,6 @@ public class MessagesListAdapter extends BaseAdapter{
     public void setScrolling(boolean isScrolling) {
         this.isScrolling = isScrolling;
     }
-
-    /**
-     * Animating the sides of the row, For example animating the user profile imageView and the message date.
-     * */
-//    private void animateSides(View view, boolean fromLeft, Animation.AnimationListener animationListener){
-//        if (!isScrolling)
-//            return;
-//
-//        if (fromLeft)
-//            view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_left));
-//        else view.setAnimation(AnimationUtils.loadAnimation(activity, R.anim.expand_slide_form_right));
-//
-//        view.getAnimation().setAnimationListener(animationListener);
-//        view.animate();
-//    }
-//
-//    /**
-//     *  Animating the center part of the row, For example the imageView in an imageView message or the text in text message.
-//     * */
-//    private void animateContent(View view, Animation.AnimationListener animationListener, boolean showFull){
-//        if (!isScrolling)
-//            return;
-//
-//        view.setAnimation(AnimationUtils.loadAnimation(activity, showFull ? R.anim.fade_in_expand : R.anim.fade_in_half_and_expand));
-//        view.getAnimation().setAnimationListener(animationListener);
-//        view.animate();
-//    }
 
     public int size () {
         return messageItems.size();
