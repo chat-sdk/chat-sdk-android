@@ -21,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import co.chatsdk.core.NM;
 
@@ -42,7 +43,9 @@ import java.util.Locale;
 
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 /**
@@ -226,7 +229,13 @@ public class EditProfileActivity2 extends BaseActivity implements OnClickListene
         // Logout and return to the login activity.
 //        FacebookManager.logout(this);
 
-        NM.auth().logout().subscribe(new Action() {
+        NM.auth().logout().doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+                Toast.makeText(EditProfileActivity2.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 UIHelper.shared().startLoginActivity(true);

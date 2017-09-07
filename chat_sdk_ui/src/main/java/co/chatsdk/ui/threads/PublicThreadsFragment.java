@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import co.chatsdk.core.NM;
 
@@ -26,6 +27,9 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.helpers.UIHelper;
+import io.reactivex.CompletableSource;
+import io.reactivex.SingleSource;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.fragments.BaseFragment;
@@ -34,6 +38,7 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.helpers.DialogUtils;
 
 
+import io.reactivex.functions.Function;
 import timber.log.Timber;
 
 /**
@@ -135,42 +140,37 @@ public class PublicThreadsFragment extends BaseFragment {
 
             dialog.setTitleAndListen( getString(R.string.add_public_chat_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
                 @Override
-                public void onFinished(final String s) {
+                public void onFinished(final String threadName) {
 
                     showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
 
-                    NM.publicThread().createPublicThreadWithName(s)
-                            .doOnSuccess(new Consumer<Thread>() {
+                    NM.publicThread().createPublicThreadWithName(threadName).flatMapCompletable(new Function<Thread, CompletableSource>() {
+                        @Override
+                        public CompletableSource apply(@NonNull final Thread thread) throws Exception {
+                            return  NM.thread().addUsersToThread(thread, NM.currentUser()).doOnError(new Consumer<Throwable>() {
                                 @Override
-                                public void accept(final Thread thread) throws Exception {
-                                    // Add the current user to the thread.
-                                    // TODO: Check if this is needed - maybe we add the user when the chat view opens
-                                    NM.thread().addUsersToThread(thread, NM.currentUser())
-                                            .doOnComplete(new Action() {
-                                                @Override
-                                                public void run() throws Exception {
-                                                    dismissProgressDialog();
-                                                    adapter.addRow(thread);
-                                                    showToast( getString(R.string.add_public_chat_dialog_toast_success_before_thread_name)
-                                                            + s
-                                                            + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
-                                                }
-                                            }).subscribe();
-                                }
-                            })
-                            .doOnError(new Consumer<Throwable>() {
-                                @Override
-                                public void accept(Throwable throwable) throws Exception {
-                                    if (DEBUG) Timber.e("Error: %s", throwable.getMessage());
-                                    showToast(getString(R.string.add_public_chat_dialog_toast_error_before_thread_name) + s);
+                                public void accept(@NonNull Throwable throwable) throws Exception {
+                                    throwable.printStackTrace();
+                                    Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                     dismissProgressDialog();
                                 }
-                            }).subscribe();
+                            }).doOnComplete(new Action() {
+                                @Override
+                                public void run() throws Exception {
+                                    dismissProgressDialog();
+                                    adapter.addRow(thread);
+
+                                    // TODO: Improve this
+                                    showToast(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
+                                }
+                            });
+                        }
+                    }).subscribe();
                 }
             });
 
+            // TODO: Localize
             dialog.show(fm, "Add Public Chat Dialog");
-
 
             return true;
         }

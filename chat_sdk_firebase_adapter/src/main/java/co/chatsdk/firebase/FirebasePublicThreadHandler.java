@@ -21,6 +21,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -62,7 +63,14 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
 
                 ThreadWrapper wrapper = new ThreadWrapper(thread);
 
-                wrapper.push().doOnComplete(new Action() {
+                wrapper.push().doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        DaoCore.deleteEntity(thread);
+                        throwable.printStackTrace();
+                        e.onError(throwable);
+                    }
+                }).subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
                         DaoCore.updateEntity(thread);
@@ -87,13 +95,8 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
                             }
                         });
                     }
-                }).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        DaoCore.deleteEntity(thread);
-                        e.onError(throwable);
-                    }
-                }).subscribe();
+                });
+
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }

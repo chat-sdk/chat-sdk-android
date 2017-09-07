@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
@@ -39,6 +40,8 @@ public class MessageListItem {
         else {
             Timber.v("");
         }
+
+        message.valueForKey(Keys.MessageImageWidth);
 
         dimensions = getDimensions(maxWidth);
 
@@ -77,6 +80,11 @@ public class MessageListItem {
     }
 
     public int width () {
+        Object width = message.valueForKey(Keys.MessageImageWidth);
+        if(width != null && width instanceof String) {
+            return Integer.parseInt((String) width);
+        }
+        // TODO: Remove this
         return dimensions[0];
     }
 
@@ -85,6 +93,11 @@ public class MessageListItem {
     }
 
     public int height () {
+        Object height = message.valueForKey(Keys.MessageImageHeight);
+        if(height != null && height instanceof String) {
+            return Integer.parseInt((String) height);
+        }
+        // TODO: Remove this
         return dimensions[1];
     }
 

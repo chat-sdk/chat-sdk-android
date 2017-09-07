@@ -51,6 +51,7 @@ import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -83,7 +84,6 @@ import timber.log.Timber;
 
 public class ChatActivity extends BaseActivity implements AbsListView.OnScrollListener {
 
-    private static final String TAG = ChatActivity.class.getSimpleName();
     private static final boolean DEBUG = Debug.ChatActivity;
 
     public static final int ADD_USERS = 103;
@@ -93,7 +93,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         Top, Current, Bottom
     }
 
-    public static final String ACTION_CHAT_CLOSED = "braunster.chat.action.chat_closed";
+    private static boolean enableTrace = false;
+
+    public static final String ACTION_CHAT_CLOSED = "co.chatsdk.chat_closed";
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -179,7 +181,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         setChatState(TypingIndicatorHandler.State.active);
 
-
+        if(enableTrace) {
+            android.os.Debug.startMethodTracing("chat");
+        }
 
     }
 
@@ -229,14 +233,14 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.ivAvatar);
 
-            ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
+            disposableList.add(ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
                 @Override
                 public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                     circleImageView.setImageBitmap(bitmap);
                     circleImageView.setVisibility(View.VISIBLE);
                     ab.setCustomView(actionBarView);
                 }
-            });
+            }));
 
             ab.setCustomView(actionBarView);
 
@@ -330,12 +334,13 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     firstMessage = items.get(0).message;
                 }
 
-                NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
+                disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
                     @Override
                     public void accept(List<Message> messages, Throwable throwable) throws Exception {
                         if (throwable == null) {
-                            if (messages.size() < 2)
+                            if (messages.size() < 2) {
                                 showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
+                            }
                             else {
                                 for(Message m : messages) {
                                     messagesListAdapter.addRow(m);
@@ -350,7 +355,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         }
                         mSwipeRefresh.setRefreshing(false);
                     }
-                });
+                }));
             }
         });
 
@@ -399,13 +404,14 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             return;
         }
 
-        NM.thread().sendMessageWithText(text.trim(), thread)
+        disposableList.add(NM.thread().sendMessageWithText(text.trim(), thread)
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
                         UIHelper.shared().showToast(R.string.unable_to_send_message);
                     }
-                }).subscribe();
+                }).subscribe());
 
         if (clearEditText && textInputView != null) {
             textInputView.clearText();
@@ -416,13 +422,14 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     public void sendLocationMessage(String snapshotPath, LatLng latLng) {
 
-        NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread)
+        disposableList.add(NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread)
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
                         UIHelper.shared().showToast(R.string.unable_to_send_location_message);
                     }
-                }).subscribe();
+                }).subscribe());
 
     }
 
@@ -434,39 +441,28 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void sendImageMessage(final String filePath) {
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
 
-        NM.thread().sendMessageWithImage(filePath, thread)
-                .doOnNext(new Consumer<MessageUploadResult>() {
-                    @Override
-                    public void accept(final MessageUploadResult value) throws Exception {
-                        ChatActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                messagesListAdapter.addRow(value.message);
+        NM.thread().sendMessageWithImage(filePath, thread).subscribe(new Observer<MessageUploadResult>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                disposableList.add(d);
+            }
 
-                                //if(value.message != null) {
-                                //    messagesListAdapter.setProgressForMessage(value.message, value.progress.asFraction());
-                                //}
-                            }
-                        });
-                    }
-                })
-                .doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        messagesListAdapter.notifyDataSetChanged();
-                    }
-                })
-                .doOnTerminate(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                    }
-                })
-                .doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        UIHelper.shared().showToast(R.string.unable_to_send_image_message);
-                    }
-                }).subscribe();
+            @Override
+            public void onNext(@NonNull MessageUploadResult messageUploadResult) {
+                messagesListAdapter.addRow(messageUploadResult.message);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                e.printStackTrace();
+                UIHelper.shared().showToast(R.string.unable_to_send_image_message);
+            }
+
+            @Override
+            public void onComplete() {
+                messagesListAdapter.notifyDataSetChanged();
+            }
+        });
 
         messagesListAdapter.notifyDataSetChanged();
 
@@ -588,7 +584,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         if (thread != null && thread.typeIs(ThreadType.Public)) {
             User currentUser = NM.currentUser();
-            NM.thread().addUsersToThread(thread, currentUser).subscribe();
+            disposableList.add(NM.thread().addUsersToThread(thread, currentUser).subscribe());
         }
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
@@ -651,7 +647,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.disconnect();
 
-
     }
 
     /**
@@ -659,6 +654,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     @Override
     protected void onDestroy() {
+        if(enableTrace) {
+            android.os.Debug.stopMethodTracing();
+        }
         super.onDestroy();
     }
 
@@ -842,7 +840,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     private void startTyping () {
         setChatState(TypingIndicatorHandler.State.composing);
-        typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Boolean>() {
+        typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
                 setChatState(TypingIndicatorHandler.State.active);
@@ -865,7 +866,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     private void setChatState (TypingIndicatorHandler.State state) {
         if(NM.typingIndicator() != null) {
-            NM.typingIndicator().setChatState(state, thread).subscribe();
+            disposableList.add(NM.typingIndicator().setChatState(state, thread).subscribe());
         }
     }
 

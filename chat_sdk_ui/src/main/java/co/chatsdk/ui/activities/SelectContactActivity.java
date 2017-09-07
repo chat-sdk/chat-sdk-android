@@ -280,34 +280,25 @@ public class SelectContactActivity extends BaseActivity {
                 }
                 else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                    NM.thread().addUsersToThread(thread, users).doOnComplete(new Action() {
+                    NM.thread().addUsersToThread(thread, users).doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            dismissProgressDialog();
+                            setResult(AppCompatActivity.RESULT_CANCELED);
+                            finish();
+                        }
+                    }).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
-                            SelectContactActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setResult(AppCompatActivity.RESULT_OK);
-                                    dismissProgressDialog();
-                                    finish();
-                                    if (animateExit)
-                                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                                }
-                            });
+                            setResult(AppCompatActivity.RESULT_OK);
+                            dismissProgressDialog();
+                            finish();
+                            if (animateExit) {
+                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+                            }
                         }
-                    }).doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            SelectContactActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dismissProgressDialog();
-                                    setResult(AppCompatActivity.RESULT_CANCELED);
-                                    finish();
-                                }
-                            });
-                        }
-                    }).subscribe();
-
+                    });
                 }
             }
         });

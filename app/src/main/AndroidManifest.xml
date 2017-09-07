@@ -45,7 +45,7 @@
         <!-- Google Maps Metadata - lifted from Google Services.json-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_api_key"/>
+            android:value="@string/google_places_api_key"/>
 
          <!-- Chat SDK -->
         <meta-data android:name="twitter_key" android:value="@string/twitter_key" />

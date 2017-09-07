@@ -1,5 +1,6 @@
 package co.chatsdk.xmpp;
 
+import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.joda.time.DateTime;
@@ -108,6 +109,13 @@ public class XMPPMessageParser {
                     message.setType(Message.Type.TEXT);
                 }
 
+                // Handle different message types
+                for(ExtensionElement elm : xmppMessage.getExtensions()) {
+                    if(elm instanceof StandardExtensionElement) {
+                        StandardExtensionElement standardElm = (StandardExtensionElement) elm;
+                        message.setValueForKey(standardElm.getText(), standardElm.getElementName());
+                    }
+                }
                 //thread.update();
                 // Is this a new user?
                 User user = StorageManager.shared().fetchUserWithEntityID(senderStringJID);

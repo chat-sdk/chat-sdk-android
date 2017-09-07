@@ -4,35 +4,17 @@
     <string name="app_name">Chat SDK</string>
     <string name="action_settings">Settings</string>
 
-    <!--#######Api-Keys#######-->
-    <!--Facebook-->
-    <!--<string name="facebook_id">966932090008976</string>-->
-
-    <!--Google Maps-->
-    <!--<string name="google_maps_api_key">AIzaSyDhk2BmGnhRY5YunvYWCEs0r-aq4X32TO8</string>-->
-
-    <!--Twitter-->
-    <!--<string name="twitter_consumer_key">sQ4jMDsA2735WyzE6D9NLgRrO</string>-->
-    <!--<string name="twitter_consumer_secret">5BmQFtS1GIg1fI9eHVkFQapKAxqxz1dz0VkQ7QzFEGHnb0uEcz</string>-->
-    <!--<string name="twitter_callback_url">https://chatcatsdk.firebaseapp.com/__/auth/handler</string>-->
-
-    <!--<string name="twitter_access_token">1187489798-VGseg1K3s7vlzCXuFP82tTLNQ2oJDVAmMWR33oD</string>-->
-    <!--<string name="twitter_access_token_secret">jaCeAEWTv3h1RBXyq1uF3Z8JtSYWy8W3Fe4GVMzrWI965</string>-->
-
-    <!--<string name="google_project_number">143096327367</string>-->
-
     <string name="facebook_app_id">648056098576150</string>
     <string name="fb_login_protocol_scheme">fb648056098576150</string>
 
     <string name="twitter_key">Kqprq5b6bVeEfcMAGoHzUmB3I</string>
     <string name="twitter_secret">hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq</string>
-    <string name="google_maps_api_key">AIzaSyDhk2BmGnhRY5YunvYWCEs0r-aq4X32TO8</string>
+
+    <string name="google_places_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
+    <string name="google_maps_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
 
     <string name="firebase_url">https://chat-sdk-v4.firebaseio.com/</string>
     <string name="firebase_root_path">firebase_v4_local_3/</string>
     <string name="firebase_storage_url">gs://chat-sdk-v4.appspot.com</string>
-
-    <!--BugSense-->
-    <!--<string name="bug_sense_key"></string>-->
 
 </resources>

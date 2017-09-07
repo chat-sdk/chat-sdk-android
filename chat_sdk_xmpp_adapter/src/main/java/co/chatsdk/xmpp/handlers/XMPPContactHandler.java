@@ -13,6 +13,7 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -28,12 +29,18 @@ public class XMPPContactHandler extends BaseContactHandler {
             @Override
             public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
                 if(type.equals(ConnectionType.Contact)) {
-                    XMPPManager.shared().userManager.addUserToRoster(user).doOnComplete(new Action() {
+                    XMPPManager.shared().userManager.addUserToRoster(user).doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            e.onError(throwable);
+                        }
+                    }).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
                             e.onComplete();
                         }
-                    }).subscribe();
+                    });
                 }
                 else {
                     e.onComplete();
@@ -56,14 +63,20 @@ public class XMPPContactHandler extends BaseContactHandler {
             @Override
             public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
                 if(type.equals(ConnectionType.Contact)) {
-                    XMPPManager.shared().userManager.removeUserFromRoster(user).doOnComplete(new Action() {
+                    XMPPManager.shared().userManager.removeUserFromRoster(user).doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            e.onError(throwable);
+                        }
+                    }).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
                             XMPPContactHandler.super.deleteContact(user, type);
                             NM.events().source().onNext(NetworkEvent.contactDeleted(user));
                             e.onComplete();
                         }
-                    }).subscribe();
+                    });
                 }
                 else {
                     e.onComplete();

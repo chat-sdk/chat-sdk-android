@@ -24,6 +24,7 @@
             android:layout_marginTop="0dp"
             android:gravity="center_vertical"
             android:text="Message text"
+            android:autoLink="all"
             android:background="@drawable/message_sent_2"/>
 
     </LinearLayout>

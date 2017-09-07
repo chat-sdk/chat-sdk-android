@@ -14,6 +14,7 @@ import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
@@ -54,10 +55,13 @@ import co.chatsdk.xmpp.listeners.XMPPConnectionListener;
 import co.chatsdk.xmpp.listeners.XMPPRosterListener;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import io.reactivex.Completable;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -146,14 +150,38 @@ public class XMPPManager {
 
         // Be careful using this because there can be a race condition
         // between this and the login method
-        disposables.add(connectionListener.connectionStatusSource.subscribe(new Consumer<ConnectionStatus>() {
+        connectionListener.connectionStatusSource.subscribe(new Observer<ConnectionStatus>() {
             @Override
-            public void accept(ConnectionStatus connectionStatus) throws Exception {
+            public void onSubscribe(@NonNull Disposable d) {
+                disposables.add(d);
+            }
+
+            @Override
+            public void onNext(@NonNull ConnectionStatus connectionStatus) {
                 if (connectionStatus == ConnectionStatus.Authenticated) {
-                    CarbonManager.getInstanceFor(getConnection()).enableCarbons();
+                    try {
+                        CarbonManager.getInstanceFor(getConnection()).enableCarbons();
+                    }
+                    catch (XMPPException e) {
+                        e.printStackTrace();
+                    }
+                    catch (SmackException e) {
+                        e.printStackTrace();
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }));
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {}
+        });
 
         // Listen to presence updates and update data accordingly
         disposables.add(getRosterListener().presenceEventSource.subscribe(new Consumer<Presence>() {
@@ -305,7 +333,8 @@ public class XMPPManager {
                 }
                 catch (Exception exception) {
                     connection.disconnect();
-                    e.onError(exception);
+                    // TODO: Localize
+                    e.onError(new Throwable("Failed to open connection to server"));
                 }
             }
         }).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io());

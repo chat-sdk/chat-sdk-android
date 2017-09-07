@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import co.chatsdk.core.NM;
 
@@ -156,7 +157,13 @@ public class ProfileFragment2 extends AbstractProfileFragment {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        UserAvatarHelper.loadAvatar(user, profileCircleImageView).subscribe(new Action() {
+        UserAvatarHelper.loadAvatar(user, profileCircleImageView).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+                Toast.makeText(ProfileFragment2.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 profileCircleImageView.setVisibility(View.VISIBLE);

@@ -156,7 +156,13 @@ public class XMPPMUCManager {
                             comp.add(inviteUser(user, roomID));
                         }
 
-                        disposables.add(Completable.merge(comp).subscribe(new Action() {
+                        disposables.add(Completable.merge(comp).doOnError(new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                throwable.printStackTrace();
+                                e.onError(throwable);
+                            }
+                        }).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 Thread thread = threadForRoomID(roomID);

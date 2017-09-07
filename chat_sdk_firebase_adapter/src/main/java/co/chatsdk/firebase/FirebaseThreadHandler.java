@@ -256,12 +256,20 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     public void subscribe(final SingleEmitter<Thread> e) throws Exception {
                         if(thread.getEntityID() == null) {
                             ThreadWrapper wrapper = new ThreadWrapper(thread);
-                            wrapper.push().concatWith(addUsersToThread(thread, users)).doOnComplete(new Action() {
+
+                            wrapper.push().concatWith(addUsersToThread(thread, users)).doOnError(new Consumer<Throwable>() {
+                                @Override
+                                public void accept(Throwable throwable) throws Exception {
+                                    throwable.printStackTrace();
+                                    e.onError(throwable);
+                                }
+                            }).subscribe(new Action() {
                                 @Override
                                 public void run() throws Exception {
                                     e.onSuccess(thread);
                                 }
-                            }).subscribe();
+                            });
+
                         }
                         else {
                             e.onSuccess(thread);

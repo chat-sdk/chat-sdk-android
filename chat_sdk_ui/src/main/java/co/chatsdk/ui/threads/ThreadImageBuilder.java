@@ -17,6 +17,7 @@ import co.chatsdk.ui.utils.UserAvatarHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
@@ -60,9 +61,15 @@ public class ThreadImageBuilder {
                         public void accept(Bitmap bitmap) throws Exception {
                             bitmaps.add(bitmap);
                         }
-                    }).doOnComplete(new Action() {
+                    }).doOnError(new Consumer<Throwable>() {
                         @Override
-                        public void run() throws Exception {
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            e.onSuccess(defaultBitmap(context, thread));
+                        }
+                    }).subscribe(new Consumer<Bitmap>() {
+                        @Override
+                        public void accept(@NonNull Bitmap bitmap) throws Exception {
                             if(bitmaps.size() == 1) {
                                 e.onSuccess(bitmaps.get(0));
                             }
@@ -72,12 +79,7 @@ public class ThreadImageBuilder {
                                 e.onSuccess(merged);
                             }
                         }
-                    }).doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            e.onSuccess(defaultBitmap(context, thread));
-                        }
-                    }).subscribe();
+                    });
                 }
             }
         });

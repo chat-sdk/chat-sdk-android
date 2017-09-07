@@ -49,6 +49,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 /**
@@ -250,13 +251,19 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                                     FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) NM.auth();
-                                    handler.authenticateWithUser(user).subscribe(new Action() {
+
+                                    handler.authenticateWithUser(user).doOnError(new Consumer<Throwable>() {
+                                        @Override
+                                        public void accept(Throwable throwable) throws Exception {
+                                            throwable.printStackTrace();
+                                            e.onError(throwable);
+                                        }
+                                    }).subscribe(new Action() {
                                         @Override
                                         public void run() throws Exception {
                                             e.onComplete();
                                         }
                                     });
-
                                 }
                                 else {
 //                                    Toast.makeText(activity, "Authentication failed.",

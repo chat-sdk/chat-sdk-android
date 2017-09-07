@@ -33,6 +33,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.
@@ -87,27 +88,27 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable removeUsersFromThread(Thread thread, List<User> users) {
-        return null;
+        return Completable.error(new Throwable("Method not implemented"));
     }
 
     @Override
     public Completable addUsersToThread(Thread thread, List<User> users) {
-        return null;
+        return Completable.error(new Throwable("Method not implemented"));
     }
 
     @Override
     public Completable deleteThread(Thread thread) {
-        return null;
+        return Completable.error(new Throwable("Method not implemented"));
     }
 
     @Override
     public Completable leaveThread(Thread thread) {
-        return null;
+        return Completable.error(new Throwable("Method not implemented"));
     }
 
     @Override
     public Completable joinThread(Thread thread) {
-        return null;
+        return Completable.error(new Throwable("Method not implemented"));
     }
 
     @Override
@@ -146,6 +147,9 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                         e.onError(new Throwable("Unable send message to group chat"));
                     }
                 }
+
+                // TODO:  Check this
+                message.setDelivered(Message.Delivered.Yes);
 
                 NetworkEvent event = NetworkEvent.messageAdded(message.getThread(), message);
                 NM.events().source().onNext(event);

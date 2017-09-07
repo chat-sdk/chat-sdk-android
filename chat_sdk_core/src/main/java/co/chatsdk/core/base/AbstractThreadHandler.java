@@ -36,10 +36,12 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -164,11 +166,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }).flatMapCompletable(new Function<Message, Completable>() {
             @Override
             public Completable apply(final Message message) throws Exception {
-                return implSendMessage(message).doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                    }
-                });
+                return implSendMessage(message);
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
@@ -204,10 +202,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 r.message = message;
                 e.onNext(r);
 
-                NM.upload().uploadImage(image).doOnNext(new Consumer<MessageUploadResult>() {
+                NM.upload().uploadImage(image).subscribe(new Observer<MessageUploadResult>() {
                     @Override
-                    public void accept(MessageUploadResult result) throws Exception {
+                    public void onSubscribe(Disposable d) {
 
+                    }
+
+                    @Override
+                    public void onNext(MessageUploadResult result) {
                         if(result.isComplete())  {
 
                             message.setTextString(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
@@ -221,19 +223,29 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                         result.message = message;
                         e.onNext(result);
-
                     }
-                }).doOnComplete(new Action() {
+
                     @Override
-                    public void run() throws Exception {
-                        implSendMessage(message).subscribe(new Action() {
+                    public void onError(Throwable ex) {
+                        e.onError(ex);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        implSendMessage(message).doOnError(new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                throwable.printStackTrace();
+                                e.onError(throwable);
+                            }
+                        }).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 e.onComplete();
                             }
                         });
                     }
-                }).subscribe();
+                });
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
 

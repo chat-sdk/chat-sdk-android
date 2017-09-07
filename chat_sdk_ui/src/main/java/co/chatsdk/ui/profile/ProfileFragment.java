@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -183,22 +184,34 @@ public class ProfileFragment extends BaseFragment {
                         @Override
                         public void accept(Boolean blocked, Throwable throwable) throws Exception {
                             if(blocked) {
-                                NM.blocking().unblockUser(ProfileFragment.this.user).subscribe(new Action() {
+                                disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user).doOnError(new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(@NonNull Throwable throwable) throws Exception {
+                                        throwable.printStackTrace();
+                                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }).subscribe(new Action() {
                                     @Override
                                     public void run() throws Exception {
                                         updateBlockedButton(false);
                                         ProfileFragment.this.showToast(getString(R.string.user_unblocked));
                                     }
-                                });
+                                }));
                             }
                             else {
-                                NM.blocking().blockUser(ProfileFragment.this.user).subscribe(new Action() {
+                                disposables.add(NM.blocking().blockUser(ProfileFragment.this.user).doOnError(new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(@NonNull Throwable throwable) throws Exception {
+                                        throwable.printStackTrace();
+                                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }).subscribe(new Action() {
                                     @Override
                                     public void run() throws Exception {
                                         updateBlockedButton(true);
                                         ProfileFragment.this.showToast(getString(R.string.user_blocked));
                                     }
-                                });
+                                }));
                             }
                         }
                     }));
@@ -208,12 +221,18 @@ public class ProfileFragment extends BaseFragment {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    disposables.add(NM.contact().deleteContact(ProfileFragment.this.user, ConnectionType.Contact).subscribe(new Action() {
+                    disposables.add(NM.contact().deleteContact(ProfileFragment.this.user, ConnectionType.Contact).doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
                             ProfileFragment.this.showToast(getString(R.string.user_deleted));
                             getActivity().finish();
-                        }/**/
+                        }
                     }));
                 }
             });

@@ -115,8 +115,6 @@ public class ContactsFragment extends BaseFragment {
      * #CLICK_MODE_SHOW_PROFILEs */
     protected int clickMode;
 
-    /** Extra bundle for the loading mode/ click mode, for example this is used as thread id/entityID for loading mode {@link #CLICK_MODE_ADD_USER_TO_THREAD}
-     *  Look in {@link #loadSourceUsers()} or in {@link #setupListClickMode()} for more examples. */
     protected Object extraData ="";
 
     /** If true the fragment will listen to users details change and updates.*/
@@ -307,8 +305,12 @@ public class ContactsFragment extends BaseFragment {
 
     @Override
     public void loadData () {
-
-        reloadUsers().subscribe(new Action() {
+        reloadUsers().doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 adapter.setUsers(sourceUsers, true);
@@ -344,41 +346,34 @@ public class ContactsFragment extends BaseFragment {
                             }
 
                             if(thread != null) {
-                                NM.thread().addUsersToThread(thread, clickedUser)
-                                        .doOnComplete(new Action() {
-                                            @Override
-                                            public void run() throws Exception {
-                                                showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
+                                NM.thread().addUsersToThread(thread, clickedUser).doOnError(new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(@NonNull Throwable throwable) throws Exception {
+                                        throwable.printStackTrace();
+                                        UIHelper.shared().showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                    }
+                                }).subscribe(new Action() {
+                                    @Override
+                                    public void run() throws Exception {
+                                        showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
 
-                                                if (isDialog) {
-                                                    getDialog().dismiss();
-                                                }
-
-                                            }
-                                        })
-                                        .doOnError(new Consumer<Throwable>() {
-                                            @Override
-                                            public void accept(Throwable throwable) throws Exception {
-                                                UIHelper.shared().showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
-                                            }
-                                        }).subscribe();
+                                        if (isDialog) {
+                                            getDialog().dismiss();
+                                        }
+                                    }
+                                });
                             }
                             break;
 
                         case CLICK_MODE_NONE:
                             break;
                         default:
-
                             startProfileActivityForUser(clickedUser);
-
                     }
                 }
-            });        }
+            });
+        }
     }
-
-//    public void filterListStartWith(String filter){
-//        adapter.filterStartWith(filter);
-//    }
 
     private Completable reloadUsers () {
         return Completable.create(new CompletableOnSubscribe() {
@@ -416,37 +411,6 @@ public class ContactsFragment extends BaseFragment {
                 e.onComplete();
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    private void loadSourceUsers () {
-        if (loadingMode != MODE_USE_SOURCE)
-            // If this is not a dialog we will load the contacts of the user.
-            switch (loadingMode) {
-                case MODE_LOAD_CONTACTS:
-                    if (DEBUG) Timber.d("Mode - Contacts");
-                    sourceUsers = NM.contact().contacts();
-                    Timber.d("Contacts: " + sourceUsers.size());
-                    break;
-
-                case MODE_LOAD_THREAD_USERS:
-                    if (DEBUG) Timber.d("Mode - CoreThread Users");
-                    Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
-
-                    // Remove the current user from the list.
-                    List<User> users = thread.getUsers();
-                    users.remove(NM.currentUser());
-
-                    sourceUsers = users;
-                    break;
-
-                case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                    List<User> users1 = NM.contact().contacts();
-                    thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
-                    List<User> threadUser = thread.getUsers();
-                    users1.removeAll(threadUser);
-                    sourceUsers = users1;
-                    break;
-            }
     }
 
     @Override

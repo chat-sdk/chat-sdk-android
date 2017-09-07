@@ -26,7 +26,6 @@ import timber.log.Timber;
  */
 public class FirebaseUploadHandler extends AbstractUploadHandler {
 
-    private static final String TAG = FirebaseUploadHandler.class.getSimpleName();
     private static final boolean DEBUG = Debug.FirebaseUploadHandler;
 
     public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {

@@ -379,19 +379,19 @@ public class ThreadWrapper  {
                         });
                     }
                     else {
-                        removeUser(currentUser).doOnComplete(new Action() {
+                        removeUser(currentUser).doOnError(new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                throwable.printStackTrace();
+                                e.onError(throwable);
+                            }
+                        }).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 e.onComplete();
                             }
-                        }).doOnError(new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                e.onError(throwable);
-                            }
-                        }).subscribe();
+                        });
                     }
-
                 }
             }
         });

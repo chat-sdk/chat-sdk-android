@@ -31,6 +31,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -125,8 +126,13 @@ public class FirebaseSearchHandler implements SearchHandler {
                                     public void run() throws Exception {
                                         e.onComplete();
                                     }
+                                }).doOnError(new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(Throwable throwable) throws Exception {
+                                        throwable.printStackTrace();
+                                        e.onError(throwable);
+                                    }
                                 }).subscribe();
-
                             }
                             else {
                                 e.onError(ChatError.getError(ChatError.Code.NO_USER_FOUND, "Unable to found user."));

@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import co.chatsdk.core.NM;
 
@@ -38,20 +39,26 @@ import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.activities.MainActivity;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import co.chatsdk.core.defines.Debug;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
@@ -126,8 +133,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
 
         // TODO: Remove this
-        etEmail.setText("ben");
-        etPass.setText("123456");
+//        etEmail.setText("ben");
+//        etPass.setText("123456");
 
         appIconImage = (ImageView) findViewById(R.id.app_icon);
 
@@ -179,6 +186,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
         };
 
+        final Consumer<Throwable> error = new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+                Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            }
+        };
+
         showProgressDialog(getString(R.string.authenticating));
 
         if (i == R.id.chat_sdk_btn_login) {
@@ -193,17 +208,17 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.chat_sdk_btn_twitter_login){
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithTwitter(this).subscribe(completion);
+                NM.socialLogin().loginWithTwitter(this).doOnError(error).subscribe(completion);
             }
         }
         else if (i == R.id.chat_sdk_btn_facebook_login) {
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithFacebook(this).subscribe(completion);
+                NM.socialLogin().loginWithFacebook(this).doOnError(error).subscribe(completion);
             }
         }
         else if (i == R.id.chat_sdk_btn_google_login) {
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithGoogle(this).subscribe(completion);
+                NM.socialLogin().loginWithGoogle(this).doOnError(error).subscribe(completion);
             }
         }
     }
@@ -233,6 +248,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        e.printStackTrace();
 //                        toastErrorMessage(e, false);
                         dismissProgressDialog();
                     }
@@ -385,26 +401,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void toastErrorMessage(Throwable error, boolean login){
         String errorMessage = "";
 
-        if (StringUtils.isNotBlank(error.getMessage()))
+        if (StringUtils.isNotBlank(error.getMessage())) {
             errorMessage = error.getMessage();
-        else if (login)
+        }
+        else if (login) {
             errorMessage = getString(R.string.login_activity_failed_to_login_toast);
-        else
+        }
+        else {
             errorMessage = getString(R.string.login_activity_failed_to_register_toast);
-
+        }
 
         showToast(errorMessage);
     }
 
     protected boolean checkFields(){
-        if (etEmail.getText().toString().isEmpty())
-        {
+        if (etEmail.getText().toString().isEmpty()) {
             showToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }
 
-        if (etPass.getText().toString().isEmpty())
-        {
+        if (etPass.getText().toString().isEmpty()) {
             showToast( getString(R.string.login_activity_no_password_toast) );
             return false;
         }

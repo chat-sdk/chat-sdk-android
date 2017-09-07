@@ -30,6 +30,10 @@ import java.util.Map;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class MessageWrapper  {
@@ -158,12 +162,31 @@ public class MessageWrapper  {
     }
     
     public Completable send() {
-        if(model.getThread() != null) {
-            return push();
-        }
-        else {
-            return null;
-        }
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
+                if(model.getThread() != null) {
+
+                    push().doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            e.onError(throwable);
+                        }
+                    }).subscribe(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            e.onComplete();
+                        }
+                    });
+                }
+                else {
+                    // TODO: Localize
+                    e.onError(new Throwable("Message doesn't have a thread"));
+                }
+            }
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+
     }
     
     /**

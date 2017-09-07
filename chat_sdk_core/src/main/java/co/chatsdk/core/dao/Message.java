@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import co.chatsdk.core.interfaces.CoreEntity;
+import timber.log.Timber;
 
 @org.greenrobot.greendao.annotation.Entity
 public class Message implements CoreEntity {
@@ -82,14 +83,11 @@ public class Message implements CoreEntity {
 
     @Transient
     public static final String TAG = Message.class.getSimpleName();
-    //@Transient
-    //public static final boolean DEBUG = Debug.Message;
+
+    // We cache the payload to improve performance
     @Transient
-    public String color = null;
-    @Transient
-    public String textColor = null;
-    @Transient
-    public int fontSize = -1;
+    private JSONObject jsonPayload;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -209,15 +207,26 @@ public class Message implements CoreEntity {
     }
 
     public Object valueForKey (String key) {
-        String json = getRawJSONPayload();
-        if(json == null || json.length() == 0 ) {
-            return "";
-        }
+
         try {
-            return new JSONObject(getRawJSONPayload()).get(key);
+            String json = getRawJSONPayload();
+            if(json == null || json.length() == 0 ) {
+                return "";
+            }
+            if(jsonPayload == null) {
+                jsonPayload = new JSONObject(json);
+            }
+            if(jsonPayload.has(key)) {
+                return  jsonPayload.get(key);
+            }
+            else {
+                return "";
+            }
         }
         catch (JSONException e) {
-            return new JSONObject();
+            Timber.v(e.getLocalizedMessage());
+//            e.printStackTrace();
+            return "";
         }
     }
 
@@ -229,13 +238,16 @@ public class Message implements CoreEntity {
 
     public void setValueForKey (Object payload, String key) {
         try {
-            String jsonString = getRawJSONPayload();
-            JSONObject json = jsonString != null ? new JSONObject(jsonString) : new JSONObject();
-
-            json.put(key, payload);
-            setRawJSONPayload(json.toString());
+            if(jsonPayload == null) {
+                String jsonString = getRawJSONPayload();
+                jsonPayload = jsonString != null ? new JSONObject(jsonString) : new JSONObject();
+            }
+            jsonPayload.put(key, payload);
+            setRawJSONPayload(jsonPayload.toString());
         }
         catch (JSONException e) {
+            Timber.v(e.getLocalizedMessage());
+//            e.printStackTrace();
         }
     }
 

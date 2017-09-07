@@ -3,6 +3,7 @@ package co.chatsdk.xmpp.handlers;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,13 +21,16 @@ import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.utils.KeyStorage;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -60,9 +64,12 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
                 switch (details.type) {
                     case Username:
-                        XMPPManager.shared().login(details.username, details.password).subscribe(new Action() {
+                        XMPPManager.shared().login(details.username, details.password).subscribe(new CompletableObserver() {
                             @Override
-                            public void run() throws Exception {
+                            public void onSubscribe(@NonNull Disposable d) {}
+
+                            @Override
+                            public void onComplete() {
                                 keyStorage.put(KeyStorage.UsernameKey, details.username);
                                 keyStorage.put(KeyStorage.PasswordKey, details.password);
 
@@ -70,22 +77,42 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
                                 Timber.v("Authentication Complete");
 
-                                userAuthenticationCompletedWithJID(JidCreate.bareFrom(jidString));
-                                Timber.v("Setup tasks complete");
-                                e.onComplete();
+                                try {
+                                    userAuthenticationCompletedWithJID(JidCreate.bareFrom(jidString));
+                                    Timber.v("Setup tasks complete");
+                                    e.onComplete();
+                                }
+                                catch (XmppStringprepException ex) {
+                                    ex.printStackTrace();
+                                    e.onError(ex);
+                                }
+                            }
+
+                            @Override
+                            public void onError(@NonNull Throwable ex) {
+                                ex.printStackTrace();
+                                e.onError(ex);
                             }
                         });
-                        return;
+                        break;
                     case Register:
-                        XMPPManager.shared().register(details.username, details.password).subscribe(new Action() {
+                        XMPPManager.shared().register(details.username, details.password).doOnError(new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                throwable.printStackTrace();
+                                e.onError(throwable);
+                            }
+                        }).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 e.onComplete();
                             }
                         });
-                        return;
+                        break;
+                    default:
+                        // TODO: Localize
+                        e.onError(new Throwable("Login method doesn't exist"));
                 }
-                e.onComplete();
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }

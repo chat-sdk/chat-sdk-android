@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
@@ -41,7 +42,9 @@ import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.Cropper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 8/14/17.
@@ -199,7 +202,13 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private void logout () {
-        NM.auth().logout().subscribe(new Action() {
+        NM.auth().logout().doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+                Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 UIHelper.shared().startLoginActivity(true);

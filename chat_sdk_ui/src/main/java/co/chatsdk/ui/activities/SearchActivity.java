@@ -30,7 +30,9 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -150,9 +152,13 @@ public class SearchActivity extends BaseActivity {
                 dialog.setMessage(getString(R.string.alert_save_contact));
                 dialog.show();
 
-                Completable.merge(completables)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action() {
+                Completable.merge(completables).doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
+                    }
+                })
+                .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
                         showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
@@ -165,7 +171,6 @@ public class SearchActivity extends BaseActivity {
                         finish();
                     }
                 });
-
             }
         });
 
@@ -189,38 +194,43 @@ public class SearchActivity extends BaseActivity {
 
             final List<User> users = new ArrayList<>();
 
-            disposable = NM.search().usersForIndex(Keys.Name, etInput.getText().toString())
-                    .doOnNext(new Consumer<User>() {
-                        @Override
-                        public void accept(User u) throws Exception {
+            NM.search().usersForIndex(Keys.Name, etInput.getText().toString()).subscribe(new Observer<User>() {
+                @Override
+                public void onSubscribe(@NonNull Disposable d) {
+                    disposable = d;
+                }
 
-                            users.add(u);
-                            adapter.setUsers(users, true);
+                @Override
+                public void onNext(@NonNull User user) {
+                    users.add(user);
+                    adapter.setUsers(users, true);
 
-                            hideSoftKeyboard(SearchActivity.this);
-                            dialog.dismiss();
-                        }
-                    })
-                    .doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            showToast(getString(R.string.search_activity_no_user_found_toast));
-                            dialog.dismiss();
-                        }
-                    }).doOnComplete(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            dialog.dismiss();
-                            if(users.size() == 0) {
-                                showToast(getString(R.string.search_activity_no_user_found_toast));
-                            }
-                        }
-                    }).subscribe();
+                    hideSoftKeyboard(SearchActivity.this);
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onError(@NonNull Throwable e) {
+                    showToast(getString(R.string.search_activity_no_user_found_toast));
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onComplete() {
+                    dialog.dismiss();
+                    if(users.size() == 0) {
+                        showToast(getString(R.string.search_activity_no_user_found_toast));
+                    }
+                }
+            });
 
             dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    disposable.dispose();
+                    if(disposable != null) {
+                        disposable.dispose();
+                        disposable = null;
+                    }
                 }
             });
 

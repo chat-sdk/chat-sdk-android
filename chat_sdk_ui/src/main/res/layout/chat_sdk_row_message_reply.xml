@@ -31,6 +31,7 @@
             android:layout_marginTop="2dp"
             android:gravity="center_vertical"
             android:text="Message text"
+            android:autoLink="all"
             android:background="@drawable/message_received_2"/>
 
     </LinearLayout>

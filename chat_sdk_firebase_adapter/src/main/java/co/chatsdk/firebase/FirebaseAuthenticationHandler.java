@@ -43,6 +43,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -181,7 +182,13 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Do a once() on the user to push its details to firebase.
                 final UserWrapper wrapper = UserWrapper.initWithAuthData(user);
 
-                wrapper.once().subscribe(new Action() {
+                wrapper.once().doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
+                        e.onError(throwable);
+                    }
+                }).subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
 
@@ -206,9 +213,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                                 e.onComplete();
                             }
                         });
-
                     }
                 });
+
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }

@@ -10,18 +10,16 @@ package co.chatsdk.ui.chat;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.future.ImageViewFuture;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import at.grabner.circleprogress.CircleProgressView;
@@ -176,12 +174,9 @@ public class MessagesListAdapter extends BaseAdapter{
 
             // Show links in text view if has any.
             holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
-            Linkify.addLinks(holder.messageTextView, Linkify.ALL);
 
             params.width = 0;
             params.height = 0;
-
-//            animateContent((View) holder.messageTextView.getParent(), null, messageItem.delivered());
         }
 
         if (messageItem.messageType() == Message.Type.LOCATION || messageItem.messageType() == Message.Type.IMAGE) {
@@ -192,6 +187,7 @@ public class MessagesListAdapter extends BaseAdapter{
             int height = messageItem.height();
 
             if (messageItem.messageType() == Message.Type.LOCATION) {
+
                 double longitude = (Double) messageItem.message.valueForKey(Keys.MessageLongitude);
                 double latitude = (Double) messageItem.message.valueForKey(Keys.MessageLatitude);
 
@@ -234,7 +230,7 @@ public class MessagesListAdapter extends BaseAdapter{
         }
 
         // Load the user's profile image
-        Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
+        ImageViewFuture future = Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
@@ -246,15 +242,6 @@ public class MessagesListAdapter extends BaseAdapter{
 
     public List<MessageListItem> getMessageItems() {
         return messageItems;
-    }
-
-
-    /**
-     * Add a new message to the list.
-     * @return true if the item is added to the list.
-     * */
-    private boolean addRow(MessageListItem newItem){
-        return addRow(newItem, true, true);
     }
 
     private boolean addRow(MessageListItem newItem, boolean sort, boolean notify){
