@@ -9,25 +9,22 @@ package co.chatsdk.ui.chat;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.future.ImageViewFuture;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
 
 import at.grabner.circleprogress.CircleProgressView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -51,11 +48,11 @@ public class MessagesListAdapter extends BaseAdapter{
     class ViewHolder {
         CircleImageView profilePicImageView;
         TextView timeTextView;
-        RoundedImageView imageView;
+        RoundedImageView messageImageView;
         TextView messageTextView;
         CircleProgressView progressView;
-        ImageViewFuture imageViewFuture;
-        ImageViewFuture profileImageViewFuture;
+//        ImageViewFuture imageViewFuture;
+//        ImageViewFuture profileImageViewFuture;
     }
 
     private AppCompatActivity activity;
@@ -131,7 +128,7 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.profilePicImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
         holder.progressView = (CircleProgressView) row.findViewById(R.id.chat_sdk_progress_view);
-        holder.imageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
+        holder.messageImageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
 
         switch (item.messageType())
         {
@@ -139,13 +136,13 @@ public class MessagesListAdapter extends BaseAdapter{
                 holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
                 holder.messageTextView.setVisibility(View.VISIBLE);
                 holder.progressView.setVisibility(View.INVISIBLE);
-                holder.imageView.setVisibility(View.INVISIBLE);
+                holder.messageImageView.setVisibility(View.INVISIBLE);
                 break;
             case Message.Type.IMAGE:
             case Message.Type.LOCATION:
                 holder.messageTextView.setVisibility(View.INVISIBLE);
                 holder.progressView.setVisibility(View.VISIBLE);
-                holder.imageView.setVisibility(View.VISIBLE);
+                holder.messageImageView.setVisibility(View.VISIBLE);
                 break;
         }
         row.setTag(holder);
@@ -162,19 +159,22 @@ public class MessagesListAdapter extends BaseAdapter{
     protected void updateMessageCell(View row, final ViewHolder holder, MessageListItem messageItem){
 
         holder.progressView.setVisibility(View.INVISIBLE);
-        holder.imageView.setVisibility(View.INVISIBLE);
+        holder.messageImageView.setVisibility(View.INVISIBLE);
         holder.messageTextView.setVisibility(View.INVISIBLE);
 
         // If the previous future is still running, cancel it because we are loading a new image
-        if(holder.imageViewFuture != null && !holder.imageViewFuture.isDone()) {
-            holder.imageViewFuture.cancel();
-        }
-        // Load the user's profile image
-        if(holder.profileImageViewFuture != null && !holder.profileImageViewFuture.isDone()) {
-            holder.profileImageViewFuture.cancel();
-        }
+//        if(holder.imageViewFuture != null && !holder.imageViewFuture.isDone()) {
+//            holder.imageViewFuture.cancel();
+//        }
+//        // Load the user's profile image
+//        if(holder.profileImageViewFuture != null && !holder.profileImageViewFuture.isDone()) {
+//            holder.profileImageViewFuture.cancel();
+//        }
+//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.messageImageView);
+//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.profilePicImageView);
 
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.imageView.getLayoutParams();
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.messageImageView.getLayoutParams();
 
         params.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
         params.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
@@ -193,7 +193,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
         if (messageItem.messageType() == Message.Type.LOCATION || messageItem.messageType() == Message.Type.IMAGE) {
 
-            holder.imageView.setVisibility(View.VISIBLE);
+            holder.messageImageView.setVisibility(View.VISIBLE);
 
             int width = messageItem.width();
             int height = messageItem.height();
@@ -205,11 +205,12 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
-                holder.imageViewFuture = Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder)
-                        .load(GoogleUtils.getMapImageURL(latLng, width, height));
+                Picasso.with(AppContext.shared().context()).load(GoogleUtils.getMapImageURL(latLng, width, height)).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
+//                holder.imageViewFuture = Ion.with(holder.messageImageView).placeholder(R.drawable.icn_200_image_message_placeholder)
+//                        .load(GoogleUtils.getMapImageURL(latLng, width, height));
 
                 // Open google maps on click.
-                holder.imageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
+                holder.messageImageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
             }
 
             if (messageItem.messageType() == Message.Type.IMAGE) {
@@ -217,19 +218,19 @@ public class MessagesListAdapter extends BaseAdapter{
                 String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
                 if(url == null || url.isEmpty()) {
-                    holder.imageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
+                    holder.messageImageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
                 }
                 else {
-                    holder.imageViewFuture = Ion.with(holder.imageView).placeholder(R.drawable.icn_200_image_message_placeholder).load(url);
+                    Picasso.with(AppContext.shared().context()).load(url).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
                 }
 
-                // Show the imageView in a dialog on click.
-                holder.imageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
+                // Show the messageImageView in a dialog on click.
+                holder.messageImageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
         }
 
-        holder.imageView.setLayoutParams(params);
-        holder.imageView.requestLayout();
+        holder.messageImageView.setLayoutParams(params);
+        holder.messageImageView.requestLayout();
 
         // Progress
         // Not tested
@@ -242,7 +243,7 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.progressView.setVisibility(View.INVISIBLE);
         }
 
-        holder.profileImageViewFuture = Ion.with(holder.profilePicImageView).placeholder(R.drawable.icn_32_profile_placeholder).load(messageItem.getProfilePicUrl());
+        Picasso.with(AppContext.shared().context()).load(messageItem.getProfilePicUrl()).placeholder(R.drawable.icn_32_profile_placeholder).into(holder.messageImageView);
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());

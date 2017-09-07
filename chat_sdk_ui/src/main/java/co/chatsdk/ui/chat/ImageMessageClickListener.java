@@ -36,7 +36,7 @@ public class ImageMessageClickListener implements View.OnClickListener {
 
             PopupWindow popupWindow;
 
-            // Telling the popup window to save the imageView after it was open.
+            // Telling the popup window to save the messageImageView after it was open.
             if (!Defines.Options.SaveImagesToDir) {
                 popupWindow = DialogUtils.getImageDialog(activity, url, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
             }

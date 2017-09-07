@@ -9,6 +9,7 @@ package co.chatsdk.ui.helpers;
 
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Point;
@@ -38,6 +39,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
@@ -48,9 +52,6 @@ import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.core.dao.DaoCore;
-
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -256,46 +257,51 @@ public class DialogUtils {
 
                     progressBar.setVisibility(View.VISIBLE);
 
-                    Ion.with(context).load(data).asBitmap().setCallback(new FutureCallback<Bitmap>() {
+                    Picasso.with(context).load(data).into(new Target() {
                         @Override
-                        public void onCompleted(Exception e, Bitmap result) {
-                            if(e == null) {
-                                imageView.setImageBitmap(result);
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            imageView.setImageBitmap(bitmap);
 
-                                if (saveToDir) {
-                                    File file, dir = Utils.ImageSaver.getAlbumStorageDir(context, Utils.ImageSaver.IMAGE_DIR_NAME);
-                                    if (dir != null) {
-                                        if(dir.exists()) {
-                                            file = new File(dir, imageName + ".jpg");
+                            if (saveToDir) {
+                                File file, dir = Utils.ImageSaver.getAlbumStorageDir(context, Utils.ImageSaver.IMAGE_DIR_NAME);
+                                if (dir != null) {
+                                    if(dir.exists()) {
+                                        file = new File(dir, imageName + ".jpg");
 
-                                            if (!file.exists()) {
-                                                ImageUtils.saveBitmapToFile(file, result);
+                                        if (!file.exists()) {
+                                            ImageUtils.saveBitmapToFile(file, bitmap);
 
-                                                ImageUtils.scanFilePathForGallery(context, file.getPath());
+                                            ImageUtils.scanFilePathForGallery(context, file.getPath());
 
-                                                // If the message name is equal to a message entity id we
-                                                // save the image path to the message object so we could use it instead of downloading images.
-                                                Message message = DaoCore.fetchEntityWithEntityID(Message.class, imageName);
+                                            // If the message name is equal to a message entity id we
+                                            // save the image path to the message object so we could use it instead of downloading images.
+                                            Message message = DaoCore.fetchEntityWithEntityID(Message.class, imageName);
 
-                                                if (message != null) {
-                                                    message.setResourcesPath(file.getPath());
-                                                    DaoCore.updateEntity(message);
-                                                }
-
+                                            if (message != null) {
+                                                message.setResourcesPath(file.getPath());
+                                                DaoCore.updateEntity(message);
                                             }
+
                                         }
                                     }
                                 }
-                                animateIn(imageView, progressBar);
                             }
-                            else {
-                                UIHelper.showToast(R.string.unable_to_fetch_image);
-                                dismiss();
-                            }
+                            animateIn(imageView, progressBar);
                             progressBar.setVisibility(View.GONE);
                         }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+                            UIHelper.showToast(R.string.unable_to_fetch_image);
+                            progressBar.setVisibility(View.GONE);
+                            dismiss();
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
                     });
-                    break;
 
                 case LOAD_FROM_PATH:
                     if (DEBUG) Timber.d("load from path");

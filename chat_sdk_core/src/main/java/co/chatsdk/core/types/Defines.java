@@ -38,11 +38,6 @@ public class Defines {
     public static final String DIVIDER = ",";
 
     /**
-     * Vibration Duration in Millis of the notifications.
-     * */
-    public static final int VIBRATION_DURATION = 300;
-
-    /**
      * Amount of messages that will be pulled for a thread from local db or from server.
      * */
     public static final int MAX_MESSAGES_TO_PULL = 30;

@@ -7,27 +7,24 @@
 
 package co.chatsdk.core.utils;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
-import android.support.v4.app.ActivityCompat;
 
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
@@ -481,17 +478,35 @@ public class ImageUtils {
                     e.onSuccess(bitmap);
                 }
                 else {
-                    Ion.with(AppContext.shared().context()).load(url).asBitmap().setCallback(new FutureCallback<Bitmap>() {
+                    Picasso.with(AppContext.shared().context()).load(url).into(new Target() {
+
                         @Override
-                        public void onCompleted(Exception exception, Bitmap result) {
-                            if(exception == null) {
-                                e.onSuccess(result);
-                            }
-                            else {
-                                e.onError(exception);
-                            }
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            e.onSuccess(bitmap);
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+                            // TODO: Localize
+                            e.onError(new Throwable("Unable to load image"));
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
                         }
                     });
+//                    Ion.with(AppContext.shared().context()).load(url).asBitmap().setCallback(new FutureCallback<Bitmap>() {
+//                        @Override
+//                        public void onCompleted(Exception exception, Bitmap result) {
+//                            if(exception == null) {
+//                                e.onSuccess(result);
+//                            }
+//                            else {
+//                                e.onError(exception);
+//                            }
+//                        }
+//                    });
 
                 }
             }

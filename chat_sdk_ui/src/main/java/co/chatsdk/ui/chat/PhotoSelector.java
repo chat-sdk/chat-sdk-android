@@ -53,7 +53,7 @@ public class PhotoSelector {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
         }
 
-        // start the imageView capture Intent
+        // start the messageImageView capture Intent
         activity.startActivityForResult(intent, CAPTURE_IMAGE);
 
     }
@@ -62,7 +62,7 @@ public class PhotoSelector {
         this.resultHandler = resultHandler;
 
         Intent intent = new Intent();
-        intent.setType("imageView/*");
+        intent.setType("messageImageView/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
 
         activity.startActivityForResult(Intent.createChooser(intent,"Complete action using"), PHOTO_PICKER_ID);
@@ -78,7 +78,7 @@ public class PhotoSelector {
                 Uri uri = data.getData();
                 filePath = DaoCore.generateRandomName();
 
-                // If enabled we will save the imageView to the app
+                // If enabled we will save the messageImageView to the app
                 // directory in gallery else we will save it in the cache dir.
                 File dir;
                 if (Defines.Options.SaveImagesToDir)
@@ -113,7 +113,7 @@ public class PhotoSelector {
         }
 
         try {
-            // If enabled we will save the imageView to the app
+            // If enabled we will save the messageImageView to the app
             // directory in gallery else we will save it in the cache dir.
             File dir;
             if (Defines.Options.SaveImagesToDir)
@@ -130,7 +130,7 @@ public class PhotoSelector {
 
             String selectedFilePath = image.getPath();
 
-            // Scanning the imageView so it would be visible in the gallery images.
+            // Scanning the messageImageView so it would be visible in the gallery images.
             if (Defines.Options.SaveImagesToDir) {
                 ImageUtils.scanFilePathForGallery(activity, selectedFilePath);
             }
@@ -153,7 +153,7 @@ public class PhotoSelector {
         else  if (requestCode == Crop.REQUEST_CROP + PHOTO_PICKER_ID) {
             processCroppedPhoto(activity, resultCode, data);
         }
-        /* Capture imageView logic*/
+        /* Capture messageImageView logic*/
         else if (requestCode == CAPTURE_IMAGE && resultCode == AppCompatActivity.RESULT_OK)
         {
             if(resultHandler != null) {

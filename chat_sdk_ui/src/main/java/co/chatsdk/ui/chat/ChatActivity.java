@@ -335,7 +335,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
                 disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
                     @Override
-                    public void accept(List<Message> messages, Throwable throwable) throws Exception {
+                    public void accept(final List<Message> messages, Throwable throwable) throws Exception {
                         if (throwable == null) {
                             if (messages.size() < 2) {
                                 showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
@@ -344,14 +344,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                                 for(Message m : messages) {
                                     messageListAdapter.addRow(m, false, false);
                                 }
-                                messageListAdapter.notifyDataSetChanged();
-
-                                messageListView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                    messageListView.setSelection(messageListView.getPositionForView(topView));
-                                    }
-                                });
+                                messageListAdapter.sortItemsAndNotify();
+                                messageListView.setSelection(messages.size());
                             }
                         }
                         mSwipeRefresh.setRefreshing(false);
@@ -435,9 +429,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     /**
-     * Send an imageView message.
+     * Send an messageImageView message.
      *
-     * @param filePath the path to the imageView file that need to be sent.
+     * @param filePath the path to the messageImageView file that need to be sent.
      */
     public void sendImageMessage(final String filePath) {
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
@@ -781,7 +775,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     /**
-     * Open the thread details activity, Admin user can change thread name an imageView there.
+     * Open the thread details activity, Admin user can change thread name an messageImageView there.
      */
     protected void openThreadDetailsActivity() {
         // Showing the pick friends activity.
@@ -831,7 +825,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     /**
      * Update chat current thread using the {@link ChatActivity#bundle} bundle saved.
      * Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
-     * Finally update the action bar for thread imageView and name, The update will occur only if needed so free to call.
+     * Finally update the action bar for thread messageImageView and name, The update will occur only if needed so free to call.
      */
     private void updateChat() {
         updateThreadFromBundle(this.bundle);
@@ -901,7 +895,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     /**
-     * Used for pausing the volley imageView loader while the user is scrolling so the scroll will be smooth.
+     * Used for pausing the volley messageImageView loader while the user is scrolling so the scroll will be smooth.
      */
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -935,7 +929,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
 
-    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition){
+    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
 
         if (showLoadingIndicator) {
             messageListView.setVisibility(View.INVISIBLE);
@@ -945,47 +939,57 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             progressBar.setVisibility(View.INVISIBLE);
         }
 
-        AsyncTask.execute(new Runnable() {
+        NM.thread().loadMoreMessagesForThread(null, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
             @Override
-            public void run() {
+            public void accept(List<Message> messages, Throwable throwable) throws Exception {
+                progressBar.setVisibility(View.INVISIBLE);
 
-                final int listSize = messageListAdapter.getCount();
+                messageListAdapter.setMessages(messages);
 
-                int toLoad = amountToLoad > 0 ? amountToLoad : Defines.MAX_MESSAGES_TO_PULL;
+                if (showLoadingIndicator) {
+                    //animateListView();
+                }
+                messageListView.setVisibility(View.VISIBLE);
 
-                final List<Message> messages = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), listSize + toLoad);
-
-                markAsRead(messages);
-
-                // Sorting the message by date to make sure the list looks ok.
-                Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
-
-                ChatActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.INVISIBLE);
-
-                        messageListAdapter.setMessages(messages);
-
-                        if (showLoadingIndicator) {
-                            //animateListView();
-                        }
-                        messageListView.setVisibility(View.VISIBLE);
-
-                        scrollListTo(toPosition, !showLoadingIndicator);
-
-                    }
-                });
+                scrollListTo(toPosition, !showLoadingIndicator);
             }
         });
+
+//
+//        AsyncTask.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                final int listSize = messageListAdapter.getCount();
+//
+//                int toLoad = amountToLoad > 0 ? amountToLoad : Defines.MAX_MESSAGES_TO_PULL;
+//
+//                final List<Message> messages = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), listSize + toLoad);
+//
+//                markAsRead(messages);
+//
+//                // Sorting the message by date to make sure the list looks ok.
+//                Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
+//
+//                ChatActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                });
+//            }
+//        });
     }
 
     public void markAsRead(List<Message> messages){
-        for (Message m : messages)
-        {
-            m.setIsRead(true);
-            DaoCore.updateEntity(m);
-            readCount++;
+        for (Message m : messages) {
+            markAsRead(m);
+        }
+    }
+
+    public void markAsDelivered(List<Message> messages){
+        for (Message m : messages) {
+            markAsDelivered(m);
         }
     }
 
@@ -993,6 +997,11 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         message.setIsRead(true);
         message.update();
         readCount++;
+    }
+
+    public void markAsDelivered(Message message){
+        message.setDelivered(Message.Delivered.Yes);
+        message.update();
     }
 
     public void scrollListTo(final int position, final boolean animated) {
