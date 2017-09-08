@@ -140,8 +140,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         set.applyTo((ConstraintLayout) findViewById(R.id.chat_sdk_root_view));
 
         // TODO: Remove this
-        etEmail.setText("ben");
-        etPass.setText("123456");
+//        etEmail.setText("ben");
+//        etPass.setText("123456");
 
         appIconImage = (ImageView) findViewById(R.id.app_icon);
 

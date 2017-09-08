@@ -7,6 +7,7 @@ import android.support.multidex.MultiDexApplication;
 import com.braunster.chatsdk.network.FirebaseSocialLoginModule;
 
 import co.chatsdk.core.ChatSDK;
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.dao.DaoCore;
 
 import co.chatsdk.core.utils.AppContext;
@@ -14,6 +15,7 @@ import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.firebase.FirebaseModule;
 import co.chatsdk.firebase.filestorage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.xmpp.XMPPModule;
 import timber.log.Timber;
 import co.chatsdk.ui.helpers.UIHelper;
@@ -38,12 +40,13 @@ public class AppObj extends MultiDexApplication {
             Timber.plant(Timber.asTree());
         }
 
+
         AppContext.shared().setContext(getApplicationContext());
 
         ChatSDK.shared().setContext(context);
 
         XMPPModule.activate();
-//        FirebaseModule.activate();
+        FirebaseModule.activate();
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
