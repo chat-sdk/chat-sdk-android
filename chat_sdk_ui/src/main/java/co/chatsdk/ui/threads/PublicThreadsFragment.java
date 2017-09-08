@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.Thread;
@@ -27,6 +28,7 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableSource;
 import io.reactivex.SingleSource;
 import io.reactivex.annotations.NonNull;
@@ -98,25 +100,18 @@ public class PublicThreadsFragment extends BaseFragment {
         listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                UIHelper.shared().startChatActivityForID(adapter.getItem(position).getId());
+                InterfaceManager.shared().a.startChatActivityForID(adapter.getItem(position).getEntityID());
             }
         });
     }
 
-    @Override
     public void loadData() {
-        super.loadData();
 
-        if (mainView == null)
+        if (mainView == null) {
             return;
+        }
 
         adapter.setAllItems(NM.thread().getThreads(ThreadType.Public));
-    }
-
-    @Override
-    public void refreshForEntity(Object entity) {
-        super.refreshForEntity(entity);
-        adapter.replaceOrAddItem((Thread) entity);
     }
 
     @Override
@@ -161,7 +156,7 @@ public class PublicThreadsFragment extends BaseFragment {
                                     adapter.addRow(thread);
 
                                     // TODO: Improve this
-                                    showToast(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ) ;
+                                    ToastHelper.show(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ); ;
                                 }
                             });
                         }
@@ -180,18 +175,6 @@ public class PublicThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        // TODO: Check this
-//        BatchedEvent batchedEvents = new BatchedEvent(APP_EVENT_TAG, "", Event.Type.AppEvent, handler);
-//
-//        batchedEvents.setBatchedAction(Event.Type.AppEvent, 3000, new Batcher.BatchedAction<String>() {
-//            @Override
-//            public void triggered(List<String> list) {
-//                loadDataOnBackground();
-//            }
-//        });
-//
-//        NetworkManager.getCoreInterface().getEventManager().removeEventByTag(APP_EVENT_TAG);
-//        NetworkManager.getCoreInterface().getEventManager().addEvent(batchedEvents);
+        adapter.notifyDataSetChanged();
     }
 }

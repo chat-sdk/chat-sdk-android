@@ -49,10 +49,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".profile.EditProfileActivity2"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
-
         <activity android:name=".activities.ShareWithContactsActivity"
             android:theme="@style/SdkTheme"
             android:noHistory="true">

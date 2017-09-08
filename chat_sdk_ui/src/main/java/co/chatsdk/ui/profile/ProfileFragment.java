@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
@@ -28,6 +29,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.AvailabilityHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observer;
@@ -87,14 +89,13 @@ public class ProfileFragment extends BaseFragment {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
                 if(networkEvent.user.equals(user)) {
-                    loadData();
+                    updateInterface();
                 }
             }
         }));
 
         initViews(inflater);
-        loadData();
-
+        updateInterface();
 
         return mainView;
     }
@@ -194,7 +195,7 @@ public class ProfileFragment extends BaseFragment {
                                     @Override
                                     public void run() throws Exception {
                                         updateBlockedButton(false);
-                                        ProfileFragment.this.showToast(getString(R.string.user_unblocked));
+                                        ToastHelper.show(R.string.user_unblocked);
                                     }
                                 }));
                             }
@@ -209,7 +210,7 @@ public class ProfileFragment extends BaseFragment {
                                     @Override
                                     public void run() throws Exception {
                                         updateBlockedButton(true);
-                                        ProfileFragment.this.showToast(getString(R.string.user_blocked));
+                                        ToastHelper.show(getString(R.string.user_blocked));
                                     }
                                 }));
                             }
@@ -230,7 +231,7 @@ public class ProfileFragment extends BaseFragment {
                     }).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
-                            ProfileFragment.this.showToast(getString(R.string.user_deleted));
+                            ToastHelper.show(getString(R.string.user_deleted));
                             getActivity().finish();
                         }
                     }));
@@ -342,12 +343,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showSettings() {
-        // Logout and return to the login activity.
-//        FacebookManager.logout(getActivity());
-//
-//        NM.auth().logout();
-//        uiHelper.startLoginActivity(true);
-        UIHelper.shared().startEditProfileActivity(false, NM.currentUser());
+        InterfaceManager.shared().a.startEditProfileActivity(NM.currentUser().getEntityID());
     }
 
     @Override

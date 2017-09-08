@@ -177,6 +177,8 @@ public class Thread implements CoreEntity {
         }
     }
 
+
+
     public boolean containsMessageWithID (String messageEntityID) {
         for(Message m : getMessages()) {
             if(m.getEntityID().equals(messageEntityID)) {

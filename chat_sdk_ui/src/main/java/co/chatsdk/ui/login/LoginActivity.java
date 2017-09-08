@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.hardware.camera2.params.Face;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telecom.Call;
@@ -28,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.User;
@@ -36,6 +39,7 @@ import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.activities.MainActivity;
@@ -78,7 +82,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     /** Passed to the activity in the intent extras, Indicates that the activity was called after the user press the logout button,
      * That means the activity wont try to authenticate in inResume. */
-    public static final String FLAG_LOGGED_OUT = "LoggedOut";
 
     private Button btnLogin, btnReg, btnAnon, btnTwitter, btnGoogle, btnFacebook;
     private ImageView appIconImage;
@@ -119,18 +122,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
 
+        ConstraintSet set = new ConstraintSet();
+
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
-            btnFacebook.setWidth(0);
+            set.constrainWidth(R.id.chat_sdk_btn_facebook_login, 0);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Twitter)) {
-            btnTwitter.setWidth(0);
+            set.constrainWidth(R.id.chat_sdk_btn_twitter_login, 0);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Google)) {
-            btnGoogle.setWidth(0);
+            set.constrainWidth(R.id.chat_sdk_btn_google_login, 0);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
-            btnAnon.setHeight(0);
+            set.constrainHeight(R.id.chat_sdk_btn_anon_login, 0);
         }
+
+        set.applyTo((ConstraintLayout) findViewById(R.id.chat_sdk_root_view));
 
         // TODO: Remove this
         etEmail.setText("ben");
@@ -145,8 +152,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
         });
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -233,7 +238,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         if (loginInfo != null && loginInfo.containsKey(AuthKeys.Type)) {
 
             // If the logged out flag isn't set...
-            if (getIntent() == null || getIntent().getExtras() == null || !getIntent().getExtras().containsKey(FLAG_LOGGED_OUT)) {
+            if (getIntent() == null || getIntent().getExtras() == null || getIntent().getExtras().containsKey(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
 
                 showProgressDialog(getString(R.string.authenticating));
 
@@ -295,7 +300,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
 
         dismissProgressDialog();
-        startMainActivity();
+        InterfaceManager.shared().a.startMainActivity();
     }
 
     public void passwordLogin() {

@@ -32,14 +32,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Date = new Property(1, Long.class, "date", false, "DATE");
-        public final static Property IsRead = new Property(2, Boolean.class, "isRead", false, "IS_READ");
-        public final static Property Resources = new Property(3, String.class, "resources", false, "RESOURCES");
-        public final static Property ResourcesPath = new Property(4, String.class, "resourcesPath", false, "RESOURCES_PATH");
-        public final static Property Text = new Property(5, String.class, "text", false, "TEXT");
-        public final static Property ImageDimensions = new Property(6, String.class, "imageDimensions", false, "IMAGE_DIMENSIONS");
-        public final static Property Type = new Property(7, Integer.class, "type", false, "TYPE");
-        public final static Property Status = new Property(8, Integer.class, "status", false, "STATUS");
-        public final static Property Delivered = new Property(9, Integer.class, "delivered", false, "DELIVERED");
+        public final static Property Read = new Property(2, Boolean.class, "read", false, "READ");
+        public final static Property Delivered = new Property(3, Boolean.class, "delivered", false, "DELIVERED");
+        public final static Property Resources = new Property(4, String.class, "resources", false, "RESOURCES");
+        public final static Property ResourcesPath = new Property(5, String.class, "resourcesPath", false, "RESOURCES_PATH");
+        public final static Property Text = new Property(6, String.class, "text", false, "TEXT");
+        public final static Property ImageDimensions = new Property(7, String.class, "imageDimensions", false, "IMAGE_DIMENSIONS");
+        public final static Property Type = new Property(8, Integer.class, "type", false, "TYPE");
+        public final static Property Status = new Property(9, Integer.class, "status", false, "STATUS");
         public final static Property SenderId = new Property(10, Long.class, "senderId", false, "SENDER_ID");
         public final static Property ThreadId = new Property(11, Long.class, "threadId", false, "THREAD_ID");
         public final static Property EntityID = new Property(12, String.class, "entityID", false, "ENTITY_ID");
@@ -65,14 +65,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"MESSAGE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"DATE\" INTEGER," + // 1: date
-                "\"IS_READ\" INTEGER," + // 2: isRead
-                "\"RESOURCES\" TEXT," + // 3: resources
-                "\"RESOURCES_PATH\" TEXT," + // 4: resourcesPath
-                "\"TEXT\" TEXT," + // 5: text
-                "\"IMAGE_DIMENSIONS\" TEXT," + // 6: imageDimensions
-                "\"TYPE\" INTEGER," + // 7: type
-                "\"STATUS\" INTEGER," + // 8: status
-                "\"DELIVERED\" INTEGER," + // 9: delivered
+                "\"READ\" INTEGER," + // 2: read
+                "\"DELIVERED\" INTEGER," + // 3: delivered
+                "\"RESOURCES\" TEXT," + // 4: resources
+                "\"RESOURCES_PATH\" TEXT," + // 5: resourcesPath
+                "\"TEXT\" TEXT," + // 6: text
+                "\"IMAGE_DIMENSIONS\" TEXT," + // 7: imageDimensions
+                "\"TYPE\" INTEGER," + // 8: type
+                "\"STATUS\" INTEGER," + // 9: status
                 "\"SENDER_ID\" INTEGER," + // 10: senderId
                 "\"THREAD_ID\" INTEGER," + // 11: threadId
                 "\"ENTITY_ID\" TEXT);"); // 12: entityID
@@ -98,44 +98,44 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindLong(2, dateConverter.convertToDatabaseValue(date));
         }
  
-        Boolean isRead = entity.getIsRead();
-        if (isRead != null) {
-            stmt.bindLong(3, isRead ? 1L: 0L);
+        Boolean read = entity.getRead();
+        if (read != null) {
+            stmt.bindLong(3, read ? 1L: 0L);
+        }
+ 
+        Boolean delivered = entity.getDelivered();
+        if (delivered != null) {
+            stmt.bindLong(4, delivered ? 1L: 0L);
         }
  
         String resources = entity.getResources();
         if (resources != null) {
-            stmt.bindString(4, resources);
+            stmt.bindString(5, resources);
         }
  
         String resourcesPath = entity.getResourcesPath();
         if (resourcesPath != null) {
-            stmt.bindString(5, resourcesPath);
+            stmt.bindString(6, resourcesPath);
         }
  
         String text = entity.getText();
         if (text != null) {
-            stmt.bindString(6, text);
+            stmt.bindString(7, text);
         }
  
         String imageDimensions = entity.getImageDimensions();
         if (imageDimensions != null) {
-            stmt.bindString(7, imageDimensions);
+            stmt.bindString(8, imageDimensions);
         }
  
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(8, type);
+            stmt.bindLong(9, type);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(9, status);
-        }
- 
-        Integer delivered = entity.getDelivered();
-        if (delivered != null) {
-            stmt.bindLong(10, delivered);
+            stmt.bindLong(10, status);
         }
  
         Long senderId = entity.getSenderId();
@@ -168,44 +168,44 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindLong(2, dateConverter.convertToDatabaseValue(date));
         }
  
-        Boolean isRead = entity.getIsRead();
-        if (isRead != null) {
-            stmt.bindLong(3, isRead ? 1L: 0L);
+        Boolean read = entity.getRead();
+        if (read != null) {
+            stmt.bindLong(3, read ? 1L: 0L);
+        }
+ 
+        Boolean delivered = entity.getDelivered();
+        if (delivered != null) {
+            stmt.bindLong(4, delivered ? 1L: 0L);
         }
  
         String resources = entity.getResources();
         if (resources != null) {
-            stmt.bindString(4, resources);
+            stmt.bindString(5, resources);
         }
  
         String resourcesPath = entity.getResourcesPath();
         if (resourcesPath != null) {
-            stmt.bindString(5, resourcesPath);
+            stmt.bindString(6, resourcesPath);
         }
  
         String text = entity.getText();
         if (text != null) {
-            stmt.bindString(6, text);
+            stmt.bindString(7, text);
         }
  
         String imageDimensions = entity.getImageDimensions();
         if (imageDimensions != null) {
-            stmt.bindString(7, imageDimensions);
+            stmt.bindString(8, imageDimensions);
         }
  
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(8, type);
+            stmt.bindLong(9, type);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(9, status);
-        }
- 
-        Integer delivered = entity.getDelivered();
-        if (delivered != null) {
-            stmt.bindLong(10, delivered);
+            stmt.bindLong(10, status);
         }
  
         Long senderId = entity.getSenderId();
@@ -240,14 +240,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
         Message entity = new Message( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 1)), // date
-            cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // isRead
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // resources
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resourcesPath
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // text
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // imageDimensions
-            cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // type
-            cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // status
-            cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9), // delivered
+            cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0, // read
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // delivered
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // resources
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // resourcesPath
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // text
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // imageDimensions
+            cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // type
+            cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9), // status
             cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10), // senderId
             cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // threadId
             cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12) // entityID
@@ -259,14 +259,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
     public void readEntity(Cursor cursor, Message entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setDate(cursor.isNull(offset + 1) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 1)));
-        entity.setIsRead(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
-        entity.setResources(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setResourcesPath(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setText(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setImageDimensions(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
-        entity.setStatus(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
-        entity.setDelivered(cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9));
+        entity.setRead(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
+        entity.setDelivered(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
+        entity.setResources(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setResourcesPath(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setText(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setImageDimensions(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setType(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
+        entity.setStatus(cursor.isNull(offset + 9) ? null : cursor.getInt(offset + 9));
         entity.setSenderId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
         entity.setThreadId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
         entity.setEntityID(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));

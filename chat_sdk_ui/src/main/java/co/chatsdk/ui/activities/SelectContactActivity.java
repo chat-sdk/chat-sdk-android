@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
@@ -31,6 +32,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
 import io.reactivex.annotations.NonNull;
@@ -70,7 +72,7 @@ public class SelectContactActivity extends BaseActivity {
     private int mode = MODE_NEW_CONVERSATION;
 
     /** For add to conversation mode.*/
-    private long threadID = -1;
+    private String threadEntityID = "";
 
     /** For add to conversation mode.*/
     private Thread thread;
@@ -120,7 +122,7 @@ public class SelectContactActivity extends BaseActivity {
 
     private void getDataFromBundle(Bundle bundle){
         mode = bundle.getInt(MODE, mode);
-        threadID = bundle.getLong(ThreadDetailsActivity.THREAD_ID, threadID);
+        threadEntityID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadEntityID);
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
 
@@ -136,7 +138,7 @@ public class SelectContactActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(ThreadDetailsActivity.THREAD_ID, threadID);
+        outState.putString(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadEntityID);
         outState.putInt(MODE, mode);
         outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
@@ -189,8 +191,8 @@ public class SelectContactActivity extends BaseActivity {
         final List<User> list = NM.contact().contacts();
 
         // Removing the users that is already inside the thread.
-        if (mode == MODE_ADD_TO_CONVERSATION && threadID != -1){
-            thread = StorageManager.shared().fetchThreadWithID(threadID);
+        if (mode == MODE_ADD_TO_CONVERSATION && !threadEntityID.equals("")){
+            thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
             List<User> threadUser = thread.getUsers();
             list.removeAll(threadUser);
         }
@@ -306,7 +308,7 @@ public class SelectContactActivity extends BaseActivity {
         View.OnClickListener searchClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UIHelper.shared().startSearchActivity();
+                InterfaceManager.shared().a.startSearchActivity();
             }
         };
 

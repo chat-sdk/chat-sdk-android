@@ -8,9 +8,11 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.BiConsumer;
 
 /**
@@ -26,7 +28,7 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_profile_activity);
 
-        String userEntityID = getIntent().getStringExtra(UIHelper.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(BaseInterfaceAdapter.USER_ENTITY_ID);
 
         if(userEntityID != null && !userEntityID.isEmpty()) {
             user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
@@ -38,7 +40,7 @@ public class ProfileActivity extends BaseActivity {
         }
 
 
-        UIHelper.shared().showToast(getString(R.string.user_entity_id_not_set));
+        ToastHelper.show(R.string.user_entity_id_not_set);
         finish();
 
     }

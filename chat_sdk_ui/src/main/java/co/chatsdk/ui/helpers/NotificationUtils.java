@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
@@ -288,7 +289,7 @@ public class NotificationUtils {
     }
 
     private static Intent getChatResultIntent(Context context){
-        return new Intent(context, UIHelper.shared().getMainActivity());
+        return new Intent(context, InterfaceManager.shared().a.getMainActivity());
     }
 
     /** Cancel the ongoing notification that controls the connection state and play/stop*/

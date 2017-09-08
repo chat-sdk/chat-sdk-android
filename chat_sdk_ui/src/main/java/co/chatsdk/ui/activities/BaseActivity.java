@@ -26,6 +26,7 @@ import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
@@ -44,9 +45,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private static final boolean DEBUG = Debug.BaseActivity;
 
-    public static final String FROM_LOGIN = "From_Login";
-
-//    private UiLifecycleHelper uiHelper;
+    public static final String FROM_LOGIN = "FROM_LOGIN";
 
     private ProgressDialog progressDialog;
 
@@ -57,24 +56,13 @@ public class BaseActivity extends AppCompatActivity {
     /** A flag indicates that the activity in opened from the login activity so we wont do auth check when the activity will get to the onResume state.*/
     boolean fromLoginActivity = false;
 
-    /** Need to be set before on create, If true card toast will be available while activity run, You need to add a layout with a special id for this to work.
-     * Example can be seen in the chat activity.
-     * You cant use the card toast until onResume is called due to the config of the card toast. If you need it you can call initCardToast.*/
-    private boolean enableCardToast = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
-//            uiHelper = new UiLifecycleHelper(this, callback);
-//            uiHelper.onCreate(savedInstanceState);
-        }
-
         if (getIntent() != null && getIntent().getExtras() != null) {
-            if (DEBUG) Timber.d("From login");
             fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
-            // So we wont encounter this flag again.
+            // So we won't encounter this flag again.
             getIntent().removeExtra(FROM_LOGIN);
         }
         else {
@@ -85,11 +73,6 @@ public class BaseActivity extends AppCompatActivity {
             fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
         }
 
-//        if (enableCardToast)
-//        {
-//            SuperCardToast.onRestoreState(savedInstanceState, BaseActivity.this);
-//        }
-
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }
@@ -97,7 +80,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        
     }
 
     /**
@@ -144,18 +126,11 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-//            uiHelper.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) {
-//            uiHelper.onResume();
-//        }
-
         fromLoginActivity = false;
     }
 
@@ -184,17 +159,13 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook)) uiHelper.onSaveInstanceState(outState);
-
         outState.putBoolean(FROM_LOGIN, fromLoginActivity);
-
-//        if (enableCardToast)
-//            SuperCardToast.onSaveState(outState);
     }
 
-    /** Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.
-     * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext*/
+    /**
+     * Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.
+     * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
+     * */
     public void setupTouchUIToDismissKeyboard(View view) {
         UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
@@ -203,16 +174,6 @@ public class BaseActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                hideSoftKeyboard(BaseActivity.this);
-                return false;
-            }
-        }, exceptIDs);
     }
 
     public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
@@ -229,28 +190,12 @@ public class BaseActivity extends AppCompatActivity {
         if (StringUtils.isEmpty(text))
             return;
 
-        UIHelper.shared().showToast(text);
+        ToastHelper.show(text);
     }
-
-
 
     /** Authenticates the current user.*/
     public Completable authenticate(){
         return NM.auth().authenticateWithCachedToken();
-    }
-
-    /** Start the chat activity for the given thread id.
-     * @param id is the long value of local db id.*/
-    public void startChatActivityForID(long id){
-        UIHelper.shared().startChatActivityForID(id);
-    }
-
-    public void startLoginActivity(boolean loggedOut){
-        UIHelper.shared().startLoginActivity(loggedOut);
-    }
-
-    public void startMainActivity(){
-        UIHelper.shared().startMainActivity();
     }
 
     protected void showProgressDialog(String message){
@@ -280,52 +225,16 @@ public class BaseActivity extends AppCompatActivity {
     protected void dismissProgressDialog(){
         // For handling orientation changed.
         try {
-            if (progressDialog != null && progressDialog.isShowing())
+            if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
+            }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-//    protected void onSessionStateChange(Session session, final SessionState state, Exception exception){
-//        FacebookManager.onSessionStateChange(session, state, exception).doOnError(new Consumer<Throwable>() {
-//            @Override
-//            public void accept(Throwable throwable) throws Exception {
-//                if (DEBUG) Timber.e("onDoneWithError. Error: %s", throwable.getMessage());
-//                // Facebook session is closed so we need to disconnect from firebase.
-//                NM.auth().logout();
-//                startLoginActivity(true);
-//            }
-//        });
-//    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(DEBUG) Timber.v("onActivityResult");
-        
-//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-//            uiHelper.onActivityResult(requestCode, resultCode, data);
-    }
-
-//    // Facebook Login stuff.
-//    private Session.StatusCallback callback = new Session.StatusCallback() {
-//        @Override
-//        public void call(Session session, SessionState state, Exception exception) {
-//            if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-//                onSessionStateChange(session, state, exception);
-//        }
-//    };
-
     public void enableFacebookIntegration(boolean integratedWithFacebook) {
         this.integratedWithFacebook = integratedWithFacebook;
-    }
-
-    public void setCardToastEnabled(boolean enableCardToast) {
-        this.enableCardToast = enableCardToast;
-    }
-
-    public void onAuthenticationFailed() {
-        startLoginActivity(true);
     }
 
 }

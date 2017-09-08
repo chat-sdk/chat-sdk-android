@@ -43,6 +43,7 @@ public class MessageListItem {
 
         message.valueForKey(Keys.MessageImageWidth);
 
+        // TODO: This is only here for backwards compatibility
         dimensions = getDimensions(maxWidth);
 
     }
@@ -72,7 +73,7 @@ public class MessageListItem {
     }
 
     public boolean delivered () {
-        return message.wasDelivered() == Message.Delivered.Yes;
+        return message.getDelivered();
     }
 
     public Integer status () {
@@ -81,24 +82,41 @@ public class MessageListItem {
 
     public int width () {
         Object width = message.valueForKey(Keys.MessageImageWidth);
-        if(width != null && width instanceof String) {
-            return Integer.parseInt((String) width);
+        int w = objectToInteger(width);
+        if(w > 0) {
+            return w;
         }
-        // TODO: Remove this
         return dimensions[0];
-    }
-
-    public String getProfilePicUrl () {
-        return message.getSender().getAvatarURL();
     }
 
     public int height () {
         Object height = message.valueForKey(Keys.MessageImageHeight);
-        if(height != null && height instanceof String) {
-            return Integer.parseInt((String) height);
+        int h = objectToInteger(height);
+        if(h > 0) {
+            return h;
         }
-        // TODO: Remove this
         return dimensions[1];
+    }
+
+    public Integer objectToInteger (Object value) {
+        if(value != null) {
+            if(value instanceof String) {
+                try {
+                    return Integer.parseInt((String) value);
+                }
+                catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(value instanceof Integer) {
+                return (Integer) value;
+            }
+        }
+        return 0;
+    }
+
+    public String getProfilePicUrl () {
+        return message.getSender().getAvatarURL();
     }
 
     private static SimpleDateFormat getFormat(Message message){
@@ -132,6 +150,7 @@ public class MessageListItem {
 
         if (StringUtils.isNotEmpty(getText())) {
 
+            // Text comes in the form: url1, url2, W[width]&H[height]
             try {
                 String[] data = getText().split(Defines.DIVIDER);
                 dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
@@ -140,8 +159,8 @@ public class MessageListItem {
                 if (dimensions.length != 2)
                     dimensions = null;
 
-            }catch (Exception e){  dimensions = null;}
-
+            }
+            catch (Exception e){  dimensions = null;}
         }
         else if (StringUtils.isNotEmpty(message.getImageDimensions())) {
 

@@ -45,6 +45,7 @@ import com.squareup.picasso.Target;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
@@ -292,7 +293,7 @@ public class DialogUtils {
 
                         @Override
                         public void onBitmapFailed(Drawable errorDrawable) {
-                            UIHelper.showToast(R.string.unable_to_fetch_image);
+                            ToastHelper.show(R.string.unable_to_fetch_image);
                             progressBar.setVisibility(View.GONE);
                             dismiss();
                         }

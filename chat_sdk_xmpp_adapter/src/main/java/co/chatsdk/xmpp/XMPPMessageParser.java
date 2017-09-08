@@ -97,7 +97,7 @@ public class XMPPMessageParser {
                     message.setDate(new DateTime());
                 }
 
-                message.setDelivered(Message.Delivered.Yes);
+                message.setDelivered(true);
 
                 // Does the message have an extension?
                 StandardExtensionElement element = xmppMessage.getExtension(XMPPDefines.Extras, XMPPDefines.MessageNamespace);

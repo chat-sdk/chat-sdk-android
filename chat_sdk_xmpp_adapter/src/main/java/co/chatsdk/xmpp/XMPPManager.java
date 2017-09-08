@@ -62,6 +62,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -217,8 +218,6 @@ public class XMPPManager {
 
     public void performPostAuthenticationSetup () {
 
-//        android.os.Debug.startMethodTracing("auth.trace");
-
         disposables.add(userManager.loadContactsFromRoster().subscribe());
         roster().addRosterListener(rosterListener);
 
@@ -234,9 +233,6 @@ public class XMPPManager {
                 }
             }));
         }
-
-//        android.os.Debug.stopMethodTracing();
-
     }
 
     public Roster roster() {

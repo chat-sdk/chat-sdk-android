@@ -9,6 +9,7 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.helpers.DialogUtils;
+import co.chatsdk.ui.utils.ToastHelper;
 
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.
@@ -45,11 +46,11 @@ public class ImageMessageClickListener implements View.OnClickListener {
             }
 
             if (popupWindow == null)
-                helper().showToast(activity.getString(R.string.message_adapter_load_image_fail));
+                ToastHelper.show(R.string.message_adapter_load_image_fail);
             else popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
         }
         else {
-            helper().showToast(activity.getString(R.string.message_adapter_load_image_fail));
+            ToastHelper.show(activity.getString(R.string.message_adapter_load_image_fail));
         }
     }
 

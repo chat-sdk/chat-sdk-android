@@ -1,5 +1,6 @@
 package co.chatsdk.core.handlers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.core.dao.User;
@@ -27,4 +28,7 @@ public interface ContactHandler {
     */
     Completable addContact (User user, ConnectionType type);
     Completable deleteContact (User user, ConnectionType type);
+
+    Completable addContacts(ArrayList<User> users, ConnectionType type);
+    Completable deleteContacts(ArrayList<User> users, ConnectionType type);
 }

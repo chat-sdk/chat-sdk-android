@@ -46,6 +46,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 
 /**
@@ -111,7 +112,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         DaoCore.createEntity(message);
         message.setSender(NM.currentUser());
         message.setStatus(Message.Status.SENDING);
-        message.setDelivered(Message.Delivered.No);
+        message.setDelivered(false);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
         return message;
@@ -219,6 +220,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                             message.setValueForKey(result.imageURL, Keys.MessageImageURL);
                             message.setValueForKey(result.thumbnailURL, Keys.MessageThumbnailURL);
 
+                            Timber.v("Progress: " + result.progress.asFraction());
+
                         }
 
                         result.message = message;
@@ -232,16 +235,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                     @Override
                     public void onComplete() {
-                        implSendMessage(message).doOnError(new Consumer<Throwable>() {
+                        implSendMessage(message).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onComplete();
+                            }
+                        }, new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) throws Exception {
                                 throwable.printStackTrace();
                                 e.onError(throwable);
-                            }
-                        }).subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                e.onComplete();
                             }
                         });
                     }
@@ -281,21 +284,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         List<Thread> threads = getThreads(ThreadType.Private, false);
 
         int count = 0;
-        for (Thread t : threads)
-        {
-            if (onePerThread)
-            {
-                if(!t.isLastMessageWasRead())
-                {
+        for (Thread t : threads) {
+            if (onePerThread) {
+                if(!t.isLastMessageWasRead()) {
                     count++;
                 }
             }
-            else
-            {
+            else {
                 count += t.getUnreadMessagesAmount();
             }
         }
-
         return count;
     }
 

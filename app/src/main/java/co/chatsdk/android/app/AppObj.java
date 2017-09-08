@@ -48,7 +48,5 @@ public class AppObj extends MultiDexApplication {
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
         //FirebaseSocialLoginModule.activate(this);
-
-        UIHelper.shared().setContext(context);
     }
 }

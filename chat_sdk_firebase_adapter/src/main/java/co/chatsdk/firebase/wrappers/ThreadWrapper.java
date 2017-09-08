@@ -201,9 +201,9 @@ public class ThreadWrapper  {
                                     model.setDeleted(false);
 
                                     MessageWrapper message = new MessageWrapper(snapshot);
-                                    boolean newMessage = message.getModel().getDelivered() == Message.Delivered.No;
+                                    boolean newMessage = !message.getModel().getDelivered();
 
-                                    message.setDelivered(Message.Delivered.Yes);
+                                    message.setDelivered(true);
 
                                     // Update the thread
                                     DaoCore.updateEntity(model);
@@ -438,7 +438,7 @@ public class ThreadWrapper  {
                                     message = new MessageWrapper(snapshot.child(key));
                                     model.addMessage(message.getModel());
 
-                                    message.setDelivered(Message.Delivered.Yes);
+                                    message.setDelivered(true);
 
                                     DaoCore.updateEntity(message.getModel());
                                     messages.add(message.getModel());

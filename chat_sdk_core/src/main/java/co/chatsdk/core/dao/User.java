@@ -86,23 +86,6 @@ public class User implements CoreEntity {
     public User() {
     }
 
-
-    public String[] getCacheIDs(){
-        return new String[]{entityID != null ? entityID : ""};
-    }
-
-    /** Get a link account of the user by type.
-     * @return LinkedAccount if found or otherwise null
-     */
-    public LinkedAccount getAccountWithType(int type){
-        for (LinkedAccount account : getLinkedAccounts())
-        {
-            if (account.getType() == type)
-                return account;
-        }
-        return null;
-    }
-
     public List<User> getContacts() {
         return getContacts(ConnectionType.Contact);
     }
@@ -124,6 +107,7 @@ public class User implements CoreEntity {
     }
 
     public void addContact(User user, ConnectionType type) {
+
         if (user.equals(this)) {
             return;
         }
@@ -146,7 +130,7 @@ public class User implements CoreEntity {
         contactLink.setUserId(user.getId());
         // insert contact link entity into DB
         daoSession.insertOrReplace(contactLink);
-        daoSession.update(this);
+        this.update();
     }
 
     public void deleteContact (User user) {

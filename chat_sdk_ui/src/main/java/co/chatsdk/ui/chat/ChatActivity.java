@@ -30,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
@@ -40,13 +41,16 @@ import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
+import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageUploadResult;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.utils.ToastHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -103,7 +107,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     /**
      * The key to get the thread long id.
      */
-    public static final String THREAD_ID = "thread_id";
     public static final String LIST_POS = "list_pos";
 
     /**
@@ -154,8 +157,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setCardToastEnabled(true);
-
         initViews();
 
         if (!updateThreadFromBundle(savedInstanceState))
@@ -199,7 +200,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
 
-    protected void initActionBar() {
+    protected void initActionBar () {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
@@ -283,7 +284,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         }
                     });
                 } catch (Exception e) {
-                    UIHelper.shared().showToast(e.getMessage());
+                    ToastHelper.show(e.getLocalizedMessage());
                 }
             }
 
@@ -388,7 +389,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     /**
      * Send text message
      *
-     * @param text          the text to send.
+     * @param text to send.
      * @param clearEditText if true clear the message edit text.
      */
     public void sendMessage(String text, boolean clearEditText) {
@@ -404,7 +405,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         throwable.printStackTrace();
-                        UIHelper.shared().showToast(R.string.unable_to_send_message);
+                        ToastHelper.show(R.string.unable_to_send_message);
                     }
                 }).subscribe());
 
@@ -422,10 +423,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         throwable.printStackTrace();
-                        UIHelper.shared().showToast(R.string.unable_to_send_location_message);
+                        ToastHelper.show(R.string.unable_to_send_location_message);
                     }
                 }).subscribe());
-
     }
 
     /**
@@ -450,7 +450,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             @Override
             public void onError(@NonNull Throwable e) {
                 e.printStackTrace();
-                UIHelper.shared().showToast(R.string.unable_to_send_image_message);
+                ToastHelper.show(R.string.unable_to_send_image_message);
             }
 
             @Override
@@ -468,8 +468,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         super.onSaveInstanceState(outState);
 
         // Save the thread ID
-        if (thread != null)
-            outState.putLong(THREAD_ID, thread.getId());
+        if (thread != null) {
+            outState.putString(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
+        }
 
         // Save the list position
         outState.putInt(LIST_POS, messageListView.getFirstVisiblePosition());
@@ -522,7 +523,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                             //v.vibrate(Defines.VIBRATION_DURATION);
                         }
 
-                        message.setDelivered(Message.Delivered.Yes);
+                        message.setDelivered(true);
                         message.update();
 
                     }
@@ -581,6 +582,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             User currentUser = NM.currentUser();
             disposableList.add(NM.thread().addUsersToThread(thread, currentUser).subscribe());
         }
+
+        markAsRead(thread.getMessages());
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
@@ -680,7 +683,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
         catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().length() > 0) {
-                UIHelper.shared().showToast(e.getMessage());
+                ToastHelper.show(e.getLocalizedMessage());
             }
         }
 
@@ -696,7 +699,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             if (resultCode == RESULT_OK) {
                 // Updating the selected chat id.
-                if (data != null && data.getExtras() != null && data.getExtras().containsKey(THREAD_ID)) {
+                if (data != null && data.getExtras() != null && data.getExtras().containsKey(BaseInterfaceAdapter.THREAD_ENTITY_ID)) {
                     if (!updateThreadFromBundle(data.getExtras())) {
                         return;
                     }
@@ -754,10 +757,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      * The default add users activity will remove contacts that is already in this chat.
      */
     protected void startAddUsersActivity() {
-        // Showing the pick friends activity.
-        Intent intent = new Intent(this, UIHelper.shared().getPickFriendsActivity());
+        Intent intent = new Intent(this, InterfaceManager.shared().a.getSelectContactActivity());
         intent.putExtra(SelectContactActivity.MODE, SelectContactActivity.MODE_ADD_TO_CONVERSATION);
-        intent.putExtra(THREAD_ID, thread.getId());
+        intent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
         intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
@@ -779,8 +781,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     protected void openThreadDetailsActivity() {
         // Showing the pick friends activity.
-        Intent intent = new Intent(this, UIHelper.shared().getThreadDetailsActivity());
-        intent.putExtra(THREAD_ID, thread.getId());
+        Intent intent = new Intent(this, InterfaceManager.shared().a.getThreadDetailsActivity());
+        intent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
         intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
@@ -794,7 +796,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     private boolean updateThreadFromBundle(Bundle bundle) {
 
-        if (bundle != null && (bundle.containsKey(THREAD_ID))) {
+        if (bundle != null && (bundle.containsKey(BaseInterfaceAdapter.THREAD_ENTITY_ID))) {
             this.bundle = bundle;
         }
         else {
@@ -805,8 +807,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             this.bundle = getIntent().getExtras();
         }
 
-        if (this.bundle.containsKey(THREAD_ID)) {
-            thread = StorageManager.shared().fetchThreadWithID(this.bundle.getLong(THREAD_ID));
+        if (this.bundle.containsKey(BaseInterfaceAdapter.THREAD_ENTITY_ID)) {
+            thread = StorageManager.shared().fetchThreadWithEntityID(this.bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID));
         }
         if (this.bundle.containsKey(LIST_POS)) {
             listPos = (Integer) this.bundle.get(LIST_POS);
@@ -888,7 +890,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             if (DEBUG) Timber.d("onBackPressed, From Push");
             bundle.remove(Defines.FROM_PUSH);
 
-            UIHelper.shared().startMainActivity();
+            InterfaceManager.shared().a.startMainActivity();
             return;
         }
         super.onBackPressed();
@@ -1000,29 +1002,19 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     public void markAsDelivered(Message message){
-        message.setDelivered(Message.Delivered.Yes);
+        message.setDelivered(true);
         message.update();
     }
 
     public void scrollListTo(final int position, final boolean animated) {
-        messageListView.post(new Runnable() {
-            @Override
-            public void run() {
+        listPos = position;
 
-                listPos = position;
-
-                if (animated) {
-                    messageListView.smoothScrollToPosition(listPos);
-                }
-                else {
-                    messageListView.setSelection(listPos);
-                }
-
-                if (animated) {
-                    //animateListView();
-                }
-            }
-        });
+        if (animated) {
+            messageListView.smoothScrollToPosition(listPos);
+        }
+        else {
+            messageListView.setSelection(listPos);
+        }
     }
 
     public void scrollListTo(final ListPosition position, final boolean animated) {
@@ -1043,7 +1035,4 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         scrollListTo(pos, animated);
     }
-
-//anim
-
 }

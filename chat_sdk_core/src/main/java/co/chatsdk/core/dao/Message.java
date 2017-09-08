@@ -29,16 +29,12 @@ import timber.log.Timber;
 @org.greenrobot.greendao.annotation.Entity
 public class Message implements CoreEntity {
 
-    public static final class Type{
+    public static final class Type {
         public static final int TEXT = 0, IMAGE = 2, LOCATION = 1;
     }
 
-    public static final class Status{
+    public static final class Status {
         public static final int NULL = 0, SENDING = 1, SENT = 2, FAILED = 3;
-    }
-
-    public static final class Delivered{
-        public static final int Yes = 0, No= 1;
     }
 
     // TODO: test how this handles timezones
@@ -63,14 +59,14 @@ public class Message implements CoreEntity {
 
     @Convert(converter = DateTimeConverter.class, columnType = Long.class)
     private DateTime date;
-    private Boolean isRead;
+    private Boolean read;
+    private Boolean delivered;
     private String resources;
     private String resourcesPath;
     private String text;
     private String imageDimensions;
     private Integer type;
     private Integer status;
-    private Integer delivered;
     private Long senderId;
     private Long threadId;
     private String entityID;
@@ -91,24 +87,25 @@ public class Message implements CoreEntity {
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
+
     /** Used for active entity operations. */
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 1883941140)
-    public Message(Long id, DateTime date, Boolean isRead, String resources, String resourcesPath,
-            String text, String imageDimensions, Integer type, Integer status, Integer delivered,
+    @Generated(hash = 190958719)
+    public Message(Long id, DateTime date, Boolean read, Boolean delivered, String resources,
+            String resourcesPath, String text, String imageDimensions, Integer type, Integer status,
             Long senderId, Long threadId, String entityID) {
         this.id = id;
         this.date = date;
-        this.isRead = isRead;
+        this.read = read;
+        this.delivered = delivered;
         this.resources = resources;
         this.resourcesPath = resourcesPath;
         this.text = text;
         this.imageDimensions = imageDimensions;
         this.type = type;
         this.status = status;
-        this.delivered = delivered;
         this.senderId = senderId;
         this.threadId = threadId;
         this.entityID = entityID;
@@ -120,9 +117,9 @@ public class Message implements CoreEntity {
 
     @Generated(hash = 1667105234)
     private transient Long Sender__resolvedKey;
+
     @Generated(hash = 1974258785)
     private transient Long thread__resolvedKey;
-
 
     public String color() {
         return getSender().getMessageColor();
@@ -135,14 +132,9 @@ public class Message implements CoreEntity {
         return status;
     }
     
-    public int wasDelivered(){
-       return delivered == null ?  Delivered.Yes :  delivered;
-        
-    }
-
     /** Null safe version of getIsRead*/
-    public boolean wasRead(){
-        return isRead==null || isRead;
+    public boolean wasRead() {
+        return read != null && read;
     }
 
     @Override
@@ -175,11 +167,11 @@ public class Message implements CoreEntity {
     }
 
     public Boolean getIsRead() {
-        return this.isRead;
+        return this.read;
     }
 
     public void setIsRead(Boolean isRead) {
-        this.isRead = isRead;
+        this.read = isRead;
     }
 
     public String getResources() {
@@ -318,13 +310,11 @@ public class Message implements CoreEntity {
         this.status = status;
     }
 
-    // TODO: Refactor this to be a bool
-    @Deprecated
-    public Integer getDelivered() {
-        return delivered == null ? Delivered.No : delivered;
+    public boolean getDelivered() {
+        return delivered != null && delivered;
     }
 
-    public void setDelivered(Integer delivered) {
+    public void setDelivered(boolean delivered) {
         this.delivered = delivered;
     }
 
@@ -342,6 +332,18 @@ public class Message implements CoreEntity {
 
     public void setSenderId(Long senderId) {
         this.senderId = senderId;
+    }
+
+    public Boolean getRead() {
+        return this.read;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read;
+    }
+
+    public void setDelivered(Boolean delivered) {
+        this.delivered = delivered;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -444,7 +446,4 @@ public class Message implements CoreEntity {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getMessageDao() : null;
     }
-
-
-
 }

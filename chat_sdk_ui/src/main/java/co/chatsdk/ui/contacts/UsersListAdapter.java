@@ -203,7 +203,7 @@ public class UsersListAdapter extends BaseAdapter {
         return false;
     }
 
-    public void setUsers(List<User> users, boolean sort) {
+    synchronized public void setUsers(List<User> users, boolean sort) {
         ArrayList<UserListItem> items = new ArrayList<>();
         for(User user : users) {
             items.add(new UserListItem(user, R.layout.chat_sdk_row_contact, TYPE_USER));

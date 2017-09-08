@@ -47,10 +47,6 @@ import java.util.List;
  */
 public class SearchActivity extends BaseActivity {
 
-    /** Request code for on activity result. For the add when found mode.
-     * In the result intent there will be list of all the users entity id that were found and added.*/
-    public static final int GET_CONTACTS_ADDED_REQUEST = 10;
-
     private ImageView btnSearch;
     private Button btnAddContacts;
     private EditText etInput;

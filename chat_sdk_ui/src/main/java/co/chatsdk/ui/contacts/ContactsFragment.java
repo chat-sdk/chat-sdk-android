@@ -20,6 +20,7 @@ import android.view.Window;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Thread;
@@ -27,8 +28,10 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
@@ -43,6 +46,7 @@ import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.core.dao.DaoCore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.schedulers.Schedulers;
@@ -90,7 +94,7 @@ public class ContactsFragment extends BaseFragment {
 
     /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
      * {@link #loadingMode}*/
-    protected List<User> sourceUsers = null;
+    protected List<User> sourceUsers = new ArrayList<>();
 
     /** Used when the fragment is shown as a dialog*/
     protected String title = "";
@@ -161,18 +165,6 @@ public class ContactsFragment extends BaseFragment {
         return f;
     }
 
-//    public static ContactsFragment newDialogInstance(int loadingMode, int clickMode, String title, Object extraData) {
-//        ContactsFragment f = new ContactsFragment();
-//        f.setDialog();
-//        f.setLoadingMode(loadingMode);
-//        f.setExtraData(extraData);
-//        f.setClickMode(clickMode);
-//        f.setTitle(title);
-//        Bundle b = new Bundle();
-//        f.setArguments(b);
-//        return f;
-//    }
-
     public void setDialog(){
         this.isDialog = true;
     }
@@ -214,7 +206,8 @@ public class ContactsFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                loadData();
+                loadData(false);
+                Timber.v("Contacts Notification");
             }
         }));
 
@@ -223,7 +216,7 @@ public class ContactsFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData();
+                        loadData(true);
                     }
                 }));
 
@@ -244,7 +237,7 @@ public class ContactsFragment extends BaseFragment {
 
         initViews();
 
-        loadData();
+        loadData(true);
 
         return mainView;
     }
@@ -292,19 +285,20 @@ public class ContactsFragment extends BaseFragment {
         int id = item.getItemId();
 
         // Each user that will be found in the search activity will be automatically added as a contact.
-        if (id == R.id.action_chat_sdk_add)
-        {
-            Intent intent = new Intent(getActivity(), UIHelper.shared().getSearchActivity());
-
-            startActivityForResult(intent, SearchActivity.GET_CONTACTS_ADDED_REQUEST);
+        if (id == R.id.action_chat_sdk_add) {
+            Intent intent = new Intent(getActivity(), InterfaceManager.shared().a.getSearchActivity());
+            startActivityForResult(intent, BaseInterfaceAdapter.REQUEST_CODE_GET_CONTACTS);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void loadData () {
+    public void loadData (final boolean force) {
+
+        final ArrayList<User> originalUserList = new ArrayList<>();
+        originalUserList.addAll(sourceUsers);
+
         reloadUsers().doOnError(new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
@@ -313,13 +307,15 @@ public class ContactsFragment extends BaseFragment {
         }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
-                adapter.setUsers(sourceUsers, true);
+                if(!originalUserList.equals(sourceUsers) || force) {
+                    adapter.setUsers(sourceUsers, true);
+                    Timber.v("Update Contact List");
+                }
                 setupListClickMode();
             }
         });
     }
 
-    @Override
     public void clearData() {
         if (adapter != null) {
             adapter.getUserItems().clear();
@@ -350,13 +346,12 @@ public class ContactsFragment extends BaseFragment {
                                     @Override
                                     public void accept(@NonNull Throwable throwable) throws Exception {
                                         throwable.printStackTrace();
-                                        UIHelper.shared().showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                        ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
                                     }
                                 }).subscribe(new Action() {
                                     @Override
                                     public void run() throws Exception {
-                                        showToast(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
-
+                                        ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
                                         if (isDialog) {
                                             getDialog().dismiss();
                                         }
@@ -368,7 +363,7 @@ public class ContactsFragment extends BaseFragment {
                         case CLICK_MODE_NONE:
                             break;
                         default:
-                            startProfileActivityForUser(clickedUser);
+                            InterfaceManager.shared().a.startProfileActivity(clickedUser.getEntityID());
                     }
                 }
             });
@@ -380,11 +375,13 @@ public class ContactsFragment extends BaseFragment {
             @Override
             public void subscribe(@NonNull CompletableEmitter e) throws Exception {
                 if (loadingMode != MODE_USE_SOURCE) {
-                    // If this is not a dialog we will load the contacts of the user.
+
+                    sourceUsers.clear();
+                   // If this is not a dialog we will load the contacts of the user.
                     switch (loadingMode) {
                         case MODE_LOAD_CONTACTS:
                             if (DEBUG) Timber.d("Mode - Contacts");
-                            sourceUsers = NM.contact().contacts();
+                            sourceUsers.addAll(NM.contact().contacts());
                             Timber.d("Contacts: " + sourceUsers.size());
                             break;
 
@@ -396,7 +393,7 @@ public class ContactsFragment extends BaseFragment {
                             List<User> users = thread.getUsers();
                             users.remove(NM.currentUser());
 
-                            sourceUsers = users;
+                            sourceUsers.addAll(users);
                             break;
 
                         case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
@@ -404,7 +401,7 @@ public class ContactsFragment extends BaseFragment {
                             thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
                             List<User> threadUser = thread.getUsers();
                             users1.removeAll(threadUser);
-                            sourceUsers = users1;
+                            sourceUsers.addAll(users1);
                             break;
                     }
                 }
@@ -416,7 +413,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadData();
+        loadData(true);
     }
 
     @Override

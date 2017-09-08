@@ -31,15 +31,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.Cropper;
+import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.annotations.NonNull;
@@ -75,7 +78,7 @@ public class EditProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_edit_profile);
 
-        String userEntityID = getIntent().getStringExtra(UIHelper.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(BaseInterfaceAdapter.USER_ENTITY_ID);
 
         if(userEntityID == null || userEntityID.isEmpty()) {
             showToast("User Entity ID not set");
@@ -211,7 +214,7 @@ public class EditProfileActivity extends BaseActivity {
         }).subscribe(new Action() {
             @Override
             public void run() throws Exception {
-                UIHelper.shared().startLoginActivity(true);
+                InterfaceManager.shared().a.startLoginActivity(false);
             }
         });
     }
@@ -272,7 +275,7 @@ public class EditProfileActivity extends BaseActivity {
                 }
             }
             catch (NullPointerException e){
-                UIHelper.shared().showToast(R.string.unable_to_fetch_image);
+                ToastHelper.show(R.string.unable_to_fetch_image);
             }
         }
     }

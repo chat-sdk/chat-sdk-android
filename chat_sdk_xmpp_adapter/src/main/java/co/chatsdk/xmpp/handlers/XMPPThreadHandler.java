@@ -148,8 +148,8 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                     }
                 }
 
-                // TODO:  Check this
-                message.setDelivered(Message.Delivered.Yes);
+                message.setDelivered(true);
+                message.update();
 
                 NetworkEvent event = NetworkEvent.messageAdded(message.getThread(), message);
                 NM.events().source().onNext(event);

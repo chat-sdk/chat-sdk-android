@@ -7,8 +7,6 @@ import android.view.View;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.ui.profile.AbstractProfileFragment;
-
 /**
  * Created by benjaminsmiley-andrews on 05/07/2017.
  */

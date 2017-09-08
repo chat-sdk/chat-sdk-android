@@ -21,6 +21,7 @@ import android.view.View;
 
 import com.astuetz.PagerSlidingTabStrip;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.events.EventType;
@@ -28,6 +29,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;
@@ -88,12 +90,10 @@ public class MainActivity extends BaseActivity {
         }
 
         mOpenFromPushChecker = new OpenFromPushChecker();
-        if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState))
-        {
-            startChatActivityForID(getIntent().getExtras().getLong(ChatActivity.THREAD_ID));
-            return;
+        if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState)) {
+            String threadEntityID = getIntent().getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+            InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
         }
-
     }
 
     @Override
@@ -146,25 +146,13 @@ public class MainActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         
-        if (mOpenFromPushChecker == null)
+        if (mOpenFromPushChecker == null) {
             mOpenFromPushChecker = new OpenFromPushChecker();
-        
-        if (mOpenFromPushChecker.checkOnNewIntent(intent))
-        {
-            startChatActivityForID(intent.getExtras().getLong(ChatActivity.THREAD_ID));
-            return;
         }
 
-        if (adapter != null)
-        {
-            BaseFragment profile = getFragment(FragmentIDs.Profile);
-            BaseFragment conversations = getFragment(FragmentIDs.Conversations);
-
-            if (conversations!=null)
-                conversations.loadData();
-
-            if (profile != null)
-                profile.refresh();
+        if (mOpenFromPushChecker.checkOnNewIntent(intent)) {
+            String threadEntityID = intent.getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+            InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
         }
     }
 
@@ -252,68 +240,68 @@ public class MainActivity extends BaseActivity {
     private BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Action_Contacts_Added))
-            {
-                BaseFragment contacts = getFragment(FragmentIDs.Contacts);
-
-                if (contacts != null)
-                    contacts.loadData();
-
-                // TODO: This should be handled by the list already no?
-//                if (intent.getExtras().containsKey(SearchActivity.USER_IDS_LIST))
-//                {
-//                    String[] ids = intent.getStringArrayExtra(SearchActivity.USER_IDS_LIST);
-//                    for (String id : ids) {
+//            if (intent.getAction().equals(Action_Contacts_Added))
+//            {
+//                BaseFragment contacts = getFragment(FragmentIDs.Contacts);
 //
-//                        new UserWrapper(id);
-//                    }
+//                if (contacts != null)
+//                    contacts.loadData();
 //
-//                        NetworkManager.getCoreInterface().getEventManager().userMetaOn(id, null);
-//                }
-            }
-            else if (intent.getAction().equals(Action_clear_data))
-            {
-                clearData();
-            }
-            else if (intent.getAction().equals(Action_Refresh_Fragment))
-            {
-                if (intent.getExtras() == null)
-                    return;
-
-                if (!intent.getExtras().containsKey(PAGE_ADAPTER_POS))
-                    return;
-
-                int fragment = intent.getExtras().getInt(PAGE_ADAPTER_POS);
-
-                BaseFragment frag = getFragment(fragment);
-
-                if (frag!= null)
-                    frag.refresh();
-
-            }
-            else if (intent.getAction().equals(ChatActivity.ACTION_CHAT_CLOSED))
-            {
-                getFragment(FragmentIDs.Conversations).loadData();
-            }
+//                // TODO: This should be handled by the list already no?
+////                if (intent.getExtras().containsKey(SearchActivity.USER_IDS_LIST))
+////                {
+////                    String[] ids = intent.getStringArrayExtra(SearchActivity.USER_IDS_LIST);
+////                    for (String id : ids) {
+////
+////                        new UserWrapper(id);
+////                    }
+////
+////                        NetworkManager.getCoreInterface().getEventManager().userMetaOn(id, null);
+////                }
+//            }
+//            else if (intent.getAction().equals(Action_clear_data))
+//            {
+//                clearData();
+//            }
+//            else if (intent.getAction().equals(Action_Refresh_Fragment))
+//            {
+//                if (intent.getExtras() == null)
+//                    return;
+//
+//                if (!intent.getExtras().containsKey(PAGE_ADAPTER_POS))
+//                    return;
+//
+//                int fragment = intent.getExtras().getInt(PAGE_ADAPTER_POS);
+//
+//                BaseFragment frag = getFragment(fragment);
+//
+//                if (frag!= null)
+//                    frag.refresh();
+//
+//            }
+//            else if (intent.getAction().equals(ChatActivity.ACTION_CHAT_CLOSED))
+//            {
+//                getFragment(FragmentIDs.Conversations).loadData();
+//            }
         }
     };
 
-    private void clearData () {
-        BaseFragment contacts = getFragment(FragmentIDs.Contacts);
-
-        if (contacts != null)
-            contacts.clearData();
-
-        BaseFragment conv = getFragment(FragmentIDs.Conversations);
-
-        if (conv != null)
-            conv.clearData();
-
-        BaseFragment pro = getFragment(FragmentIDs.Profile);
-
-        if (pro != null)
-            pro.clearData();
-    }
+//    private void clearData () {
+//        BaseFragment contacts = getFragment(FragmentIDs.Contacts);
+//
+//        if (contacts != null)
+//            contacts.clearData();
+//
+//        BaseFragment conv = getFragment(FragmentIDs.Conversations);
+//
+//        if (conv != null)
+//            conv.clearData();
+//
+//        BaseFragment pro = getFragment(FragmentIDs.Profile);
+//
+//        if (pro != null)
+//            pro.clearData();
+//    }
 
     /* Exit Stuff*/
     @Override

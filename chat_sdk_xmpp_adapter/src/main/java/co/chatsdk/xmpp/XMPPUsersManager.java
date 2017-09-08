@@ -53,6 +53,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -397,18 +398,57 @@ public class XMPPUsersManager {
     public Completable loadContactsFromRoster () {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void subscribe(CompletableEmitter e) throws Exception {
-                clearContacts();
+            public void subscribe(final CompletableEmitter e) throws Exception {
+
+                //clearContacts();
                 // Add the contacts from the roster
+                List<User> contacts = NM.contact().contacts();
+                ArrayList<User> rosterContacts = new ArrayList<>();
 
                 RosterGroup group = manager.get().roster().getGroup(ContactGroupName);
+
+                ArrayList<Completable> completables = new ArrayList<>();
+
                 if(group != null) {
                     List<RosterEntry> entries = group.getEntries();
                     for(RosterEntry entry : entries) {
-                        Timber.d("RosterContactAdded");
-                        disposables.add(addContact(entry.getJid()).subscribe());
+
+                        // Get the entity ID and try to get the user
+                        String entityID = entry.getJid().asBareJid().toString();
+                        User user = StorageManager.shared().fetchUserWithEntityID(entityID);
+
+                        // If the user doesn't already exist, add it
+                        if(user == null || !contacts.contains(user)) {
+                            completables.add(addContact(entry.getJid()));
+                        }
+                        else {
+                            completables.add(updateUserFromRoster(user));
+                        }
+                        if(user != null) {
+                            rosterContacts.add(user);
+                        }
                     }
                 }
+
+                contacts.removeAll(rosterContacts);
+
+                // These are contacts that exist in out current contacts but
+                // aren't in the roster so they should be deleted
+                for(User user : contacts) {
+                    completables.add(deleteContact(user.getEntityID()));
+                }
+
+                disposables.add(Completable.concat(completables).subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        e.onComplete();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        e.onError(throwable);
+                    }
+                }));
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
@@ -441,9 +481,18 @@ public class XMPPUsersManager {
         });
     }
 
-    public void deleteContact (String jid) {
-        User user = StorageManager.shared().fetchUserWithEntityID(jid);
-        disposables.add(NM.contact().deleteContact(user, ConnectionType.Contact).subscribe());
+    public Completable deleteContact (final String jid) {
+        return Single.create(new SingleOnSubscribe<User>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<User> e) throws Exception {
+                e.onSuccess(StorageManager.shared().fetchUserWithEntityID(jid));
+            }
+        }).flatMapCompletable(new Function<User, CompletableSource>() {
+            @Override
+            public CompletableSource apply(@NonNull User user) throws Exception {
+                return NM.contact().deleteContact(user, ConnectionType.Contact);
+            }
+        });
     }
 
     public void clearContacts () {

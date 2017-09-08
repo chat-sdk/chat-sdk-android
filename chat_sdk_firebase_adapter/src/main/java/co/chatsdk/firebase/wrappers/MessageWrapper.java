@@ -192,7 +192,7 @@ public class MessageWrapper  {
     /**
      * The message model will be updated after this call.
      **/
-    public void setDelivered(int delivered){
+    public void setDelivered(boolean delivered){
         model.setDelivered(delivered);
     }
     

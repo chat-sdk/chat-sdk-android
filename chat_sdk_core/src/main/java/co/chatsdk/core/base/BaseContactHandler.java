@@ -46,4 +46,23 @@ public class BaseContactHandler implements ContactHandler {
         }
         return Completable.complete();
     }
+
+    @Override
+    public Completable addContacts(ArrayList<User> users, ConnectionType type) {
+        ArrayList<Completable> completables = new ArrayList<>();
+        for(User user : users) {
+            completables.add(addContact(user, type));
+        }
+        return Completable.concat(completables);
+    }
+
+    @Override
+    public Completable deleteContacts(ArrayList<User> users, ConnectionType type) {
+        ArrayList<Completable> completables = new ArrayList<>();
+        for(User user : users) {
+            completables.add(addContact(user, type));
+        }
+        return Completable.concat(completables);
+    }
+
 }

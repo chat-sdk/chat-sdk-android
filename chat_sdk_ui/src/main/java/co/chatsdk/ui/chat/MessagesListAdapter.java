@@ -8,6 +8,9 @@
 package co.chatsdk.ui.chat;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,17 +22,19 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import at.grabner.circleprogress.CircleProgressView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.ui.adapters.MessageItemSorter;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +51,7 @@ public class MessagesListAdapter extends BaseAdapter{
      * Class to hold the row child views so we wont have to inflate more them once per row view.
      **/
     class ViewHolder {
-        CircleImageView profilePicImageView;
+        CircleImageView profileImageView;
         TextView timeTextView;
         RoundedImageView messageImageView;
         TextView messageTextView;
@@ -67,6 +72,7 @@ public class MessagesListAdapter extends BaseAdapter{
     public MessagesListAdapter(AppCompatActivity activity) {
         this.activity = activity;
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
+
     }
 
     @Override
@@ -125,7 +131,7 @@ public class MessagesListAdapter extends BaseAdapter{
         View row = inflater.inflate(resource, null);
 
         holder.timeTextView = (TextView) row.findViewById(R.id.txt_time);
-        holder.profilePicImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
+        holder.profileImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
         holder.progressView = (CircleProgressView) row.findViewById(R.id.chat_sdk_progress_view);
         holder.messageImageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
@@ -162,7 +168,8 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.messageImageView.setVisibility(View.INVISIBLE);
         holder.messageTextView.setVisibility(View.INVISIBLE);
 
-        // If the previous future is still running, cancel it because we are loading a new image
+        // If the previous future is still running, cancel it because
+        // we are loading a new image
 //        if(holder.imageViewFuture != null && !holder.imageViewFuture.isDone()) {
 //            holder.imageViewFuture.cancel();
 //        }
@@ -171,8 +178,12 @@ public class MessagesListAdapter extends BaseAdapter{
 //            holder.profileImageViewFuture.cancel();
 //        }
 //        Picasso.with(AppContext.shared().context()).cancelRequest(holder.messageImageView);
-//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.profilePicImageView);
+//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.profileImageView);
 
+        Picasso.with(holder.messageImageView.getContext()).cancelRequest(holder.messageImageView);
+        Picasso.with(holder.profileImageView.getContext()).cancelRequest(holder.profileImageView);
+
+//        Picasso.with(holder.messageImageView.getContext()).setLoggingEnabled(true);
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.messageImageView.getLayoutParams();
 
@@ -205,7 +216,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
-                Picasso.with(AppContext.shared().context()).load(GoogleUtils.getMapImageURL(latLng, width, height)).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
+                Picasso.with(holder.messageImageView.getContext()).load(GoogleUtils.getMapImageURL(latLng, width, height)).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
 //                holder.imageViewFuture = Ion.with(holder.messageImageView).placeholder(R.drawable.icn_200_image_message_placeholder)
 //                        .load(GoogleUtils.getMapImageURL(latLng, width, height));
 
@@ -221,7 +232,7 @@ public class MessagesListAdapter extends BaseAdapter{
                     holder.messageImageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
                 }
                 else {
-                    Picasso.with(AppContext.shared().context()).load(url).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
+                    Picasso.with(holder.messageImageView.getContext()).load(url).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
                 }
 
                 // Show the messageImageView in a dialog on click.
@@ -243,11 +254,31 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.progressView.setVisibility(View.INVISIBLE);
         }
 
-        Picasso.with(AppContext.shared().context()).load(messageItem.getProfilePicUrl()).placeholder(R.drawable.icn_32_profile_placeholder).into(holder.messageImageView);
+        String profileURL = messageItem.getProfilePicUrl();
+        File imageFile = new File(profileURL);
+        if(imageFile != null) {
+            profileURL = Uri.fromFile(imageFile).toString();
+        }
+
+        // For some reason using the standard syntax of load into doesn't work
+        Picasso.with(holder.profileImageView.getContext()).load(profileURL).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                holder.profileImageView.setImageBitmap(bitmap);
+            }
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {}
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {}
+        });
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
         //animateSides(holder.timeTextView, messageItem.isMine(), null);
+
+        if(!messageItem.delivered()) {
+            Timber.v("No");
+        }
 
         row.setAlpha(messageItem.delivered() ? 1.0f : 0.5f);
 

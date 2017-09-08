@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.ToastHelper;
 
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.
@@ -38,7 +39,7 @@ public class LocationMessageClickListener implements View.OnClickListener {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            UIHelper.shared().showToast(activity.getString(R.string.message_adapter_no_google_maps));
+            ToastHelper.show(R.string.message_adapter_no_google_maps);
         }
     }
 

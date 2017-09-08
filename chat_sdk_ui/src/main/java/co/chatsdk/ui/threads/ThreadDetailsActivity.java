@@ -25,6 +25,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.utils.ImageUtils;
 
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
@@ -53,9 +54,6 @@ import timber.log.Timber;
 public class ThreadDetailsActivity extends BaseActivity {
 
     private static final boolean DEBUG = Debug.ThreadDetailsActivity;
-
-    /** The key to get the thread long id.*/
-    public static final String THREAD_ID = "thread_id";
 
     private static final int THREAD_PIC = 1991;
 
@@ -277,10 +275,10 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
 
-        Long threadID = bundle.getLong(THREAD_ID);
+        String threadEntityID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
 
-        if(threadID > 0) {
-            thread = StorageManager.shared().fetchThreadWithID(threadID);
+        if(threadEntityID != null && threadEntityID.length() > 0) {
+            thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
         }
         else {
             finish();
@@ -291,7 +289,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(THREAD_ID, thread.getId());
+        outState.putString(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
         outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
 

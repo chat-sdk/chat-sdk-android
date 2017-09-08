@@ -19,6 +19,8 @@ import co.chatsdk.core.types.FileUploadResult;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -70,7 +72,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 });
 
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
 
