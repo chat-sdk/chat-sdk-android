@@ -46,7 +46,9 @@ public class AppObj extends MultiDexApplication {
         ChatSDK.shared().setContext(context);
 
         XMPPModule.activate();
-        FirebaseModule.activate();
+//        FirebaseModule.activate();
+
+
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
