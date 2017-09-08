@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -203,11 +204,13 @@ public class UsersListAdapter extends BaseAdapter {
         return false;
     }
 
-    synchronized public void setUsers(List<User> users, boolean sort) {
+    public void setUsers(List<User> users, boolean sort) {
         ArrayList<UserListItem> items = new ArrayList<>();
-        for(User user : users) {
-            items.add(new UserListItem(user, R.layout.chat_sdk_row_contact, TYPE_USER));
+        ListIterator<User> it = users.listIterator();
+        while(it.hasNext()) {
+            items.add(new UserListItem(it.next(), R.layout.chat_sdk_row_contact, TYPE_USER));
         }
+
         setUserItems(items, sort);
     }
 
