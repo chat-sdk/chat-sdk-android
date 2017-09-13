@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
 
+import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.AccountDetails;
@@ -118,12 +119,11 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             e.onSuccess(task.getResult().getUser());
                         }
                         else {
-                            e.onError(ChatError.getExceptionError(task.getException()));
+                            task.getException().printStackTrace();
+                            e.onError(task.getException());
                         }
                     }
                 };
-
-                AuthCredential credential;
 
                 switch (details.type)
                 {
@@ -182,28 +182,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Do a once() on the user to push its details to firebase.
                 final UserWrapper wrapper = UserWrapper.initWithAuthData(user);
 
-                wrapper.once().doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                        e.onError(throwable);
-                    }
-                }).subscribe(new Action() {
+                wrapper.once().subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
 
                         if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
-                        DaoCore.updateEntity(wrapper.getModel());
+                        wrapper.getModel().update();
 
                         FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
 
-                        // TODO push a default image of the user to the cloud.
-                        // TODO: This shouldn't return the error... Would lead to a race condition
-                        if(!NM.push().subscribeToPushChannel(wrapper.pushChannel())) {
-                            // TODO: Handle this error
-                            Timber.v(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
-                            //e.onError(ChatError.getError(ChatError.Code.BACKENDLESS_EXCEPTION));
-                        }
+                        NM.push().subscribeToPushChannel(wrapper.pushChannel());
 
                         NM.core().goOnline();
 
@@ -212,7 +200,18 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             public void run() throws Exception {
                                 e.onComplete();
                             }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                throwable.printStackTrace();
+                            }
                         });
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
+                        e.onError(throwable);
                     }
                 });
 
@@ -272,6 +271,12 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 if(NM.socialLogin() != null) {
                     NM.socialLogin().logout();
+                }
+
+                if(NM.hook() != null) {
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put(BaseHookHandler.Logout, user);
+                    NM.hook().executeHook(BaseHookHandler.Logout_User, data);
                 }
 
                 e.onComplete();

@@ -638,7 +638,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         if (thread != null && thread.typeIs(ThreadType.Public))
         {
-            NM.thread().removeUsersFromThread(thread, NM.currentUser());
+            NM.thread().removeUsersFromThread(thread, NM.currentUser()).subscribe();
         }
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.

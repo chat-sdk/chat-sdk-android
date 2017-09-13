@@ -33,7 +33,9 @@ public class Keys {
     public static final String Availability = "availability";
     public static final String State = "state";
     public static final String PresenceSubscription = "presence-subscription";
+    public static final String Time = "time";
 
+    public static final String UserName = "userName";
     public static final String UserFirebaseId = "user-firebase-id";
     public static final String Color = "color";
     public static final String Name = "name";
@@ -49,6 +51,7 @@ public class Keys {
     public static final String Meta = "meta";
     public static final String Threads = "threads";
     public static final String Users = "users";
+    public static final String UID = "uid";
 
     public static final String ImageUrl = "image-url";
     public static final String CreatorEntityId = "creator-entity-id";
@@ -66,22 +69,22 @@ public class Keys {
     public static final String MessageAudioLength = "audio-length";
 
     // For pushes
-    public static final String ACTION = "action";
-    public static final String ALERT = "alert";
-    public static final String BADGE = "badge", INCREMENT = "Increment";
-    public static final String CONTENT = "text";
-    public static final String MESSAGE_ENTITY_ID = "message_entity_id";
-    public static final String THREAD_ENTITY_ID = "thread_entity_id";
-    public static final String MESSAGE_DATE ="message_date";
-    public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
-    public static final String MESSAGE_SENDER_NAME ="message_sender_name";
-    public static final String MESSAGE_TYPE = "message_type";
-    public static final String MESSAGE_PAYLOAD= "message_payload";
+//    public static final String ACTION = "action";
+//    public static final String ALERT = "alert";
+//    public static final String BADGE = "badge", INCREMENT = "Increment";
+//    public static final String CONTENT = "text";
+//    public static final String MESSAGE_ENTITY_ID = "message_entity_id";
+//    public static final String THREAD_ENTITY_ID = "thread_entity_id";
+//    public static final String MESSAGE_DATE ="message_date";
+//    public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
+//    public static final String MESSAGE_SENDER_NAME ="message_sender_name";
+//    public static final String MESSAGE_TYPE = "message_type";
+//    public static final String MESSAGE_PAYLOAD= "message_payload";
 
-    public static final String SOUND = "sound";
-    public static final String Default = "default";
-
-    public static final String Channel = "channel";
+//    public static final String SOUND = "sound";
+//    public static final String Default = "default";
+//
+//    public static final String Channel = "channel";
 
     // CoreUser details
     public static final String Gender = "gender";
@@ -89,11 +92,12 @@ public class Keys {
     public static final String Location = "location";
     public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
+    public static final String PushToken = "pushToken";
 
-    public static final class ThirdParty {
-        public static final String Name = "name";
-        public static final String ImageURL = "profile_image_url";
-        public static final String AccessToken = "accessToken";
-    }
+//    public static final class ThirdParty {
+//        public static final String Name = "name";
+//        public static final String ImageURL = "profile_image_url";
+//        public static final String AccessToken = "accessToken";
+//    }
 
 }

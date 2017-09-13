@@ -15,6 +15,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.LinkedAccount;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.AuthKeys;
+import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 
 
@@ -102,16 +103,10 @@ public class UserWrapper {
 
         String name = authData.getDisplayName();
         String email = authData.getEmail();
-        String profileURL = authData.getPhotoUrl().toString();
-
-//        String token = null;
-//        Object tokenObject = NM.auth().getLoginInfo().get(AuthKeys.Token);
-//        if(tokenObject != null) {
-//            token = tokenObject.toString();
-//        }
-//        String uid = authData.getUid();
-//
-//        LinkedAccount linkedAccount;
+        String profileURL = null;
+        if(authData.getPhotoUrl() != null) {
+            profileURL = authData.getPhotoUrl().toString();
+        }
 
         // Setting the name.
         if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName())) {
@@ -295,7 +290,7 @@ public class UserWrapper {
         return values;
     }
     
-    public Completable push(){
+    public Completable push() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
@@ -309,6 +304,7 @@ public class UserWrapper {
                     public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                         if (firebaseError == null) {
                             // index should be updated whenever the user is pushed
+                            FirebaseEntity.pushUserMetaUpdated(model.getEntityID());
                             e.onComplete();
                         }
                         else {
@@ -411,9 +407,11 @@ public class UserWrapper {
     /**
      * Set the user online value to false.
      **/
-    public void goOffline(){
+    public void goOffline() {
         DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(model.getEntityID());
-        userOnlineRef.setValue(false);
+        userOnlineRef.removeValue();
+        FirebasePaths.onlineRef(model.getEntityID()).removeValue();
+
     }
     
     /**
@@ -421,13 +419,20 @@ public class UserWrapper {
      * 
      * When firebase disconnect this will be auto change to false.
      **/
-    public void goOnline(){
+    public void goOnline() {
         DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(model.getEntityID());
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.
         userOnlineRef.setValue(true);
-        userOnlineRef.onDisconnect().setValue(false);
+        userOnlineRef.onDisconnect().removeValue();
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(Keys.Time, ServerValue.TIMESTAMP);
+        map.put(Keys.UID, model.getEntityID());
+
+        FirebasePaths.onlineRef(model.getEntityID()).setValue(map);
+        FirebasePaths.onlineRef(model.getEntityID()).onDisconnect().removeValue();
     }
 
     public static String processForQuery(String query){

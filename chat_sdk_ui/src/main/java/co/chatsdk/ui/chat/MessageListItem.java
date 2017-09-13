@@ -119,6 +119,10 @@ public class MessageListItem {
         return message.getSender().getAvatarURL();
     }
 
+    public Message getMessage () {
+        return message;
+    }
+
     private static SimpleDateFormat getFormat(Message message){
 
         Date curTime = new Date();

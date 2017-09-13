@@ -8,6 +8,7 @@ import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
+import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
@@ -70,6 +71,10 @@ public class NM {
 
     public static LastOnlineHandler lastOnline () {
         return NetworkManager.shared().a.lastOnline;
+    }
+
+    public static HookHandler hook () {
+        return NetworkManager.shared().a.hook;
     }
 
     public static SocialLoginHandler socialLogin () {

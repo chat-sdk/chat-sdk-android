@@ -102,7 +102,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 DatabaseReference ref = FirebasePaths.firebaseRef();
                 final HashMap<String, Object> data = new HashMap<>();
 
-                for (User u : users) {
+                for (final User u : users) {
                     PathBuilder threadUsersPath = FirebasePaths.threadUsersPath(thread.getEntityID(), u.getEntityID());
                     PathBuilder userThreadsPath = FirebasePaths.userThreadsPath(u.getEntityID(), thread.getEntityID());
 
@@ -122,13 +122,16 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                         // log off
                         FirebasePaths.firebaseRef().child(threadUsersPath.build()).onDisconnect().removeValue();
                     }
-
                 }
 
                 ref.updateChildren(data, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError == null) {
+                            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID());
+                            for(User u : users) {
+                                FirebaseEntity.pushThreadUsersUpdated(u.getEntityID());
+                            }
                             e.onComplete();
                         } else {
                             e.onError(databaseError.toException());

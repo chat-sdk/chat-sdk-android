@@ -3,6 +3,7 @@ package co.chatsdk.ui.utils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -37,10 +38,7 @@ public class UserAvatarHelper {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
-                Bitmap image = BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
-                        R.drawable.icn_100_profile);
-
-                imageView.setImageBitmap(image);
+                imageView.setImageBitmap(defaultBitmap());
 
                 avatar(user).subscribe(new BiConsumer<Bitmap, Throwable>() {
                     @Override
@@ -58,27 +56,37 @@ public class UserAvatarHelper {
             @Override
             public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
 
-                final Bitmap defaultBitmap = BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
-                        R.drawable.icn_32_profile_placeholder);
+                String avatarURL = user.getAvatarURL();
 
-                if(user.getAvatarURL() == null) {
-                    e.onSuccess(defaultBitmap);
+                if(avatarURL == null) {
+                    e.onSuccess(defaultBitmap());
                 }
                 else {
-                    ImageUtils.bitmapForURL(user.getAvatarURL()).subscribe(new BiConsumer<Bitmap, Throwable>() {
+
+//                    File imageFile = new File(avatarURL);
+//                    if(imageFile.exists()) {
+//                        avatarURL = Uri.fromFile(imageFile).toString();
+//                    }
+
+                    ImageUtils.bitmapForURL(avatarURL).subscribe(new BiConsumer<Bitmap, Throwable>() {
                         @Override
                         public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                             if(bitmap != null) {
                                 e.onSuccess(bitmap);
                             }
                             else {
-                                e.onSuccess(defaultBitmap);
+                                e.onSuccess(defaultBitmap());
                             }
                         }
                     });
                 }
             }
         });
+    }
+
+    public static Bitmap defaultBitmap () {
+        return BitmapFactory.decodeResource(AppContext.shared().context().getResources(),
+                R.drawable.icn_32_profile_placeholder);
     }
 
     public static Completable saveProfilePicToServer(final String path, final Activity activity){

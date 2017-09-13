@@ -32,6 +32,8 @@ public class FirebasePaths{
     public static final String FollowingPath = "follows";
     public static final String Image = "imaeg";
     public static final String Thumbnail = "thumbnail";
+    public static final String UpdatedPath = "updated";
+    public static final String LastMessagePath = "lastMessage";
 
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main databse ref.*/
@@ -107,6 +109,11 @@ public class FirebasePaths{
     public static DatabaseReference publicThreadsRef(){
         return firebaseRef().child(PublicThreadsPath);
     }
+
+    public static DatabaseReference onlineRef(String userEntityID){
+        return firebaseRef().child(OnlinePath).child(userEntityID);
+    }
+
 
     /* Index */
     public static DatabaseReference indexRef(){

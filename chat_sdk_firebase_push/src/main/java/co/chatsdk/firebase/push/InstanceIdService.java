@@ -11,25 +11,14 @@ import timber.log.Timber;
 
 public class InstanceIdService extends FirebaseInstanceIdService {
 
-    private TokenChangeListener listener;
-
     public interface TokenChangeListener {
         void updated (String token);
     }
 
     @Override
     public void onTokenRefresh() {
-        // Get updated InstanceID token.
-        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        Timber.v("Refreshed token: " + refreshedToken);
-
-        if(listener != null) {
-            listener.updated(refreshedToken);
-        }
-    }
-
-    public void setTokenChangeListener (TokenChangeListener listener) {
-        this.listener = listener;
+        Timber.v("Refreshed token: " + token());
+        TokenChangeConnector.shared().updated(token());
     }
 
     public String token () {

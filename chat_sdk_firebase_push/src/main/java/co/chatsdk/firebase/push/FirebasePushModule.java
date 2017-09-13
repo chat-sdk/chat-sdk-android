@@ -10,8 +10,8 @@ import co.chatsdk.core.NetworkManager;
 
 public class FirebasePushModule  {
 
-    public static void activate () {
-        NetworkManager.shared().a.push = new FirebasePushHandler();
+    public static void activate (FirebasePushHandler.TokenPusher pusher) {
+        NetworkManager.shared().a.push = new FirebasePushHandler(pusher);
     }
 
 }

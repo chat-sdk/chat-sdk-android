@@ -8,12 +8,14 @@ import com.braunster.chatsdk.network.FirebaseSocialLoginModule;
 
 import co.chatsdk.core.ChatSDK;
 import co.chatsdk.core.InterfaceManager;
+import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.DaoCore;
 
 import co.chatsdk.core.utils.AppContext;
 
 import co.chatsdk.firebase.FirebaseModule;
 import co.chatsdk.firebase.filestorage.FirebaseFileStorageModule;
+import co.chatsdk.firebase.push.FirebasePushHandler;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.xmpp.XMPPModule;
@@ -48,10 +50,13 @@ public class AppObj extends MultiDexApplication {
         XMPPModule.activate();
 //        FirebaseModule.activate();
 
-
-
         FirebaseFileStorageModule.activate();
-        FirebasePushModule.activate();
+        FirebasePushModule.activate(new FirebasePushHandler.TokenPusher() {
+            @Override
+            public void pushToken() {
+                NM.core().pushUser();
+            }
+        });
         //FirebaseSocialLoginModule.activate(this);
     }
 }

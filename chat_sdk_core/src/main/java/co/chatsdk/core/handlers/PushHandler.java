@@ -3,6 +3,11 @@ package co.chatsdk.core.handlers;
 import org.json.JSONObject;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -10,11 +15,10 @@ import java.util.Collection;
 
 public interface PushHandler {
 
-    public boolean subscribeToPushChannel(String channel);
-    public boolean unsubscribeToPushChannel(String channel);
+    void subscribeToPushChannel(String channel);
+    void unsubscribeToPushChannel(String channel);
 
-    public void pushToChannels(Collection<String> channels, JSONObject data);
-    //public void pushForMesasge(Message message);
-
+    void pushToChannels(List<String> channels, Map<String, String> data);
+    void pushToUsers (List<User> users, Message message);
 
 }

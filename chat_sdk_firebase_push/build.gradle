@@ -30,5 +30,5 @@ dependencies {
     compile project(':chat_sdk_firebase_adapter')
 
     compile 'com.google.firebase:firebase-messaging:9.0.2'
-
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
 }

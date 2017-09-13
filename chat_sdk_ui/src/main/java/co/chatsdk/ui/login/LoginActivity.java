@@ -356,6 +356,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             @Override
             public void onError(Throwable e) {
+                e.printStackTrace();
                 toastErrorMessage(e, false);
                 dismissProgressDialog();
             }
@@ -380,6 +381,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             @Override
             public void onError(Throwable e) {
+                e.printStackTrace();
                 toastErrorMessage(e, false);
                 dismissProgressDialog();
             }

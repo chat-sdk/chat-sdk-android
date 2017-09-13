@@ -9,6 +9,7 @@ package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 
 import co.chatsdk.core.StorageManager;
@@ -30,6 +31,7 @@ import java.util.Map;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -166,17 +168,17 @@ public class MessageWrapper  {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
                 if(model.getThread() != null) {
-
-                    push().doOnError(new Consumer<Throwable>() {
+                    push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))
+                            .concatWith(FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID())).subscribe(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            e.onComplete();
+                        }
+                    }, new Consumer<Throwable>() {
                         @Override
                         public void accept(Throwable throwable) throws Exception {
                             throwable.printStackTrace();
                             e.onError(throwable);
-                        }
-                    }).subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            e.onComplete();
                         }
                     });
                 }
@@ -187,6 +189,17 @@ public class MessageWrapper  {
             }
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
 
+    }
+
+    public HashMap<Object, Object> lastMessageData () {
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put(Keys.Payload, model.getTextString());
+        map.put(Keys.JSON, model.getText());
+        map.put(Keys.Type, model.getType());
+        map.put(Keys.Date, ServerValue.TIMESTAMP);
+        map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
+        map.put(Keys.UserName, model.getSender().getName());
+        return map;
     }
     
     /**

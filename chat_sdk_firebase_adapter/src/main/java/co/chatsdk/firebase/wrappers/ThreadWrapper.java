@@ -8,9 +8,11 @@
 package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 
 
@@ -47,8 +49,10 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class ThreadWrapper  {
@@ -110,7 +114,7 @@ public class ThreadWrapper  {
                     NM.typingIndicator().typingOn(model);
                 }
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable once () {
@@ -141,7 +145,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -155,7 +159,7 @@ public class ThreadWrapper  {
     /**
      * Start listening to incoming messages.
      **/
-    public Observable<Message> messagesOn(){
+    public Observable<Message> messagesOn() {
         return Observable.create(new ObservableOnSubscribe<Message>() {
             @Override
             public void subscribe(final ObservableEmitter<Message> e) throws Exception {
@@ -203,6 +207,12 @@ public class ThreadWrapper  {
                                     MessageWrapper message = new MessageWrapper(snapshot);
                                     boolean newMessage = !message.getModel().getDelivered();
 
+                                    if(NM.hook() != null) {
+                                        HashMap<String, Object> data = new HashMap<>();
+                                        data.put(BaseHookHandler.MessageReceived, message);
+                                        NM.hook().executeHook(BaseHookHandler.MessageReceived_Message, data);
+                                    }
+
                                     message.setDelivered(true);
 
                                     // Update the thread
@@ -226,14 +236,14 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
 
     }
 
     /**
      * Stop Lisetenig to incoming messages.
      **/
-    public void messagesOff(){
+    public void messagesOff() {
 
         if (DEBUG) Timber.v("messagesOff");
         DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
@@ -283,7 +293,7 @@ public class ThreadWrapper  {
 
                 FirebaseReferenceManager.shared().addRef(ref, listener);
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -327,8 +337,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        });
-
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     //Note - Maybe should treat group thread and one on one thread the same
@@ -379,22 +388,22 @@ public class ThreadWrapper  {
                         });
                     }
                     else {
-                        removeUser(currentUser).doOnError(new Consumer<Throwable>() {
+                        NM.thread().removeUsersFromThread(model, currentUser).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onComplete();
+                            }
+                        }, new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) throws Exception {
                                 throwable.printStackTrace();
                                 e.onError(throwable);
                             }
-                        }).subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                e.onComplete();
-                            }
                         });
                     }
                 }
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Single<List<Message>> loadMoreMessages(Message fromMessage){
@@ -458,13 +467,13 @@ public class ThreadWrapper  {
                     });
                 }
             }
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
      * Converting the thread details to a map object.
      **/
-    Map<String, Object> serialize(){
+    private Map<String, Object> serialize() {
 
         Map<String , Object> value = new HashMap<String, Object>();
         Map<String , Object> nestedMap = new HashMap<String, Object>();
@@ -557,8 +566,8 @@ public class ThreadWrapper  {
     /**
      * Push the thread to firebase.
      **/
-    public Completable push(){
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+    public Completable push() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
@@ -567,8 +576,7 @@ public class ThreadWrapper  {
                 if (model.getEntityID() != null && model.getEntityID().length() > 0) {
                     ref = FirebasePaths.threadRef(model.getEntityID());
                 }
-                else
-                {
+                else {
                     ref = FirebasePaths.threadRef().push();
                     model.setEntityID(ref.getKey());
                     DaoCore.updateEntity(model);
@@ -578,6 +586,7 @@ public class ThreadWrapper  {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError == null) {
+                            FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID());
                             e.onComplete();
                         }
                         else {
@@ -586,26 +595,14 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        });
-        return c;
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    /**
-     * Removing a user from thread.
-     * If the thread is private the thread will be removed from the user thread ref.
-     **/
-    private Completable removeUser(final User user){
-        Completable c = Completable.create(new CompletableOnSubscribe() {
+    public Completable pushLastMessage (final HashMap<Object, Object> messageData) {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
-                DatabaseReference ref = FirebasePaths.firebaseRef();
-                final HashMap<String, Object> data = new HashMap<>();
-                data.put(FirebasePaths.threadUsersPath(model.getEntityID(), user.getEntityID()).build(), null);
-
-                if(model.typeIs(ThreadType.Private)) {
-                    data.put("users/" + user.getEntityID() + "/threads/" + model.getEntityID(), null);
-                }
-                ref.updateChildren(data, new DatabaseReference.CompletionListener() {
+                FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.LastMessagePath).setValue(messageData, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if(databaseError == null) {
@@ -617,10 +614,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        });
-
-        c.subscribe();
-        return c;
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private void updateReadReceipts() {

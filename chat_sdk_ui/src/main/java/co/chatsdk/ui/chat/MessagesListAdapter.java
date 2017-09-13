@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import timber.log.Timber;
 
@@ -254,23 +255,7 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.progressView.setVisibility(View.INVISIBLE);
         }
 
-        String profileURL = messageItem.getProfilePicUrl();
-        File imageFile = new File(profileURL);
-        if(imageFile != null) {
-            profileURL = Uri.fromFile(imageFile).toString();
-        }
-
-        // For some reason using the standard syntax of load into doesn't work
-        Picasso.with(holder.profileImageView.getContext()).load(profileURL).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                holder.profileImageView.setImageBitmap(bitmap);
-            }
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {}
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {}
-        });
+        UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView).subscribe();
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());

@@ -4,7 +4,10 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.HashMap;
+
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -51,9 +54,13 @@ public class FirebaseEventHandler implements EventHandler {
         }
         isOn = true;
 
-        if (DEBUG) Timber.v("userOn, EntityID: %s", entityID);
-
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
+
+        if(NM.hook() != null) {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(BaseHookHandler.UserOn, user);
+            NM.hook().executeHook(BaseHookHandler.UserOn, data);
+        }
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
         ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
@@ -111,7 +118,7 @@ public class FirebaseEventHandler implements EventHandler {
                 // Make sure that we're not in the thread
                 // there's an edge case where the user could kill the app and remain
                 // a member of a public thread
-                NM.thread().removeUsersFromThread(thread.getModel(), user);
+                NM.thread().removeUsersFromThread(thread.getModel(), user).subscribe();
 
                 // Starting to listen to thread changes.
                 disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {

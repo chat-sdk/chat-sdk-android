@@ -1,6 +1,7 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -10,7 +11,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.BiConsumer;
@@ -19,7 +19,7 @@ import io.reactivex.functions.BiConsumer;
  * Created by ben on 8/23/17.
  */
 
-public class ProfileActivity extends BaseActivity {
+public class ProfileActivity extends FragmentActivity {
 
     private User user;
 

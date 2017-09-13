@@ -55,6 +55,7 @@
         <meta-data android:name="firebase_url" android:value="@string/firebase_url" />
         <meta-data android:name="firebase_root_path" android:value="@string/firebase_root_path" />
         <meta-data android:name="firebase_storage_url" android:value="@string/firebase_storage_url" />
+        <meta-data android:name="cloud_messaging_server_key" android:value="@string/firebase_cloud_messaging_server_key" />
 
         <meta-data android:name="xmpp_service_name" android:value="@string/service_name" />
         <meta-data android:name="xmpp_service_host" android:value="@string/service_host" />

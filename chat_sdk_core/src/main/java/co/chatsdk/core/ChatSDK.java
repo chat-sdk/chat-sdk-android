@@ -53,6 +53,10 @@ public class ChatSDK {
         return appBundle.getString("firebase_url") + rootPath();
     }
 
+    public String firebaseCloudMessagingServerKey () {
+        return appBundle.getString("firebase_cloud_messaging_server_key");
+    }
+
     public String rootPath () {
         return appBundle.getString("firebase_root_path");
     }
