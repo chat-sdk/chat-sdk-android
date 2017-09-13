@@ -89,26 +89,6 @@ public class UIHelper {
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
-    /** Create or fetch chat for users, Opens the chat when done.*/
-    public Single<Thread> createAndOpenThreadWithUsers(final Context context, String name, List<User> users) {
-        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<Thread>() {
-            @Override
-            public void accept(Thread thread) throws Exception {
-                if (thread != null) {
-                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
-                }
-            }
-        }).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                ToastHelper.show(R.string.create_thread_with_users_fail_toast);
-            }
-        });
-    }
-
-    public Single<Thread> createAndOpenThreadWithUsers(final Context context, String name, User...users){
-        return createAndOpenThreadWithUsers(context, name, Arrays.asList(users));
-    }
 
 }
 

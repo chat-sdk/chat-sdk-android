@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Thread;
@@ -14,6 +15,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 8/23/17.
@@ -71,13 +73,20 @@ public class ProfileActivity extends FragmentActivity {
     }
 
     public void startChat () {
-        UIHelper.shared().createAndOpenThreadWithUsers(this, user.getName(), user, NM.currentUser()).subscribe(new BiConsumer<Thread, Throwable>() {
+
+        NM.thread().createThread(user.getName(), user, NM.currentUser()).doOnSuccess(new Consumer<Thread>() {
             @Override
-            public void accept(Thread thread, Throwable throwable) throws Exception {
-                finish();
+            public void accept(Thread thread) throws Exception {
+                if (thread != null) {
+                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
+                }
+            }
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                ToastHelper.show(R.string.create_thread_with_users_fail_toast);
             }
         });
-
     }
 
     @Override

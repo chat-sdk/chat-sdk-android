@@ -35,6 +35,9 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
+import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
@@ -44,6 +47,7 @@ import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import co.chatsdk.ui.chat.ChatActivity;
@@ -161,7 +165,7 @@ public class SelectContactActivity extends BaseActivity {
 
         if (mode == MODE_ADD_TO_CONVERSATION)
             btnStartChat.setText(getResources().getString(R.string.add_users));
-        
+
         if (!Defines.Options.GroupEnabled) {
             btnStartChat.setVisibility(View.GONE);
         }
@@ -181,8 +185,28 @@ public class SelectContactActivity extends BaseActivity {
                     listAdapter.toggleSelection(position);
                 }
                 else {
-                    UIHelper.shared().createAndOpenThreadWithUsers(SelectContactActivity.this, "", NM.currentUser(), listAdapter.getItem(position).getUser());
+                    createAndOpenThread("", listAdapter.getItem(position).getUser(), NM.currentUser());
                 }
+            }
+        });
+    }
+
+    private void createAndOpenThread (String name, User... users) {
+        createAndOpenThread(name, Arrays.asList(users));
+    }
+
+    private Single<Thread> createAndOpenThread (String name, List<User> users) {
+        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<Thread>() {
+            @Override
+            public void accept(Thread thread) throws Exception {
+                if (thread != null) {
+                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
+                }
+            }
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                ToastHelper.show(R.string.create_thread_with_users_fail_toast);
             }
         });
     }
@@ -251,7 +275,7 @@ public class SelectContactActivity extends BaseActivity {
                         builder.setPositiveButton(getString(R.string.create), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
-                                UIHelper.shared().createAndOpenThreadWithUsers(SelectContactActivity.this, input.getText().toString(), users).subscribe(new BiConsumer<Thread, Throwable>() {
+                                SelectContactActivity.this.createAndOpenThread(input.getText().toString(), users).subscribe(new BiConsumer<Thread, Throwable>() {
                                     @Override
                                     public void accept(Thread thread, Throwable throwable) throws Exception {
                                         dismissProgressDialog();
@@ -271,7 +295,7 @@ public class SelectContactActivity extends BaseActivity {
 
                     }
                     else {
-                        UIHelper.shared().createAndOpenThreadWithUsers(SelectContactActivity.this, "", users).subscribe(new BiConsumer<Thread, Throwable>() {
+                        createAndOpenThread("", users).subscribe(new BiConsumer<Thread, Throwable>() {
                             @Override
                             public void accept(Thread thread, Throwable throwable) throws Exception {
                                 dismissProgressDialog();
