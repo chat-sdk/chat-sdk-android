@@ -53,7 +53,8 @@ public class XMPPConnectionListener implements ConnectionListener {
     @Override
     public void reconnectionFailed(Exception e) {
         e.printStackTrace();
-        connectionStatusSource.onError(e);
+        // TODO: When this is included, it can cause a crash
+        //connectionStatusSource.onError(e);
         connectionStatusSource.onNext(ConnectionStatus.Disconnected);
     }
 

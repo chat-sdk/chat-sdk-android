@@ -298,8 +298,11 @@ public class UsersListAdapter extends BaseAdapter {
     protected void sortList(List<UserListItem> list){
         Comparator comparator = new Comparator<UserListItem>() {
             @Override
-            public int compare(UserListItem lhs, UserListItem rhs) {
-                return lhs.getText().toLowerCase().compareTo(rhs.getText().toLowerCase());
+            public int compare(UserListItem i1, UserListItem i2) {
+                String s1 = i1.getText() != null ? i1.getText() : "";
+                String s2 = i2.getText() != null ? i2.getText() : "";
+
+                return s1.toLowerCase().compareTo(s2.toLowerCase());
             }
         };
         Collections.sort(list, comparator);

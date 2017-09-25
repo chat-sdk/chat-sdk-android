@@ -299,19 +299,19 @@ public class ContactsFragment extends BaseFragment {
         final ArrayList<User> originalUserList = new ArrayList<>();
         originalUserList.addAll(sourceUsers);
 
-        reloadUsers().doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        }).subscribe(new Action() {
+        reloadUsers().subscribe(new Action() {
             @Override
             public void run() throws Exception {
-                if(!originalUserList.equals(sourceUsers) || force) {
+                if (!originalUserList.equals(sourceUsers) || force) {
                     adapter.setUsers(sourceUsers, true);
                     Timber.v("Update Contact List");
                 }
                 setupListClickMode();
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
             }
         });
     }

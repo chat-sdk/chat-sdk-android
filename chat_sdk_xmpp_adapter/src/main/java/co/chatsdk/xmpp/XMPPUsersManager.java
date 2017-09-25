@@ -26,6 +26,7 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
@@ -405,12 +406,12 @@ public class XMPPUsersManager {
                 List<User> contacts = NM.contact().contacts();
                 ArrayList<User> rosterContacts = new ArrayList<>();
 
-                RosterGroup group = manager.get().roster().getGroup(ContactGroupName);
+//                RosterGroup group = manager.get().roster().getGroup(ContactGroupName);
 
                 ArrayList<Completable> completables = new ArrayList<>();
 
-                if(group != null) {
-                    List<RosterEntry> entries = group.getEntries();
+//                if(group != null) {
+                    Set<RosterEntry> entries = manager.get().roster().getEntries();
                     for(RosterEntry entry : entries) {
 
                         // Get the entity ID and try to get the user
@@ -428,7 +429,7 @@ public class XMPPUsersManager {
                             rosterContacts.add(user);
                         }
                     }
-                }
+//                }
 
                 contacts.removeAll(rosterContacts);
 

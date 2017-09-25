@@ -412,8 +412,13 @@ public class XMPPManager {
         chatManager().removeChatListener(chatManagerListener);
 
         disposables.dispose();
-        mucManager.dispose();
-        userManager.dispose();
+
+        if(mucManager != null) {
+            mucManager.dispose();
+        }
+        if(userManager != null) {
+            userManager.dispose();
+        }
 
         getConnection().disconnect();
     }
