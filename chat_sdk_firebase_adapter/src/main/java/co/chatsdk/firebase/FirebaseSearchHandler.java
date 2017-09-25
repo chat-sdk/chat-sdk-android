@@ -189,7 +189,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public static String processForQuery(String query){

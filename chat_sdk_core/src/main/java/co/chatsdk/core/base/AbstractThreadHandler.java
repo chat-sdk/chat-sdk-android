@@ -66,9 +66,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
                 e.onSuccess(list);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
-
 
     /**
      * Preparing a text message,
@@ -104,7 +103,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 }
             });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private Message newMessage () {
@@ -169,7 +168,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public Completable apply(final Message message) throws Exception {
                 return implSendMessage(message);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -250,7 +249,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
 
     }
 
@@ -277,7 +276,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public void accept(Throwable throwable) throws Exception {
                 message.setStatus(Message.Status.FAILED);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){

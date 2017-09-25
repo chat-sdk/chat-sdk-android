@@ -25,7 +25,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
                 e.onComplete();
             }
         }).concatWith(XMPPManager.shared().userManager.updateMyvCardWithUser(NM.currentUser()))
-                .subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(Schedulers.single());
     }
 
     @Override

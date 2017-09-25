@@ -23,6 +23,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Function;
@@ -40,7 +41,9 @@ public class UserAvatarHelper {
 
                 imageView.setImageBitmap(defaultBitmap());
 
-                avatar(user).subscribe(new BiConsumer<Bitmap, Throwable>() {
+                avatar(user)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new BiConsumer<Bitmap, Throwable>() {
                     @Override
                     public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                         imageView.setImageBitmap(bitmap);
@@ -68,7 +71,9 @@ public class UserAvatarHelper {
 //                        avatarURL = Uri.fromFile(imageFile).toString();
 //                    }
 
-                    ImageUtils.bitmapForURL(avatarURL).subscribe(new BiConsumer<Bitmap, Throwable>() {
+                    ImageUtils.bitmapForURL(avatarURL)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new BiConsumer<Bitmap, Throwable>() {
                         @Override
                         public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                             if(bitmap != null) {

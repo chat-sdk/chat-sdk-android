@@ -51,7 +51,7 @@ public class XMPPBlockingHandler implements BlockingHandler {
 
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class XMPPBlockingHandler implements BlockingHandler {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

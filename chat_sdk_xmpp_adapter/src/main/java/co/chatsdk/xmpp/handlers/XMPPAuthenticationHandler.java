@@ -114,7 +114,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         e.onError(new Throwable("Login method doesn't exist"));
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
@@ -158,7 +158,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                     e.onError(new Throwable("Login details not valid"));
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

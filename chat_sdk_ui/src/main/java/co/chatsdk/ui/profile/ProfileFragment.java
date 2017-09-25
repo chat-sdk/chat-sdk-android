@@ -33,6 +33,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
@@ -61,8 +62,8 @@ public class ProfileFragment extends BaseFragment {
     private ImageView locationImageView;
     private ImageView phoneImageView;
     private ImageView dateOfBirthImageView;
-    private ImageView followsImageView;
-    private ImageView followedImageView;
+//    private ImageView followsImageView;
+//    private ImageView followedImageView;
 
     private ArrayList<Disposable> disposables = new ArrayList<>();
 
@@ -85,17 +86,18 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        disposables.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
+        disposables.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
                 if(networkEvent.user.equals(user)) {
-                    updateInterface();
+                    setUser(user);
                 }
             }
         }));
 
         initViews(inflater);
-        updateInterface();
 
         return mainView;
     }
@@ -119,19 +121,20 @@ public class ProfileFragment extends BaseFragment {
         blockButton = (Button) mainView.findViewById(R.id.btnBlock);
         deleteButton = (Button) mainView.findViewById(R.id.btnDelete);
 
-        followsHeight = followsTextView.getHeight();
-        followedHeight = followedTextView.getHeight();
+//        followsHeight = followsTextView.getHeight();
+//        followedHeight = followedTextView.getHeight();
 
         locationImageView = (ImageView) mainView.findViewById(R.id.ivLocation);
         phoneImageView = (ImageView) mainView.findViewById(R.id.ivPhone);
         dateOfBirthImageView = (ImageView) mainView.findViewById(R.id.ivDateOfBirth);
-        followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
-        followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
+//        followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
+//        followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
 
         setUser(user);
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
@@ -162,8 +165,8 @@ public class ProfileFragment extends BaseFragment {
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
 
-        followsImageView.setVisibility(visibility);
-        followedImageView.setVisibility(visibility);
+//        followsImageView.setVisibility(visibility);
+//        followedImageView.setVisibility(visibility);
         followsTextView.setVisibility(visibility);
         followedTextView.setVisibility(visibility);
         blockButton.setVisibility(visibility);
@@ -171,7 +174,9 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            disposables.add(NM.blocking().isBlocked(user).subscribe(new BiConsumer<Boolean, Throwable>() {
+            disposables.add(NM.blocking().isBlocked(user)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new BiConsumer<Boolean, Throwable>() {
                 @Override
                 public void accept(Boolean blocked, Throwable throwable) throws Exception {
                     updateBlockedButton(blocked);
@@ -181,38 +186,44 @@ public class ProfileFragment extends BaseFragment {
             blockButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    disposables.add(NM.blocking().isBlocked(ProfileFragment.this.user).subscribe(new BiConsumer<Boolean, Throwable>() {
+                    disposables.add(NM.blocking().isBlocked(ProfileFragment.this.user)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new BiConsumer<Boolean, Throwable>() {
                         @Override
                         public void accept(Boolean blocked, Throwable throwable) throws Exception {
                             if(blocked) {
-                                disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user).doOnError(new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(@NonNull Throwable throwable) throws Exception {
-                                        throwable.printStackTrace();
-                                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }).subscribe(new Action() {
-                                    @Override
-                                    public void run() throws Exception {
-                                        updateBlockedButton(false);
-                                        ToastHelper.show(R.string.user_unblocked);
-                                    }
-                                }));
+                                disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new Action() {
+                                            @Override
+                                            public void run() throws Exception {
+                                                updateBlockedButton(false);
+                                                ToastHelper.show(R.string.user_unblocked);
+                                            }
+                                        }, new Consumer<Throwable>() {
+                                            @Override
+                                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                                throwable.printStackTrace();
+                                                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }));
                             }
                             else {
-                                disposables.add(NM.blocking().blockUser(ProfileFragment.this.user).doOnError(new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(@NonNull Throwable throwable) throws Exception {
-                                        throwable.printStackTrace();
-                                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }).subscribe(new Action() {
-                                    @Override
-                                    public void run() throws Exception {
-                                        updateBlockedButton(true);
-                                        ToastHelper.show(getString(R.string.user_blocked));
-                                    }
-                                }));
+                                disposables.add(NM.blocking().blockUser(ProfileFragment.this.user)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new Action() {
+                                            @Override
+                                            public void run() throws Exception {
+                                                updateBlockedButton(true);
+                                                ToastHelper.show(getString(R.string.user_blocked));
+                                            }
+                                        }, new Consumer<Throwable>() {
+                                            @Override
+                                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                                throwable.printStackTrace();
+                                                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }));
                             }
                         }
                     }));
@@ -222,17 +233,19 @@ public class ProfileFragment extends BaseFragment {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    disposables.add(NM.contact().deleteContact(ProfileFragment.this.user, ConnectionType.Contact).doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }).subscribe(new Action() {
+                    disposables.add(NM.contact().deleteContact(ProfileFragment.this.user, ConnectionType.Contact)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
                             ToastHelper.show(getString(R.string.user_deleted));
                             getActivity().finish();
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }));
                 }
@@ -257,7 +270,7 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Profile Image
-        UserAvatarHelper.loadAvatar(user, avatarImageView).subscribe();
+        UserAvatarHelper.loadAvatar(user, avatarImageView).observeOn(AndroidSchedulers.mainThread()).subscribe();
 
         String status = user.getStatus();
         if(!StringUtils.isNullOrEmpty(status)) {
@@ -299,22 +312,22 @@ public class ProfileFragment extends BaseFragment {
             followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
         }
 
-        if(follows) {
-            followsImageView.setMaxHeight(followsHeight);
-            followsTextView.setMaxHeight(followsHeight);
-        }
-        else {
-            followsImageView.setMaxHeight(0);
-            followsTextView.setMaxHeight(0);
-        }
-        if(followed) {
-            followedImageView.setMaxHeight(followedHeight);
-            followedTextView.setMaxHeight(followedHeight);
-        }
-        else {
-            followedImageView.setMaxHeight(0);
-            followedTextView.setMaxHeight(0);
-        }
+//        if(follows) {
+//            followsImageView.setMaxHeight(followsHeight);
+//            followsTextView.setMaxHeight(followsHeight);
+//        }
+//        else {
+//            followsImageView.setMaxHeight(0);
+//            followsTextView.setMaxHeight(0);
+//        }
+//        if(followed) {
+//            followedImageView.setMaxHeight(followedHeight);
+//            followedTextView.setMaxHeight(followedHeight);
+//        }
+//        else {
+//            followedImageView.setMaxHeight(0);
+//            followedTextView.setMaxHeight(0);
+//        }
 
     }
 

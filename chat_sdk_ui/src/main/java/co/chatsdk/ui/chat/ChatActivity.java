@@ -231,7 +231,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.ivAvatar);
 
-            disposableList.add(ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
+            disposableList.add(ThreadImageBuilder.getBitmapForThread(this, thread)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new BiConsumer<Bitmap, Throwable>() {
                 @Override
                 public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                     circleImageView.setImageBitmap(bitmap);
@@ -334,7 +336,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
                 final View topView = messageListView.getChildAt(0);
 
-                disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
+                disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new BiConsumer<List<Message>, Throwable>() {
                     @Override
                     public void accept(final List<Message> messages, Throwable throwable) throws Exception {
                         if (throwable == null) {
@@ -407,7 +411,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         throwable.printStackTrace();
                         ToastHelper.show(R.string.unable_to_send_message);
                     }
-                }).subscribe());
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
 
         if (clearEditText && textInputView != null) {
             textInputView.clearText();
@@ -425,7 +431,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                         throwable.printStackTrace();
                         ToastHelper.show(R.string.unable_to_send_location_message);
                     }
-                }).subscribe());
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe());
     }
 
     /**
@@ -436,7 +444,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void sendImageMessage(final String filePath) {
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
 
-        NM.thread().sendMessageWithImage(filePath, thread).subscribe(new Observer<MessageUploadResult>() {
+        NM.thread().sendMessageWithImage(filePath, thread)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MessageUploadResult>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
                 disposableList.add(d);
@@ -580,7 +590,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         if (thread != null && thread.typeIs(ThreadType.Public)) {
             User currentUser = NM.currentUser();
-            disposableList.add(NM.thread().addUsersToThread(thread, currentUser).subscribe());
+            disposableList.add(NM.thread().addUsersToThread(thread, currentUser)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe());
         }
 
         markAsRead(thread.getMessages());
@@ -638,7 +650,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         if (thread != null && thread.typeIs(ThreadType.Public))
         {
-            NM.thread().removeUsersFromThread(thread, NM.currentUser()).subscribe();
+            NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe();
         }
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -839,7 +851,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         setChatState(TypingIndicatorHandler.State.composing);
         typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
@@ -863,7 +874,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     private void setChatState (TypingIndicatorHandler.State state) {
         if(NM.typingIndicator() != null) {
-            disposableList.add(NM.typingIndicator().setChatState(state, thread).subscribe());
+            disposableList.add(NM.typingIndicator().setChatState(state, thread)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe());
         }
     }
 
@@ -941,7 +954,9 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             progressBar.setVisibility(View.INVISIBLE);
         }
 
-        NM.thread().loadMoreMessagesForThread(null, thread).subscribe(new BiConsumer<List<Message>, Throwable>() {
+        NM.thread().loadMoreMessagesForThread(null, thread)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BiConsumer<List<Message>, Throwable>() {
             @Override
             public void accept(List<Message> messages, Throwable throwable) throws Exception {
                 progressBar.setVisibility(View.INVISIBLE);

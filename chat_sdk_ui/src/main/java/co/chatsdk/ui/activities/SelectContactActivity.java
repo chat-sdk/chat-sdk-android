@@ -38,6 +38,7 @@ import co.chatsdk.ui.threads.ThreadDetailsActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
@@ -196,7 +197,9 @@ public class SelectContactActivity extends BaseActivity {
     }
 
     private Single<Thread> createAndOpenThread (String name, List<User> users) {
-        return NM.thread().createThread(name, users).doOnSuccess(new Consumer<Thread>() {
+        return NM.thread().createThread(name, users)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess(new Consumer<Thread>() {
             @Override
             public void accept(Thread thread) throws Exception {
                 if (thread != null) {
@@ -275,7 +278,9 @@ public class SelectContactActivity extends BaseActivity {
                         builder.setPositiveButton(getString(R.string.create), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
-                                SelectContactActivity.this.createAndOpenThread(input.getText().toString(), users).subscribe(new BiConsumer<Thread, Throwable>() {
+                                SelectContactActivity.this.createAndOpenThread(input.getText().toString(), users)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new BiConsumer<Thread, Throwable>() {
                                     @Override
                                     public void accept(Thread thread, Throwable throwable) throws Exception {
                                         dismissProgressDialog();
@@ -295,7 +300,9 @@ public class SelectContactActivity extends BaseActivity {
 
                     }
                     else {
-                        createAndOpenThread("", users).subscribe(new BiConsumer<Thread, Throwable>() {
+                        createAndOpenThread("", users)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new BiConsumer<Thread, Throwable>() {
                             @Override
                             public void accept(Thread thread, Throwable throwable) throws Exception {
                                 dismissProgressDialog();
@@ -306,25 +313,27 @@ public class SelectContactActivity extends BaseActivity {
                 }
                 else if (mode == MODE_ADD_TO_CONVERSATION){
 
-                    NM.thread().addUsersToThread(thread, users).doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            dismissProgressDialog();
-                            setResult(AppCompatActivity.RESULT_CANCELED);
-                            finish();
-                        }
-                    }).subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            setResult(AppCompatActivity.RESULT_OK);
-                            dismissProgressDialog();
-                            finish();
-                            if (animateExit) {
-                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                            }
-                        }
-                    });
+                    NM.thread().addUsersToThread(thread, users)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Action() {
+                                @Override
+                                public void run() throws Exception {
+                                    setResult(AppCompatActivity.RESULT_OK);
+                                    dismissProgressDialog();
+                                    finish();
+                                    if (animateExit) {
+                                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+                                    }
+                                }
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@NonNull Throwable throwable) throws Exception {
+                                    throwable.printStackTrace();
+                                    dismissProgressDialog();
+                                    setResult(AppCompatActivity.RESULT_CANCELED);
+                                    finish();
+                                }
+                            });
                 }
             }
         });

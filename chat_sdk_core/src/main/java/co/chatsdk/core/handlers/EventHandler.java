@@ -14,7 +14,7 @@ import io.reactivex.subjects.ReplaySubject;
 
 public interface EventHandler {
 
-    public PublishSubject<NetworkEvent> source ();
-    public Observable<NetworkEvent> sourceOnMain ();
+    PublishSubject<NetworkEvent> source ();
+    Observable<NetworkEvent> sourceOnMain ();
 
 }

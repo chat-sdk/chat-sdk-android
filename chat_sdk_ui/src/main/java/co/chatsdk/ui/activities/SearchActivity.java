@@ -148,23 +148,24 @@ public class SearchActivity extends BaseActivity {
                 dialog.setMessage(getString(R.string.alert_save_contact));
                 dialog.show();
 
-                Completable.merge(completables).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                })
-                .subscribe(new Action() {
+                Completable.merge(completables)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
                         showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
 
-                        if(disposable != null) {
+                        if (disposable != null) {
                             disposable.dispose();
                         }
 
                         dialog.dismiss();
                         finish();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
                     }
                 });
             }
@@ -190,7 +191,9 @@ public class SearchActivity extends BaseActivity {
 
             final List<User> users = new ArrayList<>();
 
-            NM.search().usersForIndex(Keys.Name, etInput.getText().toString()).subscribe(new Observer<User>() {
+            NM.search().usersForIndex(Keys.Name, etInput.getText().toString())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<User>() {
                 @Override
                 public void onSubscribe(@NonNull Disposable d) {
                     disposable = d;

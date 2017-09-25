@@ -12,8 +12,11 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 
@@ -21,7 +24,7 @@ import io.reactivex.functions.Consumer;
  * Created by ben on 8/23/17.
  */
 
-public class ProfileActivity extends FragmentActivity {
+public class ProfileActivity extends BaseActivity {
 
     private User user;
 
@@ -74,16 +77,18 @@ public class ProfileActivity extends FragmentActivity {
 
     public void startChat () {
 
-        NM.thread().createThread(user.getName(), user, NM.currentUser()).doOnSuccess(new Consumer<Thread>() {
+        NM.thread().createThread(user.getName(), user, NM.currentUser())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Thread>() {
             @Override
-            public void accept(Thread thread) throws Exception {
+            public void accept(@NonNull Thread thread) throws Exception {
                 if (thread != null) {
                     InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
                 }
             }
-        }).doOnError(new Consumer<Throwable>() {
+        }, new Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable) throws Exception {
+            public void accept(@NonNull Throwable throwable) throws Exception {
                 ToastHelper.show(R.string.create_thread_with_users_fail_toast);
             }
         });

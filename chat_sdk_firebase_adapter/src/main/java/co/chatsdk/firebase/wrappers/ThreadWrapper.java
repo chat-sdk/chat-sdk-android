@@ -114,7 +114,7 @@ public class ThreadWrapper  {
                     NM.typingIndicator().typingOn(model);
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable once () {
@@ -145,7 +145,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -236,7 +236,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
 
     }
 
@@ -293,7 +293,7 @@ public class ThreadWrapper  {
 
                 FirebaseReferenceManager.shared().addRef(ref, listener);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -337,7 +337,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     //Note - Maybe should treat group thread and one on one thread the same
@@ -403,7 +403,7 @@ public class ThreadWrapper  {
                     }
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Single<List<Message>> loadMoreMessages(Message fromMessage){
@@ -467,7 +467,7 @@ public class ThreadWrapper  {
                     });
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -595,7 +595,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable pushLastMessage (final HashMap<Object, Object> messageData) {
@@ -614,7 +614,7 @@ public class ThreadWrapper  {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private void updateReadReceipts() {

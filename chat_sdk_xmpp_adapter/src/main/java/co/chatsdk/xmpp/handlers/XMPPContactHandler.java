@@ -54,7 +54,7 @@ public class XMPPContactHandler extends BaseContactHandler {
                 NM.events().source().onNext(NetworkEvent.contactAdded(user));
                 s.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override
@@ -82,6 +82,6 @@ public class XMPPContactHandler extends BaseContactHandler {
                     e.onComplete();
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 }

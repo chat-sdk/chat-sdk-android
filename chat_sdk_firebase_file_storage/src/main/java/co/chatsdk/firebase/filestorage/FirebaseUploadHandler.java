@@ -72,7 +72,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 });
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
 

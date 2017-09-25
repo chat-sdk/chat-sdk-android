@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.User;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by braunster on 04/11/14.
@@ -64,7 +65,7 @@ public class SaveIndexDetailsTextWatcher implements TextWatcher {
 
         user.setMetaString(metaKey, editable.toString());
 
-        NM.core().pushUser().subscribe();
+        NM.core().pushUser().observeOn(AndroidSchedulers.mainThread()).subscribe();
 
     }
 

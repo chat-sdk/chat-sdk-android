@@ -211,14 +211,14 @@ public class ContactsFragment extends BaseFragment {
             }
         }));
 
-        disposables.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData(true);
-                    }
-                }));
+//        disposables.add(NM.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+//                .subscribe(new Consumer<NetworkEvent>() {
+//                    @Override
+//                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
+//                        loadData(false);
+//                    }
+//                }));
 
     }
 
@@ -299,7 +299,9 @@ public class ContactsFragment extends BaseFragment {
         final ArrayList<User> originalUserList = new ArrayList<>();
         originalUserList.addAll(sourceUsers);
 
-        reloadUsers().subscribe(new Action() {
+        reloadUsers()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 if (!originalUserList.equals(sourceUsers) || force) {
@@ -342,21 +344,23 @@ public class ContactsFragment extends BaseFragment {
                             }
 
                             if(thread != null) {
-                                NM.thread().addUsersToThread(thread, clickedUser).doOnError(new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(@NonNull Throwable throwable) throws Exception {
-                                        throwable.printStackTrace();
-                                        ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
-                                    }
-                                }).subscribe(new Action() {
-                                    @Override
-                                    public void run() throws Exception {
-                                        ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
-                                        if (isDialog) {
-                                            getDialog().dismiss();
-                                        }
-                                    }
-                                });
+                                NM.thread().addUsersToThread(thread, clickedUser)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new Action() {
+                                            @Override
+                                            public void run() throws Exception {
+                                                ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
+                                                if (isDialog) {
+                                                    getDialog().dismiss();
+                                                }
+                                            }
+                                        }, new Consumer<Throwable>() {
+                                            @Override
+                                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                                throwable.printStackTrace();
+                                                ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                            }
+                                        });
                             }
                             break;
 
@@ -407,7 +411,7 @@ public class ContactsFragment extends BaseFragment {
                 }
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

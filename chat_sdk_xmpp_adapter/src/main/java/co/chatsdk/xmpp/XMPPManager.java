@@ -304,7 +304,7 @@ public class XMPPManager {
                     e.onError(exception);
                 }
             }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io());
+        }).subscribeOn(Schedulers.io());
     }
 
     public Single<XMPPConnection> openConnection(final String jid, final String password){
@@ -337,7 +337,7 @@ public class XMPPManager {
                     e.onError(new Throwable("Failed to open connection to server"));
                 }
             }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io());
+        }).subscribeOn(Schedulers.io());
     }
 
     private XMPPTCPConnectionConfiguration configureRegistrationConnection() {
@@ -376,7 +376,7 @@ public class XMPPManager {
                     return Completable.error(new Throwable("Connection is not connected"));
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private boolean debugModeEnabled () {
@@ -403,7 +403,7 @@ public class XMPPManager {
                     return Completable.error(exception);
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public void logout () {

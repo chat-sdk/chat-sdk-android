@@ -27,6 +27,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.fragments.BaseFragment;
@@ -104,7 +105,9 @@ public class PrivateThreadsFragment extends BaseFragment {
                             getResources().getString(R.string.cancel), null, new Callable() {
                                 @Override
                                 public Object call() throws Exception {
-                                    NM.thread().deleteThread(adapter.getItem(position).getThread()).subscribe(new CompletableObserver() {
+                                    NM.thread().deleteThread(adapter.getItem(position).getThread())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new CompletableObserver() {
                                         @Override
                                         public void onSubscribe(Disposable d) {
                                         }

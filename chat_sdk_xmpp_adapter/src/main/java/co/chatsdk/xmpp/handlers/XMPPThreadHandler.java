@@ -83,7 +83,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                     });
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override
@@ -157,7 +157,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 e.onComplete();
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

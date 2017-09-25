@@ -24,7 +24,7 @@ public class XMPPRosterListener implements RosterListener {
 
     public XMPPRosterListener (XMPPManager manager) {
         this.manager = new WeakReference<>(manager);
-        presenceEventSource.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        presenceEventSource.subscribeOn(Schedulers.single());
     }
 
     @Override

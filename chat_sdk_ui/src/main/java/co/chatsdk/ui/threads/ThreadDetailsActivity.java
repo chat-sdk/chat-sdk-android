@@ -30,6 +30,7 @@ import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -130,7 +131,9 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         threadImageView.setVisibility(View.INVISIBLE);
 
-        ThreadImageBuilder.getBitmapForThread(this, thread).subscribe(new BiConsumer<Bitmap, Throwable>() {
+        ThreadImageBuilder.getBitmapForThread(this, thread)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                     threadImageView.setImageBitmap(bitmap);

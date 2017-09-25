@@ -15,12 +15,10 @@ import co.chatsdk.ui.utils.AvailabilityHelper;
 public class UserListItem implements Serializable {
 
     private User user;
-    private int type;
     private int resourceID;
 
-    public UserListItem(User user, int resourceID, int type) {
+    public UserListItem(User user, int resourceID) {
         this.resourceID  = resourceID;
-        this.type = type;
         this.user = user;
     }
 
@@ -30,10 +28,6 @@ public class UserListItem implements Serializable {
 
     public User getUser () {
         return user;
-    }
-
-    public int getItemType() {
-        return type;
     }
 
     public int getResourceID() {

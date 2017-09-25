@@ -34,7 +34,7 @@ public class XMPPLastOnlineHandler implements LastOnlineHandler {
                 calendar.add(Calendar.SECOND, - (int) activity.getIdleTime());
                 e.onSuccess(calendar.getTime());
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

@@ -19,6 +19,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -33,19 +35,16 @@ import java.util.ListIterator;
 
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class UsersListAdapter extends BaseAdapter {
 
     private AppCompatActivity mActivity;
 
-    private List<UserListItem> listData = new ArrayList<>();
     private List<UserListItem> userItems = new ArrayList<>();
-    private List<String> userIDs = new ArrayList<>();
     private RowClickListener rowClickListener;
     private RowClickListener profileImageClickListener;
-
-    public static final int TYPE_USER = 1991;
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
@@ -89,20 +88,15 @@ public class UsersListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View view, ViewGroup viewGroup) {
-        View row = view;
+    public View getView(final int position, View row, ViewGroup viewGroup) {
 
-        final ViewHolder holder;
         final UserListItem userItem = userItems.get(position);
 
         // If the row is null or the View inside the row is not good for the current item.
-        if (row == null || userItem.getResourceID() != row.getId()) {
-            holder  = new ViewHolder();
-            row = rowForType(holder, position);
+        if (row == null) {
+            row = rowForType(position);
         }
-        else {
-            holder = (ViewHolder) row.getTag();
-        }
+        ViewHolder holder = (ViewHolder) row.getTag();
 
         holder.nameTextView.setText(userItem.getText());
         holder.availabilityImageView.setImageResource(userItem.getAvailability());
@@ -117,21 +111,18 @@ public class UsersListAdapter extends BaseAdapter {
             }
         });
 
-        if (getItemViewType(position) == TYPE_USER) {
+        Picasso.with(holder.avatarImageView.getContext()).cancelRequest(holder.avatarImageView);
+        UserAvatarHelper.loadAvatar(userItem.getUser(), holder.avatarImageView)
+                .subscribe();
 
-            UserAvatarHelper.loadAvatar(userItem.getUser(), holder.avatarImageView).subscribe();
-
-            // If this is included then the outer click won't work
-
-            holder.avatarImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(UsersListAdapter.this.profileImageClickListener != null) {
-                        UsersListAdapter.this.profileImageClickListener.click(position);
-                    }
+        holder.avatarImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(UsersListAdapter.this.profileImageClickListener != null) {
+                    UsersListAdapter.this.profileImageClickListener.click(position);
                 }
-            });
-        }
+            }
+        });
 
         return row;
     }
@@ -150,7 +141,7 @@ public class UsersListAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return userItems.get(position).getItemType();
+        return 100;
     }
 
     @Override
@@ -168,10 +159,12 @@ public class UsersListAdapter extends BaseAdapter {
         return 0;
     }
 
-    protected View rowForType(ViewHolder holder, final int position){
+    protected View rowForType(final int position) {
+
         LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row =  inflater.inflate(userItems.get(position).getResourceID(), null);
 
+        ViewHolder holder = new ViewHolder();
         holder.nameTextView = (TextView) row.findViewById(R.id.chat_sdk_txt);
         holder.statusTextView = (TextView) row.findViewById(R.id.tvStatus);
         holder.availabilityImageView = (ImageView) row.findViewById(R.id.ivAvailability);
@@ -206,9 +199,9 @@ public class UsersListAdapter extends BaseAdapter {
 
     public void setUsers(List<User> users, boolean sort) {
         ArrayList<UserListItem> items = new ArrayList<>();
-        ListIterator<User> it = users.listIterator();
-        while(it.hasNext()) {
-            items.add(new UserListItem(it.next(), R.layout.chat_sdk_row_contact, TYPE_USER));
+
+        for(User u : new ArrayList<>(users)) {
+            items.add(new UserListItem(u, R.layout.chat_sdk_row_contact));
         }
 
         setUserItems(items, sort);
@@ -220,18 +213,12 @@ public class UsersListAdapter extends BaseAdapter {
         if (DEBUG) Timber.v("setUserItems, size: %s", (userItems == null ? "NULL" : userItems.size()));
         
         this.userItems.clear();
-        this.listData.clear();
 
-        userIDs.clear();
-
-        this.userItems = userItems;
-        this.listData = userItems;
-
-        if (sort)
+        if (sort) {
             sortList(userItems);
+        }
 
-        for (UserListItem item : userItems)
-            userIDs.add(item.getEntityID());
+        this.userItems.addAll(userItems);
 
         notifyDataSetChanged();
     }
@@ -251,7 +238,6 @@ public class UsersListAdapter extends BaseAdapter {
      * * */
     public void clear(){
         userItems.clear();
-        listData.clear();
         clearSelection();
         notifyDataSetChanged();
     }
@@ -261,34 +247,34 @@ public class UsersListAdapter extends BaseAdapter {
      *
      * @param startWith the search input. This will be matched against user name in the listItems.
      * * */
-    public void filterStartWith(String startWith){
-        filtering = true;
-
-        if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
-        {
-            this.userItems = listData;
-        }
-        else
-        {
-            startWith = startWith.trim();
-
-            List<UserListItem> filteredUsers = new ArrayList<>();
-
-            for (UserListItem u : listData)
-            {
-                if (u.getText().toLowerCase().startsWith(startWith.toLowerCase()))
-                    filteredUsers.add(u);
-            }
-
-            this.userItems = filteredUsers;
-        }
-
-        sortList(userItems);
-
-        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
-
-        notifyDataSetChanged();
-    }
+//    public void filterStartWith(String startWith){
+//        filtering = true;
+//
+//        if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
+//        {
+//            this.userItems = listData;
+//        }
+//        else
+//        {
+//            startWith = startWith.trim();
+//
+//            List<UserListItem> filteredUsers = new ArrayList<>();
+//
+//            for (UserListItem u : listData)
+//            {
+//                if (u.getText().toLowerCase().startsWith(startWith.toLowerCase()))
+//                    filteredUsers.add(u);
+//            }
+//
+//            this.userItems = filteredUsers;
+//        }
+//
+//        sortList(userItems);
+//
+//        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
+//
+//        notifyDataSetChanged();
+//    }
 
     /**
      * Sorting a given list using the internal comparator.
@@ -299,10 +285,16 @@ public class UsersListAdapter extends BaseAdapter {
         Comparator comparator = new Comparator<UserListItem>() {
             @Override
             public int compare(UserListItem i1, UserListItem i2) {
-                String s1 = i1.getText() != null ? i1.getText() : "";
-                String s2 = i2.getText() != null ? i2.getText() : "";
+                String s1 = "";
+                if(i1 != null && i1.getText() != null) {
+                    s1 = i1.getText();
+                }
+                String s2 = "";
+                if(i2 != null && i2.getText() != null) {
+                    s2 = i2.getText();
+                }
 
-                return s1.toLowerCase().compareTo(s2.toLowerCase());
+                return s1.compareToIgnoreCase(s2);
             }
         };
         Collections.sort(list, comparator);

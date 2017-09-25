@@ -16,7 +16,7 @@ public class XMPPEventHandler implements EventHandler {
     final private PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
 
     public XMPPEventHandler () {
-        eventSource.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        eventSource.subscribeOn(Schedulers.single());
     }
 
     @Override

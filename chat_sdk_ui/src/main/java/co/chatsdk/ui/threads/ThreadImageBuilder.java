@@ -17,6 +17,7 @@ import co.chatsdk.ui.utils.UserAvatarHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -61,25 +62,25 @@ public class ThreadImageBuilder {
                         public void accept(Bitmap bitmap) throws Exception {
                             bitmaps.add(bitmap);
                         }
-                    }).doOnError(new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            e.onSuccess(defaultBitmap(context, thread));
-                        }
-                    }).subscribe(new Consumer<Bitmap>() {
-                        @Override
-                        public void accept(@NonNull Bitmap bitmap) throws Exception {
-                            if(bitmaps.size() == 1) {
-                                e.onSuccess(bitmaps.get(0));
-                            }
-                            else {
-                                int size = context.getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
-                                Bitmap merged = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
-                                e.onSuccess(merged);
-                            }
-                        }
-                    });
+                    }).observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<Bitmap>() {
+                                @Override
+                                public void accept(@NonNull Bitmap bitmap) throws Exception {
+                                    if (bitmaps.size() == 1) {
+                                        e.onSuccess(bitmaps.get(0));
+                                    } else {
+                                        int size = context.getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
+                                        Bitmap merged = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
+                                        e.onSuccess(merged);
+                                    }
+                                }
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@NonNull Throwable throwable) throws Exception {
+                                    throwable.printStackTrace();
+                                    e.onSuccess(defaultBitmap(context, thread));
+                                }
+                            });
                 }
             }
         });

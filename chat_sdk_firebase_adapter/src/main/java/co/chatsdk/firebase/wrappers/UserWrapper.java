@@ -198,7 +198,7 @@ public class UserWrapper {
                 });
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Observable<User> metaOn() {
@@ -228,7 +228,7 @@ public class UserWrapper {
                 });
                 FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
 

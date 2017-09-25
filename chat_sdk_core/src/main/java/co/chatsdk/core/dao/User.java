@@ -1,9 +1,5 @@
 package co.chatsdk.core.dao;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.widget.ImageView;
-
 import java.util.Date;
 import java.util.List;
 
@@ -99,7 +95,10 @@ public class User implements CoreEntity {
 
         for (ContactLink contactLink : contactLinks){
             if(contactLink.getConnectionType().equals(type)) {
-                contactList.add(contactLink.getUser());
+                User user = contactLink.getUser();
+                if(user != null && StringUtils.isNotEmpty(user.getName())) {
+                    contactList.add(contactLink.getUser());
+                }
             }
         }
 
@@ -421,7 +420,7 @@ public class User implements CoreEntity {
     }
 
     public String toString() {
-        return String.format("User, id: %s meta: %s", id, getMetadata());
+        return String.format("User, id: %s meta: %s", id, getMetaData());
     }
 
 
@@ -495,7 +494,7 @@ public class User implements CoreEntity {
     }
 
 
-    public String getMetadata() {
+    public String getMetaData() {
         return this.metadata;
     }
 
@@ -579,6 +578,11 @@ public class User implements CoreEntity {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getUserDao() : null;
+    }
+
+
+    public String getMetadata() {
+        return this.metadata;
     }
 
 

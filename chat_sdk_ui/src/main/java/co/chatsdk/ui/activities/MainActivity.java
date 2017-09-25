@@ -30,6 +30,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;

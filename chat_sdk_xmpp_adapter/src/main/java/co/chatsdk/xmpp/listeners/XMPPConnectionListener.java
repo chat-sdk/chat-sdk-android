@@ -20,7 +20,7 @@ public class XMPPConnectionListener implements ConnectionListener {
 
     public XMPPConnectionListener (XMPPManager manager) {
         rosterListener = new XMPPRosterListener(manager);
-        connectionStatusSource.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        connectionStatusSource.subscribeOn(Schedulers.single());
     }
 
     @Override

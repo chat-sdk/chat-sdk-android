@@ -111,7 +111,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public void save () {

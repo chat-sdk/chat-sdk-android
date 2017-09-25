@@ -55,7 +55,7 @@ public abstract class AbstractUploadHandler implements UploadHandler {
                     });
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
 
     }
 

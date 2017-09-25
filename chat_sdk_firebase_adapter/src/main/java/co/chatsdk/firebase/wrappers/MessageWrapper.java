@@ -187,7 +187,7 @@ public class MessageWrapper  {
                     e.onError(new Throwable("Message doesn't have a thread"));
                 }
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
 
     }
 

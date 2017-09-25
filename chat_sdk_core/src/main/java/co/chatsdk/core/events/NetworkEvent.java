@@ -98,6 +98,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactChanged, null, null, user);
     }
 
+    public static NetworkEvent contactsUpdated () {
+        return new NetworkEvent(EventType.ContactsUpdated);
+    }
+
     public static NetworkEvent typingStateChanged (String message, Thread thread) {
         NetworkEvent event = new NetworkEvent(EventType.TypingStateChanged);
         event.text = message;
@@ -190,7 +194,8 @@ public class NetworkEvent {
         return filterType(
                 EventType.ContactChanged,
                 EventType.ContactAdded,
-                EventType.ContactDeleted
+                EventType.ContactDeleted,
+                EventType.ContactsUpdated
         );
     }
 }

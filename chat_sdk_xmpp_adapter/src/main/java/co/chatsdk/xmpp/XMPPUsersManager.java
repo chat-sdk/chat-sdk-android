@@ -9,7 +9,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
@@ -19,7 +18,6 @@ import org.jivesoftware.smackx.xdata.FormField;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
-import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -38,6 +36,7 @@ import co.chatsdk.core.types.KeyValue;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.utils.StringUtils;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
@@ -52,13 +51,11 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 
 /**
@@ -94,7 +91,7 @@ public class XMPPUsersManager {
                 }
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Observable<User> getAllAddedUsers() {
@@ -115,7 +112,7 @@ public class XMPPUsersManager {
                 roster.createEntry(JidCreate.bareFrom(user.getEntityID()), user.getName(), groups);
                 e.onComplete();
             }
-        }).concatWith(subscribeToUser(user)).subscribeOn(Schedulers.single());
+        }).concatWith(subscribeToUser(user));
     }
 
     public Completable removeUserFromRoster (final User user) {
@@ -135,7 +132,7 @@ public class XMPPUsersManager {
                 }
                 e.onComplete();
             }
-        }).concatWith(unsubscribeFromUser(user)).subscribeOn(Schedulers.single());
+        }).concatWith(unsubscribeFromUser(user));
     }
 
     public Single<List<KeyValue>> getAvailableSearchFields () {
@@ -150,7 +147,7 @@ public class XMPPUsersManager {
                 }
                 e.onSuccess(stringFields);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Observable<Jid> searchUser(final String searchIndex, final String searchValue) {
@@ -175,7 +172,7 @@ public class XMPPUsersManager {
                 e.onComplete();
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private Single<VCard> vCardForUser (final Jid jid) {
@@ -188,7 +185,7 @@ public class XMPPUsersManager {
 
                 e.onSuccess(vCard);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Single<Boolean> userBlocked (final Jid jid) {
@@ -198,7 +195,7 @@ public class XMPPUsersManager {
                 boolean blocked = XMPPManager.shared().blockingCommandManager().getBlockList().contains(jid);
                 e.onSuccess(blocked);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Single<User> updateUserFromVCard (final Jid jid) {
@@ -221,7 +218,7 @@ public class XMPPUsersManager {
                 }
                 return Single.just(user);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable subscribeToUser (final User user) {
@@ -233,7 +230,7 @@ public class XMPPUsersManager {
                 manager.get().getConnection().sendStanza(request);
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable unsubscribeFromUser (final User user) {
@@ -245,7 +242,7 @@ public class XMPPUsersManager {
                 manager.get().getConnection().sendStanza(request);
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public User vCardToUser(VCard vCard) {
@@ -253,7 +250,22 @@ public class XMPPUsersManager {
         Jid jid = vCard.getFrom();
         User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
 
-        String name = vCard.getField(Name);
+        String name = vCard.getNickName();
+//        name = vCard.getFirstName() + vCard.getLastName();
+
+        if(StringUtils.isNullOrEmpty(name)) {
+            if(!StringUtils.isNullOrEmpty(vCard.getFirstName()) && !StringUtils.isNullOrEmpty(vCard.getLastName())) {
+                name = vCard.getFirstName() + " " + vCard.getLastName();
+            }
+            if(!StringUtils.isNullOrEmpty(vCard.getFirstName())) {
+                name = vCard.getFirstName();
+            }
+        }
+
+        if(StringUtils.isNullOrEmpty(name)) {
+            name = jid.getLocalpartOrNull() != null ? jid.getLocalpartOrNull().toString() : "";
+        }
+
         if(name != null && !name.isEmpty()) {
             user.setName(name);
         }
@@ -303,7 +315,7 @@ public class XMPPUsersManager {
         DaoCore.createOrReplace(user);
         user.update();
 
-        NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
+        NM.events().source().onNext(NetworkEvent.userMetaUpdated(user));
 
         return user;
     }
@@ -393,7 +405,7 @@ public class XMPPUsersManager {
                 }
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable loadContactsFromRoster () {
@@ -401,13 +413,11 @@ public class XMPPUsersManager {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
-                //clearContacts();
                 // Add the contacts from the roster
                 List<User> contacts = NM.contact().contacts();
-                ArrayList<User> rosterContacts = new ArrayList<>();
+                final ArrayList<User> rosterContacts = new ArrayList<>();
 
 //                RosterGroup group = manager.get().roster().getGroup(ContactGroupName);
-
                 ArrayList<Completable> completables = new ArrayList<>();
 
 //                if(group != null) {
@@ -416,15 +426,18 @@ public class XMPPUsersManager {
 
                         // Get the entity ID and try to get the user
                         String entityID = entry.getJid().asBareJid().toString();
-                        User user = StorageManager.shared().fetchUserWithEntityID(entityID);
+
+//                        User user = StorageManager.shared().fetchUserWithEntityID(entityID);
+                        User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityID);
+                        completables.add(updateUserFromVCard(entry.getJid()).toCompletable());
 
                         // If the user doesn't already exist, add it
-                        if(user == null || !contacts.contains(user)) {
-                            completables.add(addContact(entry.getJid()));
-                        }
-                        else {
-                            completables.add(updateUserFromRoster(user));
-                        }
+//                        if(user == null || !contacts.contains(user)) {
+//                            completables.add(addContact(entry.getJid()));
+//                        }
+//                        else {
+//                        }
+
                         if(user != null) {
                             rosterContacts.add(user);
                         }
@@ -442,6 +455,17 @@ public class XMPPUsersManager {
                 disposables.add(Completable.concat(completables).subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
+
+                        // Now all the users have been updated from their vCards so we can
+                        // Add them as contacts and update the Contact List
+                        for(User u: rosterContacts) {
+                            if(NM.currentUser() != null) {
+                                NM.currentUser().addContact(u);
+                            }
+                        }
+
+                        NM.events().source().onNext(NetworkEvent.contactsUpdated());
+
                         e.onComplete();
                     }
                 }, new Consumer<Throwable>() {
@@ -451,7 +475,7 @@ public class XMPPUsersManager {
                     }
                 }));
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable updateUserFromRoster (final User user) {
@@ -469,7 +493,7 @@ public class XMPPUsersManager {
                 PresenceHelper.updateUserFromPresence(user, presence);
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
 
     }
 

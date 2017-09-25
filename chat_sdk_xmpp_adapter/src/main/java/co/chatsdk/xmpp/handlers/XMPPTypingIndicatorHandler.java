@@ -64,7 +64,7 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
                 }
                 XMPPManager.shared().chatStateManager().setCurrentState(xmppState, chat);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
 }

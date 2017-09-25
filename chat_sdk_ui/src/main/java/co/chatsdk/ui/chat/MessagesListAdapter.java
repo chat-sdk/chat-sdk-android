@@ -41,6 +41,7 @@ import java.util.List;
 
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class MessagesListAdapter extends BaseAdapter{
@@ -255,7 +256,9 @@ public class MessagesListAdapter extends BaseAdapter{
             holder.progressView.setVisibility(View.INVISIBLE);
         }
 
-        UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView).subscribe();
+        UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());

@@ -136,7 +136,7 @@ public class FirebasePushHandler implements PushHandler {
 
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override

@@ -57,7 +57,6 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    private static final String TAG = FirebaseAuthenticationHandler.class.getSimpleName();
     private static boolean DEBUG = Debug.FirebaseAuthenticationHandler;
 
     public Completable authenticateWithCachedToken() {
@@ -93,7 +92,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Whether we complete successfully or not, we set the status to idle
                 setAuthStateToIdle();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     @Override
@@ -159,7 +158,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 // Whether we complete successfully or not, we set the status to idle
                 setAuthStateToIdle();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable authenticateWithUser (final FirebaseUser user) {
@@ -216,7 +215,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 });
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Boolean userAuthenticated() {
@@ -243,7 +242,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable logout() {
@@ -281,7 +280,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable sendPasswordResetMail(final String email) {
@@ -303,7 +302,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     // TODO: Allow users to turn anonymous login off or on in settings

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
 import timber.log.Timber;
 
@@ -135,7 +136,9 @@ public class ThreadsListAdapter extends BaseAdapter {
 
         // This should be quick because we're loding the image using iON so
         // they will be cached
-        ThreadImageBuilder.getBitmapForThread(AppContext.shared().context(), getItem(position).getThread()).subscribe(new BiConsumer<Bitmap, Throwable>() {
+        ThreadImageBuilder.getBitmapForThread(AppContext.shared().context(), getItem(position).getThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                 if(throwable == null) {

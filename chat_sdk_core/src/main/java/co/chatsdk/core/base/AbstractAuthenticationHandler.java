@@ -132,7 +132,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
             public Completable apply(AccountDetails accountDetails) throws Exception {
                 return authenticate(accountDetails);
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.io());
     }
 
     /**

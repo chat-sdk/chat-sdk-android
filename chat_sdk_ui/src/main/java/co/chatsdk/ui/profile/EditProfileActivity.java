@@ -45,6 +45,7 @@ import co.chatsdk.ui.utils.Cropper;
 import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -130,7 +131,9 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
-        UserAvatarHelper.loadAvatar(currentUser, avatarImageView).subscribe();
+        UserAvatarHelper.loadAvatar(currentUser, avatarImageView)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
 
         if (StringUtils.isNotEmpty(countryCode)){
             Locale l = new Locale("", countryCode);
@@ -205,16 +208,18 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private void logout () {
-        NM.auth().logout().doOnError(new Consumer<Throwable>() {
+        NM.auth().logout()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                InterfaceManager.shared().a.startLoginActivity(false);
+            }
+        }, new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
                 throwable.printStackTrace();
                 Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }).subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                InterfaceManager.shared().a.startLoginActivity(false);
             }
         });
     }
@@ -333,7 +338,9 @@ public class EditProfileActivity extends BaseActivity {
 //        else if (changed) {
 
         if(changed) {
-            NM.core().pushUser().subscribe();
+            NM.core().pushUser()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe();
         }
 
         finish();

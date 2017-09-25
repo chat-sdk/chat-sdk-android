@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.MissingResourceException;
 
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
 import timber.log.Timber;
 import co.chatsdk.ui.utils.Strings;
@@ -186,7 +187,9 @@ public class NotificationUtils {
 
         getNotificationLines(context, message, data);
 
-        ThreadImageBuilder.getBitmapForThread(context, message.getThread()).subscribe(new BiConsumer<Bitmap, Throwable>() {
+        ThreadImageBuilder.getBitmapForThread(context, message.getThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                 if(throwable == null) {

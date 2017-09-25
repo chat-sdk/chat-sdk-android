@@ -176,7 +176,7 @@ public class XMPPMUCManager {
                 }));
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Single<MultiUserChat> joinRoomWithJID (final String roomJID) {
@@ -202,7 +202,7 @@ public class XMPPMUCManager {
                 });
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable joinRoom (final MultiUserChat chat) {
@@ -241,7 +241,7 @@ public class XMPPMUCManager {
 
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable inviteUser (final User user, final String threadID) {
@@ -252,7 +252,7 @@ public class XMPPMUCManager {
                 chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     private String getRandomRoomID () {

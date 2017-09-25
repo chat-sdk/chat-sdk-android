@@ -47,6 +47,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import co.chatsdk.core.defines.Debug;
@@ -213,17 +214,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.chat_sdk_btn_twitter_login){
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithTwitter(this).doOnError(error).subscribe(completion);
+                NM.socialLogin().loginWithTwitter(this).doOnError(error)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(completion);
             }
         }
         else if (i == R.id.chat_sdk_btn_facebook_login) {
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithFacebook(this).doOnError(error).subscribe(completion);
+                NM.socialLogin().loginWithFacebook(this).doOnError(error)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(completion);
             }
         }
         else if (i == R.id.chat_sdk_btn_google_login) {
             if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithGoogle(this).doOnError(error).subscribe(completion);
+                NM.socialLogin().loginWithGoogle(this).doOnError(error)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(completion);
             }
         }
     }
@@ -242,7 +249,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
                 showProgressDialog(getString(R.string.authenticating));
 
-                NM.auth().authenticateWithCachedToken().subscribe(new CompletableObserver() {
+                NM.auth().authenticateWithCachedToken()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {}
 
@@ -296,7 +305,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         // Indexing the user.
         User currentUser = NM.currentUser();
         if(currentUser != null) {
-            NM.core().pushUser().subscribe();
+            NM.core().pushUser().observeOn(AndroidSchedulers.mainThread()).subscribe();
         }
 
         dismissProgressDialog();
@@ -314,7 +323,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         details.username = etEmail.getText().toString();
         details.password = etPass.getText().toString();
 
-        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }
@@ -345,7 +356,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         details.username = etEmail.getText().toString();
         details.password = etPass.getText().toString();
 
-        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {}
 
@@ -369,7 +382,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Anonymous;
 
-        NM.auth().authenticate(details).subscribe(new CompletableObserver() {
+        NM.auth().authenticate(details)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
             }

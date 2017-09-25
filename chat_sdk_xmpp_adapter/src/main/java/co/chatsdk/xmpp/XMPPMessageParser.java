@@ -139,6 +139,6 @@ public class XMPPMessageParser {
                 }
 
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 }

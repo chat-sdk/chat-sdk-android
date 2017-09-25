@@ -31,6 +31,7 @@ import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableSource;
 import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -160,7 +161,7 @@ public class PublicThreadsFragment extends BaseFragment {
                                 }
                             });
                         }
-                    }).subscribe();
+                    }).observeOn(AndroidSchedulers.mainThread()).subscribe();
                 }
             });
 

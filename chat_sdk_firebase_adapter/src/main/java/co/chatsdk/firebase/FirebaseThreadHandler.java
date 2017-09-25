@@ -56,10 +56,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    /** Add given users list to the given thread.
+    /**
+     * Add given users list to the given thread.
      * The RepetitiveCompletionListenerWithError will notify by his "onItem" method for each user that was successfully added.
      * In the "onItemFailed" you can get all users that the system could not add to the server.
-     * When all users are added the system will call the "onDone" method.*/
+     * When all users are added the system will call the "onDone" method.
+     **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
         return setUserThreadLinkValue(thread, users, Keys.Null);
 
@@ -94,7 +96,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @param value
      * @return
      */
-    public Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final String value) {
+    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final String value) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
@@ -139,7 +141,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 });
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -285,7 +287,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             public void accept(Thread thread) throws Exception {
                 thread.addUser(NM.currentUser());
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable deleteThread(Thread thread) {
@@ -304,7 +306,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             public Completable apply(Thread thread) throws Exception {
                 return new ThreadWrapper(thread).deleteThread();
             }
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.single());
     }
 
     protected void pushForMessage(final Message message){
