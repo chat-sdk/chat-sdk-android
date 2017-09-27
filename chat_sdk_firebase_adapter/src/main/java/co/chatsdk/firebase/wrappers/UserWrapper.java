@@ -426,13 +426,13 @@ public class UserWrapper {
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.
-        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, true);
+        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, false);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(Keys.Time, ServerValue.TIMESTAMP);
         map.put(Keys.UID, model.getEntityID());
 
-        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, true);
+        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, false);
 
         return Completable.merge(Arrays.asList(c1, c2));
     }

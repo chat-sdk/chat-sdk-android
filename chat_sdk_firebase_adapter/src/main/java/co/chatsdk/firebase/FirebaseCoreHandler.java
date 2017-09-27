@@ -25,6 +25,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
@@ -66,7 +67,12 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         NM.core().save();
-        DatabaseReference.goOffline();
+        setUserOffline().subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                DatabaseReference.goOffline();
+            }
+        });
     }
 
     public void goOnline() {

@@ -75,16 +75,10 @@ dependencies {
     compile project(':chat_sdk_firebase_adapter')
     compile 'com.android.support:multidex:1.0.1'
     compile project(path: ':chat_sdk_ui')
-    compile project(path: ':chat_sdk_xmpp_adapter')
+//    compile project(path: ':chat_sdk_xmpp_adapter')
     compile project(path: ':chat_sdk_firebase_push')
     compile project(path: ':chat_sdk_firebase_file_storage')
-    //compile project(path: ':sdk')
-    // Add RxJava
-    //    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    // Because RxAndroid releases are few and far between, it is recommended you also
-    // explicitly depend on RxJava's latest version for bug fixes and new features.
-    //    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile project(path: ':chat_sdk_social_login')
+
 }
 
 
