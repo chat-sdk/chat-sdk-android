@@ -19,60 +19,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AccountType;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import co.chatsdk.core.defines.Debug;
-
 
 import org.apache.commons.lang3.StringUtils;
 
-import timber.log.Timber;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-/**
- * Created by braunster on 18/06/14.
- */
 public class BaseActivity extends AppCompatActivity {
-
-    private static final boolean DEBUG = Debug.BaseActivity;
-
-    public static final String FROM_LOGIN = "FROM_LOGIN";
 
     private ProgressDialog progressDialog;
 
-    /** If true the activity will implement facebook SDK components like sessionChangeState and the facebook UI helper.
-     * This is good for caching a press on the logout button in the main activity or in any activity that will implement the facebook login button.*/
-    protected boolean integratedWithFacebook = false;
-
-    /** A flag indicates that the activity in opened from the login activity so we wont do auth check when the activity will get to the onResume state.*/
-    boolean fromLoginActivity = false;
+    public BaseActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            fromLoginActivity = getIntent().getExtras().getBoolean(FROM_LOGIN, false);
-            // So we won't encounter this flag again.
-            getIntent().removeExtra(FROM_LOGIN);
-        }
-        else {
-            fromLoginActivity = false;
-        }
-
-        if (savedInstanceState != null) {
-            fromLoginActivity = savedInstanceState.getBoolean(FROM_LOGIN, false);
-        }
-
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }
@@ -114,52 +89,44 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent != null && intent.getExtras() != null)
-        {
-            if (DEBUG) Timber.d("From login");
-            fromLoginActivity = intent.getExtras().getBoolean(FROM_LOGIN, false);
-            // So we wont encounter this flag again.
-            intent.removeExtra(FROM_LOGIN);
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(AppBackgroundMonitor.shared().wasInBackground()) {
+            NM.core().goOnline();
         }
+        AppBackgroundMonitor.shared().stopActivityTransitionTimer();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        fromLoginActivity = false;
+        AppBackgroundMonitor.shared().startActivityTransitionTimer();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        NM.core().setUserOnline();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        NM.core().setUserOffline();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-//        if (integratedWithFacebook && NM.auth().accountTypeEnabled(AccountType.Facebook))
-//            uiHelper.onDestroy();
-
         dismissProgressDialog();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(FROM_LOGIN, fromLoginActivity);
     }
 
     /**
@@ -167,22 +134,52 @@ public class BaseActivity extends AppCompatActivity {
      * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
      * */
     public void setupTouchUIToDismissKeyboard(View view) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideSoftKeyboard(BaseActivity.this);
                 return false;
             }
-        });
+        }, -1);
     }
 
-    public void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
-        UIHelper.setupTouchUIToDismissKeyboard(view, onTouchListener, exceptIDs);
+    public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
+        List<Integer> ids = new ArrayList<>();
+        if (exceptIDs != null)
+            ids = Arrays.asList(exceptIDs);
+
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+
+            if (!ids.isEmpty() && ids.contains(view.getId()))
+            {
+                return;
+            }
+
+            view.setOnTouchListener(onTouchListener);
+        }
+
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+
+                View innerView = ((ViewGroup) view).getChildAt(i);
+
+                setupTouchUIToDismissKeyboard(innerView, onTouchListener, exceptIDs);
+            }
+        }
     }
 
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(AppCompatActivity activity) {
-        UIHelper.hideSoftKeyboard(activity);
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE);
+
+        if (inputMethodManager == null)
+            return;
+
+        if (activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null)
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     /** Show a SuperToast with the given text. */
@@ -231,10 +228,6 @@ public class BaseActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void enableFacebookIntegration(boolean integratedWithFacebook) {
-        this.integratedWithFacebook = integratedWithFacebook;
     }
 
 }

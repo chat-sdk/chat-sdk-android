@@ -38,9 +38,9 @@ import io.reactivex.Single;
     /**
     * Mark the user as online
     */
-    void setUserOnline();
+    Completable setUserOnline();
 
-    void setUserOffline();
+    Completable setUserOffline();
 
     /**
     * Connect to the server
@@ -52,20 +52,6 @@ import io.reactivex.Single;
     */
     void goOnline();
 
-    Single<Boolean> isOnline();
-
-    // TODO: Consider removing / refactoring this
-    /**
-    * Subscribe to a user's updates
-    */
-    void observeUser(String entityID);
-
-    // TODO: Consider removing this
-    /**
-     * Core Data doesn't save data to disk automatically. During the programs execution
-     * Core Data stores all data chages in memory and when the program terminates these
-     * changes are lost. Calling save forces Core Data to persist the data to perminant storage
-     */
     void save();
 
 }

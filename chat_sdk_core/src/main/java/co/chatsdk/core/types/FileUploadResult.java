@@ -1,5 +1,4 @@
 package co.chatsdk.core.types;
-
 /**
  * Created by benjaminsmiley-andrews on 08/05/2017.
  */

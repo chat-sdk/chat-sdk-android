@@ -33,10 +33,7 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.helpers.UIHelper;
-import co.chatsdk.ui.threads.ThreadDetailsActivity;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -62,9 +59,6 @@ public class SelectContactActivity extends BaseActivity {
     public static final int MODE_ADD_TO_CONVERSATION = 1992;
 
     public static final String MODE = "mode";
-
-    private static final String TAG = SelectContactActivity.class.getSimpleName();
-    private static boolean DEBUG = Debug.PickFriendsActivity;
 
     private ListView listContacts;
     private UsersListAdapter listAdapter;

@@ -7,9 +7,12 @@
 
 package co.chatsdk.ui.threads;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,31 +31,25 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.activities.SelectContactActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableSource;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.helpers.DialogUtils;
 
 
 import io.reactivex.functions.Function;
-import timber.log.Timber;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public class PublicThreadsFragment extends BaseFragment {
-
-    private static final String TAG = PublicThreadsFragment.class.getSimpleName();
-    private static boolean DEBUG = Debug.ThreadsFragment;
-    public static final String APP_EVENT_TAG= "ChatRoomsFrag";
 
     private ListView listThreads;
     private ThreadsListAdapter adapter;
@@ -131,18 +129,26 @@ public class PublicThreadsFragment extends BaseFragment {
 
         if (id == R.id.action_chat_sdk_add)
         {
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            final DialogUtils.ChatSDKEditTextDialog dialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+            builder.setTitle(getString(R.string.add_public_chat_dialog_title));
 
-            dialog.setTitleAndListen( getString(R.string.add_public_chat_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
+            // Set up the input
+            final EditText input = new EditText(this.getContext());
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+            builder.setView(input);
+
+            // Set up the buttons
+            builder.setPositiveButton(getString(R.string.create), new DialogInterface.OnClickListener() {
                 @Override
-                public void onFinished(final String threadName) {
+                public void onClick(final DialogInterface dialog, int which) {
 
                     showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
+                    final String threadName = input.getText().toString();
 
                     NM.publicThread().createPublicThreadWithName(threadName).flatMapCompletable(new Function<Thread, CompletableSource>() {
                         @Override
                         public CompletableSource apply(@NonNull final Thread thread) throws Exception {
+
                             return  NM.thread().addUsersToThread(thread, NM.currentUser()).doOnError(new Consumer<Throwable>() {
                                 @Override
                                 public void accept(@NonNull Throwable throwable) throws Exception {
@@ -157,16 +163,23 @@ public class PublicThreadsFragment extends BaseFragment {
                                     adapter.addRow(thread);
 
                                     // TODO: Improve this
-                                    ToastHelper.show(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) ); ;
+                                    ToastHelper.show(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
+
                                 }
                             });
                         }
                     }).observeOn(AndroidSchedulers.mainThread()).subscribe();
+
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
                 }
             });
 
-            // TODO: Localize
-            dialog.show(fm, "Add Public Chat Dialog");
+            builder.show();
 
             return true;
         }

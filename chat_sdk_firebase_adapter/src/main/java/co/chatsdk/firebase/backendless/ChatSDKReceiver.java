@@ -7,33 +7,9 @@
 
 package co.chatsdk.firebase.backendless;
 
-import android.content.Context;
-import android.content.Intent;
-
 //import com.backendless.push.BackendlessBroadcastReceiver;
 //import com.braunster.androidchatsdk.firebaseplugin.R;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.Defines;
-
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.DaoCore;
-
-import com.google.firebase.auth.FirebaseAuth;
-
-import org.joda.time.DateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.helpers.UIHelper;
-import timber.log.Timber;
-
-import co.chatsdk.ui.helpers.NotificationUtils;
 
 /**
  *

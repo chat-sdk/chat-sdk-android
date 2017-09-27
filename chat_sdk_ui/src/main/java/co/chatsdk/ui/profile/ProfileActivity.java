@@ -1,7 +1,6 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,11 +12,9 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 
 /**

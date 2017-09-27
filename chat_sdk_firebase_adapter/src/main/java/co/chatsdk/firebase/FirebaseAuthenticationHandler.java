@@ -192,7 +192,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         NM.push().subscribeToPushChannel(wrapper.pushChannel());
 
-                        NM.core().goOnline();
+                        NM.core().setUserOnline().subscribe();
 
                         wrapper.push().subscribe(new Action() {
                             @Override
@@ -248,37 +248,45 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable logout() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void subscribe(CompletableEmitter e) throws Exception {
+            public void subscribe(final CompletableEmitter e) throws Exception {
 
-                User user = NM.currentUser();
+                final User user = NM.currentUser();
 
                 // Stop listening to user related alerts. (added message or thread.)
                 FirebaseEventHandler.shared().userOff(user.getEntityID());
 
                 // Removing the push channel
-                if (NM.push() != null)
+                if (NM.push() != null) {
                     NM.push().unsubscribeToPushChannel(user.getPushChannel());
-
-                // Login out
-                // TODO: Move this to the user wrapper
-                DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(user.getEntityID());
-                userOnlineRef.setValue(false);
-
-                FirebaseAuth.getInstance().signOut();
-
-                NM.events().source().onNext(NetworkEvent.logout());
-
-                if(NM.socialLogin() != null) {
-                    NM.socialLogin().logout();
                 }
 
-                if(NM.hook() != null) {
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put(BaseHookHandler.Logout, user);
-                    NM.hook().executeHook(BaseHookHandler.Logout_User, data);
-                }
+                NM.core().setUserOffline().subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
 
-                e.onComplete();
+                        FirebaseAuth.getInstance().signOut();
+
+                        NM.events().source().onNext(NetworkEvent.logout());
+
+                        if(NM.socialLogin() != null) {
+                            NM.socialLogin().logout();
+                        }
+
+                        if(NM.hook() != null) {
+                            HashMap<String, Object> data = new HashMap<>();
+                            data.put(BaseHookHandler.Logout, user);
+                            NM.hook().executeHook(BaseHookHandler.Logout_User, data);
+                        }
+
+                        e.onComplete();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        e.onError(throwable);
+                    }
+                });
+
             }
         }).subscribeOn(Schedulers.single());
     }

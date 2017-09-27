@@ -7,7 +7,7 @@ import android.widget.PopupWindow;
 import org.apache.commons.lang3.StringUtils;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.UIHelper;
+import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 
@@ -30,7 +30,7 @@ public class ImageMessageClickListener implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-        UIHelper.hideSoftKeyboard(activity);
+        BaseActivity.hideSoftKeyboard(activity);
 
         if (StringUtils.isNotBlank(url)) {
 
@@ -54,8 +54,5 @@ public class ImageMessageClickListener implements View.OnClickListener {
         }
     }
 
-    private UIHelper helper () {
-        return UIHelper.shared();
-    }
 
 }

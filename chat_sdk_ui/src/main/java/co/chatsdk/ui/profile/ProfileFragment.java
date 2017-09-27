@@ -1,7 +1,6 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,19 +19,16 @@ import java.util.Locale;
 import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;

@@ -11,7 +11,6 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Locale;
 
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 
 /**

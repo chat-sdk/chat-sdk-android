@@ -46,6 +46,7 @@ public class FirebasePushHandler implements PushHandler {
     public FirebasePushHandler (TokenPusher pusher) {
         this.pusher = pusher;
 
+
         Hook authHook = new Hook(new Hook.Executor() {
             @Override
             public void execute(HashMap<String, Object> data) {
@@ -81,7 +82,7 @@ public class FirebasePushHandler implements PushHandler {
     public boolean updatePushToken () {
         if(token != null && token.length() > 0 && NM.currentUser() != null) {
             String currentToken = NM.currentUser().metaStringForKey(Keys.PushToken);
-            if(!currentToken.equals(token)) {
+            if(currentToken == null || !currentToken.equals(token)) {
                 NM.currentUser().setMetaString(Keys.PushToken, token);
                 return true;
             }
@@ -103,8 +104,6 @@ public class FirebasePushHandler implements PushHandler {
     @Override
     public void pushToChannels(List<String> channels, Map<String, String> data) {
 
-        String serverKey = "key=" + ChatSDK.shared().firebaseCloudMessagingServerKey();
-
         for(String channel : channels) {
             pushToChannel(channel, data).doOnError(new Consumer<Throwable>() {
                 @Override
@@ -120,6 +119,7 @@ public class FirebasePushHandler implements PushHandler {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {
                 final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                String serverKey = "key=" + ChatSDK.shared().firebaseCloudMessagingServerKey();
 
                 HashMap<String, Object> params = new HashMap<>();
 
@@ -131,7 +131,11 @@ public class FirebasePushHandler implements PushHandler {
                 OkHttpClient client = new OkHttpClient();
 
                 RequestBody body = RequestBody.create(JSON, json);
-                Request request = new Request.Builder().url("https://fcm.googleapis.com/fcm/send").post(body).build();
+                Request request = new Request.Builder()
+                        .url("https://fcm.googleapis.com/fcm/send")
+                        .header("Authorization", serverKey)
+                        .post(body).build();
+
                 Response response = client.newCall(request).execute();
 
                 e.onComplete();

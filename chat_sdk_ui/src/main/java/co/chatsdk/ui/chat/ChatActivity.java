@@ -11,7 +11,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
@@ -37,18 +36,15 @@ import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
-import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageUploadResult;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -66,7 +62,6 @@ import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.contacts.ContactsFragment;
 
-import co.chatsdk.core.dao.DaoCore;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -74,7 +69,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

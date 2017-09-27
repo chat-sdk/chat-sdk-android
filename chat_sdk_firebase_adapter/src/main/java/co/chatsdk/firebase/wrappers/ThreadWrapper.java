@@ -586,7 +586,7 @@ public class ThreadWrapper  {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError == null) {
-                            FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID());
+                            FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe();
                             e.onComplete();
                         }
                         else {

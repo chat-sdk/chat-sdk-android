@@ -40,7 +40,6 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.helpers.UIHelper;
 import co.chatsdk.ui.utils.Cropper;
 import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.utils.UserAvatarHelper;

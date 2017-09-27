@@ -44,35 +44,34 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return currentUser().push();
     }
 
-    public void setUserOnline() {
+    public Completable setUserOnline() {
         User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
-            UserWrapper.initWithModel(currentUserModel()).goOnline();
+            return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
+        return Completable.complete();
     }
 
-    public void setUserOffline() {
+    public Completable setUserOffline() {
         User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
-            UserWrapper.initWithModel(currentUserModel()).goOffline();
-            updateLastOnline().subscribe();
+            // Update the last online figure then go offline
+            return updateLastOnline()
+                    .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline());
         }
+        return Completable.complete();
     }
 
     public void goOffline() {
+        NM.core().save();
         DatabaseReference.goOffline();
-        setUserOffline();
     }
 
     public void goOnline() {
         DatabaseReference.goOnline();
-        setUserOnline();
-    }
-
-    public void observeUser(String entityID) {
-
+        setUserOnline().subscribe();
     }
 
     public Completable updateLastOnline () {
@@ -83,15 +82,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 currentUser.setLastOnline(new Date());
                 currentUser.update();
             }
-        }).concatWith(pushUser());
+        }).concatWith(pushUser()).subscribeOn(Schedulers.single());
     }
 
-    public Single<Boolean> isOnline(){
+    public Single<Boolean> isOnline() {
         return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(final SingleEmitter<Boolean> e) throws Exception {
-                if (NM.currentUser() == null)
-                {
+                if (NM.currentUser() == null) {
                     e.onError(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
                     return;
                 }

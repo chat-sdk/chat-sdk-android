@@ -37,10 +37,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
@@ -297,14 +299,14 @@ public class UserWrapper {
 
                 final DatabaseReference ref = ref();
 
-                updateFirebaseUser();
+                updateFirebaseUser().subscribe();
 
                 ref.updateChildren(serialize(), new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
                         if (firebaseError == null) {
                             // index should be updated whenever the user is pushed
-                            FirebaseEntity.pushUserMetaUpdated(model.getEntityID());
+                            FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe();
                             e.onComplete();
                         }
                         else {
@@ -313,7 +315,7 @@ public class UserWrapper {
                     }
                 });
             }
-        }).andThen(updateIndex());
+        }).subscribeOn(Schedulers.single()).andThen(updateIndex());
     }
 
     public Completable updateFirebaseUser () {
@@ -339,7 +341,7 @@ public class UserWrapper {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single());
     }
     
     public DatabaseReference ref(){
@@ -401,17 +403,18 @@ public class UserWrapper {
                     }
                 });
             }
-        });
+        }).subscribeOn(Schedulers.single());
     }
     
     /**
      * Set the user online value to false.
      **/
-    public void goOffline() {
-        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(model.getEntityID());
-        userOnlineRef.removeValue();
-        FirebasePaths.onlineRef(model.getEntityID()).removeValue();
+    public Completable goOffline () {
 
+        Completable c1 = FirebaseRX.remove(FirebasePaths.userOnlineRef(model.getEntityID()));
+        Completable c2 = FirebaseRX.remove(FirebasePaths.onlineRef(model.getEntityID()));
+
+        return Completable.merge(Arrays.asList(c1, c2));
     }
     
     /**
@@ -419,20 +422,19 @@ public class UserWrapper {
      * 
      * When firebase disconnect this will be auto change to false.
      **/
-    public void goOnline() {
-        DatabaseReference userOnlineRef = FirebasePaths.userOnlineRef(model.getEntityID());
+    public Completable goOnline() {
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.
-        userOnlineRef.setValue(true);
-        userOnlineRef.onDisconnect().removeValue();
+        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, true);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(Keys.Time, ServerValue.TIMESTAMP);
         map.put(Keys.UID, model.getEntityID());
 
-        FirebasePaths.onlineRef(model.getEntityID()).setValue(map);
-        FirebasePaths.onlineRef(model.getEntityID()).onDisconnect().removeValue();
+        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, true);
+
+        return Completable.merge(Arrays.asList(c1, c2));
     }
 
     public static String processForQuery(String query){

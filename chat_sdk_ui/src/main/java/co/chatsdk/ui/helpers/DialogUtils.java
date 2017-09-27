@@ -76,10 +76,6 @@ public class DialogUtils {
         private String dialogTitle = "Title";
         private EditTextDialogInterface listener;
 
-
-
-        private UIHelper UIHelper;
-
         public static ChatSDKEditTextDialog getInstace(){
             ChatSDKEditTextDialog f = new ChatSDKEditTextDialog();
 
@@ -93,8 +89,6 @@ public class DialogUtils {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
-            UIHelper = UIHelper.shared();
 
             View view = inflater.inflate(R.layout.chat_sdk_dialog_edit_text, container);
             mEditText = (EditText) view.findViewById(R.id.et_enter);
@@ -217,8 +211,6 @@ public class DialogUtils {
 
         private String data;
 
-        private UIHelper UIHelper;
-
         private String imageName = "";
 
         private View popupView;
@@ -234,8 +226,6 @@ public class DialogUtils {
             this.context = ctx;
 
             this.popupView = popupView;
-
-            UIHelper = UIHelper.shared();
         }
 
         public void load (){

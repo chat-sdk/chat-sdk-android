@@ -29,13 +29,13 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
     }
 
     @Override
-    public void setUserOnline() {
-
+    public Completable setUserOnline() {
+        return Completable.complete();
     }
 
     @Override
-    public void setUserOffline() {
-
+    public Completable setUserOffline() {
+        return Completable.complete();
     }
 
     @Override
@@ -45,16 +45,6 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
 
     @Override
     public void goOnline() {
-
-    }
-
-    @Override
-    public Single<Boolean> isOnline() {
-        return null;
-    }
-
-    @Override
-    public void observeUser(String entityID) {
 
     }
 

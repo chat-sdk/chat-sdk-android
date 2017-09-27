@@ -73,8 +73,6 @@ import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();
-    private static boolean DEBUG = Debug.LoginActivity;
     private static int FILE_PERMISSION_REQUEST = 100;
 
     private boolean exitOnBackPressed = false;
@@ -91,7 +89,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        enableFacebookIntegration(NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook));
         setContentView(R.layout.chat_sdk_activty_login);
 
         setExitOnBackPressed(true);
@@ -105,14 +102,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected void initViews () {
-
-//        facebookLogin = (LoginButton) findViewById(R.id.chat_sdk_facebook_button);
-//        facebookLogin.setReadPermissions(Arrays.asList("email", "public_profile"));
-
-
-
-//        facebookLogin.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
-//        facebookLogin.setBackgroundResource(R.drawable.ic_facebook);
 
         btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
         btnAnon = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
@@ -163,7 +152,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     private void initListeners(){
-        /* Registering listeners.*/
+
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
         btnAnon.setOnClickListener(this);
@@ -241,11 +230,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initListeners();
 
-        Map<String, ?> loginInfo = NM.auth().getLoginInfo();
-        if (loginInfo != null && loginInfo.containsKey(AuthKeys.Type)) {
+//        Map<String, ?> loginInfo = NM.auth().getLoginInfo();
+//        if (loginInfo != null && loginInfo.containsKey(AuthKeys.Type)) {
 
             // If the logged out flag isn't set...
-            if (getIntent() == null || getIntent().getExtras() == null || getIntent().getExtras().containsKey(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
+            if (getIntent() == null || getIntent().getExtras() == null || (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
 
                 showProgressDialog(getString(R.string.authenticating));
 
@@ -268,16 +257,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     }
                 });
             }
-        }
+//        }
 
-        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if(permissionCheck == PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    FILE_PERMISSION_REQUEST);
-        }
+//        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//
+//        if(permissionCheck == PERMISSION_DENIED) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                    FILE_PERMISSION_REQUEST);
+//        }
 
 
     }

@@ -85,11 +85,6 @@ public class MainActivity extends BaseActivity {
         firstTimeInApp();
         initViews();
 
-        if (!fromLoginActivity && savedInstanceState != null)
-        {
-            pager.setCurrentItem(savedInstanceState.getInt(PAGE_ADAPTER_POS));
-        }
-
         mOpenFromPushChecker = new OpenFromPushChecker();
         if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState)) {
             String threadEntityID = getIntent().getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);

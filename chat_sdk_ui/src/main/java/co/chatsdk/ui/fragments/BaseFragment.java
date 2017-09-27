@@ -18,19 +18,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.ui.helpers.UIHelper;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.CompletableObserver;
-import io.reactivex.disposables.Disposable;
-import co.chatsdk.ui.R;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.Callable;
+
+import co.chatsdk.ui.activities.BaseActivity;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -57,10 +49,10 @@ public abstract class BaseFragment extends DialogFragment {
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        UIHelper.shared().setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
+        BaseActivity.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                UIHelper.shared().hideSoftKeyboard((AppCompatActivity) getActivity());
+                BaseActivity.hideSoftKeyboard((AppCompatActivity) getActivity());
                 return false;
             }
         }, exceptIDs);
