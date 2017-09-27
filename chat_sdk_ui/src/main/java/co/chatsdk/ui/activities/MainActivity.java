@@ -32,6 +32,7 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
@@ -45,6 +46,7 @@ import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
+import timber.log.Timber;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -70,6 +72,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        NM.core().setUserOnline().subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                Timber.v("Online");
+            }
+        });
 
         exitHelper = new ExitHelper(this);
 

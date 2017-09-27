@@ -192,8 +192,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         NM.push().subscribeToPushChannel(wrapper.pushChannel());
 
-                        NM.core().setUserOnline().subscribe();
-
                         wrapper.push().subscribe(new Action() {
                             @Override
                             public void run() throws Exception {

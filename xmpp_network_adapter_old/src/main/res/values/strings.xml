@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">XMPP Network Adapter</string>
-    <string name="vcard_field_phone">CELL</string>
-    <string name="vcard_field_country">CTRY</string>
-    <string name="vcard_field_location">LOCALITY</string>
-    <string name="vcard_field_birthday">BDAY</string>
-</resources>

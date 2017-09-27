@@ -4,6 +4,7 @@ import co.chatsdk.core.types.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import co.chatsdk.core.NM;
@@ -45,6 +46,9 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable setUserOnline() {
+
+        DatabaseReference.goOffline();
+
         User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
         {
@@ -66,11 +70,11 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         NM.core().save();
-        DatabaseReference.goOffline();
+//        DatabaseReference.goOffline();
     }
 
     public void goOnline() {
-        DatabaseReference.goOnline();
+        //DatabaseReference.goOnline();
         setUserOnline().subscribe();
     }
 
@@ -78,9 +82,10 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {
-                User currentUser  = NM.currentUser();
+                User currentUser = NM.currentUser();
                 currentUser.setLastOnline(new Date());
                 currentUser.update();
+                e.onComplete();
             }
         }).concatWith(pushUser()).subscribeOn(Schedulers.single());
     }

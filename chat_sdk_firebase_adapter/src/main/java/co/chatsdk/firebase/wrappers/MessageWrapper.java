@@ -168,10 +168,10 @@ public class MessageWrapper  {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
                 if(model.getThread() != null) {
-                    push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))
-                            .concatWith(FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID())).subscribe(new Action() {
+                    push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
+                            FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
                             e.onComplete();
                         }
                     }, new Consumer<Throwable>() {

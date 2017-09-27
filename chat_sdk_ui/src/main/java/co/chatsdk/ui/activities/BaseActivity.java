@@ -190,11 +190,6 @@ public class BaseActivity extends AppCompatActivity {
         ToastHelper.show(text);
     }
 
-    /** Authenticates the current user.*/
-    public Completable authenticate(){
-        return NM.auth().authenticateWithCachedToken();
-    }
-
     protected void showProgressDialog(String message){
         if (progressDialog == null)
             progressDialog = new ProgressDialog(this);

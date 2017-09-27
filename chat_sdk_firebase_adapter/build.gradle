@@ -31,14 +31,17 @@ dependencies {
     compile project(':chat_sdk_core')
     compile project(path: ':chat_sdk_ui')
 
-    compile 'com.google.firebase:firebase-core:9.0.2'
-    compile 'com.google.firebase:firebase-database:9.0.2'
-    compile 'com.google.firebase:firebase-storage:9.0.2'
-    compile 'com.google.firebase:firebase-auth:9.0.2'
+//    compile 'com.google.firebase:firebase-core:9.0.2'
+//    compile 'com.google.firebase:firebase-database:9.0.2'
+//    compile 'com.google.firebase:firebase-storage:9.0.2'
+//    compile 'com.google.firebase:firebase-auth:9.0.2'
+//    compile 'com.jakewharton.timber:timber:4.3.1'
+
+    compile 'com.google.firebase:firebase-core:11.4.0'
+    compile 'com.google.firebase:firebase-database:11.4.0'
+    compile 'com.google.firebase:firebase-storage:11.4.0'
+    compile 'com.google.firebase:firebase-auth:11.4.0'
     compile 'com.jakewharton.timber:timber:4.3.1'
-    //compile 'com.firebaseui:firebase-ui:0.4.1'
-
-
 }
 
 apply plugin: 'com.google.gms.google-services'
