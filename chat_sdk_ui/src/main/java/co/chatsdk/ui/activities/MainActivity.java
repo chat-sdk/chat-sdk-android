@@ -32,6 +32,7 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
@@ -45,6 +46,7 @@ import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
+import timber.log.Timber;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,11 +59,6 @@ public class MainActivity extends BaseActivity {
     protected PagerAdapterTabs adapter;
 
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
-    public static final String PAGE_ADAPTER_POS = "page_adapter_pos";
-
-    public static final String Action_Contacts_Added = "co.chatsdk.action.contact_added";
-    public static final String Action_clear_data = "co.chatsdk.action.logged_out";
-    public static final String Action_Refresh_Fragment = "co.chatsdk.action.refresh_fragment";
 
     private OpenFromPushChecker mOpenFromPushChecker;
 

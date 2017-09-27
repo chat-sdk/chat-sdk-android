@@ -291,11 +291,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin() {
-        // Indexing the user.
-        User currentUser = NM.currentUser();
-        if(currentUser != null) {
-            NM.core().pushUser().observeOn(AndroidSchedulers.mainThread()).subscribe();
-        }
 
         dismissProgressDialog();
         InterfaceManager.shared().a.startMainActivity();

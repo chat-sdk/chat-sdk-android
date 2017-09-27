@@ -170,61 +170,66 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            disposables.add(NM.blocking().isBlocked(user)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new BiConsumer<Boolean, Throwable>() {
-                @Override
-                public void accept(Boolean blocked, Throwable throwable) throws Exception {
-                    updateBlockedButton(blocked);
-                }
-            }));
-
-            blockButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    disposables.add(NM.blocking().isBlocked(ProfileFragment.this.user)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new BiConsumer<Boolean, Throwable>() {
-                        @Override
-                        public void accept(Boolean blocked, Throwable throwable) throws Exception {
-                            if(blocked) {
-                                disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new Action() {
-                                            @Override
-                                            public void run() throws Exception {
-                                                updateBlockedButton(false);
-                                                ToastHelper.show(R.string.user_unblocked);
-                                            }
-                                        }, new Consumer<Throwable>() {
-                                            @Override
-                                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                                throwable.printStackTrace();
-                                                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        }));
+            if(NM.blocking() != null) {
+                disposables.add(NM.blocking().isBlocked(user)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new BiConsumer<Boolean, Throwable>() {
+                            @Override
+                            public void accept(Boolean blocked, Throwable throwable) throws Exception {
+                                updateBlockedButton(blocked);
                             }
-                            else {
-                                disposables.add(NM.blocking().blockUser(ProfileFragment.this.user)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new Action() {
-                                            @Override
-                                            public void run() throws Exception {
-                                                updateBlockedButton(true);
-                                                ToastHelper.show(getString(R.string.user_blocked));
-                                            }
-                                        }, new Consumer<Throwable>() {
-                                            @Override
-                                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                                throwable.printStackTrace();
-                                                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        }));
-                            }
-                        }
-                    }));
-                }
-            });
+                        }));
+                blockButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        disposables.add(NM.blocking().isBlocked(ProfileFragment.this.user)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new BiConsumer<Boolean, Throwable>() {
+                                    @Override
+                                    public void accept(Boolean blocked, Throwable throwable) throws Exception {
+                                        if(blocked) {
+                                            disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user)
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(new Action() {
+                                                        @Override
+                                                        public void run() throws Exception {
+                                                            updateBlockedButton(false);
+                                                            ToastHelper.show(R.string.user_unblocked);
+                                                        }
+                                                    }, new Consumer<Throwable>() {
+                                                        @Override
+                                                        public void accept(@NonNull Throwable throwable) throws Exception {
+                                                            throwable.printStackTrace();
+                                                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }));
+                                        }
+                                        else {
+                                            disposables.add(NM.blocking().blockUser(ProfileFragment.this.user)
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(new Action() {
+                                                        @Override
+                                                        public void run() throws Exception {
+                                                            updateBlockedButton(true);
+                                                            ToastHelper.show(getString(R.string.user_blocked));
+                                                        }
+                                                    }, new Consumer<Throwable>() {
+                                                        @Override
+                                                        public void accept(@NonNull Throwable throwable) throws Exception {
+                                                            throwable.printStackTrace();
+                                                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }));
+                                        }
+                                    }
+                                }));
+                    }
+                });
+            }
+            else {
+                // TODO: Set height to zero
+                blockButton.setVisibility(View.INVISIBLE);
+            }
 
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override

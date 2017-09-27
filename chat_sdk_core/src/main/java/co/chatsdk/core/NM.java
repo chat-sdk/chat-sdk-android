@@ -1,7 +1,5 @@
 package co.chatsdk.core;
 
-import com.google.android.gms.games.social.Social;
-
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;

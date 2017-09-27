@@ -63,7 +63,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * When all users are added the system will call the "onDone" method.
      **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
-        return setUserThreadLinkValue(thread, users, Keys.Null).concatWith(FirebaseEntity.pushUserThreadsUpdated(thread.getEntityID()));
+        return setUserThreadLinkValue(thread, users, Keys.Null);
 
 //
 //        if(thread == null) {
@@ -132,7 +132,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                         if (databaseError == null) {
                             FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe();
                             for(User u : users) {
-                                FirebaseEntity.pushThreadUsersUpdated(u.getEntityID()).subscribe();
+                                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe();
                             }
                             e.onComplete();
                         } else {
@@ -145,7 +145,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
-        return setUserThreadLinkValue(thread, users, null).concatWith(FirebaseEntity.pushUserThreadsUpdated(thread.getEntityID()));
+        return setUserThreadLinkValue(thread, users, null);
 
 //        if(thread == null) {
 //            return Flowable.error(new Throwable("Thread cannot be null"));
