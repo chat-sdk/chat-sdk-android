@@ -70,11 +70,11 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         NM.core().save();
-//        DatabaseReference.goOffline();
+        DatabaseReference.goOffline();
     }
 
     public void goOnline() {
-        //DatabaseReference.goOnline();
+        DatabaseReference.goOnline();
         setUserOnline().subscribe();
     }
 
