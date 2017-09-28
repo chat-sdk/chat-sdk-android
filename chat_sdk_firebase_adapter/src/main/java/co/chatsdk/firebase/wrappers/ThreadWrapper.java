@@ -104,7 +104,8 @@ public class ThreadWrapper  {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        e.onError(databaseError.toException());
+                        //e.onError(databaseError.toException());
+                        Timber.v(databaseError.getMessage());
                     }
                 });
 

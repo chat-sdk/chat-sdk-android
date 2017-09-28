@@ -141,12 +141,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     private PhotoSelector photoSelector = new PhotoSelector();
     private LocationSelector locationSelector = new LocationSelector();
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,10 +157,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         initActionBar();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
         // If the activity is just been created we load regularly, else we load and retain position
         loadMessages(true, -1, ListPosition.Bottom);
@@ -484,15 +474,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected void onStart() {
         super.onStart();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
-
-
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
@@ -634,10 +615,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         stopTyping(true);
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-
         if (readCount > 0) {
             sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
         }
@@ -646,11 +623,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         {
             NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe();
         }
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
-
     }
 
     /**
