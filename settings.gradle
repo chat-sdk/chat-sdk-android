@@ -1,1 +1,1 @@
-include ':app', ':chat_sdk_firebase_adapter', ':chat_sdk_social_login', ':chat_sdk_ui', ':chat_sdk_core', ':chat_sdk_xmpp_adapter', ':chat_sdk_firebase_file_storage', ':chat_sdk_firebase_push'
+include ':app', ':chat_sdk_firebase_adapter', ':chat_sdk_social_login', ':chat_sdk_ui', ':chat_sdk_core', ':chat_sdk_firebase_file_storage', ':chat_sdk_firebase_push'
