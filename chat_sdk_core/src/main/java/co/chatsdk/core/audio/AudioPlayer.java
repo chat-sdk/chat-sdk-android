@@ -7,6 +7,7 @@ import com.google.android.gms.drive.events.CompletionListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -24,19 +25,27 @@ public class AudioPlayer {
     private Disposable playingDisposable;
     private ProgressListener progressListener;
     private MediaPlayer.OnCompletionListener completionListener;
+    private boolean isPaused = false;
 
     public void play () throws Exception {
         if(player != null) {
+            isPaused = false;
             player.start();
 
-            playingDisposable = Observable.interval(0, 1000, TimeUnit.MILLISECONDS)
+            playingDisposable = Observable.interval(0, 200, TimeUnit.MILLISECONDS)
                     .subscribeOn(Schedulers.single())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(@NonNull Long aLong) throws Exception {
-                            if(progressListener != null) {
-                                progressListener.update(player.getCurrentPosition(), player.getDuration());
+                            if(progressListener != null && player != null) {
+                                final int pos = player.getCurrentPosition();
+
+                                AndroidSchedulers.mainThread().scheduleDirect(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressListener.update(pos);
+                                    }
+                                });
                             }
                         }
                     });
@@ -92,7 +101,7 @@ public class AudioPlayer {
     }
 
     public static String toSeconds (int millis) {
-        return String.format("%d:%d00.",
+        return String.format("%d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
@@ -109,22 +118,33 @@ public class AudioPlayer {
         if(playingDisposable != null) {
             playingDisposable.dispose();
         }
+        isPaused = false;
     }
 
-    public void setPosition (int position) {
+    public void setPosition (final int position) {
         if(player != null) {
-            player.seekTo(position);
+            Schedulers.single().scheduleDirect(new Runnable() {
+                @Override
+                public void run() {
+                    player.seekTo(position);
+                }
+            });
         }
     }
 
     public void pause () {
         if(player != null) {
+            isPaused = true;
             player.pause();
         }
     }
 
+    public boolean isPaused () {
+        return isPaused;
+    }
+
     public interface ProgressListener {
-        void update (int elapsed, int duration);
+        void update (int position);
     }
 
     public void setProgressListener (ProgressListener listener) {
