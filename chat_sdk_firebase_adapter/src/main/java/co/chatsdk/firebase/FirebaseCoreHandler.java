@@ -1,5 +1,7 @@
 package co.chatsdk.firebase;
 
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Date;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -27,6 +30,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
@@ -39,6 +43,19 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     private UserWrapper currentUser(){
         return UserWrapper.initWithModel(currentUserModel());
+    }
+    private DisposableList disposableList = new DisposableList();
+
+    public FirebaseCoreHandler () {
+        // When the user logs out, turn off all the existing listeners
+        FirebaseEventHandler.shared().source()
+                .filter(NetworkEvent.filterType(EventType.Logout))
+                .subscribe(new Consumer<NetworkEvent>() {
+            @Override
+            public void accept(NetworkEvent networkEvent) throws Exception {
+                disposableList.dispose();
+            }
+        });
     }
 
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
@@ -71,17 +88,17 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         NM.core().save();
-        setUserOffline().subscribe(new Action() {
+        disposableList.add(setUserOffline().subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 DatabaseReference.goOffline();
             }
-        });
+        }));
     }
 
     public void goOnline() {
         DatabaseReference.goOnline();
-        setUserOnline().subscribe();
+        disposableList.add(setUserOnline().subscribe());
     }
 
     public Completable updateLastOnline () {
@@ -109,7 +126,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
 
-                        updateLastOnline().subscribe();
+                        disposableList.add(updateLastOnline().subscribe());
 
                         e.onSuccess((Boolean) snapshot.getValue());
                     }
@@ -121,6 +138,19 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 });
             }
         }).subscribeOn(Schedulers.single());
+    }
+
+    public void presenceMonitoringOn (final User user) {
+        disposableList.add(new UserWrapper(user).onlineOn().subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                NM.events().source().onNext(NetworkEvent.userPresenceUpdated(user));
+            }
+        }));
+    }
+
+    public void presenceMonitoringOff (final User user) {
+        new UserWrapper(user).onlineOff();
     }
 
     public void save () {

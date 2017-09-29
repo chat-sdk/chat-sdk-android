@@ -138,17 +138,17 @@ public class FirebasePaths{
 
     public static PathBuilder userThreadsPath (String userID, String threadID) {
         return new PathBuilder(Keys.Users)
-                .a(userID)
-                .a(Keys.Threads)
-                .a(threadID);
+                .append(userID)
+                .append(Keys.Threads)
+                .append(threadID);
 
     }
 
     public static PathBuilder threadUsersPath (String threadID, String userID) {
         return new PathBuilder(Keys.Threads)
-                .a(threadID)
-                .a(Keys.Users)
-                .a(userID);
+                .append(threadID)
+                .append(Keys.Users)
+                .append(userID);
 
     }
 

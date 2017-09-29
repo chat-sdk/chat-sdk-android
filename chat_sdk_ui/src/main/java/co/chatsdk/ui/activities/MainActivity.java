@@ -29,8 +29,10 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -61,6 +63,7 @@ public class MainActivity extends BaseActivity {
     private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
 
     private OpenFromPushChecker mOpenFromPushChecker;
+    private PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
     DisposableList disposables = new DisposableList();
 
@@ -87,6 +90,40 @@ public class MainActivity extends BaseActivity {
             String threadEntityID = getIntent().getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
             InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
         }
+
+
+        if(NM.audioMessage() != null) {
+            permissionHandler.requestRecordAudio(this).subscribe(new Action() {
+                @Override
+                public void run() throws Exception {
+                    Timber.v("Granted");
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(@NonNull Throwable throwable) throws Exception {
+                    throwable.printStackTrace();
+                }
+            });
+
+            permissionHandler.requestWriteExternalStorage(this).subscribe(new Action() {
+                @Override
+                public void run() throws Exception {
+                    Timber.v("Granted");
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(@NonNull Throwable throwable) throws Exception {
+                    throwable.printStackTrace();
+                }
+            });
+
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

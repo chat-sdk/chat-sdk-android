@@ -9,6 +9,7 @@ package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 
@@ -172,6 +173,8 @@ public class MessageWrapper  {
                         @Override
                         public void run() throws Exception {
                             FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
+                            model.setMessageStatus(MessageSendStatus.Sent);
+                            model.update();
                             e.onComplete();
                         }
                     }, new Consumer<Throwable>() {
@@ -200,13 +203,6 @@ public class MessageWrapper  {
         map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
         map.put(Keys.UserName, model.getSender().getName());
         return map;
-    }
-    
-    /**
-     * The message model will be updated after this call.
-     **/
-    public void setDelivered(boolean delivered){
-        model.setDelivered(delivered);
     }
     
     private DatabaseReference ref(){

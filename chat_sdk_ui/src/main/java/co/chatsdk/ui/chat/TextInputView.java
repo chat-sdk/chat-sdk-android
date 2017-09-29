@@ -11,12 +11,11 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -24,9 +23,13 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.audio.Recording;
+import co.chatsdk.core.utils.StringUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.ui.helpers.DialogUtils;
+import co.chatsdk.ui.utils.InfiniteToast;
 import co.chatsdk.ui.utils.Utils;
 
 public class TextInputView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{
@@ -35,10 +38,14 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     public static final boolean DEBUG = Debug.ChatMessageBoxView;
 
     protected Listener listener;
-    protected TextView btnSend;
+    protected ImageButton btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
     protected PopupWindow optionPopup;
+    protected boolean audioModeEnabled = false;
+    protected boolean recordOnPress = false;
+    protected Recording recording = null;
+    protected InfiniteToast toast;
 
     public TextInputView(Context context) {
         super(context);
@@ -60,7 +67,7 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     }
 
     protected void initViews(){
-        btnSend = (TextView) findViewById(R.id.chat_sdk_btn_chat_send_message);
+        btnSend = (ImageButton) findViewById(R.id.chat_sdk_btn_chat_send_message);
         btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
         etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
     }
@@ -74,6 +81,38 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
             return;
 
         btnSend.setOnClickListener(this);
+
+        // Handle recording when the record button is held down
+        btnSend.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(recordOnPress) {
+
+                    // Start recording when we press down
+                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        recording = new Recording();
+                        recording.start();
+                        toast = new InfiniteToast(getContext(), R.string.recording, true);
+                    }
+
+                    // Stop recording
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        if(recording != null) {
+                            recording.stop();
+                            if(listener != null) {
+                                listener.sendAudio(recording);
+                                recording = null;
+                            }
+                        }
+                        if(toast != null) {
+                            toast.cancel();
+                        }
+                    }
+                }
+                return btnSend.onTouchEvent(motionEvent);
+            }
+        });
+
         btnOptions.setOnClickListener(this);
 
         etMessage.setOnEditorActionListener(this);
@@ -95,10 +134,26 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                updateSendButton();
             }
         });
 
+    }
+
+    public void setAudioModeEnabled (boolean audioEnabled) {
+        audioModeEnabled = audioEnabled;
+        updateSendButton();
+    }
+
+    public void updateSendButton () {
+        if(StringUtils.isNullOrEmpty(getMessageText()) && audioModeEnabled) {
+            btnSend.setBackgroundResource(R.drawable.ic_36_mic);
+            recordOnPress = true;
+        }
+        else {
+            btnSend.setBackgroundResource(R.drawable.ic_36_send);
+            recordOnPress = false;
+        }
     }
 
     /** Show the message option popup, From here the user can send images and location messages.*/
@@ -123,8 +178,10 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         int id= v.getId();
 
         if (id == R.id.chat_sdk_btn_chat_send_message) {
-            if (listener!=null) {
-                listener.onSendPressed(getMessageText());
+            if(!recordOnPress) {
+                if (listener != null) {
+                    listener.onSendPressed(getMessageText());
+                }
             }
         }
         else if (id == R.id.chat_sdk_btn_options) {
@@ -201,6 +258,7 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         void onPickImagePressed();
         void onSendPressed(String text);
         void startTyping();
+        void sendAudio (Recording recording);
         void stopTyping();
     }
 

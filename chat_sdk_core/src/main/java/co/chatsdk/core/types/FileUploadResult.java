@@ -10,7 +10,7 @@ public class FileUploadResult {
     public String url;
     public Progress progress = new Progress();
 
-    public boolean isComplete () {
+    public boolean urlValid() {
         return url != null && !url.isEmpty();
     }
 

@@ -12,6 +12,7 @@ import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 
@@ -206,7 +207,8 @@ public class ThreadWrapper  {
                                     model.setDeleted(false);
 
                                     MessageWrapper message = new MessageWrapper(snapshot);
-                                    boolean newMessage = !message.getModel().getDelivered();
+
+                                    boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
                                     if(NM.hook() != null) {
                                         HashMap<String, Object> data = new HashMap<>();
@@ -214,21 +216,17 @@ public class ThreadWrapper  {
                                         NM.hook().executeHook(BaseHookHandler.MessageReceived_Message, data);
                                     }
 
-                                    message.setDelivered(true);
+                                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
-                                    // Update the thread
-                                    DaoCore.updateEntity(model);
-
-                                    // Update the message.
                                     model.addMessage(message.getModel());
 
-                                    DaoCore.updateEntity(message.getModel());
+                                    // Update the message and thread
+                                    message.getModel().update();
+                                    model.update();
 
                                     if (newMessage) {
-
                                         e.onNext(message.getModel());
                                         updateReadReceipts();
-
                                     }
                                 }
                             }
@@ -279,6 +277,8 @@ public class ThreadWrapper  {
                                 e.onNext(user);
                             }
                         });
+                        NM.core().presenceMonitoringOn(user.getModel());
+
                     }
                 }).onChildRemoved(new FirebaseEventListener.Removed() {
                     @Override
@@ -448,10 +448,11 @@ public class ThreadWrapper  {
                                     message = new MessageWrapper(snapshot.child(key));
                                     model.addMessage(message.getModel());
 
-                                    message.setDelivered(true);
-
-                                    DaoCore.updateEntity(message.getModel());
+                                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
                                     messages.add(message.getModel());
+
+                                    message.getModel().update();
+                                    model.update();
                                 }
                                 e.onSuccess(messages);
                             }

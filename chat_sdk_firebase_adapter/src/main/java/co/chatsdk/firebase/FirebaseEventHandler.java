@@ -227,6 +227,7 @@ public class FirebaseEventHandler implements EventHandler {
                             eventSource.onNext(NetworkEvent.userMetaUpdated(user));
                         }
                     }));
+                    NM.core().presenceMonitoringOn(user);
                 }
             }
         });

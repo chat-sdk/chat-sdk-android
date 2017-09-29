@@ -243,6 +243,7 @@ public class DialogUtils {
             switch (loadingType)
             {
 
+                // TODO: Check this
                 case LOAD_FROM_URL:
                     if (DEBUG) Timber.d("load from url");
 
@@ -263,15 +264,6 @@ public class DialogUtils {
                                             ImageUtils.saveBitmapToFile(file, bitmap);
 
                                             ImageUtils.scanFilePathForGallery(context, file.getPath());
-
-                                            // If the message name is equal to a message entity id we
-                                            // save the image path to the message object so we could use it instead of downloading images.
-                                            Message message = DaoCore.fetchEntityWithEntityID(Message.class, imageName);
-
-                                            if (message != null) {
-                                                message.setResourcesPath(file.getPath());
-                                                DaoCore.updateEntity(message);
-                                            }
 
                                         }
                                     }

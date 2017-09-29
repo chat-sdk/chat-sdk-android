@@ -33,16 +33,15 @@
             android:inputType="textShortMessage|textMultiLine"/>
     </FrameLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="@string/send"
-        android:textColor="@color/sdkPrimary"
+    <ImageButton
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/ic_36_mic"
         android:gravity="center"
         android:padding="10dp"
-        android:textSize="18sp"
         android:layout_gravity="bottom"
         android:layout_marginLeft="5dp"
         android:id="@+id/chat_sdk_btn_chat_send_message"/>
+
 
 </LinearLayout>

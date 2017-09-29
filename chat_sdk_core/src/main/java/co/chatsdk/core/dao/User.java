@@ -36,10 +36,8 @@ public class User implements CoreEntity {
     private Long id;
     private String entityID;
     private Integer authenticationType;
-    private String messageColor;
     private Date lastOnline;
     private Date lastUpdated;
-    private Boolean online;
     private String metadata;
 
     @ToMany(referencedJoinProperty = "userId")
@@ -64,16 +62,13 @@ public class User implements CoreEntity {
     }
 
 
-    @Generated(hash = 392007636)
-    public User(Long id, String entityID, Integer authenticationType, String messageColor, Date lastOnline, Date lastUpdated, Boolean online,
-            String metadata) {
+    @Generated(hash = 2124788219)
+    public User(Long id, String entityID, Integer authenticationType, Date lastOnline, Date lastUpdated, String metadata) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationType = authenticationType;
-        this.messageColor = messageColor;
         this.lastOnline = lastOnline;
         this.lastUpdated = lastUpdated;
-        this.online = online;
         this.metadata = metadata;
     }
 
@@ -453,17 +448,6 @@ public class User implements CoreEntity {
         this.authenticationType = AuthenticationType;
     }
 
-
-    public String getMessageColor() {
-        return this.messageColor;
-    }
-
-
-    public void setMessageColor(String messageColor) {
-        this.messageColor = messageColor;
-    }
-
-
     public java.util.Date getLastOnline() {
         return this.lastOnline;
     }
@@ -481,16 +465,6 @@ public class User implements CoreEntity {
 
     public void setLastUpdated(java.util.Date lastUpdated) {
         this.lastUpdated = lastUpdated;
-    }
-
-
-    public Boolean getOnline() {
-        return this.online;
-    }
-
-
-    public void setOnline(Boolean Online) {
-        this.online = Online;
     }
 
 

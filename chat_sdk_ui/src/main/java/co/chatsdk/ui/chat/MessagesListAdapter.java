@@ -24,10 +24,13 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import at.grabner.circleprogress.CircleProgressView;
+import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
@@ -57,15 +60,12 @@ public class MessagesListAdapter extends BaseAdapter{
         TextView timeTextView;
         RoundedImageView messageImageView;
         TextView messageTextView;
-        CircleProgressView progressView;
-//        ImageViewFuture imageViewFuture;
-//        ImageViewFuture profileImageViewFuture;
+        RelativeLayout messageLayout;
     }
 
     private AppCompatActivity activity;
 
     private List<MessageListItem> messageItems = new ArrayList<>();
-    private List<Message> messages = new ArrayList<>();
 
     private boolean isScrolling = false;
 
@@ -74,7 +74,6 @@ public class MessagesListAdapter extends BaseAdapter{
     public MessagesListAdapter(AppCompatActivity activity) {
         this.activity = activity;
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
-
     }
 
     @Override
@@ -135,24 +134,9 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.timeTextView = (TextView) row.findViewById(R.id.txt_time);
         holder.profileImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
-        holder.progressView = (CircleProgressView) row.findViewById(R.id.chat_sdk_progress_view);
         holder.messageImageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
+        holder.messageLayout = (RelativeLayout) row.findViewById(R.id.message_root_layout);
 
-        switch (item.messageType())
-        {
-            case Message.Type.TEXT:
-                holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
-                holder.messageTextView.setVisibility(View.VISIBLE);
-                holder.progressView.setVisibility(View.INVISIBLE);
-                holder.messageImageView.setVisibility(View.INVISIBLE);
-                break;
-            case Message.Type.IMAGE:
-            case Message.Type.LOCATION:
-                holder.messageTextView.setVisibility(View.INVISIBLE);
-                holder.progressView.setVisibility(View.VISIBLE);
-                holder.messageImageView.setVisibility(View.VISIBLE);
-                break;
-        }
         row.setTag(holder);
         return row;
     }
@@ -166,52 +150,34 @@ public class MessagesListAdapter extends BaseAdapter{
      * */
     protected void updateMessageCell(View row, final ViewHolder holder, MessageListItem messageItem){
 
-        holder.progressView.setVisibility(View.INVISIBLE);
         holder.messageImageView.setVisibility(View.INVISIBLE);
         holder.messageTextView.setVisibility(View.INVISIBLE);
 
-        // If the previous future is still running, cancel it because
-        // we are loading a new image
-//        if(holder.imageViewFuture != null && !holder.imageViewFuture.isDone()) {
-//            holder.imageViewFuture.cancel();
-//        }
-//        // Load the user's profile image
-//        if(holder.profileImageViewFuture != null && !holder.profileImageViewFuture.isDone()) {
-//            holder.profileImageViewFuture.cancel();
-//        }
-//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.messageImageView);
-//        Picasso.with(AppContext.shared().context()).cancelRequest(holder.profileImageView);
-
         Picasso.with(holder.messageImageView.getContext()).cancelRequest(holder.messageImageView);
         Picasso.with(holder.profileImageView.getContext()).cancelRequest(holder.profileImageView);
-
-//        Picasso.with(holder.messageImageView.getContext()).setLoggingEnabled(true);
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.messageImageView.getLayoutParams();
 
         params.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
         params.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
 
-        if (messageItem.messageType() == Message.Type.TEXT) {
+        if (messageItem.messageType() == MessageType.Text) {
 
             holder.messageTextView.setVisibility(View.VISIBLE);
             holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
-
-            // Show links in text view if has any.
-//            holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
             params.width = 0;
             params.height = 0;
         }
 
-        if (messageItem.messageType() == Message.Type.LOCATION || messageItem.messageType() == Message.Type.IMAGE) {
+        if (messageItem.messageType() == MessageType.Location || messageItem.messageType() == MessageType.Image) {
 
             holder.messageImageView.setVisibility(View.VISIBLE);
 
             int width = messageItem.width();
             int height = messageItem.height();
 
-            if (messageItem.messageType() == Message.Type.LOCATION) {
+            if (messageItem.messageType() == MessageType.Location) {
 
                 double longitude = (Double) messageItem.message.valueForKey(Keys.MessageLongitude);
                 double latitude = (Double) messageItem.message.valueForKey(Keys.MessageLatitude);
@@ -226,7 +192,7 @@ public class MessagesListAdapter extends BaseAdapter{
                 holder.messageImageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
             }
 
-            if (messageItem.messageType() == Message.Type.IMAGE) {
+            if (messageItem.messageType() == MessageType.Image) {
 
                 String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
@@ -240,21 +206,27 @@ public class MessagesListAdapter extends BaseAdapter{
                 // Show the messageImageView in a dialog on click.
                 holder.messageImageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
+
+
         }
+
+        //if(messageItem.messageType() == MessageType.AUDIO && NM.audioMessage() != null) {
+        NM.audioMessage().updateMessageCellView(messageItem.message, holder.messageLayout, activity);
+        //}
 
         holder.messageImageView.setLayoutParams(params);
         holder.messageImageView.requestLayout();
 
-        // Progress
+        // ProgressListener
         // Not tested
-        if (messageItem.progress > 0 && messageItem.progress < 1) {
-            holder.progressView.setVisibility(View.VISIBLE);
-            holder.progressView.setValue(messageItem.progress);
-            holder.progressView.setMaxValue(1);
-        }
-        else {
-            holder.progressView.setVisibility(View.INVISIBLE);
-        }
+//        if (messageItem.progress > 0 && messageItem.progress < 1) {
+//            holder.progressView.setVisibility(View.VISIBLE);
+//            holder.progressView.setValue(messageItem.progress);
+//            holder.progressView.setMaxValue(1);
+//        }
+//        else {
+//            holder.progressView.setVisibility(View.INVISIBLE);
+//        }
 
         UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -264,11 +236,7 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.timeTextView.setText(messageItem.getTime());
         //animateSides(holder.timeTextView, messageItem.isMine(), null);
 
-        if(!messageItem.delivered()) {
-            Timber.v("No");
-        }
-
-        row.setAlpha(messageItem.delivered() ? 1.0f : 0.5f);
+        row.setAlpha(messageItem.statusIs(MessageSendStatus.Sent) || messageItem.statusIs(MessageSendStatus.Delivered) ? 1.0f : 0.7f);
 
     }
 
@@ -276,19 +244,16 @@ public class MessagesListAdapter extends BaseAdapter{
         return messageItems;
     }
 
-    private boolean addRow(MessageListItem newItem, boolean sort, boolean notify){
-        if (newItem == null)
+    private boolean addRow(MessageListItem item, boolean sort, boolean notify){
+        if (item == null)
             return false;
 
         // Don't add message that does not have entity id and the status of the message is not sending.
-        if (newItem.getEntityID() == null && (newItem.delivered() || newItem.status() != Message.Status.SENDING)) {
-            if (DEBUG) Timber.d("CoreMessage has no entity and was sent.: ", newItem.getText());
+        if (item.getEntityID() == null) {
             return false;
         }
 
-        if(!messageItems.contains(newItem)) {
-            messageItems.add(newItem);
-        }
+        messageItems.add(item);
 
         if(sort) {
             sort();
@@ -319,17 +284,25 @@ public class MessagesListAdapter extends BaseAdapter{
     }
 
     public boolean addRow(Message message, boolean sort, boolean notify){
-        if(!messages.contains(message) && message != null) {
+        if(message != null && !messageExists(message)) {
             MessageListItem item = new MessageListItem(message, maxWidth());
 
             // It's possible that if
             if(item.isValid()) {
-                messages.add(message);
                 return addRow(item, sort, notify);
             }
             else {
                 Timber.v("Invalid message - the message will be deleted");
                 DaoCore.deleteEntity(message);
+            }
+        }
+        return false;
+    }
+
+    private boolean messageExists (Message message) {
+        for(MessageListItem i : messageItems) {
+            if(i.message.getEntityID().equals(message.getEntityID())) {
+                return true;
             }
         }
         return false;
@@ -342,9 +315,8 @@ public class MessagesListAdapter extends BaseAdapter{
     /**
      * Clear the messages list.
      * */
-    public void clear(){
+    public void clear() {
         messageItems.clear();
-        messages.clear();
         notifyDataSetChanged();
     }
 

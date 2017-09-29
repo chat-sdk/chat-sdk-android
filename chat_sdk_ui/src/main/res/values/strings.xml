@@ -127,11 +127,16 @@
     <string name="not_follower_title">New Follower</string>
     <string name="not_follower_ticker">You got a new follower</string>
     <string name="not_follower_content">is following you!</string>
-    <string name="not_image_message">Image</string>
-    <string name="not_location_message">Location</string>
-    <string name="not_unknown_message">Unknown Message</string>
-    <string name="not_no_messages">No Messages</string>
     <string name="not_thread">Thread</string>
+
+    <string name="image_message">Image</string>
+    <string name="location_message">Location</string>
+    <string name="unknown_message">Unknown Message</string>
+    <string name="no_messages">No Messages</string>
+    <string name="audio_message">Recording</string>
+    <string name="video_message">Video</string>
+    <string name="sticker_message">Sticker</string>
+    <string name="file_message">File</string>
 
     <!--Error-->
     <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
@@ -164,6 +169,7 @@
     <string name="user_deleted">User deleted</string>
     <string name="user_entity_id_not_set">User Entity ID not set</string>
     <string name="typing">Typing...</string>
+    <string name="recording">Recording</string>
 
     <string name="male">Male</string>
     <string name="female">Female</string>

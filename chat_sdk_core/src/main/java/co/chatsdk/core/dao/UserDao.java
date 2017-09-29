@@ -25,11 +25,9 @@ public class UserDao extends AbstractDao<User, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
         public final static Property AuthenticationType = new Property(2, Integer.class, "authenticationType", false, "AUTHENTICATION_TYPE");
-        public final static Property MessageColor = new Property(3, String.class, "messageColor", false, "MESSAGE_COLOR");
-        public final static Property LastOnline = new Property(4, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
-        public final static Property LastUpdated = new Property(5, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
-        public final static Property Online = new Property(6, Boolean.class, "online", false, "ONLINE");
-        public final static Property Metadata = new Property(7, String.class, "metadata", false, "METADATA");
+        public final static Property LastOnline = new Property(3, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
+        public final static Property LastUpdated = new Property(4, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
+        public final static Property Metadata = new Property(5, String.class, "metadata", false, "METADATA");
     }
 
     private DaoSession daoSession;
@@ -51,11 +49,9 @@ public class UserDao extends AbstractDao<User, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"AUTHENTICATION_TYPE\" INTEGER," + // 2: authenticationType
-                "\"MESSAGE_COLOR\" TEXT," + // 3: messageColor
-                "\"LAST_ONLINE\" INTEGER," + // 4: lastOnline
-                "\"LAST_UPDATED\" INTEGER," + // 5: lastUpdated
-                "\"ONLINE\" INTEGER," + // 6: online
-                "\"METADATA\" TEXT);"); // 7: metadata
+                "\"LAST_ONLINE\" INTEGER," + // 3: lastOnline
+                "\"LAST_UPDATED\" INTEGER," + // 4: lastUpdated
+                "\"METADATA\" TEXT);"); // 5: metadata
     }
 
     /** Drops the underlying database table. */
@@ -83,29 +79,19 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindLong(3, authenticationType);
         }
  
-        String messageColor = entity.getMessageColor();
-        if (messageColor != null) {
-            stmt.bindString(4, messageColor);
-        }
- 
         java.util.Date lastOnline = entity.getLastOnline();
         if (lastOnline != null) {
-            stmt.bindLong(5, lastOnline.getTime());
+            stmt.bindLong(4, lastOnline.getTime());
         }
  
         java.util.Date lastUpdated = entity.getLastUpdated();
         if (lastUpdated != null) {
-            stmt.bindLong(6, lastUpdated.getTime());
-        }
- 
-        Boolean online = entity.getOnline();
-        if (online != null) {
-            stmt.bindLong(7, online ? 1L: 0L);
+            stmt.bindLong(5, lastUpdated.getTime());
         }
  
         String metadata = entity.getMetadata();
         if (metadata != null) {
-            stmt.bindString(8, metadata);
+            stmt.bindString(6, metadata);
         }
     }
 
@@ -128,29 +114,19 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindLong(3, authenticationType);
         }
  
-        String messageColor = entity.getMessageColor();
-        if (messageColor != null) {
-            stmt.bindString(4, messageColor);
-        }
- 
         java.util.Date lastOnline = entity.getLastOnline();
         if (lastOnline != null) {
-            stmt.bindLong(5, lastOnline.getTime());
+            stmt.bindLong(4, lastOnline.getTime());
         }
  
         java.util.Date lastUpdated = entity.getLastUpdated();
         if (lastUpdated != null) {
-            stmt.bindLong(6, lastUpdated.getTime());
-        }
- 
-        Boolean online = entity.getOnline();
-        if (online != null) {
-            stmt.bindLong(7, online ? 1L: 0L);
+            stmt.bindLong(5, lastUpdated.getTime());
         }
  
         String metadata = entity.getMetadata();
         if (metadata != null) {
-            stmt.bindString(8, metadata);
+            stmt.bindString(6, metadata);
         }
     }
 
@@ -171,11 +147,9 @@ public class UserDao extends AbstractDao<User, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // authenticationType
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // messageColor
-            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastOnline
-            cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // lastUpdated
-            cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // online
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // metadata
+            cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)), // lastOnline
+            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastUpdated
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // metadata
         );
         return entity;
     }
@@ -185,11 +159,9 @@ public class UserDao extends AbstractDao<User, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setAuthenticationType(cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2));
-        entity.setMessageColor(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setLastOnline(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
-        entity.setLastUpdated(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));
-        entity.setOnline(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
-        entity.setMetadata(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setLastOnline(cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)));
+        entity.setLastUpdated(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
+        entity.setMetadata(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
      }
     
     @Override

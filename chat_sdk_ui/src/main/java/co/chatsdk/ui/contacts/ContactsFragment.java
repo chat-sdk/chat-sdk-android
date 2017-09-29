@@ -207,15 +207,6 @@ public class ContactsFragment extends BaseFragment {
             }
         }));
 
-//        disposables.add(NM.events().sourceOnMain()
-//                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-//                .subscribe(new Consumer<NetworkEvent>() {
-//                    @Override
-//                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-//                        loadData(false);
-//                    }
-//                }));
-
     }
 
     @Override
@@ -245,7 +236,7 @@ public class ContactsFragment extends BaseFragment {
         outState.putBoolean(IS_DIALOG, isDialog);
     }
 
-    public void initViews(){
+    public void initViews() {
         listView = (ListView) mainView.findViewById(R.id.chat_sdk_list_contacts);
 
         progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);

@@ -3,7 +3,6 @@ package co.chatsdk.core.handlers;
 import android.graphics.Bitmap;
 
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.types.MessageUploadResult;
 import io.reactivex.Observable;
 
 /**
@@ -14,6 +13,6 @@ public interface UploadHandler {
 
     Observable<FileUploadResult> uploadFile(byte[] data, String name, String mimeType);
 //    Observable<MessageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail);
-    Observable<MessageUploadResult> uploadImage(final Bitmap image);
+    Observable<FileUploadResult> uploadImage(final Bitmap image);
 
 }

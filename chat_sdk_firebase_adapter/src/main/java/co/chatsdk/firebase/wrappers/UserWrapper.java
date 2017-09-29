@@ -14,6 +14,7 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.LinkedAccount;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
@@ -228,7 +229,11 @@ public class UserWrapper {
 //                        e.onError(databaseError.toException());
                     }
                 });
+
                 FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
+
+
+
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -245,11 +250,9 @@ public class UserWrapper {
         
         if (value != null)
         {
-            if (value.containsKey(Keys.Online) && !value.get(Keys.Online).equals(""))
-                model.setOnline((Boolean) value.get(Keys.Online));
-
-            if (value.containsKey(Keys.Color) && !value.get(Keys.Color).equals("")) {
-                model.setMessageColor((String) value.get(Keys.Color));
+            if (value.containsKey(Keys.Online) && !value.get(Keys.Online).equals("")) {
+                Boolean online = (Boolean) value.get(Keys.Online);
+                model.setAvailability(online ? Availability.Available : Availability.Unavailable);
             }
 
             // The entity update is called in the deserializeMeta.
@@ -282,10 +285,40 @@ public class UserWrapper {
         }
     }
 
+    public Observable<Boolean> onlineOn () {
+        onlineOff();
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(final ObservableEmitter<Boolean> e) throws Exception {
+                DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
+
+                ValueEventListener listener = ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.getValue() != null) {
+                            model.setAvailability((Boolean) snapshot.getValue() ? Availability.Available : Availability.Unavailable);
+                            model.update();
+                            e.onNext((Boolean) snapshot.getValue());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+                FirebaseReferenceManager.shared().addRef(ref, listener);
+/**/            }
+        }).subscribeOn(Schedulers.single());
+    }
+
+    public void onlineOff () {
+        DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
+        FirebaseReferenceManager.shared().removeListener(ref);
+    }
+
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(Keys.Color, StringUtils.isEmpty(model.getMessageColor()) ? "" : model.getMessageColor());
         values.put(Keys.Meta, model.metaMap());
         values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
 
@@ -359,7 +392,7 @@ public class UserWrapper {
     private DatabaseReference metaRef(){
         return ref().child(FirebasePaths.MetaPath);
     }
-    
+
     public String pushChannel(){
         String channel = USER_PREFIX + (model.getEntityID().replace(":", "_"));
         

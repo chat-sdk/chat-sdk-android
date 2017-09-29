@@ -86,6 +86,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.UserMetaUpdated, null, null, user);
     }
 
+    public static NetworkEvent userPresenceUpdated (User user) {
+        return new NetworkEvent(EventType.UserPresenceUpdated, null, null, user);
+    }
+
     public static NetworkEvent contactAdded (User user) {
         return new NetworkEvent(EventType.ContactAdded, null, null, user);
     }
@@ -195,7 +199,8 @@ public class NetworkEvent {
                 EventType.ContactChanged,
                 EventType.ContactAdded,
                 EventType.ContactDeleted,
-                EventType.ContactsUpdated
+                EventType.ContactsUpdated,
+                EventType.UserPresenceUpdated
         );
     }
 }

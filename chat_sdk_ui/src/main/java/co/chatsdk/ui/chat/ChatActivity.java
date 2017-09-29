@@ -33,6 +33,7 @@ import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -41,7 +42,8 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.types.MessageUploadResult;
+import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
@@ -62,9 +64,7 @@ import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.contacts.ContactsFragment;
 
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
@@ -239,6 +239,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = (TextInputView) findViewById(R.id.chat_sdk_message_box);
+        textInputView.setAudioModeEnabled(NM.audioMessage() != null);
+        textInputView.setAudioModeEnabled(true);
 
         textInputView.setListener(new TextInputView.Listener() {
             @Override
@@ -298,6 +300,14 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
 
             @Override
+            public void sendAudio(Recording recording) {
+                Timber.v("Name: " + recording.getFile().getAbsolutePath());
+                if(NM.audioMessage() != null) {
+                    handleMessageSend(NM.audioMessage().sendMessage(recording, thread));
+                }
+            }
+
+            @Override
             public void stopTyping() {
                 ChatActivity.this.stopTyping(false);
             }
@@ -317,8 +327,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 if(items.size() > 0) {
                     firstMessage = items.get(0).message;
                 }
-
-                final View topView = messageListView.getChildAt(0);
 
                 disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -381,23 +389,12 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      * @param clearEditText if true clear the message edit text.
      */
     public void sendMessage(String text, boolean clearEditText) {
-        if (DEBUG)
-            Timber.v("sendTextMessage, Text: %s, Clear: %s", text, String.valueOf(clearEditText));
 
         if (StringUtils.isEmpty(text) || StringUtils.isBlank(text)) {
             return;
         }
 
-        disposableList.add(NM.thread().sendMessageWithText(text.trim(), thread)
-                .doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                        ToastHelper.show(R.string.unable_to_send_message);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe());
+        handleMessageSend(NM.thread().sendMessageWithText(text.trim(), thread));
 
         if (clearEditText && textInputView != null) {
             textInputView.clearText();
@@ -408,16 +405,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     public void sendLocationMessage(String snapshotPath, LatLng latLng) {
 
-        disposableList.add(NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread)
-                .doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                        ToastHelper.show(R.string.unable_to_send_location_message);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe());
+        handleMessageSend(NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread));
+
     }
 
     /**
@@ -427,34 +416,35 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     public void sendImageMessage(final String filePath) {
         if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
+        handleMessageSend(NM.thread().sendMessageWithImage(filePath, thread));
+    }
 
-        NM.thread().sendMessageWithImage(filePath, thread)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<MessageUploadResult>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-                disposableList.add(d);
-            }
+    private void handleMessageSend (Observable<MessageSendProgress> observable) {
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MessageSendProgress>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        disposableList.add(d);
+                    }
 
-            @Override
-            public void onNext(@NonNull MessageUploadResult messageUploadResult) {
-                messageListAdapter.addRow(messageUploadResult.message);
-            }
+                    @Override
+                    public void onNext(@NonNull MessageSendProgress messageSendProgress) {
+                        Timber.v("Message Status: " + messageSendProgress.getStatus());
+                        messageListAdapter.addRow(messageSendProgress.message, false, false);
+                        messageListAdapter.notifyDataSetChanged();
+                    }
 
-            @Override
-            public void onError(@NonNull Throwable e) {
-                e.printStackTrace();
-                ToastHelper.show(R.string.unable_to_send_image_message);
-            }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        e.printStackTrace();
+                        ToastHelper.show(R.string.unable_to_send_image_message);
+                    }
 
-            @Override
-            public void onComplete() {
-                messageListAdapter.notifyDataSetChanged();
-            }
-        });
-
-        messageListAdapter.notifyDataSetChanged();
-
+                    @Override
+                    public void onComplete() {
+                        messageListAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -507,10 +497,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                             //Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
                             //v.vibrate(Defines.VIBRATION_DURATION);
                         }
-
-                        message.setDelivered(true);
-                        message.update();
-
                     }
                 }));
 
@@ -983,7 +969,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     }
 
     public void markAsDelivered(Message message){
-        message.setDelivered(true);
+        message.setMessageStatus(MessageSendStatus.Delivered);
         message.update();
     }
 

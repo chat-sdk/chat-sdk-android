@@ -1,6 +1,7 @@
 package co.chatsdk.core;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
@@ -16,6 +17,7 @@ import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
+import co.chatsdk.core.handlers.VideoMessageHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -69,6 +71,14 @@ public class NM {
 
     public static LastOnlineHandler lastOnline () {
         return NetworkManager.shared().a.lastOnline;
+    }
+
+    public static AudioMessageHandler audioMessage () {
+        return NetworkManager.shared().a.audioMessage;
+    }
+
+    public static VideoMessageHandler videoMessage () {
+        return NetworkManager.shared().a.videoMessage;
     }
 
     public static HookHandler hook () {

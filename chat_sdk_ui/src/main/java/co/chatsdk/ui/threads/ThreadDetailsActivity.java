@@ -237,7 +237,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 //
 //                    @Override
 //                    public void onNext(FileUploadResult value) {
-//                        if(value.isComplete()) {
+//                        if(value.urlsAreSet()) {
 //                            thread.setImageURL(value.url);
 //                            DaoCore.updateEntity(thread);
 //                        }

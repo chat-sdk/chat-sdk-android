@@ -27,16 +27,25 @@ public class Strings {
 
     public static String payloadAsString (Message message) {
             if (message.getType() != null) {
-                switch (message.getType()) {
-                    case Message.Type.TEXT:
+                switch (message.getMessageType()) {
+                    case Text:
+                    case System:
                         return message.getTextString();
-                    case Message.Type.IMAGE:
-                        return t(R.string.not_image_message);
-                    case Message.Type.LOCATION:
-                        return t(R.string.not_location_message);
+                    case Image:
+                        return t(R.string.image_message);
+                    case Location:
+                        return t(R.string.location_message);
+                    case Audio:
+                        return t(R.string.audio_message);
+                    case Video:
+                        return t(R.string.video_message);
+                    case Sticker:
+                        return t(R.string.sticker_message);
+                    case File:
+                        return t(R.string.file_message);
                 }
             }
-            return t(R.string.not_unknown_message);
+            return t(R.string.unknown_message);
     }
 
     public static String dateTime (Date date) {

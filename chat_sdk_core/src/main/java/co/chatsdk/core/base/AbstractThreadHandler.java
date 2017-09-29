@@ -28,19 +28,24 @@ import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.types.MessageUploadResult;
+import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.utils.StringUtils;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -78,42 +83,33 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Completable sendMessageWithText(final String text, final Thread thread) {
-        return Single.create(new SingleOnSubscribe<Message>() {
+    public Observable<MessageSendProgress> sendMessageWithText(final String text, final Thread thread) {
+        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
             @Override
-            public void subscribe(SingleEmitter<Message> e) throws Exception {
-                final Message message = newMessage();
+            public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
 
-//                java.lang.Thread.currentThread();
-
+                final Message message = newMessage(MessageType.Text, thread);
                 message.setTextString(text);
-                message.setType(Message.Type.TEXT);
 
-                thread.addMessage(message);
+                e.onNext(new MessageSendProgress(message));
 
-                e.onSuccess(message);
-            }
-        }).flatMapCompletable(new Function<Message, Completable>() {
-            @Override
-            public Completable apply(final Message message) throws Exception {
-            return implSendMessage(message).doOnComplete(new Action() {
-                @Override
-                public void run() throws Exception {
-                    DaoCore.updateEntity(message);
-                }
-            });
+                ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+                connector.connect(implSendMessage(message), e);
+
             }
         }).subscribeOn(Schedulers.single());
+
     }
 
-    private Message newMessage () {
+    public static Message newMessage (MessageType type, Thread thread) {
         Message message = new Message();
         DaoCore.createEntity(message);
         message.setSender(NM.currentUser());
-        message.setStatus(Message.Status.SENDING);
-        message.setDelivered(false);
+        message.setMessageStatus(MessageSendStatus.Sending);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
+        message.setMessageType(type);
+        thread.addMessage(message);
         return message;
     }
 
@@ -128,31 +124,23 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * @param location     is the Latitude and Longitude of the picked location.
      * @param thread       the thread that the message is sent to.
      */
-    public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
-        return Single.create(new SingleOnSubscribe<Message>() {
+    public Observable<MessageSendProgress> sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
+        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
             @Override
-            public void subscribe(final SingleEmitter<Message> e) throws Exception {
-
-                final Message message = newMessage();
-
-                message.setType(Message.Type.LOCATION);
-                message.setResourcesPath(filePath);
-
-                thread.addMessage(message);
+            public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
+                final Message message = newMessage(MessageType.Location, thread);
 
                 int maxSize = Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE;
                 String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
-                message.setImageDimensions(ImageUtils.getDimensionAsString(maxSize, maxSize));
-
                 // Add the LatLng data to the message and the image url and thumbnail url
-                // TODO: Depricated
+                // TODO: Deprecated
                 message.setTextString(String.valueOf(location.latitude)
                         + Defines.DIVIDER
                         + String.valueOf(location.longitude)
                         + Defines.DIVIDER + imageURL
                         + Defines.DIVIDER + imageURL
-                        + Defines.DIVIDER + message.getImageDimensions());
+                        + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
 
                 message.setValueForKey(location.longitude, Keys.MessageLongitude);
                 message.setValueForKey(location.latitude, Keys.MessageLatitude);
@@ -161,12 +149,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 message.setValueForKey(imageURL, Keys.MessageImageURL);
                 message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
 
-                e.onSuccess(message);
-            }
-        }).flatMapCompletable(new Function<Message, Completable>() {
-            @Override
-            public Completable apply(final Message message) throws Exception {
-                return implSendMessage(message);
+                e.onNext(new MessageSendProgress(message));
+
+                ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+                connector.connect(implSendMessage(message), e);
+
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -181,50 +168,43 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the message is sent to.
      */
-    public Observable<MessageUploadResult> sendMessageWithImage(final String filePath, final Thread thread) {
-        return Observable.create(new ObservableOnSubscribe<MessageUploadResult>() {
+    public Observable<MessageSendProgress> sendMessageWithImage(final String filePath, final Thread thread) {
+        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
             @Override
-            public void subscribe(final ObservableEmitter<MessageUploadResult> e) throws Exception {
+            public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
 
-                final Message message = newMessage();
-
-                message.setType(Message.Type.IMAGE);
-                message.setResourcesPath(filePath);
-
-                thread.addMessage(message);
-
-                final Bitmap image = ImageUtils.getCompressed(message.getResourcesPath());
-
-                message.setImageDimensions(ImageUtils.getDimensionAsString(image));
+                final Message message = newMessage(MessageType.Image, thread);
 
                 // First pass back an empty result so that we add the cell to the table view
-                MessageUploadResult r = new MessageUploadResult("", "");
-                r.message = message;
-                e.onNext(r);
+                message.setMessageStatus(MessageSendStatus.Uploading);
+                message.update();
+                e.onNext(new MessageSendProgress(message));
 
-                NM.upload().uploadImage(image).subscribe(new Observer<MessageUploadResult>() {
+                final Bitmap image = ImageUtils.getCompressed(filePath);
+
+                NM.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
+                    public void onSubscribe(Disposable d) {}
 
                     @Override
-                    public void onNext(MessageUploadResult result) {
-                        if(result.isComplete())  {
+                    public void onNext(FileUploadResult result) {
+                        if(!StringUtils.isNullOrEmpty(result.url))  {
 
-                            message.setTextString(result.imageURL + Defines.DIVIDER + result.thumbnailURL + Defines.DIVIDER + message.getImageDimensions());
+                            message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
 
                             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
                             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
-                            message.setValueForKey(result.imageURL, Keys.MessageImageURL);
-                            message.setValueForKey(result.thumbnailURL, Keys.MessageThumbnailURL);
+                            message.setValueForKey(result.url, Keys.MessageImageURL);
+                            message.setValueForKey(result.url, Keys.MessageThumbnailURL);
 
-                            Timber.v("Progress: " + result.progress.asFraction());
+                            message.update();
+
+                            Timber.v("ProgressListener: " + result.progress.asFraction());
 
                         }
 
-                        result.message = message;
-                        e.onNext(result);
+                        e.onNext(new MessageSendProgress(message, result.progress));
+
                     }
 
                     @Override
@@ -234,18 +214,15 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                     @Override
                     public void onComplete() {
-                        implSendMessage(message).subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                e.onComplete();
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                throwable.printStackTrace();
-                                e.onError(throwable);
-                            }
-                        });
+
+                        message.setMessageStatus(MessageSendStatus.Sending);
+                        message.update();
+
+                        e.onNext(new MessageSendProgress(message));
+
+                        ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+                        connector.connect(implSendMessage(message), e);
+
                     }
                 });
             }
@@ -253,28 +230,38 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     }
 
-    private Completable implSendMessage(final Message message) {
-        return Single.create(new SingleOnSubscribe<Message>() {
+    /**
+    /* Convenience method to save the message to the database then pass it to the custom network adapter
+     * send method so it can be sent via the network
+     */
+    public Observable<MessageSendProgress> implSendMessage(final Message message) {
+        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
             @Override
-            public void subscribe(SingleEmitter<Message> e) throws Exception {
-                // Set default message properties
-                e.onSuccess(message);
+            public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
+                message.update();
+                message.getThread().update();
+                e.onNext(new MessageSendProgress(message));
             }
-        }).flatMapCompletable(new Function<Message, Completable>() {
+        }).flatMap(new Function<MessageSendProgress, ObservableSource<MessageSendProgress>>() {
             @Override
-            public Completable apply(Message message) throws Exception {
-                return sendMessage(message);
+            public ObservableSource<MessageSendProgress> apply(MessageSendProgress messageSendProgress) throws Exception {
+                return handleMessageSend(message, sendMessage(message));
             }
-        }).doOnComplete(new Action() {
+        }).subscribeOn(Schedulers.single());
+    }
+
+    public static Observable<MessageSendProgress> handleMessageSend (final Message message, Observable<MessageSendProgress> messageSendObservable) {
+        return messageSendObservable.doOnComplete(new Action() {
             @Override
             public void run() throws Exception {
-                message.setStatus(Message.Status.SENT);
-                DaoCore.updateEntity(message);
+                message.setMessageStatus(MessageSendStatus.Sent);
+                message.update();
             }
         }).doOnError(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                message.setStatus(Message.Status.FAILED);
+                message.setMessageStatus(MessageSendStatus.Failed);
+                message.update();
             }
         }).subscribeOn(Schedulers.single());
     }

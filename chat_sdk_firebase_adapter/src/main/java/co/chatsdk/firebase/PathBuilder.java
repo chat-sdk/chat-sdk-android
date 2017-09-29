@@ -7,13 +7,19 @@ package co.chatsdk.firebase;
 public class PathBuilder {
 
     private String path = "";
+    private String value = "";
 
     public PathBuilder (String element) {
         path = element;
     }
 
-    public PathBuilder a (String element) {
+    public PathBuilder append (String element) {
         path += "/" + element;
+        return this;
+    }
+
+    public PathBuilder value (String value) {
+        this.value = value;
         return this;
     }
 

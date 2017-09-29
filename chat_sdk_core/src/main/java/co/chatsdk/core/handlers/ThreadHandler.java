@@ -7,7 +7,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.MessageUploadResult;
+import co.chatsdk.core.types.MessageSendProgress;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -53,13 +53,13 @@ public interface ThreadHandler {
     /**
      * Send different types of message to a particular thread
      */
-    Completable sendMessageWithText(String text, Thread thread);
-    Completable sendMessageWithLocation(String filePath, LatLng location, Thread thread);
-    Observable<MessageUploadResult> sendMessageWithImage(String filePath, Thread thread);
+    Observable<MessageSendProgress> sendMessageWithText(String text, Thread thread);
+    Observable<MessageSendProgress> sendMessageWithLocation(String filePath, LatLng location, Thread thread);
+    Observable<MessageSendProgress> sendMessageWithImage(String filePath, Thread thread);
     /**
      * Send a message object
      */
-    Completable sendMessage(Message message);
+    Observable<MessageSendProgress> sendMessage(Message message);
 
     int getUnreadMessagesAmount(boolean onePerThread);
 

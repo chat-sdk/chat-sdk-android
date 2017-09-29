@@ -23,11 +23,17 @@ import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import co.chatsdk.ui.utils.Strings;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -109,14 +115,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     PathBuilder userThreadsPath = FirebasePaths.userThreadsPath(u.getEntityID(), thread.getEntityID());
 
                     if (value != null) {
-                        threadUsersPath.a(Keys.Null);
-                        userThreadsPath.a(Keys.Null);
+                        threadUsersPath.append(Keys.Null);
+                        userThreadsPath.append(Keys.InvitedBy);
                     }
 
                     data.put(threadUsersPath.build(), value);
 
                     if (thread.typeIs(ThreadType.Private)) {
-                        data.put(userThreadsPath.build(), value);
+                        data.put(userThreadsPath.build(), value != null ? NM.currentUser().getEntityID() : value);
                     }
                     else if (value != null) {
                         // TODO: Check this
@@ -174,13 +180,25 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.*/
-    public Completable sendMessage(final Message message){
-        return new MessageWrapper(message).send().doOnComplete(new Action() {
+    public Observable<MessageSendProgress> sendMessage(final Message message){
+        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
             @Override
-            public void run() throws Exception {
-                // Pushing the message to all offline users. we cant push it before the message was
-                // uploaded as the date is saved by the firebase server using the timestamp.
-                pushForMessage(message);
+            public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
+                new MessageWrapper(message).send()
+                        .subscribeOn(Schedulers.single())
+                        .subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                pushForMessage(message);
+                                e.onNext(new MessageSendProgress(message));
+                                e.onComplete();
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                e.onError(throwable);
+                            }
+                        });
             }
         });
     }
@@ -374,16 +392,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         // when a user signs up, they register with backendless on a particular
         // channel. In this case user_[user id] this means that we can
         // send a push to a specific user if we know their user id.
-        List<String> channels = new ArrayList<String>();
-        for (User user : users)
+        List<String> channels = new ArrayList<>();
+        for (User user : users) {
             channels.add(user.getPushChannel());
+        }
 
-        String messageText = message.getTextString();
-
-        if (message.getType() == Message.Type.LOCATION)
-            messageText = "Location CoreMessage";
-        else if (message.getType() == Message.Type.IMAGE)
-            messageText = "Picture CoreMessage";
+        String messageText = Strings.payloadAsString(message);
 
         String sender = message.getSender().getName();
         String fullText = sender + " " + messageText;

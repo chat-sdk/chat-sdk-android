@@ -18,6 +18,7 @@ public enum EventType {
     MessageAdded,
     ThreadUsersChanged,
     UserMetaUpdated,
+    UserPresenceUpdated,
     ContactAdded,
     ContactDeleted,
     ContactChanged,

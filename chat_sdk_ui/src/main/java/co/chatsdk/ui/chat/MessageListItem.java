@@ -9,6 +9,8 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ImageUtils;
 import timber.log.Timber;
 
@@ -64,20 +66,20 @@ public class MessageListItem {
         return message.getSender().isMe();
     }
 
-    public int messageType () {
-        return message.getType();
+    public MessageType messageType () {
+        return message.getMessageType();
     }
 
     public long getId () {
         return message.getId();
     }
 
-    public boolean delivered () {
-        return message.getDelivered();
+    public boolean statusIs (MessageSendStatus status) {
+        return getMessage().getMessageStatus() == status;
     }
 
-    public Integer status () {
-        return message.getStatusOrNull();
+    public MessageSendStatus status () {
+        return message.getMessageStatus();
     }
 
     public int width () {
@@ -166,17 +168,12 @@ public class MessageListItem {
             }
             catch (Exception e){  dimensions = null;}
         }
-        else if (StringUtils.isNotEmpty(message.getImageDimensions())) {
-
-            dimensions = ImageUtils.getDimensionsFromString(message.getImageDimensions());
-
-        }
 
         return dimensions;
     }
 
     public boolean isValid () {
-        if(messageType() == Message.Type.IMAGE && dimensions == null) {
+        if(messageType() == MessageType.Image && dimensions == null) {
             return false;
         }
         return true;

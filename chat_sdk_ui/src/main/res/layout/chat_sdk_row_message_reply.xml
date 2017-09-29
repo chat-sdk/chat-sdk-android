@@ -4,7 +4,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/RowStyle"
-        android:id="@+id/chat_sdk_root_view_text_friend">
+        android:id="@+id/message_root_layout">
 
     <de.hdodenhof.circleimageview.CircleImageView
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -48,20 +48,12 @@
         android:layout_marginLeft="4dp"
         android:visibility="visible"/>
 
-    <at.grabner.circleprogress.CircleProgressView
-        android:id="@+id/chat_sdk_progress_view"
-        android:layout_toRightOf="@id/img_user_image"
-        android:layout_centerVertical="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!--<ProgressBar-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
+    <!--<at.grabner.circleprogress.CircleProgressView-->
+        <!--android:id="@+id/chat_sdk_progress_view"-->
         <!--android:layout_toRightOf="@id/img_user_image"-->
         <!--android:layout_centerVertical="true"-->
-        <!--android:layout_alignRight="@id/chat_sdk_image"-->
-        <!--android:id="@+id/chat_sdk_progress_bar"/>-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
     <TextView
         android:layout_width="wrap_content"

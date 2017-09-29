@@ -40,6 +40,7 @@ public class Keys {
     public static final String Color = "color";
     public static final String Name = "name";
     public static final String Null = "null";
+    public static final String InvitedBy = "invitedBy";
     public static final String CreationDate = "creation-date";
     public static final String Payload = "payload";
     public static final String JSON = "JSON";

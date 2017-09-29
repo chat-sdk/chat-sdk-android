@@ -3,7 +3,6 @@ package co.chatsdk.ui.utils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -11,7 +10,7 @@ import java.io.File;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.types.MessageUploadResult;
+import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
@@ -114,13 +113,13 @@ public class UserAvatarHelper {
                 // TODO: Are we handling the error here
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
                 if(NM.upload() != null) {
-                    return NM.upload().uploadImage(bitmap).flatMapCompletable(new Function<MessageUploadResult, Completable>() {
+                    return NM.upload().uploadImage(bitmap).flatMapCompletable(new Function<FileUploadResult, Completable>() {
                         @Override
-                        public Completable apply(MessageUploadResult profileImageUploadResult) throws Exception {
+                        public Completable apply(FileUploadResult profileImageUploadResult) throws Exception {
 
 
-                            currentUser.setAvatarURL(profileImageUploadResult.imageURL);
-                            currentUser.setThumbnailURL(profileImageUploadResult.thumbnailURL);
+                            currentUser.setAvatarURL(profileImageUploadResult.url);
+                            currentUser.setThumbnailURL(profileImageUploadResult.url);
 
                             return Completable.complete();
                         }

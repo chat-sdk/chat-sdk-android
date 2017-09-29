@@ -50,7 +50,7 @@ public class ThreadListItem {
     }
 
     public String getLastMessageText () {
-        String messageText = Strings.t(R.string.not_no_messages);
+        String messageText = Strings.t(R.string.no_messages);
         Message lastMessage = thread.lastMessage();
         if(lastMessage != null) {
             messageText = Strings.payloadAsString(lastMessage);

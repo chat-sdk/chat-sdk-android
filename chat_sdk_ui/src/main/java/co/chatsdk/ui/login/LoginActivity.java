@@ -259,14 +259,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
 //        }
 
-//        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//
-//        if(permissionCheck == PERMISSION_DENIED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    FILE_PERMISSION_REQUEST);
-//        }
+        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if(permissionCheck == PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    FILE_PERMISSION_REQUEST);
+        }
 
 
     }

@@ -73,11 +73,10 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.0.2'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.makeramen:roundedimageview:2.3.0'
-    compile 'com.github.jakob-grabner:Circle-Progress-View:v1.3'
+//    compile 'com.github.jakob-grabner:Circle-ProgressListener-View:v1.3'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'id.zelory:compressor:2.0.0'
     compile 'com.kaopiz:kprogresshud:1.1.0'
     compile 'com.soundcloud.android:android-crop:1.0.1@aar'
-
 }
