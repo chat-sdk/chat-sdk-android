@@ -56,14 +56,14 @@ public class AudioRecorder {
         return new File (path);
     }
 
-    public float stopRecording() {
+    public int stopRecording() {
         long duration = System.currentTimeMillis() - startTime;
         if(recorder != null) {
             recorder.stop();
             recorder.release();
             recorder = null;
         }
-        return (float) duration / 1000.0f;
+        return (int) duration;
     }
 
 

@@ -21,6 +21,7 @@
         android:id="@+id/content"
         android:layout_toLeftOf="@id/txt_time"
         android:layout_toRightOf="@+id/img_user_image"
+        android:layout_marginTop="2dp"
         android:layout_centerVertical="true"
         android:orientation="vertical" >
 
@@ -28,25 +29,37 @@
             android:id="@+id/txt_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:gravity="center_vertical"
             android:text="Message text"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="4dp"
             android:autoLink="all"
             android:background="@drawable/message_received_2"/>
 
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat_sdk_image"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            app:riv_corner_radius="10dp"
+            android:visibility="visible"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/extra_layout"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="15dp"
+            android:orientation="vertical" >
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/chat_sdk_image"
-        android:layout_toRightOf="@id/img_user_image"
-        android:layout_centerVertical="true"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        app:riv_corner_radius="10dp"
-        android:layout_marginLeft="4dp"
-        android:visibility="visible"/>
+
 
     <!--<at.grabner.circleprogress.CircleProgressView-->
         <!--android:id="@+id/chat_sdk_progress_view"-->

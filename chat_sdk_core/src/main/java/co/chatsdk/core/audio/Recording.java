@@ -14,14 +14,14 @@ public class Recording {
     private File file;
 
 
-    private float duration;
+    private int durationMillis;
 
     public String getMimeType() {
         return mimeType;
     }
 
-    public float getDuration() {
-        return duration;
+    public int getDurationMillis() {
+        return durationMillis;
     }
 
     public void setMimeType(String mimeType) {
@@ -40,7 +40,7 @@ public class Recording {
     }
 
     public void stop () {
-        duration = AudioRecorder.shared().stopRecording();
+        durationMillis = AudioRecorder.shared().stopRecording();
     }
 
     public String getName () {

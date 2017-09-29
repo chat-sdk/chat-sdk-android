@@ -3,12 +3,16 @@ package co.chatsdk.core.audio;
 import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.drive.events.CompletionListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by ben on 9/28/17.
@@ -19,12 +23,14 @@ public class AudioPlayer {
     private MediaPlayer player;
     private Disposable playingDisposable;
     private ProgressListener progressListener;
+    private MediaPlayer.OnCompletionListener completionListener;
 
     public void play () throws Exception {
         if(player != null) {
             player.start();
 
-            playingDisposable = Observable.interval(0, 250, TimeUnit.MILLISECONDS)
+            playingDisposable = Observable.interval(0, 1000, TimeUnit.MILLISECONDS)
+                    .subscribeOn(Schedulers.single())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<Long>() {
                         @Override
@@ -34,7 +40,13 @@ public class AudioPlayer {
                             }
                         }
                     });
+
+            player.setOnCompletionListener(completionListener);
         }
+    }
+
+    public void setCompletionListener (MediaPlayer.OnCompletionListener listener) {
+        this.completionListener = listener;
     }
 
     public void play (String url) throws Exception {
@@ -65,6 +77,13 @@ public class AudioPlayer {
         return "";
     }
 
+    public boolean isPlaying () {
+        if(player != null) {
+            return player.isPlaying();
+        }
+        return false;
+    }
+
     public String position() {
         if(player != null) {
             return toSeconds(player.getCurrentPosition());
@@ -72,8 +91,8 @@ public class AudioPlayer {
         return "";
     }
 
-    private String toSeconds (int millis) {
-        return String.format("%d min, %d sec",
+    public static String toSeconds (int millis) {
+        return String.format("%d:%d00.",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))

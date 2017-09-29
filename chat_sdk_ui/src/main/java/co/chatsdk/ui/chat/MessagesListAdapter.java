@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -60,7 +61,7 @@ public class MessagesListAdapter extends BaseAdapter{
         TextView timeTextView;
         RoundedImageView messageImageView;
         TextView messageTextView;
-        RelativeLayout messageLayout;
+        LinearLayout extraLayout;
     }
 
     private AppCompatActivity activity;
@@ -135,7 +136,7 @@ public class MessagesListAdapter extends BaseAdapter{
         holder.profileImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
         holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
         holder.messageImageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
-        holder.messageLayout = (RelativeLayout) row.findViewById(R.id.message_root_layout);
+        holder.extraLayout = (LinearLayout) row.findViewById(R.id.extra_layout);
 
         row.setTag(holder);
         return row;
@@ -156,18 +157,26 @@ public class MessagesListAdapter extends BaseAdapter{
         Picasso.with(holder.messageImageView.getContext()).cancelRequest(holder.messageImageView);
         Picasso.with(holder.profileImageView.getContext()).cancelRequest(holder.profileImageView);
 
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.messageImageView.getLayoutParams();
+        LinearLayout.LayoutParams imageLayoutParams = (LinearLayout.LayoutParams) holder.messageImageView.getLayoutParams();
+        LinearLayout.LayoutParams textLayoutParams = (LinearLayout.LayoutParams) holder.messageTextView.getLayoutParams();
 
-        params.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
-        params.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+        imageLayoutParams.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+        imageLayoutParams.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
+
+        textLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        textLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         if (messageItem.messageType() == MessageType.Text) {
 
             holder.messageTextView.setVisibility(View.VISIBLE);
             holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
 
-            params.width = 0;
-            params.height = 0;
+            imageLayoutParams.width = 0;
+            imageLayoutParams.height = 0;
+        }
+        else {
+            textLayoutParams.width = 0;
+            textLayoutParams.height = 0;
         }
 
         if (messageItem.messageType() == MessageType.Location || messageItem.messageType() == MessageType.Image) {
@@ -206,16 +215,23 @@ public class MessagesListAdapter extends BaseAdapter{
                 // Show the messageImageView in a dialog on click.
                 holder.messageImageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
-
-
         }
 
-        //if(messageItem.messageType() == MessageType.AUDIO && NM.audioMessage() != null) {
-        NM.audioMessage().updateMessageCellView(messageItem.message, holder.messageLayout, activity);
-        //}
+        if(messageItem.messageType() == MessageType.Audio && NM.audioMessage() != null) {
 
-        holder.messageImageView.setLayoutParams(params);
+            imageLayoutParams.height = 0;
+            imageLayoutParams.width = 0;
+            textLayoutParams.width = 0;
+            textLayoutParams.height = 0;
+
+            NM.audioMessage().updateMessageCellView(messageItem.message, holder.extraLayout, activity);
+        }
+
+
+        holder.messageImageView.setLayoutParams(imageLayoutParams);
         holder.messageImageView.requestLayout();
+        holder.messageTextView.setLayoutParams(textLayoutParams);
+        holder.messageTextView.requestLayout();
 
         // ProgressListener
         // Not tested

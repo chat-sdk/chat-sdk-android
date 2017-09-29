@@ -1,6 +1,7 @@
 package co.chatsdk.core.handlers;
 
 import android.content.Context;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import co.chatsdk.core.audio.Recording;
@@ -22,6 +23,6 @@ public interface AudioMessageHandler {
      */
     Observable<MessageSendProgress> sendMessage (final Recording recording, final Thread thread);
 
-    void updateMessageCellView (Message message, RelativeLayout layout, Context context);
+    void updateMessageCellView (Message message, ViewGroup layout, Context context);
 
 }
