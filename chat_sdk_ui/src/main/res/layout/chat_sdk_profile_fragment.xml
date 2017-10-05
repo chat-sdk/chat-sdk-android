@@ -7,7 +7,8 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/mainConstraintLayout">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivAvatar"
@@ -83,6 +84,7 @@
             android:layout_height="25dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
+            app:layout_goneMarginTop="0dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvStatus"
             app:srcCompat="@drawable/icn_36_location" />
@@ -92,7 +94,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="9dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivLocation"
             app:srcCompat="@drawable/icn_36_phone" />
@@ -119,6 +121,7 @@
             android:layout_marginTop="8dp"
             android:text="TextView"
             android:textSize="17sp"
+            app:layout_goneMarginTop="0dp"
             app:layout_constraintLeft_toRightOf="@+id/ivLocation"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvStatus" />
@@ -199,12 +202,13 @@
             android:layout_height="25dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="9dp"
             android:text="TextView"
             android:textSize="17sp"
             app:layout_constraintLeft_toRightOf="@+id/ivDateOfBirth"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvPhone" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPhone"
+            app:layout_constraintHorizontal_bias="0.0" />
 
         <ImageView
             android:id="@+id/ivAvailability"

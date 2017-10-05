@@ -130,7 +130,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
                 final Message message = newMessage(MessageType.Location, thread);
 
-                int maxSize = Defines.ImageProperties.MAX_IMAGE_THUMBNAIL_SIZE;
+                int maxSize = NM.config().integerForKey(BaseConfigurationHandler.ImageMaxThumbnailDimension);
                 String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
                 // Add the LatLng data to the message and the image url and thumbnail url
@@ -320,7 +320,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
         // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
         for (UserThreadLink link : links) {
-            if(link.getThread().typeIs(type)) {
+            if(link.getThread().typeIs(type) && (!link.getThread().getDeleted() || allowDeleted)) {
                 threads.add(link.getThread());
             }
         }

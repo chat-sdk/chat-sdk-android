@@ -8,6 +8,7 @@
 package co.chatsdk.firebase.wrappers;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -50,7 +51,6 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -197,7 +197,7 @@ public class ThreadWrapper  {
                             query = query.startAt(startTimestamp);
                         }
 
-                        query = query.orderByPriority().limitToLast(Defines.MAX_MESSAGES_TO_PULL);
+                        query = query.orderByPriority().limitToLast(NM.config().integerForKey(BaseConfigurationHandler.MaxMessagesToLoad));
 
                         ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
                             @Override
@@ -364,7 +364,7 @@ public class ThreadWrapper  {
                         DaoCore.deleteEntity(m);
                     }
 
-                    DaoCore.updateEntity(model);
+                    model.update();
 
                     final User currentUser = NM.currentUser();
 
@@ -372,6 +372,10 @@ public class ThreadWrapper  {
                             .child(currentUser.getEntityID());
 
                     if(model.typeIs(ThreadType.Private) && model.getUsers().size() == 2) {
+
+                        model.setDeleted(true);
+                        model.update();
+
                         HashMap<String, Object> value = new HashMap<>();
                         value.put(Keys.Name, currentUser.getName());
                         value.put(Keys.Deleted, ServerValue.TIMESTAMP);
@@ -389,10 +393,12 @@ public class ThreadWrapper  {
                         });
                     }
                     else {
+
                         NM.thread().removeUsersFromThread(model, currentUser).subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 e.onComplete();
+                                //DaoCore.deleteEntity(model);
                             }
                         }, new Consumer<Throwable>() {
                             @Override
@@ -405,10 +411,6 @@ public class ThreadWrapper  {
                 }
             }
         }).subscribeOn(Schedulers.single());
-    }
-
-    public Single<List<Message>> loadMoreMessages(Message fromMessage){
-        return loadMoreMessages(fromMessage, Defines.MAX_MESSAGES_TO_PULL);
     }
 
     public Single<List<Message>> loadMoreMessages(final Message fromMessage, final Integer numberOfMessages){

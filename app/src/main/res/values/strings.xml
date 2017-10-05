@@ -12,6 +12,7 @@
 
     <string name="google_places_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
     <string name="google_maps_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
+    <string name="google_web_client_id">1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com</string>
 
     <string name="firebase_url">https://chat-sdk-v4.firebaseio.com/</string>
     <string name="firebase_root_path">firebase_v4_web_new_2/</string>

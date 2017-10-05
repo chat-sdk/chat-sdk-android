@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.Callable;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.ui.activities.BaseActivity;
 
 /**
@@ -84,49 +85,13 @@ public abstract class BaseFragment extends DialogFragment {
         }
     }
 
-    protected void showToastDialog(String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-
-        // set title if not null
-        if (StringUtils.isNotBlank(title))
-            alertDialogBuilder.setTitle(title);
-
-        // set dialog message
-        alertDialogBuilder
-                .setMessage(alert)
-                .setCancelable(false)
-                .setPositiveButton(p, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (pos != null)
-                            try {
-                                pos.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton(n, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
-                        if (neg != null)
-                            try {
-                                neg.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                        dialog.cancel();
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
+    abstract public void clearData ();
+    public void safeReloadData () {
+        if(getView() != null && NM.auth().userAuthenticated()) {
+            reloadData();
+        }
     }
+    public abstract void reloadData();
 
 }
 

@@ -4,6 +4,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
+import co.chatsdk.core.handlers.ConfigurationHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
@@ -71,6 +72,10 @@ public class NM {
 
     public static LastOnlineHandler lastOnline () {
         return NetworkManager.shared().a.lastOnline;
+    }
+
+    public static ConfigurationHandler config () {
+        return NetworkManager.shared().a.config;
     }
 
     public static AudioMessageHandler audioMessage () {

@@ -34,6 +34,7 @@ import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.audio.Recording;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -45,6 +46,7 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
@@ -58,7 +60,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.activities.SelectContactActivity;
+import co.chatsdk.ui.contacts.SelectContactActivity;
 
 import co.chatsdk.core.defines.Debug;
 
@@ -92,12 +94,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
     public static final String ACTION_CHAT_CLOSED = "co.chatsdk.chat_closed";
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-
     /**
      * The key to get the thread long id.
      */
@@ -115,6 +111,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected MessagesListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView typingTextView;
+    protected PermissionRequestHandler permissionHandler;
 
     private DisposableList disposableList = new DisposableList();
     private Disposable typingTimerDisposable;
@@ -198,7 +195,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             actionBarView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (Defines.Options.ThreadDetailsEnabled) {
+                    if (NM.config().booleanForKey(BaseConfigurationHandler.ThreadDetailsEnabled)) {
                         openThreadDetailsActivity();
                     }
                 }
@@ -221,8 +218,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 @Override
                 public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                     circleImageView.setImageBitmap(bitmap);
-                    circleImageView.setVisibility(View.VISIBLE);
-                    ab.setCustomView(actionBarView);
                 }
             }));
 
@@ -261,7 +256,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             @Override
             public void onTakePhotoPressed() {
 
-                verifyStoragePermissions(activity);
+                verifyStoragePermission();
 
                 photoSelector = new PhotoSelector();
 
@@ -279,7 +274,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             @Override
             public void onPickImagePressed() {
 
-                verifyStoragePermissions(activity);
+                verifyStoragePermission();
 
                 photoSelector.startPickImageActivity(activity, new PhotoSelector.Result() {
                     @Override
@@ -361,25 +356,18 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         messageListView.setOnScrollListener(this);
     }
 
-    /**
-     * Checks if the app has permission to write to device storage
-     *
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    public void verifyStoragePermission () {
+        permissionHandler.requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                ToastHelper.show(R.string.file_read_permission_not_granted);
+            }
+        }).subscribe();
+    }
 
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -687,7 +675,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             return super.onCreateOptionsMenu(menu);
 
         // Adding the add user option only if group chat is enabled.
-        if (Defines.Options.GroupEnabled && thread.typeIs(ThreadType.Group)) {
+        if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled) && thread.typeIs(ThreadType.Group)) {
             MenuItem item =
                     menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);

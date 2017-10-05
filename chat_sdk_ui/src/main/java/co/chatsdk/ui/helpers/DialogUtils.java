@@ -42,6 +42,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
@@ -153,7 +155,7 @@ public class DialogUtils {
         popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
         popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
 
-        if (!Defines.Options.LocationEnabled){
+        if (!NM.config().booleanForKey(BaseConfigurationHandler.LocationMessagesEnabled)){
             popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
         }
         
@@ -255,7 +257,7 @@ public class DialogUtils {
                             imageView.setImageBitmap(bitmap);
 
                             if (saveToDir) {
-                                File file, dir = Utils.ImageSaver.getAlbumStorageDir(context, Utils.ImageSaver.IMAGE_DIR_NAME);
+                                File file, dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
                                 if (dir != null) {
                                     if(dir.exists()) {
                                         file = new File(dir, imageName + ".jpg");
@@ -333,15 +335,16 @@ public class DialogUtils {
 
     /** Basic interface for getting callback from the dialog.*/
     public interface DialogInterface<T>{
-        public void onFinished(T t);
+        void onFinished(T t);
     }
 
-    public static void showToastDialog(AppCompatActivity activity, String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+    public static void showToastDialog(Context context, String title, String alert, String p, String n, final Callable neg, final Callable pos){
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
         // set title if not null
-        if (title != null && !title.equals(""))
+        if (title != null && !title.equals("")) {
             alertDialogBuilder.setTitle(title);
+        }
 
         // set dialog message
         alertDialogBuilder

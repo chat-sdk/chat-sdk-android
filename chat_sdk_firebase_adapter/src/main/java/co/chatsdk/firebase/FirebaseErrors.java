@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseError;
  * Created by KyleKrueger on 11.04.2017.
  */
 
+@Deprecated
 public class FirebaseErrors {
 
     /** Convert the firebase error to a {@link ChatError ChatError} object. */

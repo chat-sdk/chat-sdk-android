@@ -50,7 +50,7 @@ public class Thread implements CoreEntity {
     private String creatorEntityId;
     private String imageUrl;
     private String rootKey;
-    private String apiKey;
+    private String apiKey; // TODO: Delete this
     private long creatorId;
     private long lastMessageId;
 
@@ -299,7 +299,7 @@ public class Thread implements CoreEntity {
     }
 
     public Boolean getDeleted() {
-        return this.deleted;
+        return deleted != null ? deleted : false;
     }
 
     public void setDeleted(Boolean deleted) {

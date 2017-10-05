@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import co.chatsdk.core.NM;
@@ -35,6 +36,13 @@ public class ThreadImageBuilder {
 
                 List<User> users = thread.getUsers();
                 users.remove(NM.currentUser());
+
+                Iterator<User> i = users.iterator();
+                while (i.hasNext()) {
+                    if(i.next().getEntityID().equals(NM.currentUser().getEntityID())) {
+                        users.remove(i.next());
+                    }
+                }
 
                 // If the URL is empty
                 if (users.size() == 0 && thread.getImageURL() == null) {
@@ -68,7 +76,8 @@ public class ThreadImageBuilder {
                                 public void accept(@NonNull Bitmap bitmap) throws Exception {
                                     if (bitmaps.size() == 1) {
                                         e.onSuccess(bitmaps.get(0));
-                                    } else {
+                                    }
+                                    else {
                                         int size = context.getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
                                         Bitmap merged = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
                                         e.onSuccess(merged);

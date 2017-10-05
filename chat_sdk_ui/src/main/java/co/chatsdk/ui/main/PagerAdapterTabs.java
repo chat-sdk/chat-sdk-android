@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.adapters;
+package co.chatsdk.ui.main;
 
 
 import android.support.v4.app.Fragment;
@@ -29,6 +29,10 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
         tabs = InterfaceManager.shared().a.defaultTabs();
+    }
+
+    public List<Tab> getTabs() {
+        return tabs;
     }
 
     @Override

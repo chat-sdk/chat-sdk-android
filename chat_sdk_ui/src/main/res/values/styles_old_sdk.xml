@@ -1,6 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="co.chatsdk.ui.activities.MainActivity">
+    tools:context="co.chatsdk.ui.main.MainActivity">
 
     <!-- Base application theme. -->
     <style name="ChatSDKTheme" parent="@style/SdkTheme">

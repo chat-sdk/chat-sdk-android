@@ -42,7 +42,7 @@ public class ChatSDK {
     }
 
     public String twitterSecret () {
-        return appBundle.getString("twitter_key");
+        return appBundle.getString("twitter_secret");
     }
 
     public String firebaseStorageURL () {
@@ -63,6 +63,9 @@ public class ChatSDK {
 
     public String googleMapsApiKey () {
         return appBundle.getString("google_maps_key");
+    }
+    public String googleWebClientID () {
+        return appBundle.getString("google_web_client_id");
     }
 
     public String xmppServiceName () {

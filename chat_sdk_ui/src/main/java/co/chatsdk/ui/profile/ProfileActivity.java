@@ -36,7 +36,7 @@ public class ProfileActivity extends BaseActivity {
             user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
             if(user != null) {
                 ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profile_fragment);
-                fragment.setUser(user);
+                fragment.updateInterfaceForUser(user);
                 return;
             }
         }

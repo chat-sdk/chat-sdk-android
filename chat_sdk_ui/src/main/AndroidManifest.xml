@@ -32,12 +32,12 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name=".activities.MainActivity"
+        <activity android:name=".main.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".activities.SelectContactActivity"
+        <activity android:name=".contacts.SelectContactActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
@@ -49,7 +49,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.ShareWithContactsActivity"
+        <activity android:name=".contacts.ShareWithContactsActivity"
             android:theme="@style/SdkTheme"
             android:noHistory="true">
 

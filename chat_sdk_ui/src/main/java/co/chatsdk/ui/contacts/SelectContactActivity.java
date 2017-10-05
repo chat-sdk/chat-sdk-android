@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.activities;
+package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -27,12 +27,13 @@ import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -41,8 +42,6 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.contacts.UsersListAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,16 +157,15 @@ public class SelectContactActivity extends BaseActivity {
         imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
 
-        if (mode == MODE_ADD_TO_CONVERSATION)
+        if (mode == MODE_ADD_TO_CONVERSATION) {
             btnStartChat.setText(getResources().getString(R.string.add_users));
-
-        if (!Defines.Options.GroupEnabled) {
-            btnStartChat.setVisibility(View.GONE);
         }
+
     }
 
     private void initList(){
-        listAdapter = new UsersListAdapter(SelectContactActivity.this, Defines.Options.GroupEnabled);
+        boolean enableMultiSelect = NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled);
+        listAdapter = new UsersListAdapter(SelectContactActivity.this, enableMultiSelect);
         listContacts.setAdapter(listAdapter);
 
         loadData();
@@ -176,7 +174,7 @@ public class SelectContactActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // If groups enabled toggeling selection
-                if (Defines.Options.GroupEnabled) {
+                if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled)) {
                     listAdapter.toggleSelection(position);
                 }
                 else {

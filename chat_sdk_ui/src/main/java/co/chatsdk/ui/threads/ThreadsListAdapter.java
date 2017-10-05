@@ -34,7 +34,6 @@ import timber.log.Timber;
 
 public class ThreadsListAdapter extends BaseAdapter {
 
-    protected static final String TAG = ThreadsListAdapter.class.getSimpleName();
     protected static final boolean DEBUG = Debug.ThreadsListAdapter;
 
     protected AppCompatActivity activity;
@@ -272,6 +271,12 @@ public class ThreadsListAdapter extends BaseAdapter {
 
     public List<ThreadListItem> getAllItems() {
         return allItems;
+    }
+
+    public void clearData () {
+        allItems.clear();
+        listItems.clear();
+        notifyDataSetChanged();
     }
 
 }

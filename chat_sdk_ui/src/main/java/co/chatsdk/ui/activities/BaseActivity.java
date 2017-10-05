@@ -190,31 +190,31 @@ public class BaseActivity extends AppCompatActivity {
         ToastHelper.show(text);
     }
 
-    protected void showProgressDialog(String message){
-        if (progressDialog == null)
+    protected void showProgressDialog(String message) {
+        if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
+        }
 
-        if (!progressDialog.isShowing())
-        {
+        if (!progressDialog.isShowing()) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(message);
             progressDialog.show();
         }
     }
 
-    protected void showOrUpdateProgressDialog(String message){
-        if (progressDialog == null)
+    protected void showOrUpdateProgressDialog(String message) {
+        if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
+        }
 
-        if (!progressDialog.isShowing())
-        {
+        if (!progressDialog.isShowing()) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(message);
             progressDialog.show();
         } else progressDialog.setMessage(message);
     }
 
-    protected void dismissProgressDialog(){
+    protected void dismissProgressDialog() {
         // For handling orientation changed.
         try {
             if (progressDialog != null && progressDialog.isShowing()) {

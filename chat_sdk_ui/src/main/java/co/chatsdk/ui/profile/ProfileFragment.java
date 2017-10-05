@@ -1,6 +1,8 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +23,7 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringUtils;
 import co.chatsdk.ui.R;
@@ -42,6 +45,9 @@ import io.reactivex.functions.Consumer;
 
 public class ProfileFragment extends BaseFragment {
 
+    public static int ProfileDetailRowHeight = 25;
+    public static int ProfileDetailMargin = 8;
+
     private CircleImageView avatarImageView;
     private ImageView flagImageView;
     private ImageView availabilityImageView;
@@ -54,19 +60,20 @@ public class ProfileFragment extends BaseFragment {
     private TextView followedTextView;
     private Button blockButton;
     private Button deleteButton;
+    private ImageView followsImageView;
+    private ImageView followedImageView;
 
     private ImageView locationImageView;
     private ImageView phoneImageView;
     private ImageView dateOfBirthImageView;
-//    private ImageView followsImageView;
-//    private ImageView followedImageView;
 
     private ArrayList<Disposable> disposables = new ArrayList<>();
 
-    int followsHeight;
-    int followedHeight;
+    private User user;
 
-    public User user;
+    public static ProfileFragment newInstance() {
+        return ProfileFragment.newInstance(null);
+    }
 
     public static ProfileFragment newInstance(User user) {
         ProfileFragment f = new ProfileFragment();
@@ -87,8 +94,8 @@ public class ProfileFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.user.equals(user)) {
-                    setUser(user);
+                if(networkEvent.user.equals(getUser())) {
+                    reloadData();
                 }
             }
         }));
@@ -123,10 +130,10 @@ public class ProfileFragment extends BaseFragment {
         locationImageView = (ImageView) mainView.findViewById(R.id.ivLocation);
         phoneImageView = (ImageView) mainView.findViewById(R.id.ivPhone);
         dateOfBirthImageView = (ImageView) mainView.findViewById(R.id.ivDateOfBirth);
-//        followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
-//        followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
+        followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
+        followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
 
-        setUser(user);
+        reloadData();
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
@@ -134,11 +141,16 @@ public class ProfileFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.user.equals(user)) {
-                    setUser(user);
+                if(networkEvent.user.equals(getUser())) {
+                    reloadData();
                 }
             }
         }));
+    }
+
+    private void setRowVisible (int textViewID, int imageViewID, boolean visible) {
+        mainView.findViewById(textViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        mainView.findViewById(imageViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void updateBlockedButton (boolean blocked) {
@@ -150,23 +162,29 @@ public class ProfileFragment extends BaseFragment {
         }
     }
 
-    public void setUser (User user) {
+    public void updateInterfaceForUser(final User user) {
         if(user == null) {
             return;
         }
-        this.user = user;
+        //this.user = user;
 
         boolean isCurrentUser = NM.currentUser().equals(user);
         setHasOptionsMenu(isCurrentUser);
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
 
-//        followsImageView.setVisibility(visibility);
-//        followedImageView.setVisibility(visibility);
+        followsImageView.setVisibility(visibility);
+        followedImageView.setVisibility(visibility);
         followsTextView.setVisibility(visibility);
         followedTextView.setVisibility(visibility);
         blockButton.setVisibility(visibility);
         deleteButton.setVisibility(visibility);
+
+        setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringUtils.isNullOrEmpty(user.getLocation()));
+        setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringUtils.isNullOrEmpty(user.getPhoneNumber()));
+        setRowVisible(R.id.ivDateOfBirth, R.id.tvDateOfBirth, !StringUtils.isNullOrEmpty(user.getDateOfBirth()));
+        setRowVisible(R.id.ivFollows, R.id.tvFollows, !StringUtils.isNullOrEmpty(user.getPresenceSubscription()));
+        setRowVisible(R.id.ivFollowed, R.id.tvFollowed, !StringUtils.isNullOrEmpty(user.getPresenceSubscription()));
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
@@ -182,13 +200,13 @@ public class ProfileFragment extends BaseFragment {
                 blockButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        disposables.add(NM.blocking().isBlocked(ProfileFragment.this.user)
+                        disposables.add(NM.blocking().isBlocked(user)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new BiConsumer<Boolean, Throwable>() {
                                     @Override
                                     public void accept(Boolean blocked, Throwable throwable) throws Exception {
                                         if(blocked) {
-                                            disposables.add(NM.blocking().unblockUser(ProfileFragment.this.user)
+                                            disposables.add(NM.blocking().unblockUser(user)
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override
@@ -205,7 +223,7 @@ public class ProfileFragment extends BaseFragment {
                                                     }));
                                         }
                                         else {
-                                            disposables.add(NM.blocking().blockUser(ProfileFragment.this.user)
+                                            disposables.add(NM.blocking().blockUser(user)
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override
@@ -234,7 +252,7 @@ public class ProfileFragment extends BaseFragment {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    disposables.add(NM.contact().deleteContact(ProfileFragment.this.user, ConnectionType.Contact)
+                    disposables.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Action() {
                         @Override
@@ -256,10 +274,27 @@ public class ProfileFragment extends BaseFragment {
         this.updateInterface();
     }
 
+    private void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
+        int lastViewId = firstViewId;
+        final float density = getContext().getResources().getDisplayMetrics().density;
+        for(int viewId : viewIds) {
+            View view = mainView.findViewById(viewId);
+            if(view.getVisibility() == View.VISIBLE) {
+                set.connect(viewId, ConstraintSet.TOP, lastViewId, ConstraintSet.BOTTOM, (int) (ProfileDetailMargin * density));
+                //set.constrainHeight(viewId, ProfileDetailRowHeight * density);
+                lastViewId = viewId;
+            }
+        }
+    }
+
+    private User getUser () {
+        return user != null ? user : NM.currentUser();
+    }
+
     private void updateInterface () {
 
         // Country Flag
-        String countryCode = user.getCountryCode();
+        String countryCode = getUser().getCountryCode();
         flagImageView.setVisibility(View.INVISIBLE);
 
         if(countryCode != null && !countryCode.isEmpty()) {
@@ -271,9 +306,9 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Profile Image
-        UserAvatarHelper.loadAvatar(user, avatarImageView).observeOn(AndroidSchedulers.mainThread()).subscribe();
+        UserAvatarHelper.loadAvatar(getUser(), avatarImageView).observeOn(AndroidSchedulers.mainThread()).subscribe();
 
-        String status = user.getStatus();
+        String status = getUser().getStatus();
         if(!StringUtils.isNullOrEmpty(status)) {
             statusTextView.setText(status);
         }
@@ -282,9 +317,9 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Name
-        nameTextView.setText(user.getName());
+        nameTextView.setText(getUser().getName());
 
-        String availability = user.getAvailability();
+        String availability = getUser().getAvailability();
 
         // Availability
         if(availability != null) {
@@ -296,15 +331,15 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Location
-        locationTextView.setText(user.getLocation());
+        locationTextView.setText(getUser().getLocation());
 
         // Phone
-        phoneTextView.setText(user.getPhoneNumber());
+        phoneTextView.setText(getUser().getPhoneNumber());
 
         // Date of birth
-        dateOfBirthTextView.setText(user.getDateOfBirth());
+        dateOfBirthTextView.setText(getUser().getDateOfBirth());
 
-        String presenceSubscription = user.getPresenceSubscription();
+        String presenceSubscription = getUser().getPresenceSubscription();
 
         boolean follows = false;
         boolean followed = false;
@@ -329,6 +364,34 @@ public class ProfileFragment extends BaseFragment {
 //            followedImageView.setMaxHeight(0);
 //            followedTextView.setMaxHeight(0);
 //        }
+
+
+        ConstraintLayout layout = (ConstraintLayout) mainView.findViewById(R.id.mainConstraintLayout);
+        ConstraintSet set = new ConstraintSet();
+        set.clone(layout);
+
+        ArrayList<Integer> imageViewIds = new ArrayList<>();
+        imageViewIds.add(R.id.ivLocation);
+        imageViewIds.add(R.id.ivPhone);
+        imageViewIds.add(R.id.ivDateOfBirth);
+        imageViewIds.add(R.id.ivFollows);
+        imageViewIds.add(R.id.ivFollowed);
+
+        stackViews(imageViewIds, R.id.tvStatus, set);
+
+        ArrayList<Integer> textViewIds = new ArrayList<>();
+        textViewIds.add(R.id.tvLocation);
+        textViewIds.add(R.id.tvPhone);
+        textViewIds.add(R.id.tvDateOfBirth);
+        textViewIds.add(R.id.tvFollows);
+        textViewIds.add(R.id.tvFollowed);
+        textViewIds.add(R.id.btnDelete);
+        textViewIds.add(R.id.btnBlock);
+
+        stackViews(textViewIds, R.id.tvStatus, set);
+
+        set.applyTo(layout);
+
 
     }
 
@@ -364,7 +427,7 @@ public class ProfileFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        if (!user.equals(NM.currentUser()))
+        if (!getUser().isMe())
             return;
 
         MenuItem item =
@@ -398,4 +461,13 @@ public class ProfileFragment extends BaseFragment {
         disposables.clear();
     }
 
+    @Override
+    public void clearData() {
+
+    }
+
+    @Override
+    public void reloadData() {
+        updateInterfaceForUser(getUser());
+    }
 }

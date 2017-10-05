@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
 
@@ -38,7 +40,7 @@ public class PhotoSelector {
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        File file, dir = Utils.ImageSaver.getAlbumStorageDir(activity, Utils.ImageSaver.IMAGE_DIR_NAME);
+        File file, dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
 
         if (dir == null)
         {
@@ -81,8 +83,8 @@ public class PhotoSelector {
                 // If enabled we will save the messageImageView to the app
                 // directory in gallery else we will save it in the cache dir.
                 File dir;
-                if (Defines.Options.SaveImagesToDir)
-                    dir = Utils.ImageSaver.getAlbumStorageDir(activity, Utils.ImageSaver.IMAGE_DIR_NAME);
+                if (NM.config().booleanForKey(BaseConfigurationHandler.SaveImageToDirectory))
+                    dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
                 else
                     dir = activity.getCacheDir();
 
@@ -116,8 +118,8 @@ public class PhotoSelector {
             // If enabled we will save the messageImageView to the app
             // directory in gallery else we will save it in the cache dir.
             File dir;
-            if (Defines.Options.SaveImagesToDir)
-                dir = Utils.ImageSaver.getAlbumStorageDir(activity, Utils.ImageSaver.IMAGE_DIR_NAME);
+            if (NM.config().booleanForKey(BaseConfigurationHandler.SaveImageToDirectory))
+                dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
             else
                 dir = activity.getCacheDir();
 
@@ -131,7 +133,7 @@ public class PhotoSelector {
             String selectedFilePath = image.getPath();
 
             // Scanning the messageImageView so it would be visible in the gallery images.
-            if (Defines.Options.SaveImagesToDir) {
+            if (NM.config().booleanForKey(BaseConfigurationHandler.SaveImageToDirectory)) {
                 ImageUtils.scanFilePathForGallery(activity, selectedFilePath);
             }
 

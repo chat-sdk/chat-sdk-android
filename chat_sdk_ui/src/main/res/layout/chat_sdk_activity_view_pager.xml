@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/content"
-    tools:context="co.chatsdk.ui.activities.MainActivity">
+    tools:context="co.chatsdk.ui.main.MainActivity">
 
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tabs"

@@ -78,6 +78,7 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
     public FirebaseSocialLoginHandler (Context context) {
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(ChatSDK.shared().googleWebClientID())
                 .requestEmail()
                 .build();
 
@@ -185,8 +186,7 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                             e.onSuccess(credential);
                         }
                         else {
-                            // TODO: Localize
-                            e.onError(new Exception("Sign in failed"));
+                            e.onError(new Exception(result.getStatus().getStatusMessage()));
                         }
                     }
                 };

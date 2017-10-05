@@ -560,16 +560,4 @@ public class User implements CoreEntity {
     }
 
 
-
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-
-
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-
-
 }

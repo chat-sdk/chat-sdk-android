@@ -118,7 +118,8 @@
         tools:layout_conversion_absoluteHeight="48dp"
         tools:layout_conversion_absoluteWidth="269dp"
         tools:layout_conversion_absoluteX="25dp"
-        tools:layout_conversion_absoluteY="298dp" />
+        tools:layout_conversion_absoluteY="298dp"
+        app:layout_constraintHorizontal_bias="0.6" />
 
 
     <android.support.constraint.Guideline

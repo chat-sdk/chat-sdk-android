@@ -12,9 +12,9 @@ import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.activities.MainActivity;
+import co.chatsdk.ui.main.MainActivity;
 import co.chatsdk.ui.activities.SearchActivity;
-import co.chatsdk.ui.activities.SelectContactActivity;
+import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.login.LoginActivity;
@@ -62,7 +62,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Tab profileTab() {
-        return new Tab (R.string.profile, R.drawable.ic_action_user, ProfileFragment.newInstance(NM.currentUser()));
+        return new Tab (R.string.profile, R.drawable.ic_action_user, ProfileFragment.newInstance());
     }
 
     @Override
@@ -77,7 +77,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Fragment publicThreadsFragment() {
-        return PublicThreadsFragment.newInstance();
+        return new PublicThreadsFragment();
     }
 
     @Override

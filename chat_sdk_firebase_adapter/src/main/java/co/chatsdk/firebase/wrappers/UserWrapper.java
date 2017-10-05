@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.LinkedAccount;
 import co.chatsdk.core.dao.User;
@@ -103,10 +104,10 @@ public class UserWrapper {
 
         model.setEntityID(authData.getUid());
 
-
         String name = authData.getDisplayName();
         String email = authData.getEmail();
         String profileURL = null;
+
         if(authData.getPhotoUrl() != null) {
             profileURL = authData.getPhotoUrl().toString();
         }
@@ -114,6 +115,9 @@ public class UserWrapper {
         // Setting the name.
         if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName())) {
             model.setName(name);
+        }
+        else {
+            model.setName(NM.config().stringForKey(BaseConfigurationHandler.DefaultUserName));
         }
 
         // Setting the email.//
@@ -125,7 +129,14 @@ public class UserWrapper {
             model.setAvatarURL(profileURL);
             model.setThumbnailURL(profileURL);
         }
+        else {
+            String url = NM.config().stringForKey(BaseConfigurationHandler.DefaultUserAvatarURL);
+            model.setAvatarURL(url);
+            model.setThumbnailURL(url);
 
+        }
+
+        model.update();
 
 //        switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
 //        {
@@ -163,20 +174,6 @@ public class UserWrapper {
 //            default: break;
 //        }
 
-        if (StringUtils.isEmpty(model.getName()))
-        {
-            model.setName(Defines.getDefaultUserName());
-        }
-        if(StringUtils.isEmpty(model.getAvatarURL())) {
-            String url = Defines.getDefaultImageUrl("http://robohash.org/" + name,
-                    Defines.ImageProperties.INITIALS_IMAGE_SIZE,
-                    Defines.ImageProperties.INITIALS_IMAGE_SIZE);
-            model.setAvatarURL(url);
-            model.setThumbnailURL(url);
-        }
-        
-        // Save the bundle
-        DaoCore.updateEntity(model);
     }
 
     public Completable once(){
@@ -317,7 +314,7 @@ public class UserWrapper {
     }
 
     Map<String, Object> serialize(){
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new HashMap<>();
 
         values.put(Keys.Meta, model.metaMap());
         values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
@@ -404,7 +401,7 @@ public class UserWrapper {
         return channel;
     }
 
-    public Completable updateIndex(){
+    public Completable updateIndex() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
@@ -417,10 +414,7 @@ public class UserWrapper {
 
                 values.put(Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
                 values.put(Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
-
-                if (Defines.IndexUserPhoneNumber && StringUtils.isNotBlank(phoneNumber)) {
-                    values.put(Keys.Phone, processForQuery(phoneNumber));
-                }
+                values.put(Keys.Phone, StringUtils.isNotEmpty(phoneNumber) ? processForQuery(phoneNumber) : "");
 
                 final DatabaseReference ref = FirebasePaths.indexRef().child(model.getEntityID());
 
@@ -459,13 +453,13 @@ public class UserWrapper {
 
         // Set the current state of the user as online.
         // And add a listener so when the user log off from firebase he will be set as disconnected.
-        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, false);
+        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, true);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put(Keys.Time, ServerValue.TIMESTAMP);
         map.put(Keys.UID, model.getEntityID());
 
-        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, false);
+        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, true);
 
         return Completable.merge(Arrays.asList(c1, c2));
     }

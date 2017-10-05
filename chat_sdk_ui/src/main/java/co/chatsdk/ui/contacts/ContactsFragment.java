@@ -305,6 +305,7 @@ public class ContactsFragment extends BaseFragment {
         });
     }
 
+    @Override
     public void clearData() {
         if (adapter != null) {
             adapter.getUserItems().clear();
@@ -405,6 +406,11 @@ public class ContactsFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         loadData(true);
+    }
+
+    @Override
+    public void reloadData() {
+        reloadUsers().subscribe();
     }
 
     @Override

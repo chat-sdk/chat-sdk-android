@@ -1,6 +1,7 @@
 package co.chatsdk.ui.profile;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -9,10 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mukesh.countrypicker.CountryPicker;
@@ -312,6 +315,8 @@ public class EditProfileActivity extends BaseActivity {
             currentUser.setEmail(email);
         }
 
+        currentUser.update();
+
         boolean changed = !userMeta.equals(currentUser.metaMap());
         boolean imageChanged = false;
         boolean presenceChanged = false;
@@ -340,6 +345,12 @@ public class EditProfileActivity extends BaseActivity {
             NM.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe();
+        }
+
+        View v = getCurrentFocus();
+        if(v instanceof EditText) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         }
 
         finish();

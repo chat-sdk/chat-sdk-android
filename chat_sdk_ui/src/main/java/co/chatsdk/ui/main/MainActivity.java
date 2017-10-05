@@ -5,49 +5,45 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.activities;
+package co.chatsdk.ui.main;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Network;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.astuetz.PagerSlidingTabStrip;
 
 import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
+import co.chatsdk.core.Tab;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.threads.PrivateThreadsFragment;
+import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.fragments.FragmentIDs;
 
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
 
 import co.chatsdk.ui.helpers.ExitHelper;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
-import co.chatsdk.ui.adapters.PagerAdapterTabs;
 import timber.log.Timber;
 
 import org.apache.commons.lang3.StringUtils;
@@ -59,8 +55,6 @@ public class MainActivity extends BaseActivity {
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     protected PagerAdapterTabs adapter;
-
-    private static final String FIRST_TIME_IN_APP = "First_Time_In_App";
 
     private OpenFromPushChecker mOpenFromPushChecker;
     private PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
@@ -82,7 +76,6 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.chat_sdk_activity_view_pager);
 
-        firstTimeInApp();
         initViews();
 
         mOpenFromPushChecker = new OpenFromPushChecker();
@@ -91,7 +84,27 @@ public class MainActivity extends BaseActivity {
             InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
         }
 
+        permissionHandler.requestWriteExternalStorage(this).doFinally(new Action() {
+            @Override
+            public void run() throws Exception {
+                requestMicrophoneAccess();
+            }
+        }).subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                Timber.v("Granted");
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        });
 
+
+    }
+
+    public void requestMicrophoneAccess () {
         if(NM.audioMessage() != null) {
             permissionHandler.requestRecordAudio(this).subscribe(new Action() {
                 @Override
@@ -104,21 +117,7 @@ public class MainActivity extends BaseActivity {
                     throwable.printStackTrace();
                 }
             });
-
-            permissionHandler.requestWriteExternalStorage(this).subscribe(new Action() {
-                @Override
-                public void run() throws Exception {
-                    Timber.v("Granted");
-                }
-            }, new Consumer<Throwable>() {
-                @Override
-                public void accept(@NonNull Throwable throwable) throws Exception {
-                    throwable.printStackTrace();
-                }
-            });
-
         }
-
     }
 
     @Override
@@ -141,12 +140,23 @@ public class MainActivity extends BaseActivity {
                     public void accept(NetworkEvent networkEvent) throws Exception {
                         if(networkEvent.message != null) {
                             if(!networkEvent.message.getSender().isMe()) {
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                                // Only show the alert if we're not on the private threads tab
+                                if(!(adapter.getTabs().get(pager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
+                                    NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                                }
                             }
                         }
                     }
                 }));
 
+        disposables.add(NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.Logout))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        clearData();
+                    }
+                }));
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -163,6 +173,8 @@ public class MainActivity extends BaseActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+
+        reloadData();
 
     }
 
@@ -193,14 +205,15 @@ public class MainActivity extends BaseActivity {
         mOpenFromPushChecker.onSaveInstanceState(outState);
     }
 
-    private void initViews(){
+    private void initViews() {
         pager = (ViewPager) findViewById(R.id.pager);
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 
         // Only creates the adapter if it wasn't initiated already
-        if (adapter == null)
+        if (adapter == null) {
             adapter = new PagerAdapterTabs(getSupportFragmentManager());
+        }
 
         pager.setAdapter(adapter);
 
@@ -209,6 +222,22 @@ public class MainActivity extends BaseActivity {
         pager.setOffscreenPageLimit(3);
 
 
+    }
+
+    public void clearData () {
+        for(Tab t : adapter.getTabs()) {
+            if(t.fragment instanceof BaseFragment) {
+                ((BaseFragment) t.fragment).clearData();
+            }
+        }
+    }
+
+    public void reloadData () {
+        for(Tab t : adapter.getTabs()) {
+            if(t.fragment instanceof BaseFragment) {
+                ((BaseFragment) t.fragment).safeReloadData();
+            }
+        }
     }
 
     @Override
@@ -220,6 +249,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO: update this
         if (item.getItemId() == R.id.android_settings) {
 
             // FIXME Clearing the cache, Just for debug.
@@ -229,13 +259,18 @@ public class MainActivity extends BaseActivity {
             VolleyUtils.getBitmapCache().resize(maxMemory / 8);*/
             return true;
         }
-        else   if (item.getItemId() == R.id.contact_developer) {
-            if(StringUtils.isNotEmpty(Defines.ContactDeveloper_Email))
+        else if (item.getItemId() == R.id.contact_developer) {
+
+            String emailAddress = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperEmailAddress);
+            String subject = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperEmailSubject);
+            String dialogTitle = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperDialogTitle);
+
+            if(StringUtils.isNotEmpty(emailAddress))
             {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", Defines.ContactDeveloper_Email, null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, Defines.ContactDeveloper_Subject);
-                startActivity(Intent.createChooser(emailIntent, Defines.ContactDeveloper_DialogTitle));
+                        "mailto", emailAddress, null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                startActivity(Intent.createChooser(emailIntent, dialogTitle));
             }
             return true;
         }
@@ -254,16 +289,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void firstTimeInApp(){
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(FIRST_TIME_IN_APP, true))
-        {
-            // Creating the images directory if not exist.
-            Utils.ImageSaver.getAlbumStorageDir(this, Defines.ImageDirName);
-
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(FIRST_TIME_IN_APP, false).apply();
-        }
-    }
-
     /** Refresh the contacts fragment when a contact added action is received.
      *  Clear Fragments bundle when logged out.
      *  Refresh Fragment when wanted.*/
@@ -275,7 +300,7 @@ public class MainActivity extends BaseActivity {
 //                BaseFragment contacts = getFragment(FragmentIDs.Contacts);
 //
 //                if (contacts != null)
-//                    contacts.loadData();
+//                    contacts.reloadData();
 //
 //                // TODO: This should be handled by the list already no?
 ////                if (intent.getExtras().containsKey(SearchActivity.USER_IDS_LIST))
@@ -311,7 +336,7 @@ public class MainActivity extends BaseActivity {
 //            }
 //            else if (intent.getAction().equals(ChatActivity.ACTION_CHAT_CLOSED))
 //            {
-//                getFragment(FragmentIDs.Conversations).loadData();
+//                getFragment(FragmentIDs.Conversations).reloadData();
 //            }
         }
     };

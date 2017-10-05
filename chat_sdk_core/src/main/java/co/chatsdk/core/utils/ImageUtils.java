@@ -26,6 +26,8 @@ import android.support.annotation.Size;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.types.Defines;
 import io.reactivex.Single;
@@ -86,37 +88,6 @@ public class ImageUtils {
 
     public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull List<Bitmap> bitmaps) {
         return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[bitmaps.size()]));
-    }
-
-        /** Constructing a bitmap with the given text written in it.*/
-    public static Bitmap getInitialsBitmap(int backGroundColor, int textColor, String initials){
-
-        int size = Defines.ImageProperties.INITIALS_IMAGE_SIZE;
-        float textSize = Defines.ImageProperties.INITIALS_TEXT_SIZE;
-
-        int textSpace = size/2;
-
-        // Create bitmap and canvas to draw to
-        Bitmap b = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565);
-        Canvas c= new Canvas(b);
-
-        // Draw background
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG
-                | Paint.LINEAR_TEXT_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(backGroundColor);
-        c.drawPaint(paint);
-
-        // Draw text
-        c.save();
-
-        Bitmap textBitmap = textAsBitmap(initials, textSize, textColor);
-
-        c.drawBitmap(textAsBitmap(initials, textSize, textColor), textSpace - textBitmap.getWidth()/2, textSpace - textBitmap.getHeight()/2, null);
-
-        c.restore();
-
-        return b;
     }
 
     /** @return a bitmap with text.*/
@@ -260,7 +231,11 @@ public class ImageUtils {
     }
 
     public static Bitmap getCompressed(String filePath){
-        return getCompressed(filePath, Defines.ImageProperties.MAX_WIDTH_IN_PX, Defines.ImageProperties.MAX_HEIGHT_IN_PX);
+        return getCompressed(
+                filePath,
+                NM.config().integerForKey(BaseConfigurationHandler.ImageMaxWidth),
+                NM.config().integerForKey(BaseConfigurationHandler.ImageMaxHeight)
+        );
     }
 
     /*http://voidcanvas.com/whatsapp-like-image-compression-in-android/*/
@@ -470,10 +445,14 @@ public class ImageUtils {
         return Single.create(new SingleOnSubscribe<Bitmap>() {
             @Override
             public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
-                // Try to load it locally if it existsw
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                Bitmap bitmap = BitmapFactory.decodeFile(url, options);
+                // Try to load it locally if it exists
+                File f = new File(url);
+                Bitmap bitmap = null;
+                if(f.exists()) {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    bitmap = BitmapFactory.decodeFile(url, options);
+                }
                 if(bitmap != null) {
                     e.onSuccess(bitmap);
                 }

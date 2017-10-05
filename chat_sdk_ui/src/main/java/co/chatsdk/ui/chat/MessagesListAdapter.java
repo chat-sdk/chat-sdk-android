@@ -8,22 +8,17 @@
 package co.chatsdk.ui.chat;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Keys;
@@ -31,14 +26,11 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 import co.chatsdk.core.dao.sorter.MessageSorter;
-import co.chatsdk.ui.adapters.MessageItemSorter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,9 +41,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class MessagesListAdapter extends BaseAdapter{
-
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
-    private static final boolean DEBUG = Debug.MessagesListAdapter;
 
     /**
      * Class to hold the row child views so we wont have to inflate more them once per row view.
@@ -227,22 +216,10 @@ public class MessagesListAdapter extends BaseAdapter{
             NM.audioMessage().updateMessageCellView(messageItem.message, holder.extraLayout, activity);
         }
 
-
         holder.messageImageView.setLayoutParams(imageLayoutParams);
         holder.messageImageView.requestLayout();
         holder.messageTextView.setLayoutParams(textLayoutParams);
         holder.messageTextView.requestLayout();
-
-        // ProgressListener
-        // Not tested
-//        if (messageItem.progress > 0 && messageItem.progress < 1) {
-//            holder.progressView.setVisibility(View.VISIBLE);
-//            holder.progressView.setValue(messageItem.progress);
-//            holder.progressView.setMaxValue(1);
-//        }
-//        else {
-//            holder.progressView.setVisibility(View.INVISIBLE);
-//        }
 
         UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -250,10 +227,8 @@ public class MessagesListAdapter extends BaseAdapter{
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
-        //animateSides(holder.timeTextView, messageItem.isMine(), null);
 
         row.setAlpha(messageItem.statusIs(MessageSendStatus.Sent) || messageItem.statusIs(MessageSendStatus.Delivered) ? 1.0f : 0.7f);
-
     }
 
     public List<MessageListItem> getMessageItems() {

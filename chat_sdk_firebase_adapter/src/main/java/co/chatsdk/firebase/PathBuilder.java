@@ -7,6 +7,8 @@ package co.chatsdk.firebase;
 public class PathBuilder {
 
     private String path = "";
+
+    @Deprecated
     private String value = "";
 
     public PathBuilder (String element) {
@@ -18,6 +20,7 @@ public class PathBuilder {
         return this;
     }
 
+    @Deprecated
     public PathBuilder value (String value) {
         this.value = value;
         return this;

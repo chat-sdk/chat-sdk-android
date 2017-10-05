@@ -38,7 +38,7 @@
         android:layout_height="36dp"
         android:background="@drawable/ic_36_mic"
         android:gravity="center"
-        android:padding="10dp"
+        android:layout_margin="10dp"
         android:layout_gravity="bottom"
         android:layout_marginLeft="5dp"
         android:id="@+id/chat_sdk_btn_chat_send_message"/>

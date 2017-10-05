@@ -9,18 +9,12 @@ package co.chatsdk.ui.login;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.hardware.camera2.params.Face;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.telecom.Call;
-import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -33,34 +27,17 @@ import android.widget.Toast;
 import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AccountType;
-import co.chatsdk.core.types.AuthKeys;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.activities.MainActivity;
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import co.chatsdk.core.defines.Debug;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -158,6 +135,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnAnon.setOnClickListener(this);
         btnTwitter.setOnClickListener(this);
         btnFacebook.setOnClickListener(this);
+        btnGoogle.setOnClickListener(this);
 
         etPass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -205,21 +183,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(completion);
+                        .subscribe(completion, error);
             }
         }
         else if (i == R.id.chat_sdk_btn_facebook_login) {
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(completion);
+                        .subscribe(completion, error);
             }
         }
         else if (i == R.id.chat_sdk_btn_google_login) {
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(completion);
+                        .subscribe(completion, error);
             }
         }
     }
@@ -230,64 +208,57 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initListeners();
 
-//        Map<String, ?> loginInfo = NM.auth().getLoginInfo();
-//        if (loginInfo != null && loginInfo.containsKey(AuthKeys.Type)) {
+        // If the logged out flag isn't set...
+        if (getIntent() == null || getIntent().getExtras() == null || (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
 
-            // If the logged out flag isn't set...
-            if (getIntent() == null || getIntent().getExtras() == null || (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
+            showProgressDialog(getString(R.string.authenticating));
 
-                showProgressDialog(getString(R.string.authenticating));
+            NM.auth().authenticateWithCachedToken()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new CompletableObserver() {
+                @Override
+                public void onSubscribe(@NonNull Disposable d) {}
 
-                NM.auth().authenticateWithCachedToken()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
+                @Override
+                public void onComplete() {
+                    afterLogin();
+                }
 
-                    @Override
-                    public void onComplete() {
-                        afterLogin();
-                    }
+                @Override
+                public void onError(@NonNull Throwable e) {
+                    dismissProgressDialog();
+                }
+            });
+        }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        e.printStackTrace();
-//                        toastErrorMessage(e, false);
-                        dismissProgressDialog();
-                    }
-                });
-            }
+//        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//
+//        if(permissionCheck == PERMISSION_DENIED) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                    FILE_PERMISSION_REQUEST);
 //        }
 
-        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if(permissionCheck == PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    FILE_PERMISSION_REQUEST);
-        }
-
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        if(requestCode == FILE_PERMISSION_REQUEST) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                // permission was granted, yay! Do the
-                // contacts-related task you need to do.
-
-            } else {
-
-                // permission denied, boo! Disable the
-                // functionality that depends on this permission.
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults) {
+//        if(requestCode == FILE_PERMISSION_REQUEST) {
+//            if (grantResults.length > 0
+//                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                // permission was granted, yay! Do the
+//                // contacts-related task you need to do.
+//
+//            } else {
+//
+//                // permission denied, boo! Disable the
+//                // functionality that depends on this permission.
+//            }
+//        }
+//    }
 
     /* Dismiss dialog and open main activity.*/
     protected void afterLogin() {

@@ -19,48 +19,47 @@ public interface AuthenticationHandler {
     /**
      * Check to see if the user is already authenticated
      */
-    public Completable authenticateWithCachedToken();
+    Completable authenticateWithCachedToken();
 
     /**
     * Authenticate with Firebase
     */
     @Deprecated
-    public Completable authenticateWithMap (final Map<String, Object> details);
+    Completable authenticateWithMap (final Map<String, Object> details);
 
-    public Completable authenticate (AccountDetails details);
+    Completable authenticate (AccountDetails details);
 
     /**
     * Checks whether the user has been authenticated this session
     */
-    public Boolean userAuthenticated();
+    Boolean userAuthenticated();
 
     /**
     * Logout the user from the current account
     */
-    public Completable logout();
+    Completable logout();
 
     /**
     * Says which networks are available this can be setup in bFirebaseDefines
     * if you set the API key to @"" for Twitter Facebook or Google then it's automatically
     * disabled
     */
-    public Boolean accountTypeEnabled(AccountDetails.Type type);
+    Boolean accountTypeEnabled(AccountDetails.Type type);
 
     /**
     * Get the user's stored login credentials
     */
-    public Map<String, ?> getLoginInfo();
+    Map<String, ?> getLoginInfo();
 
     /**
     * Set the user's stored login credentials
     */
-    public void setLoginInfo(Map<String, Object> info);
-
+    void setLoginInfo(Map<String, Object> info);
 
     /**
     * Get the current user's authentication id
     */
-    public String getCurrentUserEntityID();
+    String getCurrentUserEntityID();
 
     // TODO: Implement something like this
     /**

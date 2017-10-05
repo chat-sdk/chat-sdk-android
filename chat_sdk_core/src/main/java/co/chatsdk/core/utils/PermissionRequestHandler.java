@@ -65,18 +65,18 @@ public class PermissionRequestHandler {
                 }
             }
         });
-        completable.doOnComplete(new Action() {
+        completable.doOnTerminate(new Action() {
             @Override
             public void run() throws Exception {
                 completableMap.remove(result);
             }
         });
-        completable.doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                completableMap.remove(result);
-            }
-        });
+//        completable.doOnError(new Consumer<Throwable>() {
+//            @Override
+//            public void accept(Throwable throwable) throws Exception {
+//                completableMap.remove(result);
+//            }
+//        });
 
         return completable;
     }

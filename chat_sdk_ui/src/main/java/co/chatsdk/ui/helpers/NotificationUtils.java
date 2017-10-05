@@ -21,12 +21,14 @@ import android.os.PowerManager;
 
 import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.defines.Debug;
 
@@ -56,8 +58,6 @@ public class NotificationUtils {
     public static final String CONTENT = "content";
     public static final String LINES = "lines";
     public static final String SUMMARY= "summary";
-    public static final String NOT_TAG = "tag";
-
 
     private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, int smallIconResID, Uri soundUri, int number){
        createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
@@ -174,7 +174,7 @@ public class NotificationUtils {
         if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(Defines.THREAD_ID,  message.getThreadId());
+        resultIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID,  message.getThreadId());
         resultIntent.putExtra(Defines.FROM_PUSH, true);
         resultIntent.putExtra(Defines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
 
@@ -183,9 +183,10 @@ public class NotificationUtils {
         String title = !StringUtils.isEmpty(
                 message.getSender().getName()) ? message.getSender().getName() : " ";
 
+        // TODO: Localize
         final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getName(), messageContent);
 
-        getNotificationLines(context, message, data);
+        getNotificationLines(context, data);
 
         ThreadImageBuilder.getBitmapForThread(context, message.getThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -203,13 +204,13 @@ public class NotificationUtils {
     }
     
  
-    private static String getMessageContent(Context context, Message message){
+    private static String getMessageContent(Message message){
         return String.format("%s: %s",
                 message.getSender().getName(),
                 Strings.payloadAsString(message));
     }
  
-    private static ArrayList<String> getNotificationLines(Context context, Message message, Bundle data){
+    private static ArrayList<String> getNotificationLines(Context context, Bundle data){
         List<Thread> threads = NM.thread().getThreads(ThreadType.Private);
 
         if (DEBUG) Timber.v("getNotification, CoreThread size: %s", threads == null ? "0" : threads.size());
@@ -243,7 +244,7 @@ public class NotificationUtils {
             }
             
             // Checking to see that we are still under the max amount of lines to use.
-            if (linesCount >= Defines.Options.MaxInboxNotificationLines)
+            if (linesCount >= NM.config().integerForKey(BaseConfigurationHandler.MaxInboxNotificationLines))
                 break;
         }
 
@@ -272,7 +273,7 @@ public class NotificationUtils {
 
         if(message != null && !message.wasRead())
         {
-            lines.add(getMessageContent(context, message));
+            lines.add(getMessageContent(message));
 
             String senderName = message.getSender().getName();
             if (!senders.contains(senderName))
@@ -288,7 +289,7 @@ public class NotificationUtils {
     }
   
     private static boolean validateLinesAndMessagesSize(List<Message> m, int minMessagesSize, ArrayList<String> lines){
-        return m.size() > minMessagesSize && lines.size() < Defines.Options.MaxInboxNotificationLines;
+        return m.size() > minMessagesSize && lines.size() < NM.config().integerForKey(BaseConfigurationHandler.MaxInboxNotificationLines);
     }
 
     private static Intent getChatResultIntent(Context context){

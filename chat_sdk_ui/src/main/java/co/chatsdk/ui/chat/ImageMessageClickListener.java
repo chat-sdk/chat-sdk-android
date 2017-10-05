@@ -5,6 +5,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.PopupWindow;
 import org.apache.commons.lang3.StringUtils;
+
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
@@ -38,7 +41,7 @@ public class ImageMessageClickListener implements View.OnClickListener {
             PopupWindow popupWindow;
 
             // Telling the popup window to save the messageImageView after it was open.
-            if (!Defines.Options.SaveImagesToDir) {
+            if (!NM.config().booleanForKey(BaseConfigurationHandler.SaveImageToDirectory)) {
                 popupWindow = DialogUtils.getImageDialog(activity, url, DialogUtils.ImagePopupWindow.LoadTypes.LOAD_FROM_URL);
             }
             else {

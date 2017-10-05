@@ -23,6 +23,9 @@ public class AppBackgroundMonitor {
     }
 
     public void startActivityTransitionTimer() {
+        if(!NM.auth().userAuthenticated()) {
+            return;
+        }
         this.activityTransitionTimer = new Timer();
         this.activityTransitionTimerTask = new TimerTask() {
             public void run() {

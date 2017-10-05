@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import java.io.File;
 
 import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.FileUploadResult;
@@ -38,7 +39,9 @@ public class UserAvatarHelper {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
-                imageView.setImageBitmap(defaultBitmap());
+                if(imageView.getDrawable() == null) {
+                    imageView.setImageBitmap(defaultBitmap());
+                }
 
                 avatar(user)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -98,8 +101,8 @@ public class UserAvatarHelper {
             @Override
             public void subscribe(SingleEmitter<File> e) throws Exception {
                 File image = new Compressor(activity)
-                        .setMaxHeight(Defines.ImageProperties.MAX_HEIGHT_IN_PX)
-                        .setMaxWidth(Defines.ImageProperties.MAX_WIDTH_IN_PX)
+                        .setMaxHeight(NM.config().integerForKey(BaseConfigurationHandler.ImageMaxHeight))
+                        .setMaxWidth(NM.config().integerForKey(BaseConfigurationHandler.ImageMaxWidth))
                         .compressToFile(new File(path));
                 e.onSuccess(image);
             }

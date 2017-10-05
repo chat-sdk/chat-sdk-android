@@ -25,6 +25,7 @@ import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -64,7 +65,7 @@ public class PrivateThreadsFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
-                        loadData();
+                        reloadData();
                     }
                 });
     }
@@ -101,7 +102,7 @@ public class PrivateThreadsFragment extends BaseFragment {
             onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                    showToastDialog("", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                    DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                             getResources().getString(R.string.cancel), null, new Callable() {
                                 @Override
                                 public Object call() throws Exception {
@@ -114,7 +115,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
                                         @Override
                                         public void onComplete() {
-                                            loadData();
+                                            reloadData();
                                             ToastHelper.show(getString(R.string.delete_thread_success_toast));
                                         }
 
@@ -126,17 +127,12 @@ public class PrivateThreadsFragment extends BaseFragment {
                                     return null;
                                 }
                             });
-
                     return true;
                 }
             };
         }
 
         threadsListView.setOnItemLongClickListener(onItemLongClickListener);
-    }
-
-    public void loadData() {
-        adapter.setAllItems(NM.thread().getThreads(ThreadType.Private));
     }
 
     public void clearData() {
@@ -166,7 +162,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
         initViews();
 
-        loadData();
+        reloadData();
 
         return mainView;
     }
@@ -192,6 +188,11 @@ public class PrivateThreadsFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void reloadData() {
+        adapter.setAllItems(NM.thread().getThreads(ThreadType.Private));
     }
 
     @Override

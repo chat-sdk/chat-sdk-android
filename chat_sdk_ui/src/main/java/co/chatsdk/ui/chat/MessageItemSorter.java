@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.adapters;
+package co.chatsdk.ui.chat;
 
 import java.util.Comparator;
 

@@ -3,6 +3,7 @@ package co.chatsdk.core.base;
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
+import co.chatsdk.core.handlers.ConfigurationHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
@@ -51,5 +52,6 @@ public class BaseNetworkAdapter {
     public SocialLoginHandler socialLogin;
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();
+    public ConfigurationHandler config = new BaseConfigurationHandler();
 
 }

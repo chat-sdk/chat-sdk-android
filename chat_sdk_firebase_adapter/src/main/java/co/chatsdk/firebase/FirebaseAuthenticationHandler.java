@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import co.chatsdk.core.NM;
 
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
@@ -315,15 +316,18 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     // TODO: Allow users to turn anonymous login off or on in settings
     public Boolean accountTypeEnabled(AccountDetails.Type type) {
-        if(NM.socialLogin() != null) {
+        if(type == AccountDetails.Type.Anonymous) {
+            return NM.config().booleanForKey(BaseConfigurationHandler.AnonymousLoginEnabled);
+        }
+        else if(type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
+            return true;
+        }
+        else if(NM.socialLogin() != null) {
             return NM.socialLogin().accountTypeEnabled(type);
         }
         else {
-            if(type == AccountDetails.Type.Anonymous || type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
-                return true;
-            }
+            return false;
         }
-        return false;
     }
 
 
