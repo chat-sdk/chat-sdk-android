@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -92,9 +91,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(AppBackgroundMonitor.shared().wasInBackground()) {
-            NM.core().goOnline();
-        }
         AppBackgroundMonitor.shared().stopActivityTransitionTimer();
     }
 

@@ -5,12 +5,33 @@
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
-- **Free.** The Chat SDK is free for unlimited commercial use
-- **Open Source.** The Chat SDK is open source under the [MIT license](https://tldrlegal.com/license/mit-license)
-- **Full data control.** You have full and exclusive access to the user's chat data
+- **Free.** The Chat SDK is free for [commercial use](license) <HERE>
+- **Open Source.** The Chat SDK is open source
+- **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Firebase** Powered by Google Firebase
 - **[Download the APK](https://drive.google.com/open?id=0B5yzhtuipbsrYkl1Wkh2WjMwOEE)** to try out the Firebase Chat SDK for Android now! 
+
+## v4.0 Released
+
+We have just released the latest version of the Android Chat SDK. In this update we have gone over every class and rewritten large portions of the SDK to bring it fully up to date. The changes have focused around four key areas:
+
+### Architecture
+
+The project has been completely refactored to make it's architecture fully modular. The project has been split into 3 main modules: core, ui and firebase network adapter. The architecure is now almost identical to the iOS version of the project. 
+
+### Technology Stack
+
+The technology stack has been fully updated. Promises have been replaced by the more flexible RXJava library. All images are loaded using Fresco. GreenDao and all the other support libraries have been updated to the latest version. 
+
+### Performance
+
+Performance has been improved in a number of areas. All the list views have been updated to recycler views. Now all network processing happens on background threads. We have also stress tested the code with up to 1000 threads in a view and 10,000 messages in a thread. 
+
+### UX
+
+The user interface has seen a major update. We have improved the chat view as well as making the entire app more consistent. We have also added an advanced user profile. 
+
 
 ## Features
 
@@ -22,7 +43,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - User profiles
 - User search
 - Powered by Firebase
-- [Cross Platform - see iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
+- Cross Platform - [iOS](https://github.com/chat-sdk/chat-sdk-ios), [Web](https://github.com/chat-sdk/chat-sdk-web)
 
 ## Modules
 
@@ -33,8 +54,14 @@ The Chat SDK has a number of additional modules that can easily be installed inc
 - [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
 - [Audio messages](http://chatsdk.co/downloads/audio-messages/)
 - [Video messages](http://chatsdk.co/downloads/video-messages/)
-- [Push notifications](http://chatsdk.co/downloads/backendless-push-notifications/)
+- [Sticker messages](https://chatsdk.co/downloads/sticker-messages/)
+- [Contact book integration](https://chatsdk.co/downloads/contact-book-integration/)
+- [Social Login]()
+- [Push Notifications]()
+- [File Storage]() 
 
+<HERE>
+ 
 ## Get involved!
 We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
 
@@ -45,193 +72,86 @@ We're very excited about the project and we're looking for other people to get i
 + Improving the user interface
 + Help us update the library to use Swift
 + Helping to write adapters for other services such as Layer, Pusher, Pubnub etc... 
++ Write a tutorial - **we pay $100** for quality tutorials
 
-If you're interested please email me at [**team@chatsdk.co**](mailto:team@chatsdk.co).
+If you're interested please review the [Contributing
+Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) for details of our development flow and the CLA then email me at [**team@chatsdk.co**](mailto:team@chatsdk.co).
 
-## The license
-This project uses the MIT license which is a commercially friendly open source license. The license has the following features:
+## Apps that use Chat SDK
 
-+ Commercial use is allowed
-+ You can modify, distribute and sublicense the source code
-+ The work is provided "as is". You may not hold the author liable.
-+ You must include the copyright notice
-+ You must include the license 
++ [Parlor](http://parlor.me/)
++ [Voice - Instant Messaging App](https://play.google.com/store/apps/details?id=com.skintmedia.voice&hl=en_GB)
++ [Nex Tv Latino](https://play.google.com/store/apps/details?id=com.helpdevs.nexttv)
 
-## Wiki
+If you have an app that uses the Chat SDK let us know and we'll add a link. 
 
-We have a lot more information on our [**Wiki**](https://github.com/chat-sdk/chat-sdk-android/wiki) so make sure to check it out! 
+## Running the demo project
 
-## Running the Chat SDK
-
-You can download the Chat SDK and run it directly using our Firebase test account. The default version of the app has everything pre-configured - location messages, social login etc...
+This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start itegrating it with your app. 
 
 > **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 21.1.0 should be installed. 
+>You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 26.0.2zz23 should be installed. 
 
 The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that you need to do the following.
 
-## Configuring Chat SDK
-Chat SDK relies on serveral different services to be fully operational. Firebase deals with storing the user data, notifying the app when the data has changed and storing the files for the audio, video and image messages. Backendless takes care of push notifications on the app. Facebook and Twitter can also be used if you want social media login for your app. Chat SDK comes preconfigured for all these types on our test accounts meaning you will need to create your own before you can get fully up and running.
+## Setup Service
 
-### Firebase
-1. Go to the Firebase website and create an account if you do not already have one
-2. Create a new project on the Firebase dashboard
-3. Click on this project and then click database in the left hand menu
-4. Copy the url from near the top of the screen, it should look something like this: 'https://yourappname.firebaseio.com/'
-5. In the Chat SDK Android open 'com.braunster.Chat SDK.network.BDefines.java' and copy your path in place of the 'ServerUrl' and also add it to your Firebase storage path. 
+We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
 
-Finally set your Firebase root path - the root path allows you to run multiple chat instances on one Firebase account. During testing you could set the root path to `test` and then when you go live, you could change it to `live`. 
+## Integration with an existing project
 
->**IMPORTANT**  
->The base URL path mush have a trailing slash. If you miss off the trailing slash the SDK won't be able to process the URLs properly and messages may not be updated.
+The Chat SDK is distributed as a series of modules that can be imported into Andorid studio. 
 
-```
-public static final String BRootPath = "testRoot/";
+## Adding the Chat SDK to your project
 
-public static String ServerUrl = "https://your-firebase-name.firebaseio.com/" + BRootPath;
+Integration with an existing project is simple. The first step is to download the Chat SDK library and import the modules you need. 
 
-public static String FirebaseStoragePath = "gs://your-firebase-name.appspot.com";
-```
+There are two ways to add the Chat SDK. You can either import the modules manually or add they using Gradle.
 
->**NOTE:**  
->For the Firebase storage path you need to only add the Firebase name you have set followed by appspot.com.
+### Gradle
 
->**NOTE:**  
->The root path of the app allows you to set custom branches for a single project. The value of the string that is set, will determine where the data is stored. This means you can set a different root path for your production and testing phases meaning that the data will be completely seperatede from each other but stored in the same place to view.
+<HERE> Gradle 
 
-Next you need to add your app to your Firebase project. Go to the Firebase dashboard. 
+### Adding Modules Manually
 
-1. Add a new Android app in the Firebase Dashboard. 
-2. Make sure that you set the package name to `com.braunster.androidchatsdk.firebaseplugin
-`. We use this package name because it is the name associated with the Chat SDK module which will actually be connecting to Firebase. 
-3. Download the **google-services.json** file to the **firebase_plugin** directory
+In Android Studio:
 
-Repeat the steps above but this time use the **applicationID** of the main project which can be found in **build.gradle(Module: App)**. Download the **google-services.json** file and add it to the **app** folder. This will also allow you to access the Firebase database from your main project. 
+**File** -> **New** -> **Import Module**
 
-**Update the Firebase defines**
+You must import the following core modules:
 
-Open **sdk** -> **java** -> **com** -> **braunster.chatsdk** -> **network** -> **BDefines.java**
+- `chat_sdk_core`
+- `chat_sdk_ui`
 
-Make sure that `ServerURL` and the `FirebaseStoragePath` are both set to the values that are defined in the **google-services.json** file. 
+And at least **one** network adapter:
 
-#### Security Rules
+- `chat_sdk_firebase_adapter`
+- `chat_sdk_xmpp_adapter` - [Available here]() <HERE>
 
-Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
+And any of the following optional modules:
 
-Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-ios/blob/master/rules.json) file into the rules and click publish. 
+- `chat_sdk_firebase_file_storage`
+- `chat_sdk_firebase_push`
+- `chat_sdk_firebase_social_login`
+- `chat_sdk_audio_message` - [Available here]() <HERE>
+- `chat_sdk_video_message` - [Available here]() <HERE>
+- `chat_sdk_sticker_message` - [Available here]() <HERE>
+- `chat_sdk_read_receipts` - [Available here]() <HERE>
+- `chat_sdk_typing_indicator` - [Available here]() <HERE>
+- `chat_sdk_contact_book` - [Available here]() <HERE>
 
-#### Authentication
-Firebase allows users to login with many different account (Email, Anonymous, Facebook, Twitter, Google etc) but these need to be enabled from the app dashboard.
-
-1. Click Auth in the left hand menu
-2. Click SIGN-IN METHOD in the top menu
-3. Click the sign in method you want and then enable. For social media logins you can come here for explanations of getting them set up.
-
-### Facebook setup
-
-1. Navigate to the Facebook developer account page
-
-2. If you don't already have an account create one. Then click **Apps** -> **Create new app**. On the new app page click **Settings**. Click **Add Platform** and choose Android
-
-3. Fill in a display name and a contact email. Then you need to set the app key hash. To get the app hash, you can use the `Utils.getSHA`. You will also need to set your app package name and class name
-
-4. Then click **Status & Review** and set the switch to **Yes** this will allow other people to sign on to your app
-
-5. Now go to the `sdk` string resource file and edit the `facebook_id` item setting it to your Facebook app id. You can also create a new item in your string resource file and it will override the original value
-
-6. Navigate back to the Facebook developers page and in the left hand menu click the **+ Add Product button**
-
-7. Choose Facebook login
-
-8. Go back to your Firebase dashboard, click the auth button and then Facebook login, you can copy an OAuth redirect URL from here, copy it into the Valid OAuth redirect URLs area
-
-9. Click save changes
-
-10. Now the app is setup but you still need to link the Facebook account to Firebase and your app
-
-11. Go back to the Firebase dashboard and click **Login & Auth**. Click the Facebook tab and tick the **Enabled** box. Then copy paste your Facebook **App Id** and **App Secret** into the boxes provided
-
-### Backendless Push Notifictions
-
-1. If you haven't already got a [Backendless account](https://backendless.com/) then go to the Backendless website and create one
-2. Create a new app on the dashboard and click it
-3. Click settings in the top menu to bring up your app keys
-4. Navigate to your strings.xml file and add your AppID, App Secret and Version
+Now import the modules in your `build.gradle` file. 
 
 ```
-<string name="backendless_app_id">1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-<string name="backendless_secret_key">1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-<string name="backendless_app_version">v1</string>
+compile project(path: ':chat_sdk_ui')
+compile project(path: ':chat_sdk_firebase_push')
 ```
 
-All the code for Push Notifications is already included in the Chat SDK. Getting them working only requires a small amount of configuration. For help regarding this, you can take a look at the [Backendless guide](https://backendless.com/documentation/messaging/android/messaging_push_notification_setup_androi.htm).
-
->**NOTE:**  
->Some of the steps in this tutorial include adding code to the app, these steps should be unnecessary as they have already been added to the project.
-
->**NOTE:**  
->If you want push notifications to work in Development mode make sure to configure them in your provisioning profile for both development and production.
-
-###Google Maps
-
-Copy the `permission.MAPS_RECEIVE` declared in the **app** manifest. Notice that you need to replace `com.braunster` with your package name.
-
-After that, you will need to add your API key in the manifest. After that Google Play services are added as a dependency by the SDK. Once you have your api key, just paste it in the manifest. Notice that you will have to sign you app to get the key.
+At the end of this file, add the following:
 
 ```
-<!-- Google Maps Metadata-->
-<meta-data
-    android:name="com.google.android.maps.v2.API_KEY"
-    android:value="YOUR API KEY"/>
+apply plugin: 'com.google.gms.google-services'
 ```
-
-There is more than one way to do it, this is how I do it but you can do it your own way.
-
-```
-signingConfigs {
-
-    debug {
-        storeFile file('this is your keystore file path')
-        keyAlias your alias'
-        keyPassword ‘your password’
-        storePassword 'your password'
-    }
-
-    release {
-        storeFile file('this is your keystore file path')
-        keyAlias your alias'
-        keyPassword ‘your password’
-        storePassword 'your password'
-    }
-}
-```
-
-If you are unable to see the map you may have an authentication problem, You need to add the package name and SHA to the credentials in your developer console.
-
-## Adding Chat SDK to an existing project
-
-In this example, we are going to create a new blank project using Android Studio and then we'll launch the Chat SDK on a button click. 
-
-You can download the project that is used in this tutorial [here](http://img.chatcatapp.com/chatsdk/SetupTutorial.zip). 
-
-#### Creating a new project
-1. Open Android Studio and click **File** -> **New** -> **New Project**
-2. Select API level 15 and click **Next**
-3. Select the **Basic Activity** project template
-4. Click **Finish**
-5. Check that you can compile the project. It should show a blank screen with a button in the bottom right
-
-#### Adding the Chat SDK Modules
-
-Next we are going to add the Chat SDK modules to the project. 
-
-1. Download the Chat SDK or clone it from Github
-2. Unzip the Chat SDK library and put in a convenient location
-2. Go back to your new project and click **File** -> **New** -> **Import Module**
-3. In the dialog navigate to the Chat SDK folder and select the **firebase_plugin** directory. Three modules will automatically be added into the dialog - sdk, country_picker and facebook
-4. Click **Finish**
-
-The modules have now been successfully imported. However, there will be a Gradle build error because we are missing some configuration. 
 
 #### Configuring the project
 
@@ -242,11 +162,11 @@ Now that the modules have been added, we need to configure the project.
 Now you will see that gradle cannot be sync because it missing some parameters. Open to **gradle.properties** file in the root of the project and add the following lines.
 
 ```
-MIN_SDK = 15
-ANDROID_BUILD_SDK_VERSION = 23
-ANDROID_BUILD_TOOLS_VERSION = 21.1.0
-ANDROID_BUILD_TARGET_SDK_VERSION = 23
-ANDROID_COMPILE_SDK_VERSION = 23
+MIN_SDK = 16
+ANDROID_BUILD_SDK_VERSION = 25
+ANDROID_BUILD_TOOLS_VERSION = 25.0.2
+ANDROID_BUILD_TARGET_SDK_VERSION = 25
+ANDROID_COMPILE_SDK_VERSION = 25
 ```
 
 > **Note:**
@@ -267,14 +187,20 @@ buildscript {
     }
     dependencies {
         //*** Make sure these lines are present ***
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
 allprojects {
+    if (OperatingSystem.current().isWindows()) {
+        buildDir = "C:/tmp/${rootProject.name}/${project.name}"
+    }
     repositories {
+        mavenCentral()
+        maven { url "https://jitpack.io" }
         jcenter()
+        maven { url "https://maven.google.com" }
     }
 }
 
@@ -282,99 +208,355 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 ```
-Now run Gradle to get the project ready to be compiled. The project should now compile without error. 
 
-At this point the Chat SDK has been added correctly but we still can't access the Chat SDK code from our app. To access the code, you need to open **build.gradle (Module: app)** and add the following line to the dependencies.
+Add any other modules that you need. Then sync the project with gradle. 
 
-```
+### Initializing the Chat SDK
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:design:25.1.0'
-    
-    //*** Add this line ***
-    compile project(':firebase_plugin')
-
-    testCompile 'junit:junit:4.12'
-}
-```
-
-Sync Gradle again and we are ready to launch the Chat SDK activity. 
-
-##Launching the Chat SDK login activity
-
-Open up your app's main activity. It should be in **App** -> **java** -> **Your app namespace** -> **Main Activity**
-
-Add the following imports.
+Now open your applications's main class and find the `onCreate` method. Add the following to setup the Chat SDK:
 
 ```
-import com.braunster.androidchatsdk.firebaseplugin.firebase.BAuthAdapter;
-import wanderingdevelopment.tk.sdkbaseui.UiHelpers.ChatSDKUiHelper;
-import com.braunster.chatsdk.network.BDefines;
-import com.braunster.chatsdk.network.BNetworkManager;
-import wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity;
-import android.content.Intent;
-```
+// Enable multi-dexing
+MultiDex.install(this);
 
-Next add the Chat SDK setup code to your `onCreate` method. 
+Context context = getApplicationContext();
 
-```
-// This is used for the app custom toast and activity transition 
-ChatSDKUiHelper.initDefault(); 
+// Initialize the Chat SDK
+ChatSDK.initialize(context, true);
 
-// Init the network manager
-BNetworkManager.init(getApplicationContext()); 
+// Activate the Firebase module
+FirebaseModule.activate(context);
 
-// Create a new adapter
-BChatcatNetworkAdapter adapter = new BChatcatNetworkAdapter(getApplicationContext());
+// File storage is needed for profile image upload and image messages
+FirebaseFileStorageModule.activate();
 
-// Set the adapter
-BNetworkManager.sharedManager().setNetworkAdapter(adapter); 
-```
+// Activate any other modules you need.
+// ...
 
-This code gets the Chat SDK ready to be launched. Now add the following code to launch the login activity.
+``` 
+
+>**Note**  
+>You may need to a the multi-dexing dependency
 
 ```
-Intent myIntent = new Intent(this, ChatSDKLoginActivity.class);
-startActivity(myIntent);
+compile 'com.android.support:multidex:1.0.1'
 ```
 
-If you want the Chat SDK to launch on a button click, you could add the following code to the button callback.
+Activate the core Chat SDK modules and any other modules you need. See the module setup guide for more information. 
+
+Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
 
 ```
-FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-fab.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View view) {
-        Intent myIntent = new Intent(MainActivity.this, ChatSDKLoginActivity.class);
-        MainActivity.this.startActivity(myIntent);
-    }
-});
-
-```
-
-The final step is to make the login activity available by adding it to our app manifest. Open the file **App** -> **manifests** -> **Android Manifest.xml** and add the following code below any existing activities that may be setup. 
-
-```
-<activity
-    android:name="wanderingdevelopment.tk.sdkbaseui.ActivityTemplates.ChatSDKLoginActivity"
-    android:label="@string/app_name"
-    android:screenOrientation="portrait"
-    android:theme="@style/SdkTheme"
-    android:windowSoftInputMode="stateHidden|adjustPan"
-    >
+<activity android:name="co.chatsdk.ui.login.LoginActivity">
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
     </intent-filter>
 </activity>
-
 ```
 
-Now run the app and you will see the Chat SDK login screen open when the app launches. 
+Or if you want to launch the activity manually, you can do it using:
 
-If you have any problems Firebase offer good [documentation](https://www.firebase.com/docs/android/quickstart.html) and Facebook has an [integration guide](https://developers.facebook.com/docs/android/getting-started).
+```
+InterfaceManager.shared().a.startLoginActivity(context, true);
+```
+
+## Firebase Setup
+
+1. Go to the [Firebase](http://firebase.com/) website and sign up or log in
+2. Go to the [Firebase console](https://console.firebase.google.com/) and make a new project
+3. Click **Add project**
+4. Choose a name and a location
+5. Click **Settings** (the gear icon). On the General tab, click **Add App -> Add Firebase to your Android app**
+6. Enter your package name, app name and SHA-1 key
+7. Download the **GoogleServices** file and add it to your app project. It should be added inside the `app` folder.
+
+  >**Note:**  
+  >It is worth opening your downloaded ```GoogleService-Info.plist``` and checking there is an ```API_KEY``` field included. Sometimes Firebase's automatic download doesn’t include this in the plist. To rectify, just re-download the plist from the project settings menu.  
+  
+8. Next copy the following lines to your **AndroidManifest.xml** file. 
+
+  ```
+  <meta-data android:name="firebase_url" android:value="@string/firebase_url" /> 
+  <meta-data android:name="firebase_root_path" android:value="@string/firebase_root_path" />
+  <meta-data android:name="firebase_storage_url" android:value="@string/firebase_storage_url" />
+
+  ```
+  
+  Create a resource file called **chat_sdk_firebase.xml** and set the following keys:
+  
+  ```
+  <string name="firebase_url">https://[YOUR APP].firebaseio.com</string>
+  <string name="firebase_root_path">ROOT PATH</string>
+  <string name="firebase_storage_url">gs://[YOUR APP].appspot.com</string>
+  ```  
+  >**Note**  
+  >The root path variable allows you to run multiple Chat SDK instances on one Firebase account. Each different root path will represent a completely separate set of Firebase data. This can be useful for testing because you could have separate path for testing and production.
+  
+  >**Note**   
+  > The file storage URL can be found in the Storage tab of the Firebase dashboard.
+
+9. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
+
+### Enabling location messages
+
+The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Maps API](https://developers.google.com/maps/documentation/android-api/) to display the location. 
+
+Then add the following to your `AndroidManifest.xml` file:
+
+```
+<meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/> 
+```
+
+Add this to your `chat_sdk_firebase.xml` file:
+
+```
+<string name="google_maps_api_key">YOUR KEY</string>
+```
+
+## Module Setup
+
+There are a number of free and premium extensions that can be added to the Chat SDK. 
+
+### Firebase Modules
+
+For the following modules:
+
+- Firebase File Storage (free)
+- Firebase Push Notifications (free)
+- Firebase Social Login (free)
+- [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
+- [Read receipts](http://chatsdk.co/downloads/read-receipts/)
+- [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
+- [Audio messages](http://chatsdk.co/downloads/audio-messages/)
+- [Video messages](http://chatsdk.co/downloads/video-messages/)
+- [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
+
+<HERE>
+
+The free modules are located in the [chat-sdk-ios/ChatSDKFirebase]() folder. The premium modules can be purchased and downloaded from the links provided above. 
+
+### Social Login
+
+Add the following to your `build.gradle`
+
+##### Gradle
+
+```
+<HERE>
+```
+
+##### Module Import
+
+```
+compile project(path: ':chat_sdk_firebase_social_login')
+```
+
+In your main class `onCreate` method add:
+
+```
+FirebaseSocialLoginModule.activate(getApplicationContext());
+```
+
+#### Facebook
+
+1. On the [Facebook developer](https://developers.facebook.com/) site get the **App ID** and **App Secret**
+2. Go to the [Firebase Console](https://console.firebase.google.com/) and open the **Auth** section
+3. On the **Sign in method** tab, enable the **Facebook** sign-in method and specify the **App ID** and **App Secret** you got from Facebook.
+4. Then, make sure your **OAuth redirect URI** (e.g. `my-app-12345.firebaseapp.com/__/auth/handler`) is listed as one of your **OAuth redirect URIs** in your Facebook app's settings page on the Facebook for Developers site in the **Product Settings > Facebook Login** config
+5. Add the following to your `AndroidManifest.xml`:
+
+  ```
+  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+  ``` 
+  
+  Add the following to your `chat_sdk_firebase.xml` file:
+  
+  ```
+  <string name="facebook_app_id">[FACEBOOK APP KEY]</string>
+  ```
+
+#### Twitter
+
+1. [Register your app](https://apps.twitter.com/) as a developer application on Twitter and get your app's **API Key** and **API Secret**.
+2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
+3. On the **Sign in method** tab, enable the **Twitter** sign-in method and specify the **API Key** and **API Secret** you got from Twitter.
+4. Then, make sure your Firebase **OAuth redirect URI** (e.g. `my-app-12345.firebaseapp.com/__/auth/handler`) is set as your **Callback URL** in your app's settings page on your [Twitter app's config](https://apps.twitter.com/).
+5. Add the following to your `AndroidManifest.xml`:
+
+  ```
+  <meta-data android:name="twitter_key" android:value="@string/twitter_key" />
+  <meta-data android:name="twitter_secret" android:value="@string/twitter_secret" />
+  ``` 
+  
+  Add the following to your `chat_sdk_firebase.xml` file:
+  
+  ```
+  <string name="twitter_key">[TWITTER KEY]</string>
+  <string name="twitter_secret">[TWITTER SECRET]</string>
+  ```
+
+#### Google
+  
+1. If you haven't yet specified your app's SHA-1 fingerprint, do so from the [Settings page](https://console.firebase.google.com/project/_/settings/general/) of the Firebase console. See [Authenticating Your Client](https://developers.google.com/android/guides/client-auth) for details on how to get your app's SHA-1 fingerprint.
+2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
+3. On the **Sign in method** tab, enable the **Google** sign-in method and click **Save**.
+4. You must pass your [server's client ID](https://developers.google.com/identity/sign-in/android/start-integrating#get_your_backend_servers_oauth_20_client_id) to the requestIdToken method. To find the OAuth 2.0 client ID.
+5. Open the [Credentials page](https://console.developers.google.com/apis/credentials) in the API Console.
+6. The **Web application type** client ID is your backend server's OAuth 2.0 client ID.
+7. Add the following to your `AndroidManifest.xml`:
+
+  ```
+  <meta-data android:name="google_web_client_id" android:value="@string/google_web_client_id" />
+  ``` 
+  
+  Add the following to your `chat_sdk_firebase.xml` file:
+  
+  ```
+  <string name="google_web_client_id">[CLIENT ID]</string>
+  ```
+  
+Social login can also be enabled or disabled by changing the Chat SDK [configuration](<HERE>).   
+
+### Push Notifications
+
+Add the following to your `build.gradle`
+
+##### Gradle
+
+```
+<HERE>
+```
+
+##### Module Import
+
+```
+compile project(path: ':chat_sdk_firebase_push')
+```
+
+In your main class `onCreate` method add:
+
+```
+FirebasePushModule.activate(new FirebasePushHandler.TokenPusher() {
+    @Override
+    public void pushToken() {
+        NM.core().pushUser();
+    }
+});
+```
+
+This code tells the SDK to request a Firebase push token and then add it to the user's profile when it's ready. 
+
+
+3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
+4. Add the following to your `AndroidManifest.xml`:
+
+  ```
+  <meta-data android:name="cloud_messaging_server_key" android:value="@string/firebase_cloud_messaging_server_key" />
+  ``` 
+  
+  Add the following to your `chat_sdk_firebase.xml` file:
+  
+  ```
+  <string name="firebase_cloud_messaging_server_key">[SERVER KEY]</string>
+  ```
+  
+### Other Modules
+
+For the following modules:
+
+- [Keyboard overlay](http://chatsdk.co/downloads/keyboard-overlay/)
+- [Sticker messages](http://chatsdk.co/downloads/sticker-messages/)
+- [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
+- [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
+- [Read receipts](http://chatsdk.co/downloads/read-receipts/)
+- [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
+- [Audio messages](http://chatsdk.co/downloads/audio-messages/)
+- [Video messages](http://chatsdk.co/downloads/video-messages/)
+- [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
+
+After you have purchased the module you will be provided with a link to the module source code. Unzip this file and import it into Android Studio.
+
+1. Click **File** -> **New** -> **Import Module**
+2. Add the module to your `build.gradle`
+
+  ```
+  compile project(path: ':chat_sdk_[module name]')
+  ```
+  
+3. Sync Gradle
+4. In your main class `onCreate` activate the module:
+
+  ```
+  ContactBookModule.activateForFirebase();
+  ```
+  
+  or 
+
+  ```
+  ContactBookModule.activateForXMPP();
+  ```
+
+### Security Rules
+
+Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
+
+Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-ios/blob/master/rules.json) file into the rules and click publish. 
+
+## Configuration
+
+There are a number of properties that can be customized in the Chat SDK. All the settings can be customized by overriding the `ConfigurationHandler`. 
+
+1. Make a new class that inherits from the `BaseConfigurationHandler`. Override the functions. Here's an example:
+
+  ```
+    @Override
+    public boolean booleanForKey(String key) {
+        switch (key) {
+            case AnonymousLoginEnabled:
+                return false;
+            case FacebookLoginEnabled:
+                return true;
+            case TwitterLoginEnabled:
+                return true;
+            case GoogleLoginEnabled:
+                return false;
+            default:
+                return super.booleanForKey(key);
+        }
+    }  
+  ```
+
+2. Set the configuration manager in your main class `onCreate` method:
+
+  ```
+  NetworkManager.shared().a.config = new ExampleConfigurationHandler();
+  ```
+  
+## The license
+
+We offer a choice of two license for this app. You can either use the [Chat SDK](https://chatsdk.co/chat-sdk-license/) license or the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) license. 
+
+Most Chat SDK users either want to add the Chat SDK to an app that will be released to the App Store or they want to use the Chat SDK in a project for their client. The **Chat SDK** license gives you complete flexibility to do this for free.
+
+**Chat SDK License Summary**
+
++ License does not expire.
++ Can be used for creating unlimited applications
++ Can be distributed in binary or object form only
++ Commercial use allowed
++ Can modify source-code but cannot distribute modifications (derivative works)
+
+If a user wants to distribute the Chat SDK source code, we feel that any additions or modifications they make to the code should be contributed back to the project. The GPLv3 license ensures that if source code is distributed, it must remain open source and available to the community.
+
+**GPLv3 License Summary**
+
++ Can modify and distribute source code
++ Commerical use allowed
++ Cannot sublicense or hold liable
++ Must include original license
++ Must disclose source 
+
+**What does this mean?**
+
+Please check out the [Licensing FAQ](https://github.com/chat-sdk/chat-sdk-ios/blob/master/LICENSE.md) for more information.

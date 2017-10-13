@@ -10,14 +10,14 @@ package co.chatsdk.ui.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,16 +40,15 @@ import io.reactivex.functions.Consumer;
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
-    private static int FILE_PERMISSION_REQUEST = 100;
-
     private boolean exitOnBackPressed = false;
+    LinearLayout mainView;
 
     protected EditText etEmail, etPass;
 
     /** Passed to the activity in the intent extras, Indicates that the activity was called after the user press the logout button,
      * That means the activity wont try to authenticate in inResume. */
 
-    private Button btnLogin, btnReg, btnAnon, btnTwitter, btnGoogle, btnFacebook;
+    private Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook;
     private ImageView appIconImage;
 
     @Override
@@ -60,9 +59,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         setExitOnBackPressed(true);
 
-        View view = findViewById(R.id.chat_sdk_root_view);
+        mainView = (LinearLayout) findViewById(R.id.chat_sdk_root_view);
 
-        setupTouchUIToDismissKeyboard(view);
+        setupTouchUIToDismissKeyboard(mainView);
+
+        getSupportActionBar().hide();
 
         initViews();
 
@@ -71,44 +72,33 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void initViews () {
 
         btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
-        btnAnon = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
+        btnAnonymous = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
         btnTwitter = (Button) findViewById(R.id.chat_sdk_btn_twitter_login);
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
         etEmail = (EditText) findViewById(R.id.chat_sdk_et_mail);
         etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
         btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
-
-        ConstraintSet set = new ConstraintSet();
-        set.clone((ConstraintLayout) findViewById(R.id.chat_sdk_root_view));
+        appIconImage = (ImageView) findViewById(R.id.app_icon);
 
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
-            set.constrainWidth(R.id.chat_sdk_btn_facebook_login, 0);
+            ((ViewGroup) btnFacebook.getParent()).removeView(btnFacebook);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Twitter)) {
-            set.constrainWidth(R.id.chat_sdk_btn_twitter_login, 0);
+            ((ViewGroup) btnTwitter.getParent()).removeView(btnTwitter);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Google)) {
-            set.constrainWidth(R.id.chat_sdk_btn_google_login, 0);
+            ((ViewGroup) btnGoogle.getParent()).removeView(btnGoogle);
         }
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
-            set.constrainHeight(R.id.chat_sdk_btn_anon_login, 0);
+            ((ViewGroup) btnAnonymous.getParent()).removeView(btnAnonymous);
         }
 
-        set.applyTo((ConstraintLayout) findViewById(R.id.chat_sdk_root_view));
 
         // TODO: Remove this
 //        etEmail.setText("ben");
 //        etPass.setText("123456");
 
-        appIconImage = (ImageView) findViewById(R.id.app_icon);
-
-        appIconImage.post(new Runnable() {
-            @Override
-            public void run() {
-                appIconImage.setVisibility(View.VISIBLE);
-            }
-        });
     }
 
     @Override
@@ -123,7 +113,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
-        btnAnon.setOnClickListener(this);
+        btnAnonymous.setOnClickListener(this);
         btnTwitter.setOnClickListener(this);
         btnFacebook.setOnClickListener(this);
         btnGoogle.setOnClickListener(this);

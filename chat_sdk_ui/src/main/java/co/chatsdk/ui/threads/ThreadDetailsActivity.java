@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.utils.DisposableList;
@@ -29,7 +28,6 @@ import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.Strings;
@@ -95,20 +93,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         actionBarView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
-                DialogUtils.ChatSDKEditTextDialog textDialog = DialogUtils.ChatSDKEditTextDialog.getInstace();
-                textDialog.setTitleAndListen(getString(R.string.thread_details_activity_change_name_dialog_title), new DialogUtils.ChatSDKEditTextDialog.EditTextDialogInterface() {
-                    @Override
-                    public void onFinished(String s) {
-                        actionBar.setTitle(s);
-                        thread.setName(s);
-                        DaoCore.updateEntity(thread);
-
-                        NM.thread().pushThread(thread);
-                    }
-                });
-
-                textDialog.show(getSupportFragmentManager(), DialogUtils.ChatSDKEditTextDialog.class.getSimpleName());
+                // TODO: Implement this
                 return true;
             }
         });

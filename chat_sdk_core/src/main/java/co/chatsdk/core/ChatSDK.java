@@ -70,7 +70,16 @@ public class ChatSDK {
     }
 
     public String firebaseURL () {
-        return appBundle.getString("firebase_url") + rootPath();
+        String url = appBundle.getString("firebase_url");
+        if(!url.substring(url.length() - 1).equals('/')) {
+            url += "/";
+        }
+        String rootPath = rootPath();
+        if(!rootPath.substring(rootPath.length() - 1).equals('/')) {
+            rootPath += "/";
+        }
+
+        return url + rootPath;
     }
 
     public String firebaseCloudMessagingServerKey () {
@@ -82,7 +91,7 @@ public class ChatSDK {
     }
 
     public String googleMapsApiKey () {
-        return appBundle.getString("google_maps_key");
+        return appBundle.getString("com.google.android.geo.API_KEY");
     }
     public String googleWebClientID () {
         return appBundle.getString("google_web_client_id");

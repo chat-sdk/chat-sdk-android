@@ -8,21 +8,22 @@
 package co.chatsdk.ui.helpers;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import java.util.concurrent.Callable;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.ui.R;
-
-import java.util.concurrent.Callable;
 
 /**
  * Helper to create special exit to your app.
  * See {@link Keys.Exit} for setting the app exit action.
  *
  */
+
+@Deprecated
 public class ExitHelper {
 
     private AppCompatActivity activity;
@@ -71,6 +72,8 @@ public class ExitHelper {
                 }
                 break;
         }
+
+
     }
 
     /** Close the app when called.*/

@@ -41,14 +41,18 @@ public class FirebasePaths{
     /** @return The main databse ref.*/
 
     public static DatabaseReference firebaseRef () {
-        if (StringUtils.isBlank(ChatSDK.shared().firebaseURL()))
+        if (StringUtils.isBlank(ChatSDK.shared().firebaseURL())) {
             throw new NullPointerException("Please set the server url in Keys class");
+        }
 
         return fb(ChatSDK.shared().firebaseURL());
     }
 
     /** @return Firebase object for give url.*/
-    private static DatabaseReference fb (String url){
+    private static DatabaseReference fb (String url) {
+        if(!url.substring(url.length() - 1).equals('/')) {
+            url += "/";
+        }
         return FirebaseDatabase.getInstance().getReferenceFromUrl(url);
     }
 

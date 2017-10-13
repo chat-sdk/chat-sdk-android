@@ -1,164 +1,117 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    android:id="@+id/chat_sdk_root_view"
-    xmlns:tools="http://schemas.android.com/tools">
-
+    android:id="@+id/chat_sdk_root_view">
 
     <ImageView
-        android:layout_width="124dp"
-        android:layout_height="112dp"
-        android:src="@drawable/ic_launcher_big"
         android:id="@+id/app_icon"
-        android:visibility="invisible"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        android:layout_marginTop="8dp"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="70dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_launcher_big" />
 
     <EditText
         android:id="@+id/chat_sdk_et_mail"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:ems="10"
         android:gravity="center"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:nextFocusDown="@+id/chat_sdk_et_password"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_conversion_absoluteHeight="42dp"
-        tools:layout_conversion_absoluteWidth="280dp"
-        tools:layout_conversion_absoluteX="20dp"
-        tools:layout_conversion_absoluteY="140dp"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/app_icon"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
 
     <EditText
         android:id="@+id/chat_sdk_et_password"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="center"
         android:hint="@string/password"
         android:inputType="textPassword"
-        tools:layout_conversion_absoluteHeight="42dp"
-        tools:layout_conversion_absoluteWidth="280dp"
-        tools:layout_conversion_absoluteX="20dp"
-        tools:layout_conversion_absoluteY="182dp"
         android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_et_mail"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginLeft="8dp" />
 
-    <Button
-        android:id="@+id/chat_sdk_btn_login"
-        style="@style/LoginButtonsStyle"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_weight="1"
-        android:background="@drawable/chat_sdk_login_button_selector"
-        android:text="@string/login"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/guideline"
-        android:layout_marginRight="4dp"
-        app:layout_constraintHorizontal_bias="1.0"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_et_password" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/chat_sdk_btn_register"
-        style="@style/LoginButtonsStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="4dp"
-        android:layout_weight="1"
-        android:background="@drawable/chat_sdk_register_button_selector"
-        android:text="@string/register"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="4dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_et_password"
-        app:layout_constraintHorizontal_bias="0.0" />
+        <Button
+            android:id="@+id/chat_sdk_btn_login"
+            style="@style/LoginButtonsStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/chat_sdk_login_button_selector"
+            android:text="@string/login"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/chat_sdk_et_password" />
+
+        <Button
+            android:id="@+id/chat_sdk_btn_register"
+            style="@style/LoginButtonsStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/chat_sdk_register_button_selector"
+            android:text="@string/register"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/chat_sdk_et_password" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/chat_sdk_btn_anon_login"
         style="@style/LoginButtonsStyle"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/chat_sdk_login_anonymously_button_selector"
         android:text="@string/anonymous_login"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_btn_register"
-        tools:layout_conversion_absoluteHeight="48dp"
-        tools:layout_conversion_absoluteWidth="269dp"
-        tools:layout_conversion_absoluteX="25dp"
-        tools:layout_conversion_absoluteY="298dp"
-        app:layout_constraintHorizontal_bias="0.6" />
+        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_btn_register" />
 
-
-    <android.support.constraint.Guideline
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/chat_sdk_btn_twitter_login"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/ic_twitter"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_btn_anon_login"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        <Button
+            android:id="@+id/chat_sdk_btn_twitter_login"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ic_twitter"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent" />
 
-    <Button
-        android:id="@+id/chat_sdk_btn_facebook_login"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/ic_facebook"
-        android:adjustViewBounds="true"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_btn_anon_login"
-        app:layout_constraintLeft_toRightOf="@+id/chat_sdk_btn_google_login"
-        android:layout_marginLeft="8dp" />
+        <Button
+            android:id="@+id/chat_sdk_btn_facebook_login"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ic_facebook"
+            android:layout_marginLeft="8dp" />
 
-    <Button
-        android:id="@+id/chat_sdk_btn_google_login"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/ic_google"
-        app:layout_constraintTop_toBottomOf="@+id/chat_sdk_btn_anon_login"
-        app:layout_constraintLeft_toRightOf="@+id/chat_sdk_btn_twitter_login"
-        android:layout_marginLeft="8dp" />
+        <Button
+            android:id="@+id/chat_sdk_btn_google_login"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ic_google"
+            android:layout_marginLeft="8dp" />
 
-
-</android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+</LinearLayout>

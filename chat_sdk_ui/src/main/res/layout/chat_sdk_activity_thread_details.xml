@@ -16,10 +16,9 @@
         android:id="@+id/frame_profile_image_container">
 
         <com.facebook.drawee.view.SimpleDraweeView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_users"
-            style="@style/CircleIconStyle"
             android:id="@+id/chat_sdk_thread_image_view"
             android:layout_centerInParent="true"
             android:layout_gravity="center"

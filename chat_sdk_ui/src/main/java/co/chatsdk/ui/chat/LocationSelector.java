@@ -42,11 +42,7 @@ public class LocationSelector {
     }
 
     private void processPickedLocation(int resultCode, Intent data) throws Exception {
-        if (resultCode == AppCompatActivity.RESULT_CANCELED) {
-            if (data.getExtras() == null)
-                return;
-        }
-        else if (resultCode == AppCompatActivity.RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             // Send the message, Params Latitude, Longitude, Base64 Representation of the messageImageView of the location, threadId.
             if(resultHandler != null) {
                 Place place = PlacePicker.getPlace(activity, data);

@@ -26,8 +26,8 @@ public class AppBackgroundMonitor {
         if(!NM.auth().userAuthenticated()) {
             return;
         }
-        this.activityTransitionTimer = new Timer();
-        this.activityTransitionTimerTask = new TimerTask() {
+        activityTransitionTimer = new Timer();
+        activityTransitionTimerTask = new TimerTask() {
             public void run() {
                 wasInBackground = true;
                 NM.core().goOffline();
@@ -39,15 +39,19 @@ public class AppBackgroundMonitor {
     }
 
     public void stopActivityTransitionTimer() {
-        if (this.activityTransitionTimerTask != null) {
-            this.activityTransitionTimerTask.cancel();
+        if (activityTransitionTimerTask != null) {
+            activityTransitionTimerTask.cancel();
         }
 
-        if (this.activityTransitionTimer != null) {
-            this.activityTransitionTimer.cancel();
+        if (activityTransitionTimer != null) {
+            activityTransitionTimer.cancel();
         }
 
-        this.wasInBackground = false;
+        if(wasInBackground) {
+            NM.core().goOnline();
+        }
+
+        wasInBackground = false;
     }
 
     public boolean wasInBackground () {

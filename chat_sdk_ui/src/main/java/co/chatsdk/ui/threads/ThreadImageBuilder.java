@@ -3,19 +3,9 @@ package co.chatsdk.ui.threads;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.facebook.common.executors.CallerThreadExecutor;
-import com.facebook.common.references.CloseableReference;
-import com.facebook.datasource.DataSource;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.core.ImagePipeline;
-import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber;
-import com.facebook.imagepipeline.image.CloseableImage;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,42 +26,13 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
+import static co.chatsdk.ui.utils.ImageBuilder.bitmapForURL;
+
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.
  */
 
 public class ThreadImageBuilder {
-
-    // TODO: Localize
-    public static Single<Bitmap> bitmapForURL (final Context context, final String url) {
-        return Single.create(new SingleOnSubscribe<Bitmap>() {
-            @Override
-            public void subscribe(@NonNull final SingleEmitter<Bitmap> e) throws Exception {
-                if(!StringChecker.isNullOrEmpty(url)) {
-                    Uri uri = Uri.parse(url);
-                    ImageRequest request = ImageRequestBuilder
-                            .newBuilderWithSource(uri)
-                            .build();
-                    ImagePipeline pipeline = Fresco.getImagePipeline();
-                    DataSource dataSource = pipeline.fetchDecodedImage(request, context);
-                    dataSource.subscribe(new BaseBitmapDataSubscriber() {
-                        @Override
-                        protected void onNewResultImpl(Bitmap bitmap) {
-                            e.onSuccess(bitmap);
-                        }
-
-                        @Override
-                        protected void onFailureImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
-                            e.onError(new Throwable("Unable to load image"));
-                        }
-                    }, CallerThreadExecutor.getInstance());
-                }
-                else {
-                    e.onError(new Throwable("Unable to load image"));
-                }
-            }
-        });
-    }
 
     public static void load (final SimpleDraweeView imageView, final Thread thread) {
 

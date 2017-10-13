@@ -1,22 +1,20 @@
 package co.chatsdk.firebase;
 
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.types.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.dao.User;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractCoreHandler;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
@@ -60,8 +58,6 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable setUserOnline() {
-
-        DatabaseReference.goOffline();
 
         User current = NM.currentUser();
         if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
