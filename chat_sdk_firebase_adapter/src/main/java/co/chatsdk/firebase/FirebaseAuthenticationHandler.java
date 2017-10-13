@@ -2,53 +2,37 @@ package co.chatsdk.firebase;
 
 import android.support.annotation.NonNull;
 
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.base.BaseHookHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AuthKeys;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.types.ChatError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
+import co.chatsdk.core.base.BaseConfigurationHandler;
+import co.chatsdk.core.base.BaseHookHandler;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.enums.AuthStatus;
-import co.chatsdk.core.types.AccountType;
-import co.chatsdk.core.utils.AppContext;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.types.AccountDetails;
+import co.chatsdk.core.types.AuthKeys;
+import co.chatsdk.core.types.ChatError;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
@@ -58,16 +42,13 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    private static boolean DEBUG = Debug.FirebaseAuthenticationHandler;
-
     public Completable authenticateWithCachedToken() {
         return Single.create(new SingleOnSubscribe<FirebaseUser>() {
             @Override
             public void subscribe(final SingleEmitter<FirebaseUser> e) throws Exception {
 
                 if (isAuthenticating()) {
-                    if (DEBUG) Timber.d("Already Authing!, Status: %s", getAuthStatus().name());
-                    e.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant run two auth in parallel"));
+                    e.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
                 }
                 else {
                     setAuthStatus(AuthStatus.CHECKING_IF_AUTH);
@@ -104,9 +85,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 if (isAuthenticating())
                 {
-                    if (DEBUG) Timber.d("Already Authenticating!, Status: %s", getAuthStatus().name());
-
-                    e.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Can't run two auth in parallel"));
+                    e.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Can't execute two auth in parallel"));
                     return;
                 }
 
@@ -143,7 +122,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     case Facebook:
                     case Twitter:
                     default:
-                        if (DEBUG) Timber.d("No login type was found");
                         e.onError(ChatError.getError(ChatError.Code.NO_LOGIN_TYPE, "No matching login type was found"));
                         break;
                 }
@@ -185,8 +163,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 wrapper.once().subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-
-                        if (DEBUG) Timber.v("OnDone, user was pulled from firebase.");
                         wrapper.getModel().update();
 
                         FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
@@ -300,7 +276,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            if(DEBUG) Timber.v("Email sent");
                             e.onComplete();
                         } else {
                             e.onError(getFirebaseError(DatabaseError.fromException(task.getException())));

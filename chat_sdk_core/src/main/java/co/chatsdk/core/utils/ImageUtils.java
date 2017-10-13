@@ -15,24 +15,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
-
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.types.Defines;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,10 +30,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import co.chatsdk.core.ChatSDK;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
+
 
 public class ImageUtils {
     public static final String TAG = ImageUtils.class.getSimpleName();
-    public static final boolean DEBUG = Debug.ImageUtils;
 
     /**
      * Constructing a bitmap that contains the given bitmaps(max is three).
@@ -110,7 +101,7 @@ public class ImageUtils {
         return image;
     }
 
-    public static int calculateInSampleSize(
+    public static int calculateInSampleSize (
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -416,11 +407,11 @@ public class ImageUtils {
     }
 
     public static String saveToInternalStorage(Bitmap bitmapImage, String name){
-        ContextWrapper cw = new ContextWrapper(AppContext.shared().context());
+        ContextWrapper cw = new ContextWrapper(ChatSDK.shared().context());
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         // Create imageDir
-        String fileName = "profile_"+name+".jpg";
+        String fileName = "chat_sdk_"+name+".jpg";
         File mypath = new File(directory,fileName);
 
         FileOutputStream fos = null;
@@ -441,56 +432,6 @@ public class ImageUtils {
         return mypath.toString();
     }
 
-    public static Single<Bitmap> bitmapForURL (final String url) {
-        return Single.create(new SingleOnSubscribe<Bitmap>() {
-            @Override
-            public void subscribe(final SingleEmitter<Bitmap> e) throws Exception {
-                // Try to load it locally if it exists
-                File f = new File(url);
-                Bitmap bitmap = null;
-                if(f.exists()) {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                    bitmap = BitmapFactory.decodeFile(url, options);
-                }
-                if(bitmap != null) {
-                    e.onSuccess(bitmap);
-                }
-                else {
-                    Picasso.with(AppContext.shared().context()).load(url).into(new Target() {
-
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            e.onSuccess(bitmap);
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
-                            // TODO: Localize
-                            e.onError(new Throwable("Unable to load image"));
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
-//                    Ion.with(AppContext.shared().context()).load(url).asBitmap().setCallback(new FutureCallback<Bitmap>() {
-//                        @Override
-//                        public void onCompleted(Exception exception, Bitmap result) {
-//                            if(exception == null) {
-//                                e.onSuccess(result);
-//                            }
-//                            else {
-//                                e.onError(exception);
-//                            }
-//                        }
-//                    });
-
-                }
-            }
-        });
-    }
 }
 
 

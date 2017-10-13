@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,9 +16,9 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
 import com.soundcloud.android.crop.Crop;
@@ -34,21 +35,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.Cropper;
 import co.chatsdk.ui.utils.ToastHelper;
-import co.chatsdk.ui.utils.UserAvatarHelper;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
@@ -60,7 +58,7 @@ public class EditProfileActivity extends BaseActivity {
 
     public static final int PROFILE_PIC = 100;
 
-    private CircleImageView avatarImageView;
+    private SimpleDraweeView avatarImageView;
     private EditText statusEditText;
     private Spinner availabilitySpinner;
     private EditText nameEditText;
@@ -101,7 +99,7 @@ public class EditProfileActivity extends BaseActivity {
 
     private void initViews() {
 
-        avatarImageView = (CircleImageView) findViewById(R.id.ivAvatar);
+        avatarImageView = (SimpleDraweeView) findViewById(R.id.ivAvatar);
         statusEditText = (EditText) findViewById(R.id.etStatus);
         availabilitySpinner = (Spinner) findViewById(R.id.spAvailability);
         nameEditText = (EditText) findViewById(R.id.etName);
@@ -133,9 +131,7 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
-        UserAvatarHelper.loadAvatar(currentUser, avatarImageView)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+        avatarImageView.setImageURI(currentUser.getAvatarURL());
 
         if (StringUtils.isNotEmpty(countryCode)){
             Locale l = new Locale("", countryCode);
@@ -215,7 +211,7 @@ public class EditProfileActivity extends BaseActivity {
                 .subscribe(new Action() {
             @Override
             public void run() throws Exception {
-                InterfaceManager.shared().a.startLoginActivity(false);
+                InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -282,7 +278,7 @@ public class EditProfileActivity extends BaseActivity {
                 }
             }
             catch (NullPointerException e){
-                ToastHelper.show(R.string.unable_to_fetch_image);
+                ToastHelper.show(this, R.string.unable_to_fetch_image);
             }
         }
     }

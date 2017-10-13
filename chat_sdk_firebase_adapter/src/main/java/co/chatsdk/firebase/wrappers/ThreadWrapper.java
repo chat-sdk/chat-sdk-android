@@ -7,29 +7,10 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.base.BaseHookHandler;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.firebase.FirebaseEntity;
-import co.chatsdk.firebase.FirebasePaths;
-
-
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.DaoCore;
-
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -40,7 +21,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.base.BaseConfigurationHandler;
+import co.chatsdk.core.base.BaseHookHandler;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -57,8 +51,6 @@ import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class ThreadWrapper  {
-    
-    public static final boolean DEBUG = Debug.Thread;
 
     private Thread model;
 
@@ -96,9 +88,7 @@ public class ThreadWrapper  {
                             deserialize((Map<String, Object>)dataSnapshot.getValue());
                         }
 
-                        if(NM.readReceipts() != null) {
-                            NM.readReceipts().updateReadReceipts(model);
-                        }
+                        updateReadReceipts();
 
                         e.onNext(model);
                     }
@@ -134,9 +124,7 @@ public class ThreadWrapper  {
                             deserialize((Map<String, Object>)dataSnapshot.getValue());
                         }
 
-                        if(NM.readReceipts() != null) {
-                            NM.readReceipts().updateReadReceipts(model);
-                        }
+                        //updateReadReceipts();
 
                         e.onComplete();
                     }
@@ -153,9 +141,12 @@ public class ThreadWrapper  {
     /**
      * Stop listening to thread details change
      **/
-    public void off(){
+    public void off() {
         final DatabaseReference ref = FirebasePaths.threadDetailsRef(model.getEntityID());
         FirebaseReferenceManager.shared().removeListener(ref);
+        if(NM.typingIndicator() != null) {
+            NM.typingIndicator().typingOff(model);
+        }
     }
 
     /**
@@ -226,8 +217,8 @@ public class ThreadWrapper  {
 
                                     if (newMessage) {
                                         e.onNext(message.getModel());
-                                        updateReadReceipts();
                                     }
+                                    updateReadReceipts();
                                 }
                             }
                         }));
@@ -243,11 +234,8 @@ public class ThreadWrapper  {
      * Stop Lisetenig to incoming messages.
      **/
     public void messagesOff() {
-
-        if (DEBUG) Timber.v("messagesOff");
         DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
         FirebaseReferenceManager.shared().removeListener(ref);
-
     }
 
     //Note the old listener that was used to process the thread bundle is still in use.
@@ -351,8 +339,6 @@ public class ThreadWrapper  {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
-                if (DEBUG) Timber.v("deleteThread");
-
                 // TODO: Check this
                 if (model.typeIs(ThreadType.Public)) {
                     e.onComplete();
@@ -438,9 +424,7 @@ public class ThreadWrapper  {
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
-                            if (snapshot.getValue() != null)
-                            {
-                                if (DEBUG) Timber.d("MessagesSnapShot: %s", snapshot.getValue().toString());
+                            if (snapshot.getValue() != null) {
 
                                 List<Message> messages = new ArrayList<Message>();
 
@@ -515,10 +499,7 @@ public class ThreadWrapper  {
     @SuppressWarnings("all") // To remove setType warning.
     void deserialize(Map<String, Object> value){
 
-        if (DEBUG) Timber.d("Update from map. Id: %s", model.getEntityID());
-
         if (value == null) {
-            if (DEBUG) Timber.e("CoreThread update from map is null, CoreThread ID: %s", model.getEntityID());
             return;
         }
 
@@ -561,7 +542,7 @@ public class ThreadWrapper  {
             this.model.setName((String) value.get(Keys.Name));
         }
 
-        this.model.setImageURL((String) value.get(Keys.ImageUrl));
+        this.model.setImageUrl((String) value.get(Keys.ImageUrl));
         this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
         
         DaoCore.updateEntity(this.model);

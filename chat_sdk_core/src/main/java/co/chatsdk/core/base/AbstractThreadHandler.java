@@ -14,13 +14,12 @@ import java.util.List;
 import java.util.UUID;
 
 import co.chatsdk.core.NM;
-
 import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.dao.sorter.ThreadsSorter;
@@ -36,7 +35,7 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.core.utils.StringUtils;
+import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -188,7 +187,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                     @Override
                     public void onNext(FileUploadResult result) {
-                        if(!StringUtils.isNullOrEmpty(result.url))  {
+                        if(!StringChecker.isNullOrEmpty(result.url))  {
 
                             message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
 

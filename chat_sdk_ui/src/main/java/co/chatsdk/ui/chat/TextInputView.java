@@ -19,33 +19,25 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import co.chatsdk.core.NM;
+import java.lang.ref.WeakReference;
+
 import co.chatsdk.core.audio.Recording;
-import co.chatsdk.core.utils.StringUtils;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.InfiniteToast;
-import co.chatsdk.ui.utils.Utils;
 
-public class TextInputView extends LinearLayout implements View.OnClickListener , View.OnKeyListener, TextView.OnEditorActionListener{
+public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
-    public static final String TAG = TextInputView.class.getSimpleName();
-    public static final boolean DEBUG = Debug.ChatMessageBoxView;
-
-    protected Listener listener;
     protected ImageButton btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
-    protected PopupWindow optionPopup;
     protected boolean audioModeEnabled = false;
     protected boolean recordOnPress = false;
     protected Recording recording = null;
     protected InfiniteToast toast;
+    protected WeakReference<TextInputDelegate> delegate;
 
     public TextInputView(Context context) {
         super(context);
@@ -60,6 +52,10 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     public TextInputView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
+    }
+
+    public void setDelegate (TextInputDelegate delegate) {
+        this.delegate = new WeakReference<>(delegate);
     }
 
     protected void init(){
@@ -77,10 +73,20 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
         super.onFinishInflate();
         initViews();
 
-        if (isInEditMode())
+        if (isInEditMode()) {
             return;
+        }
 
-        btnSend.setOnClickListener(this);
+        btnSend.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!recordOnPress) {
+                    if (delegate != null) {
+                        delegate.get().onSendPressed(getMessageText());
+                    }
+                }
+            }
+        });
 
         // Handle recording when the record button is held down
         btnSend.setOnTouchListener(new OnTouchListener() {
@@ -99,8 +105,8 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
                     if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         if(recording != null) {
                             recording.stop();
-                            if(listener != null) {
-                                listener.sendAudio(recording);
+                            if(delegate != null) {
+                                delegate.get().sendAudio(recording);
                                 recording = null;
                             }
                         }
@@ -113,11 +119,30 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
             }
         });
 
-        btnOptions.setOnClickListener(this);
+        btnOptions.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showOption();
+            }
+        });
 
         etMessage.setOnEditorActionListener(this);
         etMessage.setOnKeyListener(this);
         etMessage.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+        etMessage.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean focus) {
+                if(delegate != null) {
+                    if(focus) {
+                        delegate.get().onKeyboardShow();
+                    }
+                    else {
+                        delegate.get().onKeyboardHide();
+                    }
+                }
+            }
+        });
 
         etMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -127,8 +152,8 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(listener != null) {
-                    listener.startTyping();
+                if(delegate != null) {
+                    delegate.get().startTyping();
                 }
             }
 
@@ -146,7 +171,7 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     }
 
     public void updateSendButton () {
-        if(StringUtils.isNullOrEmpty(getMessageText()) && audioModeEnabled) {
+        if(StringChecker.isNullOrEmpty(getMessageText()) && audioModeEnabled) {
             btnSend.setBackgroundResource(R.drawable.ic_36_mic);
             recordOnPress = true;
         }
@@ -157,70 +182,24 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     }
 
     /** Show the message option popup, From here the user can send images and location messages.*/
-    public void showOptionPopup () {
-        if (optionPopup!= null && optionPopup.isShowing()) {
-            return;
-        }
-
-        optionPopup = DialogUtils.getMenuOptionPopup(getContext(), this);
-        optionPopup.showAsDropDown(btnOptions);
-    }
-
-    public void dismissOptionPopup() {
-        if (optionPopup != null) {
-            optionPopup.dismiss();
+    public void showOption () {
+        if(delegate != null) {
+            delegate.get().showOptions();
         }
     }
 
-    /* Implement listeners.*/
-    @Override
-    public void onClick(View v) {
-        int id= v.getId();
-
-        if (id == R.id.chat_sdk_btn_chat_send_message) {
-            if(!recordOnPress) {
-                if (listener != null) {
-                    listener.onSendPressed(getMessageText());
-                }
-            }
-        }
-        else if (id == R.id.chat_sdk_btn_options) {
-            showOptionPopup();
-        }
-        else  if (id == R.id.chat_sdk_btn_choose_picture) {
-            dismissOptionPopup();
-            if (listener != null) {
-                listener.onPickImagePressed();
-            }
-        }
-        else  if (id == R.id.chat_sdk_btn_take_picture) {
-            if (!Utils.SystemChecks.checkCameraHardware(getContext())) {
-                // TODO: Localize this
-                Toast.makeText(getContext(), "This device does not have a camera.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            dismissOptionPopup();
-
-            if (listener != null) {
-                listener.onTakePhotoPressed();
-            }
-        }
-        else  if (id == R.id.chat_sdk_btn_location) {
-            dismissOptionPopup();
-
-            if (listener != null) {
-                listener.onLocationPressed();
-            }
+    public void hideOption () {
+        if(delegate != null) {
+            delegate.get().hideOptions();
         }
     }
 
     /** Send a text message when the done button is pressed on the keyboard.*/
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEND)
-            if (listener!=null)
-                listener.onSendPressed(getMessageText());
+        if (actionId == EditorInfo.IME_ACTION_SEND && delegate != null) {
+            delegate.get().onSendPressed(getMessageText());
+        }
 
         return false;
     }
@@ -228,8 +207,8 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // if enter is pressed start calculating
-        if(listener != null) {
-            listener.startTyping();
+        if(delegate != null) {
+            delegate.get().startTyping();
         }
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
             int editTextLineCount = ((EditText) v).getLineCount();
@@ -237,10 +216,6 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
                 return true;
         }
         return false;
-    }
-
-    public void setListener(Listener listener) {
-        this.listener = listener;
     }
 
     public String getMessageText(){
@@ -252,14 +227,5 @@ public class TextInputView extends LinearLayout implements View.OnClickListener 
     }
 
 
-    public interface Listener {
-        void onLocationPressed();
-        void onTakePhotoPressed();
-        void onPickImagePressed();
-        void onSendPressed(String text);
-        void startTyping();
-        void sendAudio (Recording recording);
-        void stopTyping();
-    }
 
 }

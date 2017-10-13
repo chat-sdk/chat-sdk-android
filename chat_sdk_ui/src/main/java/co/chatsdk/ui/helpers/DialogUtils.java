@@ -8,66 +8,33 @@
 package co.chatsdk.ui.helpers;
 
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.DialogFragment;
 import android.content.Context;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Display;
+import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.ui.utils.Utils;
-import co.chatsdk.core.dao.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.concurrent.Callable;
 
+import co.chatsdk.ui.R;
 import timber.log.Timber;
-import uk.co.senab.photoview.PhotoView;
 
 public class DialogUtils {
-
-    public static final String TAG = DialogUtils.class.getSimpleName();
-    public static final boolean DEBUG = Debug.DialogUtils;
 
     /** A dialog that contain editText, Response from dialog is received through the interface.*/
     // TODO: Remove this
@@ -143,33 +110,6 @@ public class DialogUtils {
         }
     }
 
-
-
-
-    /** A popup to select the type of message to send, "Text", "Image", "Location".*/
-    public static PopupWindow getMenuOptionPopup(Context context, View.OnClickListener listener){
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.chat_sdk_popup_options, null);
-        PopupWindow optionPopup = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupView.findViewById(R.id.chat_sdk_btn_choose_picture).setOnClickListener(listener);
-        popupView.findViewById(R.id.chat_sdk_btn_take_picture).setOnClickListener(listener);
-        popupView.findViewById(R.id.chat_sdk_btn_location).setOnClickListener(listener);
-
-        if (!NM.config().booleanForKey(BaseConfigurationHandler.LocationMessagesEnabled)){
-            popupView.findViewById(R.id.chat_sdk_btn_location).setVisibility(View.GONE);
-        }
-        
-        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-
-        // TODO fix popup size to wrap view size.
-        optionPopup.setContentView(popupView);
-        optionPopup.setBackgroundDrawable(new BitmapDrawable());
-        optionPopup.setOutsideTouchable(true);
-        optionPopup.setWidth(popupView.getMeasuredWidth());
-        optionPopup.setHeight(popupView.getMeasuredHeight());
-        return optionPopup;
-    }
-
     /** Full screen popup for showing an image in greater size.*/
     public static ImagePopupWindow getImageDialog(final Context context, String data, final ImagePopupWindow.LoadTypes loadingType){
         return getImageDialog(context, data, loadingType, false, "");
@@ -230,70 +170,71 @@ public class DialogUtils {
             this.popupView = popupView;
         }
 
-        public void load (){
-            // Dismiss popup when clicked.
-            popupView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dismiss();
-                }
-            });
+        public void load () {
 
-            final PhotoView imageView = (PhotoView) popupView.findViewById(R.id.photo_view);
-            final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+            Timber.v("HERE");
 
-            switch (loadingType)
-            {
-
-                // TODO: Check this
-                case LOAD_FROM_URL:
-                    if (DEBUG) Timber.d("load from url");
-
-                    progressBar.setVisibility(View.VISIBLE);
-
-                    Picasso.with(context).load(data).into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            imageView.setImageBitmap(bitmap);
-
-                            if (saveToDir) {
-                                File file, dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
-                                if (dir != null) {
-                                    if(dir.exists()) {
-                                        file = new File(dir, imageName + ".jpg");
-
-                                        if (!file.exists()) {
-                                            ImageUtils.saveBitmapToFile(file, bitmap);
-
-                                            ImageUtils.scanFilePathForGallery(context, file.getPath());
-
-                                        }
-                                    }
-                                }
-                            }
-                            animateIn(imageView, progressBar);
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
-                            ToastHelper.show(R.string.unable_to_fetch_image);
-                            progressBar.setVisibility(View.GONE);
-                            dismiss();
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
-
-                case LOAD_FROM_PATH:
-                    if (DEBUG) Timber.d("load from path");
-                    imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
-                    animateIn(imageView, progressBar);
-                    break;
-            }
+//            // Dismiss popup when clicked.
+//            popupView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    dismiss();
+//                }
+//            });
+//
+//            final PhotoView imageView = (PhotoView) popupView.findViewById(R.id.photo_view);
+//            final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+//
+//            switch (loadingType)
+//            {
+//
+//                // TODO: Check this
+//                case LOAD_FROM_URL:
+//
+//                    progressBar.setVisibility(View.VISIBLE);
+//
+//                    Picasso.with(context).load(data).into(new Target() {
+//                        @Override
+//                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//                            imageView.setImageBitmap(bitmap);
+//
+//                            if (saveToDir) {
+//                                File file, dir = Utils.ImageSaver.getAlbumStorageDir(NM.config().stringForKey(BaseConfigurationHandler.ImageDirectoryName));
+//                                if (dir != null) {
+//                                    if(dir.exists()) {
+//                                        file = new File(dir, imageName + ".jpg");
+//
+//                                        if (!file.exists()) {
+//                                            ImageUtils.saveBitmapToFile(file, bitmap);
+//
+//                                            ImageUtils.scanFilePathForGallery(context, file.getPath());
+//
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            animateIn(imageView, progressBar);
+//                            progressBar.setVisibility(View.GONE);
+//                        }
+//
+//                        @Override
+//                        public void onBitmapFailed(Drawable errorDrawable) {
+//                            ToastHelper.show(R.string.unable_to_fetch_image);
+//                            progressBar.setVisibility(View.GONE);
+//                            dismiss();
+//                        }
+//
+//                        @Override
+//                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                        }
+//                    });
+//
+//                case LOAD_FROM_PATH:
+//                    imageView.setImageBitmap(ImageUtils.loadBitmapFromFile(data));
+//                    animateIn(imageView, progressBar);
+//                    break;
+//            }
         }
 
         private void animateIn(final ImageView imageView, final ProgressBar progressBar){

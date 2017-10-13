@@ -10,30 +10,14 @@ package co.chatsdk.firebase.wrappers;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.LinkedAccount;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
-import co.chatsdk.core.types.AuthKeys;
-import co.chatsdk.firebase.FirebaseEntity;
-import co.chatsdk.firebase.FirebasePaths;
-
-
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.DaoCore;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
@@ -43,6 +27,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.base.BaseConfigurationHandler;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.firebase.FirebaseEntity;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
@@ -51,15 +45,12 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 
 public class UserWrapper {
 
-    private static final boolean DEBUG = Debug.User;
-    
     private static final String USER_PREFIX = "user";
     private User model;
 
@@ -113,7 +104,7 @@ public class UserWrapper {
         }
 
         // Setting the name.
-        if (StringUtils.isNotBlank(name) && StringUtils.isBlank(model.getName())) {
+        if (!StringChecker.isNullOrEmpty(name) && StringChecker.isNullOrEmpty(model.getName())) {
             model.setName(name);
         }
         else {
@@ -121,11 +112,11 @@ public class UserWrapper {
         }
 
         // Setting the email.//
-        if (StringUtils.isNotBlank(email) && StringUtils.isBlank(model.getEmail())) {
+        if (!StringChecker.isNullOrEmpty(email) && StringChecker.isNullOrEmpty(model.getEmail())) {
             model.setEmail(email);
         }
 
-        if (StringUtils.isNotBlank(profileURL) && StringUtils.isBlank(model.getAvatarURL())) {
+        if (!StringChecker.isNullOrEmpty(profileURL) && StringChecker.isNullOrEmpty(model.getAvatarURL())) {
             model.setAvatarURL(profileURL);
             model.setThumbnailURL(profileURL);
         }
@@ -182,7 +173,6 @@ public class UserWrapper {
             public void subscribe(final CompletableEmitter e) throws Exception {
 
                 final DatabaseReference ref = ref();
-                if (DEBUG) Timber.v("once, EntityID: %s, Ref Path: %s", model.getEntityID(), ref.toString());
 
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -243,8 +233,7 @@ public class UserWrapper {
 
 
     void deserialize(Map<String, Object> value){
-        if (DEBUG) Timber.v("deserialize, Value is null? %s", value == null);
-        
+
         if (value != null)
         {
             if (value.containsKey(Keys.Online) && !value.get(Keys.Online).equals("")) {
@@ -258,22 +247,15 @@ public class UserWrapper {
     }
 
     void deserializeMeta(Map<String, Object> value){
-        if (DEBUG) Timber.v("deserializeMeta, Value: %s", value);
-        
-        if (value != null)
-        {
+        if (value != null) {
             Map<String, Object> oldData = model.metaMap();
             Map<String, Object> newData = value;
 
-            if (DEBUG) Timber.v("deserializeMeta, OldDataMap: %s", oldData);
-            
             // Updating the old bundle
-            for (String key : newData.keySet())
-            {
-                if (DEBUG) Timber.d("key: %s, Value: %s", key, newData.get(key));
-                
-                if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key)))
+            for (String key : newData.keySet()) {
+                if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
                     oldData.put(key, newData.get(key));
+                }
             }
 
             model.setMetaMap(oldData);

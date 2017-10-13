@@ -1,5 +1,6 @@
 package co.chatsdk.ui.utils;
 
+import android.content.Context;
 import android.support.annotation.StringRes;
 
 import org.apache.commons.lang3.StringUtils;
@@ -7,12 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import co.chatsdk.core.ChatSDK;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.utils.AppContext;
 import co.chatsdk.ui.R;
 
 /**
@@ -21,8 +22,12 @@ import co.chatsdk.ui.R;
 
 public class Strings {
 
+    public static String t (Context context, @StringRes int resId) {
+        return context.getString(resId);
+    }
+
     public static String t (@StringRes int resId) {
-        return AppContext.shared().context().getString(resId);
+        return t(ChatSDK.shared().context(), resId);
     }
 
     public static String payloadAsString (Message message) {
@@ -61,7 +66,7 @@ public class Strings {
         if (StringUtils.isNotEmpty(thread.getName()))
             return thread.getName();
 
-        // Due to the bundle printing when the app run on debug this sometime is null.
+        // Due to the bundle printing when the app execute on debug this sometime is null.
         User currentUser = NM.currentUser();
         String name = "";
 

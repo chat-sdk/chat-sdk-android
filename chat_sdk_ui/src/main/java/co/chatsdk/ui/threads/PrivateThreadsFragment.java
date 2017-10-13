@@ -8,45 +8,42 @@
 package co.chatsdk.ui.threads;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
+import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.R;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public class PrivateThreadsFragment extends BaseFragment {
 
-    protected ListView threadsListView;
+    protected RecyclerView recyclerView;
     protected ThreadsListAdapter adapter;
-    protected ProgressBar progressBar;
 
     protected boolean inflateMenuItems = true;
-
-    protected AdapterView.OnItemLongClickListener onItemLongClickListener;
-    protected AdapterView.OnItemClickListener onItemClickListener;
 
     public static PrivateThreadsFragment newInstance() {
         PrivateThreadsFragment f = new PrivateThreadsFragment();
@@ -68,11 +65,20 @@ public class PrivateThreadsFragment extends BaseFragment {
                         reloadData();
                     }
                 });
+
+        NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        adapter.setTyping(networkEvent.thread, networkEvent.text);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     public void initViews() {
-        threadsListView = (ListView) mainView.findViewById(R.id.list_threads);
-        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progress_bar);
+        recyclerView = (RecyclerView) mainView.findViewById(R.id.list_threads);
         initList();
     }
 
@@ -80,65 +86,54 @@ public class PrivateThreadsFragment extends BaseFragment {
 
         // Create the adapter only if null, This is here so we wont
         // override the adapter given from the extended class with setAdapter.
-        if (adapter == null) {
-            adapter = new ThreadsListAdapter((AppCompatActivity) getActivity());
-        }
+        adapter = new ThreadsListAdapter(getActivity());
 
-        threadsListView.setAdapter(adapter);
-        threadsListView.setClickable(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setClickable(true);
 
-        if (onItemClickListener == null) {
-            onItemClickListener = new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    InterfaceManager.shared().a.startChatActivityForID(adapter.getItem(position).getEntityID());
-                }
-            };
-        }
+        adapter.onClickObservable().subscribe(new Consumer<Thread>() {
+            @Override
+            public void accept(@NonNull Thread thread) throws Exception {
+                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
+            }
+        });
 
-        threadsListView.setOnItemClickListener(onItemClickListener);
+        adapter.onLongClickObservable().subscribe(new Consumer<Thread>() {
+            @Override
+            public void accept(@NonNull final Thread thread) throws Exception {
+                DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                        getResources().getString(R.string.cancel), null, new Callable() {
+                            @Override
+                            public Object call() throws Exception {
+                                NM.thread().deleteThread(thread)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new CompletableObserver() {
+                                            @Override
+                                            public void onSubscribe(Disposable d) {
+                                            }
 
-        if (onItemLongClickListener == null) {
-            onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                    DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                            getResources().getString(R.string.cancel), null, new Callable() {
-                                @Override
-                                public Object call() throws Exception {
-                                    NM.thread().deleteThread(adapter.getItem(position).getThread())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new CompletableObserver() {
-                                        @Override
-                                        public void onSubscribe(Disposable d) {
-                                        }
+                                            @Override
+                                            public void onComplete() {
+                                                reloadData();
+                                                ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
+                                            }
 
-                                        @Override
-                                        public void onComplete() {
-                                            reloadData();
-                                            ToastHelper.show(getString(R.string.delete_thread_success_toast));
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            ToastHelper.show(getString(R.string.delete_thread_fail_toast));
-                                        }
-                                    });
-                                    return null;
-                                }
-                            });
-                    return true;
-                }
-            };
-        }
-
-        threadsListView.setOnItemLongClickListener(onItemLongClickListener);
+                                            @Override
+                                            public void onError(Throwable e) {
+                                                ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
+                                            }
+                                        });
+                                return null;
+                            }
+                        });
+            }
+        });
     }
 
     public void clearData() {
         if (adapter != null) {
-            adapter.getAllItems().clear();
-            adapter.notifyDataSetChanged();
+            adapter.clearData();
         }
     }
 
@@ -177,7 +172,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
-            InterfaceManager.shared().a.startSelectContactsActivity();
+            InterfaceManager.shared().a.startSelectContactsActivity(getContext());
             return true;
         }
 
@@ -192,7 +187,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        adapter.setAllItems(NM.thread().getThreads(ThreadType.Private));
+        adapter.setItems(NM.thread().getThreads(ThreadType.Private));
     }
 
     @Override

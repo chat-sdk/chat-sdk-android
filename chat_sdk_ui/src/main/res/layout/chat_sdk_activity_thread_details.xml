@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <RelativeLayout
@@ -13,16 +15,17 @@
         android:layout_margin="5dp"
         android:id="@+id/frame_profile_image_container">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_users"
             style="@style/CircleIconStyle"
             android:id="@+id/chat_sdk_thread_image_view"
             android:layout_centerInParent="true"
-            app:border_color="@android:color/black"
-            android:visibility="invisible"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            fresco:placeholderImage="@drawable/icn_100_public_thread"
+            fresco:failureImage="@drawable/icn_100_public_thread"
+            fresco:roundAsCircle="true"/>
     </RelativeLayout>
 
     <FrameLayout

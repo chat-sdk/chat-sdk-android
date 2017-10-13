@@ -59,7 +59,12 @@ public class AudioRecorder {
     public int stopRecording() {
         long duration = System.currentTimeMillis() - startTime;
         if(recorder != null) {
-            recorder.stop();
+            try {
+                recorder.stop();
+            }
+            catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
             recorder.release();
             recorder = null;
         }

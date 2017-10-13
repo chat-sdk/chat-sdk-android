@@ -2,12 +2,10 @@ package co.chatsdk.core.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +28,8 @@ public class PermissionRequestHandler {
     private static int WRITE_EXTERNAL_STORAGE_REQUEST = 100;
     private static int READ_EXTERNAL_STORAGE_REQUEST = 101;
     private static int RECORD_AUDIO_REQUEST = 102;
+    private static int RECORD_VIDEO_REQUEST = 103;
+    private static int READ_CONTACTS_REQUEST = 104;
 
     public Completable requestRecordAudio (Activity activity) {
         return requestPermission(activity, Manifest.permission.RECORD_AUDIO, RECORD_AUDIO_REQUEST);
@@ -43,17 +43,25 @@ public class PermissionRequestHandler {
         return requestPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_REQUEST);
     }
 
+    public Completable requestVideoAccess (Activity activity) {
+        return requestPermission(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT, RECORD_VIDEO_REQUEST);
+    }
+
+    public Completable requestReadContact (Activity activity) {
+        return requestPermission(activity, Manifest.permission.READ_CONTACTS, READ_CONTACTS_REQUEST);
+    }
+
     public Completable requestPermission (final Activity activity, final String permission, final int result) {
         if(completableMap.containsKey(result)) {
             return null;
         }
-        final Completable completable = Completable.create(new CompletableOnSubscribe() {
+        return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {
 
                 completableMap.put(result, e);
 
-                int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(), permission);
+                int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission);
 
                 if(permissionCheck == PERMISSION_DENIED) {
                     ActivityCompat.requestPermissions(activity,
@@ -64,21 +72,17 @@ public class PermissionRequestHandler {
                     e.onComplete();
                 }
             }
-        });
-        completable.doOnTerminate(new Action() {
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        }).doOnTerminate(new Action() {
             @Override
             public void run() throws Exception {
                 completableMap.remove(result);
             }
         });
-//        completable.doOnError(new Consumer<Throwable>() {
-//            @Override
-//            public void accept(Throwable throwable) throws Exception {
-//                completableMap.remove(result);
-//            }
-//        });
-
-        return completable;
     }
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {

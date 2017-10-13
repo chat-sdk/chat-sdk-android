@@ -7,119 +7,72 @@
 
 package co.chatsdk.ui.threads;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
-
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiConsumer;
-import timber.log.Timber;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.ui.R;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
-public class ThreadsListAdapter extends BaseAdapter {
+public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
-    protected static final boolean DEBUG = Debug.ThreadsListAdapter;
+    protected Activity activity;
+    protected List<ThreadListItem> items = new ArrayList<>();
+    private HashMap<Thread, String> typing = new HashMap<>();
+    protected PublishSubject<Thread> onClickSubject = PublishSubject.create();
+    protected PublishSubject<Thread> onLongClickSubject = PublishSubject.create();
 
-    protected AppCompatActivity activity;
-
-    protected List<ThreadListItem> allItems = new ArrayList<>();
-    protected List<ThreadListItem> listItems = new ArrayList<>();
-
-
-    protected String filterText = "";
-    protected boolean filtering = false;
-
-    protected ThreadListItem thread;
-
-    public ThreadsListAdapter(AppCompatActivity activity){
+    public ThreadsListAdapter(Activity activity){
         this.activity = activity;
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 1;
+    public ThreadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View row = inflater.inflate(R.layout.chat_sdk_row_thread, null);
+        return new ThreadViewHolder(row);
     }
 
     @Override
-    public int getCount() {
-        return allItems.size();
-    }
+    public void onBindViewHolder(final ThreadViewHolder holder, int position) {
 
-    @Override
-    public int getItemViewType(int position) {
-        return allItems.get(position).getType();
-    }
-
-    /** Disabling the header vies from clicks.*/
-    @Override
-    public boolean isEnabled(int position) {
-        return getItemViewType(position) == ThreadListItem.CELL_TYPE_THREAD;
-    }
-
-    @Override
-    public ThreadListItem getItem(int i) {
-        return allItems.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return 0;
-    }
-
-    @Override
-    public View getView(final int position, View view, ViewGroup viewGroup) {
-
-        View row = view;
-
-        final ThreadViewHolder holder;
-
-        thread = allItems.get(position);
-
-        if ( row == null) {
-
-            holder = new ThreadViewHolder();
-            row =  ( (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ).inflate(R.layout.chat_sdk_row_threads, null);
-            holder.nameTextView = (TextView) row.findViewById(R.id.chat_sdk_txt);
-            holder.lastMessageTextView = (TextView) row.findViewById(R.id.txt_last_message);
-            holder.dateTextView = (TextView) row.findViewById(R.id.txt_last_message_date);
-            holder.imageView = (CircleImageView) row.findViewById(R.id.img_thread_image);
-            holder.unreadMessageCountTextView = (TextView) row.findViewById(R.id.txt_unread_messages);
-            holder.indicator = row.findViewById(R.id.chat_sdk_indicator);
-
-            row.setTag(holder);
-        }
-        else {
-            holder = (ThreadViewHolder) row.getTag();
-        }
+        final ThreadListItem thread = items.get(position);
 
         holder.nameTextView.setText(thread.getName());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSubject.onNext(thread.getThread());
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                onLongClickSubject.onNext(thread.getThread());
+                return true;
+            }
+        });
 
         if(thread.getThread().getLastMessageAddedDate() != null) {
             holder.dateTextView.setText(thread.getLastMessageDateAsString());
             holder.lastMessageTextView.setText(thread.getLastMessageText());
         }
-        else {
-            // TODO: Maybe add a messages saying no messages
+        if(typing.get(thread.getThread()) != null) {
+            holder.lastMessageTextView.setText(typing.get(thread.getThread()) + activity.getString(R.string.typing));
         }
 
         int unreadMessageCount = thread.getUnreadMessagesCount();
-        if (DEBUG) Timber.d("Unread messages amount: %s", unreadMessageCount);
 
         if (unreadMessageCount != 0 && thread.getIsPrivate()) {
 
@@ -133,32 +86,26 @@ public class ThreadsListAdapter extends BaseAdapter {
             holder.unreadMessageCountTextView.setVisibility(View.INVISIBLE);
         }
 
-        // This should be quick because we're loding the image using iON so
-        // they will be cached
-        ThreadImageBuilder.getBitmapForThread(AppContext.shared().context(), getItem(position).getThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BiConsumer<Bitmap, Throwable>() {
-            @Override
-            public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                if(throwable == null) {
-                    holder.imageView.setImageBitmap(bitmap);
-                }
-                else {
-                    // TODO: Handle Error
-                }
-            }
-        });
+        ThreadImageBuilder.load(holder.imageView, thread.getThread());
 
-        return row;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return items.get(position).getType();
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     public void addRow (ThreadListItem thread){
         addRow(thread, true);
     }
 
-    public void addRow (ThreadListItem thread, boolean notify){
-        allItems.add(thread);
+    public void addRow (ThreadListItem thread, boolean notify) {
+        items.add(thread);
         if(notify) {
             notifyDataSetChanged();
         }
@@ -169,114 +116,47 @@ public class ThreadsListAdapter extends BaseAdapter {
     }
 
     public void addRow(Thread thread, boolean notify){
-        addRow(new ThreadListItem(thread));
+        addRow(new ThreadListItem(thread), notify);
     }
 
-    public void setAllItems(List<Thread> threads) {
-
-        this.listItems.clear();
-        this.allItems.clear();
-
-        for (Thread thread : threads) {
-            addRow(thread, false);
-        }
-
-        this.listItems = allItems;
-
-        notifyDataSetChanged();
-    }
-
-    /*Filtering option's of the list to make searches.*/
-    public void filterItems(String text){
-        filtering = true;
-        filterText = text.trim().toLowerCase();
-
-        List<ThreadListItem> startWith = new ArrayList<>();
-        List<ThreadListItem> contain = new ArrayList<>();
-        List<ThreadListItem> groups = new ArrayList<>();
-
-        if (StringUtils.isBlank(text) || StringUtils.isEmpty(text)) {
-            allItems = listItems;
-            filtering = false;
+    public void setTyping (Thread thread, String message) {
+        if(message != null) {
+            typing.put(thread, message);
         }
         else {
-
-            List<ThreadListItem> filteredItems = new ArrayList<>();
-
-            for (ThreadListItem t : listItems)
-            {
-                // Check if group and if has the filter
-                if (t.getUserCount() > 2 && t.getName().toLowerCase().contains(filterText))
-                    groups.add(t);
-                    // Not group check if start with
-                else if (t.getName().toLowerCase().startsWith(filterText))
-                    startWith.add(t);
-                    // Check if contained.
-                else if (t.getName().toLowerCase().contains(filterText))
-                {
-                    contain.add(t);
-                }
-            }
-
-            filteredItems.addAll(startWith);
-            filteredItems.addAll(contain);
-            filteredItems.addAll(groups);
-
-            this.allItems = filteredItems;
+            typing.remove(thread);
         }
-
-        notifyDataSetChanged();
-    }
-
-    public ThreadListItem replaceOrAddItem(Thread thread){
-
-        boolean replaced = false;
-        boolean exist = false;
-
-        ThreadListItem item = new ThreadListItem(thread);
-
-        for (int i = 0; i < allItems.size() ; i++)
-        {
-            if (allItems.get(i).getEntityID().equals(thread.getEntityID())) {
-
-                exist = true;
-
-                if (ThreadListItem.compare(item, allItems.get(i)))
-                {
-                    allItems.set(i, item);
-                    replaced = true;
-                }
-                else
-                {
-                    replaced = false;
-                }
-            }
-        }
-
-        if (!exist)
-            allItems.add(new ThreadListItem(thread));
-
-        if (replaced || !exist) {
-            if (DEBUG) Timber.d("Notify!, %s", (replaced ? "Replaced": !exist ? "Not Exist":""));
-            sort();
-            notifyDataSetChanged();
-        }
-
-        return item;
     }
 
     protected void sort(){
-        Collections.sort(allItems, new ThreadsItemSorter());
-    }
-
-    public List<ThreadListItem> getAllItems() {
-        return allItems;
+        Collections.sort(items, new ThreadsItemSorter());
     }
 
     public void clearData () {
-        allItems.clear();
-        listItems.clear();
-        notifyDataSetChanged();
+        clearData(true);
     }
 
+    public void clearData (boolean notify) {
+        items.clear();
+        if(notify) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public Observable<Thread> onClickObservable () {
+        return onClickSubject;
+    }
+
+    public Observable<Thread> onLongClickObservable () {
+        return onLongClickSubject;
+    }
+
+    public void setItems (List<Thread> items) {
+        clearData(false);
+        for(Thread t : items) {
+            addRow(t, false);
+        }
+        sort();
+        notifyDataSetChanged();
+    }
 }

@@ -8,9 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 
@@ -49,11 +48,11 @@ public class ImageMessageClickListener implements View.OnClickListener {
             }
 
             if (popupWindow == null)
-                ToastHelper.show(R.string.message_adapter_load_image_fail);
+                ToastHelper.show(activity, R.string.message_adapter_load_image_fail);
             else popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
         }
         else {
-            ToastHelper.show(activity.getString(R.string.message_adapter_load_image_fail));
+            ToastHelper.show(activity, activity.getString(R.string.message_adapter_load_image_fail));
         }
     }
 

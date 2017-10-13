@@ -1,5 +1,6 @@
 package co.chatsdk.core;
 
+import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
@@ -15,6 +16,7 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
+import co.chatsdk.core.handlers.StickerMessageHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
@@ -27,31 +29,31 @@ import co.chatsdk.core.handlers.VideoMessageHandler;
 public class NM {
 
     public static CoreHandler core () {
-        return NetworkManager.shared().a.core;
+        return a().core;
     }
 
     public static AuthenticationHandler auth () {
-        return NetworkManager.shared().a.auth;
+        return a().auth;
     }
 
     public static ThreadHandler thread () {
-        return NetworkManager.shared().a.thread;
+        return a().thread;
     }
 
     public static PublicThreadHandler publicThread () {
-        return NetworkManager.shared().a.publicThread;
+        return a().publicThread;
     }
 
     public static PushHandler push () {
-        return NetworkManager.shared().a.push;
+        return a().push;
     }
 
     public static UploadHandler upload () {
-        return NetworkManager.shared().a.upload;
+        return a().upload;
     }
 
     public static EventHandler events () {
-        return NetworkManager.shared().a.events;
+        return a().events;
     }
 
     public static User currentUser () {
@@ -59,47 +61,55 @@ public class NM {
     }
 
     public static SearchHandler search () {
-        return NetworkManager.shared().a.search;
+        return a().search;
     }
 
     public static ContactHandler contact () {
-        return NetworkManager.shared().a.contact;
+        return a().contact;
     }
 
     public static BlockingHandler blocking () {
-        return NetworkManager.shared().a.blocking;
+        return a().blocking;
     }
 
     public static LastOnlineHandler lastOnline () {
-        return NetworkManager.shared().a.lastOnline;
+        return a().lastOnline;
     }
 
     public static ConfigurationHandler config () {
-        return NetworkManager.shared().a.config;
+        return a().config;
     }
 
     public static AudioMessageHandler audioMessage () {
-        return NetworkManager.shared().a.audioMessage;
+        return a().audioMessage;
     }
 
     public static VideoMessageHandler videoMessage () {
-        return NetworkManager.shared().a.videoMessage;
+        return a().videoMessage;
     }
 
     public static HookHandler hook () {
-        return NetworkManager.shared().a.hook;
+        return a().hook;
     }
 
     public static SocialLoginHandler socialLogin () {
-        return NetworkManager.shared().a.socialLogin;
+        return a().socialLogin;
+    }
+
+    public static StickerMessageHandler stickerMessage () {
+        return a().stickerMessage;
     }
 
     public static ReadReceiptHandler readReceipts () {
-        return NetworkManager.shared().a.readReceipts;
+        return a().readReceipts;
     }
 
     public static TypingIndicatorHandler typingIndicator () {
-        return NetworkManager.shared().a.typingIndicator;
+        return a().typingIndicator;
+    }
+
+    public static BaseNetworkAdapter a() {
+        return NetworkManager.shared().a;
     }
 
 }

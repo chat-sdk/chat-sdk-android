@@ -3,9 +3,7 @@ package co.chatsdk.ui.threads;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
-import java.util.List;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -96,11 +94,11 @@ public class ThreadListItem {
             return true;
         }
 
-        if (StringUtils.isEmpty(newThread.thread.getImageURL()) && StringUtils.isEmpty(oldThread.thread.getImageURL())) {
+        if (StringUtils.isEmpty(newThread.getThread().getImageUrl()) && StringUtils.isEmpty(oldThread.getThread().getImageUrl())) {
             return false;
         }
 
-        return !newThread.thread.getImageURL().equals(oldThread.thread.getImageURL());
+        return !newThread.getThread().getImageUrl().equals(oldThread.getThread().getImageUrl());
     }
 
 }

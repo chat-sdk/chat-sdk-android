@@ -82,7 +82,7 @@
 
         </RelativeLayout>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_list_contacts"

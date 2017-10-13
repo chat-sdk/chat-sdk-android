@@ -68,6 +68,7 @@ public class Keys {
     public static final String MessageVideoURL = "video-url";
     public static final String MessageAudioURL = "audio-url";
     public static final String MessageAudioLength = "audio-length";
+    public static final String MessageStickerName = "sticker";
 
     // For pushes
 //    public static final String ACTION = "action";

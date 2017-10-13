@@ -7,21 +7,10 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.firebase.FirebaseEntity;
-import co.chatsdk.firebase.FirebasePaths;
-
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.DaoCore;
-
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ChildEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -29,11 +18,18 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.ReadStatus;
+import co.chatsdk.firebase.FirebaseEntity;
+import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -41,9 +37,7 @@ import timber.log.Timber;
 
 public class MessageWrapper  {
 
-    private final String TAG = this.getClass().getSimpleName();
     private static boolean DEBUG = true;
-    private ChildEventListener readReceiptListener;
     private Message model;
 
     public MessageWrapper(Message model){
@@ -55,7 +49,7 @@ public class MessageWrapper  {
         deserialize(snapshot);
     }
 
-    Map<String, Object> serialize(){
+    Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<String, Object>();
 
         values.put(Keys.Payload, model.getTextString());
@@ -63,9 +57,23 @@ public class MessageWrapper  {
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
-
+        values.put(FirebasePaths.ReadPath, initialReadReceipts());
 
         return values;
+    }
+
+    private HashMap<String, HashMap<String, Integer>> initialReadReceipts () {
+        HashMap<String, HashMap<String, Integer>> map = new HashMap<>();
+
+        for(User u : getModel().getThread().getUsers()) {
+            if(!u.isMe()) {
+                HashMap<String, Integer> status = new HashMap<>();
+                status.put(Keys.Status, ReadStatus.none().getValue());
+                map.put(u.getEntityID(), status);
+            }
+        }
+
+        return map;
     }
 
     private boolean contains (Map<String, Object> value, String key) {

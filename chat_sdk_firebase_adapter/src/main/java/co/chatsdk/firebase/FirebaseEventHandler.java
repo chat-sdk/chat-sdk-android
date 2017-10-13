@@ -8,31 +8,27 @@ import java.util.HashMap;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.base.BaseHookHandler;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Executor;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
  */
 
 public class FirebaseEventHandler implements EventHandler {
-
-    private static final boolean DEBUG = Debug.StateManager;
 
     final private PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
 
@@ -115,7 +111,7 @@ public class FirebaseEventHandler implements EventHandler {
             public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                // Make sure that we're not in the thread
+                // Make sure that we'recyclerView not in the thread
                 // there's an edge case where the user could kill the app and remain
                 // a member of a public thread
                 NM.thread().removeUsersFromThread(thread.getModel(), user).subscribe();
@@ -236,7 +232,6 @@ public class FirebaseEventHandler implements EventHandler {
 
     public void userOff(final String entityID){
         isOn = false;
-        if (DEBUG) Timber.v("userOff, EntityID: $s", entityID);
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 

@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="co.chatsdk.social_login">
+
+    <application android:allowBackup="true"
+        android:largeHeap="true"
+        android:label="@string/app_name">
+
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+
+    </application>
+
+    
+</manifest>

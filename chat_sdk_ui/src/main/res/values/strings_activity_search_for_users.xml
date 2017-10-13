@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="spinner_title_search_fields">Search Fields</string>
-    <string name="toast_searching_for_users">Searching. . .</string>
-</resources>

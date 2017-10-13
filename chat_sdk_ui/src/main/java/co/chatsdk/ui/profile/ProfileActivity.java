@@ -1,20 +1,20 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -36,15 +36,14 @@ public class ProfileActivity extends BaseActivity {
             user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
             if(user != null) {
                 ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profile_fragment);
-                fragment.updateInterfaceForUser(user);
+                fragment.setUser(user);
+                fragment.updateInterface();
                 return;
             }
         }
 
-
-        ToastHelper.show(R.string.user_entity_id_not_set);
+        ToastHelper.show(this, R.string.user_entity_id_not_set);
         finish();
-
     }
 
     @Override
@@ -80,13 +79,13 @@ public class ProfileActivity extends BaseActivity {
             @Override
             public void accept(@NonNull Thread thread) throws Exception {
                 if (thread != null) {
-                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
+                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
-                ToastHelper.show(R.string.create_thread_with_users_fail_toast);
+                ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast);
             }
         });
     }

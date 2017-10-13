@@ -9,45 +9,45 @@ package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import co.chatsdk.core.InterfaceManager;
-import co.chatsdk.core.NM;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.R;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import co.chatsdk.ui.chat.ChatActivity;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -59,12 +59,11 @@ public class SelectContactActivity extends BaseActivity {
 
     public static final String MODE = "mode";
 
-    private ListView listContacts;
-    private UsersListAdapter listAdapter;
+    private RecyclerView recyclerView;
+    private UsersListAdapter adapter;
     private Button btnStartChat;
     private TextView txtSearch;
     private ImageView imgSearch;
-    private CheckBox chSelectAll;
 
     /** Default value - MODE_NEW_CONVERSATION*/
     private int mode = MODE_NEW_CONVERSATION;
@@ -152,7 +151,7 @@ public class SelectContactActivity extends BaseActivity {
     }
 
     private void initViews() {
-        listContacts = (ListView) findViewById(R.id.chat_sdk_list_contacts);
+        recyclerView = (RecyclerView) findViewById(R.id.chat_sdk_list_contacts);
         txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
         imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
         btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
@@ -163,25 +162,30 @@ public class SelectContactActivity extends BaseActivity {
 
     }
 
-    private void initList(){
+    private void initList() {
         boolean enableMultiSelect = NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled);
-        listAdapter = new UsersListAdapter(SelectContactActivity.this, enableMultiSelect);
-        listContacts.setAdapter(listAdapter);
+        adapter = new UsersListAdapter(enableMultiSelect);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
         loadData();
 
-        listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        adapter.getItemClicks().subscribe(new Consumer<Object>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // If groups enabled toggeling selection
-                if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled)) {
-                    listAdapter.toggleSelection(position);
-                }
-                else {
-                    createAndOpenThread("", listAdapter.getItem(position).getUser(), NM.currentUser());
+            public void accept(@NonNull Object item) throws Exception {
+                if(item instanceof User) {
+                    if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled)) {
+                        adapter.toggleSelection(item);
+                    }
+                    else {
+                        UserListItem user = (UserListItem) item;
+                        createAndOpenThread("", (User) user, NM.currentUser());
+                    }
                 }
             }
         });
+
     }
 
     private void createAndOpenThread (String name, User... users) {
@@ -195,13 +199,13 @@ public class SelectContactActivity extends BaseActivity {
             @Override
             public void accept(Thread thread) throws Exception {
                 if (thread != null) {
-                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
+                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
                 }
             }
         }).doOnError(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                ToastHelper.show(R.string.create_thread_with_users_fail_toast);
+                ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast);
             }
         });
     }
@@ -216,7 +220,12 @@ public class SelectContactActivity extends BaseActivity {
             list.removeAll(threadUser);
         }
 
-        listAdapter.setUsers(list, true);
+        List<UserListItem> items = new ArrayList<>();
+        for(User u : list) {
+            items.add(u);
+        }
+
+        adapter.setUsers(items, true);
 
     }
 
@@ -235,7 +244,7 @@ public class SelectContactActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                if (listAdapter.getSelectedCount() == 0) {
+                if (adapter.getSelectedCount() == 0) {
                     showToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
                     return;
                 }
@@ -249,10 +258,7 @@ public class SelectContactActivity extends BaseActivity {
 
                 final ArrayList<User> users = new ArrayList<>();
 
-                for (int i = 0 ; i < listAdapter.getSelectedCount() ; i++) {
-                    int pos = listAdapter.getSelectedUsersPositions().keyAt(i);
-                    users.add(listAdapter.getUserItems().get(pos).getUser());
-                }
+                users.addAll(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
 
                 if (mode == MODE_NEW_CONVERSATION) {
                     users.add(NM.currentUser());
@@ -333,7 +339,7 @@ public class SelectContactActivity extends BaseActivity {
         View.OnClickListener searchClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InterfaceManager.shared().a.startSearchActivity();
+                SearchActivity.startSearchActivity(getApplicationContext());
             }
         };
 
@@ -345,8 +351,9 @@ public class SelectContactActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (animateExit)
+        if (animateExit) {
             overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+        }
     }
 
 

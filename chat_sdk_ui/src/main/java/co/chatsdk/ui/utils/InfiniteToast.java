@@ -1,21 +1,15 @@
 package co.chatsdk.ui.utils;
 
 import android.content.Context;
-import android.support.design.widget.BaseTransientBottomBar;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import org.reactivestreams.Subscription;
-
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by ben on 9/28/17.

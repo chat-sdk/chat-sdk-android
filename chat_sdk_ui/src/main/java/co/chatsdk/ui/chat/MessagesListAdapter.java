@@ -7,170 +7,139 @@
 
 package co.chatsdk.ui.chat;
 
-import android.content.Context;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.google.android.gms.maps.model.LatLng;
-import com.makeramen.roundedimageview.RoundedImageView;
-import com.squareup.picasso.Picasso;
-
-import co.chatsdk.core.NM;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.sorter.MessageSorter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import co.chatsdk.ui.utils.UserAvatarHelper;
-import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import co.chatsdk.core.NM;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.sorter.MessageSorter;
+import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.types.ReadStatus;
+import co.chatsdk.core.utils.GoogleUtils;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
 import timber.log.Timber;
 
-public class MessagesListAdapter extends BaseAdapter{
+public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
 
-    /**
-     * Class to hold the row child views so we wont have to inflate more them once per row view.
-     **/
-    class ViewHolder {
-        CircleImageView profileImageView;
-        TextView timeTextView;
-        RoundedImageView messageImageView;
-        TextView messageTextView;
-        LinearLayout extraLayout;
+    public static int ViewTypeMine = 1;
+    public static int ViewTypeReply = 2;
+
+    public class MessageViewHolder extends RecyclerView.ViewHolder {
+
+        public SimpleDraweeView avatarImageView;
+        public TextView timeTextView;
+        public SimpleDraweeView messageImageView;
+        public TextView messageTextView;
+        public LinearLayout extraLayout;
+        public ImageView readReceiptImageView;
+
+        public MessageViewHolder(View itemView) {
+            super(itemView);
+
+            timeTextView = (TextView) itemView.findViewById(R.id.txt_time);
+            avatarImageView = (SimpleDraweeView) itemView.findViewById(R.id.img_user_image);
+            messageTextView = (TextView) itemView.findViewById(R.id.txt_content);
+            messageImageView = (SimpleDraweeView) itemView.findViewById(R.id.chat_sdk_image);
+            extraLayout = (LinearLayout) itemView.findViewById(R.id.extra_layout);
+            readReceiptImageView = (ImageView) itemView.findViewById(R.id.read_receipt);
+
+        }
+
+        public void setImageHidden (boolean hidden) {
+            messageImageView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+            LinearLayout.LayoutParams imageLayoutParams = (LinearLayout.LayoutParams) messageImageView.getLayoutParams();
+            if(hidden) {
+                imageLayoutParams.width = 0;
+                imageLayoutParams.height = 0;
+            }
+            else {
+                imageLayoutParams.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+                imageLayoutParams.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
+            }
+            messageImageView.setLayoutParams(imageLayoutParams);
+            messageImageView.requestLayout();
+
+        }
+        public void setTextHidden (boolean hidden) {
+            messageTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+            LinearLayout.LayoutParams textLayoutParams = (LinearLayout.LayoutParams) messageTextView.getLayoutParams();
+            if(hidden) {
+                textLayoutParams.width = 0;
+                textLayoutParams.height = 0;
+            }
+            else {
+                textLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                textLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+            messageTextView.setLayoutParams(textLayoutParams);
+            messageTextView.requestLayout();
+        }
     }
 
     private AppCompatActivity activity;
 
     private List<MessageListItem> messageItems = new ArrayList<>();
 
-    private boolean isScrolling = false;
-
-    private LayoutInflater inflater;
-
     public MessagesListAdapter(AppCompatActivity activity) {
         this.activity = activity;
-        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return messageItems.get(position).isMine() ? 0 : 1;
-    }
-
-    @Override
-    public int getCount() {
-        return messageItems.size();
-    }
-
-    @Override
-    public MessageListItem getItem(int i) {
-        return messageItems.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return messageItems.get(i).getId();
-    }
-
-    @Override
-    public View getView(int position, View row, ViewGroup viewGroup) {
-
-        final MessageListItem messageItem = messageItems.get(position);
-
-        if (row == null) {
-            row = inflateRow(messageItem);
+    public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View row = null;
+        if(viewType == ViewTypeMine) {
+            row = inflater.inflate(R.layout.chat_sdk_row_message_me , null);
         }
-        ViewHolder holder = (ViewHolder) row.getTag();
-
-        updateMessageCell(row, holder, messageItem);
-
-        return row;
+        if(viewType == ViewTypeReply) {
+            row = inflater.inflate(R.layout.chat_sdk_row_message_reply , null);
+        }
+        return new MessageViewHolder(row);
     }
 
-    /**
-     * Inflating the row for type.
-     *
-     * By Overriding this function you can inflate a custom type of a message.
-     *
-     * You can keep the result for the super call and see if it is null if so check for your custom inflation or just check for type.
-     *
-     * */
-    protected View inflateRow(MessageListItem item){
-        ViewHolder holder = new ViewHolder();
+    @Override
+    public void onBindViewHolder(MessageViewHolder holder, int position) {
 
-        int resource = item.isMine() ? R.layout.chat_sdk_row_message_me : R.layout.chat_sdk_row_message_reply;
+        MessageListItem messageItem = messageItems.get(position);
 
-        View row = inflater.inflate(resource, null);
+        holder.setTextHidden(true);
+        holder.setImageHidden(true);
 
-        holder.timeTextView = (TextView) row.findViewById(R.id.txt_time);
-        holder.profileImageView = (CircleImageView) row.findViewById(R.id.img_user_image);
-        holder.messageTextView = (TextView) row.findViewById(R.id.txt_content);
-        holder.messageImageView = (RoundedImageView) row.findViewById(R.id.chat_sdk_image);
-        holder.extraLayout = (LinearLayout) row.findViewById(R.id.extra_layout);
-
-        row.setTag(holder);
-        return row;
-    }
-
-    /**
-     * Load the default bundle for each message, The bundle will be loaded for each message and be animated if needed.
-     *
-     * By Overriding this function you change or add logic for your default message bundle load,
-     * For example load online status for each user.
-     *
-     * */
-    protected void updateMessageCell(View row, final ViewHolder holder, MessageListItem messageItem){
-
-        holder.messageImageView.setVisibility(View.INVISIBLE);
-        holder.messageTextView.setVisibility(View.INVISIBLE);
-
-        Picasso.with(holder.messageImageView.getContext()).cancelRequest(holder.messageImageView);
-        Picasso.with(holder.profileImageView.getContext()).cancelRequest(holder.profileImageView);
-
-        LinearLayout.LayoutParams imageLayoutParams = (LinearLayout.LayoutParams) holder.messageImageView.getLayoutParams();
-        LinearLayout.LayoutParams textLayoutParams = (LinearLayout.LayoutParams) holder.messageTextView.getLayoutParams();
-
-        imageLayoutParams.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
-        imageLayoutParams.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
-
-        textLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-        textLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        if(holder.readReceiptImageView != null) {
+            holder.readReceiptImageView.setVisibility(NM.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
+        }
 
         if (messageItem.messageType() == MessageType.Text) {
-
-            holder.messageTextView.setVisibility(View.VISIBLE);
             holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
-
-            imageLayoutParams.width = 0;
-            imageLayoutParams.height = 0;
+            holder.setTextHidden(false);
         }
-        else {
-            textLayoutParams.width = 0;
-            textLayoutParams.height = 0;
-        }
+        else if (messageItem.messageType() == MessageType.Location || messageItem.messageType() == MessageType.Image) {
 
-        if (messageItem.messageType() == MessageType.Location || messageItem.messageType() == MessageType.Image) {
-
-            holder.messageImageView.setVisibility(View.VISIBLE);
+            holder.setImageHidden(false);
 
             int width = messageItem.width();
             int height = messageItem.height();
@@ -182,9 +151,7 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 LatLng latLng = new LatLng(latitude, longitude);
 
-                Picasso.with(holder.messageImageView.getContext()).load(GoogleUtils.getMapImageURL(latLng, width, height)).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
-//                holder.imageViewFuture = Ion.with(holder.messageImageView).placeholder(R.drawable.icn_200_image_message_placeholder)
-//                        .load(GoogleUtils.getMapImageURL(latLng, width, height));
+                holder.messageImageView.setImageURI(GoogleUtils.getMapImageURL(latLng, width, height));
 
                 // Open google maps on click.
                 holder.messageImageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
@@ -194,41 +161,82 @@ public class MessagesListAdapter extends BaseAdapter{
 
                 String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
-                if(url == null || url.isEmpty()) {
-                    holder.messageImageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
+                int viewWidth = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+                int viewHeight = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
+
+                if(url != null) {
+                    ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
+                            .setResizeOptions(new ResizeOptions(viewWidth, viewHeight))
+                            .build();
+
+                    holder.messageImageView.setController(
+                            Fresco.newDraweeControllerBuilder()
+                                    .setOldController(holder.messageImageView.getController())
+                                    .setImageRequest(request)
+                                    .build());
                 }
                 else {
-                    Picasso.with(holder.messageImageView.getContext()).load(url).placeholder(R.drawable.icn_200_image_message_placeholder).into(holder.messageImageView);
+                    // Loads the placeholder
+                    holder.messageImageView.setImageURI(url);
                 }
 
                 // Show the messageImageView in a dialog on click.
                 holder.messageImageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
+
         }
 
-        if(messageItem.messageType() == MessageType.Audio && NM.audioMessage() != null) {
-
-            imageLayoutParams.height = 0;
-            imageLayoutParams.width = 0;
-            textLayoutParams.width = 0;
-            textLayoutParams.height = 0;
-
-            NM.audioMessage().updateMessageCellView(messageItem.message, holder.extraLayout, activity);
+        for(CustomMessageHandler handler : InterfaceManager.shared().a.getCustomMessageHandlers()) {
+            handler.updateMessageCellView(messageItem.message, holder, activity);
         }
-
-        holder.messageImageView.setLayoutParams(imageLayoutParams);
-        holder.messageImageView.requestLayout();
-        holder.messageTextView.setLayoutParams(textLayoutParams);
-        holder.messageTextView.requestLayout();
-
-        UserAvatarHelper.loadAvatar(messageItem.getMessage().getSender(), holder.profileImageView)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
 
         // Set the time of the sending.
         holder.timeTextView.setText(messageItem.getTime());
 
-        row.setAlpha(messageItem.statusIs(MessageSendStatus.Sent) || messageItem.statusIs(MessageSendStatus.Delivered) ? 1.0f : 0.7f);
+        float alpha = messageItem.statusIs(MessageSendStatus.Sent) || messageItem.statusIs(MessageSendStatus.Delivered) ? 1.0f : 0.7f;
+        holder.messageImageView.setAlpha(alpha);
+        holder.messageTextView.setAlpha(alpha);
+        holder.extraLayout.setAlpha(alpha);
+
+        holder.avatarImageView.setImageURI(messageItem.getMessage().getSender().getAvatarURL());
+
+        updateReadStatus(holder, messageItem.message);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return messageItems.get(position).isMine() ? ViewTypeMine : ViewTypeReply;
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return messageItems.get(i).getId();
+    }
+
+    @Override
+    public int getItemCount() {
+        return messageItems.size();
+    }
+
+    private void updateReadStatus (MessageViewHolder holder, Message message) {
+        int resource = R.drawable.ic_message_received;
+        ReadStatus status = message.getReadStatus();
+
+        // Hide the read receipt for public threads
+        if(message.getThread().typeIs(ThreadType.Public)) {
+            status = ReadStatus.hide();
+        }
+
+        if(status.is(ReadStatus.delivered())) {
+            resource = R.drawable.ic_message_delivered;
+        }
+        if(status.is(ReadStatus.read())) {
+            resource = R.drawable.ic_message_read;
+        }
+        if(holder.readReceiptImageView != null) {
+            holder.readReceiptImageView.setImageResource(resource);
+            holder.readReceiptImageView.setVisibility(status.is(ReadStatus.hide()) ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     public List<MessageListItem> getMessageItems() {
@@ -337,16 +345,6 @@ public class MessagesListAdapter extends BaseAdapter{
             }
         }
         return null;
-    }
-
-    /**
-     * Set the scrolling mode of the list view.
-     *
-     * We need to keep track of it so we wont animate rows when list view does not scroll.
-     * If we do animate when list view does not scroll then there would be multiple animation each time notifyDataSetChanged called.
-     * */
-    public void setScrolling(boolean isScrolling) {
-        this.isScrolling = isScrolling;
     }
 
     public int size () {

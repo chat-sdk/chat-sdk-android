@@ -7,274 +7,250 @@
 
 package co.chatsdk.ui.contacts;
 
-import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import co.chatsdk.core.dao.User;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
-import org.apache.commons.lang3.StringUtils;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ListIterator;
 
-import co.chatsdk.ui.utils.UserAvatarHelper;
-import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import timber.log.Timber;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.AvailabilityHelper;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
-public class UsersListAdapter extends BaseAdapter {
+public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private AppCompatActivity mActivity;
+    private static final int TYPE_USER = 0;
+    private static final int TYPE_HEADER = 1;
 
-    private List<UserListItem> userItems = new ArrayList<>();
-    private RowClickListener rowClickListener;
-    private RowClickListener profileImageClickListener;
+    private List<Object> items = new ArrayList<>();
+    private List<String> headers = new ArrayList<>();
 
-    protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
+    private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
-    protected boolean isMultiSelect = false;
+    private boolean isMultiSelect = false;
+    private final PublishSubject<Object> onClickSubject = PublishSubject.create();
 
-    protected boolean filtering = false;
+    private class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-    public class ViewHolder {
-        public CircleImageView avatarImageView;
-        public TextView nameTextView;
-        public CheckBox checkBox;
-        public TextView statusTextView;
-        public ImageView availabilityImageView;
+        TextView textView;
+
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.header_text);
+        }
     }
 
-    private static final boolean DEBUG = Debug.UsersWithStatusListAdapter;
+    private class UserViewHolder extends RecyclerView.ViewHolder {
 
-    public UsersListAdapter(AppCompatActivity activity){
-        this(activity, null, false);
+        SimpleDraweeView avatarImageView;
+        TextView nameTextView;
+        CheckBox checkBox;
+        TextView statusTextView;
+        ImageView availabilityImageView;
+
+        public UserViewHolder(View view) {
+            super(view);
+
+            nameTextView = (TextView) view.findViewById(R.id.chat_sdk_txt);
+            statusTextView = (TextView) view.findViewById(R.id.tvStatus);
+            availabilityImageView = (ImageView) view.findViewById(R.id.ivAvailability);
+            avatarImageView = (SimpleDraweeView) view.findViewById(R.id.img_profile_picture);
+            checkBox = (CheckBox) view.findViewById(R.id.checkbox);
+
+            // Clicks are handled at the list item level
+            checkBox.setClickable(false);
+        }
     }
 
-    public UsersListAdapter(AppCompatActivity activity, boolean isMultiSelect){
-        this(activity, null, isMultiSelect);
+    public UsersListAdapter(){
+        this(null, false);
     }
 
-    public UsersListAdapter(AppCompatActivity activity, List<UserListItem> userItems, boolean multiSelect){
-        mActivity = activity;
+    public UsersListAdapter(boolean isMultiSelect){
+        this(null, isMultiSelect);
+    }
 
-        if (userItems == null) {
-            userItems = new ArrayList<>();
+    public UsersListAdapter(List<UserListItem> users, boolean multiSelect){
+
+        if (users == null) {
+            users = new ArrayList<>();
         }
 
-        setUserItems(userItems);
+        setUsers(users);
 
         this.isMultiSelect = multiSelect;
-    }
 
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
-    @Override
-    public View getView(final int position, View row, ViewGroup viewGroup) {
-
-        final UserListItem userItem = userItems.get(position);
-
-        // If the row is null or the View inside the row is not good for the current item.
-        if (row == null) {
-            row = rowForType(position);
-        }
-        ViewHolder holder = (ViewHolder) row.getTag();
-
-        holder.nameTextView.setText(userItem.getText());
-        holder.availabilityImageView.setImageResource(userItem.getAvailability());
-        holder.statusTextView.setText(userItem.getStatus());
-
-        row.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(UsersListAdapter.this.rowClickListener != null) {
-                    UsersListAdapter.this.rowClickListener.click(position);
-                }
-            }
-        });
-
-        Picasso.with(holder.avatarImageView.getContext()).cancelRequest(holder.avatarImageView);
-        UserAvatarHelper.loadAvatar(userItem.getUser(), holder.avatarImageView)
-                .subscribe();
-
-        holder.avatarImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(UsersListAdapter.this.profileImageClickListener != null) {
-                    UsersListAdapter.this.profileImageClickListener.click(position);
-                }
-            }
-        });
-
-        return row;
-    }
-
-    public void setRowClickListener (RowClickListener listener) {
-        rowClickListener = listener;
-    }
-
-    public RowClickListener getRowClickListener () {
-        return rowClickListener;
-    }
-
-    public void setProfileImageClickListener (RowClickListener listener) {
-        this.profileImageClickListener = listener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return 100;
-    }
-
-    @Override
-    public int getCount() {
-        return userItems.size();
-    }
-
-    @Override
-    public UserListItem getItem(int i) {
-        return userItems.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return 0;
-    }
-
-    protected View rowForType(final int position) {
-
-        LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View row =  inflater.inflate(userItems.get(position).getResourceID(), null);
-
-        ViewHolder holder = new ViewHolder();
-        holder.nameTextView = (TextView) row.findViewById(R.id.chat_sdk_txt);
-        holder.statusTextView = (TextView) row.findViewById(R.id.tvStatus);
-        holder.availabilityImageView = (ImageView) row.findViewById(R.id.ivAvailability);
-        holder.avatarImageView = (CircleImageView) row.findViewById(R.id.img_profile_picture);
-
-        if (isMultiSelect) {
-            holder.checkBox = (CheckBox) row.findViewById(R.id.checkbox);
-            holder.checkBox.setVisibility(View.VISIBLE);
-            holder.checkBox.setChecked(selectedUsersPositions.get(position));
-            holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    setViewSelected(position, isChecked);
-                }
-            });
-            holder.availabilityImageView.setVisibility(View.INVISIBLE);
+        Object item = items.get(position);
+        if(headers.contains(item)) {
+            return TYPE_HEADER;
         }
         else {
-            holder.availabilityImageView.setVisibility(View.VISIBLE);
+            return TYPE_USER;
         }
-
-        row.setTag(holder);
-
-        return row;
     }
 
-    /** Disabling the header vies from clicks.*/
     @Override
-    public boolean isEnabled(int position) {
-        return false;
+    public int getItemCount() {
+        return items.size();
     }
 
-    public void setUsers(List<User> users, boolean sort) {
-        ArrayList<UserListItem> items = new ArrayList<>();
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if(viewType == TYPE_HEADER) {
+            View row = inflater.inflate(R.layout.chat_sdk_row_header, null);
+            return new HeaderViewHolder(row);
+        }
+        else if (viewType == TYPE_USER) {
+            View row = inflater.inflate(R.layout.chat_sdk_row_contact, null);
+            return new UserViewHolder(row);
+        }
+        return null;
+    }
 
-        for(User u : new ArrayList<>(users)) {
-            items.add(new UserListItem(u, R.layout.chat_sdk_row_contact));
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+
+        int type = getItemViewType(position);
+        final Object item = items.get(position);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSubject.onNext(item);
+            }
+        });
+
+        if(type == TYPE_HEADER) {
+            HeaderViewHolder hh = (HeaderViewHolder) holder;
+            String header = (String) item;
+            hh.textView.setText(header);
+        }
+        if(type == TYPE_USER) {
+            UserViewHolder uh = (UserViewHolder) holder;
+            UserListItem user = (UserListItem) item;
+
+            uh.nameTextView.setText(user.getName());
+
+            uh.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(user.getAvailability()));
+            uh.statusTextView.setText(user.getStatus());
+
+            uh.avatarImageView.setImageURI(user.getAvatarURL());
+
+            if (isMultiSelect && user instanceof User) {
+                uh.checkBox.setVisibility(View.VISIBLE);
+                uh.checkBox.setChecked(selectedUsersPositions.get(position));
+                uh.availabilityImageView.setVisibility(View.INVISIBLE);
+            }
+            else {
+                uh.availabilityImageView.setVisibility(View.VISIBLE);
+            }
         }
 
-        setUserItems(items, sort);
     }
 
-    public void setUserItems(List<UserListItem> userItems, boolean sort) {
-        filtering = false;
+    public Object getItem(int i) {
+        return items.get(i);
+    }
 
-        if (DEBUG) Timber.v("setUserItems, size: %s", (userItems == null ? "NULL" : userItems.size()));
-        
-        this.userItems.clear();
+    public void setUsers(List<UserListItem> users, boolean sort) {
+
+        this.items.clear();
 
         if (sort) {
-            sortList(userItems);
+            sortList(users);
         }
 
-        this.userItems.addAll(userItems);
+        for(UserListItem item : users) {
+            addUser(item);
+        }
 
         notifyDataSetChanged();
     }
 
-    public void setUserItems(List<UserListItem> userItems) {
-        setUserItems(userItems, false);
+    public void addUser (UserListItem user) {
+        addUser(user, false);
     }
 
-    public List<UserListItem> getUserItems() {
-        return userItems;
+    public void addUser (UserListItem user, boolean notify) {
+        if(!items.contains(user)) {
+            items.add(user);
+            if(notify) {
+                notifyDataSetChanged();
+            }
+        }
     }
 
-    /** 
+    public List<Object> getItems () {
+        return items;
+    }
+
+    public void addUser (UserListItem user, int atIndex, boolean notify) {
+        items.add(atIndex, user);
+        if(notify) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void addHeader (String header) {
+        if(!items.contains(header)) {
+            items.add(header);
+            headers.add(header);
+        }
+    }
+
+    public List<UserListItem> getSelectedUsers () {
+        List<UserListItem> users = new ArrayList<>();
+        for (int i = 0 ; i < getSelectedCount() ; i++) {
+            int pos = getSelectedUsersPositions().keyAt(i);
+            if(items.get(pos) instanceof UserListItem) {
+                users.add(((UserListItem) items.get(pos)));
+            }
+        }
+        return users;
+    }
+
+    public void setUsers(List<UserListItem> userItems) {
+        setUsers(userItems, false);
+    }
+
+    /**
      *  Clear the list.
      * 
      *  Calls notifyDataSetChanged.
      * * */
-    public void clear(){
-        userItems.clear();
+    public void clear() {
+        items.clear();
         clearSelection();
         notifyDataSetChanged();
     }
 
-    /**
-     * Filtering the user list by user name
-     *
-     * @param startWith the search input. This will be matched against user name in the listItems.
-     * * */
-//    public void filterStartWith(String startWith){
-//        filtering = true;
-//
-//        if (StringUtils.isBlank(startWith) || StringUtils.isEmpty(startWith))
-//        {
-//            this.userItems = listData;
-//        }
-//        else
-//        {
-//            startWith = startWith.trim();
-//
-//            List<UserListItem> filteredUsers = new ArrayList<>();
-//
-//            for (UserListItem u : listData)
-//            {
-//                if (u.getText().toLowerCase().startsWith(startWith.toLowerCase()))
-//                    filteredUsers.add(u);
-//            }
-//
-//            this.userItems = filteredUsers;
-//        }
-//
-//        sortList(userItems);
-//
-//        if (DEBUG) Timber.v("filterItems, Filtered users amount: %s", userItems.size());
-//
-//        notifyDataSetChanged();
-//    }
+    public UserListItem userAtPosition (int position) {
+        Object item = getItem(position);
+        if(item instanceof UserListItem) {
+            return (UserListItem) item;
+        }
+        else {
+            return null;
+        }
+    }
 
     /**
      * Sorting a given list using the internal comparator.
@@ -284,14 +260,14 @@ public class UsersListAdapter extends BaseAdapter {
     protected void sortList(List<UserListItem> list){
         Comparator comparator = new Comparator<UserListItem>() {
             @Override
-            public int compare(UserListItem i1, UserListItem i2) {
+            public int compare(UserListItem u1, UserListItem u2) {
                 String s1 = "";
-                if(i1 != null && i1.getText() != null) {
-                    s1 = i1.getText();
+                if(u1 != null && u1.getName() != null) {
+                    s1 = u1.getName();
                 }
                 String s2 = "";
-                if(i2 != null && i2.getText() != null) {
-                    s2 = i2.getText();
+                if(u2 != null && u2.getName() != null) {
+                    s2 = u2.getName();
                 }
 
                 return s1.compareToIgnoreCase(s2);
@@ -306,10 +282,13 @@ public class UsersListAdapter extends BaseAdapter {
      *                 
      * notifyDataSetChanged will be called.
      * * */
-    public boolean toggleSelection(int position){
-        boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
-        notifyDataSetChanged();
-        return selected;
+    public boolean toggleSelection(int position) {
+        return setViewSelected(position, !selectedUsersPositions.get(position));
+    }
+
+    public boolean toggleSelection(Object object) {
+        int position = items.indexOf(object);
+        return toggleSelection(position);
     }
 
     /**
@@ -317,13 +296,20 @@ public class UsersListAdapter extends BaseAdapter {
      * @param position the position in the list of the item that need to be toggled.
      * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
      * * */
-    public boolean setViewSelected(int position, boolean selected){
-        if (selected)
-            selectedUsersPositions.put(position, true);
-        else
-            selectedUsersPositions.delete(position);
+    public boolean setViewSelected(int position, boolean selected) {
+        UserListItem user = userAtPosition(position);
+        if(user != null) {
+            if (selected) {
+                selectedUsersPositions.put(position, true);
+            }
+            else {
+                selectedUsersPositions.delete(position);
+            }
+            notifyItemChanged(position);
 
-        return selected;
+            return selected;
+        }
+        return false;
     }
 
     public SparseBooleanArray getSelectedUsersPositions() {
@@ -343,7 +329,7 @@ public class UsersListAdapter extends BaseAdapter {
      * notifyDataSetChanged will be called.
      */
     public void selectAll() {
-        for (int i = 0; i < userItems.size(); i++) {
+        for (int i = 0; i < items.size(); i++) {
             setViewSelected(i, true);
         }
 
@@ -360,8 +346,8 @@ public class UsersListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public interface RowClickListener {
-         void click (int position);
+    public Observable<Object> getItemClicks () {
+        return onClickSubject;
     }
 
 }

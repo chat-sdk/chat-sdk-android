@@ -1,6 +1,7 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.view.LayoutInflater;
@@ -14,26 +15,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.utils.StringUtils;
+import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.fragments.BaseFragment;
+import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
-import co.chatsdk.ui.utils.UserAvatarHelper;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
@@ -48,7 +47,7 @@ public class ProfileFragment extends BaseFragment {
     public static int ProfileDetailRowHeight = 25;
     public static int ProfileDetailMargin = 8;
 
-    private CircleImageView avatarImageView;
+    private SimpleDraweeView avatarImageView;
     private ImageView flagImageView;
     private ImageView availabilityImageView;
     private TextView nameTextView;
@@ -110,7 +109,7 @@ public class ProfileFragment extends BaseFragment {
 
         setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
 
-        avatarImageView = (CircleImageView) mainView.findViewById(R.id.ivAvatar);
+        avatarImageView = (SimpleDraweeView) mainView.findViewById(R.id.ivAvatar);
         flagImageView = (ImageView) mainView.findViewById(R.id.ivFlag);
         availabilityImageView = (ImageView) mainView.findViewById(R.id.ivAvailability);
         nameTextView = (TextView) mainView.findViewById(R.id.tvName);
@@ -162,7 +161,10 @@ public class ProfileFragment extends BaseFragment {
         }
     }
 
-    public void updateInterfaceForUser(final User user) {
+    public void updateInterface() {
+
+        User user = getUser();
+
         if(user == null) {
             return;
         }
@@ -180,11 +182,11 @@ public class ProfileFragment extends BaseFragment {
         blockButton.setVisibility(visibility);
         deleteButton.setVisibility(visibility);
 
-        setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringUtils.isNullOrEmpty(user.getLocation()));
-        setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringUtils.isNullOrEmpty(user.getPhoneNumber()));
-        setRowVisible(R.id.ivDateOfBirth, R.id.tvDateOfBirth, !StringUtils.isNullOrEmpty(user.getDateOfBirth()));
-        setRowVisible(R.id.ivFollows, R.id.tvFollows, !StringUtils.isNullOrEmpty(user.getPresenceSubscription()));
-        setRowVisible(R.id.ivFollowed, R.id.tvFollowed, !StringUtils.isNullOrEmpty(user.getPresenceSubscription()));
+        setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
+        setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
+        setRowVisible(R.id.ivDateOfBirth, R.id.tvDateOfBirth, !StringChecker.isNullOrEmpty(user.getDateOfBirth()));
+        setRowVisible(R.id.ivFollows, R.id.tvFollows, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
+        setRowVisible(R.id.ivFollowed, R.id.tvFollowed, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
@@ -200,19 +202,19 @@ public class ProfileFragment extends BaseFragment {
                 blockButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        disposables.add(NM.blocking().isBlocked(user)
+                        disposables.add(NM.blocking().isBlocked(getUser())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new BiConsumer<Boolean, Throwable>() {
                                     @Override
                                     public void accept(Boolean blocked, Throwable throwable) throws Exception {
                                         if(blocked) {
-                                            disposables.add(NM.blocking().unblockUser(user)
+                                            disposables.add(NM.blocking().unblockUser(getUser())
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override
                                                         public void run() throws Exception {
                                                             updateBlockedButton(false);
-                                                            ToastHelper.show(R.string.user_unblocked);
+                                                            ToastHelper.show(getContext(), R.string.user_unblocked);
                                                         }
                                                     }, new Consumer<Throwable>() {
                                                         @Override
@@ -223,13 +225,13 @@ public class ProfileFragment extends BaseFragment {
                                                     }));
                                         }
                                         else {
-                                            disposables.add(NM.blocking().blockUser(user)
+                                            disposables.add(NM.blocking().blockUser(getUser())
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override
                                                         public void run() throws Exception {
                                                             updateBlockedButton(true);
-                                                            ToastHelper.show(getString(R.string.user_blocked));
+                                                            ToastHelper.show(getContext(), getString(R.string.user_blocked));
                                                         }
                                                     }, new Consumer<Throwable>() {
                                                         @Override
@@ -257,7 +259,7 @@ public class ProfileFragment extends BaseFragment {
                             .subscribe(new Action() {
                         @Override
                         public void run() throws Exception {
-                            ToastHelper.show(getString(R.string.user_deleted));
+                            ToastHelper.show(getContext(), getString(R.string.user_deleted));
                             getActivity().finish();
                         }
                     }, new Consumer<Throwable>() {
@@ -271,27 +273,6 @@ public class ProfileFragment extends BaseFragment {
             });
         }
 
-        this.updateInterface();
-    }
-
-    private void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
-        int lastViewId = firstViewId;
-        final float density = getContext().getResources().getDisplayMetrics().density;
-        for(int viewId : viewIds) {
-            View view = mainView.findViewById(viewId);
-            if(view.getVisibility() == View.VISIBLE) {
-                set.connect(viewId, ConstraintSet.TOP, lastViewId, ConstraintSet.BOTTOM, (int) (ProfileDetailMargin * density));
-                //set.constrainHeight(viewId, ProfileDetailRowHeight * density);
-                lastViewId = viewId;
-            }
-        }
-    }
-
-    private User getUser () {
-        return user != null ? user : NM.currentUser();
-    }
-
-    private void updateInterface () {
 
         // Country Flag
         String countryCode = getUser().getCountryCode();
@@ -306,10 +287,10 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Profile Image
-        UserAvatarHelper.loadAvatar(getUser(), avatarImageView).observeOn(AndroidSchedulers.mainThread()).subscribe();
+        avatarImageView.setImageURI(getUser().getAvatarURL());
 
         String status = getUser().getStatus();
-        if(!StringUtils.isNullOrEmpty(status)) {
+        if(!StringChecker.isNullOrEmpty(status)) {
             statusTextView.setText(status);
         }
         else {
@@ -390,9 +371,23 @@ public class ProfileFragment extends BaseFragment {
 
         stackViews(textViewIds, R.id.tvStatus, set);
 
-        set.applyTo(layout);
+        set.applyTo(layout);    }
 
+    private void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
+        int lastViewId = firstViewId;
+        final float density = getContext().getResources().getDisplayMetrics().density;
+        for(int viewId : viewIds) {
+            View view = mainView.findViewById(viewId);
+            if(view.getVisibility() == View.VISIBLE) {
+                set.connect(viewId, ConstraintSet.TOP, lastViewId, ConstraintSet.BOTTOM, (int) (ProfileDetailMargin * density));
+                //set.constrainHeight(viewId, ProfileDetailRowHeight * density);
+                lastViewId = viewId;
+            }
+        }
+    }
 
+    private User getUser () {
+        return user != null ? user : NM.currentUser();
     }
 
     /**
@@ -420,7 +415,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showSettings() {
-        InterfaceManager.shared().a.startEditProfileActivity(NM.currentUser().getEntityID());
+        InterfaceManager.shared().a.startEditProfileActivity(getContext(), NM.currentUser().getEntityID());
     }
 
     @Override
@@ -468,6 +463,10 @@ public class ProfileFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        updateInterfaceForUser(getUser());
+        updateInterface();
+    }
+
+    public void setUser (User user) {
+        this.user = user;
     }
 }

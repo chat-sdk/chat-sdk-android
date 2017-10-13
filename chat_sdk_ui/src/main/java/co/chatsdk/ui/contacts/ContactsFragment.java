@@ -9,7 +9,9 @@ package co.chatsdk.ui.contacts;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,34 +19,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import co.chatsdk.core.InterfaceManager;
+import java.util.ArrayList;
+import java.util.List;
+
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.fragments.BaseFragment;
+import co.chatsdk.core.utils.UserListItemConverter;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.main.BaseFragment;
+import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.core.dao.DaoCore;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -52,8 +52,6 @@ import timber.log.Timber;
  * Created by itzik on 6/17/2014.
  */
 public class ContactsFragment extends BaseFragment {
-
-    private static boolean DEBUG = Debug.ContactsFragment;
 
     /** Loading all the current user contacts.*/
     public static final int MODE_LOAD_CONTACTS = 1991;
@@ -77,14 +75,16 @@ public class ContactsFragment extends BaseFragment {
 
     public static final String LOADING_MODE = "Loading_Mode";
     public static final String CLICK_MODE = "Click_Mode";
-    public static final String IS_DIALOG = "is_dialog";
+    public static final String IS_DIALOG = "Is_Dialog";
 
     /** The text color that the adapter will use, Use -1 to set adapter to default color.*/
     protected int textColor = -1991;
 
     protected UsersListAdapter adapter;
     protected ProgressBar progressBar;
-    protected ListView listView;
+    protected RecyclerView recyclerView;
+
+    protected Disposable listOnClickListenerDisposable;
 
     private DisposableList disposables = new DisposableList();
 
@@ -117,9 +117,6 @@ public class ContactsFragment extends BaseFragment {
 
     protected Object extraData ="";
 
-    /** If true the fragment will listen to users details change and updates.*/
-    protected boolean withUpdates = true;
-
     /** Set to false if you dont want any menu item to be inflated for this fragment.
      *  This should be set before the fragment transaction,
      *  if you extends the fragment you can call it in {@link #onCreate(android.os.Bundle)}
@@ -148,8 +145,8 @@ public class ContactsFragment extends BaseFragment {
     /** Creates a new contact dialog.
      * @param threadID - The id of the thread that his users is the want you want to show.
      * @param title - The title of the dialog.
-     * @param withUpdates - the dialog will listen to user details changes.*/
-    public static ContactsFragment newThreadUsersDialogInstance(String threadID, String title, boolean withUpdates) {
+     */
+    public static ContactsFragment newThreadUsersDialogInstance(String threadID, String title) {
         ContactsFragment f = new ContactsFragment();
         f.setTitle(title);
 
@@ -203,9 +200,17 @@ public class ContactsFragment extends BaseFragment {
             @Override
             public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
                 loadData(false);
-                Timber.v("Contacts Notification");
             }
         }));
+
+        disposables.add(NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
+                        loadData(true);
+                    }
+                }));
 
     }
 
@@ -237,19 +242,18 @@ public class ContactsFragment extends BaseFragment {
     }
 
     public void initViews() {
-        listView = (ListView) mainView.findViewById(R.id.chat_sdk_list_contacts);
+        recyclerView = (RecyclerView) mainView.findViewById(R.id.chat_sdk_list_contacts);
 
         progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
-        if (adapter == null) {
-            adapter = new UsersListAdapter((AppCompatActivity) getActivity());
-        }
+        adapter = new UsersListAdapter();
 
         setTextColor(textColor);
 
-        listView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -273,8 +277,7 @@ public class ContactsFragment extends BaseFragment {
 
         // Each user that will be found in the search activity will be automatically added as a contact.
         if (id == R.id.action_chat_sdk_add) {
-            Intent intent = new Intent(getActivity(), InterfaceManager.shared().a.getSearchActivity());
-            startActivityForResult(intent, BaseInterfaceAdapter.REQUEST_CODE_GET_CONTACTS);
+            SearchActivity.startSearchActivity(getActivity());
             return true;
         }
 
@@ -286,13 +289,11 @@ public class ContactsFragment extends BaseFragment {
         final ArrayList<User> originalUserList = new ArrayList<>();
         originalUserList.addAll(sourceUsers);
 
-        reloadUsers()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action() {
+        reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 if (!originalUserList.equals(sourceUsers) || force) {
-                    adapter.setUsers(sourceUsers, true);
+                    adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
                     Timber.v("Update Contact List");
                 }
                 setupListClickMode();
@@ -308,17 +309,19 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void clearData() {
         if (adapter != null) {
-            adapter.getUserItems().clear();
-            adapter.notifyDataSetChanged();
+            adapter.clear();
         }
     }
 
     private void setupListClickMode() {
-        if(adapter.getRowClickListener() == null) {
-            adapter.setRowClickListener(new UsersListAdapter.RowClickListener() {
-                @Override
-                public void click(int position) {
-                    final User clickedUser = DaoCore.fetchEntityWithEntityID(User.class, adapter.getItem(position).getEntityID());
+        if(listOnClickListenerDisposable != null) {
+            listOnClickListenerDisposable.dispose();
+        }
+        listOnClickListenerDisposable = adapter.getItemClicks().subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(@NonNull Object o) throws Exception {
+                if(o instanceof User) {
+                    final User clickedUser = (User) o;
 
                     switch (clickMode) {
                         case CLICK_MODE_ADD_USER_TO_THREAD:
@@ -337,7 +340,7 @@ public class ContactsFragment extends BaseFragment {
                                         .subscribe(new Action() {
                                             @Override
                                             public void run() throws Exception {
-                                                ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
+                                                ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
                                                 if (isDialog) {
                                                     getDialog().dismiss();
                                                 }
@@ -346,7 +349,7 @@ public class ContactsFragment extends BaseFragment {
                                             @Override
                                             public void accept(@NonNull Throwable throwable) throws Exception {
                                                 throwable.printStackTrace();
-                                                ToastHelper.show(getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                                ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
                                             }
                                         });
                             }
@@ -355,11 +358,11 @@ public class ContactsFragment extends BaseFragment {
                         case CLICK_MODE_NONE:
                             break;
                         default:
-                            InterfaceManager.shared().a.startProfileActivity(clickedUser.getEntityID());
+                            InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     private Completable reloadUsers () {
@@ -372,13 +375,11 @@ public class ContactsFragment extends BaseFragment {
                    // If this is not a dialog we will load the contacts of the user.
                     switch (loadingMode) {
                         case MODE_LOAD_CONTACTS:
-                            if (DEBUG) Timber.d("Mode - Contacts");
                             sourceUsers.addAll(NM.contact().contacts());
                             Timber.d("Contacts: " + sourceUsers.size());
                             break;
 
                         case MODE_LOAD_THREAD_USERS:
-                            if (DEBUG) Timber.d("Mode - CoreThread Users");
                             Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
 
                             // Remove the current user from the list.
@@ -426,8 +427,7 @@ public class ContactsFragment extends BaseFragment {
     public void setTextColor(int textColor) {
         this.textColor = textColor;
 
-        if (adapter!=null)
-        {
+        if (adapter!=null) {
             adapter.notifyDataSetChanged();
         }
     }
@@ -438,12 +438,4 @@ public class ContactsFragment extends BaseFragment {
         disposables.dispose();
     }
 
-
-    public void withUpdates(boolean withUpdates) {
-        this.withUpdates = withUpdates;
-    }
-
-//    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
-//        listView.setOnItemClickListener(onItemClickListener);
-//    }
 }

@@ -19,30 +19,27 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 
-import co.chatsdk.core.InterfaceManager;
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.base.BaseConfigurationHandler;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.utils.Strings;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
-import timber.log.Timber;
-import co.chatsdk.ui.utils.Strings;
 
 public class NotificationUtils {
 
@@ -51,7 +48,6 @@ public class NotificationUtils {
     public static final int NOTIFICATION_ALERT_ID = 1990;
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
-    private static final boolean DEBUG = Debug.NotificationUtils;
 
     public static final String TITLE = "title";
     public static final String TICKER = "ticker";
@@ -65,8 +61,6 @@ public class NotificationUtils {
 
     private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, Bitmap bitmap, int smallIconResID, Uri soundUri, int number){
         String title, content;
-
-        if (DEBUG) Timber.i("createAlertNotification, ID: %s, Number: %s", id, number);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -107,17 +101,11 @@ public class NotificationUtils {
 
 
                 // Adding the lines to the notification
-                if (data.containsKey(LINES))
-                {
+                if (data.containsKey(LINES)) {
                     ArrayList<String> list = data.getStringArrayList(LINES);
 
                     if (list != null && list.size()>0) {
-
-                        if (DEBUG) Timber.d("Contains lines: %s, listSize: %s", data.containsKey(LINES), list.size());
-
-                        for (String s : list)
-                        {
-                            if (DEBUG) Timber.d("Line Added: %s", s);
+                        for (String s : list) {
                             style.addLine(s);
                         }
                     }
@@ -171,7 +159,6 @@ public class NotificationUtils {
     }
 
     public static void createMessageNotification(final Context context, final int id, Message message, final int smallIconResID, final Uri soundUri, final int number){
-        if (DEBUG) Timber.v("createMessageNotification");
 
         final Intent resultIntent = getChatResultIntent(context);
         resultIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID,  message.getThreadId());
@@ -213,8 +200,6 @@ public class NotificationUtils {
     private static ArrayList<String> getNotificationLines(Context context, Bundle data){
         List<Thread> threads = NM.thread().getThreads(ThreadType.Private);
 
-        if (DEBUG) Timber.v("getNotification, CoreThread size: %s", threads == null ? "0" : threads.size());
-
         if (threads == null)
             return new ArrayList<>();
 
@@ -230,9 +215,6 @@ public class NotificationUtils {
         for (Thread t : threads)
         {
             m = t.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-
-            if (DEBUG) Timber.v("getNotification, CoreThread messages size: %s", m.size());
 
             // Max of three lines from each thread.
             for (int i = 0 ; i < 3; i++){
@@ -281,10 +263,7 @@ public class NotificationUtils {
 
             return true;
         }
-        else if (DEBUG)
-            Timber.i("addLine, message was read? %s, payload: %s",
-                    message == null? "message is null" : message.wasRead(), message == null ? "null" : message.getTextString());
-        
+
         return false;
     }
   

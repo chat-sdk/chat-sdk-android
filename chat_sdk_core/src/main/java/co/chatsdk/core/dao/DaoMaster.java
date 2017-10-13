@@ -28,6 +28,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FollowerLinkDao.createTable(db, ifNotExists);
         ContactLinkDao.createTable(db, ifNotExists);
         ThreadDao.createTable(db, ifNotExists);
+        ReadReceiptUserLinkDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -39,6 +40,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FollowerLinkDao.dropTable(db, ifExists);
         ContactLinkDao.dropTable(db, ifExists);
         ThreadDao.dropTable(db, ifExists);
+        ReadReceiptUserLinkDao.dropTable(db, ifExists);
     }
 
     /**
@@ -64,6 +66,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(FollowerLinkDao.class);
         registerDaoClass(ContactLinkDao.class);
         registerDaoClass(ThreadDao.class);
+        registerDaoClass(ReadReceiptUserLinkDao.class);
     }
 
     public DaoSession newSession() {

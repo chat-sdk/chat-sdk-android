@@ -1,6 +1,5 @@
 package co.chatsdk.core;
 
-import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
@@ -54,6 +53,12 @@ public class StorageManager {
         return entity;
     }
 
+    public <T extends CoreEntity> T createEntity (Class<T> c) {
+        T entity = DaoCore.getEntityForClass(c);
+        DaoCore.createEntity(entity);
+        return entity;
+    }
+
     public User fetchUserWithEntityID (String entityID) {
         return DaoCore.fetchEntityWithEntityID(User.class, entityID);
     }
@@ -67,7 +72,10 @@ public class StorageManager {
     }
 
     public Thread fetchThreadWithEntityID (String entityID) {
-        return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
+        if(entityID != null) {
+            return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
+        }
+        return null;
     }
 
     public Thread fetchThreadWithUsers (List<User> users) {

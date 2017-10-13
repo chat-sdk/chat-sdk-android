@@ -7,14 +7,11 @@
 
 package co.chatsdk.ui.login;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -24,26 +21,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import co.chatsdk.core.InterfaceManager;
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
-import io.reactivex.CompletableObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.NM;
+import co.chatsdk.core.types.AccountDetails;
+import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.main.BaseActivity;
+import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import timber.log.Timber;
-
-import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -90,6 +80,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
 
         ConstraintSet set = new ConstraintSet();
+        set.clone((ConstraintLayout) findViewById(R.id.chat_sdk_root_view));
 
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
             set.constrainWidth(R.id.chat_sdk_btn_facebook_login, 0);
@@ -209,7 +200,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         initListeners();
 
         // If the logged out flag isn't set...
-        if (getIntent() == null || getIntent().getExtras() == null || (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
+        if (getIntent() == null ||
+                getIntent().getExtras() == null ||
+                getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN) == null ||
+                (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
 
             showProgressDialog(getString(R.string.authenticating));
 
@@ -264,7 +258,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void afterLogin() {
 
         dismissProgressDialog();
-        InterfaceManager.shared().a.startMainActivity();
+        InterfaceManager.shared().a.startMainActivity(this);
     }
 
     public void passwordLogin() {

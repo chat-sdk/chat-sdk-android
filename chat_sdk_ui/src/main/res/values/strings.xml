@@ -79,6 +79,7 @@
     <string name="search_activity_user_added_as_contact_after_count_toast"> Users were added as contacts</string>
     <string name="search_activity_prog_dialog_init_message">Fetching&#8230;</string>
     <string name="search_activity_prog_dialog_before_count_message">Fetching&#8230; Found:&#160;</string>
+    <string name="search_activity_searching_message">Searching</string>
 
     <!--PublicThreadFragment-->
     <string name="public_thread_fragment_add_item_text">Add Public chat Room</string>

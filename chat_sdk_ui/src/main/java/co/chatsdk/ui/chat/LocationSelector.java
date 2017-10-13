@@ -20,7 +20,7 @@ public class LocationSelector {
     private Result resultHandler;
     private Activity activity;
 
-    interface Result {
+    public interface Result {
         void result (String snapshotPath, LatLng latLng);
     }
 

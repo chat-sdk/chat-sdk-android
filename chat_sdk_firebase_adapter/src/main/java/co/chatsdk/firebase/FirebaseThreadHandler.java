@@ -1,17 +1,11 @@
 package co.chatsdk.firebase;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,10 +15,13 @@ import java.util.List;
 import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.ui.utils.Strings;
@@ -38,7 +35,6 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -70,25 +66,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
         return setUserThreadLinkValue(thread, users, Keys.Null);
-
-//
-//        if(thread == null) {
-//            return Flowable.error(new Throwable("Thread cannot be null"));
-//        }
-//
-//        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-//        ArrayList<Single<User>> singles = new ArrayList<>();
-//
-//        for (final User user : users){
-//            singles.add(threadWrapper.addUser(UserWrapper.initWithModel(user)).toSingle(new Callable<User>() {
-//                @Override
-//                public User call () throws Exception {
-//                    return user;
-//                }
-//            }));
-//        }
-//
-//        return Single.merge(singles);
     }
 
     /**
@@ -152,24 +129,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
         return setUserThreadLinkValue(thread, users, null);
-
-//        if(thread == null) {
-//            return Flowable.error(new Throwable("Thread cannot be null"));
-//        }
-//
-//        ThreadWrapper threadWrapper = new ThreadWrapper(thread);
-//        ArrayList<Single<User>> singles = new ArrayList<>();
-//
-//        for (final User user : users){
-//            singles.add(threadWrapper.removeUser(UserWrapper.initWithModel(user)).toSingle(new Callable<User>() {
-//                @Override
-//                public User call () throws Exception {
-//                    return user;
-//                }
-//            }));
-//        }
-//
-//        return Single.merge(singles);
     }
 
     public Completable pushThread(Thread thread) {
@@ -388,7 +347,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         if (NM.push() == null || users.size() == 0)
             return;
 
-        // We're identifying each user using push channels. This means that
+        // We'recyclerView identifying each user using push channels. This means that
         // when a user signs up, they register with backendless on a particular
         // channel. In this case user_[user id] this means that we can
         // send a push to a specific user if we know their user id.

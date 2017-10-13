@@ -1,23 +1,42 @@
 package co.chatsdk.ui;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 
+import com.facebook.cache.disk.DiskCacheConfig;
+import com.facebook.common.logging.FLog;
+import com.facebook.common.util.ByteConstants;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.listener.RequestListener;
+import com.facebook.imagepipeline.listener.RequestLoggingListener;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.InterfaceAdapter;
-import co.chatsdk.core.utils.AppContext;
-import co.chatsdk.ui.main.MainActivity;
-import co.chatsdk.ui.activities.SearchActivity;
-import co.chatsdk.ui.contacts.SelectContactActivity;
+import co.chatsdk.core.interfaces.ChatOption;
+import co.chatsdk.core.interfaces.ChatOptionsDelegate;
+import co.chatsdk.core.interfaces.ChatOptionsHandler;
+import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
+import co.chatsdk.ui.chat.options.LocationChatOption;
+import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.contacts.ContactsFragment;
+import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.login.LoginActivity;
+import co.chatsdk.ui.main.MainActivity;
 import co.chatsdk.ui.profile.EditProfileActivity;
 import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.profile.ProfileFragment;
@@ -31,7 +50,37 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public static final String THREAD_ENTITY_ID = "THREAD_ENTITY_ID";
     public static final String ATTEMPT_CACHED_LOGIN = "ATTEMPT_CACHED_LOGIN";
 
-    public static final int REQUEST_CODE_GET_CONTACTS = 101;
+    public List<SearchActivityType> searchActivities = new ArrayList<>();
+    public List<ChatOption> chatOptions = new ArrayList<>();
+    public ChatOptionsHandler chatOptionsHandler = null;
+    public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
+
+    private WeakReference<Context> context;
+
+    public BaseInterfaceAdapter (Context context) {
+
+        this.context = new WeakReference<>(context);
+
+        DiskCacheConfig diskCacheConfig = DiskCacheConfig
+                .newBuilder(context)
+                .setMaxCacheSizeOnVeryLowDiskSpace(10 * ByteConstants.MB)
+                .setMaxCacheSizeOnLowDiskSpace(20 * ByteConstants.MB)
+                .setMaxCacheSize(40 * ByteConstants.MB)
+                .build();
+
+        Set<RequestListener> requestListeners = new HashSet<>();
+        requestListeners.add(new RequestLoggingListener());
+
+        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(context)
+                // other setters
+                .setRequestListeners(requestListeners)
+                .setMainDiskCacheConfig(diskCacheConfig)
+                .build();
+        Fresco.initialize(context, config);
+        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
+
+        this.context = new WeakReference<>(context);
+    }
 
     @Override
     public List<Tab> defaultTabs() {
@@ -66,7 +115,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Activity profileActivity(User user) {
+    public AppCompatActivity profileActivity(User user) {
         return null;
     }
 
@@ -117,7 +166,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Class getSearchActivity() {
-        return SearchActivity.class;
+        return SearchActivityType.class;
     }
 
     @Override
@@ -130,50 +179,140 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         return ProfileActivity.class;
     }
 
-    public void startActivity(Class activity){
-        Intent intent = new Intent(AppContext.shared().context(), activity);
-        startActivity(intent);
+    public void startActivity(Context context, Class activity){
+        Intent intent = new Intent(context, activity);
+        startActivity(context, intent);
     }
 
-    public void startActivity (Intent intent) {
+    public void startActivity (Context context, Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        AppContext.shared().context().startActivity(intent);
+        context.startActivity(intent);
     }
 
-    public void startChatActivityForID(String threadEntityID) {
-        Intent intent = new Intent(AppContext.shared().context(), getChatActivity());
+    public void startChatActivityForID(Context context, String threadEntityID) {
+        Intent intent = new Intent(context, getChatActivity());
         intent.putExtra(THREAD_ENTITY_ID, threadEntityID);
-        startActivity(intent);
+        startActivity(context, intent);
     }
 
-    public void startLoginActivity(boolean attemptCachedLogin){
-        Intent intent = new Intent(AppContext.shared().context(), getLoginActivity());
+    public void startLoginActivity(Context context, boolean attemptCachedLogin){
+        Intent intent = new Intent(context, getLoginActivity());
         intent.putExtra(ATTEMPT_CACHED_LOGIN, attemptCachedLogin);
-        startActivity(intent);
+        startActivity(context, intent);
     }
 
-    public void startEditProfileActivity(String userEntityID){
-        Intent intent = new Intent(AppContext.shared().context(), getEditProfileActivity());
+    public void startEditProfileActivity(Context context, String userEntityID){
+        Intent intent = new Intent(context, getEditProfileActivity());
         intent.putExtra(USER_ENTITY_ID, userEntityID);
-        startActivity(intent);
+        startActivity(context, intent);
     }
 
-    public void startMainActivity () {
-        startActivity(getMainActivity());
+    public void startMainActivity (Context context) {
+        startActivity(context, getMainActivity());
     }
 
-    public void startSearchActivity () {
-        startActivity(getSearchActivity());
+    public void startSearchActivity (Context context) {
+        startActivity(context, getSearchActivity());
     }
 
-    public void startSelectContactsActivity() {
-        startActivity(getSelectContactActivity());
+    public void startSelectContactsActivity(Context context) {
+        startActivity(context, getSelectContactActivity());
     }
 
-    public void startProfileActivity(String userEntityID) {
-        Intent intent = new Intent(AppContext.shared().context(), getProfileActivity());
+    @Override
+    public void addSearchActivity(Class className, String title) {
+        SearchActivityType activity = new SearchActivityType(className, title);
+        removeSearchActivity(className);
+        searchActivities.add(activity);
+    }
+
+    @Override
+    public void removeSearchActivity(Class className) {
+        Iterator<SearchActivityType> iterator = searchActivities.iterator();
+        while (iterator.hasNext()) {
+            if(iterator.next().className.equals(className)) {
+                searchActivities.remove(iterator.next());
+            }
+        }
+    }
+
+    @Override
+    public List<SearchActivityType> getSearchActivities() {
+        return searchActivities;
+    }
+
+    @Override
+    public void addChatOption(ChatOption option) {
+        if(!chatOptions.contains(option)) {
+            chatOptions.add(option);
+        }
+    }
+
+    @Override
+    public void removeChatOption(ChatOption option) {
+        if(chatOptions.contains(option)) {
+            chatOptions.remove(option);
+        }
+    }
+
+    @Override
+    public ArrayList<ChatOption> getChatOptions() {
+
+        ArrayList<ChatOption> options = new ArrayList<>();
+
+        if(NM.config().booleanForKey(BaseConfigurationHandler.LocationMessagesEnabled)) {
+            options.add(new LocationChatOption("Location"));
+        }
+
+        if(NM.config().booleanForKey(BaseConfigurationHandler.ImageMessagesEnabled)) {
+            options.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
+            options.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
+        }
+
+        for(ChatOption o : chatOptions) {
+            options.add(o);
+        }
+
+        return options;
+    }
+
+    public void startProfileActivity(Context context, String userEntityID) {
+        Intent intent = new Intent(context, getProfileActivity());
         intent.putExtra(USER_ENTITY_ID, userEntityID);
-        startActivity(intent);
+        startActivity(context, intent);
+    }
+
+    @Override
+    public void setChatOptionsHandler(ChatOptionsHandler handler) {
+        chatOptionsHandler = handler;
+    }
+
+    @Override
+    public ChatOptionsHandler getChatOptionsHandler(ChatOptionsDelegate delegate) {
+        if(chatOptionsHandler == null) {
+            chatOptionsHandler = new DialogChatOptionsHandler(delegate);
+        }
+        chatOptionsHandler.setDelegate(delegate);
+        return chatOptionsHandler;
+    }
+
+    @Override
+    public void addCustomMessageHandler(CustomMessageHandler handler) {
+        if(!customMessageHandlers.contains(handler)) {
+            customMessageHandlers.add(handler);
+        }
+    }
+
+    @Override
+    public void removeCustomMessageHandler(CustomMessageHandler handler) {
+        if(customMessageHandlers.contains(handler)) {
+            customMessageHandlers.remove(handler);
+        }
+    }
+
+    @Override
+    public List<CustomMessageHandler> getCustomMessageHandlers() {
+        return customMessageHandlers;
     }
 
 

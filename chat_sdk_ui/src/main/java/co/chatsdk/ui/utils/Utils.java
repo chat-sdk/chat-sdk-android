@@ -9,18 +9,9 @@ package co.chatsdk.ui.utils;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Environment;
 
-import co.chatsdk.core.types.Defines;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import timber.log.Timber;
 
 
 public class Utils {

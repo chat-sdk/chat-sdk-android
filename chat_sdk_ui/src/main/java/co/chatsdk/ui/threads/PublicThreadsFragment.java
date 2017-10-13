@@ -10,7 +10,9 @@ package co.chatsdk.ui.threads;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,28 +20,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import co.chatsdk.core.InterfaceManager;
 import co.chatsdk.core.NM;
-
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.CompletableSource;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.R;
-
-
 import io.reactivex.functions.Function;
 
 /**
@@ -47,7 +43,7 @@ import io.reactivex.functions.Function;
  */
 public class PublicThreadsFragment extends BaseFragment {
 
-    private ListView listThreads;
+    private RecyclerView listThreads;
     private ThreadsListAdapter adapter;
 
     @Override
@@ -69,6 +65,16 @@ public class PublicThreadsFragment extends BaseFragment {
             }
         });
 
+        NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        adapter.setTyping(networkEvent.thread, networkEvent.text);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
         reloadData();
 
         return mainView;
@@ -76,22 +82,23 @@ public class PublicThreadsFragment extends BaseFragment {
 
     public void initViews(LayoutInflater inflater) {
         mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
-        listThreads = (ListView) mainView.findViewById(R.id.list_threads);
-        adapter = new ThreadsListAdapter((AppCompatActivity) getActivity());
+        listThreads = (RecyclerView) mainView.findViewById(R.id.list_threads);
+        adapter = new ThreadsListAdapter(getActivity());
 
+        listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        listThreads.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        adapter.onClickObservable().subscribe(new Consumer<Thread>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                InterfaceManager.shared().a.startChatActivityForID(adapter.getItem(position).getEntityID());
+            public void accept(@NonNull Thread thread) throws Exception {
+                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
             }
         });
     }
 
     @Override
     public void reloadData() {
-        adapter.setAllItems(NM.thread().getThreads(ThreadType.Public));
+        adapter.setItems(NM.thread().getThreads(ThreadType.Public));
     }
 
     @Override
@@ -116,6 +123,7 @@ public class PublicThreadsFragment extends BaseFragment {
             // Set up the input
             final EditText input = new EditText(this.getContext());
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
             builder.setView(input);
 
             // Set up the buttons
@@ -126,11 +134,10 @@ public class PublicThreadsFragment extends BaseFragment {
                     showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
                     final String threadName = input.getText().toString();
 
-                    NM.publicThread().createPublicThreadWithName(threadName).flatMapCompletable(new Function<Thread, CompletableSource>() {
+                    NM.publicThread().createPublicThreadWithName(threadName).flatMapCompletable(new Function<Thread, Completable>() {
                         @Override
-                        public CompletableSource apply(@NonNull final Thread thread) throws Exception {
-
-                            return  NM.thread().addUsersToThread(thread, NM.currentUser()).doOnError(new Consumer<Throwable>() {
+                        public Completable apply(final Thread thread) throws Exception {
+                            return NM.thread().addUsersToThread(thread, NM.currentUser()).doOnError(new Consumer<Throwable>() {
                                 @Override
                                 public void accept(@NonNull Throwable throwable) throws Exception {
                                     throwable.printStackTrace();
@@ -144,15 +151,14 @@ public class PublicThreadsFragment extends BaseFragment {
                                     adapter.addRow(thread);
 
                                     // TODO: Improve this
-                                    ToastHelper.show(getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
+                                    ToastHelper.show(getContext(), getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
 
-                                    InterfaceManager.shared().a.startChatActivityForID(thread.getEntityID());
+                                    InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
 
                                 }
                             });
                         }
                     }).observeOn(AndroidSchedulers.mainThread()).subscribe();
-
                 }
             });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

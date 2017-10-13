@@ -3,14 +3,11 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
-import com.squareup.picasso.Picasso;
 
-import co.chatsdk.core.utils.StringUtils;
+import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import timber.log.Timber;
 
 /**
@@ -46,7 +43,7 @@ public class FirebaseEntity {
 
                 Timber.v(path +'/'+entityID+'/'+key);
 
-                if(StringUtils.isNullOrEmpty(path) || StringUtils.isNullOrEmpty(entityID) || StringUtils.isNullOrEmpty(key)) {
+                if(StringChecker.isNullOrEmpty(path) || StringChecker.isNullOrEmpty(entityID) || StringChecker.isNullOrEmpty(key)) {
                     e.onComplete();
                     return;
                 }

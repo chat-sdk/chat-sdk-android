@@ -47,9 +47,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+
     compile 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
@@ -61,22 +59,12 @@ dependencies {
     // Seems to be an issue with Android Studio... Not actually a problem
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    testCompile 'junit:junit:4.12'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
-
-//    compile project(path: ':chat_sdk_social_login')
-    compile project(path: ':chat_sdk_core')
-    compile 'com.google.android.gms:play-services-appindexing:9.0.2'
-
-    compile 'com.google.android.gms:play-services:9.0.2'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'com.makeramen:roundedimageview:2.3.0'
-//    compile 'com.github.jakob-grabner:Circle-ProgressListener-View:v1.3'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'id.zelory:compressor:2.0.0'
-    compile 'com.kaopiz:kprogresshud:1.1.0'
     compile 'com.soundcloud.android:android-crop:1.0.1@aar'
+    compile 'com.facebook.fresco:fresco:1.5.0'
+
+    compile project(path: ':chat_sdk_core')
 }

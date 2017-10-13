@@ -6,8 +6,8 @@
     tools:context="co.chatsdk.ui.main.MainActivity">
 
     <com.astuetz.PagerSlidingTabStrip
-        android:id="@+id/tabs"
-        style="@style/TabSlidingPager" />
+        style="@style/TabSlidingPager"
+        android:id="@+id/tabs" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

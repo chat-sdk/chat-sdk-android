@@ -7,69 +7,49 @@
 
 package co.chatsdk.ui.threads;
 
-import android.support.v7.app.ActionBar;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ProgressBar;
 
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.utils.ImageUtils;
-
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
-import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiConsumer;
-import co.chatsdk.ui.R;
-import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.helpers.DialogUtils;
-import co.chatsdk.core.dao.DaoCore;
-
-import co.chatsdk.ui.utils.Cropper;
-import com.soundcloud.android.crop.Crop;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-
+import co.chatsdk.core.NM;
+import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.contacts.ContactsFragment;
+import co.chatsdk.ui.helpers.DialogUtils;
+import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
+import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.Strings;
-import timber.log.Timber;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by braunster on 24/11/14.
  */
 public class ThreadDetailsActivity extends BaseActivity {
 
-    private static final boolean DEBUG = Debug.ThreadDetailsActivity;
-
-    private static final int THREAD_PIC = 1991;
-
     /** Set true if you want slide down animation for this activity exit. */
     protected boolean animateExit = false;
 
     protected Thread thread;
-
-    private CircleImageView threadImageView;
+    private SimpleDraweeView threadImageView;
 
     private ContactsFragment contactsFragment;
+    private DisposableList disposableList = new DisposableList();
 
     private ActionBar actionBar;
-
-    private Cropper crop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +70,15 @@ public class ThreadDetailsActivity extends BaseActivity {
         setContentView(R.layout.chat_sdk_activity_thread_details);
 
         initViews();
+
+        disposableList.add(NM.events().sourceOnMain()
+                .filter(NetworkEvent.threadUsersUpdated())
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
+                        loadData();
+                    }
+                }));
 
         loadData();
     }
@@ -124,29 +113,18 @@ public class ThreadDetailsActivity extends BaseActivity {
             }
         });
 
-        threadImageView = (CircleImageView) findViewById(R.id.chat_sdk_thread_image_view);
+        threadImageView = (SimpleDraweeView) findViewById(R.id.chat_sdk_thread_image_view);
     }
 
     private void loadData () {
 
-        threadImageView.setVisibility(View.INVISIBLE);
-
-        ThreadImageBuilder.getBitmapForThread(this, thread)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BiConsumer<Bitmap, Throwable>() {
-            @Override
-            public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                    threadImageView.setImageBitmap(bitmap);
-                    threadImageView.setVisibility(View.VISIBLE);
-            }
-        });
+        ThreadImageBuilder.load(threadImageView, thread);
 
         // CoreThread users bundle
         contactsFragment = new ContactsFragment();
         contactsFragment.setInflateMenu(false);
         contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
-        contactsFragment.withUpdates(true);
         contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_NONE);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
@@ -182,88 +160,14 @@ public class ThreadDetailsActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (DEBUG) Timber.v("onActivityResult");
-
-        if (requestCode == THREAD_PIC)
-        {
-            if (resultCode == AppCompatActivity.RESULT_OK)
-            {
-                Uri uri = data.getData();
-
-                Uri outputUri = Uri.fromFile(new File(this.getCacheDir(), "cropped_thread_image.jpg"));
-                crop = new Cropper(uri);
-
-                Intent cropIntent = crop.getIntent(this, outputUri);
-                int request = Crop.REQUEST_CROP + THREAD_PIC;
-                startActivityForResult(cropIntent, request);
-            }
-        }
-        else  if (requestCode == Crop.REQUEST_CROP + THREAD_PIC) {
-            if (resultCode == Crop.RESULT_ERROR)
-            {
-                showToast(getString(R.string.unable_to_fetch_image));
-            }
-
-            try
-            {
-                File image;
-                Uri uri = Crop.getOutput(data);
-
-                if (DEBUG) Timber.d("Fetch image URI: %s", uri.toString());
-                image = new File(this.getCacheDir(), "cropped_thread_image.jpg");
-
-                Bitmap b = ImageUtils.loadBitmapFromFile(image.getPath());
-
-                if (b == null)
-                {
-                    b = ImageUtils.loadBitmapFromFile(getCacheDir().getPath() + image.getPath());
-                    if (b == null)
-                    {
-                        showToast(getString(R.string.unable_to_save_file));
-                        if (DEBUG) Timber.e("Cant save image to backendless file path is invalid: %s",
-                                getCacheDir().getPath() + image.getPath());
-                        return;
-                    }
-                }
-
-                threadImageView.setImageBitmap(b);
-
-//                Bitmap imageBitmap = ImageUtils.getCompressed(image.getPath());
-//
-//                NM.upload().uploadImage(imageBitmap).subscribe(new Observer<FileUploadResult>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//                    }
-//
-//                    @Override
-//                    public void onNext(FileUploadResult value) {
-//                        if(value.urlsAreSet()) {
-//                            thread.setImageURL(value.url);
-//                            DaoCore.updateEntity(thread);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        showToast(getString(R.string.unable_to_save_file));
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        NM.thread().pushThread(thread);
-//                    }
-//                });
-
-            }
-            catch (NullPointerException e){
-                if (DEBUG) Timber.e("Null pointer when getting file.");
-                showToast(getString(R.string.unable_to_fetch_image));
-            }
-        }
-
-
+        // TODO: Enable thread images
     }
 
+    @Override
+    protected void onStop() {
+        disposableList.dispose();
+        super.onStop();
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {

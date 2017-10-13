@@ -7,31 +7,31 @@
 
 package co.chatsdk.ui.chat;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 
-import co.chatsdk.core.InterfaceManager;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import co.chatsdk.core.NM;
-
 import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.base.BaseConfigurationHandler;
@@ -41,58 +41,60 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
+import co.chatsdk.core.interfaces.ChatOption;
+import co.chatsdk.core.interfaces.ChatOptionsDelegate;
+import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.contacts.ContactsFragment;
+import co.chatsdk.ui.contacts.SelectContactActivity;
+import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.utils.Strings;
 import co.chatsdk.ui.utils.ToastHelper;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.contacts.SelectContactActivity;
-
-import co.chatsdk.core.defines.Debug;
-
-import co.chatsdk.ui.contacts.ContactsFragment;
-
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import co.chatsdk.ui.utils.Strings;
-
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
-public class ChatActivity extends BaseActivity implements AbsListView.OnScrollListener {
-
-    private static final boolean DEBUG = Debug.ChatActivity;
+public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate {
 
     public static final int ADD_USERS = 103;
     public static final int SHOW_DETAILS = 200;
+
+    private ChatOptionsHandler optionsHandler;
+    public PublishSubject<ActivityResult> activityResultPublishSubject = PublishSubject.create();
+
+    public class ActivityResult {
+        public int requestCode;
+        public int resultCode;
+        public Intent data;
+
+        public ActivityResult (int requestCode, int resultCode, Intent data) {
+            this.requestCode = requestCode;
+            this.resultCode = resultCode;
+            this.data = data;
+        }
+    }
 
     private enum ListPosition {
         Top, Current, Bottom
     }
 
     private static boolean enableTrace = false;
-
-    public static final String ACTION_CHAT_CLOSED = "co.chatsdk.chat_closed";
 
     /**
      * The key to get the thread long id.
@@ -107,11 +109,11 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected View actionBarView;
 
     protected TextInputView textInputView;
-    protected ListView messageListView;
+    protected RecyclerView recyclerView;
     protected MessagesListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView typingTextView;
-    protected PermissionRequestHandler permissionHandler;
+    protected PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
     private DisposableList disposableList = new DisposableList();
     private Disposable typingTimerDisposable;
@@ -120,9 +122,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     protected int listPos = -1;
 
     protected Bundle bundle;
-
-    /** Keeping track of the amount of messages that was read in this thread.*/
-    private int readCount = 0;
 
     /**
      * If set to false in onCreate the menu items wont be inflated in the menu.
@@ -135,18 +134,15 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      */
     protected boolean scrolling = false;
 
-    private PhotoSelector photoSelector = new PhotoSelector();
-    private LocationSelector locationSelector = new LocationSelector();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         initViews();
 
-        if (!updateThreadFromBundle(savedInstanceState))
+        if (!updateThreadFromBundle(savedInstanceState)) {
             return;
-
+        }
 
         if (savedInstanceState != null) {
             listPos = savedInstanceState.getInt(LIST_POS, -1);
@@ -201,7 +197,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 }
             });
 
-
             TextView textView = (TextView) actionBarView.findViewById(R.id.tvName);
 
             String displayName = Strings.nameForThread(thread);
@@ -210,103 +205,22 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
             typingTextView = (TextView) actionBarView.findViewById(R.id.tvTyping);
 
-            final CircleImageView circleImageView = (CircleImageView) actionBarView.findViewById(R.id.ivAvatar);
-
-            disposableList.add(ThreadImageBuilder.getBitmapForThread(this, thread)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new BiConsumer<Bitmap, Throwable>() {
-                @Override
-                public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                    circleImageView.setImageBitmap(bitmap);
-                }
-            }));
+            final SimpleDraweeView circleImageView = (SimpleDraweeView) actionBarView.findViewById(R.id.ivAvatar);
+            ThreadImageBuilder.load(circleImageView, thread);
 
             ab.setCustomView(actionBarView);
-
         }
     }
 
     protected void initViews() {
 
-        final Activity activity = this;
-
         setContentView(R.layout.chat_sdk_activity_chat);
 
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = (TextInputView) findViewById(R.id.chat_sdk_message_box);
+        textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(NM.audioMessage() != null);
         textInputView.setAudioModeEnabled(true);
-
-        textInputView.setListener(new TextInputView.Listener() {
-            @Override
-            public void onLocationPressed() {
-                try {
-                    locationSelector.startChooseLocationActivity(activity, new LocationSelector.Result() {
-                        @Override
-                        public void result (String filePath, LatLng latLng) {
-                            sendLocationMessage(filePath, latLng);
-                        }
-                    });
-                }
-                catch (Exception e) {
-
-                }
-            }
-
-            @Override
-            public void onTakePhotoPressed() {
-
-                verifyStoragePermission();
-
-                photoSelector = new PhotoSelector();
-
-                try {
-                    photoSelector.startTakePhotoActivity(activity, new PhotoSelector.Result() {
-                        public void result(String result) {
-                            sendImageMessage(result);
-                        }
-                    });
-                } catch (Exception e) {
-                    ToastHelper.show(e.getLocalizedMessage());
-                }
-            }
-
-            @Override
-            public void onPickImagePressed() {
-
-                verifyStoragePermission();
-
-                photoSelector.startPickImageActivity(activity, new PhotoSelector.Result() {
-                    @Override
-                    public void result(String result) {
-                        sendImageMessage(result);
-                    }
-                });
-            }
-
-            @Override
-            public void onSendPressed(String text) {
-                sendMessage(text, true);
-            }
-
-            @Override
-            public void startTyping() {
-                ChatActivity.this.startTyping();
-            }
-
-            @Override
-            public void sendAudio(Recording recording) {
-                Timber.v("Name: " + recording.getFile().getAbsolutePath());
-                if(NM.audioMessage() != null) {
-                    handleMessageSend(NM.audioMessage().sendMessage(recording, thread));
-                }
-            }
-
-            @Override
-            public void stopTyping() {
-                ChatActivity.this.stopTyping(false);
-            }
-        });
 
         progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
@@ -315,7 +229,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (DEBUG) Timber.d("onRefreshStarted");
 
                 List<MessageListItem> items = messageListAdapter.getMessageItems();
                 Message firstMessage = null;
@@ -337,7 +250,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                                     messageListAdapter.addRow(m, false, false);
                                 }
                                 messageListAdapter.sortItemsAndNotify();
-                                messageListView.setSelection(messages.size());
+                                recyclerView.getLayoutManager().scrollToPosition(messages.size());
                             }
                         }
                         mSwipeRefresh.setRefreshing(false);
@@ -346,24 +259,24 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         });
 
-        messageListView = (ListView) findViewById(R.id.list_chat);
+        recyclerView = (RecyclerView) findViewById(R.id.list_chat);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if (messageListAdapter == null) {
             messageListAdapter = new MessagesListAdapter(ChatActivity.this);
         }
 
-        messageListView.setAdapter(messageListAdapter);
-        messageListView.setOnScrollListener(this);
+        recyclerView.setAdapter(messageListAdapter);
     }
 
-    public void verifyStoragePermission () {
-        permissionHandler.requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                ToastHelper.show(R.string.file_read_permission_not_granted);
-            }
-        }).subscribe();
-    }
+//    public void verifyStoragePermission () {
+//        permissionHandler.requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
+//            @Override
+//            public void accept(@NonNull Throwable throwable) throws Exception {
+//                ToastHelper.show(R.string.file_read_permission_not_granted);
+//            }
+//        }).subscribe();
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -389,22 +302,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         stopTyping(false);
-    }
-
-    public void sendLocationMessage(String snapshotPath, LatLng latLng) {
-
-        handleMessageSend(NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread));
-
-    }
-
-    /**
-     * Send an messageImageView message.
-     *
-     * @param filePath the path to the messageImageView file that need to be sent.
-     */
-    public void sendImageMessage(final String filePath) {
-        if (DEBUG) Timber.v("sendImageMessage, Path: %s", filePath);
-        handleMessageSend(NM.thread().sendMessageWithImage(filePath, thread));
+        scrollListTo(ListPosition.Bottom, false);
     }
 
     private void handleMessageSend (Observable<MessageSendProgress> observable) {
@@ -418,14 +316,13 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     @Override
                     public void onNext(@NonNull MessageSendProgress messageSendProgress) {
                         Timber.v("Message Status: " + messageSendProgress.getStatus());
-                        messageListAdapter.addRow(messageSendProgress.message, false, false);
-                        messageListAdapter.notifyDataSetChanged();
+                        messageListAdapter.addRow(messageSendProgress.message, true, true);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
                         e.printStackTrace();
-                        ToastHelper.show(R.string.unable_to_send_image_message);
+                        ToastHelper.show(getApplicationContext(), R.string.unable_to_send_image_message);
                     }
 
                     @Override
@@ -445,7 +342,12 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         // Save the list position
-        outState.putInt(LIST_POS, messageListView.getFirstVisiblePosition());
+        outState.putInt(LIST_POS, layoutManager().findFirstVisibleItemPosition());
+    }
+
+    protected LinearLayoutManager layoutManager () {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        return layoutManager;
     }
 
     @Override
@@ -453,7 +355,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         super.onStart();
 
         disposableList.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
@@ -466,24 +368,27 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                             return;
                         }
 
-                        //Set as read.
-                        markAsRead(message);
+                        message.setRead(true);
+                        message.update();
 
                         boolean isAdded = messageListAdapter.addRow(message);
+                        if(!isAdded) {
+                            messageListAdapter.notifyDataSetChanged();
+                        }
 
                         // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                        if (message.getSender().isMe()) {
-                            if (isAdded) {
-                                scrollListTo(ListPosition.Bottom, messageListView.getLastVisiblePosition() > messageListAdapter.size() - 2);
-                            }
+                        if (message.getSender().isMe() && isAdded) {
+                            scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
                         }
                         else {
                             // If the user is near the bottom, then we scroll down when a message comes in
-                            if(messageListView.getLastVisiblePosition() > messageListAdapter.size() - 5) {
+                            if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
                                 scrollListTo(ListPosition.Bottom, true);
                             }
-                            //Vibrator v = (Vibrator) ChatActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
-                            //v.vibrate(Defines.VIBRATION_DURATION);
+                        }
+
+                        if(NM.readReceipts() != null) {
+                            NM.readReceipts().updateReadReceipts(thread);
                         }
                     }
                 }));
@@ -517,8 +422,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     @Override
                     public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
                         if(networkEvent.thread.equals(thread)) {
-                            if(networkEvent.text != null && networkEvent.text.length() == 0) {
-                                networkEvent.text = getString(R.string.typing);
+                            if(networkEvent.text != null) {
+                                networkEvent.text += getString(R.string.typing);
                             }
                             Timber.v(networkEvent.text);
                             typingTextView.setText(networkEvent.text);
@@ -531,7 +436,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     @Override
     protected void onResume() {
         super.onResume();
-        if (DEBUG) Timber.v("onResume");
 
         if (!updateThreadFromBundle(bundle)) {
             return;
@@ -543,8 +447,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe());
         }
-
-        markAsRead(thread.getMessages());
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
@@ -567,6 +469,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
             }
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
+        markRead();
         messageListAdapter.notifyDataSetChanged();
 
     }
@@ -586,15 +489,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
 
         disposableList.dispose();
 
-
         stopTyping(true);
+        markRead();
 
-        if (readCount > 0) {
-            sendBroadcast(new Intent(ACTION_CHAT_CLOSED));
-        }
-
-        if (thread != null && thread.typeIs(ThreadType.Public))
-        {
+        if (thread != null && thread.typeIs(ThreadType.Public)) {
             NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe();
         }
     }
@@ -613,7 +511,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (DEBUG) Timber.v("onNewIntent");
 
         if (!updateThreadFromBundle(intent.getExtras()))
             return;
@@ -627,27 +524,15 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (DEBUG) Timber.v("onActivityResult");
 
-        try {
-            photoSelector.handleResult(this, requestCode, resultCode, data);
-            locationSelector.handleResult(this, requestCode, resultCode, data);
-        }
-        catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().length() > 0) {
-                ToastHelper.show(e.getLocalizedMessage());
-            }
-        }
+        activityResultPublishSubject.onNext(new ActivityResult(requestCode, resultCode, data));
 
         if (requestCode == ADD_USERS) {
-            if (DEBUG) Timber.d("ADD_USER_RETURN");
             if (resultCode == RESULT_OK) {
                 updateChat();
             }
         }
         else if (requestCode == SHOW_DETAILS) {
-
-            if (DEBUG) Timber.d("SHOW_DETAILS");
 
             if (resultCode == RESULT_OK) {
                 // Updating the selected chat id.
@@ -704,6 +589,15 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         return super.onOptionsItemSelected(item);
     }
 
+    private void markRead () {
+        if(NM.readReceipts() != null) {
+            NM.readReceipts().markRead(thread);
+        }
+        else {
+            thread.markRead();
+        }
+    }
+
     /**
      * Open the add users activity, Here you can see your contact list and add users to this chat.
      * The default add users activity will remove contacts that is already in this chat.
@@ -724,7 +618,8 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
      * Show a dialog containing all the users in this chat.
      */
     protected void showUsersDialog() {
-        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:", true);
+        // TODO: Localize
+        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
         contactsFragment.show(getSupportFragmentManager(), "Contacts");
     }
 
@@ -760,7 +655,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         if (this.bundle.containsKey(BaseInterfaceAdapter.THREAD_ENTITY_ID)) {
-            thread = StorageManager.shared().fetchThreadWithEntityID(this.bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID));
+            String threadEntityID = this.bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+            if(threadEntityID != null) {
+                thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
+            }
         }
         if (this.bundle.containsKey(LIST_POS)) {
             listPos = (Integer) this.bundle.get(LIST_POS);
@@ -768,7 +666,6 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         }
 
         if (thread == null) {
-            if (DEBUG) Timber.e("No Thread found for given ID.");
             finish();
             return false;
         }
@@ -787,7 +684,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         initActionBar();
     }
 
-    private void startTyping () {
+    public void startTyping () {
         setChatState(TypingIndicatorHandler.State.composing);
         typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
@@ -797,6 +694,28 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 setChatState(TypingIndicatorHandler.State.active);
             }
         });
+    }
+
+    @Override
+    public void sendAudio(Recording recording) {
+        if(NM.audioMessage() != null) {
+            handleMessageSend(NM.audioMessage().sendMessage(recording, thread));
+        }
+    }
+
+    @Override
+    public void stopTyping() {
+        stopTyping(false);
+    }
+
+    @Override
+    public void onKeyboardShow() {
+        scrollListTo(ListPosition.Bottom, false);
+    }
+
+    @Override
+    public void onKeyboardHide() {
+        scrollListTo(ListPosition.Bottom, false);
     }
 
     private void stopTyping (boolean inactive) {
@@ -827,7 +746,7 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
-                textInputView.showOptionPopup();
+                showOptions();
                 return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -840,54 +759,18 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
     public void onBackPressed() {
         // If the message was opend from a notification back button should lead us to the main activity.
         if (bundle.containsKey(Defines.FROM_PUSH)) {
-            if (DEBUG) Timber.d("onBackPressed, From Push");
             bundle.remove(Defines.FROM_PUSH);
 
-            InterfaceManager.shared().a.startMainActivity();
+            InterfaceManager.shared().a.startMainActivity(this);
             return;
         }
         super.onBackPressed();
     }
 
-    /**
-     * Used for pausing the volley messageImageView loader while the user is scrolling so the scroll will be smooth.
-     */
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        scrolling = scrollState != SCROLL_STATE_IDLE;
-
-        messageListAdapter.setScrolling(scrolling);
-    }
-
-    /**
-     * Not used.
-     */
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        listPos = firstVisibleItem;
-    }
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public com.google.android.gms.appindexing.Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("ChatSDKAbstractChat Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new com.google.android.gms.appindexing.Action.Builder(com.google.android.gms.appindexing.Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(com.google.android.gms.appindexing.Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
-
-
     public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
 
         if (showLoadingIndicator) {
-            messageListView.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
         else {
@@ -906,54 +789,17 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 if (showLoadingIndicator) {
                     //animateListView();
                 }
-                messageListView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
 
                 scrollListTo(toPosition, !showLoadingIndicator);
             }
         });
-
-//
-//        AsyncTask.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                final int listSize = messageListAdapter.getCount();
-//
-//                int toLoad = amountToLoad > 0 ? amountToLoad : Defines.MAX_MESSAGES_TO_PULL;
-//
-//                final List<Message> messages = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), listSize + toLoad);
-//
-//                markAsRead(messages);
-//
-//                // Sorting the message by date to make sure the list looks ok.
-//                Collections.sort(messages, new MessageSorter(MessageSorter.ORDER_TYPE_DESC));
-//
-//                ChatActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                    }
-//                });
-//            }
-//        });
-    }
-
-    public void markAsRead(List<Message> messages){
-        for (Message m : messages) {
-            markAsRead(m);
-        }
     }
 
     public void markAsDelivered(List<Message> messages){
         for (Message m : messages) {
             markAsDelivered(m);
         }
-    }
-
-    public void markAsRead(Message message){
-        message.setIsRead(true);
-        message.update();
-        readCount++;
     }
 
     public void markAsDelivered(Message message){
@@ -965,10 +811,10 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
         listPos = position;
 
         if (animated) {
-            messageListView.smoothScrollToPosition(listPos);
+            recyclerView.smoothScrollToPosition(listPos);
         }
         else {
-            messageListView.setSelection(listPos);
+            recyclerView.getLayoutManager().scrollToPosition(listPos);
         }
     }
 
@@ -981,13 +827,43 @@ public class ChatActivity extends BaseActivity implements AbsListView.OnScrollLi
                 pos = 0;
                 break;
             case Current:
-                pos = listPos == -1 ? messageListAdapter.getCount() - 1 : listPos;
+                pos = listPos == -1 ? messageListAdapter.size() - 1 : listPos;
                 break;
             case Bottom:
-                pos = messageListAdapter.getCount() - 1;
+                pos = messageListAdapter.size() - 1;
                 break;
         }
 
         scrollListTo(pos, animated);
     }
+
+    @Override
+    public void showOptions() {
+        if(optionsHandler == null) {
+            optionsHandler = InterfaceManager.shared().a.getChatOptionsHandler(this);
+        }
+        optionsHandler.show(this);
+    }
+
+    @Override
+    public void hideOptions() {
+        if(optionsHandler != null) {
+            optionsHandler.hide();
+        }
+    }
+
+    @Override
+    public void onSendPressed(String text) {
+        sendMessage(text, true);
+    }
+
+    @Override
+    public void executeChatOption(ChatOption option) {
+        if(option.getType() == ChatOptionType.SendMessage) {
+            handleMessageSend((Observable<MessageSendProgress>) option.execute(this, thread));
+        }
+    }
+
+
+
 }

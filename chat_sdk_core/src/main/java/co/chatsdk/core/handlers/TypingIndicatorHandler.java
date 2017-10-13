@@ -9,7 +9,7 @@ import io.reactivex.Completable;
 
 public interface TypingIndicatorHandler {
 
-    public enum State {
+    enum State {
         /**
          * User is actively participating in the chat session.
          */
@@ -32,9 +32,9 @@ public interface TypingIndicatorHandler {
         gone
     }
 
-    public void typingOn (Thread thread);
-    public void typingOff (Thread thread);
-    public Completable setChatState (State state, Thread thread);
+    void typingOn (Thread thread);
+    void typingOff (Thread thread);
+    Completable setChatState (State state, Thread thread);
 //
 //    -(RXPromise *) setChatState: (bChatState) state forThread: (id<PThread>) thread;
 }

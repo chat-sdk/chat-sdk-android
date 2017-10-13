@@ -1,7 +1,5 @@
 package co.chatsdk.core.events;
 
-import android.net.Network;
-
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -106,6 +104,14 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactsUpdated);
     }
 
+    public static NetworkEvent threadRead (Thread thread) {
+        return new NetworkEvent(EventType.ThreadRead, thread);
+    }
+
+    public static NetworkEvent threadReadReceiptUpdated (Thread thread, Message message) {
+        return new NetworkEvent(EventType.ThreadReadReceiptUpdated, thread, message);
+    }
+
     public static NetworkEvent typingStateChanged (String message, Thread thread) {
         NetworkEvent event = new NetworkEvent(EventType.TypingStateChanged);
         event.text = message;
@@ -199,8 +205,15 @@ public class NetworkEvent {
                 EventType.ContactChanged,
                 EventType.ContactAdded,
                 EventType.ContactDeleted,
-                EventType.ContactsUpdated,
+                EventType.ContactsUpdated
+        );
+    }
+
+    public static Predicate<NetworkEvent> threadUsersUpdated () {
+        return filterType(
+                EventType.ThreadUsersChanged,
                 EventType.UserPresenceUpdated
         );
     }
+
 }

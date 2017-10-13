@@ -34,6 +34,8 @@ public class FirebasePaths{
     public static final String Thumbnail = "thumbnail";
     public static final String UpdatedPath = "updated";
     public static final String LastMessagePath = "lastMessage";
+    public static final String TypingPath = "typing";
+    public static final String ReadPath = "read";
 
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main databse ref.*/

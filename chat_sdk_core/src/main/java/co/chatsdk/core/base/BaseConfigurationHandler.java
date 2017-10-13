@@ -1,6 +1,7 @@
 package co.chatsdk.core.base;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.handlers.ConfigurationHandler;
 
@@ -13,7 +14,11 @@ public class BaseConfigurationHandler implements ConfigurationHandler {
     /*******************
      * Boolean Keys
      */
+
     public static final String AnonymousLoginEnabled = "AnonymousLoginEnabled";
+    public static final String FacebookLoginEnabled = "FacebookLoginEnabled";
+    public static final String TwitterLoginEnabled = "TwitterLoginEnabled";
+    public static final String GoogleLoginEnabled = "GoogleLoginEnabled";
     public static final String ImageMessagesEnabled = "ImageMessagesEnabled";
     public static final String LocationMessagesEnabled = "LocationMessagesEnabled";
     /**
@@ -37,9 +42,7 @@ public class BaseConfigurationHandler implements ConfigurationHandler {
      * Integer Keys
      */
 
-    /**
-     * Number of messages that will be pulled for a thread from local db or from server.
-     **/
+    // Number of messages that will be pulled for a thread from local db or from server.
     public static final String MaxMessagesToLoad = "MaxMessagesToLoad";
     public static final String ImageMaxWidth = "ImageMaxWidth";
     public static final String ImageMaxHeight = "ImageMaxHeight";
@@ -54,6 +57,7 @@ public class BaseConfigurationHandler implements ConfigurationHandler {
     /*******************
      * String Keys
      */
+
     public static final String UserNamePrefix = "UserNamePrefix";
     public static final String DefaultUserName = "DefaultUserName";
     public static final String ContactDeveloperEmailAddress = "ContactDeveloperEmailAddress";
@@ -61,15 +65,24 @@ public class BaseConfigurationHandler implements ConfigurationHandler {
     public static final String ContactDeveloperDialogTitle = "ContactDeveloperDialogTitle";
     public static final String DefaultUserAvatarURL = "DefaultUserAvatarURL";
 
-    /**
-     * The name of the app image directory that will be seen in the phone image galley
-     **/
+    // The name of the app image directory that will be seen in the phone image galley
     public static final String ImageDirectoryName = "ImageDirectoryName";
+
+    /*******************
+     * Long Keys
+     */
+    public static final String ReadReceiptMaxAge = "ReadReceiptMaxAge";
 
     @Override
     public boolean booleanForKey(String key) {
         switch (key) {
             case AnonymousLoginEnabled:
+                return true;
+            case FacebookLoginEnabled:
+                return true;
+            case TwitterLoginEnabled:
+                return true;
+            case GoogleLoginEnabled:
                 return true;
             case ImageMessagesEnabled:
                 return true;
@@ -99,6 +112,16 @@ public class BaseConfigurationHandler implements ConfigurationHandler {
                 return 600;
             case MaxInboxNotificationLines:
                 return 7;
+            default:
+                return -1;
+        }
+    }
+
+    @Override
+    public long longForKey (String key) {
+        switch (key) {
+            case ReadReceiptMaxAge:
+                return TimeUnit.DAYS.toMillis(7);
             default:
                 return -1;
         }

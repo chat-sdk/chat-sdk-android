@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="contact_book_email_subject">Email Subject</string>
+    <string name="contact_book_email_body">Email Body</string>
+    <string name="contact_book_sms_body">SMS Body</string>
+</resources>

@@ -38,7 +38,7 @@ public class LocationMessageClickListener implements View.OnClickListener {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            ToastHelper.show(R.string.message_adapter_no_google_maps);
+            ToastHelper.show(activity, R.string.message_adapter_no_google_maps);
         }
     }
 

@@ -1,7 +1,5 @@
 package co.chatsdk.core.types;
 
-import java.util.Random;
-
 /**
  * Created by benjaminsmiley-andrews on 04/05/2017.
  */
@@ -30,7 +28,6 @@ public class Defines {
     }
 
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
-
 
     public static final String FROM_PUSH = "from_push";
     public static final String MSG_TIMESTAMP = "timestamp";

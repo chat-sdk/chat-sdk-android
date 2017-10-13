@@ -12,16 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.astuetz.PagerSlidingTabStrip;
 
-import co.chatsdk.core.InterfaceManager;
-import co.chatsdk.core.NM;
+import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.NM;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.events.EventType;
@@ -30,23 +29,15 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.threads.PrivateThreadsFragment;
-import io.reactivex.Completable;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import co.chatsdk.ui.fragments.BaseFragment;
-
+import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
-
 import co.chatsdk.ui.helpers.ExitHelper;
 import co.chatsdk.ui.helpers.NotificationUtils;
-import co.chatsdk.ui.utils.Utils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
-import timber.log.Timber;
-
-import org.apache.commons.lang3.StringUtils;
+import co.chatsdk.ui.threads.PrivateThreadsFragment;
+import io.reactivex.Completable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 
 public class MainActivity extends BaseActivity {
@@ -81,44 +72,56 @@ public class MainActivity extends BaseActivity {
         mOpenFromPushChecker = new OpenFromPushChecker();
         if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState)) {
             String threadEntityID = getIntent().getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-            InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
+            InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
         }
 
-        permissionHandler.requestWriteExternalStorage(this).doFinally(new Action() {
+        requestExternalStorage().doFinally(new Action() {
             @Override
             public void run() throws Exception {
-                requestMicrophoneAccess();
+                requestMicrophoneAccess().doFinally(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        requestReadContacts().doFinally(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                //requestVideoAccess().subscribe();
+                            }
+                        }).subscribe();
+                    }
+                }).subscribe();
             }
-        }).subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                Timber.v("Granted");
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        });
-
+        }).subscribe();
 
     }
 
-    public void requestMicrophoneAccess () {
+    public Completable requestMicrophoneAccess () {
         if(NM.audioMessage() != null) {
-            permissionHandler.requestRecordAudio(this).subscribe(new Action() {
-                @Override
-                public void run() throws Exception {
-                    Timber.v("Granted");
-                }
-            }, new Consumer<Throwable>() {
-                @Override
-                public void accept(@NonNull Throwable throwable) throws Exception {
-                    throwable.printStackTrace();
-                }
-            });
+            return permissionHandler.requestRecordAudio(this);
         }
+        return Completable.complete();
     }
+
+    public Completable requestExternalStorage () {
+        if(NM.audioMessage() != null) {
+            return permissionHandler.requestReadExternalStorage(this);
+        }
+        return Completable.complete();
+    }
+
+    public Completable requestVideoAccess () {
+        if(NM.videoMessage() != null) {
+            return permissionHandler.requestVideoAccess(this);
+        }
+        return Completable.complete();
+    }
+
+    public Completable requestReadContacts () {
+        if(NM.contact() != null) {
+            return permissionHandler.requestReadContact(this);
+        }
+        return Completable.complete();
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -140,7 +143,7 @@ public class MainActivity extends BaseActivity {
                     public void accept(NetworkEvent networkEvent) throws Exception {
                         if(networkEvent.message != null) {
                             if(!networkEvent.message.getSender().isMe()) {
-                                // Only show the alert if we're not on the private threads tab
+                                // Only show the alert if we'recyclerView not on the private threads tab
                                 if(!(adapter.getTabs().get(pager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
                                     NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
                                 }
@@ -158,21 +161,6 @@ public class MainActivity extends BaseActivity {
                     }
                 }));
 
-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                //pageAdapterPos = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
 
         reloadData();
 
@@ -194,7 +182,7 @@ public class MainActivity extends BaseActivity {
 
         if (mOpenFromPushChecker.checkOnNewIntent(intent)) {
             String threadEntityID = intent.getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-            InterfaceManager.shared().a.startChatActivityForID(threadEntityID);
+            InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
         }
     }
 
@@ -206,6 +194,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initViews() {
+
         pager = (ViewPager) findViewById(R.id.pager);
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
@@ -368,6 +357,6 @@ public class MainActivity extends BaseActivity {
      *  so we have to use this workaround so when we call any method on the wanted fragment the fragment will respond.
      *  http://stackoverflow.com/a/7393477/2568492*/
     private BaseFragment getFragment(int index){
-        return ((BaseFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + index));
+        return ((BaseFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + pager + ":" + index));
     }
 }

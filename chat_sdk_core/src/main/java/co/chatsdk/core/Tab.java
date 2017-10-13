@@ -2,8 +2,6 @@ package co.chatsdk.core;
 
 import android.support.v4.app.Fragment;
 
-import co.chatsdk.core.utils.AppContext;
-
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */
@@ -16,7 +14,7 @@ public class Tab {
 
     public Tab (int titleResource, int icon, Fragment fragment) {
         this.fragment = fragment;
-        this.title = AppContext.shared().context().getString(titleResource);
+        this.title = ChatSDK.shared().context().getString(titleResource);
         this.icon = icon;
     }
 

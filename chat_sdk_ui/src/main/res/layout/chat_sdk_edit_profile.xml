@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -15,7 +16,7 @@
             android:gravity="center|start"
             android:orientation="vertical">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/ivAvatar"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -26,12 +27,12 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/icn_100_profile"
-                app:border_color="@android:color/black"
-                app:civ_border_color="#FF000000"
-                app:civ_border_width="0dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                fresco:placeholderImage="@drawable/icn_100_profile"
+                fresco:failureImage="@drawable/icn_100_profile"
+                fresco:roundAsCircle="true" />
 
             <TextView
                 android:id="@+id/tvStatus"

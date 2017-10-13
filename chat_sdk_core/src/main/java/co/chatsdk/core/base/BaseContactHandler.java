@@ -33,7 +33,7 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable addContact(User user, ConnectionType type) {
-        if(NM.currentUser() != null) {
+        if(NM.currentUser() != null && !user.isMe()) {
             NM.currentUser().addContact(user, type);
         }
         return Completable.complete();
@@ -41,7 +41,7 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable deleteContact(User user, ConnectionType type) {
-        if(NM.currentUser() != null) {
+        if(NM.currentUser() != null && !user.isMe()) {
             NM.currentUser().deleteContact(user, type);
         }
         return Completable.complete();

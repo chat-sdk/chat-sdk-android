@@ -25,4 +25,14 @@
         android:text="Location"
         android:id="@+id/chat_sdk_btn_location"/>
 
+    <Button
+        style="@style/MessageOptionButtonStyle"
+        android:text="Take Video"
+        android:id="@+id/chat_sdk_btn_take_video"/>
+
+    <Button
+        style="@style/MessageOptionButtonStyle"
+        android:text="Choose Video"
+        android:id="@+id/chat_sdk_btn_choose_video"/>
+
 </LinearLayout>

@@ -5,7 +5,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +17,11 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.utils.StringUtils;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.utils.Strings;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
@@ -31,7 +29,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import timber.log.Timber;
 
 /**
  * Created by ben on 9/1/17.
@@ -151,7 +148,7 @@ public class FirebasePushHandler implements PushHandler {
 
         for(User user : users) {
             String pushToken = user.metaStringForKey(Keys.PushToken);
-            if(!user.equals(currentUser) && !StringUtils.isNullOrEmpty(pushToken)) {
+            if(!user.equals(currentUser) && !StringChecker.isNullOrEmpty(pushToken)) {
                 channels.add(pushToken);
             }
         }

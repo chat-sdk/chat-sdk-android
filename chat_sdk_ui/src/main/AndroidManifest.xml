@@ -12,67 +12,45 @@
         android:supportsRtl="true"
         android:theme="@style/SdkTheme">
 
-        <!--<meta-data android:name="com.facebook.sdk.ApplicationId"-->
-            <!--android:value="@string/facebook_id"/>-->
+        <activity
+            android:name="co.chatsdk.ui.login.LoginActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/SdkTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
 
-        <activity android:name=".threads.ThreadDetailsActivity"
+        <activity android:name="co.chatsdk.ui.threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".chat.ChatActivity"
+        <activity android:name="co.chatsdk.ui.chat.ChatActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".profile.EditProfileActivity"
+        <activity android:name="co.chatsdk.ui.profile.EditProfileActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name=".profile.ProfileActivity"
+        <activity android:name="co.chatsdk.ui.profile.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name=".main.MainActivity"
+        <activity android:name="co.chatsdk.ui.main.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".contacts.SelectContactActivity"
+        <activity android:name="co.chatsdk.ui.contacts.SelectContactActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".activities.SearchActivity"
+        <activity android:name="co.chatsdk.ui.search.SearchActivity"
             android:theme="@style/SdkTheme">
-            <intent-filter>
-                <action android:name="com.braunster.chatsdk.ACTION_SEARCH_AND_ADD_USERS"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".contacts.ShareWithContactsActivity"
-            android:theme="@style/SdkTheme"
-            android:noHistory="true">
-
-            <intent-filter>
-                <action
-                    android:name="android.intent.action.SEND" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:mimeType="image/*" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
         </activity>
 
         <!--Crop image-->
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity"
-            />
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
         <!-- Google Maps Metadata-->
         <meta-data
@@ -80,6 +58,4 @@
             android:value="@integer/google_play_services_version" />
 
     </application>
-
-
 </manifest>

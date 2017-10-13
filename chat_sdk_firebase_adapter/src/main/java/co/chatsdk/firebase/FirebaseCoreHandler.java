@@ -6,14 +6,11 @@ import co.chatsdk.core.types.ChatError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import co.chatsdk.core.NM;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Debug;
-import co.chatsdk.core.dao.DaoCore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +25,6 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;

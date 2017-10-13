@@ -25,4 +25,6 @@ public enum EventType {
     ContactsUpdated,
     TypingStateChanged,
     Logout,
+    ThreadRead,
+    ThreadReadReceiptUpdated,
 }

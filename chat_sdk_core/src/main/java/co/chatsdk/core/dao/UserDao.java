@@ -27,7 +27,7 @@ public class UserDao extends AbstractDao<User, Long> {
         public final static Property AuthenticationType = new Property(2, Integer.class, "authenticationType", false, "AUTHENTICATION_TYPE");
         public final static Property LastOnline = new Property(3, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
         public final static Property LastUpdated = new Property(4, java.util.Date.class, "lastUpdated", false, "LAST_UPDATED");
-        public final static Property Metadata = new Property(5, String.class, "metadata", false, "METADATA");
+        public final static Property MetaData = new Property(5, String.class, "metaData", false, "META_DATA");
     }
 
     private DaoSession daoSession;
@@ -51,7 +51,7 @@ public class UserDao extends AbstractDao<User, Long> {
                 "\"AUTHENTICATION_TYPE\" INTEGER," + // 2: authenticationType
                 "\"LAST_ONLINE\" INTEGER," + // 3: lastOnline
                 "\"LAST_UPDATED\" INTEGER," + // 4: lastUpdated
-                "\"METADATA\" TEXT);"); // 5: metadata
+                "\"META_DATA\" TEXT);"); // 5: metaData
     }
 
     /** Drops the underlying database table. */
@@ -89,9 +89,9 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindLong(5, lastUpdated.getTime());
         }
  
-        String metadata = entity.getMetadata();
-        if (metadata != null) {
-            stmt.bindString(6, metadata);
+        String metaData = entity.getMetaData();
+        if (metaData != null) {
+            stmt.bindString(6, metaData);
         }
     }
 
@@ -124,9 +124,9 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindLong(5, lastUpdated.getTime());
         }
  
-        String metadata = entity.getMetadata();
-        if (metadata != null) {
-            stmt.bindString(6, metadata);
+        String metaData = entity.getMetaData();
+        if (metaData != null) {
+            stmt.bindString(6, metaData);
         }
     }
 
@@ -149,7 +149,7 @@ public class UserDao extends AbstractDao<User, Long> {
             cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // authenticationType
             cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)), // lastOnline
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // lastUpdated
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // metadata
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // metaData
         );
         return entity;
     }
@@ -161,7 +161,7 @@ public class UserDao extends AbstractDao<User, Long> {
         entity.setAuthenticationType(cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2));
         entity.setLastOnline(cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)));
         entity.setLastUpdated(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
-        entity.setMetadata(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setMetaData(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
      }
     
     @Override

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/RowStyle"
-        android:id="@+id/message_root_layout">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/RowStyle"
+    android:id="@+id/message_root_layout">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/img_user_image"
-    android:layout_width="38dp"
-    android:layout_height="38dp"
-    android:src="@drawable/ic_profile"
-    app:civ_border_width="0dp"
-    app:civ_border_color="#FF000000"/>
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/img_user_image"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        fresco:roundAsCircle="true"
+        fresco:placeholderImage="@drawable/icn_100_profile"
+        fresco:failureImage="@drawable/icn_100_profile"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
             android:autoLink="all"
             android:background="@drawable/message_received_2"/>
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/chat_sdk_image"
@@ -44,8 +45,8 @@
             android:scaleType="centerCrop"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            app:riv_corner_radius="10dp"
-            android:visibility="visible"/>
+            fresco:roundedCornerRadius="10dp"
+            fresco:placeholderImage="@drawable/icn_200_image_message_placeholder" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,20 +54,13 @@
             android:id="@+id/extra_layout"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="15dp"
-            android:orientation="vertical" >
+            android:gravity="left"
+            android:layout_gravity="left"
+            android:orientation="horizontal" >
 
         </LinearLayout>
 
     </LinearLayout>
-
-
-
-    <!--<at.grabner.circleprogress.CircleProgressView-->
-        <!--android:id="@+id/chat_sdk_progress_view"-->
-        <!--android:layout_toRightOf="@id/img_user_image"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
 
     <TextView
         android:layout_width="wrap_content"
