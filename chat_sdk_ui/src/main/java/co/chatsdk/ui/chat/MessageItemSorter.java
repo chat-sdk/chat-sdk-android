@@ -10,13 +10,10 @@ package co.chatsdk.ui.chat;
 import java.util.Comparator;
 
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.ui.chat.MessageListItem;
 
 public class MessageItemSorter implements Comparator<MessageListItem> {
-    public static final int ORDER_TYPE_ASC = DaoCore.ORDER_ASC;
-    public static final int ORDER_TYPE_DESC = DaoCore.ORDER_DESC;
 
-    private int order = ORDER_TYPE_DESC;
+    private int order = DaoCore.ORDER_DESC;
 
     public MessageItemSorter(int order) {
         this.order = order;
@@ -28,7 +25,7 @@ public class MessageItemSorter implements Comparator<MessageListItem> {
             return 0;
         }
         else {
-            if (order == ORDER_TYPE_ASC) {
+            if (order == DaoCore.ORDER_ASC) {
                 return m1.getTimeInMillis() > m2.getTimeInMillis() ? -1 : 1;
             }
             else {

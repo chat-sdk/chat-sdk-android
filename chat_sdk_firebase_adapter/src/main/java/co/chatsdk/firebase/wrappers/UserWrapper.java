@@ -196,6 +196,8 @@ public class UserWrapper {
             @Override
             public void subscribe(final ObservableEmitter<User> e) throws Exception {
 
+                metaOff();
+
                 final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
 
                 if(FirebaseReferenceManager.shared().isOn(userMetaRef)) {
@@ -274,11 +276,9 @@ public class UserWrapper {
                 ValueEventListener listener = ref.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.getValue() != null) {
-                            model.setAvailability((Boolean) snapshot.getValue() ? Availability.Available : Availability.Unavailable);
-                            model.update();
-                            e.onNext((Boolean) snapshot.getValue());
-                        }
+                        model.setAvailability((Boolean) snapshot.getValue() ? Availability.Available : Availability.Unavailable);
+                        model.update();
+                        e.onNext((Boolean) snapshot.getValue());
                     }
 
                     @Override

@@ -7,7 +7,7 @@
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
-    <!-- For the sliding affect to look good in the chat activity and pick friends activity.-->
+    <!-- For the sliding affect to look good in the chat context and pick friends context.-->
     <style name="ChatSDKSlidingTransactionTheme" parent="@style/SdkTheme">
         <item name="android:windowIsTranslucent">true</item>
     </style>

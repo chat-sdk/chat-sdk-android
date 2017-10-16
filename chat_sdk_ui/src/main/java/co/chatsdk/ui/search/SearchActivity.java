@@ -254,7 +254,7 @@ public class SearchActivity extends BaseActivity {
         builder.setTitle("Search").setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                // Launch the appropriate activity
+                // Launch the appropriate context
                 InterfaceManager.shared().a.startActivity(context, activities.get(i).className);
             }
         });

@@ -7,7 +7,6 @@ import java.util.Date;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
@@ -32,8 +31,6 @@ public class MessageListItem {
         if (simpleDateFormat == null)
             simpleDateFormat = getFormat(message);
 
-        User user = message.getSender();
-
         this.message = message;
 
         if (message.getDate() != null) {
@@ -56,18 +53,6 @@ public class MessageListItem {
 
     public String getTime () {
         return String.valueOf(simpleDateFormat.format(message.getDate().toDate()));
-    }
-
-    public String getText () {
-        return message.getTextString();
-    }
-
-    public boolean isMine () {
-        return message.getSender().isMe();
-    }
-
-    public MessageType messageType () {
-        return message.getMessageType();
     }
 
     public long getId () {
@@ -117,10 +102,6 @@ public class MessageListItem {
         return 0;
     }
 
-    public String getProfilePicUrl () {
-        return message.getSender().getAvatarURL();
-    }
-
     public Message getMessage () {
         return message;
     }
@@ -154,11 +135,11 @@ public class MessageListItem {
     @Deprecated
     private int[] getDimensions(int maxWidth){
 
-        if (StringUtils.isNotEmpty(getText())) {
+        if (StringUtils.isNotEmpty(message.getTextString())) {
 
             // Text comes in the form: url1, url2, W[width]&H[height]
             try {
-                String[] data = getText().split(Defines.DIVIDER);
+                String[] data = message.getTextString().split(Defines.DIVIDER);
                 dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
                 dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
 
@@ -173,7 +154,7 @@ public class MessageListItem {
     }
 
     public boolean isValid () {
-        if(messageType() == MessageType.Image && dimensions == null) {
+        if(message.getMessageType() == MessageType.Image && dimensions == null) {
             return false;
         }
         return true;

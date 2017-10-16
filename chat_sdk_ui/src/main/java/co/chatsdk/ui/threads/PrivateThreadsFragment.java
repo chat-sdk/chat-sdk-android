@@ -187,7 +187,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        adapter.setItems(NM.thread().getThreads(ThreadType.Private));
+        adapter.setThreads(NM.thread().getThreads(ThreadType.Private));
     }
 
     @Override

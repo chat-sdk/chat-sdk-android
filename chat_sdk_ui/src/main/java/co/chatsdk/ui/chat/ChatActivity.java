@@ -51,6 +51,7 @@ import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
@@ -102,7 +103,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public static final String LIST_POS = "list_pos";
 
     /**
-     * Pass true if you want slide down animation for this activity exit.
+     * Pass true if you want slide down animation for this context exit.
      */
     public static final String ANIMATE_EXIT = "animate_exit";
 
@@ -112,7 +113,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected RecyclerView recyclerView;
     protected MessagesListAdapter messageListAdapter;
     protected Thread thread;
-    protected TextView typingTextView;
+    protected TextView subtitleTextView;
     protected PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
     private DisposableList disposableList = new DisposableList();
@@ -124,7 +125,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected Bundle bundle;
 
     /**
-     * If set to false in onCreate the menu items wont be inflated in the menu.
+     * If set to false in onCreate the menu threads wont be inflated in the menu.
      * This can be useful if you want to customize the action bar.
      */
     protected boolean inflateMenuItems = true;
@@ -151,7 +152,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         initActionBar();
 
-        // If the activity is just been created we load regularly, else we load and retain position
+        // If the context is just been created we load regularly, else we load and retain position
         loadMessages(true, -1, ListPosition.Bottom);
 
         setChatState(TypingIndicatorHandler.State.active);
@@ -203,7 +204,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             setTitle(displayName);
             textView.setText(displayName);
 
-            typingTextView = (TextView) actionBarView.findViewById(R.id.tvTyping);
+            subtitleTextView = (TextView) actionBarView.findViewById(R.id.tvSubtitle);
 
             final SimpleDraweeView circleImageView = (SimpleDraweeView) actionBarView.findViewById(R.id.ivAvatar);
             ThreadImageBuilder.load(circleImageView, thread);
@@ -249,7 +250,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                                 for(Message m : messages) {
                                     messageListAdapter.addRow(m, false, false);
                                 }
-                                messageListAdapter.sortItemsAndNotify();
+                                messageListAdapter.sortAndNotify();
                                 recyclerView.getLayoutManager().scrollToPosition(messages.size());
                             }
                         }
@@ -328,6 +329,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     @Override
                     public void onComplete() {
                         messageListAdapter.notifyDataSetChanged();
+                        scrollListTo(ListPosition.Bottom, false);
                     }
                 });
     }
@@ -395,10 +397,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(
-                        EventType.PrivateThreadAdded,
-                        EventType.PrivateThreadRemoved,
-                        EventType.PublicThreadAdded,
-                        EventType.PublicThreadRemoved,
                         EventType.ThreadDetailsUpdated,
                         EventType.ThreadUsersChanged))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
@@ -426,11 +424,26 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                                 networkEvent.text += getString(R.string.typing);
                             }
                             Timber.v(networkEvent.text);
-                            typingTextView.setText(networkEvent.text);
+                            setSubtitleText(networkEvent.text);
                         }
                     }
                 }));
 
+    }
+
+    protected void setSubtitleText(String text) {
+        if(StringChecker.isNullOrEmpty(text)) {
+            text = "";
+            for(User u : thread.getUsers()) {
+                if(!u.isMe()) {
+                    text += u.getName() + ", ";
+                }
+            }
+            if(text.length() > 0) {
+                text = text.substring(0, text.length() - 2);
+            }
+        }
+        subtitleTextView.setText(text);
     }
 
     @Override
@@ -599,8 +612,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     /**
-     * Open the add users activity, Here you can see your contact list and add users to this chat.
-     * The default add users activity will remove contacts that is already in this chat.
+     * Open the add users context, Here you can see your contact list and add users to this chat.
+     * The default add users context will remove contacts that is already in this chat.
      */
     protected void startAddUsersActivity() {
         Intent intent = new Intent(this, InterfaceManager.shared().a.getSelectContactActivity());
@@ -624,10 +637,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     /**
-     * Open the thread details activity, Admin user can change thread name an messageImageView there.
+     * Open the thread details context, Admin user can change thread name an messageImageView there.
      */
     protected void openThreadDetailsActivity() {
-        // Showing the pick friends activity.
+        // Showing the pick friends context.
         Intent intent = new Intent(this, InterfaceManager.shared().a.getThreadDetailsActivity());
         intent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
         intent.putExtra(LIST_POS, listPos);
@@ -753,11 +766,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     /**
-     * If the chat was open from a push notification we won't pass the backPress to the system instead we will navigate him to the main activity.
+     * If the chat was open from a push notification we won't pass the backPress to the system instead we will navigate him to the main context.
      */
     @Override
     public void onBackPressed() {
-        // If the message was opend from a notification back button should lead us to the main activity.
+        // If the message was opend from a notification back button should lead us to the main context.
         if (bundle.containsKey(Defines.FROM_PUSH)) {
             bundle.remove(Defines.FROM_PUSH);
 

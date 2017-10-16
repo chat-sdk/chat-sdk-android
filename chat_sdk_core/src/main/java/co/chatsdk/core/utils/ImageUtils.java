@@ -55,21 +55,30 @@ public class ImageUtils {
     @Nullable
     public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull Bitmap...bitmaps){
 
-        if (height == 0 || width == 0) return null;
-
-        if (bitmaps.length == 0) return null;
+        if (height == 0 || width == 0 || bitmaps.length == 0) {
+            return null;
+        }
 
         Bitmap finalImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(finalImage);
 
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-        if (bitmaps.length == 2){
+        if(bitmaps.length == 1) {
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width, height), 0, 0, paint);
+        }
+        else if (bitmaps.length == 2) {
             canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
             canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height), width/2, 0, paint);
         }
-        else{
+        else if (bitmaps.length == 3) {
             canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height/2), width/2, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], width/2, height/2), width/2, height/2, paint);
+        }
+        else {
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height/2), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height/2), 0, height/2, paint);
             canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height/2), width/2, 0, paint);
             canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], width/2, height/2), width/2, height/2, paint);
         }

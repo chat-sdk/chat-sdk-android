@@ -32,7 +32,6 @@ import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -133,18 +132,18 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             holder.readReceiptImageView.setVisibility(NM.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
         }
 
-        if (messageItem.messageType() == MessageType.Text) {
-            holder.messageTextView.setText(messageItem.getText() == null ? "" : messageItem.getText());
+        if (messageItem.getMessage().getMessageType() == MessageType.Text) {
+            holder.messageTextView.setText(messageItem.getMessage().getTextString() == null ? "" : messageItem.getMessage().getTextString());
             holder.setTextHidden(false);
         }
-        else if (messageItem.messageType() == MessageType.Location || messageItem.messageType() == MessageType.Image) {
+        else if (messageItem.getMessage().getMessageType() == MessageType.Location || messageItem.getMessage().getMessageType() == MessageType.Image) {
 
             holder.setImageHidden(false);
 
             int width = messageItem.width();
             int height = messageItem.height();
 
-            if (messageItem.messageType() == MessageType.Location) {
+            if (messageItem.getMessage().getMessageType() == MessageType.Location) {
 
                 double longitude = (Double) messageItem.message.valueForKey(Keys.MessageLongitude);
                 double latitude = (Double) messageItem.message.valueForKey(Keys.MessageLatitude);
@@ -157,7 +156,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 holder.messageImageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
             }
 
-            if (messageItem.messageType() == MessageType.Image) {
+            if (messageItem.getMessage().getMessageType() == MessageType.Image) {
 
                 String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
 
@@ -205,7 +204,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
     @Override
     public int getItemViewType(int position) {
-        return messageItems.get(position).isMine() ? ViewTypeMine : ViewTypeReply;
+        return messageItems.get(position).getMessage().getSender().isMe() ? ViewTypeMine : ViewTypeReply;
     }
 
     @Override
@@ -266,11 +265,11 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
     }
 
     public void sort () {
-        Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+        Collections.sort(messageItems, new MessageItemSorter(DaoCore.ORDER_DESC));
     }
 
-    public void sortItemsAndNotify () {
-        Collections.sort(messageItems, new MessageItemSorter(MessageSorter.ORDER_TYPE_DESC));
+    public void sortAndNotify () {
+        sort();
         notifyDataSetChanged();
     }
 
@@ -315,18 +314,22 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
      * Clear the messages list.
      * */
     public void clear() {
+        clear(true);
+    }
+
+    public void clear(boolean notify) {
         messageItems.clear();
-        notifyDataSetChanged();
+        if(notify) {
+            notifyDataSetChanged();
+        }
     }
 
     public void setMessages(List<Message> messages) {
-
-        clear();
-
+        clear(false);
         for (Message message : messages) {
             addRow(message, false, false);
         }
-        sortItemsAndNotify();
+        sortAndNotify();
     }
 
     // Untested because upload progress doesn't work

@@ -15,6 +15,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -24,6 +25,7 @@ import io.reactivex.functions.Consumer;
 public class ProfileActivity extends BaseActivity {
 
     private User user;
+    private boolean startingChat = false;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -73,14 +75,28 @@ public class ProfileActivity extends BaseActivity {
 
     public void startChat () {
 
+        if(startingChat) {
+            return;
+        }
+
+        startingChat = true;
+
+        // TODO: Localize
+        showProgressDialog("Creating Thread");
+
         NM.thread().createThread(user.getName(), user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doFinally(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        dismissProgressDialog();
+                        startingChat = false;
+                    }
+                })
                 .subscribe(new Consumer<Thread>() {
             @Override
             public void accept(@NonNull Thread thread) throws Exception {
-                if (thread != null) {
-                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
-                }
+                InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
             }
         }, new Consumer<Throwable>() {
             @Override

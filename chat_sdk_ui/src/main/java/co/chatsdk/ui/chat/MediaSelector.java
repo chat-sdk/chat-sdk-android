@@ -88,7 +88,7 @@ public class MediaSelector {
         activity.startActivityForResult(intent , CHOOSE_PHOTO);
 
 //
-//        activity.startActivityForResult(Intent.createChooser(intent,"Complete action using"), CHOOSE_PHOTO);
+//        context.startActivityForResult(Intent.createChooser(intent,"Complete action using"), CHOOSE_PHOTO);
 
     }
 

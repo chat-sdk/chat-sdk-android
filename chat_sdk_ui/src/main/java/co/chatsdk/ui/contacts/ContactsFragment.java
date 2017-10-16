@@ -68,7 +68,7 @@ public class ContactsFragment extends BaseFragment {
     public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
     /** Used for the share intent, When a user press on a user the attached bundle from the share intent will be sent to the selected user.*/
     public static final int CLICK_MODE_SHARE_CONTENT = 2992;
-    /** Open profile activity when user is clicked.*/
+    /** Open profile context when user is clicked.*/
     public static final int CLICK_MODE_SHOW_PROFILE = 2993;
     /** Nothing happen on list item click.*/
     public static final int CLICK_MODE_NONE = 2994;
@@ -275,7 +275,7 @@ public class ContactsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        // Each user that will be found in the search activity will be automatically added as a contact.
+        // Each user that will be found in the search context will be automatically added as a contact.
         if (id == R.id.action_chat_sdk_add) {
             SearchActivity.startSearchActivity(getActivity());
             return true;

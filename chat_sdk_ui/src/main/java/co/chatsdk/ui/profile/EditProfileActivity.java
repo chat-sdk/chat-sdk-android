@@ -1,6 +1,5 @@
 package co.chatsdk.ui.profile;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -13,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -26,14 +24,9 @@ import com.soundcloud.android.crop.Crop;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import co.chatsdk.core.NM;
 import co.chatsdk.core.StorageManager;
@@ -66,9 +59,7 @@ public class EditProfileActivity extends BaseActivity {
     private EditText phoneNumberEditText;
     private EditText emailEditText;
     private Button countryButton;
-    private Button dateOfBirthButton;
     private Button logoutButton;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private HashMap<String, Object> userMeta;
     private String avatarURL;
 
@@ -93,8 +84,6 @@ public class EditProfileActivity extends BaseActivity {
             userMeta = new HashMap<>(currentUser.metaMap());
         }
         initViews();
-
-
     }
 
     private void initViews() {
@@ -109,7 +98,6 @@ public class EditProfileActivity extends BaseActivity {
 
         countryButton = (Button) findViewById(R.id.btnCountry);
         logoutButton = (Button) findViewById(R.id.btnLogout);
-        dateOfBirthButton = (Button) findViewById(R.id.btnDateOfBirth);
 
         // Set the current user's information
         String status = currentUser.getStatus();
@@ -119,7 +107,6 @@ public class EditProfileActivity extends BaseActivity {
         String phoneNumber = currentUser.getPhoneNumber();
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
-        String dateOfBirth = currentUser.getDateOfBirth();
 
         avatarImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,35 +142,6 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
-        if(!StringUtils.isEmpty(dateOfBirth)) {
-             dateOfBirthButton.setText(dateOfBirth);
-        }
-
-        dateOfBirthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-
-                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        try {
-                            Date date = dateFormat.parse(day + "/" + month + "/" + year);
-                            dateOfBirthButton.setText(dateFormat.format(date));
-                            currentUser.setDateOfBirth(dateFormat.format(date));
-                        }
-                        catch (ParseException e) {
-                            EditProfileActivity.this.showToast(e.getLocalizedMessage());
-                        }
-                    }
-                };
-                DatePickerDialog dialog = new DatePickerDialog(EditProfileActivity.this, listener,
-                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                dialog.show();
-            }
-        });
-
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -201,7 +159,6 @@ public class EditProfileActivity extends BaseActivity {
         locationEditText.setText(location);
         phoneNumberEditText.setText(phoneNumber);
         emailEditText.setText(email);
-
 
     }
 

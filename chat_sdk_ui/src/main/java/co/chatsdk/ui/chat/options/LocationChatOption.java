@@ -16,6 +16,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -23,8 +24,12 @@ import io.reactivex.functions.Consumer;
  */
 
 public class LocationChatOption extends BaseChatOption {
+
+    private Disposable chatActivityResultDisposable = null;
+
     public LocationChatOption(String title, Integer iconResourceId) {
-        super(title, iconResourceId, new Action() {
+        super(title, iconResourceId, null, ChatOptionType.SendMessage);
+        action = new Action() {
             @Override
             public Observable<MessageSendProgress> execute(final Activity activity, final Thread thread) {
                 return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
@@ -35,7 +40,12 @@ public class LocationChatOption extends BaseChatOption {
 
                             if(activity instanceof ChatActivity) {
                                 ChatActivity chatActivity = (ChatActivity) activity;
-                                chatActivity.activityResultPublishSubject.subscribe(new Consumer<ChatActivity.ActivityResult>() {
+
+                                if(chatActivityResultDisposable != null) {
+                                    chatActivityResultDisposable.dispose();
+                                }
+
+                                chatActivityResultDisposable = chatActivity.activityResultPublishSubject.subscribe(new Consumer<ChatActivity.ActivityResult>() {
                                     @Override
                                     public void accept(@NonNull ChatActivity.ActivityResult result) throws Exception {
                                         locationSelector.handleResult(activity, result.requestCode, result.resultCode, result.data);
@@ -59,7 +69,7 @@ public class LocationChatOption extends BaseChatOption {
                     }
                 });
             }
-        }, ChatOptionType.SendMessage);
+        };
     }
 
     public LocationChatOption(String title) {

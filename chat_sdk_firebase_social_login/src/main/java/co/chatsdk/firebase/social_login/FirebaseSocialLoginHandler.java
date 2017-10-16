@@ -263,7 +263,7 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                                     });
                                 }
                                 else {
-//                                    Toast.makeText(activity, "Authentication failed.",
+//                                    Toast.makeText(context, "Authentication failed.",
 //                                            Toast.LENGTH_SHORT).show();
                                     e.onError(task.getException());
                                 }

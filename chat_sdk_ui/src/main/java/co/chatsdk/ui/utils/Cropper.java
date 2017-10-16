@@ -31,7 +31,7 @@ public class Cropper {
     }
 
     /**
-     * @return Intent that will open the crop activity with an adjustable bounds for the cropping square.
+     * @return Intent that will open the crop context with an adjustable bounds for the cropping square.
      * * * */
     public Intent getIntent(Context context, Uri output){
         Intent cropIntent = new Intent();
@@ -45,7 +45,7 @@ public class Cropper {
     }
 
     /**
-     * @return Intent that will open the crop activity with an adjustable bounds for the cropping square.
+     * @return Intent that will open the crop context with an adjustable bounds for the cropping square.
      * * * */
     public Intent getAdjustIntent(Context context, Uri output){
         Intent cropIntent = new Intent();

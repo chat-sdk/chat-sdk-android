@@ -165,7 +165,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     public void run() throws Exception {
                         wrapper.getModel().update();
 
-                        FirebaseEventHandler.shared().userOn(wrapper.getModel().getEntityID());
+                        FirebaseEventHandler.shared().currentUserOn(wrapper.getModel().getEntityID());
 
                         NM.push().subscribeToPushChannel(wrapper.pushChannel());
 

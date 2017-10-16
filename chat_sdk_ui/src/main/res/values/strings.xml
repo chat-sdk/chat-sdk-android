@@ -22,7 +22,7 @@
     <string name="send">Send</string>
     <string name="pick_friends">Pick Friends</string>
 
-    <!--ThreadDetails activity-->
+    <!--ThreadDetails context-->
     <string name="thread_details_activity_title">Thread Details</string>
     <string name="thread_details_activity_change_name_dialog_title">Set thread name</string>
 

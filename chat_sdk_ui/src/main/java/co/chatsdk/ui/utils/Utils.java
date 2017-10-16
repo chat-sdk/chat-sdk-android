@@ -7,8 +7,6 @@
 
 package co.chatsdk.ui.utils;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Environment;
 
 import java.io.File;
@@ -19,13 +17,12 @@ public class Utils {
     public static  class ImageSaver {
 
         static boolean isExternalStorageWritable() {
-            return Environment.MEDIA_MOUNTED.equals( Environment.getExternalStorageState() );
+            return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
         }
 
         public static File getAlbumStorageDir(String albumName) {
             if (isExternalStorageWritable()) {
 //              Get the directory for the user's public pictures directory.
-                
                 File file = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES), albumName);
 
@@ -40,13 +37,11 @@ public class Utils {
 
                 return file;
             }
-            else
-            {
-                File storage;
-                
+            else {
+
                 // Try to get the image directory anyway, 
                 // If fails try to create a directory path with a given name in the external storage.
-                storage = new File(Environment.getExternalStoragePublicDirectory(
+                File storage = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES), albumName);;
 
                 if (!storage.exists()) {
@@ -65,20 +60,6 @@ public class Utils {
                     else return storage;
                 }
                 return storage;
-            }
-        }
-    }
-
-    public static class SystemChecks {
-        /** Check if this device has a camera
-         * @return <b>true</b> if the device has a camera.*/
-        public static boolean checkCameraHardware(Context context) {
-            if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-                // this device has a camera
-                return true;
-            } else {
-                // no camera on this device
-                return false;
             }
         }
     }

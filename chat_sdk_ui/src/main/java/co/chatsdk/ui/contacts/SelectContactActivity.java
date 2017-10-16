@@ -74,7 +74,7 @@ public class SelectContactActivity extends BaseActivity {
     /** For add to conversation mode.*/
     private Thread thread;
 
-    /** Set true if you want slide down animation for this activity exit. */
+    /** Set true if you want slide down animation for this context exit. */
     private boolean animateExit = false;
 
     @Override

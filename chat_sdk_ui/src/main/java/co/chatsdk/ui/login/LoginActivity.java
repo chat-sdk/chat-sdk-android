@@ -45,8 +45,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected EditText etEmail, etPass;
 
-    /** Passed to the activity in the intent extras, Indicates that the activity was called after the user press the logout button,
-     * That means the activity wont try to authenticate in inResume. */
+    /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
+     * That means the context wont try to authenticate in inResume. */
 
     private Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook;
     private ImageView appIconImage;
@@ -244,7 +244,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 //        }
 //    }
 
-    /* Dismiss dialog and open main activity.*/
+    /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
 
         dismissProgressDialog();
@@ -349,7 +349,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         if (exitOnBackPressed)
         {
             // Exit the app.
-            // If logged out from the main activity pressing back in the LoginActivity will get me back to the Main so this have to be done.
+            // If logged out from the main context pressing back in the LoginActivity will get me back to the Main so this have to be done.
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

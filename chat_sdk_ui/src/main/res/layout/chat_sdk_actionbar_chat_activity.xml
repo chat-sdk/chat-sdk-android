@@ -45,7 +45,7 @@
             fresco:roundAsCircle="true" />
 
         <TextView
-            android:id="@+id/tvTyping"
+            android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="0dp"

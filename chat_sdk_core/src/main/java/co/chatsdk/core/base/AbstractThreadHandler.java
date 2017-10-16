@@ -240,13 +240,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 message.update();
                 message.getThread().update();
                 e.onNext(new MessageSendProgress(message));
+                e.onComplete();
             }
         }).flatMap(new Function<MessageSendProgress, ObservableSource<MessageSendProgress>>() {
             @Override
             public ObservableSource<MessageSendProgress> apply(MessageSendProgress messageSendProgress) throws Exception {
                 return handleMessageSend(message, sendMessage(message));
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.single()).doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+                Timber.v("Complete");
+            }
+        });
     }
 
     public static Observable<MessageSendProgress> handleMessageSend (final Message message, Observable<MessageSendProgress> messageSendObservable) {
@@ -276,7 +282,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 }
             }
             else {
-                count += t.getUnreadMessagesAmount();
+                count += t.getUnreadMessagesCount();
             }
         }
         return count;

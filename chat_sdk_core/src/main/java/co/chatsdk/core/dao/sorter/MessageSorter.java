@@ -14,21 +14,20 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
 
 public class MessageSorter implements Comparator<Message> {
-    public static final int ORDER_TYPE_ASC = DaoCore.ORDER_ASC;
-    public static final int ORDER_TYPE_DESC = DaoCore.ORDER_DESC;
 
-    private int order = ORDER_TYPE_DESC;
-
-    public MessageSorter(){}
+    private int order = DaoCore.ORDER_DESC;
 
     public MessageSorter(int order) {
         this.order = order;
     }
 
     @Override
-    public int compare(Message x, Message y) {
-        if (order == ORDER_TYPE_ASC)
-            return (x == null || y == null) ? -1 : (x.getDate().toDate() == null || y.getDate().toDate() == null ) ? -1 : x.getDate().toDate().compareTo(y.getDate().toDate());
-        else return (x == null || y == null) ? 1 : (x.getDate().toDate() == null || y.getDate().toDate() == null ) ? -1 : y.getDate().toDate().compareTo(x.getDate().toDate());
+    public int compare(Message m1, Message m2) {
+        if(m1 == null || m2 == null || m1.getDate() == null || m2.getDate() == null) {
+            return 0;
+        }
+        else {
+            return (order == DaoCore.ORDER_ASC ? 1 : -1 ) * m1.getDate().toDate().compareTo(m2.getDate().toDate());
+        }
     }
 }

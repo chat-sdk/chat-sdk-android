@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity {
 
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             // Activity was brought to front and not created,
-            // Thus finishing this will get us to the last viewed activity
+            // Thus finishing this will get us to the last viewed context
             finish();
             return;
         }
@@ -231,7 +231,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds threads to the action bar if it is present.
         //getMenuInflater().inflate(R.menu.menu_chat_sdk, menu);
         return false;
     }

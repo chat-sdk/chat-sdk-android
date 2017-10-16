@@ -14,6 +14,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -29,11 +30,13 @@ public class MediaChatOption extends BaseChatOption {
         ChooseVideo,
     }
 
-    public MediaChatOption(String title, Integer iconResourceId, final Type type) {
+    private Disposable chatActivityResultDisposable = null;
 
-        super(title, iconResourceId, new Action() {
+    public MediaChatOption(String title, Integer iconResourceId, final Type type) {
+        super(title, iconResourceId, null, ChatOptionType.SendMessage);
+        action = new Action() {
             @Override
-            public Observable<MessageSendProgress> execute(final Activity activity, final Thread thread) {
+            public Observable<?> execute(final Activity activity, final Thread thread) {
                 return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
                     @Override
                     public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
@@ -42,7 +45,11 @@ public class MediaChatOption extends BaseChatOption {
 
                             if(activity instanceof ChatActivity) {
                                 ChatActivity chatActivity = (ChatActivity) activity;
-                                chatActivity.activityResultPublishSubject.subscribe(new Consumer<ChatActivity.ActivityResult>() {
+
+                                if(chatActivityResultDisposable != null) {
+                                    chatActivityResultDisposable.dispose();
+                                }
+                                chatActivityResultDisposable = chatActivity.activityResultPublishSubject.subscribe(new Consumer<ChatActivity.ActivityResult>() {
                                     @Override
                                     public void accept(@NonNull ChatActivity.ActivityResult result) throws Exception {
                                         mediaSelector.handleResult(activity, result.requestCode, result.resultCode, result.data);
@@ -81,7 +88,7 @@ public class MediaChatOption extends BaseChatOption {
                     }
                 });
             }
-        }, ChatOptionType.SendMessage);
+        };
     }
 
     public MediaChatOption(String title, Type type) {

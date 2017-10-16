@@ -371,7 +371,8 @@ public class ProfileFragment extends BaseFragment {
 
         stackViews(textViewIds, R.id.tvStatus, set);
 
-        set.applyTo(layout);    }
+        set.applyTo(layout);
+    }
 
     private void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
         int lastViewId = firstViewId;

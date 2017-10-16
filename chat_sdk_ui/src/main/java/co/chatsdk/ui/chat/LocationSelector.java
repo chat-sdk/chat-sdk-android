@@ -38,7 +38,7 @@ public class LocationSelector {
             throw new Exception(e.getMessage());
         }
 
-       // Intent intent = new Intent(activity, ChatSDKLocationActivity.class);
+       // Intent intent = new Intent(context, ChatSDKLocationActivity.class);
     }
 
     private void processPickedLocation(int resultCode, Intent data) throws Exception {

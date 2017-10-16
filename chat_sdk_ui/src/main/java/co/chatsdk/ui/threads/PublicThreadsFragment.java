@@ -57,7 +57,7 @@ public class PublicThreadsFragment extends BaseFragment {
         initViews(inflater);
 
         NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType((EventType.MessageAdded)))
+                .filter(NetworkEvent.filterPublicThreadsUpdated())
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(NetworkEvent networkEvent) throws Exception {
@@ -98,7 +98,7 @@ public class PublicThreadsFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        adapter.setItems(NM.thread().getThreads(ThreadType.Public));
+        adapter.setThreads(NM.thread().getThreads(ThreadType.Public));
     }
 
     @Override

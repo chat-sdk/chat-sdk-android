@@ -37,9 +37,12 @@ import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.utils.ImageBuilder;
 import co.chatsdk.ui.utils.Strings;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.SingleSource;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Function;
 
 public class NotificationUtils {
 
@@ -175,9 +178,12 @@ public class NotificationUtils {
 
         getNotificationLines(context, data);
 
-        ThreadImageBuilder.getBitmapForThread(context, message.getThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BiConsumer<Bitmap, Throwable>() {
+        ThreadImageBuilder.getImageUriForThread(context, message.getThread()).flatMap(new Function<Uri, SingleSource<Bitmap>>() {
+            @Override
+            public SingleSource<Bitmap> apply(@NonNull Uri uri) throws Exception {
+                return ImageBuilder.bitmapForURL(context, uri.toString());
+            }
+        }).subscribe(new BiConsumer<Bitmap, Throwable>() {
             @Override
             public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
                 if(throwable == null) {

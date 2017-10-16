@@ -35,6 +35,7 @@ public class BaseContactHandler implements ContactHandler {
     public Completable addContact(User user, ConnectionType type) {
         if(NM.currentUser() != null && !user.isMe()) {
             NM.currentUser().addContact(user, type);
+            NM.core().userOn(user);
         }
         return Completable.complete();
     }
@@ -43,6 +44,7 @@ public class BaseContactHandler implements ContactHandler {
     public Completable deleteContact(User user, ConnectionType type) {
         if(NM.currentUser() != null && !user.isMe()) {
             NM.currentUser().deleteContact(user, type);
+            NM.core().userOff(user);
         }
         return Completable.complete();
     }

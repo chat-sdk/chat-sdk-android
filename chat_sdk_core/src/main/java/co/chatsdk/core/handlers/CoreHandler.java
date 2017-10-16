@@ -1,11 +1,7 @@
 package co.chatsdk.core.handlers;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -55,8 +51,8 @@ import io.reactivex.functions.Consumer;
     */
     void goOnline();
 
-    void presenceMonitoringOn (User user);
-    void presenceMonitoringOff (User user);
+    void userOn (User user);
+    void userOff (User user);
 
     void save();
 

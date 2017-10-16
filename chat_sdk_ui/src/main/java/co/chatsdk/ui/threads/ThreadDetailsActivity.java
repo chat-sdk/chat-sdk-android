@@ -38,7 +38,7 @@ import io.reactivex.functions.Consumer;
  */
 public class ThreadDetailsActivity extends BaseActivity {
 
-    /** Set true if you want slide down animation for this activity exit. */
+    /** Set true if you want slide down animation for this context exit. */
     protected boolean animateExit = false;
 
     protected Thread thread;

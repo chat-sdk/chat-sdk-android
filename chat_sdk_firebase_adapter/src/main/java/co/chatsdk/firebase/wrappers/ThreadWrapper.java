@@ -254,28 +254,23 @@ public class ThreadWrapper  {
                     return;
                 }
 
-                ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
+                ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener()
+                        .onChildAdded(new FirebaseEventListener.Change() {
                     @Override
                     public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
-                        user.metaOn().subscribe(new Consumer<User>() {
-                            @Override
-                            public void accept(User user) throws Exception {
-                                e.onNext(user);
-                            }
-                        });
-                        NM.core().presenceMonitoringOn(user.getModel());
+                        NM.core().userOn(user.getModel());
+                        e.onNext(user.getModel());
 
                     }
                 }).onChildRemoved(new FirebaseEventListener.Removed() {
                     @Override
                     public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         UserWrapper user = new UserWrapper(snapshot);
-                        if (model.hasUser(user.getModel())) {
-                            DaoCore.breakUserAndThread(user.getModel(), model);
-                            DaoCore.updateEntity(model);
-                        }
+                        // We don't call meta off because we may have other therads
+                        // with this user
+                        model.removeUser(user.getModel());
                         e.onNext(user.getModel());
                     }
                 }));

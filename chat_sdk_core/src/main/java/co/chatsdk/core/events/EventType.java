@@ -6,10 +6,8 @@ package co.chatsdk.core.events;
 
 public enum EventType {
 
-    PrivateThreadAdded,
-    PrivateThreadRemoved,
-    PublicThreadAdded,
-    PublicThreadRemoved,
+    ThreadAdded,
+    ThreadRemoved,
     FollowerAdded,
     FollowerRemoved,
     FollowingAdded,

@@ -19,9 +19,14 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Executor;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
 /**
@@ -43,7 +48,7 @@ public class FirebaseEventHandler implements EventHandler {
         return instance;
     }
 
-    public void userOn(final String entityID){
+    public void currentUserOn(final String entityID){
 
         if(isOn) {
             return;
@@ -56,6 +61,15 @@ public class FirebaseEventHandler implements EventHandler {
             HashMap<String, Object> data = new HashMap<>();
             data.put(BaseHookHandler.UserOn, user);
             NM.hook().executeHook(BaseHookHandler.UserOn, data);
+        }
+
+        // Remove all users from public threads
+        // These may not have been cleared down when we exited so clear them down and
+        // start again
+        for(Thread thread : NM.thread().getThreads(ThreadType.Public)) {
+            for(User u : thread.getUsers()) {
+                thread.removeUser(u);
+            }
         }
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
@@ -89,7 +103,7 @@ public class FirebaseEventHandler implements EventHandler {
                         }
                     }).subscribe());
 
-                    eventSource.onNext(NetworkEvent.privateThreadAdded(thread.getModel()));
+                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
                 }
             }
@@ -99,7 +113,7 @@ public class FirebaseEventHandler implements EventHandler {
                 if (hasValue) {
                     ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
                     thread.off();
-                    eventSource.onNext(NetworkEvent.privateThreadRemoved(thread.getModel()));
+                    eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
                 }
             }
         }));
@@ -110,11 +124,6 @@ public class FirebaseEventHandler implements EventHandler {
             @Override
             public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-
-                // Make sure that we'recyclerView not in the thread
-                // there's an edge case where the user could kill the app and remain
-                // a member of a public thread
-                NM.thread().removeUsersFromThread(thread.getModel(), user).subscribe();
 
                 // Starting to listen to thread changes.
                 disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {
@@ -138,14 +147,14 @@ public class FirebaseEventHandler implements EventHandler {
                     }
                 }).subscribe());
 
-                eventSource.onNext(NetworkEvent.publicThreadAdded(thread.getModel()));
+                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
             }
         }).onChildRemoved(new FirebaseEventListener.Removed() {
             @Override
             public void trigger(DataSnapshot snapshot, boolean hasValue) {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
                 thread.off();
-                eventSource.onNext(NetworkEvent.publicThreadRemoved(thread.getModel()));
+                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
             }
         }));
         FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
@@ -213,21 +222,19 @@ public class FirebaseEventHandler implements EventHandler {
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
 
-        Executor.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                for (User contact : NM.contact().contacts()) {
-                    disposableList.add(UserWrapper.initWithModel(contact).metaOn().subscribe(new Consumer<User>() {
-                        @Override
-                        public void accept(User user) throws Exception {
-                            eventSource.onNext(NetworkEvent.userMetaUpdated(user));
-                        }
-                    }));
-                    NM.core().presenceMonitoringOn(user);
-                }
-            }
-        });
+        contactsMetaOn().subscribe();
+    }
 
+    private Completable contactsMetaOn () {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
+                for (User contact : NM.contact().contacts()) {
+                    NM.core().userOn(contact);
+                }
+                e.onComplete();
+            }
+        }).observeOn(Schedulers.single());
     }
 
     public void userOff(final String entityID){

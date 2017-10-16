@@ -379,7 +379,7 @@ public class User implements CoreEntity, UserListItem {
      * Converting the metaData json to a map object
      **/
     public Map<String, Object> metaMap() {
-        if(metaMapCache == null) {
+        if(metaMapCache == null || metaMapCache.keySet().size() == 0) {
             if (StringUtils.isEmpty(metaData)) {
                 metaMapCache = new HashMap<>();
             }
