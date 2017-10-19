@@ -1,7 +1,7 @@
 # Chat SDK for Android
 ### Open Source Messaging framework for Android
 
-<img target="_blank" src="http://img.chatcatapp.com/chatsdk/template_1.png" />
+<img target="_blank" src="http://img.chatcatapp.com/chatsdk/template_1_new.png" />
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
@@ -475,15 +475,8 @@ compile project(path: ':chat_sdk_firebase_push')
 In your main class `onCreate` method add:
 
 ```
-FirebasePushModule.activate(new FirebasePushHandler.TokenPusher() {
-    @Override
-    public void pushToken() {
-        NM.core().pushUser();
-    }
-});
+FirebasePushModule.activateForFirebase();
 ```
-
-This code tells the SDK to request a Firebase push token and then add it to the user's profile when it's ready. 
 
 
 3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
