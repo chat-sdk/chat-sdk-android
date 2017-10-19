@@ -5,7 +5,7 @@
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
-- **Free.** The Chat SDK is free for [commercial use](license) <HERE>
+- **Free.** The Chat SDK is free for [commercial use](https://github.com/chat-sdk/chat-sdk-android/blob/master/LICENSE.md)
 - **Open Source.** The Chat SDK is open source
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
@@ -56,11 +56,9 @@ The Chat SDK has a number of additional modules that can easily be installed inc
 - [Video messages](http://chatsdk.co/downloads/video-messages/)
 - [Sticker messages](https://chatsdk.co/downloads/sticker-messages/)
 - [Contact book integration](https://chatsdk.co/downloads/contact-book-integration/)
-- [Social Login]()
-- [Push Notifications]()
-- [File Storage]() 
-
-<HERE>
+- [Social Login](https://github.com/chat-sdk/chat-sdk-android#social-login)
+- [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
+- [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat_sdk_firebase_file_storage) (Included in basic setup instructions)
  
 ## Get involved!
 We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
@@ -126,19 +124,19 @@ You must import the following core modules:
 And at least **one** network adapter:
 
 - `chat_sdk_firebase_adapter`
-- `chat_sdk_xmpp_adapter` - [Available here]() <HERE>
+- `chat_sdk_xmpp_adapter` - [Available here](https://chatsdk.co/downloads/xmpp-chat-sdk-for-android/)
 
 And any of the following optional modules:
 
 - `chat_sdk_firebase_file_storage`
 - `chat_sdk_firebase_push`
 - `chat_sdk_firebase_social_login`
-- `chat_sdk_audio_message` - [Available here]() <HERE>
-- `chat_sdk_video_message` - [Available here]() <HERE>
-- `chat_sdk_sticker_message` - [Available here]() <HERE>
-- `chat_sdk_read_receipts` - [Available here]() <HERE>
-- `chat_sdk_typing_indicator` - [Available here]() <HERE>
-- `chat_sdk_contact_book` - [Available here]() <HERE>
+- `chat_sdk_audio_message` - [Available here](http://chatsdk.co/downloads/audio-messages/)
+- `chat_sdk_video_message` - [Available here](http://chatsdk.co/downloads/android-video-messages/)
+- `chat_sdk_sticker_message` - [Available here](http://chatsdk.co/downloads/sticker-messages/)
+- `chat_sdk_read_receipts` - [Available here](http://chatsdk.co/downloads/read-receipts/)
+- `chat_sdk_typing_indicator` - [Available here](http://chatsdk.co/downloads/typing-indicator/)
+- `chat_sdk_contact_book` - [Available here](http://chatsdk.co/downloads/contact-book-integration/)
 
 Now import the modules in your `build.gradle` file. 
 
@@ -374,9 +372,7 @@ For the following modules:
 - [Video messages](http://chatsdk.co/downloads/video-messages/)
 - [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
 
-<HERE>
-
-The free modules are located in the [chat-sdk-ios/ChatSDKFirebase]() folder. The premium modules can be purchased and downloaded from the links provided above. 
+The free modules are located in the main [Github repository](https://github.com/chat-sdk/chat-sdk-android). The premium modules can be purchased and downloaded from the links provided above. 
 
 ### Social Login
 
@@ -458,7 +454,7 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
   <string name="google_web_client_id">[CLIENT ID]</string>
   ```
   
-Social login can also be enabled or disabled by changing the Chat SDK [configuration](<HERE>).   
+Social login can also be enabled or disabled by changing the Chat SDK [configuration](https://github.com/chat-sdk/chat-sdk-android#configuration).   
 
 ### Push Notifications
 
