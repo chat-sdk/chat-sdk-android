@@ -15,8 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.ChatSDK;
 import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.session.ChatSDK;
 
 public class FirebasePaths{
 
@@ -41,11 +41,12 @@ public class FirebasePaths{
     /** @return The main databse ref.*/
 
     public static DatabaseReference firebaseRef () {
-        if (StringUtils.isBlank(ChatSDK.shared().firebaseURL())) {
+        String path = ChatSDK.config().fullFirebasePath();
+        if (StringUtils.isBlank(path)) {
             throw new NullPointerException("Please set the server url in Keys class");
         }
 
-        return fb(ChatSDK.shared().firebaseURL());
+        return fb(path);
     }
 
     /** @return Firebase object for give url.*/

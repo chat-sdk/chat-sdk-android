@@ -221,8 +221,14 @@ MultiDex.install(this);
 
 Context context = getApplicationContext();
 
+// Create a new configuration
+Configuration.Builder builder = new Configuration.Builder(context);
+
+// Perform any configuration steps
+
 // Initialize the Chat SDK
-ChatSDK.initialize(context, true);
+ChatSDK.initialize(builder.build());
+
 
 // Activate the Firebase module
 FirebaseModule.activate(context);
@@ -261,6 +267,42 @@ Or if you want to launch the activity manually, you can do it using:
 InterfaceManager.shared().a.startLoginActivity(context, true);
 ```
 
+## Configuration
+
+There are two ways to configure the Chat SDK. By using the configuration object that is passed into the ChatSDK instance on initialization or by adding certain to the `AndroidManifest.xml` file. 
+
+#### Configuration using AndroidManifest
+
+In the instructions we tell you how to add values to your Android Manifest. This will always require you to add a user defined piece of meta-data to the `AndroidManifest.xml` file. It's also best practice to store the values in a separate file in the `res/values` folder of your app. You can use the Android Manifest to set a range of API keys but more settings are available if you modify the `Configuration` object directly.
+
+#### Configuration using the Configuration Builder
+
+In your main `onCreate` method you create a new instance of the `Configuration.Builder` and pass it to the `ChatSDK` singleton on initialization.
+
+Here you have the option to set far more properties. For example:
+
+##### Configure Firebase
+
+```
+builder.firebase("FirebaseURL", "rootPath", "storageUrl", "CloudMessaging Api Key");
+``` 
+
+##### Disable Facebook and Twitter login
+
+```
+builder.facebookLoginEnabled(false);
+builder.twitterLoginEnabled(false);
+```
+
+##### Set a custom user name and avatar
+
+```
+builder.defaultUserName("TestUser");
+builder.defaultUserAvatarUrl("http://your-site/image.png");
+```
+
+Remember that in the instructions we will advise you to configure using the Android Manifest but you are always free to use the direct configuration method instead. 
+
 ## Firebase Setup
 
 1. Go to the [Firebase](http://firebase.com/) website and sign up or log in
@@ -283,7 +325,7 @@ InterfaceManager.shared().a.startLoginActivity(context, true);
 
   ```
   
-  Create a resource file called **chat_sdk_firebase.xml** and set the following keys:
+  Create a resource file called `chat_sdk_firebase.xml` in the `res/values` folder of your project and set the following keys:
   
   ```
   <string name="firebase_url">https://[YOUR APP].firebaseio.com</string>
@@ -502,36 +544,6 @@ After you have purchased the module you will be provided with a link to the modu
 Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
 
 Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-ios/blob/master/rules.json) file into the rules and click publish. 
-
-## Configuration
-
-There are a number of properties that can be customized in the Chat SDK. All the settings can be customized by overriding the `ConfigurationHandler`. 
-
-1. Make a new class that inherits from the `BaseConfigurationHandler`. Override the functions. Here's an example:
-
-  ```
-    @Override
-    public boolean booleanForKey(String key) {
-        switch (key) {
-            case AnonymousLoginEnabled:
-                return false;
-            case FacebookLoginEnabled:
-                return true;
-            case TwitterLoginEnabled:
-                return true;
-            case GoogleLoginEnabled:
-                return false;
-            default:
-                return super.booleanForKey(key);
-        }
-    }  
-  ```
-
-2. Set the configuration manager in your main class `onCreate` method:
-
-  ```
-  NetworkManager.shared().a.config = new ExampleConfigurationHandler();
-  ```
   
 ## The license
 

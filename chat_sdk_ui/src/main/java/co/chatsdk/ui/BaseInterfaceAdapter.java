@@ -6,12 +6,10 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import com.facebook.cache.disk.DiskCacheConfig;
-import com.facebook.common.logging.FLog;
 import com.facebook.common.util.ByteConstants;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestListener;
-import com.facebook.imagepipeline.listener.RequestLoggingListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -20,14 +18,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
@@ -69,7 +66,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
                 .build();
 
         Set<RequestListener> requestListeners = new HashSet<>();
-        requestListeners.add(new RequestLoggingListener());
+
+//        requestListeners.add(new RequestLoggingListener());
 
         ImagePipelineConfig config = ImagePipelineConfig.newBuilder(context)
                 // other setters
@@ -77,7 +75,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
                 .setMainDiskCacheConfig(diskCacheConfig)
                 .build();
         Fresco.initialize(context, config);
-        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
+//        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
 
         this.context = new WeakReference<>(context);
     }
@@ -260,11 +258,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
         ArrayList<ChatOption> options = new ArrayList<>();
 
-        if(NM.config().booleanForKey(BaseConfigurationHandler.LocationMessagesEnabled)) {
+        if(ChatSDK.config().locationMessagesEnabled) {
             options.add(new LocationChatOption("Location"));
         }
 
-        if(NM.config().booleanForKey(BaseConfigurationHandler.ImageMessagesEnabled)) {
+        if(ChatSDK.config().imageMessagesEnabled) {
             options.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
             options.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
         }

@@ -23,12 +23,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     compile project(':chat_sdk_core')
     compile project(':chat_sdk_firebase_adapter')
 
-    compile 'com.google.firebase:firebase-messaging:9.0.2'
+    compile 'com.google.firebase:firebase-messaging:11.4.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
 }

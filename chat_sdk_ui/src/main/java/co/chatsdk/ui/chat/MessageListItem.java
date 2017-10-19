@@ -1,6 +1,6 @@
 package co.chatsdk.ui.chat;
 
-import org.apache.commons.lang3.StringUtils;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,8 +9,6 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.ImageUtils;
 import timber.log.Timber;
 
 public class MessageListItem {
@@ -22,8 +20,8 @@ public class MessageListItem {
     public float progress;
     private long timeInMillis;
 
-    @Deprecated
-    private int[] dimensions = null;
+//    @Deprecated
+//    private int[] dimensions = null;
 
     public MessageListItem (Message message, int maxWidth) {
 
@@ -42,8 +40,8 @@ public class MessageListItem {
 
         message.valueForKey(Keys.MessageImageWidth);
 
-        // TODO: This is only here for backwards compatibility
-        dimensions = getDimensions(maxWidth);
+//        // TODO: This is only here for backwards compatibility
+//        dimensions = getDimensions(maxWidth);
 
     }
 
@@ -63,43 +61,53 @@ public class MessageListItem {
         return getMessage().getMessageStatus() == status;
     }
 
+    public String getImageURL () {
+        return (String) message.valueForKey(Keys.MessageImageURL);
+    }
+
     public MessageSendStatus status () {
         return message.getMessageStatus();
     }
+//
+//    public int width () {
+//        Object width = message.valueForKey(Keys.MessageImageWidth);
+//        int w = objectToInteger(width);
+//        if(w > 0) {
+//            return w;
+//        }
+//        return dimensions[0];
+//    }
 
-    public int width () {
-        Object width = message.valueForKey(Keys.MessageImageWidth);
-        int w = objectToInteger(width);
-        if(w > 0) {
-            return w;
-        }
-        return dimensions[0];
+    public LatLng getLatLng() {
+        double longitude = objectToDouble(message.valueForKey(Keys.MessageLongitude));
+        double latitude = objectToDouble(message.valueForKey(Keys.MessageLatitude));
+        return new LatLng(latitude, longitude);
     }
 
-    public int height () {
-        Object height = message.valueForKey(Keys.MessageImageHeight);
-        int h = objectToInteger(height);
-        if(h > 0) {
-            return h;
-        }
-        return dimensions[1];
-    }
+//    public int height () {
+//        Object height = message.valueForKey(Keys.MessageImageHeight);
+//        int h = objectToInteger(height);
+//        if(h > 0) {
+//            return h;
+//        }
+//        return dimensions[1];
+//    }
 
-    public Integer objectToInteger (Object value) {
+    public Double objectToDouble (Object value) {
         if(value != null) {
             if(value instanceof String) {
                 try {
-                    return Integer.parseInt((String) value);
+                    return Double.parseDouble((String) value);
                 }
                 catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
             }
-            if(value instanceof Integer) {
-                return (Integer) value;
+            if(value instanceof Double) {
+                return (Double) value;
             }
         }
-        return 0;
+        return 0.0;
     }
 
     public Message getMessage () {
@@ -132,33 +140,33 @@ public class MessageListItem {
         }
     }
 
-    @Deprecated
-    private int[] getDimensions(int maxWidth){
+//    @Deprecated
+//    private int[] getDimensions(int maxWidth){
+//
+//        if (StringUtils.isNotEmpty(message.getTextString())) {
+//
+//            // Text comes in the form: url1, url2, W[width]&H[height]
+//            try {
+//                String[] data = message.getTextString().split(Defines.DIVIDER);
+//                dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
+//                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
+//
+//                if (dimensions.length != 2)
+//                    dimensions = null;
+//
+//            }
+//            catch (Exception e){  dimensions = null;}
+//        }
+//
+//        return dimensions;
+//    }
 
-        if (StringUtils.isNotEmpty(message.getTextString())) {
-
-            // Text comes in the form: url1, url2, W[width]&H[height]
-            try {
-                String[] data = message.getTextString().split(Defines.DIVIDER);
-                dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
-                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
-
-                if (dimensions.length != 2)
-                    dimensions = null;
-
-            }
-            catch (Exception e){  dimensions = null;}
-        }
-
-        return dimensions;
-    }
-
-    public boolean isValid () {
-        if(message.getMessageType() == MessageType.Image && dimensions == null) {
-            return false;
-        }
-        return true;
-    }
+//    public boolean isValid () {
+//        if(message.getMessageType() == MessageType.Image && dimensions == null) {
+//            return false;
+//        }
+//        return true;
+//    }
 
     public boolean equals (MessageListItem item) {
         return item.message.equals(message);

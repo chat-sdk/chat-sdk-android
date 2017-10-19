@@ -23,6 +23,12 @@ import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
 
 public class PermissionRequestHandler {
 
+    private static final PermissionRequestHandler instance = new PermissionRequestHandler();
+
+    public static PermissionRequestHandler shared () {
+        return instance;
+    }
+
     Map<Integer, CompletableEmitter> completableMap = new HashMap<>();
 
     private static int WRITE_EXTERNAL_STORAGE_REQUEST = 100;
@@ -30,6 +36,8 @@ public class PermissionRequestHandler {
     private static int RECORD_AUDIO_REQUEST = 102;
     private static int RECORD_VIDEO_REQUEST = 103;
     private static int READ_CONTACTS_REQUEST = 104;
+
+//    HashMap<Integer, Boolean> requested = new HashMap<>();
 
     public Completable requestRecordAudio (Activity activity) {
         return requestPermission(activity, Manifest.permission.RECORD_AUDIO, RECORD_AUDIO_REQUEST);
@@ -53,7 +61,7 @@ public class PermissionRequestHandler {
 
     public Completable requestPermission (final Activity activity, final String permission, final int result) {
         if(completableMap.containsKey(result)) {
-            return null;
+            return Completable.complete();
         }
         return Completable.create(new CompletableOnSubscribe() {
             @Override
@@ -92,9 +100,17 @@ public class PermissionRequestHandler {
                 e.onComplete();
             }
             else {
-                e.onError(new Throwable("Permission not granted"));
+                e.onError(new Throwable("Permission not granted: " + requestCode));
             }
         }
     }
+
+//    private boolean hasRequested (Integer permission) {
+//        return requested.containsKey(permission) && requested.get(permission);
+//    }
+//
+//    private void setHasRequested (Integer permission) {
+//        requested.put(permission, true);
+//    }
 
 }

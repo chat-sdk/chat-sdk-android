@@ -57,7 +57,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         final Thread thread = threads.get(position);
 
-        holder.nameTextView.setText(thread.getName());
+        holder.nameTextView.setText(Strings.nameForThread(thread));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

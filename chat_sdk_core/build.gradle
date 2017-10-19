@@ -61,6 +61,7 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.google.android.gms:play-services:11.4.0'
-
+    compile 'id.zelory:compressor:2.0.0'
+    compile 'commons-io:commons-io:2.5'
 }
 

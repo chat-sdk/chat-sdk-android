@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 
 import java.util.Map;
 
-import co.chatsdk.core.ChatSDK;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.types.AccountDetails;

@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.ChatSDK;
-import co.chatsdk.core.NM;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.hook.Hook;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.utils.Strings;
 import io.reactivex.Completable;
@@ -116,7 +116,7 @@ public class FirebasePushHandler implements PushHandler {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {
                 final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-                String serverKey = "key=" + ChatSDK.shared().firebaseCloudMessagingServerKey();
+                String serverKey = "key=" + ChatSDK.config().firebaseCloudMessagingServerKey;
 
                 HashMap<String, Object> params = new HashMap<>();
 

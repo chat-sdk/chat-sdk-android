@@ -12,13 +12,13 @@ import com.google.firebase.database.DatabaseError;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
@@ -292,7 +292,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     // TODO: Allow users to turn anonymous login off or on in settings
     public Boolean accountTypeEnabled(AccountDetails.Type type) {
         if(type == AccountDetails.Type.Anonymous) {
-            return NM.config().booleanForKey(BaseConfigurationHandler.AnonymousLoginEnabled);
+            return ChatSDK.config().anonymousLoginEnabled;
         }
         else if(type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
             return true;

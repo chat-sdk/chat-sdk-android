@@ -9,7 +9,7 @@ public class Availability {
     public static String Available  = "available";
     public static String Unavailable  = "unavailable";
     public static String Away  = "away";
-    public static String Busy  = "busy";
+    public static String Busy  = "dnd";
     public static String XA  = "xa";
 
 }

@@ -20,12 +20,12 @@ import com.astuetz.PagerSlidingTabStrip;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.BaseInterfaceAdapter;
@@ -46,9 +46,7 @@ public class MainActivity extends BaseActivity {
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     protected PagerAdapterTabs adapter;
-
     private OpenFromPushChecker mOpenFromPushChecker;
-    private PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
     DisposableList disposables = new DisposableList();
 
@@ -75,49 +73,63 @@ public class MainActivity extends BaseActivity {
             InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
         }
 
-        requestExternalStorage().doFinally(new Action() {
+        requestPermissionSafely(requestExternalStorage().doFinally(new Action() {
             @Override
             public void run() throws Exception {
-                requestMicrophoneAccess().doFinally(new Action() {
+                requestPermissionSafely(requestMicrophoneAccess().doFinally(new Action() {
                     @Override
                     public void run() throws Exception {
-                        requestReadContacts().doFinally(new Action() {
+                        requestPermissionSafely(requestReadContacts().doFinally(new Action() {
                             @Override
                             public void run() throws Exception {
                                 //requestVideoAccess().subscribe();
                             }
-                        }).subscribe();
+                        }));
                     }
-                }).subscribe();
+                }));
             }
-        }).subscribe();
+        }));
 
+    }
+
+    public void requestPermissionSafely (Completable c) {
+        c.subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        });
     }
 
     public Completable requestMicrophoneAccess () {
         if(NM.audioMessage() != null) {
-            return permissionHandler.requestRecordAudio(this);
+            return PermissionRequestHandler.shared().requestRecordAudio(this);
         }
         return Completable.complete();
     }
 
     public Completable requestExternalStorage () {
-        if(NM.audioMessage() != null) {
-            return permissionHandler.requestReadExternalStorage(this);
-        }
-        return Completable.complete();
+//        if(NM.audioMessage() != null) {
+            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
+//        }
+//        return Completable.complete();
     }
 
     public Completable requestVideoAccess () {
         if(NM.videoMessage() != null) {
-            return permissionHandler.requestVideoAccess(this);
+            return PermissionRequestHandler.shared().requestVideoAccess(this);
         }
         return Completable.complete();
     }
 
     public Completable requestReadContacts () {
         if(NM.contact() != null) {
-            return permissionHandler.requestReadContact(this);
+            return PermissionRequestHandler.shared().requestReadContact(this);
         }
         return Completable.complete();
     }
@@ -125,7 +137,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -250,9 +262,9 @@ public class MainActivity extends BaseActivity {
         }
         else if (item.getItemId() == R.id.contact_developer) {
 
-            String emailAddress = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperEmailAddress);
-            String subject = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperEmailSubject);
-            String dialogTitle = NM.config().stringForKey(BaseConfigurationHandler.ContactDeveloperDialogTitle);
+            String emailAddress = ChatSDK.config().contactDeveloperEmailAddress;
+            String subject = ChatSDK.config().contactDeveloperEmailSubject;
+            String dialogTitle = ChatSDK.config().contactDeveloperDialogTitle;
 
             if(StringUtils.isNotEmpty(emailAddress))
             {

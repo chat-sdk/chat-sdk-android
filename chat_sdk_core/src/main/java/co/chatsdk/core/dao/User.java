@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import timber.log.Timber;
 
@@ -380,10 +380,7 @@ public class User implements CoreEntity, UserListItem {
      **/
     public Map<String, Object> metaMap() {
         if(metaMapCache == null || metaMapCache.keySet().size() == 0) {
-            if (StringUtils.isEmpty(metaData)) {
-                metaMapCache = new HashMap<>();
-            }
-            else {
+            if(metaData != null) {
                 try {
                     metaMapCache = JsonHelper.toMap(new JSONObject(metaData));
                 } catch (JSONException e) {
@@ -391,7 +388,9 @@ public class User implements CoreEntity, UserListItem {
                     Timber.e(e.getCause(), "Cant parse metaData json to map. Meta: %s", metaData);
                 }
             }
-
+            if(metaMapCache == null) {
+                metaMapCache = new HashMap<>();
+            }
         }
         return metaMapCache;
     }

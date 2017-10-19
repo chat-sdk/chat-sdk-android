@@ -19,6 +19,7 @@ import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by ben on 10/14/17.
@@ -54,6 +55,6 @@ public class ImageBuilder {
                     e.onError(new Throwable("Unable to load image"));
                 }
             }
-        });
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 }

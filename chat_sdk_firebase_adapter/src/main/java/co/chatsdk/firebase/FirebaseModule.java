@@ -2,7 +2,7 @@ package co.chatsdk.firebase;
 
 import android.content.Context;
 
-import co.chatsdk.core.NetworkManager;
+import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
 

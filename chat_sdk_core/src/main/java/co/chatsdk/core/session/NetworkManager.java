@@ -1,4 +1,4 @@
-package co.chatsdk.core;
+package co.chatsdk.core.session;
 
 import co.chatsdk.core.base.BaseNetworkAdapter;
 

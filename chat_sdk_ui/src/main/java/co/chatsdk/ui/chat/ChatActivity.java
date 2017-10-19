@@ -31,10 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.audio.Recording;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -45,6 +42,9 @@ import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -192,7 +192,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             actionBarView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (NM.config().booleanForKey(BaseConfigurationHandler.ThreadDetailsEnabled)) {
+                    if (ChatSDK.config().threadDetailsEnabled) {
                         openThreadDetailsActivity();
                     }
                 }
@@ -221,7 +221,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         textInputView = (TextInputView) findViewById(R.id.chat_sdk_message_box);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(NM.audioMessage() != null);
-        textInputView.setAudioModeEnabled(true);
 
         progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
@@ -311,7 +310,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .subscribe(new Observer<MessageSendProgress>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-                        disposableList.add(d);
+                        //disposableList.add(d);
                     }
 
                     @Override
@@ -573,9 +572,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return super.onCreateOptionsMenu(menu);
 
         // Adding the add user option only if group chat is enabled.
-        if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled) && thread.typeIs(ThreadType.Group)) {
-            MenuItem item =
-                    menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
+        if (ChatSDK.config().groupsEnabled && thread.typeIs(ThreadType.Group)) {
+            MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             item.setIcon(R.drawable.ic_plus);
         }
@@ -853,6 +851,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     public void showOptions() {
         if(optionsHandler == null) {
+            Timber.v("Selector Activity: " + this.toString());
             optionsHandler = InterfaceManager.shared().a.getChatOptionsHandler(this);
         }
         optionsHandler.show(this);

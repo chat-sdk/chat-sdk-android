@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.BaseInterfaceAdapter;

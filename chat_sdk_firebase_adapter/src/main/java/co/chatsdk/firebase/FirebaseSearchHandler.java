@@ -6,7 +6,7 @@ import com.google.firebase.database.Query;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;

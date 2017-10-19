@@ -2,6 +2,8 @@ package co.chatsdk.core;
 
 import android.support.v4.app.Fragment;
 
+import co.chatsdk.core.session.ChatSDK;
+
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */

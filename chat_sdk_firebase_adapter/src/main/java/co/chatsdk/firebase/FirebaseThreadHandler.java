@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;

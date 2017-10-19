@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.types.ChatOptionType;

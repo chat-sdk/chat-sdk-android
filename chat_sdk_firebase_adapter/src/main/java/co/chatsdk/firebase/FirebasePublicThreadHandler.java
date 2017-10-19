@@ -1,27 +1,22 @@
 package co.chatsdk.firebase;
 
-import co.chatsdk.core.ChatSDK;
-import co.chatsdk.core.NM;
-
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.types.Defines;
-import co.chatsdk.core.dao.DaoCore;
-
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
 
+import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PublicThreadHandler;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -55,8 +50,7 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
                 // Add the path and API key
                 // This allows you to restrict public threads to a particular
                 // API key or root key
-                thread.setRootKey(ChatSDK.shared().rootPath());
-                thread.setApiKey("");
+                thread.setRootKey(ChatSDK.config().firebaseRootPath);
 
                 // Save the entity to the local db.
                 DaoCore.createEntity(thread);

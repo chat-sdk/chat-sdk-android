@@ -3,7 +3,7 @@ package co.chatsdk.ui.chat.options;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.types.ChatOptionType;
@@ -16,6 +16,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import timber.log.Timber;
 
 /**
  * Created by ben on 10/11/17.
@@ -46,6 +47,8 @@ public class MediaChatOption extends BaseChatOption {
                             if(activity instanceof ChatActivity) {
                                 ChatActivity chatActivity = (ChatActivity) activity;
 
+                                Timber.v("Selector Activity: " + activity.toString());
+
                                 if(chatActivityResultDisposable != null) {
                                     chatActivityResultDisposable.dispose();
                                 }
@@ -63,10 +66,11 @@ public class MediaChatOption extends BaseChatOption {
                                     if(type == Type.TakePhoto || type == Type.ChoosePhoto) {
                                         connector.connect(NM.thread().sendMessageWithImage(result, thread), e);
                                     }
-                                    if(type == Type.TakeVideo || type == Type.ChooseVideo) {
-                                        if (NM.videoMessage() != null) {
-                                            connector.connect(NM.videoMessage().sendMessageWithVideo(result, thread), e);
-                                        }
+                                    else if((type == Type.TakeVideo || type == Type.ChooseVideo) && NM.videoMessage() != null) {
+                                        connector.connect(NM.videoMessage().sendMessageWithVideo(result, thread), e);
+                                    }
+                                    else {
+                                        e.onComplete();
                                     }
                                 }
                             };

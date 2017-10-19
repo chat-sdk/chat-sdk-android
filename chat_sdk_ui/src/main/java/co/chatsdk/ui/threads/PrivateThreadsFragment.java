@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;

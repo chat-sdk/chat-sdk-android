@@ -19,8 +19,8 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.utils.DisposableList;

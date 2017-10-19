@@ -28,7 +28,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;

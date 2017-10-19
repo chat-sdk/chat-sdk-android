@@ -7,6 +7,7 @@
 
 package co.chatsdk.ui.main;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -164,7 +165,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /** Hide the Soft Keyboard.*/
-    public static void hideSoftKeyboard(AppCompatActivity activity) {
+    public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE);
 
         if (inputMethodManager == null)

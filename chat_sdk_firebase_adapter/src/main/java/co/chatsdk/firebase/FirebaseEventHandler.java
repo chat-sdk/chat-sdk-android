@@ -6,7 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;

@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
@@ -163,7 +163,7 @@ public class SelectContactActivity extends BaseActivity {
     }
 
     private void initList() {
-        boolean enableMultiSelect = NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled);
+        boolean enableMultiSelect = ChatSDK.config().groupsEnabled;
         adapter = new UsersListAdapter(enableMultiSelect);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -175,7 +175,7 @@ public class SelectContactActivity extends BaseActivity {
             @Override
             public void accept(@NonNull Object item) throws Exception {
                 if(item instanceof User) {
-                    if (NM.config().booleanForKey(BaseConfigurationHandler.GroupsEnabled)) {
+                    if (ChatSDK.config().groupsEnabled) {
                         adapter.toggleSelection(item);
                     }
                     else {

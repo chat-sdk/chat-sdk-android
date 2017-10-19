@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;

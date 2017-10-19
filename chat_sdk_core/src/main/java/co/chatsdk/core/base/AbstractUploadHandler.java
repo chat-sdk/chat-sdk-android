@@ -2,7 +2,7 @@ package co.chatsdk.core.base;
 
 import android.graphics.Bitmap;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.handlers.UploadHandler;

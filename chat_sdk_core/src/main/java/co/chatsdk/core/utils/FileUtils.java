@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class FileUtils {
 
-    public static byte[] getCompressed(String filePath) {
+    public static byte[] toByteArray(String filePath) {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         BufferedInputStream in = null;

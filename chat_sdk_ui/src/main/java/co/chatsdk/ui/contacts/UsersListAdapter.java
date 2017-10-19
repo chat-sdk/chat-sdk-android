@@ -29,6 +29,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import timber.log.Timber;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -151,6 +152,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             uh.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(user.getAvailability()));
             uh.statusTextView.setText(user.getStatus());
+
+            Timber.v("User: " + user.getName() + " Availability: " + user.getAvailability());
 
             uh.avatarImageView.setImageURI(user.getAvatarURL());
 

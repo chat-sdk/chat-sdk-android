@@ -8,35 +8,87 @@
 package co.chatsdk.core.utils;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
-
-import org.apache.commons.lang3.StringUtils;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.UUID;
 
-import co.chatsdk.core.ChatSDK;
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
+import co.chatsdk.core.session.ChatSDK;
+
+import static android.os.Environment.isExternalStorageRemovable;
 
 
 public class ImageUtils {
-    public static final String TAG = ImageUtils.class.getSimpleName();
+
+    public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
+
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+        // otherwise use internal cache dir
+        final String cachePath =
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
+                        context.getCacheDir().getPath();
+
+        return new File(cachePath + File.separator + uniqueName);
+    }
+
+    public static File saveImageToCache (Context context, Bitmap image) {
+        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+        if(!cache.exists()) {
+            cache.mkdirs();
+        }
+
+        File file = new File(cache, UUID.randomUUID() + ".png");
+        while (file.exists()) {
+            file = new File(cache, UUID.randomUUID() + ".png");
+        }
+
+        return saveImageToCache(context, image, file.getName());
+
+    }
+
+    public static File saveImageToCache (Context context, Bitmap image, String name) {
+        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+
+        if(!cache.exists()) {
+            cache.mkdirs();
+        }
+
+        if(!name.contains(".png")) {
+            name += ".png";
+        }
+
+        File file = new File(cache, name);
+
+        try {
+            OutputStream outStream = new FileOutputStream(file);
+            image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+            outStream.flush();
+            outStream.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        Log.e("file", "" + file);
+        return file;
+    }
 
     /**
      * Constructing a bitmap that contains the given bitmaps(max is three).
@@ -91,107 +143,26 @@ public class ImageUtils {
     }
 
     /** @return a bitmap with text.*/
-    private static Bitmap textAsBitmap(String text, float textSize, int textColor) {
+//    private static Bitmap textAsBitmap(String text, float textSize, int textColor) {
+//
+//        Paint paint = new Paint();
+//        paint.setTextSize(textSize);
+//        paint.setColor(textColor);
+//        paint.setTextAlign(Paint.Align.LEFT);
+//
+//        int width = (int) (paint.measureText(text) + 0.5f); // round
+//        float baseline = (int) (-paint.ascent() + 0.5f); // ascent() is negative
+//        int height = (int) (baseline + paint.descent() + 0.5f);
+//
+//        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//
+//        Canvas canvas = new Canvas(image);
+//        canvas.drawText(text, 0, baseline, paint);
+//
+//        return image;
+//    }
 
-        Paint paint = new Paint();
-        paint.setTextSize(textSize);
-        paint.setColor(textColor);
-        paint.setTextAlign(Paint.Align.LEFT);
-
-        int width = (int) (paint.measureText(text) + 0.5f); // round
-        float baseline = (int) (-paint.ascent() + 0.5f); // ascent() is negative
-        int height = (int) (baseline + paint.descent() + 0.5f);
-
-        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(image);
-        canvas.drawText(text, 0, baseline, paint);
-
-        return image;
-    }
-
-    public static int calculateInSampleSize (
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
-    public static Bitmap loadBitmapFromFile(String photoPath){
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-
-
-        Matrix matrix = null;
-
-        try {
-            ExifInterface exif = new ExifInterface(photoPath);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-
-            matrix = new Matrix();
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_NORMAL:
-                    matrix = null;
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                    matrix.setScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    matrix.setRotate(180);
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                    matrix.setRotate(180);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSPOSE:
-                    matrix.setRotate(90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    matrix.setRotate(90);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSVERSE:
-                    matrix.setRotate(-90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    matrix.setRotate(-90);
-                    break;
-                default:
-                    matrix = null;
-                    break;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
-
-        if (matrix != null)
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
-        return bitmap;
-    }
-
-    public static Bitmap scaleImage(Bitmap bitmap, int boxSize){
+    public static Bitmap scaleImage(Bitmap bitmap, int boxSize) {
         if (boxSize == 0)
             return null;
 
@@ -210,156 +181,25 @@ public class ImageUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public static int[] calcNewImageSize(int[] imgDimensions, int bounds){
-        int[] dimestions = new int[2];
-
-        // Get current dimensions
-        int width = imgDimensions[0];
-        int height = imgDimensions[1];
-
-        // Determine how much to scale: the dimension requiring less scaling is
-        // closer to the its side. This way the image always stays inside your
-        // bounding box AND either x/y axis touches it.
-        float xScale = ((float) bounds) / width;
-        float yScale = ((float) bounds) / height;
-        float scale = (xScale <= yScale) ? xScale : yScale;
-
-        dimestions[0] = (int) (width * scale);
-        dimestions[1] = (int) (height * scale);
-
-        return dimestions;
-    }
-
-    public static Bitmap getCompressed(String filePath){
-        return getCompressed(
-                filePath,
-                NM.config().integerForKey(BaseConfigurationHandler.ImageMaxWidth),
-                NM.config().integerForKey(BaseConfigurationHandler.ImageMaxHeight)
-        );
-    }
-
-    /*http://voidcanvas.com/whatsapp-like-image-compression-in-android/*/
-    public static Bitmap getCompressed(String filePath, float maxWidth, float maxHeight){
-
-        Bitmap scaledBitmap;
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-
-//      by setting this field as true, the actual bitmap pixels are not loaded in the memory. Just the bounds are loaded. If
-//      you try the use the bitmap here, you will get null.
-        options.inJustDecodeBounds = true;
-        Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
-
-        int actualHeight = options.outHeight;
-        int actualWidth = options.outWidth;
-
-//      max Height and width values of the compressed image is taken as 816x612
-        float imgRatio = (float) actualWidth / (float) actualHeight;
-        float maxRatio =  maxWidth / maxHeight;
-
-//      width and height values are set maintaining the aspect ratio of the image
-        if (actualHeight > maxHeight || actualWidth > maxWidth)
-        {
-            if (imgRatio < maxRatio) {
-                imgRatio = maxHeight / actualHeight;
-                actualWidth = (int) (imgRatio * actualWidth);
-                actualHeight = (int) maxHeight;
-            }
-            else if (imgRatio > maxRatio)
-            {
-                imgRatio = maxWidth / actualWidth;
-                actualHeight = (int) (imgRatio * actualHeight);
-                actualWidth = (int) maxWidth;
-            } else
-            {
-                actualHeight = (int) maxHeight;
-                actualWidth = (int) maxWidth;
-            }
-        }
-
-
-//      setting inSampleSize value allows to load a scaled down version of the original image
-
-        options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
-
-//      inJustDecodeBounds set to false to load the actual bitmap
-        options.inJustDecodeBounds = false;
-
-//      this options allow android to claim the bitmap memory if it runs low on memory
-        options.inPurgeable = true;
-        options.inInputShareable = true;
-        options.inTempStorage = new byte[16 * 1024];
-
-        try {
-//          load the bitmap from its path
-            bmp = BitmapFactory.decodeFile(filePath, options);
-        } catch (OutOfMemoryError exception) {
-            exception.printStackTrace();
-        }
-        
-        if (actualHeight <= 0 || actualWidth <= 0)
-            return null;
-
-        try {
-            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight,Bitmap.Config.ARGB_8888);
-        } catch (OutOfMemoryError exception) {
-            exception.printStackTrace();
-            return null;
-        }
-
-        float ratioX = actualWidth / (float) options.outWidth;
-        float ratioY = actualHeight / (float) options.outHeight;
-        float middleX = actualWidth / 2.0f;
-        float middleY = actualHeight / 2.0f;
-
-        Matrix scaleMatrix = new Matrix();
-        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
-
-        Canvas canvas = new Canvas(scaledBitmap);
-        canvas.setMatrix(scaleMatrix);
-        canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-
-//      check the rotation of the image and display it properly
-        ExifInterface exif;
-        try {
-            exif = new ExifInterface(filePath);
-
-            int orientation = exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION, 0);
-
-            Matrix matrix = new Matrix();
-            if (orientation == 6) {
-                matrix.postRotate(90);
-            } else if (orientation == 3) {
-                matrix.postRotate(180);
-            } else if (orientation == 8) {
-                matrix.postRotate(270);
-            }
-
-            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0,
-                    scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix,
-                    true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return scaledBitmap;
-    }
-
-    public static void saveBitmapToFile(File file, Bitmap bitmap){
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try{
-                if (out != null)
-                    out.close();
-            } catch(Throwable ignore) {}
-        }
-    }
+//    public static int[] calcNewImageSize(int[] imgDimensions, int bounds){
+//        int[] dimestions = new int[2];
+//
+//        // Get current dimensions
+//        int width = imgDimensions[0];
+//        int height = imgDimensions[1];
+//
+//        // Determine how much to scale: the dimension requiring less scaling is
+//        // closer to the its side. This way the image always stays inside your
+//        // bounding box AND either x/y axis touches it.
+//        float xScale = ((float) bounds) / width;
+//        float yScale = ((float) bounds) / height;
+//        float scale = (xScale <= yScale) ? xScale : yScale;
+//
+//        dimestions[0] = (int) (width * scale);
+//        dimestions[1] = (int) (height * scale);
+//
+//        return dimestions;
+//    }
 
     public static String getDimensionAsString(Bitmap bitmap){
         if (bitmap == null)
@@ -372,25 +212,21 @@ public class ImageUtils {
         return WIDTH + width +  DIVIDER + HEIGHT + height;
     }
 
-    public static int[] getDimensionsFromString(String dimensions){
-        if (StringUtils.isEmpty(dimensions))
-            throw new IllegalArgumentException("dimensions cannot be empty");
-
-        String[] dimen = dimensions.split(DIVIDER);
-
-        if (dimen.length != 2)
-            throw new IllegalArgumentException("The dimensions string us invalid.");
-
-        // Removing the letters from the String.
-        dimen[0] = dimen[0].substring(1);
-        dimen[1] = dimen[1].substring(1);
-
-        return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
-    }
-
-
-    public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
-
+//    public static int[] getDimensionsFromString(String dimensions){
+//        if (StringUtils.isEmpty(dimensions))
+//            throw new IllegalArgumentException("dimensions cannot be empty");
+//
+//        String[] dimen = dimensions.split(DIVIDER);
+//
+//        if (dimen.length != 2)
+//            throw new IllegalArgumentException("The dimensions string us invalid.");
+//
+//        // Removing the letters from the String.
+//        dimen[0] = dimen[0].substring(1);
+//        dimen[1] = dimen[1].substring(1);
+//
+//        return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
+//    }
 
     public static void scanFilePathForGallery(Context context, String path) {
         if (context == null)
@@ -408,37 +244,11 @@ public class ImageUtils {
         return getImageByteArray(bitmap, 50);
     }
 
-    public static byte[] getImageByteArray(Bitmap bitmap, int quality){
+    public static byte[] getImageByteArray(Bitmap bitmap, int quality) {
         // Converting file to a JPEG and then to byte array.
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
         return stream.toByteArray();
-    }
-
-    public static String saveToInternalStorage(Bitmap bitmapImage, String name){
-        ContextWrapper cw = new ContextWrapper(ChatSDK.shared().context());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-        // Create imageDir
-        String fileName = "chat_sdk_"+name+".jpg";
-        File mypath = new File(directory,fileName);
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return mypath.toString();
     }
 
 }

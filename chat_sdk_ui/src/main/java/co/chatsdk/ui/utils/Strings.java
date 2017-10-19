@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import co.chatsdk.core.ChatSDK;
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -63,8 +63,9 @@ public class Strings {
 
     public static String nameForThread (Thread thread) {
 
-        if (StringUtils.isNotEmpty(thread.getName()))
-            return thread.getName();
+        if (StringUtils.isNotEmpty(thread.getDisplayName())) {
+            return thread.getDisplayName();
+        }
 
         // Due to the bundle printing when the app execute on debug this sometime is null.
         User currentUser = NM.currentUser();

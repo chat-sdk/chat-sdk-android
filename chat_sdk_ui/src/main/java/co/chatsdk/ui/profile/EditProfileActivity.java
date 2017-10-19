@@ -2,11 +2,9 @@ package co.chatsdk.ui.profile;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
-import com.soundcloud.android.crop.Crop;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,17 +25,18 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.utils.Cropper;
-import co.chatsdk.ui.utils.ToastHelper;
+import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -62,6 +60,7 @@ public class EditProfileActivity extends BaseActivity {
     private Button logoutButton;
     private HashMap<String, Object> userMeta;
     private String avatarURL;
+    private MediaSelector mediaSelector = new MediaSelector();
 
     private User currentUser;
 
@@ -111,10 +110,25 @@ public class EditProfileActivity extends BaseActivity {
         avatarImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                EditProfileActivity.this.startActivityForResult(intent, PROFILE_PIC);
+                mediaSelector.startChooseImageActivity(EditProfileActivity.this, new MediaSelector.Result() {
+                    @Override
+                    public void result(String result) {
+
+                        try{
+                            File compress = new Compressor(ChatSDK.shared().context())
+                                    .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
+                                    .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
+                                    .compressToFile(new File(result));
+
+                            avatarImageView.setImageURI(Uri.fromFile(compress));
+                            currentUser.setAvatarURL(compress.getAbsolutePath());
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
 
@@ -209,34 +223,12 @@ public class EditProfileActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PROFILE_PIC)
-        {
-            if (resultCode == AppCompatActivity.RESULT_OK)
-            {
-                Uri uri = data.getData();
-
-                Uri outputUri = Uri.fromFile(new File(this.getCacheDir(), "cropped.jpg"));
-                Cropper crop = new Cropper(uri);
-
-                Intent cropIntent = crop.getIntent(this, outputUri);
-                int request = Crop.REQUEST_CROP;
-
-                this.startActivityForResult(cropIntent, request);
-            }
+        try{
+            mediaSelector.handleResult(this, requestCode, resultCode, data);
         }
-        else  if (requestCode == Crop.REQUEST_CROP) {
-            try {
-                File image = new File(this.getCacheDir(), "cropped.jpg");
-                avatarURL = image.getAbsolutePath();
-                avatarImageView.setImageBitmap(new BitmapFactory().decodeFile(avatarURL));
-                if(!StringUtils.isEmpty(avatarURL)) {
-                    currentUser.setAvatarURL(avatarURL);
-                }
-            }
-            catch (NullPointerException e){
-                ToastHelper.show(this, R.string.unable_to_fetch_image);
-            }
+        catch (Exception e) {
+            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -268,7 +260,6 @@ public class EditProfileActivity extends BaseActivity {
             currentUser.setEmail(email);
         }
 
-        currentUser.update();
 
         boolean changed = !userMeta.equals(currentUser.metaMap());
         boolean imageChanged = false;
@@ -277,11 +268,13 @@ public class EditProfileActivity extends BaseActivity {
         for(String key: currentUser.metaMap().keySet()) {
             if(key.equals(Keys.AvatarURL)) {
                 imageChanged = valueChanged(currentUser.metaMap(), userMeta, key);
+                currentUser.setAvatarHash(null);
             }
             if(key.equals(Keys.Availability) || key.equals(Keys.Status)) {
                 presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, key);
             }
         }
+        currentUser.update();
 
         if(presenceChanged && !changed) {
             // Send presence

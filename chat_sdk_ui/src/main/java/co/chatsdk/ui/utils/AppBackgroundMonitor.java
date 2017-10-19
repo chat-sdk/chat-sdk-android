@@ -3,7 +3,7 @@ package co.chatsdk.ui.utils;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 
 /**
  * Created by ben on 9/27/17.
@@ -16,14 +16,15 @@ public class AppBackgroundMonitor {
     private Timer activityTransitionTimer;
     private TimerTask activityTransitionTimerTask;
     private boolean wasInBackground = false;
-    private long MAX_ACTIVITY_TRANSITION_TIME = 5000;
+    private long MaxActivityTransitionTime = 5000;
+    private boolean enabled = false;
 
     public static AppBackgroundMonitor shared () {
         return instance;
     }
 
     public void startActivityTransitionTimer() {
-        if(!NM.auth().userAuthenticated()) {
+        if(!enabled || !NM.auth().userAuthenticated()) {
             return;
         }
         activityTransitionTimer = new Timer();
@@ -35,10 +36,14 @@ public class AppBackgroundMonitor {
         };
 
         this.activityTransitionTimer.schedule(activityTransitionTimerTask,
-                MAX_ACTIVITY_TRANSITION_TIME);
+                MaxActivityTransitionTime);
     }
 
     public void stopActivityTransitionTimer() {
+        if (!enabled) {
+            return;
+        }
+
         if (activityTransitionTimerTask != null) {
             activityTransitionTimerTask.cancel();
         }
@@ -48,10 +53,24 @@ public class AppBackgroundMonitor {
         }
 
         if(wasInBackground) {
-            NM.core().goOnline();
+            if(NM.auth().userAuthenticated()) {
+                NM.core().goOnline();
+            }
         }
 
         wasInBackground = false;
+    }
+
+    public void setEnabled (boolean enabled) {
+        this.enabled = enabled;
+        if(!enabled) {
+            cancel();
+        }
+    }
+
+    public void cancel () {
+        wasInBackground = false;
+        stopActivityTransitionTimer();
     }
 
     public boolean wasInBackground () {

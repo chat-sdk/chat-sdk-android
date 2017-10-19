@@ -33,10 +33,9 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import co.chatsdk.core.ChatSDK;
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.firebase.FirebaseAuthenticationHandler;
@@ -73,12 +72,12 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
 
         if(accountTypeEnabled(AccountDetails.Type.Google)) {
             gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(ChatSDK.shared().googleWebClientID())
+                    .requestIdToken(ChatSDK.config().googleWebClientKey)
                     .requestEmail()
                     .build();
         }
         if(accountTypeEnabled(AccountDetails.Type.Twitter)) {
-            TwitterAuthConfig authConfig = new TwitterAuthConfig(ChatSDK.shared().twitterKey(), ChatSDK.shared().twitterSecret());
+            TwitterAuthConfig authConfig = new TwitterAuthConfig(ChatSDK.config().twitterKey, ChatSDK.config().twitterSecret);
             TwitterConfig config = new TwitterConfig.Builder(context).twitterAuthConfig(authConfig).build();
             Twitter.initialize(config);
         }
@@ -220,11 +219,11 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
     public boolean accountTypeEnabled(AccountDetails.Type type) {
         switch (type) {
             case Facebook:
-                return NM.config().booleanForKey(BaseConfigurationHandler.FacebookLoginEnabled);
+                return ChatSDK.config().facebookLoginEnabled();
             case Twitter:
-                return NM.config().booleanForKey(BaseConfigurationHandler.TwitterLoginEnabled);
+                return ChatSDK.config().twitterLoginEnabled();
             case Google:
-                return NM.config().booleanForKey(BaseConfigurationHandler.GoogleLoginEnabled);
+                return ChatSDK.config().googleLoginEnabled();
             default:
                 return false;
         }

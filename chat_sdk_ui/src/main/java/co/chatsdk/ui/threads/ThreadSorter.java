@@ -29,6 +29,13 @@ public class ThreadSorter implements Comparator<Thread> {
         Date d1 = t1.getLastMessageAddedDate();
         Date d2 = t2.getLastMessageAddedDate();
 
+        if(d1 == null) {
+            d1 = t1.getCreationDate();
+        }
+        if(d2 == null) {
+            d2 = t2.getCreationDate();
+        }
+
         d1 = d1 != null ? d1 : new Date();
         d2 = d2 != null ? d2 : new Date();
 

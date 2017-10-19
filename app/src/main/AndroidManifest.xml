@@ -2,56 +2,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.chatsdk.android.app">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/ChatSDKTheme"
-        android:name=".AppObj">
+        android:theme="@style/SdkTheme"
+        android:name="co.chatsdk.android.app.AppObj">
 
-        <activity
-            android:name="co.chatsdk.ui.login.LoginActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/ChatSDKTheme"
-            android:windowSoftInputMode="stateHidden|adjustPan">
-
+        <activity android:name="co.chatsdk.ui.login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service
-            android:name="co.chatsdk.firebase.push.MessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="co.chatsdk.firebase.push.InstanceIdService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <!-- Google Maps Metadata - lifted from Google Services.json-->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_places_api_key"/>
-
-         <!-- Chat SDK -->
         <meta-data android:name="twitter_key" android:value="@string/twitter_key" />
         <meta-data android:name="twitter_secret" android:value="@string/twitter_secret" />
-        <meta-data android:name="google_maps_key" android:value="@string/google_maps_api_key" />
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
         <meta-data android:name="google_web_client_id" android:value="@string/google_web_client_id" />
 
         <meta-data android:name="firebase_url" android:value="@string/firebase_url" />
@@ -59,20 +26,12 @@
         <meta-data android:name="firebase_storage_url" android:value="@string/firebase_storage_url" />
         <meta-data android:name="cloud_messaging_server_key" android:value="@string/firebase_cloud_messaging_server_key" />
 
-        <meta-data android:name="xmpp_service_name" android:value="@string/service_name" />
-        <meta-data android:name="xmpp_service_host" android:value="@string/service_host" />
-        <meta-data android:name="xmpp_service_port" android:value="@string/service_port" />
-        <meta-data android:name="xmpp_search_service" android:value="@string/search_service" />
-        <meta-data android:name="xmpp_resource" android:value="@string/resource" />
-        <meta-data android:name="xmpp_debug_mode_enabled" android:value="@string/debug_mode_enabled" />
-
         <!--Contact Book-->
         <meta-data android:name="contact_book_invite_contact_email_subject" android:value="@string/contact_book_email_subject" />
         <meta-data android:name="contact_book_invite_contact_email_body" android:value="@string/contact_book_email_body" />
         <meta-data android:name="contact_book_invite_contact_sms_body" android:value="@string/contact_book_sms_body" />
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 
     </application>
 

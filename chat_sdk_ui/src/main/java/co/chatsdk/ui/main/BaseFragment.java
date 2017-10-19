@@ -16,7 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 
 /**
  * Created by itzik on 6/17/2014.

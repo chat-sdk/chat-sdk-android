@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -54,7 +54,6 @@ public class ProfileFragment extends BaseFragment {
     private TextView statusTextView;
     private TextView locationTextView;
     private TextView phoneTextView;
-    private TextView dateOfBirthTextView;
     private TextView followsTextView;
     private TextView followedTextView;
     private Button blockButton;
@@ -64,7 +63,6 @@ public class ProfileFragment extends BaseFragment {
 
     private ImageView locationImageView;
     private ImageView phoneImageView;
-    private ImageView dateOfBirthImageView;
 
     private ArrayList<Disposable> disposables = new ArrayList<>();
 
@@ -117,7 +115,6 @@ public class ProfileFragment extends BaseFragment {
 
         locationTextView = (TextView) mainView.findViewById(R.id.tvLocation);
         phoneTextView = (TextView) mainView.findViewById(R.id.tvPhone);
-        dateOfBirthTextView = (TextView) mainView.findViewById(R.id.tvDateOfBirth);
         followsTextView = (TextView) mainView.findViewById(R.id.tvFollows);
         followedTextView = (TextView) mainView.findViewById(R.id.tvFollowed);
         blockButton = (Button) mainView.findViewById(R.id.btnBlock);
@@ -128,7 +125,6 @@ public class ProfileFragment extends BaseFragment {
 
         locationImageView = (ImageView) mainView.findViewById(R.id.ivLocation);
         phoneImageView = (ImageView) mainView.findViewById(R.id.ivPhone);
-        dateOfBirthImageView = (ImageView) mainView.findViewById(R.id.ivDateOfBirth);
         followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
         followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
 
@@ -184,7 +180,6 @@ public class ProfileFragment extends BaseFragment {
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
-        setRowVisible(R.id.ivDateOfBirth, R.id.tvDateOfBirth, !StringChecker.isNullOrEmpty(user.getDateOfBirth()));
         setRowVisible(R.id.ivFollows, R.id.tvFollows, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
         setRowVisible(R.id.ivFollowed, R.id.tvFollowed, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
 
@@ -317,9 +312,6 @@ public class ProfileFragment extends BaseFragment {
         // Phone
         phoneTextView.setText(getUser().getPhoneNumber());
 
-        // Date of birth
-        dateOfBirthTextView.setText(getUser().getDateOfBirth());
-
         String presenceSubscription = getUser().getPresenceSubscription();
 
         boolean follows = false;
@@ -354,7 +346,6 @@ public class ProfileFragment extends BaseFragment {
         ArrayList<Integer> imageViewIds = new ArrayList<>();
         imageViewIds.add(R.id.ivLocation);
         imageViewIds.add(R.id.ivPhone);
-        imageViewIds.add(R.id.ivDateOfBirth);
         imageViewIds.add(R.id.ivFollows);
         imageViewIds.add(R.id.ivFollowed);
 
@@ -363,7 +354,6 @@ public class ProfileFragment extends BaseFragment {
         ArrayList<Integer> textViewIds = new ArrayList<>();
         textViewIds.add(R.id.tvLocation);
         textViewIds.add(R.id.tvPhone);
-        textViewIds.add(R.id.tvDateOfBirth);
         textViewIds.add(R.id.tvFollows);
         textViewIds.add(R.id.tvFollowed);
         textViewIds.add(R.id.btnDelete);

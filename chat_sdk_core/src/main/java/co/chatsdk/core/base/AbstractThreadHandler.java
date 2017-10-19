@@ -1,11 +1,13 @@
 package co.chatsdk.core.base;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.joda.time.DateTime;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,8 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -28,6 +28,9 @@ import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rx.ObservableConnector;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -36,6 +39,7 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
+import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -129,7 +133,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
                 final Message message = newMessage(MessageType.Location, thread);
 
-                int maxSize = NM.config().integerForKey(BaseConfigurationHandler.ImageMaxThumbnailDimension);
+                int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
                 String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
                 // Add the LatLng data to the message and the image url and thumbnail url
@@ -179,7 +183,20 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 message.update();
                 e.onNext(new MessageSendProgress(message));
 
-                final Bitmap image = ImageUtils.getCompressed(filePath);
+                File compress = new Compressor(ChatSDK.shared().context())
+                        .setMaxHeight(ChatSDK.config().imageMaxHeight)
+                        .setMaxWidth(ChatSDK.config().imageMaxWidth)
+                        .compressToFile(new File(filePath));
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
+
+                if(image == null) {
+                    // TODO: Localize
+                    e.onError(new Throwable("Unable to save image to disk"));
+                    return;
+                }
 
                 NM.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
                     @Override

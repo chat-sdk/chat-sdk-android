@@ -27,13 +27,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
@@ -108,7 +107,7 @@ public class UserWrapper {
             model.setName(name);
         }
         else {
-            model.setName(NM.config().stringForKey(BaseConfigurationHandler.DefaultUserName));
+            model.setName(ChatSDK.config().defaultUserName);
         }
 
         // Setting the email.//
@@ -121,7 +120,7 @@ public class UserWrapper {
             model.setThumbnailURL(profileURL);
         }
         else {
-            String url = NM.config().stringForKey(BaseConfigurationHandler.DefaultUserAvatarURL);
+            String url = ChatSDK.config().defaultUserAvatarURL;
             model.setAvatarURL(url);
             model.setThumbnailURL(url);
 
@@ -276,9 +275,13 @@ public class UserWrapper {
                 ValueEventListener listener = ref.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
-                        model.setAvailability((Boolean) snapshot.getValue() ? Availability.Available : Availability.Unavailable);
+                        Boolean available = false;
+                        if(snapshot.getValue() != null) {
+                            available = (Boolean) snapshot.getValue();
+                        }
+                        model.setAvailability(available ? Availability.Available : Availability.Unavailable);
                         model.update();
-                        e.onNext((Boolean) snapshot.getValue());
+                        e.onNext(available);
                     }
 
                     @Override

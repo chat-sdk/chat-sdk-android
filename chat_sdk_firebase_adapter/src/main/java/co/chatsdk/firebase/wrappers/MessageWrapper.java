@@ -18,7 +18,7 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.StorageManager;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;

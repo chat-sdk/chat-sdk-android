@@ -2,7 +2,7 @@ package co.chatsdk.core.base;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.handlers.CoreHandler;

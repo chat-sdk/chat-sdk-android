@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;

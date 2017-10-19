@@ -21,9 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.StorageManager;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -31,6 +28,9 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
@@ -188,7 +188,7 @@ public class ThreadWrapper  {
                             query = query.startAt(startTimestamp);
                         }
 
-                        query = query.orderByPriority().limitToLast(NM.config().integerForKey(BaseConfigurationHandler.MaxMessagesToLoad));
+                        query = query.orderByPriority().limitToLast(ChatSDK.config().maxMessagesToLoad);
 
                         ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
                             @Override

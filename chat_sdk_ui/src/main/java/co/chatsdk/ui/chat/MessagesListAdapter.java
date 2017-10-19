@@ -28,19 +28,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import co.chatsdk.core.NM;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
-import timber.log.Timber;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
 
@@ -55,6 +53,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         public TextView messageTextView;
         public LinearLayout extraLayout;
         public ImageView readReceiptImageView;
+        public MessageListItem messageItem;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -66,6 +65,18 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             extraLayout = (LinearLayout) itemView.findViewById(R.id.extra_layout);
             readReceiptImageView = (ImageView) itemView.findViewById(R.id.read_receipt);
 
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (messageItem.getMessage().getMessageType() == MessageType.Location) {
+                        LatLng latLng = messageItem.getLatLng();
+                        new LocationMessageClickListener(activity, latLng).onClick(view);
+                    }
+                    else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
+                        new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
+                    }
+                }
+            });
         }
 
         public void setImageHidden (boolean hidden) {
@@ -124,6 +135,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
     public void onBindViewHolder(MessageViewHolder holder, int position) {
 
         MessageListItem messageItem = messageItems.get(position);
+        holder.messageItem = messageItem;
 
         holder.setTextHidden(true);
         holder.setImageHidden(true);
@@ -140,28 +152,18 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             holder.setImageHidden(false);
 
-            int width = messageItem.width();
-            int height = messageItem.height();
+            int viewWidth = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+            int viewHeight = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
 
             if (messageItem.getMessage().getMessageType() == MessageType.Location) {
-
-                double longitude = (Double) messageItem.message.valueForKey(Keys.MessageLongitude);
-                double latitude = (Double) messageItem.message.valueForKey(Keys.MessageLatitude);
-
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                holder.messageImageView.setImageURI(GoogleUtils.getMapImageURL(latLng, width, height));
-
-                // Open google maps on click.
-                holder.messageImageView.setOnClickListener(new LocationMessageClickListener(activity, latLng));
+                LatLng latLng = messageItem.getLatLng();
+                holder.messageImageView.setImageURI(GoogleUtils.getMapImageURL(latLng, viewWidth, viewHeight));
             }
 
             if (messageItem.getMessage().getMessageType() == MessageType.Image) {
 
-                String url = (String) messageItem.message.valueForKey(Keys.MessageImageURL);
+                String url = messageItem.getImageURL();
 
-                int viewWidth = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
-                int viewHeight = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
 
                 if(url != null) {
                     ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
@@ -178,11 +180,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                     // Loads the placeholder
                     holder.messageImageView.setImageURI(url);
                 }
-
-                // Show the messageImageView in a dialog on click.
-                holder.messageImageView.setOnClickListener(new ImageMessageClickListener(activity, url, messageItem.message.getEntityID()));
             }
-
         }
 
         for(CustomMessageHandler handler : InterfaceManager.shared().a.getCustomMessageHandlers()) {
@@ -222,7 +220,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         ReadStatus status = message.getReadStatus();
 
         // Hide the read receipt for public threads
-        if(message.getThread().typeIs(ThreadType.Public)) {
+        if(message.getThread().typeIs(ThreadType.Public) || NM.readReceipts() == null) {
             status = ReadStatus.hide();
         }
 
@@ -284,15 +282,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
     public boolean addRow(Message message, boolean sort, boolean notify){
         if(message != null && !messageExists(message)) {
             MessageListItem item = new MessageListItem(message, maxWidth());
-
-            // It's possible that if
-            if(item.isValid()) {
-                return addRow(item, sort, notify);
-            }
-            else {
-                Timber.v("Invalid message - the message will be deleted");
-                DaoCore.deleteEntity(message);
-            }
+            return addRow(item, sort, notify);
         }
         return false;
     }

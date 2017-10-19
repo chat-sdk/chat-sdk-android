@@ -3,7 +3,7 @@ package co.chatsdk.core.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.types.ConnectionType;

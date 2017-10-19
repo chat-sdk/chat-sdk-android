@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import co.chatsdk.core.NM;
-import co.chatsdk.core.base.BaseConfigurationHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.BaseInterfaceAdapter;
@@ -46,9 +46,8 @@ import io.reactivex.functions.Function;
 
 public class NotificationUtils {
 
-
-    public static final int NOTIFICATION_CONNECTION_ID = 1991;
-    public static final int NOTIFICATION_ALERT_ID = 1990;
+    @Deprecated
+    public static final int MESSAGE_NOTIFICATION_ID = 1001;
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
 
@@ -158,7 +157,7 @@ public class NotificationUtils {
     }
     
     public static void createMessageNotification(Context context, Message message, int smallIconResID, Uri soundUri, int number){
-        createMessageNotification(context, Defines.MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
+        createMessageNotification(context, MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
     }
 
     public static void createMessageNotification(final Context context, final int id, Message message, final int smallIconResID, final Uri soundUri, final int number){
@@ -232,7 +231,7 @@ public class NotificationUtils {
             }
             
             // Checking to see that we are still under the max amount of lines to use.
-            if (linesCount >= NM.config().integerForKey(BaseConfigurationHandler.MaxInboxNotificationLines))
+            if (linesCount >= ChatSDK.config().maxInboxNotificationLines)
                 break;
         }
 
@@ -274,7 +273,7 @@ public class NotificationUtils {
     }
   
     private static boolean validateLinesAndMessagesSize(List<Message> m, int minMessagesSize, ArrayList<String> lines){
-        return m.size() > minMessagesSize && lines.size() < NM.config().integerForKey(BaseConfigurationHandler.MaxInboxNotificationLines);
+        return m.size() > minMessagesSize && lines.size() < ChatSDK.config().maxInboxNotificationLines;
     }
 
     private static Intent getChatResultIntent(Context context){

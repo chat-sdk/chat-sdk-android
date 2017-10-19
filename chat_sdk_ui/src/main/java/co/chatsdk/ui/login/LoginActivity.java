@@ -7,7 +7,10 @@
 
 package co.chatsdk.ui.login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.KeyEvent;
@@ -23,17 +26,17 @@ import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.NM;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
-import io.reactivex.CompletableObserver;
+import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import timber.log.Timber;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -41,9 +44,11 @@ import io.reactivex.functions.Consumer;
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     private boolean exitOnBackPressed = false;
-    LinearLayout mainView;
+    private LinearLayout mainView;
+    private boolean authenticating = false;
 
-    protected EditText etEmail, etPass;
+    protected EditText emailEditText;
+    protected EditText passwordEditText;
 
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
@@ -75,8 +80,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnAnonymous = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
         btnTwitter = (Button) findViewById(R.id.chat_sdk_btn_twitter_login);
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
-        etEmail = (EditText) findViewById(R.id.chat_sdk_et_mail);
-        etPass = (EditText) findViewById(R.id.chat_sdk_et_password);
+        emailEditText = (EditText) findViewById(R.id.chat_sdk_et_mail);
+        passwordEditText = (EditText) findViewById(R.id.chat_sdk_et_password);
         btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
         appIconImage = (ImageView) findViewById(R.id.app_icon);
@@ -96,8 +101,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
 
         // TODO: Remove this
-//        etEmail.setText("ben");
-//        etPass.setText("123456");
+//        emailEditText.setText("ben");
+//        passwordEditText.setText("123456");
 
     }
 
@@ -118,7 +123,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnFacebook.setOnClickListener(this);
         btnGoogle.setOnClickListener(this);
 
-        etPass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE){
@@ -140,11 +145,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
         };
 
-        final Consumer<Throwable> error = new Consumer<Throwable>() {
+        Consumer<Throwable> error = new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
                 throwable.printStackTrace();
                 Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            }
+        };
+
+        Action doFinally = new Action() {
+            @Override
+            public void run() throws Exception {
+                dismissProgressDialog();
             }
         };
 
@@ -156,14 +168,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         else if (i == R.id.chat_sdk_btn_anon_login) {
             anonymousLogin();
         }
-        else if (i == R.id.chat_sdk_btn_register)
-        {
+        else if (i == R.id.chat_sdk_btn_register) {
             register();
         }
-        else if (i == R.id.chat_sdk_btn_twitter_login){
+        else if (i == R.id.chat_sdk_btn_twitter_login) {
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
+                        .doFinally(doFinally)
                         .subscribe(completion, error);
             }
         }
@@ -171,6 +183,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
+                        .doFinally(doFinally)
                         .subscribe(completion, error);
             }
         }
@@ -178,6 +191,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             if(NM.socialLogin() != null) {
                 NM.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
+                        .doFinally(doFinally)
                         .subscribe(completion, error);
             }
         }
@@ -186,6 +200,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onResume() {
         super.onResume();
+
+        AppBackgroundMonitor.shared().setEnabled(false);
 
         initListeners();
 
@@ -199,55 +215,32 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             NM.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new CompletableObserver() {
-                @Override
-                public void onSubscribe(@NonNull Disposable d) {}
-
-                @Override
-                public void onComplete() {
-                    afterLogin();
-                }
-
-                @Override
-                public void onError(@NonNull Throwable e) {
-                    dismissProgressDialog();
-                }
-            });
+                    .doFinally(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            dismissProgressDialog();
+                        }
+                    })
+                    .subscribe(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            afterLogin();
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
+                            dismissProgressDialog();
+                            // This is annoying because if the login fails it just says - details not valid...
+//                            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
-
-//        int permissionCheck = ContextCompat.checkSelfPermission(AppContext.shared().context(),
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//
-//        if(permissionCheck == PERMISSION_DENIED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    FILE_PERMISSION_REQUEST);
-//        }
-
     }
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode,
-//                                           String permissions[], int[] grantResults) {
-//        if(requestCode == FILE_PERMISSION_REQUEST) {
-//            if (grantResults.length > 0
-//                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//                // permission was granted, yay! Do the
-//                // contacts-related task you need to do.
-//
-//            } else {
-//
-//                // permission denied, boo! Disable the
-//                // functionality that depends on this permission.
-//            }
-//        }
-//    }
 
     /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
-
-        dismissProgressDialog();
+        AppBackgroundMonitor.shared().setEnabled(true);
         InterfaceManager.shared().a.startMainActivity(this);
     }
 
@@ -255,99 +248,77 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         if (!checkFields())
             return;
 
-        showProgressDialog(getString(R.string.connecting));
+        if(!isNetworkAvailable()) {
+            Timber.v("Network Connection unavailable");
+        }
 
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Username;
-        details.username = etEmail.getText().toString();
-        details.password = etPass.getText().toString();
+        details.username = emailEditText.getText().toString();
+        details.password = passwordEditText.getText().toString();
+
+        authenticateWithDetails(details);
+
+    }
+
+    public void authenticateWithDetails (AccountDetails details) {
+
+        if(authenticating) {
+            return;
+        }
+        authenticating = true;
+
+        showProgressDialog(getString(R.string.connecting));
 
         NM.auth().authenticate(details)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onComplete() {
-                afterLogin();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                toastErrorMessage(e, false);
-                e.printStackTrace();
-                dismissProgressDialog();
-            }
-        });
+                .doFinally(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        authenticating = false;
+                        dismissProgressDialog();
+                    }
+                })
+                .subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        afterLogin();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable e) throws Exception {
+                        toastErrorMessage(e, false);
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public void register() {
+
         if (!checkFields()) {
             return;
         }
 
-        showProgressDialog(getString(R.string.registering));
-
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Register;
-        details.username = etEmail.getText().toString();
-        details.password = etPass.getText().toString();
+        details.username = emailEditText.getText().toString();
+        details.password = passwordEditText.getText().toString();
 
-        NM.auth().authenticate(details)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {}
+        authenticateWithDetails(details);
 
-            @Override
-            public void onComplete() {
-                afterLogin();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                toastErrorMessage(e, false);
-                dismissProgressDialog();
-            }
-        });
     }
 
     public void anonymousLogin () {
-        showProgressDialog(getString(R.string.connecting));
 
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Anonymous;
-
-        NM.auth().authenticate(details)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onComplete() {
-                afterLogin();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                toastErrorMessage(e, false);
-                dismissProgressDialog();
-            }
-        });
-
+        authenticateWithDetails(details);
     }
 
     /* Exit Stuff*/
     @Override
     public void onBackPressed() {
-        if (exitOnBackPressed)
-        {
+        if (exitOnBackPressed) {
             // Exit the app.
             // If logged out from the main context pressing back in the LoginActivity will get me back to the Main so this have to be done.
             Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -376,12 +347,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected boolean checkFields(){
-        if (etEmail.getText().toString().isEmpty()) {
+        if (emailEditText.getText().toString().isEmpty()) {
             showToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }
 
-        if (etPass.getText().toString().isEmpty()) {
+        if (passwordEditText.getText().toString().isEmpty()) {
             showToast( getString(R.string.login_activity_no_password_toast) );
             return false;
         }
@@ -389,42 +360,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         return true;
     }
 
-//    public void onSessionStateChange(Session session, SessionState state, Exception exception){
-//
-//        if (!NM.auth().accountTypeEnabled(AccountType.Facebook))
-//        {
-//            return;
-//        }
-//
-//        if (exception != null)
-//        {
-//            exception.printStackTrace();
-//            if (exception instanceof FacebookOperationCanceledException)
-//            {
-//                return;
-//            }
-//        }else showOrUpdateProgressDialog(getString(R.string.authenticating));
-//
-//        FacebookManager.onSessionStateChange(session, state, exception).subscribe(new CompletableObserver() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//            }
-//
-//            @Override
-//            public void onComplete() {
-//                if (DEBUG) Timber.i("Connected to facebook");
-//                afterLogin();
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//                if (DEBUG) Timber.i(TAG, "Error connecting to Facebook");
-//                showToast( getString(R.string.login_activity_facebook_connection_fail_toast) );
-//                FacebookManager.logout(LoginActivity.this);
-//                dismissProgressDialog();
-//            }
-//        });
-//    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     protected void setExitOnBackPressed(boolean exitOnBackPressed) {
         this.exitOnBackPressed = exitOnBackPressed;
