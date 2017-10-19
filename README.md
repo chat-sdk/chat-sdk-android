@@ -18,7 +18,7 @@ We have just released the latest version of the Android Chat SDK. In this update
 
 ### Architecture
 
-The project has been completely refactored to make it's architecture fully modular. The project has been split into 3 main modules: core, ui and firebase network adapter. The architecure is now almost identical to the iOS version of the project. 
+The project has been completely refactored to make it's architecture fully modular. The project has been split into 3 main modules: core, ui and firebase network adapter. The architecture is now almost identical to the iOS version of the project. 
 
 ### Technology Stack
 
@@ -87,10 +87,10 @@ If you have an app that uses the Chat SDK let us know and we'll add a link.
 
 ## Running the demo project
 
-This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start itegrating it with your app. 
+This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
 
 > **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 26.0.2zz23 should be installed. 
+>You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 26.0.02 should be installed. 
 
 The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that you need to do the following.
 
@@ -100,7 +100,7 @@ We provide extensive documentation on Github but if you’re a non-technical use
 
 ## Integration with an existing project
 
-The Chat SDK is distributed as a series of modules that can be imported into Andorid studio. 
+The Chat SDK is distributed as a series of modules that can be imported into Android Studio. 
 
 ## Adding the Chat SDK to your project
 
@@ -170,7 +170,7 @@ ANDROID_COMPILE_SDK_VERSION = 25
 ```
 
 > **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 21.1.0 should be installed. 
+>You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavior** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 21.1.0 should be installed. 
 
 **Update Gradle**
 
