@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Firebase** Powered by Google Firebase
-- **[Download the APK](https://drive.google.com/open?id=0B5yzhtuipbsrYkl1Wkh2WjMwOEE)** to try out the Firebase Chat SDK for Android now! 
+- **[Download the APK](https://www.dropbox.com/s/dumzudmnx4g2c8v/ChatSDK_v4_0_0.apk?dl=0)** to try out the Firebase Chat SDK for Android now! 
 
 ## v4.0 Released
 
@@ -108,7 +108,9 @@ There are two ways to add the Chat SDK. You can either import the modules manual
 
 ### Gradle
 
-<HERE> Gradle 
+```
+Coming Soon!
+```
 
 ### Adding Modules Manually
 
@@ -381,7 +383,7 @@ Add the following to your `build.gradle`
 ##### Gradle
 
 ```
-<HERE>
+Coming Soon!
 ```
 
 ##### Module Import
@@ -463,7 +465,7 @@ Add the following to your `build.gradle`
 ##### Gradle
 
 ```
-<HERE>
+Coming Soon!
 ```
 
 ##### Module Import
