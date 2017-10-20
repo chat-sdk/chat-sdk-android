@@ -6,39 +6,21 @@ buildscript {
 
     dependencies {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'org.greenrobot.greendao'
 
-def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${CHAT_SDK_PATCH_VERSION}"
-int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
-
 android {
 
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-    defaultConfig {
 
+    defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-
-        versionName chatSdkVersionName
-        versionCode chatSdkVersionCode
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-    }
-    buildTypes {
-
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-
-        debug {
-        }
     }
 }
 
@@ -65,3 +47,25 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
 }
 
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = BINTRAY_USER
+    key = BINTRAY_API_KEY
+    configurations = ['archives']
+    pkg {
+        repo = 'chat-sdk-android'
+        name = 'chat-sdk-core'
+        userOrg = BINTRAY_ORG
+        licenses = ['GPL-3.0']
+        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+
+        version {
+            name = '4.0.0'
+            desc = 'Chat SDK Core'
+            released  = new Date()
+            vcsTag = '4.0.0'
+//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
+        }
+    }
+}

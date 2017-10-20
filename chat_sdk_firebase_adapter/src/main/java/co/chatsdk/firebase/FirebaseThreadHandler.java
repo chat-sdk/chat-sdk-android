@@ -287,8 +287,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     protected void pushForMessage(final Message message){
-        if (NM.push() == null)
+        if (NM.push() == null) {
             return;
+        }
 
         if (message.getThread().typeIs(ThreadType.Private)) {
 

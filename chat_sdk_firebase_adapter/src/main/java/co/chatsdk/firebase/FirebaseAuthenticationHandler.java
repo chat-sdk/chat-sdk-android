@@ -167,7 +167,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         FirebaseEventHandler.shared().currentUserOn(wrapper.getModel().getEntityID());
 
-                        NM.push().subscribeToPushChannel(wrapper.pushChannel());
+                        if(NM.push() != null) {
+                            NM.push().subscribeToPushChannel(wrapper.pushChannel());
+                        }
 
                         NM.core().setUserOnline().subscribe();
 

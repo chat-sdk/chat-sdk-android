@@ -32,7 +32,6 @@ Performance has been improved in a number of areas. All the list views have been
 
 The user interface has seen a major update. We have improved the chat view as well as making the entire app more consistent. We have also added an advanced user profile. 
 
-
 ## Features
 
 - Private and group messages
@@ -167,6 +166,14 @@ ANDROID_BUILD_SDK_VERSION = 25
 ANDROID_BUILD_TOOLS_VERSION = 25.0.2
 ANDROID_BUILD_TARGET_SDK_VERSION = 25
 ANDROID_COMPILE_SDK_VERSION = 25
+
+GOOGLE_SERVICES_VERSION = 10.2.1
+ANDROID_SUPPORT_VERSION = 25.3.1
+
+CHAT_SDK_MAJOR_VERSION = 0
+CHAT_SDK_MINOR_VERSION = 9
+CHAT_SDK_PATCH_VERSION = 6
+CHAT_SDK_BUILD_VERSION = 1
 ```
 
 > **Note:**
