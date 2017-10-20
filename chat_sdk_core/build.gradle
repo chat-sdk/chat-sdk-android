@@ -50,13 +50,13 @@ dependencies {
 apply plugin: 'com.jfrog.bintray'
 
 bintray {
-    user = BINTRAY_USER
-    key = BINTRAY_API_KEY
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_API_KEY")
     configurations = ['archives']
     pkg {
         repo = 'chat-sdk-android'
         name = 'chat-sdk-core'
-        userOrg = BINTRAY_ORG
+        userOrg = System.getenv("BINTRAY_ORG")
         licenses = ['GPL-3.0']
         vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
 
