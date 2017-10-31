@@ -1,22 +1,23 @@
 apply plugin: 'com.android.library'
 
 android {
-    android {
 
-        compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
-        buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-        defaultConfig {
-            minSdkVersion Integer.parseInt(project.MIN_SDK)
-            targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-        }
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
+
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-fresco.pro'
         }
 
         debug {
         }
-
     }
 }
 
