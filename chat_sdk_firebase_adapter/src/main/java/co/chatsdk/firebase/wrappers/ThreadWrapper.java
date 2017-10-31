@@ -203,8 +203,8 @@ public class ThreadWrapper  {
 
                                     if(NM.hook() != null) {
                                         HashMap<String, Object> data = new HashMap<>();
-                                        data.put(BaseHookHandler.MessageReceived, message);
-                                        NM.hook().executeHook(BaseHookHandler.MessageReceived_Message, data);
+                                        data.put(BaseHookHandler.MessageReceived_Message, message);
+                                        NM.hook().executeHook(BaseHookHandler.MessageReceived, data);
                                     }
 
                                     message.getModel().setMessageStatus(MessageSendStatus.Delivered);

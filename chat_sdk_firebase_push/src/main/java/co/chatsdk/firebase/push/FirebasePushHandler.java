@@ -43,7 +43,6 @@ public class FirebasePushHandler implements PushHandler {
     public FirebasePushHandler (TokenPusher pusher) {
         this.pusher = pusher;
 
-
         Hook authHook = new Hook(new Hook.Executor() {
             @Override
             public void execute(HashMap<String, Object> data) {

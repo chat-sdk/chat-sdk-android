@@ -158,22 +158,28 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 setAuthStatus(AuthStatus.HANDLING_F_USER);
 
                 // Do a once() on the user to push its details to firebase.
-                final UserWrapper wrapper = UserWrapper.initWithAuthData(user);
+                final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
 
-                wrapper.once().subscribe(new Action() {
+                userWrapper.once().subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-                        wrapper.getModel().update();
+                        userWrapper.getModel().update();
 
-                        FirebaseEventHandler.shared().currentUserOn(wrapper.getModel().getEntityID());
+                        FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
 
                         if(NM.push() != null) {
-                            NM.push().subscribeToPushChannel(wrapper.pushChannel());
+                            NM.push().subscribeToPushChannel(userWrapper.pushChannel());
+                        }
+
+                        if(NM.hook() != null) {
+                            HashMap<String, Object> data = new HashMap<>();
+                            data.put(BaseHookHandler.UserAuthFinished_User, userWrapper.getModel());
+                            NM.hook().executeHook(BaseHookHandler.UserAuthFinished, data);
                         }
 
                         NM.core().setUserOnline().subscribe();
 
-                        wrapper.push().subscribe(new Action() {
+                        userWrapper.push().subscribe(new Action() {
                             @Override
                             public void run() throws Exception {
                                 e.onComplete();
@@ -253,8 +259,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         if(NM.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
-                            data.put(BaseHookHandler.Logout, user);
-                            NM.hook().executeHook(BaseHookHandler.Logout_User, data);
+                            data.put(BaseHookHandler.Logout_User, user);
+                            NM.hook().executeHook(BaseHookHandler.Logout, data);
                         }
 
                         e.onComplete();

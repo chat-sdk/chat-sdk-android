@@ -59,7 +59,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         if(NM.hook() != null) {
             HashMap<String, Object> data = new HashMap<>();
-            data.put(BaseHookHandler.UserOn, user);
+            data.put(BaseHookHandler.UserOn_User, user);
             NM.hook().executeHook(BaseHookHandler.UserOn, data);
         }
 

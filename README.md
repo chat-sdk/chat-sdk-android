@@ -91,6 +91,14 @@ This repository contains a fully functional version of the Chat SDK which is con
 
 The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that you need to do the following.
 
+## Branches
+
+There are three main branches in the project:
+
+- **master** - the latest stable release version of the code
+- **dev** - the latest unstable version of the code 
+- **v3_final**
+
 ## Setup Service
 
 We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
