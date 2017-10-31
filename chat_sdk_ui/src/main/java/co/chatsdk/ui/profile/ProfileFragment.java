@@ -27,7 +27,7 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.AvailabilityHelper;
@@ -185,8 +185,8 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            if(NM.blocking() != null) {
-                disposables.add(NM.blocking().isBlocked(user)
+            if(NM.blocking() != null && NM.blocking().blockingSupported()) {
+                disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new BiConsumer<Boolean, Throwable>() {
                             @Override
@@ -197,13 +197,13 @@ public class ProfileFragment extends BaseFragment {
                 blockButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        disposables.add(NM.blocking().isBlocked(getUser())
+                        disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new BiConsumer<Boolean, Throwable>() {
                                     @Override
                                     public void accept(Boolean blocked, Throwable throwable) throws Exception {
                                         if(blocked) {
-                                            disposables.add(NM.blocking().unblockUser(getUser())
+                                            disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override
@@ -220,7 +220,7 @@ public class ProfileFragment extends BaseFragment {
                                                     }));
                                         }
                                         else {
-                                            disposables.add(NM.blocking().blockUser(getUser())
+                                            disposables.add(NM.blocking().blockUser(getUser().getEntityID())
                                                     .observeOn(AndroidSchedulers.mainThread())
                                                     .subscribe(new Action() {
                                                         @Override

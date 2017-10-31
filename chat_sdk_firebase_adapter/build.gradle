@@ -1,27 +1,26 @@
 apply plugin: 'com.android.library'
 
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
 android {
+
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
-
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-    }
-    buildTypes {
-        release {
-
-        }
-    }
-
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/LICENSE-FIREBASE.txt'
-        exclude 'META-INF/NOTICE.txt'
     }
 }
 
@@ -34,6 +33,27 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:11.4.0'
 
     compile project(':chat_sdk_core')
-    compile project(path: ':chat_sdk_ui')
 }
 
+group = CHAT_SDK_GROUP + '.firebase.adapter'
+version = CHAT_SDK_VERSION
+
+//bintray {
+//    user = System.getenv("BINTRAY_USER")
+//    key = System.getenv("BINTRAY_API_KEY")
+//    configurations = ['archives']
+//    pkg {
+//        repo = 'chat-sdk-android'
+//        name = 'chat-sdk-firebase-adapter'
+//        userOrg = System.getenv("BINTRAY_ORG")
+//        licenses = ['GPL-3.0']
+//        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+//
+//        version {
+//            name = CHAT_SDK_VERSION
+//            desc = 'Chat SDK Firebase Adapter'
+//            released  = new Date()
+//            vcsTag = CHAT_SDK_VERSION
+//        }
+//    }
+//}

@@ -9,6 +9,7 @@ import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseModule;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.ui.manager.UserInterfaceModule;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -24,6 +25,8 @@ public class AppObj extends MultiDexApplication {
         Configuration.Builder builder = new Configuration.Builder(context);
 
         ChatSDK.initialize(builder.build());
+
+        UserInterfaceModule.activate(context);
 
         FirebaseModule.activate(context);
 

@@ -92,7 +92,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
                         accountDetails = AccountDetails.username(email, password);
                         break;
                     case AccountType.Register:
-                        accountDetails = AccountDetails.register(email, password);
+                        accountDetails = AccountDetails.signUp(email, password);
                         break;
                     case AccountType.Facebook:
                         accountDetails = AccountDetails.facebook();
@@ -107,7 +107,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
                         accountDetails = AccountDetails.anonymous();
                         break;
                     case AccountType.Custom:
-                        accountDetails = AccountDetails.custom(token);
+                        accountDetails = AccountDetails.token(token);
                         break;
                 }
 

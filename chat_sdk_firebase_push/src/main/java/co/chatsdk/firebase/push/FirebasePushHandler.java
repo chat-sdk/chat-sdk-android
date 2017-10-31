@@ -18,7 +18,7 @@ import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.utils.Strings;
+import co.chatsdk.core.utils.Strings;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;

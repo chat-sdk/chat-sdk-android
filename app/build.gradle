@@ -1,8 +1,5 @@
 apply plugin: 'com.android.application'
 
-def chatSdkVersionName = "${CHAT_SDK_MAJOR_VERSION}.${CHAT_SDK_MINOR_VERSION}.${CHAT_SDK_PATCH_VERSION}"
-int chatSdkVersionCode = Integer.parseInt(CHAT_SDK_MAJOR_VERSION) * 1000000 + Integer.parseInt(CHAT_SDK_MINOR_VERSION) * 10000 + Integer.parseInt(CHAT_SDK_PATCH_VERSION) * 100 + Integer.parseInt(CHAT_SDK_BUILD_VERSION)
-
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -19,8 +16,8 @@ android {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
-        versionName chatSdkVersionName
-        versionCode chatSdkVersionCode
+        versionName CHAT_SDK_VERSION
+        versionCode CHAT_SDK_BUILD_NUMBER as int
     }
 
     productFlavors {

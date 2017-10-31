@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -21,10 +20,11 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.utils.Strings;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import co.chatsdk.ui.utils.Strings;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
@@ -184,6 +184,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 if(!users.contains(currentUser)) {
                     users.add(currentUser);
                 }
+
 
                 if(users.size() == 2) {
 
@@ -349,7 +350,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             return;
 
         // We'recyclerView identifying each user using push channels. This means that
-        // when a user signs up, they register with backendless on a particular
+        // when a user signs up, they signUp with backendless on a particular
         // channel. In this case user_[user id] this means that we can
         // send a push to a specific user if we know their user id.
         List<String> channels = new ArrayList<>();

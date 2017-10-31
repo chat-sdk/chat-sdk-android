@@ -28,8 +28,8 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.ExitHelper;
 import co.chatsdk.ui.helpers.NotificationUtils;
@@ -282,7 +282,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // If the register did not had a chance to register due to orientation change.
+        // If the signUp did not had a chance to signUp due to orientation change.
         try{
             unregisterReceiver(mainReceiver);
         }catch (IllegalArgumentException e){

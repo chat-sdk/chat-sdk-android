@@ -28,7 +28,7 @@
                 android:src="@drawable/ic_launcher_big" />
 
             <EditText
-                android:id="@+id/chat_sdk_et_mail"
+                android:id="@+id/chat_sdk_et_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"

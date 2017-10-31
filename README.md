@@ -235,7 +235,7 @@ Configuration.Builder builder = new Configuration.Builder(context);
 
 // Initialize the Chat SDK
 ChatSDK.initialize(builder.build());
-
+UserInterfaceModule.activate(context);
 
 // Activate the Firebase module
 FirebaseModule.activate(context);

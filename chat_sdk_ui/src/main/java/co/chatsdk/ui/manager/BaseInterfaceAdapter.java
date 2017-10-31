@@ -1,4 +1,4 @@
-package co.chatsdk.ui;
+package co.chatsdk.ui.manager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +26,7 @@ import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;

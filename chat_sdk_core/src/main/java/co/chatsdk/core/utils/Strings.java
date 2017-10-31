@@ -1,4 +1,4 @@
-package co.chatsdk.ui.utils;
+package co.chatsdk.core.utils;
 
 import android.content.Context;
 import android.support.annotation.StringRes;
@@ -8,13 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.R;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 
 /**
  * Created by benjaminsmiley-andrews on 07/06/2017.
@@ -85,7 +85,7 @@ public class Strings {
         }
 
         if(name.length() == 0) {
-            name = Strings.t(R.string.not_thread);
+            name = Strings.t(R.string.thread);
         }
         return name;
     }

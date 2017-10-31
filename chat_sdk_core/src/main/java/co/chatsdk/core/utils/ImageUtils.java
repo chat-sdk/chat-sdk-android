@@ -142,26 +142,6 @@ public class ImageUtils {
         return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[bitmaps.size()]));
     }
 
-    /** @return a bitmap with text.*/
-//    private static Bitmap textAsBitmap(String text, float textSize, int textColor) {
-//
-//        Paint paint = new Paint();
-//        paint.setTextSize(textSize);
-//        paint.setColor(textColor);
-//        paint.setTextAlign(Paint.Align.LEFT);
-//
-//        int width = (int) (paint.measureText(text) + 0.5f); // round
-//        float baseline = (int) (-paint.ascent() + 0.5f); // ascent() is negative
-//        int height = (int) (baseline + paint.descent() + 0.5f);
-//
-//        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-//
-//        Canvas canvas = new Canvas(image);
-//        canvas.drawText(text, 0, baseline, paint);
-//
-//        return image;
-//    }
-
     public static Bitmap scaleImage(Bitmap bitmap, int boxSize) {
         if (boxSize == 0)
             return null;
@@ -181,26 +161,6 @@ public class ImageUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-//    public static int[] calcNewImageSize(int[] imgDimensions, int bounds){
-//        int[] dimestions = new int[2];
-//
-//        // Get current dimensions
-//        int width = imgDimensions[0];
-//        int height = imgDimensions[1];
-//
-//        // Determine how much to scale: the dimension requiring less scaling is
-//        // closer to the its side. This way the image always stays inside your
-//        // bounding box AND either x/y axis touches it.
-//        float xScale = ((float) bounds) / width;
-//        float yScale = ((float) bounds) / height;
-//        float scale = (xScale <= yScale) ? xScale : yScale;
-//
-//        dimestions[0] = (int) (width * scale);
-//        dimestions[1] = (int) (height * scale);
-//
-//        return dimestions;
-//    }
-
     public static String getDimensionAsString(Bitmap bitmap){
         if (bitmap == null)
             throw  new NullPointerException("Bitmap cannot be null");
@@ -211,22 +171,6 @@ public class ImageUtils {
     public static String getDimensionAsString(int width, int height){
         return WIDTH + width +  DIVIDER + HEIGHT + height;
     }
-
-//    public static int[] getDimensionsFromString(String dimensions){
-//        if (StringUtils.isEmpty(dimensions))
-//            throw new IllegalArgumentException("dimensions cannot be empty");
-//
-//        String[] dimen = dimensions.split(DIVIDER);
-//
-//        if (dimen.length != 2)
-//            throw new IllegalArgumentException("The dimensions string us invalid.");
-//
-//        // Removing the letters from the String.
-//        dimen[0] = dimen[0].substring(1);
-//        dimen[1] = dimen[1].substring(1);
-//
-//        return new int[]{ Integer.parseInt(dimen[0]), Integer.parseInt(dimen[1]) };
-//    }
 
     public static void scanFilePathForGallery(Context context, String path) {
         if (context == null)

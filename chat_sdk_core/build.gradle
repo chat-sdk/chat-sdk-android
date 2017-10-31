@@ -1,3 +1,5 @@
+apply plugin: 'com.android.library'
+
 buildscript {
     repositories {
         jcenter()
@@ -10,7 +12,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
@@ -44,28 +46,28 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.google.android.gms:play-services:11.4.0'
     compile 'id.zelory:compressor:2.0.0'
-    compile 'commons-io:commons-io:2.5'
+//    compile 'commons-io:commons-io:2.5'
 }
 
-apply plugin: 'com.jfrog.bintray'
+group = CHAT_SDK_GROUP + '.core'
+version = CHAT_SDK_VERSION
 
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_API_KEY")
-    configurations = ['archives']
-    pkg {
-        repo = 'chat-sdk-android'
-        name = 'chat-sdk-core'
-        userOrg = System.getenv("BINTRAY_ORG")
-        licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
-
-        version {
-            name = '4.0.0'
-            desc = 'Chat SDK Core'
-            released  = new Date()
-            vcsTag = '4.0.0'
-//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
-        }
-    }
-}
+//bintray {
+//    user = System.getenv("BINTRAY_USER")
+//    key = System.getenv("BINTRAY_API_KEY")
+//    configurations = ['archives']
+//    pkg {
+//        repo = 'chat-sdk-android'
+//        name = 'chat-sdk-core'
+//        userOrg = System.getenv("BINTRAY_ORG")
+//        licenses = ['GPL-3.0']
+//        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+//
+//        version {
+//            name = CHAT_SDK_VERSION
+//            desc = 'Chat SDK Core'
+//            released  = new Date()
+//            vcsTag = CHAT_SDK_VERSION
+//        }
+//    }
+//}

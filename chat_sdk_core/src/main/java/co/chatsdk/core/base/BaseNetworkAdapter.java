@@ -36,8 +36,8 @@ public class BaseNetworkAdapter {
     public ThreadHandler thread;
     public VideoMessageHandler videoMessage;
     public AudioMessageHandler audioMessage;
-    public ImageMessageHandler imageMessage;
-    public LocationMessageHandler locationMessage;
+    public ImageMessageHandler imageMessage = new BaseImageMessageHandler();
+    public LocationMessageHandler locationMessage = new BaseLocationMessageHandler();
     public ContactHandler contact = new BaseContactHandler();
     public TypingIndicatorHandler typingIndicator;
     public ModerationHandler moderation;

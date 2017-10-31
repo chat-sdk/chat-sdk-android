@@ -107,7 +107,7 @@ public class UserWrapper {
             model.setName(name);
         }
         else {
-            model.setName(ChatSDK.config().defaultUserName);
+            model.setName(ChatSDK.config().defaultName);
         }
 
         // Setting the email.//

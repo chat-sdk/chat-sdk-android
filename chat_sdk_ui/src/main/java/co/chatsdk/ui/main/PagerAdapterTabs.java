@@ -16,7 +16,7 @@ import com.astuetz.PagerSlidingTabStrip;
 
 import java.util.List;
 
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.core.Tab;
 
 /**

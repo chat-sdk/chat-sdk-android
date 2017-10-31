@@ -1,4 +1,4 @@
-package co.chatsdk.ui;
+package co.chatsdk.ui.manager;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.

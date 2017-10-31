@@ -32,6 +32,7 @@ public class ChatSDK {
         shared().setContext(config.context.get());
         shared().config = config;
 
+
 //        if (debug) {
         // TODO: Update this
             Timber.plant(new Timber.DebugTree());

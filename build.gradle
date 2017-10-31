@@ -6,10 +6,8 @@ buildscript {
         maven { url "https://jitpack.io" }
         mavenCentral()
         jcenter()
-//        google()
     }
     dependencies {
-//        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.google.gms:google-services:3.0.0'
     }

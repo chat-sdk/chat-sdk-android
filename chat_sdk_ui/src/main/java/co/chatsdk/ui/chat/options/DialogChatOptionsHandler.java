@@ -9,7 +9,7 @@ import java.util.List;
 import co.chatsdk.ui.AbstractChatOptionsHandler;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.InterfaceManager;
 
 /**
  * Created by ben on 10/11/17.

@@ -125,7 +125,7 @@
                     android:ems="10"
                     android:layout_marginTop="5dp"
                     android:imeOptions="actionDone"
-                    android:id="@+id/chat_sdk_et_mail"
+                    android:id="@+id/chat_sdk_et_username"
                     android:layout_centerVertical="true"
                     android:hint="Email" />
             </RelativeLayout>

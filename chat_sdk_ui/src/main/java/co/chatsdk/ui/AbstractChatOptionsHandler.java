@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
+import co.chatsdk.ui.manager.InterfaceManager;
 
 /**
  * Created by ben on 10/11/17.

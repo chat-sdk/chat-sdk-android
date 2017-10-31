@@ -1,7 +1,5 @@
 package co.chatsdk.core.handlers;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.List;
 
 import co.chatsdk.core.dao.Message;
@@ -54,8 +52,6 @@ public interface ThreadHandler {
      * Send different types of message to a particular thread
      */
     Observable<MessageSendProgress> sendMessageWithText(String text, Thread thread);
-    Observable<MessageSendProgress> sendMessageWithLocation(String filePath, LatLng location, Thread thread);
-    Observable<MessageSendProgress> sendMessageWithImage(String filePath, Thread thread);
     /**
      * Send a message object
      */

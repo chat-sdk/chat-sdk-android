@@ -1,7 +1,5 @@
 package co.chatsdk.core.types;
 
-import android.accounts.Account;
-
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.
  */
@@ -37,7 +35,7 @@ public class AccountDetails {
         return a;
     }
 
-    public static AccountDetails register (String username, String password) {
+    public static AccountDetails signUp(String username, String password) {
         AccountDetails a = new AccountDetails();
         a.type = Type.Register;
         a.username = username;
@@ -63,9 +61,10 @@ public class AccountDetails {
         return a;
     }
 
-    public static AccountDetails custom (String token) {
+    public static AccountDetails token(String token) {
         AccountDetails a = new AccountDetails();
         a.type = Type.Custom;
+        a.token = token;
         return a;
     }
 

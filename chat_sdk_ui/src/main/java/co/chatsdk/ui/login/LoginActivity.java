@@ -26,10 +26,13 @@ import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.core.utils.PermissionRequestHandler;
+import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.AppBackgroundMonitor;
@@ -47,7 +50,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private LinearLayout mainView;
     private boolean authenticating = false;
 
-    protected EditText emailEditText;
+    protected EditText usernameEditText;
     protected EditText passwordEditText;
 
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
@@ -72,6 +75,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
+        PermissionRequestHandler.shared().requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        }).subscribe();
+
     }
 
     protected void initViews () {
@@ -80,7 +90,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnAnonymous = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
         btnTwitter = (Button) findViewById(R.id.chat_sdk_btn_twitter_login);
         btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
-        emailEditText = (EditText) findViewById(R.id.chat_sdk_et_mail);
+        usernameEditText = (EditText) findViewById(R.id.chat_sdk_et_username);
         passwordEditText = (EditText) findViewById(R.id.chat_sdk_et_password);
         btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
@@ -99,10 +109,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             ((ViewGroup) btnAnonymous.getParent()).removeView(btnAnonymous);
         }
 
-
-        // TODO: Remove this
-//        emailEditText.setText("ben");
-//        passwordEditText.setText("123456");
+        // Set the debug username and password details for testing
+        if(!StringChecker.isNullOrEmpty(ChatSDK.config().debugUsername)) {
+            usernameEditText.setText(ChatSDK.config().debugUsername);
+        }
+        if(!StringChecker.isNullOrEmpty(ChatSDK.config().debugPassword)) {
+            passwordEditText.setText(ChatSDK.config().debugPassword);
+        }
 
     }
 
@@ -114,7 +127,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    private void initListeners(){
+    private void initListeners() {
 
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
@@ -252,13 +265,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             Timber.v("Network Connection unavailable");
         }
 
-        AccountDetails details = new AccountDetails();
-        details.type = AccountDetails.Type.Username;
-        details.username = emailEditText.getText().toString();
-        details.password = passwordEditText.getText().toString();
+        AccountDetails details = AccountDetails.username(usernameEditText.getText().toString(), passwordEditText.getText().toString());
 
         authenticateWithDetails(details);
-
     }
 
     public void authenticateWithDetails (AccountDetails details) {
@@ -301,7 +310,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Register;
-        details.username = emailEditText.getText().toString();
+        details.username = usernameEditText.getText().toString();
         details.password = passwordEditText.getText().toString();
 
         authenticateWithDetails(details);
@@ -347,7 +356,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected boolean checkFields(){
-        if (emailEditText.getText().toString().isEmpty()) {
+        if (usernameEditText.getText().toString().isEmpty()) {
             showToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }

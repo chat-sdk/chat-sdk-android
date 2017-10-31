@@ -2,12 +2,14 @@ package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -57,6 +59,13 @@ public class MediaChatOption extends BaseChatOption {
                                     public void accept(@NonNull ChatActivity.ActivityResult result) throws Exception {
                                         mediaSelector.handleResult(activity, result.requestCode, result.resultCode, result.data);
                                     }
+                                }, new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(Throwable throwable) throws Exception {
+                                        if(!StringChecker.isNullOrEmpty(throwable.getLocalizedMessage())) {
+                                            Toast.makeText(activity, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
                                 });
                             }
 
@@ -64,7 +73,7 @@ public class MediaChatOption extends BaseChatOption {
                                 public void result(String result) {
                                     ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
                                     if(type == Type.TakePhoto || type == Type.ChoosePhoto) {
-                                        connector.connect(NM.thread().sendMessageWithImage(result, thread), e);
+                                        connector.connect(NM.imageMessage().sendMessageWithImage(result, thread), e);
                                     }
                                     else if((type == Type.TakeVideo || type == Type.ChooseVideo) && NM.videoMessage() != null) {
                                         connector.connect(NM.videoMessage().sendMessageWithVideo(result, thread), e);

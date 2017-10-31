@@ -57,7 +57,7 @@ public class LocationChatOption extends BaseChatOption {
                                 @Override
                                 public void result(String snapshotPath, LatLng latLng) {
                                     ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                                    connector.connect(NM.thread().sendMessageWithLocation(snapshotPath, latLng, thread), e);
+                                    connector.connect(NM.locationMessage().sendMessageWithLocation(snapshotPath, latLng, thread), e);
                                 }
                             };
 

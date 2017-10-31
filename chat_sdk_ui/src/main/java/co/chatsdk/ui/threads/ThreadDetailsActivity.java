@@ -24,13 +24,13 @@ import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.utils.Strings;
+import co.chatsdk.core.utils.Strings;
 import io.reactivex.functions.Consumer;
 
 /**

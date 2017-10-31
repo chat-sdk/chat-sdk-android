@@ -25,7 +25,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.main.BaseFragment;

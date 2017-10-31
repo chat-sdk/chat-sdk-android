@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">ChatSdkCore</string>
+
+    <string name="image_message">Image</string>
+    <string name="location_message">Location</string>
+    <string name="unknown_message">Unknown Message</string>
+    <string name="no_messages">No Messages</string>
+    <string name="audio_message">Recording</string>
+    <string name="video_message">Video</string>
+    <string name="sticker_message">Sticker</string>
+    <string name="file_message">File</string>
+    <string name="thread">Thread</string>
+
 </resources>

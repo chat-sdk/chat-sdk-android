@@ -20,7 +20,10 @@ public class Configuration {
 
     public WeakReference<Context> context;
 
+    // Testing
     public boolean debug = false;
+    public String debugUsername = null;
+    public String debugPassword = null;
 
     // Twitter Login
     public String twitterKey;
@@ -37,11 +40,17 @@ public class Configuration {
     public String firebaseCloudMessagingServerKey;
 
     // XMPP
-    public String xmppServiceName;
-    public String xmppServiceHost;
-    public int xmppServicePort;
+    public String xmppDomain;
+    public String xmppHostAddress;
+    public int xmppPort;
     public String xmppSearchService;
     public String xmppResource;
+    public boolean xmppSslEnabled;
+    public boolean xmppAcceptAllCertificates;
+    public boolean xmppDisableHostNameVerification;
+    public boolean xmppAllowClientSideAuthentication;
+    public boolean xmppCompressionEnabled;
+    public String xmppSecurityMode = "ifpossible";
 
     // Contact Book
     public String contactBookInviteContactEmailSubject;
@@ -70,8 +79,8 @@ public class Configuration {
     public int imageMaxThumbnailDimension = 600;
     public int maxInboxNotificationLines = 7;
 
-    public String defaultUserNamePrefix = "ChatSDK";
-    public String defaultUserName = defaultUserNamePrefix + String.valueOf(new Random().nextInt(1000));
+    public String defaultNamePrefix = "ChatSDK";
+    public String defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
     public String imageDirectoryName = "ChatSDK";
     public String contactDeveloperEmailAddress = "support@chatsdk.co";
     public String contactDeveloperEmailSubject = "";
@@ -117,6 +126,16 @@ public class Configuration {
             return this;
         }
 
+        public Builder debugUsername (String username) {
+            config.debugUsername = username;
+            return this;
+        }
+
+        public Builder debugPassword (String password) {
+            config.debugPassword = password;
+            return this;
+        }
+
         public Builder twitterLogin (String key, String secret) {
             config.twitterKey = key;
             config.twitterSecret = secret;
@@ -149,12 +168,60 @@ public class Configuration {
             return this;
         }
 
-        public Builder xmpp (String serviceName, String serviceHost, int port, String searchService, String resource) {
-            config.xmppServiceName = serviceName;
-            config.xmppServiceHost = serviceHost;
-            config.xmppServicePort = port;
+        public Builder xmpp (String domain, String hostAddress, int port, String searchService, String resource) {
+            return xmpp(domain, hostAddress, port, searchService, resource, false);
+        }
+
+        public Builder xmpp (String domain, String hostAddress, int port, String searchService, String resource, boolean sslEnabled) {
+            config.xmppDomain = domain;
+            config.xmppHostAddress = hostAddress;
+            config.xmppPort = port;
             config.xmppSearchService = searchService;
             config.xmppResource = resource;
+            config.xmppSslEnabled = sslEnabled;
+            return this;
+        }
+
+        public Builder xmppAcceptAllCertificates (boolean acceptAllCertificates) {
+            config.xmppAcceptAllCertificates = acceptAllCertificates;
+            return this;
+        }
+
+        public Builder xmppSslEnabled (boolean sslEnabled) {
+            config.xmppSslEnabled = sslEnabled;
+            return this;
+        }
+
+        public Builder xmppDisableHostNameVerification (boolean disableHostNameVerification) {
+            config.xmppDisableHostNameVerification = disableHostNameVerification;
+            return this;
+        }
+
+        /**
+         * This setting is not currently implemented
+         * @param allowClientSideAuthentication
+         * @return
+         */
+        public Builder xmppAllowClientSideAuthentication (boolean allowClientSideAuthentication) {
+            config.xmppAllowClientSideAuthentication = allowClientSideAuthentication;
+            return this;
+        }
+
+        public Builder xmppCompressionEnabled (boolean compressionEnabled) {
+            config.xmppCompressionEnabled = compressionEnabled;
+            return this;
+        }
+
+        /**
+         * Set TSL security mode. Allowable values are
+         * "required"
+         * "ifpossible"
+         * "disabled"
+         * @param securityMode
+         * @return
+         */
+        public Builder xmppSecurityMode (String securityMode) {
+            config.xmppSecurityMode = securityMode;
             return this;
         }
 
@@ -240,13 +307,13 @@ public class Configuration {
             return this;
         }
 
-        public Builder defaultUserNamePrefix (String value) {
-            config.defaultUserNamePrefix = value;
+        public Builder defaultNamePrefix(String value) {
+            config.defaultNamePrefix = value;
             return this;
         }
 
-        public Builder defaultUserName (String value) {
-            config.defaultUserName = value;
+        public Builder defaultName(String value) {
+            config.defaultName = value;
             return this;
         }
 
@@ -302,11 +369,11 @@ public class Configuration {
                         appBundle.getString("firebase_cloud_messaging_server_key")
                 );
 
-                String port = appBundle.getString("xmpp_service_port");
+                String port = appBundle.getString("xmpp_port");
 
                 xmpp(
-                        appBundle.getString("xmpp_service_name"),
-                        appBundle.getString("xmpp_service_host"),
+                        appBundle.getString("xmpp_domain"),
+                        appBundle.getString("xmpp_host_address"),
                         port != null ? Integer.valueOf(port) : 0,
                         appBundle.getString("xmpp_search_service"),
                         appBundle.getString("xmpp_resource")

@@ -18,6 +18,9 @@ import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.StorageAdapter;
 import timber.log.Timber;
 
+import static co.chatsdk.core.dao.DaoCore.daoSession;
+import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
+
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
  */
@@ -59,6 +62,11 @@ public class StorageManager {
         return entity;
     }
 
+    public <T extends CoreEntity> T fetchEntityWithEntityID(Object entityID, Class<T> c) {
+        return DaoCore.fetchEntityWithEntityID(c, entityID);
+    }
+
+
     public User fetchUserWithEntityID (String entityID) {
         return DaoCore.fetchEntityWithEntityID(User.class, entityID);
     }
@@ -68,12 +76,12 @@ public class StorageManager {
     }
 
     public Thread fetchThreadWithID (long threadID) {
-        return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.Id, threadID);
+        return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.Id, threadID);
     }
 
     public Thread fetchThreadWithEntityID (String entityID) {
         if(entityID != null) {
-            return DaoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
+            return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
         }
         return null;
     }
@@ -103,7 +111,7 @@ public class StorageManager {
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
         List<Message> list ;
 
-        QueryBuilder<Message> qb = DaoCore.daoSession.queryBuilder(Message.class);
+        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
         qb.where(MessageDao.Properties.ThreadId.eq(threadID));
 
         // Making sure no null messages infected the sort.

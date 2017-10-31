@@ -23,20 +23,18 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -134,31 +132,27 @@ public class PublicThreadsFragment extends BaseFragment {
                     showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
                     final String threadName = input.getText().toString();
 
-                    NM.publicThread().createPublicThreadWithName(threadName).flatMapCompletable(new Function<Thread, Completable>() {
+                    NM.publicThread().createPublicThreadWithName(threadName)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new BiConsumer<Thread, Throwable>() {
                         @Override
-                        public Completable apply(final Thread thread) throws Exception {
-                            return NM.thread().addUsersToThread(thread, NM.currentUser()).doOnError(new Consumer<Throwable>() {
-                                @Override
-                                public void accept(@NonNull Throwable throwable) throws Exception {
-                                    throwable.printStackTrace();
-                                    Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                    dismissProgressDialog();
-                                }
-                            }).doOnComplete(new Action() {
-                                @Override
-                                public void run() throws Exception {
-                                    dismissProgressDialog();
-                                    adapter.addRow(thread);
+                        public void accept(Thread thread, Throwable throwable) throws Exception {
+                            if(throwable == null) {
+                                dismissProgressDialog();
+                                adapter.addRow(thread);
 
-                                    // TODO: Improve this
-                                    ToastHelper.show(getContext(), getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
+                                // TODO: Improve this
+                                ToastHelper.show(getContext(), getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
 
-                                    InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
-
-                                }
-                            });
+                                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
+                            }
+                            else {
+                                throwable.printStackTrace();
+                                Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                dismissProgressDialog();                            }
                         }
-                    }).observeOn(AndroidSchedulers.mainThread()).subscribe();
+                    });
+
                 }
             });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

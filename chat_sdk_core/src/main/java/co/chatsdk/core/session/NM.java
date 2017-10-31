@@ -9,7 +9,9 @@ import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.handlers.HookHandler;
+import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
+import co.chatsdk.core.handlers.LocationMessageHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
@@ -93,6 +95,14 @@ public class NM {
 
     public static StickerMessageHandler stickerMessage () {
         return a().stickerMessage;
+    }
+
+    public static ImageMessageHandler imageMessage () {
+        return a().imageMessage;
+    }
+
+    public static LocationMessageHandler locationMessage () {
+        return a().locationMessage;
     }
 
     public static ReadReceiptHandler readReceipts () {

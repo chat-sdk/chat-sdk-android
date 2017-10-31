@@ -35,7 +35,7 @@ import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.InterfaceManager;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;

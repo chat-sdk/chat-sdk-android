@@ -1,4 +1,4 @@
-package co.chatsdk.ui;
+package co.chatsdk.ui.manager;
 
 import android.app.Activity;
 import android.content.Context;
