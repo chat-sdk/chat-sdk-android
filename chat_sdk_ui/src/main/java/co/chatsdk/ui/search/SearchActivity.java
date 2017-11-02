@@ -190,6 +190,8 @@ public class SearchActivity extends BaseActivity {
 
             final List<UserListItem> users = new ArrayList<>();
 
+            final List<User> existingContacts = NM.contact().contacts();
+
             NM.search().usersForIndex(Keys.Name, searchTextView.getText().toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<User>() {
@@ -200,12 +202,14 @@ public class SearchActivity extends BaseActivity {
 
                 @Override
                 public void onNext(@NonNull User user) {
-                    users.add(user);
-                    adapter.setUsers(users, true);
 
-                    hideSoftKeyboard(SearchActivity.this);
-                    dialog.dismiss();
-                }
+                    if(!existingContacts.contains(user)) {
+                        users.add(user);
+                        adapter.setUsers(users, true);
+                        hideSoftKeyboard(SearchActivity.this);
+                        dialog.dismiss();
+                    }
+               }
 
                 @Override
                 public void onError(@NonNull Throwable e) {
