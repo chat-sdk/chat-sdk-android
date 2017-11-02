@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,11 +32,11 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -46,8 +47,6 @@ import io.reactivex.functions.Consumer;
  */
 
 public class EditProfileActivity extends BaseActivity {
-
-    public static final int PROFILE_PIC = 100;
 
     private SimpleDraweeView avatarImageView;
     private EditText statusEditText;
@@ -265,15 +264,17 @@ public class EditProfileActivity extends BaseActivity {
         boolean imageChanged = false;
         boolean presenceChanged = false;
 
-        for(String key: currentUser.metaMap().keySet()) {
-            if(key.equals(Keys.AvatarURL)) {
-                imageChanged = valueChanged(currentUser.metaMap(), userMeta, key);
+        Iterator<String> i = currentUser.metaMap().keySet().iterator();
+        while (i.hasNext()) {
+            if(i.next().equals(Keys.AvatarURL)) {
+                imageChanged = valueChanged(currentUser.metaMap(), userMeta, i.next());
                 currentUser.setAvatarHash(null);
             }
-            if(key.equals(Keys.Availability) || key.equals(Keys.Status)) {
-                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, key);
+            if(i.next().equals(Keys.Availability) || i.next().equals(Keys.Status)) {
+                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, i.next());
             }
         }
+
         currentUser.update();
 
         if(presenceChanged && !changed) {

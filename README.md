@@ -97,7 +97,15 @@ There are three main branches in the project:
 
 - **master** - the latest stable release version of the code
 - **dev** - the latest unstable version of the code 
-- **v3_final**
+- **v3_final** - the legacy version of the project (no longer maintained)
+
+## Check out the Development Guide
+
+We've written a [comprehensive Development Guide](https://github.com/chat-sdk/docs) which is available in the docs repository. 
+
+If you thing that something is missing, you can post a new issue and we will update the guide. 
+
+We have a number of additional guides available on our [Wiki](https://github.com/chat-sdk/chat-sdk-android/wiki).
 
 ## Setup Service
 

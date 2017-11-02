@@ -1,5 +1,8 @@
 package co.chatsdk.firebase;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -7,24 +10,31 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.Date;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ChatError;
+import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
@@ -54,7 +64,49 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public Completable pushUser () {
-        return currentUser().push();
+        return Single.create(new SingleOnSubscribe<User>() {
+            @Override
+            public void subscribe(@NonNull final SingleEmitter<User> e) throws Exception {
+                // Check to see if the avatar URL is local or remote
+                File avatar = new File(NM.currentUser().getAvatarURL());
+                if (avatar.exists() && NM.upload() != null) {
+                    // Upload the image
+                    Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
+                    NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
+
+                        @Override
+                        public void onNext(@NonNull FileUploadResult fileUploadResult) {
+                            if (fileUploadResult.urlValid()) {
+                                NM.currentUser().setAvatarURL(fileUploadResult.url);
+                                NM.currentUser().update();
+                                NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable ex) {
+                            ex.printStackTrace();
+                            e.onSuccess(NM.currentUser());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            e.onSuccess(NM.currentUser());
+                        }
+                    });
+                } else {
+                    e.onSuccess(NM.currentUser());
+                }
+            }
+        }).flatMapCompletable(new Function<User, CompletableSource>() {
+            @Override
+            public CompletableSource apply(@NonNull User user) throws Exception {
+                return new UserWrapper(user).push();
+            }
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable setUserOnline() {

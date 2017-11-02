@@ -100,6 +100,8 @@ public class PermissionRequestHandler {
                 e.onComplete();
             }
             else {
+                // TODO: this is being called for the contact book (maybe it's better to request contacts
+                // from inside the contact book module
                 e.onError(new Throwable("Permission not granted: " + requestCode));
             }
         }
