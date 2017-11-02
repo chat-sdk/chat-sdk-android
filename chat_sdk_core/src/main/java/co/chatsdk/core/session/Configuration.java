@@ -78,6 +78,7 @@ public class Configuration {
     public int imageMaxHeight = 2560;
     public int imageMaxThumbnailDimension = 600;
     public int maxInboxNotificationLines = 7;
+    public boolean imageCroppingEnabled = true;
 
     public String defaultNamePrefix = "ChatSDK";
     public String defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
@@ -149,6 +150,11 @@ public class Configuration {
 
         public Builder googleMaps (String mapsApiKey) {
             config.googleMapsApiKey = mapsApiKey;
+            return this;
+        }
+
+        public Builder imageCroppingEnabled (boolean enabled) {
+            config.imageCroppingEnabled = enabled;
             return this;
         }
 

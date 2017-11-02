@@ -2,6 +2,7 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -16,7 +17,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.Cropper;
-import co.chatsdk.ui.utils.Utils;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -76,29 +76,38 @@ public class MediaSelector {
             case RESULT_OK:
 
                 Uri uri = data.getData();
-                filePath = DaoCore.generateRandomName();
 
-                // If enabled we will save the messageImageView to the app
-                // directory in gallery else we will save it in the cache dir.
-                File dir;
-                if (ChatSDK.config().saveImagesToDirectory)
-                    dir = Utils.ImageSaver.getAlbumStorageDir(ChatSDK.config().imageDirectoryName);
-                else
-                    dir = activity.getCacheDir();
+                if(!ChatSDK.config().imageCroppingEnabled) {
 
-                if (dir == null)
-                {
-                    throw new Exception(activity.getString(R.string.unable_to_fetch_image));
+                    Uri pickedImage = data.getData();
+                    // Let's read picked image path using content resolver
+                    String[] filePath = { MediaStore.Images.Media.DATA };
+                    Cursor cursor = activity.getContentResolver().query(pickedImage, filePath, null, null, null);
+                    cursor.moveToFirst();
+                    String imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
+
+                    handleImageFile(activity, imagePath);
                 }
+                else {
+                    filePath = DaoCore.generateRandomName();
 
-                Uri outputUri = Uri.fromFile(new File(dir, filePath + ".jpeg"));
+                    // If enabled we will save the messageImageView to the app
+                    // directory in gallery else we will save it in the cache dir.
+                    File dir = activity.getCacheDir();
 
-                Cropper crop = new Cropper(uri);
+                    if (dir == null) {
+                        throw new Exception(activity.getString(R.string.unable_to_fetch_image));
+                    }
 
-                Intent cropIntent = crop.getAdjustIntent(activity, outputUri);
-                int request = Crop.REQUEST_CROP + CHOOSE_PHOTO;
+                    Uri outputUri = Uri.fromFile(new File(dir, filePath + ".jpeg"));
 
-                activity.startActivityForResult(cropIntent, request);
+                    Cropper crop = new Cropper(uri);
+
+                    Intent cropIntent = crop.getAdjustIntent(activity, outputUri);
+                    int request = Crop.REQUEST_CROP + CHOOSE_PHOTO;
+
+                    activity.startActivityForResult(cropIntent, request);
+                }
 
                 break;
             case AppCompatActivity.RESULT_CANCELED:
@@ -115,33 +124,31 @@ public class MediaSelector {
         try {
             // If enabled we will save the messageImageView to the app
             // directory in gallery else we will save it in the cache dir.
-            File dir;
-            if (ChatSDK.config().saveImagesToDirectory)
-                dir = Utils.ImageSaver.getAlbumStorageDir(ChatSDK.config().imageDirectoryName);
-            else
-                dir = activity.getCacheDir();
+            File dir = activity.getCacheDir();
 
-            if (dir == null)
-            {
+            if (dir == null) {
                 throw new Exception(activity.getString(R.string.unable_to_fetch_image));
             }
 
             File image = new File(dir, filePath + ".jpeg");
 
-            String selectedFilePath = image.getPath();
-
-            // Scanning the messageImageView so it would be visible in the gallery images.
-            if (ChatSDK.config().saveImagesToDirectory) {
-                ImageUtils.scanFilePathForGallery(activity, selectedFilePath);
-            }
-
-            if(resultHandler != null) {
-                resultHandler.result(image.getPath());
-                clear();
-            }
+            handleImageFile(activity, image.getPath());
         }
         catch (NullPointerException e){
             throw new Exception(activity.getString(R.string.unable_to_fetch_image));
+        }
+    }
+
+    public void handleImageFile (Activity activity, String path) {
+
+        // Scanning the messageImageView so it would be visible in the gallery images.
+        if (ChatSDK.config().saveImagesToDirectory) {
+            ImageUtils.scanFilePathForGallery(activity, path);
+        }
+
+        if(resultHandler != null) {
+            resultHandler.result(path);
+            clear();
         }
     }
 
