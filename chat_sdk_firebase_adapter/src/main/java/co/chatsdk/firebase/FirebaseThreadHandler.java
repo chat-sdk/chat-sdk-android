@@ -175,6 +175,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Single<Thread> createThread(final String name, final List<User> users) {
+        return createThread(name, users, -1);
+    }
+
+    public Single<Thread> createThread(final String name, final List<User> users, final int type) {
         return Single.create(new SingleOnSubscribe<Thread>() {
             @Override
             public void subscribe(final SingleEmitter<Thread> e) throws Exception {
@@ -185,8 +189,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     users.add(currentUser);
                 }
 
-
-                if(users.size() == 2) {
+                if(users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
 
                     User otherUser = null;
                     Thread jointThread = null;
@@ -200,7 +203,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                     // Check to see if a thread already exists with these
                     // two users
-
                     for(Thread thread : getThreads(ThreadType.Private1to1, true)) {
                         if(thread.getUsers().size() == 2 &&
                                 thread.getUsers().contains(currentUser) &&
@@ -225,7 +227,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 thread.setCreatorEntityId(currentUser.getEntityID());
                 thread.setCreationDate(new Date());
                 thread.setName(name);
-                thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+
+                if(type != -1) {
+                    thread.setType(type);
+                }
+                else {
+                    thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+                }
 
                 // Save the thread to the database.
                 e.onSuccess(thread);

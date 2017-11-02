@@ -22,7 +22,7 @@ public interface ThreadHandler {
     Single<Thread> createThread(String name, List<User> users);
     Single<Thread> createThread(List<User> users);
     Single<Thread> createThread(String name, User... users);
-
+    Single<Thread> createThread(String name, List<User> users, int type);
     /**
      * Remove users from a thread
      */
