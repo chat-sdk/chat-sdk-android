@@ -50,7 +50,7 @@ public class Configuration {
     public boolean xmppDisableHostNameVerification;
     public boolean xmppAllowClientSideAuthentication;
     public boolean xmppCompressionEnabled;
-    public String xmppSecurityMode = "ifpossible";
+    public String xmppSecurityMode = "disabled";
 
     // Contact Book
     public String contactBookInviteContactEmailSubject;
