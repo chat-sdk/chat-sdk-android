@@ -1,0 +1,72 @@
+//if(System.getenv("BINTRAY_USER") != null && System.getenv("BINTRAY_API_KEY") != null) {
+//
+//    ext.module = 'core'
+//    ext.group = CHAT_SDK_GROUP + '.' + ext.module
+//    ext.name = CHAT_SDK_GROUP + ':' + ext.module
+//    ext.libraryName = 'Chat SDK'
+//    ext.desc = ext.libraryName +' Core'
+//
+//
+//    apply plugin: 'com.jfrog.bintray'
+//    apply plugin: 'com.github.dcendents.android-maven'
+//
+//    install {
+//        repositories.mavenInstaller {
+//            // This generates POM.xml with proper parameters
+//            pom.project {
+//                packaging 'aar'
+//                groupId ext.group
+//                artifactId ext.name
+//
+//                // Add your description here
+//                name ext.libraryName
+//                description ext.desc
+//                url 'https://chatsdk.co'
+//
+//                // Set your license
+//                licenses {
+//                    license {
+//                        name 'Chat SDK License'
+//                        url 'https://chatsdk.co/chat-sdk-license/'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id 'bensmiley'
+//                        name 'Ben Smiley'
+//                        email 'ben@chatsdk.co'
+//                    }
+//                }
+//                scm {
+//                    connection 'https://github.com/chat-sdk/chat-sdk-android.git'
+//                    developerConnection 'https://github.com/chat-sdk/chat-sdk-android.git'
+//                    url 'https://chatsdk.co'
+//                }
+//            }
+//        }
+//    }
+//
+//    bintray {
+//        user = System.getenv("BINTRAY_USER")
+//        key = System.getenv("BINTRAY_API_KEY")
+//        configurations = ['archives']
+//        pkg {
+//
+//            repo = 'chat-sdk-android'
+//            name = ext.name
+//            userOrg = System.getenv("BINTRAY_ORG")
+//            licenses = ['GPL-3.0']
+//            vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+//            publicDownloadNumbers = true
+//
+//            version {
+//                name = CHAT_SDK_VERSION
+//                desc = "Chat SDK Core"
+//                released  = new Date()
+//                vcsTag = CHAT_SDK_VERSION
+//            }
+//        }
+//    }
+//}
+//
+//

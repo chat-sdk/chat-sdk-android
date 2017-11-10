@@ -26,32 +26,15 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':chat_sdk_core')
+    compile project(':chat-core')
 
     compile 'com.google.firebase:firebase-messaging:11.4.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
 }
 
-
 group = CHAT_SDK_GROUP + '.firebase.push'
 version = CHAT_SDK_VERSION
+ext.desc = 'Chat SDK Firebase Push'
+ext.name = CHAT_SDK_GROUP +':firebase-push'
 
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_API_KEY")
-    configurations = ['archives']
-    pkg {
-        repo = 'chat-sdk-android'
-        name = 'chat-sdk-firebase-push'
-        userOrg = System.getenv("BINTRAY_ORG")
-        licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
-
-        version {
-            name = CHAT_SDK_VERSION
-            desc = 'Chat SDK Firebase Push'
-            released  = new Date()
-            vcsTag = CHAT_SDK_VERSION
-        }
-    }
-}
+//apply from: rootProject.file('bintray.gradle')

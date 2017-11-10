@@ -1,3 +1,5 @@
+apply plugin: 'com.android.library'
+
 buildscript {
     repositories {
         jcenter()
@@ -5,10 +7,11 @@ buildscript {
     }
 
     dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
-apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
 
 android {
 
@@ -56,10 +59,16 @@ dependencies {
     }
 
     compile project(path: ':chat_sdk_firebase_adapter')
-    compile project(path: ':chat_sdk_core')
+    compile project(path: ':chat-core')
     compile project(path: ':chat_sdk_ui')
 
 }
 
+group = CHAT_SDK_GROUP + '.firebase.social.login'
+version = CHAT_SDK_VERSION
+ext.desc = 'Chat SDK Firebase Social Login'
+ext.name = CHAT_SDK_GROUP +':firebase-social-login'
+
+//apply from: rootProject.file('bintray.gradle')
 
 

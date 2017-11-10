@@ -256,7 +256,7 @@ UserInterfaceModule.activate(context);
 FirebaseModule.activate(context);
 
 // File storage is needed for profile image upload and image messages
-FirebaseFileStorageModule.activate();
+FirebaseFileStorageModule.activateForFirebase();
 
 // Activate any other modules you need.
 // ...

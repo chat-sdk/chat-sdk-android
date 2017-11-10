@@ -4,20 +4,20 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -33,44 +33,40 @@ public class MediaChatOption extends BaseChatOption {
         ChooseVideo,
     }
 
-    private Disposable chatActivityResultDisposable = null;
-
     public MediaChatOption(String title, Integer iconResourceId, final Type type) {
         super(title, iconResourceId, null, ChatOptionType.SendMessage);
         action = new Action() {
             @Override
-            public Observable<?> execute(final Activity activity, final Thread thread) {
+            public Observable<?> execute(final Activity activity, final PublishSubject<ActivityResult> result, final Thread thread) {
                 return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
                     @Override
                     public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
                         try {
                             final MediaSelector mediaSelector = new MediaSelector();
 
-                            if(activity instanceof ChatActivity) {
-                                ChatActivity chatActivity = (ChatActivity) activity;
+                            Timber.v("Selector Activity: " + activity.toString());
 
-                                Timber.v("Selector Activity: " + activity.toString());
+                            dispose();
 
-                                if(chatActivityResultDisposable != null) {
-                                    chatActivityResultDisposable.dispose();
+                            activityResultDisposable = result.subscribe(new Consumer<ActivityResult>() {
+                                @Override
+                                public void accept(@NonNull ActivityResult result) throws Exception {
+                                    mediaSelector.handleResult(activity, result.requestCode, result.resultCode, result.data);
                                 }
-                                chatActivityResultDisposable = chatActivity.activityResultPublishSubject.subscribe(new Consumer<ChatActivity.ActivityResult>() {
-                                    @Override
-                                    public void accept(@NonNull ChatActivity.ActivityResult result) throws Exception {
-                                        mediaSelector.handleResult(activity, result.requestCode, result.resultCode, result.data);
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(Throwable throwable) throws Exception {
+                                    if(!StringChecker.isNullOrEmpty(throwable.getLocalizedMessage())) {
+                                        Toast.makeText(activity, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                     }
-                                }, new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(Throwable throwable) throws Exception {
-                                        if(!StringChecker.isNullOrEmpty(throwable.getLocalizedMessage())) {
-                                            Toast.makeText(activity, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            }
+                                }
+                            });
 
                             MediaSelector.Result handleResult = new MediaSelector.Result() {
                                 public void result(String result) {
+
+                                    dispose();
+
                                     ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
                                     if(type == Type.TakePhoto || type == Type.ChoosePhoto) {
                                         connector.connect(NM.imageMessage().sendMessageWithImage(result, thread), e);
@@ -83,6 +79,7 @@ public class MediaChatOption extends BaseChatOption {
                                     }
                                 }
                             };
+
                             if(type == Type.TakePhoto) {
                                 mediaSelector.startTakePhotoActivity(activity, handleResult);
                             }

@@ -12,7 +12,7 @@ import io.reactivex.Observable;
 public interface VideoMessageHandler extends CustomMessageHandler {
 
     /**
-     * @brief Send a video message
+     * Send a video message
      */
     Observable<MessageSendProgress> sendMessageWithVideo(final String videoPath, final Thread thread);
 

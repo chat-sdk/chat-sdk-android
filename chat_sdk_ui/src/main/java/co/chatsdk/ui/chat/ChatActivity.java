@@ -49,17 +49,18 @@ import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
-import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -78,18 +79,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     private ChatOptionsHandler optionsHandler;
     public PublishSubject<ActivityResult> activityResultPublishSubject = PublishSubject.create();
-
-    public class ActivityResult {
-        public int requestCode;
-        public int resultCode;
-        public Intent data;
-
-        public ActivityResult (int requestCode, int resultCode, Intent data) {
-            this.requestCode = requestCode;
-            this.resultCode = resultCode;
-            this.data = data;
-        }
-    }
 
     private enum ListPosition {
         Top, Current, Bottom
@@ -269,15 +258,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         recyclerView.setAdapter(messageListAdapter);
     }
 
-//    public void verifyStoragePermission () {
-//        permissionHandler.requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
-//            @Override
-//            public void accept(@NonNull Throwable throwable) throws Exception {
-//                ToastHelper.show(R.string.file_read_permission_not_granted);
-//            }
-//        }).subscribe();
-//    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -389,7 +369,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         }
 
                         if(NM.readReceipts() != null) {
-                            NM.readReceipts().updateReadReceipts(thread);
+                            NM.readReceipts().markRead(thread);
                         }
                     }
                 }));
@@ -872,7 +852,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     public void executeChatOption(ChatOption option) {
         if(option.getType() == ChatOptionType.SendMessage) {
-            handleMessageSend((Observable<MessageSendProgress>) option.execute(this, thread));
+            handleMessageSend((Observable<MessageSendProgress>) option.execute(this, activityResultPublishSubject, thread));
+        }
+        else {
+            option.execute(this, activityResultPublishSubject, thread).subscribe();
         }
     }
 

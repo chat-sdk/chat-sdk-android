@@ -32,28 +32,12 @@ dependencies {
     compile 'com.google.firebase:firebase-storage:11.4.0'
     compile 'com.google.firebase:firebase-auth:11.4.0'
 
-    compile project(':chat_sdk_core')
+    compile project(':chat-core')
 }
 
 group = CHAT_SDK_GROUP + '.firebase.adapter'
 version = CHAT_SDK_VERSION
+ext.desc = 'Chat SDK Firebase'
+ext.name = CHAT_SDK_GROUP +':firebase-adapter'
 
-//bintray {
-//    user = System.getenv("BINTRAY_USER")
-//    key = System.getenv("BINTRAY_API_KEY")
-//    configurations = ['archives']
-//    pkg {
-//        repo = 'chat-sdk-android'
-//        name = 'chat-sdk-firebase-adapter'
-//        userOrg = System.getenv("BINTRAY_ORG")
-//        licenses = ['GPL-3.0']
-//        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
-//
-//        version {
-//            name = CHAT_SDK_VERSION
-//            desc = 'Chat SDK Firebase Adapter'
-//            released  = new Date()
-//            vcsTag = CHAT_SDK_VERSION
-//        }
-//    }
-//}
+//apply from: rootProject.file('bintray.gradle')

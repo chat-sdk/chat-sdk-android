@@ -14,17 +14,17 @@ import io.reactivex.Completable;
 public interface ContactHandler {
 
     /**
-    * @brief Get a list of the user's contacts
+    * Get a list of the user's contacts
     */
     List<User> contacts();
 
     /**
-    * @brief Get a list of the user's contacts
+    * Get a list of the user's contacts
     */
     List<User> contactsWithType (ConnectionType type);
 
     /**
-    * @brief Add a user to contacts
+    * Add a user to contacts
     */
     Completable addContact (User user, ConnectionType type);
     Completable deleteContact (User user, ConnectionType type);

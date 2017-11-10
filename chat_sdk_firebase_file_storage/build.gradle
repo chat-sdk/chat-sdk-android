@@ -1,5 +1,18 @@
 apply plugin: 'com.android.library'
 
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -23,6 +36,13 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':chat_sdk_core')
+    compile project(':chat-core')
     compile 'com.google.firebase:firebase-storage:11.4.0'
 }
+
+group = CHAT_SDK_GROUP + '.firebase.file.storage'
+version = CHAT_SDK_VERSION
+ext.desc = 'Chat SDK Firebase File Storage'
+ext.name = CHAT_SDK_GROUP +':firebase-file-storage'
+
+//apply from: rootProject.file('bintray.gradle')

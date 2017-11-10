@@ -178,7 +178,14 @@ public class MediaSelector {
         else if (requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK) {
             if(resultHandler != null) {
                 Uri videoUri = intent.getData();
-                resultHandler.result(videoUri.getPath());
+
+                // Let's read picked image path using content resolver
+                String[] filePath = { MediaStore.Video.Media.DATA };
+                Cursor cursor = activity.getContentResolver().query(videoUri, filePath, null, null, null);
+                cursor.moveToFirst();
+                String videoPath = cursor.getString(cursor.getColumnIndex(filePath[0]));
+
+                resultHandler.result(videoPath);
                 clear();
             }
         }

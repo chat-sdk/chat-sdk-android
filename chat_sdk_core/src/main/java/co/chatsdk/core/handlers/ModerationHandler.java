@@ -7,12 +7,12 @@ package co.chatsdk.core.handlers;
 public interface ModerationHandler {
 
     /**
-     * @brief
+     *
      */
     //- (RXPromise *) flagMessage: (NSString *)messageID;
 
     /**
-     * @brief
+     *
      */
     //- (RXPromise *) unflagMessage: (NSString *)messageID;
 }

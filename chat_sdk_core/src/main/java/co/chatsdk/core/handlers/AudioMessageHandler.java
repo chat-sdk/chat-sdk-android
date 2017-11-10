@@ -13,7 +13,7 @@ import io.reactivex.Observable;
 public interface AudioMessageHandler extends CustomMessageHandler {
 
     /**
-     * @brief Send an audio message
+     * Send an audio message
      */
     Observable<MessageSendProgress> sendMessage (final Recording recording, final Thread thread);
 

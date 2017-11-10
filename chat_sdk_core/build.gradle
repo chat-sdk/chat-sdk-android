@@ -9,10 +9,10 @@ buildscript {
     dependencies {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
 
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
@@ -46,28 +46,110 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.google.android.gms:play-services:11.4.0'
     compile 'id.zelory:compressor:2.0.0'
-//    compile 'commons-io:commons-io:2.5'
 }
 
-group = CHAT_SDK_GROUP + '.core'
-version = CHAT_SDK_VERSION
+group = 'co.chatsdk.chatsdk'
+version = '4.0.0'
 
-//bintray {
-//    user = System.getenv("BINTRAY_USER")
-//    key = System.getenv("BINTRAY_API_KEY")
-//    configurations = ['archives']
-//    pkg {
-//        repo = 'chat-sdk-android'
-//        name = 'chat-sdk-core'
-//        userOrg = System.getenv("BINTRAY_ORG")
-//        licenses = ['GPL-3.0']
-//        vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+
+ext {
+    bintrayRepo = 'chat-sdk-android'
+    bintrayName = 'chat-core'
+    bintrayUserOrg = 'chat-sdk'
+
+    publishedGroupId = 'co.chatsdk.chatsdk'
+    libraryName = 'ChatSDKCore'
+    artifact = 'chat-core'
+
+    libraryDescription = 'Chat SDK Core library for Android'
+
+    siteUrl = 'https://chatsdk.co'
+    gitUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+
+    libraryVersion = '4.0.0'
+
+    developerId = 'bensmiley'
+    developerName = 'Ben Smiley-Andrews'
+    developerEmail = 'ben@chatsdk.co'
+
+    licenseName = 'Chat SDK License'
+    licenseUrl = 'https://chatsdk.co/chat-sdk-license/'
+    allLicenses = ['GPL-3.0']
+}
+
+apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
+apply from: rootProject.file('bintrayv1.gradle')
+
+// https://github.com/bintray/gradle-bintray-plugin/issues/199
+// https://stackoverflow.com/questions/47223772/aar-files-uploaded-to-wrong-path-with-bintray-multi-module-project
+
+//ext.name = CHAT_SDK_GROUP + BINTRAY_NAME
+//ext.desc = BINTRAY_DESC
 //
-//        version {
-//            name = CHAT_SDK_VERSION
-//            desc = 'Chat SDK Core'
-//            released  = new Date()
-//            vcsTag = CHAT_SDK_VERSION
+//if(System.getenv("BINTRAY_USER") != null && System.getenv("BINTRAY_API_KEY") != null) {
+//
+//    apply plugin: 'com.jfrog.bintray'
+//    apply plugin: 'com.github.dcendents.android-maven'
+//
+//    install {
+//        repositories.mavenInstaller {
+//            // This generates POM.xml with proper parameters
+//            pom.project {
+//                packaging 'aar'
+//                groupId CHAT_SDK_GROUP + '.core'
+//                artifactId 'co.chatsdk:core'
+//
+//                // Add your description here
+//                name 'Chat SDK'
+//                description 'Chat SDK Core'
+//                url 'https://chatsdk.co'
+//
+//                // Set your license
+//                licenses {
+//                    license {
+//                        name 'Chat SDK License'
+//                        url 'https://chatsdk.co/chat-sdk-license/'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id 'bensmiley'
+//                        name 'Ben Smiley'
+//                        email 'ben@chatsdk.co'
+//                    }
+//                }
+//                scm {
+//                    connection 'https://github.com/chat-sdk/chat-sdk-android.git'
+//                    developerConnection 'https://github.com/chat-sdk/chat-sdk-android.git'
+//                    url 'https://chatsdk.co'
+//                }
+//            }
+//        }
+//    }
+//
+//    bintray {
+//        user = System.getenv("BINTRAY_USER")
+//        key = System.getenv("BINTRAY_API_KEY")
+//        configurations = ['archives']
+//        pkg {
+//
+//            repo = 'chat-sdk-android'
+//            name = "co.chatsdk:core"
+//            userOrg = System.getenv("BINTRAY_ORG")
+//            licenses = ['GPL-3.0']
+//            vcsUrl = 'https://github.com/chat-sdk/chat-sdk-android.git'
+//            publicDownloadNumbers = true
+//
+//            version {
+//                name = CHAT_SDK_VERSION
+//                desc = "Chat SDK Core"
+//                released  = new Date()
+//                vcsTag = CHAT_SDK_VERSION
+//            }
 //        }
 //    }
 //}
+
+//apply from: rootProject.file('bintray.gradle')
+

@@ -78,6 +78,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Fresco.initialize(context, config);
 //        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
 
+        // Setup the default chat options
+        if(ChatSDK.config().locationMessagesEnabled) {
+            chatOptions.add(new LocationChatOption("Location"));
+        }
+
+        if(ChatSDK.config().imageMessagesEnabled) {
+            chatOptions.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
+            chatOptions.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
+        }
+
         this.context = new WeakReference<>(context);
     }
 
@@ -255,24 +265,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public ArrayList<ChatOption> getChatOptions() {
-
-        ArrayList<ChatOption> options = new ArrayList<>();
-
-        if(ChatSDK.config().locationMessagesEnabled) {
-            options.add(new LocationChatOption("Location"));
-        }
-
-        if(ChatSDK.config().imageMessagesEnabled) {
-            options.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
-            options.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
-        }
-
-        for(ChatOption o : chatOptions) {
-            options.add(o);
-        }
-
-        return options;
+    public List<ChatOption> getChatOptions() {
+        return chatOptions;
     }
 
     public void startProfileActivity(Context context, String userEntityID) {

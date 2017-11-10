@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
@@ -61,7 +60,7 @@ public interface InterfaceAdapter {
 
     void addChatOption (ChatOption option);
     void removeChatOption (ChatOption option);
-    ArrayList<ChatOption> getChatOptions();
+    List<ChatOption> getChatOptions();
 
     void setChatOptionsHandler (ChatOptionsHandler handler);
     ChatOptionsHandler getChatOptionsHandler (ChatOptionsDelegate delegate);

@@ -7,8 +7,6 @@
 
 package co.chatsdk.ui.main;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,12 +26,12 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.ExitHelper;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 import io.reactivex.Completable;
 import io.reactivex.functions.Action;
@@ -220,6 +218,24 @@ public class MainActivity extends BaseActivity {
 
         tabs.setViewPager(pager);
 
+        // TODO: Check this - whenever we change tabs, we set the user online
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                NM.core().setUserOnline();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         pager.setOffscreenPageLimit(3);
 
 
@@ -243,24 +259,12 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds threads to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_chat_sdk, menu);
         return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // TODO: update this
-        if (item.getItemId() == R.id.android_settings) {
-
-            // FIXME Clearing the cache, Just for debug.
-            /*final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-
-            VolleyUtils.getBitmapCache().resize(1);
-            VolleyUtils.getBitmapCache().resize(maxMemory / 8);*/
-            return true;
-        }
-        else if (item.getItemId() == R.id.contact_developer) {
+        if (item.getItemId() == R.id.contact_developer) {
 
             String emailAddress = ChatSDK.config().contactDeveloperEmailAddress;
             String subject = ChatSDK.config().contactDeveloperEmailSubject;
@@ -282,82 +286,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // If the signUp did not had a chance to signUp due to orientation change.
-        try{
-            unregisterReceiver(mainReceiver);
-        }catch (IllegalArgumentException e){
-            // No need to handle the exception.
-        }
     }
-
-    /** Refresh the contacts fragment when a contact added action is received.
-     *  Clear Fragments bundle when logged out.
-     *  Refresh Fragment when wanted.*/
-    private BroadcastReceiver mainReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-//            if (intent.getAction().equals(Action_Contacts_Added))
-//            {
-//                BaseFragment contacts = getFragment(FragmentIDs.Contacts);
-//
-//                if (contacts != null)
-//                    contacts.reloadData();
-//
-//                // TODO: This should be handled by the list already no?
-////                if (intent.getExtras().containsKey(SearchActivity.USER_IDS_LIST))
-////                {
-////                    String[] ids = intent.getStringArrayExtra(SearchActivity.USER_IDS_LIST);
-////                    for (String id : ids) {
-////
-////                        new UserWrapper(id);
-////                    }
-////
-////                        NetworkManager.getCoreInterface().getEventManager().userMetaOn(id, null);
-////                }
-//            }
-//            else if (intent.getAction().equals(Action_clear_data))
-//            {
-//                clearData();
-//            }
-//            else if (intent.getAction().equals(Action_Refresh_Fragment))
-//            {
-//                if (intent.getExtras() == null)
-//                    return;
-//
-//                if (!intent.getExtras().containsKey(PAGE_ADAPTER_POS))
-//                    return;
-//
-//                int fragment = intent.getExtras().getInt(PAGE_ADAPTER_POS);
-//
-//                BaseFragment frag = getFragment(fragment);
-//
-//                if (frag!= null)
-//                    frag.refresh();
-//
-//            }
-//            else if (intent.getAction().equals(ChatActivity.ACTION_CHAT_CLOSED))
-//            {
-//                getFragment(FragmentIDs.Conversations).reloadData();
-//            }
-        }
-    };
-
-//    private void clearData () {
-//        BaseFragment contacts = getFragment(FragmentIDs.Contacts);
-//
-//        if (contacts != null)
-//            contacts.clearData();
-//
-//        BaseFragment conv = getFragment(FragmentIDs.Conversations);
-//
-//        if (conv != null)
-//            conv.clearData();
-//
-//        BaseFragment pro = getFragment(FragmentIDs.Profile);
-//
-//        if (pro != null)
-//            pro.clearData();
-//    }
 
     /* Exit Stuff*/
     @Override
@@ -365,10 +294,4 @@ public class MainActivity extends BaseActivity {
         exitHelper.triggerExit();
     }
 
-    /** After screen orientation chage the getItem from the fragment page adapter is no null but it is not visible to the user
-     *  so we have to use this workaround so when we call any method on the wanted fragment the fragment will respond.
-     *  http://stackoverflow.com/a/7393477/2568492*/
-    private BaseFragment getFragment(int index){
-        return ((BaseFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + pager + ":" + index));
-    }
 }

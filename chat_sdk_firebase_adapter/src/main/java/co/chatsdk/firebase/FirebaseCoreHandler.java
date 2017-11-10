@@ -36,6 +36,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
@@ -112,8 +113,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public Completable setUserOnline() {
 
         User current = NM.currentUser();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
-        {
+        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
         return Completable.complete();
@@ -141,8 +141,24 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void goOnline() {
-        DatabaseReference.goOnline();
-        disposableList.add(setUserOnline().subscribe());
+        final ValueEventListener listener = FirebasePaths.firebaseRef().child(".info/connected").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue() != null) {
+                    Timber.v("Already online!");
+                }
+                else {
+                    DatabaseReference.goOnline();
+                    disposableList.add(setUserOnline().subscribe());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     public Completable updateLastOnline () {

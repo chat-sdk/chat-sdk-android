@@ -10,7 +10,7 @@ import io.reactivex.Single;
 public interface PublicThreadHandler {
 
     /**
-     * @brief Create a public group thread with a name. This can be used for group discussion
+     * Create a public group thread with a name. This can be used for group discussion
      */
     public Single<Thread> createPublicThreadWithName(final String name);
     public Single<Thread> createPublicThreadWithName(final String name, final String entityID);

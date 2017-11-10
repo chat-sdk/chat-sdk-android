@@ -84,9 +84,7 @@ dependencies {
 
 apply plugin: 'com.google.gms.google-services'
 
-
 task copyDependencies(type: Copy) {
     from configurations.compile
     into 'dependencies'
 }
-

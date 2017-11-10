@@ -266,12 +266,13 @@ public class EditProfileActivity extends BaseActivity {
 
         Iterator<String> i = currentUser.metaMap().keySet().iterator();
         while (i.hasNext()) {
-            if(i.next().equals(Keys.AvatarURL)) {
-                imageChanged = valueChanged(currentUser.metaMap(), userMeta, i.next());
+            String key = i.next();
+            if(key.equals(Keys.AvatarURL)) {
+                imageChanged = valueChanged(currentUser.metaMap(), userMeta, key);
                 currentUser.setAvatarHash(null);
             }
-            if(i.next().equals(Keys.Availability) || i.next().equals(Keys.Status)) {
-                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, i.next());
+            if(key.equals(Keys.Availability) || key.equals(Keys.Status)) {
+                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, key);
             }
         }
 
