@@ -58,17 +58,47 @@ dependencies {
         transitive = true
     }
 
-    compile project(path: ':chat_sdk_firebase_adapter')
-    compile project(path: ':chat-core')
-    compile project(path: ':chat_sdk_ui')
+    compile project(path: ':chat-sdk-firebase-adapter')
+    compile project(path: ':chat-sdk-core')
+    compile project(path: ':chat-sdk-ui')
 
 }
 
-group = CHAT_SDK_GROUP + '.firebase.social.login'
-version = CHAT_SDK_VERSION
-ext.desc = 'Chat SDK Firebase Social Login'
-ext.name = CHAT_SDK_GROUP +':firebase-social-login'
+// Bintray upload properties
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+if(properties.getProperty('bintray.enabled') != null) {
 
-//apply from: rootProject.file('bintray.gradle')
+    group = CHAT_SDK_GROUP
+    version = CHAT_SDK_VERSION
+
+    ext {
+        bintrayRepo = BINTRAY_REPO
+        bintrayName = 'chat-sdk-firebase-social-login'
+        bintrayUserOrg = BINTRAY_USER_ORG
+
+        publishedGroupId = CHAT_SDK_GROUP
+        libraryName = 'ChatSDKFirebaseSocialLogin'
+        artifact = 'chat-sdk-firebase-social-login'
+
+        libraryDescription = 'Chat SDK Firebase Social Login'
+
+        siteUrl = SITE_URL
+        gitUrl = GIT_URL
+
+        libraryVersion = CHAT_SDK_VERSION
+
+        developerId = DEVELOPER_ID
+        developerName = DEVELOPER_NAME
+        developerEmail = DEVELOPER_EMAIL
+
+        licenseName = LICENSE_NAME
+        licenseUrl = LICENSE_URL
+        allLicenses = ['GPL-3.0']
+    }
+
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
+}
 
 

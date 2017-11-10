@@ -57,7 +57,7 @@ The Chat SDK has a number of additional modules that can easily be installed inc
 - [Contact book integration](https://chatsdk.co/downloads/contact-book-integration/)
 - [Social Login](https://github.com/chat-sdk/chat-sdk-android#social-login)
 - [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
-- [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat_sdk_firebase_file_storage) (Included in basic setup instructions)
+- [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) (Included in basic setup instructions)
  
 ## Get involved!
 We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
@@ -123,8 +123,21 @@ There are two ways to add the Chat SDK. You can either import the modules manual
 
 ### Gradle
 
+Until the project is published in jCenter, you will need to include the repository manually:
+
 ```
-Coming Soon!
+repositories {
+    maven { url "http://dl.bintray.com/chat-sdk/chat-sdk-android" }
+}
+```
+
+Then add this to your `dependencies` area:
+
+```
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.0@aar'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.0@aar'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.0@aar'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.0@aar'
 ```
 
 ### Adding Modules Manually
@@ -135,31 +148,31 @@ In Android Studio:
 
 You must import the following core modules:
 
-- `chat_sdk_core`
-- `chat_sdk_ui`
+- `chat-sdk-core`
+- `chat-sdk-ui`
 
 And at least **one** network adapter:
 
-- `chat_sdk_firebase_adapter`
+- `chat-sdk-firebase-adapter`
 - `chat_sdk_xmpp_adapter` - [Available here](https://chatsdk.co/downloads/xmpp-chat-sdk-for-android/)
 
 And any of the following optional modules:
 
-- `chat_sdk_firebase_file_storage`
-- `chat_sdk_firebase_push`
-- `chat_sdk_firebase_social_login`
-- `chat_sdk_audio_message` - [Available here](http://chatsdk.co/downloads/audio-messages/)
-- `chat_sdk_video_message` - [Available here](http://chatsdk.co/downloads/android-video-messages/)
-- `chat_sdk_sticker_message` - [Available here](http://chatsdk.co/downloads/sticker-messages/)
-- `chat_sdk_read_receipts` - [Available here](http://chatsdk.co/downloads/read-receipts/)
-- `chat_sdk_typing_indicator` - [Available here](http://chatsdk.co/downloads/typing-indicator/)
-- `chat_sdk_contact_book` - [Available here](http://chatsdk.co/downloads/contact-book-integration/)
+- `chat-sdk-firebase-file-storage`
+- `chat-sdk-firebase-push`
+- `chat-sdk-firebase-social-login`
+- `chat-sdk-audio-message` - [Available here](http://chatsdk.co/downloads/audio-messages/)
+- `chat-sdk-video-message` - [Available here](http://chatsdk.co/downloads/android-video-messages/)
+- `chat-sdk-sticker-message` - [Available here](http://chatsdk.co/downloads/sticker-messages/)
+- `chat-sdk-read-receipts` - [Available here](http://chatsdk.co/downloads/read-receipts/)
+- `chat-sdk-typing-indicator` - [Available here](http://chatsdk.co/downloads/typing-indicator/)
+- `chat-sdk-contact-book` - [Available here](http://chatsdk.co/downloads/contact-book-integration/)
 
 Now import the modules in your `build.gradle` file. 
 
 ```
-compile project(path: ':chat_sdk_ui')
-compile project(path: ':chat_sdk_firebase_push')
+compile project(path: ':chat-sdk-ui')
+compile project(path: ':chat-sdk-firebase-push')
 ```
 
 At the end of this file, add the following:
@@ -405,13 +418,13 @@ Add the following to your `build.gradle`
 ##### Gradle
 
 ```
-Coming Soon!
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.0@aar'
 ```
 
 ##### Module Import
 
 ```
-compile project(path: ':chat_sdk_firebase_social_login')
+compile project(path: ':chat-sdk-firebase-social-login')
 ```
 
 In your main class `onCreate` method add:
@@ -487,13 +500,13 @@ Add the following to your `build.gradle`
 ##### Gradle
 
 ```
-Coming Soon!
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.0@aar'
 ```
 
 ##### Module Import
 
 ```
-compile project(path: ':chat_sdk_firebase_push')
+compile project(path: ':chat-sdk-firebase-push')
 ```
 
 In your main class `onCreate` method add:

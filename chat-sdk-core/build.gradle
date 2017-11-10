@@ -1,0 +1,88 @@
+apply plugin: 'com.android.library'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+    }
+}
+
+apply plugin: 'org.greenrobot.greendao'
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+}
+
+greendao {
+    schemaVersion 1
+    targetGenDir "src/main/java"
+    daoPackage "co.chatsdk.core.dao"
+}
+
+dependencies {
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    testCompile 'junit:junit:4.12'
+    compile 'org.greenrobot:greendao:3.2.2'
+    compile 'joda-time:joda-time:2.9.4'
+    compile 'com.jakewharton.timber:timber:4.3.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.google.android.gms:play-services:11.4.0'
+    compile 'id.zelory:compressor:2.0.0'
+}
+
+// Bintray upload properties
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+if(properties.getProperty('bintray.enabled') != null) {
+
+    group = CHAT_SDK_GROUP
+    version = CHAT_SDK_VERSION
+
+    ext {
+        bintrayRepo = BINTRAY_REPO
+        bintrayName = 'chat-sdk-core'
+        bintrayUserOrg = BINTRAY_USER_ORG
+
+        publishedGroupId = CHAT_SDK_GROUP
+        libraryName = 'ChatSDKCore'
+        artifact = 'chat-sdk-core'
+
+        libraryDescription = 'Chat SDK Core'
+
+        siteUrl = SITE_URL
+        gitUrl = GIT_URL
+
+        libraryVersion = CHAT_SDK_VERSION
+
+        developerId = DEVELOPER_ID
+        developerName = DEVELOPER_NAME
+        developerEmail = DEVELOPER_EMAIL
+
+        licenseName = LICENSE_NAME
+        licenseUrl = LICENSE_URL
+        allLicenses = ['GPL-3.0']
+    }
+
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
+}
+
+

@@ -1,0 +1,70 @@
+apply plugin: 'com.android.library'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':chat-sdk-core')
+
+    compile 'com.google.firebase:firebase-messaging:11.4.0'
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+}
+
+// Bintray upload properties
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+if(properties.getProperty('bintray.enabled') != null) {
+
+    group = CHAT_SDK_GROUP
+    version = CHAT_SDK_VERSION
+
+    ext {
+        bintrayRepo = BINTRAY_REPO
+        bintrayName = 'chat-sdk-firebase-push'
+        bintrayUserOrg = BINTRAY_USER_ORG
+
+        publishedGroupId = CHAT_SDK_GROUP
+        libraryName = 'ChatSDKFirebasePush'
+        artifact = 'chat-sdk-firebase-push'
+
+        libraryDescription = 'Chat SDK Firebase Push'
+
+        siteUrl = SITE_URL
+        gitUrl = GIT_URL
+
+        libraryVersion = CHAT_SDK_VERSION
+
+        developerId = DEVELOPER_ID
+        developerName = DEVELOPER_NAME
+        developerEmail = DEVELOPER_EMAIL
+
+        licenseName = LICENSE_NAME
+        licenseUrl = LICENSE_URL
+        allLicenses = ['GPL-3.0']
+    }
+
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
+}

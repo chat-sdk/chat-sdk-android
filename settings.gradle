@@ -1,3 +1,1 @@
-include ':app', ':chat_sdk_firebase_adapter', ':chat_sdk_ui', ':chat_sdk_core', ':chat_sdk_firebase_file_storage', ':chat_sdk_firebase_push', ':chat_sdk_firebase_social_login'
-
-project(":chat_sdk_core").name = "chat-core"
+include ':app', ':chat-sdk-firebase-adapter', ':chat-sdk-ui', ':chat-sdk-core', ':chat-sdk-firebase-file-storage', ':chat-sdk-firebase-push', ':chat-sdk-firebase-social-login'

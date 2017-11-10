@@ -75,10 +75,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:multidex:1.0.1'
-    compile project(path: ':chat_sdk_ui')
-    compile project(path: ':chat_sdk_firebase_adapter')
-    compile project(path: ':chat_sdk_firebase_push')
-    compile project(path: ':chat_sdk_firebase_file_storage')
+    compile project(path: ':chat-sdk-ui')
+    compile project(path: ':chat-sdk-firebase-adapter')
+    compile project(path: ':chat-sdk-firebase-push')
+    compile project(path: ':chat-sdk-firebase-file-storage')
 
 }
 
