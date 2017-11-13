@@ -19,7 +19,7 @@
             android:padding="2dp"
             android:textSize="20sp"
             android:layout_width="wrap_content"
-            android:layout_height="26dp"
+            android:layout_height="30dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:ellipsize="end"

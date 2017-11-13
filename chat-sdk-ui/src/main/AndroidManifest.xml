@@ -9,8 +9,7 @@
 
     <application
         android:allowBackup="true"
-        android:supportsRtl="true"
-        android:theme="@style/SdkTheme">
+        android:supportsRtl="true">
 
         <activity
             android:name="co.chatsdk.ui.login.LoginActivity"

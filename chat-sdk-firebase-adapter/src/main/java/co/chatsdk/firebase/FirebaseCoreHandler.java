@@ -141,7 +141,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void goOnline() {
-        final ValueEventListener listener = FirebasePaths.firebaseRef().child(".info/connected").addValueEventListener(new ValueEventListener() {
+        final ValueEventListener listener = FirebasePaths.firebaseRawRef().child(".info/connected").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue() != null) {

@@ -34,8 +34,7 @@ public class Configuration {
     public String googleWebClientKey;
 
     // Firebase
-    public String firebaseUrl;
-    public String firebaseRootPath;
+    public String firebaseRootPath = "default";
     public String firebaseStorageUrl;
     public String firebaseCloudMessagingServerKey;
 
@@ -96,10 +95,6 @@ public class Configuration {
         return customProperties.get(key);
     }
 
-    public String fullFirebasePath () {
-        return firebaseUrl + firebaseRootPath;
-    }
-
     public boolean twitterLoginEnabled () {
         return !StringChecker.isNullOrEmpty(twitterKey) && !StringChecker.isNullOrEmpty(twitterSecret) && twitterLoginEnabled;
     }
@@ -158,19 +153,24 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebase (String url, String rootPath, String storageUrl, String cloudMessagingServerKey) {
+        public Builder firebase (String rootPath, String cloudMessagingServerKey) {
 
-            if(!url.substring(url.length() - 1).equals('/')) {
-                url += "/";
-            }
             if(!rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
             }
 
-            config.firebaseUrl = url;
             config.firebaseRootPath = rootPath;
-            config.firebaseStorageUrl = storageUrl;
             config.firebaseCloudMessagingServerKey = cloudMessagingServerKey;
+            return this;
+        }
+
+        public Builder firebaseStorageURL (String firebaseStorage) {
+            config.firebaseStorageUrl = firebaseStorage;
+            return this;
+        }
+
+        public Builder firebaseRootPath (String rootPath) {
+            config.firebaseRootPath = rootPath;
             return this;
         }
 
@@ -369,10 +369,8 @@ public class Configuration {
                 );
 
                 firebase(
-                        appBundle.getString("firebase_url"),
-                        appBundle.getString("firebase_root_path"),
-                        appBundle.getString("firebase_storage_url"),
-                        appBundle.getString("firebase_cloud_messaging_server_key")
+                    appBundle.getString("firebase_root_path"),
+                    appBundle.getString("firebase_cloud_messaging_server_key")
                 );
 
                 String port = appBundle.getString("xmpp_port");

@@ -52,11 +52,11 @@ public class AppBackgroundMonitor {
             activityTransitionTimer.cancel();
         }
 
-        if(wasInBackground) {
+//        if(wasInBackground) {
             if(NM.auth().userAuthenticated()) {
                 NM.core().goOnline();
             }
-        }
+//        }
 
         wasInBackground = false;
     }

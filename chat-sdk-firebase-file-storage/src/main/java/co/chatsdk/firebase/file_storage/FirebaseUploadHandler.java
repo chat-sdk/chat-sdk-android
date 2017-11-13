@@ -13,6 +13,7 @@ import co.chatsdk.core.base.AbstractUploadHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -28,9 +29,14 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
             @Override
             public void subscribe(final ObservableEmitter<FileUploadResult> e) throws Exception {
 
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReferenceFromUrl(ChatSDK.config().firebaseStorageUrl);
-                StorageReference filesRef = storageRef.child("files");
+                FirebaseStorage storage = null;
+                if(!StringChecker.isNullOrEmpty(ChatSDK.config().firebaseStorageUrl)) {
+                    storage = FirebaseStorage.getInstance(ChatSDK.config().firebaseStorageUrl);
+                }
+                else {
+                    storage = FirebaseStorage.getInstance();
+                }
+                StorageReference filesRef = storage.getReference().child("files");
                 final String fullName = getUUID() + "_" + name;
                 StorageReference fileRef = filesRef.child(fullName);
 

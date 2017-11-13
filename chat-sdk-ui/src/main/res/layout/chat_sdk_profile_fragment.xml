@@ -66,8 +66,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/flag_ac" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/ivLocation"
@@ -77,8 +76,7 @@
             android:layout_marginTop="8dp"
             app:layout_goneMarginTop="0dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvStatus"
-            app:srcCompat="@drawable/icn_36_location" />
+            app:layout_constraintTop_toBottomOf="@+id/tvStatus" />
 
         <ImageView
             android:id="@+id/ivPhone"

@@ -10,11 +10,6 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 
@@ -40,21 +35,12 @@ public class FirebasePaths{
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main databse ref.*/
 
-    public static DatabaseReference firebaseRef () {
-        String path = ChatSDK.config().fullFirebasePath();
-        if (StringUtils.isBlank(path)) {
-            throw new NullPointerException("Please set the server url in Keys class");
-        }
-
-        return fb(path);
+    public static DatabaseReference firebaseRawRef() {
+        return FirebaseDatabase.getInstance().getReference();
     }
 
-    /** @return Firebase object for give url.*/
-    private static DatabaseReference fb (String url) {
-        if(!url.substring(url.length() - 1).equals('/')) {
-            url += "/";
-        }
-        return FirebaseDatabase.getInstance().getReferenceFromUrl(url);
+    public static DatabaseReference firebaseRef () {
+        return firebaseRawRef().child(ChatSDK.config().firebaseRootPath);
     }
 
     /* Users */
@@ -127,21 +113,6 @@ public class FirebasePaths{
         return firebaseRef().child(IndexPath);
     }
 
-    @Deprecated
-    public static Map<String, Object> getMap(String[] keys,  Object...values){
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        for (int i = 0 ; i < keys.length; i++){
-
-            // More values then keys entered.
-            if (i == values.length)
-                break;
-
-            map.put(keys[i], values[i]);
-        }
-
-        return map;
-    }
 
     public static PathBuilder userThreadsPath (String userID, String threadID) {
         return new PathBuilder(Keys.Users)
@@ -159,54 +130,4 @@ public class FirebasePaths{
 
     }
 
-//    public static int providerToInt(String provider){
-//        if (provider.equals(Keys.ProviderString.Password))
-//        {
-//            return Keys.ProviderInt.Password;
-//        }
-//        else if (provider.equals(Keys.ProviderString.Facebook))
-//        {
-//            return Keys.ProviderInt.Facebook;
-//        }
-//        else if (provider.equals(Keys.ProviderString.Google))
-//        {
-//            return Keys.ProviderInt.Google;
-//        }
-//        else if (provider.equals(Keys.ProviderString.Twitter))
-//        {
-//            return Keys.ProviderInt.Twitter;
-//        }
-//        else if (provider.equals(Keys.ProviderString.Anonymous))
-//        {
-//            return Keys.ProviderInt.Anonymous;
-//        }
-//        else if (provider.equals(Keys.ProviderString.Custom))
-//        {
-//            return Keys.ProviderInt.Custom;
-//        }
-//
-//        throw new IllegalArgumentException("No provider was found matching requested. Provider: " + provider);
-//    }
-
-//    public static String providerToString(int provider){
-//
-//        switch (provider){
-//            case Keys.ProviderInt.Password:
-//                return Keys.ProviderString.Password;
-//            case Keys.ProviderInt.Facebook:
-//                return Keys.ProviderString.Facebook;
-//            case Keys.ProviderInt.Google:
-//                return Keys.ProviderString.Google;
-//            case Keys.ProviderInt.Twitter:
-//                return Keys.ProviderString.Twitter;
-//            case Keys.ProviderInt.Anonymous:
-//                return Keys.ProviderString.Anonymous;
-//            case Keys.ProviderInt.Custom:
-//                return Keys.ProviderString.Custom;
-//
-//            default:
-//                /*return ProviderString.Password;*/
-//                throw new IllegalArgumentException("Np provider was found matching requested.");
-//        }
-//    }
 }

@@ -1,7 +1,5 @@
 package co.chatsdk.firebase;
 
-import android.content.Context;
-
 import co.chatsdk.core.session.NetworkManager;
 
 /**
@@ -9,7 +7,7 @@ import co.chatsdk.core.session.NetworkManager;
  */
 
 public class FirebaseModule {
-    public static void activate(Context context) {
+    public static void activate() {
         NetworkManager.shared().a = new FirebaseNetworkAdapter();
     }
 }
