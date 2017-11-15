@@ -99,15 +99,7 @@ There are three main branches in the project:
 - **dev** - the latest unstable version of the code 
 - **v3_final** - the legacy version of the project (no longer maintained)
 
-## Check out the Development Guide
-
-We've written a [comprehensive Development Guide](https://github.com/chat-sdk/docs) which is available in the docs repository. 
-
-If you thing that something is missing, you can post a new issue and we will update the guide. 
-
-We have a number of additional guides available on our [Wiki](https://github.com/chat-sdk/chat-sdk-android/wiki).
-
-## Setup Service
+### Setup Service
 
 We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
 
@@ -240,6 +232,20 @@ Add this to your `chat_sdk_firebase.xml` file:
 
 You can disable location messages using the `configurationBuilder.locationMessagesEnabled(false)
 ` option. 
+
+### Conclusion
+
+Congratulations! 🎉🎉 You've just turned your app into a fully featured instant messenger! Keep reading below to learn how to further customize the Chat SDK.
+
+# Next Steps
+
+## Check out the Development Guide
+
+We've written a [comprehensive Development Guide](https://github.com/chat-sdk/docs) which is available in the docs repository. 
+
+If you thing that something is missing, you can post a new issue and we will update the guide. 
+
+We have a number of additional guides available on our [Wiki](https://github.com/chat-sdk/chat-sdk-android/wiki).
 
 ## Configuration
 
