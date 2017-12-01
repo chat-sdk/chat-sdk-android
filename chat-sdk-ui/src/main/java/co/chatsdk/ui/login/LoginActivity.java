@@ -56,8 +56,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
 
-    private Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook;
-    private ImageView appIconImage;
+    protected Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook;
+    protected ImageView appIconImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,6 @@
 package co.chatsdk.firebase.push;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONObject;
@@ -29,6 +30,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import timber.log.Timber;
 
 /**
  * Created by ben on 9/1/17.
@@ -42,6 +44,8 @@ public class FirebasePushHandler implements PushHandler {
 
     public FirebasePushHandler (TokenPusher pusher) {
         this.pusher = pusher;
+
+        token = FirebaseInstanceId.getInstance().getToken();
 
         Hook authHook = new Hook(new Hook.Executor() {
             @Override
@@ -133,6 +137,8 @@ public class FirebasePushHandler implements PushHandler {
                         .post(body).build();
 
                 Response response = client.newCall(request).execute();
+
+                Timber.v("Push response: " + response.toString());
 
                 e.onComplete();
             }

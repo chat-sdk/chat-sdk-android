@@ -264,15 +264,17 @@ public class EditProfileActivity extends BaseActivity {
         boolean imageChanged = false;
         boolean presenceChanged = false;
 
-        Iterator<String> i = currentUser.metaMap().keySet().iterator();
+        Map<String, Object> metaMap = currentUser.metaMap();
+
+        Iterator<String> i = metaMap.keySet().iterator();
         while (i.hasNext()) {
             String key = i.next();
             if(key.equals(Keys.AvatarURL)) {
-                imageChanged = valueChanged(currentUser.metaMap(), userMeta, key);
+                imageChanged = valueChanged(metaMap, userMeta, key);
                 currentUser.setAvatarHash(null);
             }
             if(key.equals(Keys.Availability) || key.equals(Keys.Status)) {
-                presenceChanged = presenceChanged || valueChanged(currentUser.metaMap(), userMeta, key);
+                presenceChanged = presenceChanged || valueChanged(metaMap, userMeta, key);
             }
         }
 
@@ -289,19 +291,37 @@ public class EditProfileActivity extends BaseActivity {
 //        }
 //        else if (changed) {
 
+        final Runnable finished = new Runnable() {
+            @Override
+            public void run() {
+                View v = getCurrentFocus();
+                if(v instanceof EditText) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+
+                finish();
+            }
+        };
+
+
         if(changed) {
+
+            showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
+
             NM.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe();
+                    .subscribe(new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            dismissProgressDialog();
+                            finished.run();
+                        }
+                    });
         }
-
-        View v = getCurrentFocus();
-        if(v instanceof EditText) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        else {
+            finished.run();
         }
-
-        finish();
     }
 
     private boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {

@@ -84,7 +84,7 @@ public class ProfileActivity extends BaseActivity {
         // TODO: Localize
         showProgressDialog("Creating Thread");
 
-        NM.thread().createThread(user.getName(), user, NM.currentUser())
+        NM.thread().createThread("", user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(new Action() {
                     @Override

@@ -1,11 +1,7 @@
 package co.chatsdk.firebase;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -302,53 +298,56 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
         if (message.getThread().typeIs(ThreadType.Private)) {
 
-            // Loading the message from firebase to get the timestamp from server.
-            DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
-                    .child(FirebasePaths.MessagesPath)
-                    .child(message.getEntityID());
+            NM.push().pushToUsers(message.getThread().getUsers(), message);
 
-            firebase.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    Long date = null;
-                    try {
-                        date = (Long) snapshot.child(Keys.Date).getValue();
-                    } catch (ClassCastException e) {
-                        date = (((Double)snapshot.child(Keys.Date).getValue()).longValue());
-                    }
-                    finally {
-                        if (date != null)
-                        {
-                            message.setDate(new DateTime(date));
-                            DaoCore.updateEntity(message);
-                        }
-                    }
 
-                    // If we failed to get date dont push.
-                    if (message.getDate()==null)
-                        return;
-
-                    User currentUser = NM.currentUser();
-                    List<User> users = new ArrayList<User>();
-
-                    for (User user : message.getThread().getUsers())
-                        if (!user.equals(currentUser))
-                            if (!user.equals(currentUser)) {
-                                // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
-                                // sends push notification regardless of receiver online status
-                                // TODO: add observer to online status
-                                // if (user.getOnline() == null || !user.getOnline())
-                                users.add(user);
-                            }
-
-                    pushToUsers(message, users);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError firebaseError) {
-
-                }
-            });
+//            // Loading the message from firebase to get the timestamp from server.
+//            DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
+//                    .child(FirebasePaths.MessagesPath)
+//                    .child(message.getEntityID());
+//
+//            firebase.addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(DataSnapshot snapshot) {
+//                    Long date = null;
+//                    try {
+//                        date = (Long) snapshot.child(Keys.Date).getValue();
+//                    } catch (ClassCastException e) {
+//                        date = (((Double)snapshot.child(Keys.Date).getValue()).longValue());
+//                    }
+//                    finally {
+//                        if (date != null)
+//                        {
+//                            message.setDate(new DateTime(date));
+//                            DaoCore.updateEntity(message);
+//                        }
+//                    }
+//
+//                    // If we failed to get date dont push.
+//                    if (message.getDate()==null)
+//                        return;
+//
+//                    User currentUser = NM.currentUser();
+//                    List<User> users = new ArrayList<User>();
+//
+//                    for (User user : message.getThread().getUsers())
+//                        if (!user.equals(currentUser))
+//                            if (!user.equals(currentUser)) {
+//                                // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
+//                                // sends push notification regardless of receiver online status
+//                                // TODO: add observer to online status
+//                                // if (user.getOnline() == null || !user.getOnline())
+//                                users.add(user);
+//                            }
+//
+//                    pushToUsers(message, users);
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError firebaseError) {
+//
+//                }
+//            });
         }
     }
 
@@ -370,6 +369,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
         String sender = message.getSender().getName();
         String fullText = sender + " " + messageText;
+
+        HashMap<String, String> data = new HashMap<>();
+
+        data.put("content", fullText);
 
 //        JSONObject data = new JSONObject();
 //        try {
@@ -393,7 +396,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 //        }
 
         // TODO: Check this
-        //NM.push().pushToChannels(channels, data);
+        NM.push().pushToChannels(channels, data);
     }
 
     public Completable leaveThread (Thread thread) {

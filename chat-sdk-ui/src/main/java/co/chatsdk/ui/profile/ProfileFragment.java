@@ -157,6 +157,13 @@ public class ProfileFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+//        updateInterface();
+    }
+
     public void updateInterface() {
 
         User user = getUser();
@@ -298,7 +305,7 @@ public class ProfileFragment extends BaseFragment {
         String availability = getUser().getAvailability();
 
         // Availability
-        if(availability != null) {
+        if(availability != null && !isCurrentUser) {
             availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
             availabilityImageView.setVisibility(View.VISIBLE);
         }

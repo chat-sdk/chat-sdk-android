@@ -21,7 +21,7 @@ public class Configuration {
     public WeakReference<Context> context;
 
     // Testing
-    public boolean debug = false;
+    public boolean debug = true;
     public String debugUsername = null;
     public String debugPassword = null;
 
@@ -43,7 +43,7 @@ public class Configuration {
     public String xmppHostAddress;
     public int xmppPort;
     public String xmppSearchService;
-    public String xmppResource;
+    public String xmppResource = "Android";
     public boolean xmppSslEnabled;
     public boolean xmppAcceptAllCertificates;
     public boolean xmppDisableHostNameVerification;
@@ -113,7 +113,6 @@ public class Configuration {
 
         public Builder (Context context) {
             config = new Configuration();
-            configureFromManifest(context);
             config.context = new WeakReference<>(context);
         }
 
@@ -155,7 +154,7 @@ public class Configuration {
 
         public Builder firebase (String rootPath, String cloudMessagingServerKey) {
 
-            if(!rootPath.substring(rootPath.length() - 1).equals('/')) {
+            if(rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
             }
 

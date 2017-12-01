@@ -337,7 +337,7 @@ public class User implements CoreEntity, UserListItem {
         map.put(key, value);
         
         setMetaMap(map);
-        DaoCore.updateEntity(this);
+        update();
     }
 
     /**

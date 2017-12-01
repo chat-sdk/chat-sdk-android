@@ -7,6 +7,8 @@
 
 package co.chatsdk.ui.chat;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -37,8 +39,9 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.manager.InterfaceManager;
+import timber.log.Timber;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
 
@@ -196,6 +199,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         holder.extraLayout.setAlpha(alpha);
 
         holder.avatarImageView.setImageURI(messageItem.getMessage().getSender().getAvatarURL());
+
+        Bitmap profilePic = BitmapFactory.decodeFile(messageItem.getMessage().getSender().getAvatarURL());
+        Timber.v("TODO: " + messageItem.getMessage().getSender().getAvatarURL());
 
         updateReadStatus(holder, messageItem.message);
     }
