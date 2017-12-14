@@ -18,6 +18,7 @@ import co.chatsdk.ui.manager.InterfaceManager;
 public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
 
     private AlertDialog dialog;
+    private boolean hasExecuted = false;
 
     public DialogChatOptionsHandler(ChatOptionsDelegate delegate) {
         super(delegate);
@@ -36,11 +37,16 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
             items[i++] = option.getTitle();
         }
 
+        hasExecuted = false;
+
         // TODO: Localize
         builder.setTitle("Actions").setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                executeOption(options.get(i));
+                if(!hasExecuted) {
+                    executeOption(options.get(i));
+                }
+                hasExecuted = true;
             }
         });
 

@@ -830,11 +830,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void showOptions() {
-        if(optionsHandler == null) {
-            Timber.v("Selector Activity: " + this.toString());
-            optionsHandler = InterfaceManager.shared().a.getChatOptionsHandler(this);
-        }
-        optionsHandler.show(this);
+       optionsHandler = InterfaceManager.shared().a.getChatOptionsHandler(this);
+       optionsHandler.show(this);
     }
 
     @Override

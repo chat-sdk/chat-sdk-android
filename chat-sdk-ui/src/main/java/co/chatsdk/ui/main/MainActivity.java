@@ -10,11 +10,10 @@ package co.chatsdk.ui.main;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.astuetz.PagerSlidingTabStrip;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,8 +40,8 @@ import io.reactivex.functions.Consumer;
 public class MainActivity extends BaseActivity {
 
     private ExitHelper exitHelper;
-    private PagerSlidingTabStrip tabs;
-    private ViewPager pager;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
     protected PagerAdapterTabs adapter;
     private OpenFromPushChecker mOpenFromPushChecker;
 
@@ -154,7 +153,7 @@ public class MainActivity extends BaseActivity {
                         if(networkEvent.message != null) {
                             if(!networkEvent.message.getSender().isMe()) {
                                 // Only show the alert if we'recyclerView not on the private threads tab
-                                if(!(adapter.getTabs().get(pager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
+                                if(!(adapter.getTabs().get(viewPager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
                                     NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
                                 }
                             }
@@ -205,38 +204,61 @@ public class MainActivity extends BaseActivity {
 
     private void initViews() {
 
-        pager = (ViewPager) findViewById(R.id.pager);
+        viewPager = (ViewPager) findViewById(R.id.pager);
 
-        tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         // Only creates the adapter if it wasn't initiated already
         if (adapter == null) {
             adapter = new PagerAdapterTabs(getSupportFragmentManager());
         }
 
-        pager.setAdapter(adapter);
+        for (Tab tab : adapter.getTabs()) {
+            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
+        }
 
-        tabs.setViewPager(pager);
+        viewPager.setAdapter(adapter);
 
-        // TODO: Check this - whenever we change tabs, we set the user online
-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
             }
 
             @Override
-            public void onPageSelected(int position) {
-                NM.core().setUserOnline();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
 
-        pager.setOffscreenPageLimit(3);
+//        tabLayout.setViewPager(viewPager);
+//
+//        // TODO: Check this - whenever we change tabLayout, we set the user online
+//        tabLayout.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                NM.core().setUserOnline();
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
+
+        viewPager.setOffscreenPageLimit(3);
 
 
     }

@@ -71,9 +71,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                             }
 
                         }
-                        else {
-                            e.onComplete();
-                        }
+                        e.onComplete();
                     }
 
                     @Override

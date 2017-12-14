@@ -1,7 +1,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="ChatSDKTheme" parent="@style/Theme.AppCompat.Light">
+    <style name="ChatSDKTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:actionBarStyle">@style/ActionBarStyle</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/white</item>
@@ -83,15 +83,6 @@
         <item name="android:background">@null</item>
         <item name="android:textColor">@color/chat_sdk_option_button_text_color_selector</item>
         <item name="android:layout_gravity">center_horizontal</item>
-    </style>
-
-    <!--View Pager-->
-    <style name="TabSlidingPager" >
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="pstsShouldExpand">true</item>
-        <item name="pstsIndicatorColor">@color/sdkPrimary</item>
-        <item name="background">@drawable/background_tab</item>
     </style>
 
     <style name="ImagePopupAnimation">

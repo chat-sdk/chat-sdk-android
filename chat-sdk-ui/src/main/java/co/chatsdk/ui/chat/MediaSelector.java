@@ -117,7 +117,7 @@ public class MediaSelector {
 
     private void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
 
-        if (resultCode == Crop.RESULT_ERROR) {
+        if (resultCode == Crop.RESULT_ERROR || resultCode == AppCompatActivity.RESULT_CANCELED) {
             throw new Exception();
         }
 

@@ -44,13 +44,13 @@ dependencies {
     compile "com.android.support:support-v4:" + project.ANDROID_SUPPORT_VERSION
     compile "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
     compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
+    compile "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
 
     // Seems to be an issue with Android Studio... Not actually a problem
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'id.zelory:compressor:2.0.0'
     compile 'com.soundcloud.android:android-crop:1.0.1@aar'
     compile 'com.facebook.fresco:fresco:1.5.0'

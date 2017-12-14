@@ -8,3 +8,8 @@
 - Brought architecture up to date with iOS
 - Made the project more modular
 - Upgraded all project dependencies
+
+## v4.0.7
+
+- Multiple bug fixes
+- Removed PagerSlidingTabBar in favor of native TabLayout 

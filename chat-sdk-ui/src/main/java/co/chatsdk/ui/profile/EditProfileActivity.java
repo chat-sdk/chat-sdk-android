@@ -264,9 +264,11 @@ public class EditProfileActivity extends BaseActivity {
         boolean imageChanged = false;
         boolean presenceChanged = false;
 
-        Map<String, Object> metaMap = currentUser.metaMap();
+        Map<String, Object> metaMap = new HashMap(currentUser.metaMap());
 
         Iterator<String> i = metaMap.keySet().iterator();
+
+        // Add a synchronized block to prevent concurrent modification exceptions
         while (i.hasNext()) {
             String key = i.next();
             if(key.equals(Keys.AvatarURL)) {

@@ -282,9 +282,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public ChatOptionsHandler getChatOptionsHandler(ChatOptionsDelegate delegate) {
-        if(chatOptionsHandler == null) {
-            chatOptionsHandler = new DialogChatOptionsHandler(delegate);
-        }
+        chatOptionsHandler = new DialogChatOptionsHandler(delegate);
         chatOptionsHandler.setDelegate(delegate);
         return chatOptionsHandler;
     }

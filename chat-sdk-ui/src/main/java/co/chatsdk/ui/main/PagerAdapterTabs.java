@@ -10,19 +10,17 @@ package co.chatsdk.ui.main;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-
-import com.astuetz.PagerSlidingTabStrip;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.core.Tab;
+import co.chatsdk.ui.manager.InterfaceManager;
 
 /**
  * Created by itzik on 6/16/2014.
  */
-public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
+public class PagerAdapterTabs extends FragmentStatePagerAdapter {
 
     protected List<Tab> tabs;
 
@@ -50,8 +48,4 @@ public class PagerAdapterTabs extends FragmentPagerAdapter implements PagerSlidi
         return tabs.get(position).fragment;
     }
 
-    @Override
-    public int getPageIconResId(int position) {
-        return tabs.get(position).icon;
-    }
 }

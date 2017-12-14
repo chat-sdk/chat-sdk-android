@@ -8,7 +8,9 @@
     android:layout_height="wrap_content">
 
     <View
-        android:layout_width="5dp"
+        android:layout_width="2dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_height="match_parent"
         android:id="@+id/chat_sdk_indicator"
         android:background="@color/sdkOrange"/>
