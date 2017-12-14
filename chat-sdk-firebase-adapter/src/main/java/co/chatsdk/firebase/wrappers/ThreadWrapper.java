@@ -74,6 +74,7 @@ public class ThreadWrapper  {
             @Override
             public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
 
+
                 DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
                 if (FirebaseReferenceManager.shared().isOn(detailsRef)) {

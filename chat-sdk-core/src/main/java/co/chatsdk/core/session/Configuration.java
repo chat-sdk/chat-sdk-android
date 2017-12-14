@@ -377,7 +377,7 @@ public class Configuration {
                 xmpp(
                         appBundle.getString("xmpp_domain"),
                         appBundle.getString("xmpp_host_address"),
-                        port != null ? Integer.valueOf(port) : 0,
+                        port != null && !port.isEmpty()? Integer.valueOf(port) : 5222,
                         appBundle.getString("xmpp_search_service"),
                         appBundle.getString("xmpp_resource")
                 );
