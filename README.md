@@ -76,6 +76,7 @@ Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) 
 
 ## Apps that use Chat SDK
 
++ [CryptoFolio](https://play.google.com/store/apps/details?id=com.happycoderz.cryptofolio)
 + [Parlor](http://parlor.me/)
 + [Voice - Instant Messaging App](https://play.google.com/store/apps/details?id=com.skintmedia.voice&hl=en_GB)
 + [Nex Tv Latino](https://play.google.com/store/apps/details?id=com.helpdevs.nexttv)
