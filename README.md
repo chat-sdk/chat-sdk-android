@@ -124,10 +124,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.8'
 ```
 
 You can also add the [modules manually](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually) by downloading source code and importing the modules to Android Studio. 
@@ -309,7 +309,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -395,7 +395,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
