@@ -163,7 +163,7 @@ public class NotificationUtils {
     public static void createMessageNotification(final Context context, final int id, Message message, final int smallIconResID, final Uri soundUri, final int number){
 
         final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID,  message.getThreadId());
+        resultIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID,  message.getThread().getEntityID());
         resultIntent.putExtra(Defines.FROM_PUSH, true);
         resultIntent.putExtra(Defines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
 

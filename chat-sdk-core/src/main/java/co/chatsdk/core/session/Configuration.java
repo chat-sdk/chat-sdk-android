@@ -75,7 +75,7 @@ public class Configuration {
     public int maxMessagesToLoad = 30;
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
-    public int imageMaxThumbnailDimension = 600;
+    public int imageMaxThumbnailDimension = 400;
     public int maxInboxNotificationLines = 7;
     public boolean imageCroppingEnabled = true;
 

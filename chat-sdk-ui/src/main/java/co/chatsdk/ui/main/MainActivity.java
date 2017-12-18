@@ -191,7 +191,9 @@ public class MainActivity extends BaseActivity {
 
         if (mOpenFromPushChecker.checkOnNewIntent(intent)) {
             String threadEntityID = intent.getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-            InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
+            if(threadEntityID != null) {
+                InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
+            }
         }
     }
 

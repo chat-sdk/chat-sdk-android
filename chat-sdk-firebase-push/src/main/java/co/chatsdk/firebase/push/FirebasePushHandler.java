@@ -163,6 +163,10 @@ public class FirebasePushHandler implements PushHandler {
         HashMap<String, String> data = new HashMap<>();
         data.put("body", text);
         data.put("title", message.getSender().getName());
+        data.put("badge", "1");
+
+        data.put("chat_sdk_thread_entity_id", message.getThread().getEntityID());
+        data.put("chat_sdk_user_entity_id", message.getSender().getEntityID());
 
         pushToChannels(channels, data);
 

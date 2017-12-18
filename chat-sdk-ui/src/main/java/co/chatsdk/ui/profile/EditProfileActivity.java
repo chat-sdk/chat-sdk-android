@@ -2,6 +2,8 @@ package co.chatsdk.ui.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,6 +34,7 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
@@ -119,8 +122,13 @@ public class EditProfileActivity extends BaseActivity {
                                     .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
                                     .compressToFile(new File(result));
 
-                            avatarImageView.setImageURI(Uri.fromFile(compress));
-                            currentUser.setAvatarURL(compress.getAbsolutePath());
+                            Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
+
+                            // Cache the file
+                            File file = ImageUtils.saveImageToCache(ChatSDK.shared().context(), bitmap, NM.currentUser().getEntityID());
+
+                            avatarImageView.setImageURI(Uri.fromFile(file));
+                            currentUser.setAvatarURL(Uri.fromFile(file).toString());
                         }
                         catch (Exception e) {
                             e.printStackTrace();

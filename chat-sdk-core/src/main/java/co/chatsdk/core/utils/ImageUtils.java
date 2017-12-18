@@ -71,8 +71,10 @@ public class ImageUtils {
         }
 
         if(!name.contains(".png")) {
-            name += ".png";
+            name += UUID.randomUUID() + ".png";
         }
+
+        name = name.replace("@", "_");
 
         File file = new File(cache, name);
 
