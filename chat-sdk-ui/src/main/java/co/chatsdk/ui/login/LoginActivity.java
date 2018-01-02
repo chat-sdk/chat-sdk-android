@@ -63,7 +63,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.chat_sdk_activty_login);
+        setContentView(R.layout.chat_sdk_activity_login);
 
         setExitOnBackPressed(true);
 

@@ -291,6 +291,7 @@ For the following modules:
 - Firebase File Storage (free)
 - Firebase Push Notifications (free)
 - Firebase Social Login (free)
+- Fireabse UI (free)
 - [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
 - [Read receipts](http://chatsdk.co/downloads/read-receipts/)
 - [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
@@ -299,6 +300,40 @@ For the following modules:
 - [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
 
 The free modules are located in the main [Github repository](https://github.com/chat-sdk/chat-sdk-android). The premium modules can be purchased and downloaded from the links provided above. 
+
+### Firebase UI
+
+##### Add the library
+
+Add the following to your `build.gradle`
+
+```
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.0.8'
+```
+
+##### Enable the module
+
+Add the following to the end of your `onCreate` method:
+
+```
+FirebaseUIModule.activate(context, AuthUI.EMAIL_PROVIDER, AuthUI.PHONE_VERIFICATION_PROVIDER);
+```
+
+Add this to your `AndroidManifest.xml`
+
+```
+<activity android:name="co.chatsdk.firebase.ui.FirebaseUIActivity">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+```
+
+You can provide a list of providers as outlined in the [Firebase documentation](https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#sign-in-examples). 
+
+>**Note**
+>You will need to remove the `com.facebook.sdk.ApplicationId` meta data from the app manifest or you will get a Gradle build error. 
 
 ### Social Login
 
@@ -335,13 +370,13 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
 5. Add the following to your `AndroidManifest.xml`:
 
   ```
-  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_identifier"/>
   ``` 
   
   Add the following to your `chat_sdk_firebase.xml` file:
   
   ```
-  <string name="facebook_app_id">[FACEBOOK APP KEY]</string>
+  <string name="facebook_app_identifier">[FACEBOOK APP KEY]</string>
   ```
 
 #### Twitter

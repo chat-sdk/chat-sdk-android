@@ -11,8 +11,7 @@
         android:allowBackup="true"
         android:supportsRtl="true">
 
-        <activity
-            android:name="co.chatsdk.ui.login.LoginActivity"
+        <activity android:name="co.chatsdk.ui.login.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SdkTheme">
         </activity>

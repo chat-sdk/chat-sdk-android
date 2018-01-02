@@ -20,53 +20,30 @@ android {
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        resConfigs "auto"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            minifyEnabled false
-            proguardFile 'proguard-rules.txt'
-            zipAlignEnabled true
-            debuggable true
-            jniDebuggable true
-        }
-    }
-
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
     }
 }
 
 dependencies {
-
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-//    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
-    compile 'com.facebook.android:facebook-login:[4,5)'
+    compile project(':chat-sdk-core')
+    compile project(':chat-sdk-ui')
+    compile project(':chat-sdk-firebase-adapter')
 
+    compile 'com.firebaseui:firebase-ui-auth:3.1.0'
+    compile 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
-
-    compile('com.twitter.sdk.android:twitter:3.1.1')
-//            {
-//        transitive = true
-//    }
-
-    compile project(path: ':chat-sdk-firebase-adapter')
-    compile project(path: ':chat-sdk-core')
-    compile project(path: ':chat-sdk-ui')
 
 }
 
-// Bintray upload properties
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 if(properties.getProperty('bintray.enabled') != null) {
@@ -76,14 +53,14 @@ if(properties.getProperty('bintray.enabled') != null) {
 
     ext {
         bintrayRepo = BINTRAY_REPO
-        bintrayName = 'chat-sdk-firebase-social-login'
+        bintrayName = 'chat-sdk-firebase-ui'
         bintrayUserOrg = BINTRAY_USER_ORG
 
         publishedGroupId = CHAT_SDK_GROUP
-        libraryName = 'ChatSDKFirebaseSocialLogin'
-        artifact = 'chat-sdk-firebase-social-login'
+        libraryName = 'ChatSDKFirebaseUI'
+        artifact = 'chat-sdk-firebase-ui'
 
-        libraryDescription = 'Chat SDK Firebase Social Login'
+        libraryDescription = 'Chat SDK Firebase UI'
 
         siteUrl = SITE_URL
         gitUrl = GIT_URL
@@ -102,5 +79,3 @@ if(properties.getProperty('bintray.enabled') != null) {
     apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
     apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
 }
-
-

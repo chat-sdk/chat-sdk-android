@@ -80,6 +80,7 @@ dependencies {
     compile project(path: ':chat-sdk-firebase-push')
     compile project(path: ':chat-sdk-firebase-file-storage')
 
+    compile project(path: ':chat-sdk-firebase-ui')
 }
 
 apply plugin: 'com.google.gms.google-services'

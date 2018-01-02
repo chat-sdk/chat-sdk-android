@@ -28,8 +28,7 @@
         <meta-data android:name="contact_book_invite_contact_email_subject" android:value="@string/contact_book_email_subject" />
         <meta-data android:name="contact_book_invite_contact_email_body" android:value="@string/contact_book_email_body" />
         <meta-data android:name="contact_book_invite_contact_sms_body" android:value="@string/contact_book_sms_body" />
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_identifier"/>
 
     </application>
 
