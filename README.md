@@ -37,12 +37,15 @@ The user interface has seen a major update. We have improved the chat view as we
 - Private and group messages
 - Public chat rooms
 - Username / password, Facebook, Twitter, Anonymous and custom login
-- Push notifications
+- Phone number authentication
+- Push notifications (using FCM)
 - Text, Image and Location messages
 - User profiles
 - User search
 - Powered by Firebase
-- Cross Platform - [iOS](https://github.com/chat-sdk/chat-sdk-ios), [Web](https://github.com/chat-sdk/chat-sdk-web)
+- Firebase UI
+- [Android Version](https://github.com/chat-sdk/chat-sdk-android)
+- [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
 ## Modules
 
