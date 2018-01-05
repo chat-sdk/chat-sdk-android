@@ -451,17 +451,11 @@ FirebasePushModule.activateForFirebase();
 ```
 
 3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
-4. Add the following to your `AndroidManifest.xml`:
+4. Add the following to the setup code in the apps' main `onCreate` method.
 
-  ```
-  <meta-data android:name="cloud_messaging_server_key" android:value="@string/firebase_cloud_messaging_server_key" />
-  ``` 
-  
-  Add the following to your `chat_sdk_firebase.xml` file:
-  
-  ```
-  <string name="firebase_cloud_messaging_server_key">[SERVER KEY]</string>
-  ```
+   ```
+   builder.firebase("your_root_path", "cloud_messaging_server_key");
+   ```
   
 ### Other Modules
 

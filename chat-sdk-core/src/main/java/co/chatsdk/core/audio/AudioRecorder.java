@@ -29,7 +29,7 @@ public class AudioRecorder {
 
         stopRecording();
 
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + File.separator + AudioMessageDirectory + File.separator;
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + AudioMessageDirectory + File.separator;
 
         File file = new File(path);
         file.mkdir();
