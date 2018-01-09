@@ -167,7 +167,9 @@ public class ThreadWrapper  {
                     return;
                 }
 
-                threadDeletedDate().subscribe(new Consumer<Long>() {
+                threadDeletedDate()
+                        .subscribeOn(Schedulers.single())
+                        .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long deletedTimestamp) throws Exception {
 
@@ -305,22 +307,18 @@ public class ThreadWrapper  {
                         .child(user.getEntityID())
                         .child(Keys.Deleted);;
 
-                currentThreadUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.getValue() != null) {
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if(hasValue) {
                             e.onSuccess((Long) snapshot.getValue());
                         }
                         else {
                             e.onSuccess(Long.valueOf(-1));
                         }
                     }
+                }));
 
-                    @Override
-                    public void onCancelled(DatabaseError firebaseError) {
-                        e.onSuccess(null);
-                    }
-                });
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -417,11 +415,10 @@ public class ThreadWrapper  {
                             .endAt(endDate.getTime() - 1)
                             .limitToLast(numberOfMessages + 1);
 
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    query.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
                         @Override
-                        public void onDataChange(DataSnapshot snapshot) {
-                            if (snapshot.getValue() != null) {
-
+                        public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                            if(hasValue) {
                                 List<Message> messages = new ArrayList<Message>();
 
                                 MessageWrapper message;
@@ -438,17 +435,11 @@ public class ThreadWrapper  {
                                 }
                                 e.onSuccess(messages);
                             }
-                            else
-                            {
+                            else {
                                 e.onSuccess(new ArrayList<Message>());
                             }
                         }
-
-                        @Override
-                        public void onCancelled(DatabaseError firebaseError) {
-                            e.onError(firebaseError.toException());
-                        }
-                    });
+                    }));
                 }
             }
         }).subscribeOn(Schedulers.single());

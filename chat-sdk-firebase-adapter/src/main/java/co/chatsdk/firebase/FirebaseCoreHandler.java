@@ -38,8 +38,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
-
 /**
  * Created by benjaminsmiley-andrews on 02/05/2017.
  */
@@ -182,20 +180,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     return;
                 }
 
-                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new ValueEventListener() {
+                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         disposableList.add(updateLastOnline().subscribe());
-
                         e.onSuccess((Boolean) snapshot.getValue());
                     }
+                }));
 
-                    @Override
-                    public void onCancelled(DatabaseError firebaseError) {
-                        e.onError(getFirebaseError(firebaseError));
-                    }
-                });
             }
         }).subscribeOn(Schedulers.single());
     }

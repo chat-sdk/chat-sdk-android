@@ -234,7 +234,7 @@ public class FirebaseEventHandler implements EventHandler {
                 }
                 e.onComplete();
             }
-        }).observeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.single());
     }
 
     public void userOff(final String entityID){

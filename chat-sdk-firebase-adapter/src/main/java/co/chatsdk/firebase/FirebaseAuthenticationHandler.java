@@ -1,5 +1,6 @@
 package co.chatsdk.firebase;
 
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -94,13 +95,18 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 OnCompleteListener<AuthResult> resultHandler = new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull final Task<AuthResult> task) {
-                        if(task.isComplete() && task.isSuccessful()) {
-                            e.onSuccess(task.getResult().getUser());
-                        }
-                        else {
-                            task.getException().printStackTrace();
-                            e.onError(task.getException());
-                        }
+                        AsyncTask.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(task.isComplete() && task.isSuccessful()) {
+                                    e.onSuccess(task.getResult().getUser());
+                                }
+                                else {
+                                    task.getException().printStackTrace();
+                                    e.onError(task.getException());
+                                }
+                            }
+                        });
                     }
                 };
 

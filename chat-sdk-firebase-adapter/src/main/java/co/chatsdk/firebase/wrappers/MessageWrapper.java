@@ -18,11 +18,11 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEntity;
@@ -33,7 +33,6 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 public class MessageWrapper  {
 
@@ -103,7 +102,7 @@ public class MessageWrapper  {
     @SuppressWarnings("all") void deserialize(DataSnapshot snapshot) {
 
         Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-        if (DEBUG) Timber.v("deserialize, Value: %s", value);
+        //if (DEBUG) Timber.v("deserialize, Value: %s", value);
         if (value == null) return;
 
         String json = string(value, Keys.JSON);

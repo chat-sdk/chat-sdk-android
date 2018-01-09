@@ -35,6 +35,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseEntity;
+import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
@@ -173,18 +174,15 @@ public class UserWrapper {
 
                 final DatabaseReference ref = ref();
 
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                ref.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        deserialize((Map<String, Object>) snapshot.getValue());
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if(hasValue) {
+                            deserialize((Map<String, Object>) snapshot.getValue());
+                        }
                         e.onComplete();
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError firebaseError) {
-//                        e.onError(firebaseError.toException());
-                    }
-                });
+                }));
 
             }
         }).subscribeOn(Schedulers.single());

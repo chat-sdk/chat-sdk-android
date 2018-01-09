@@ -202,7 +202,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
     }
 
-    protected void initViews() {
+    protected void initViews () {
 
         setContentView(R.layout.chat_sdk_activity_chat);
 
@@ -211,7 +211,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(NM.audioMessage() != null);
 
-        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
+        progressBar = findViewById(R.id.chat_sdk_progressbar);
 
         final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.ptr_layout);
 

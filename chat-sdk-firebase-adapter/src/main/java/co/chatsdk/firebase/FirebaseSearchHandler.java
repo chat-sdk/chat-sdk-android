@@ -1,9 +1,7 @@
 package co.chatsdk.firebase;
 
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,15 +42,15 @@ public class FirebaseSearchHandler implements SearchHandler {
                         .startAt(value)
                         .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
 
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                query.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.getValue() != null) {
-                            Object valueObject = dataSnapshot.getValue();
-                            if(valueObject instanceof HashMap) {
-                                for(Object key : ((HashMap)valueObject).keySet()) {
-                                    if(key instanceof String) {
-                                        DataSnapshot userSnapshot = dataSnapshot.child((String) key);
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if (hasValue) {
+                            Object valueObject = snapshot.getValue();
+                            if (valueObject instanceof HashMap) {
+                                for (Object key : ((HashMap) valueObject).keySet()) {
+                                    if (key instanceof String) {
+                                        DataSnapshot userSnapshot = snapshot.child((String) key);
 
                                         if (userSnapshot.hasChild(Keys.Meta)) {
                                             DataSnapshot meta = userSnapshot.child(Keys.Meta);
@@ -69,16 +67,9 @@ public class FirebaseSearchHandler implements SearchHandler {
                                     }
                                 }
                             }
-
                         }
-                        e.onComplete();
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                }));
 
 //                final ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
 //                    @Override
