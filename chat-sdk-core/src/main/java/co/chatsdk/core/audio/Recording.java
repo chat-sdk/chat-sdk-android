@@ -2,6 +2,14 @@ package co.chatsdk.core.audio;
 
 import java.io.File;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 
 /**
  * Created by ben on 9/28/17.
@@ -12,7 +20,8 @@ public class Recording {
     private String name;
     public static String AudioMessagePrefix = "Audio_";
     private File file;
-
+    private boolean isRecording;
+    private Disposable delayStartDisposable;
 
     private int durationMillis;
 
@@ -35,12 +44,47 @@ public class Recording {
         mimeType = "audio/mp4";
     }
 
-    public void start () {
+    // When we start, we need to start a timer to check that the user doesn't stop the recording too quickly
+    public Completable start () {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
+                Completable timer = Completable.timer(200, TimeUnit.MILLISECONDS);
+                delayStartDisposable = timer.subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        startRecording();
+                        e.onComplete();
+                    }
+                });
+            }
+        });
+    }
+
+    private void startRecording () {
+        delayStartDisposable = null;
         file = AudioRecorder.shared().record(name);
     }
 
     public void stop () {
-        durationMillis = AudioRecorder.shared().stopRecording();
+        if(delayStartDisposable != null) {
+            delayStartDisposable.dispose();
+        }
+        else {
+            if(AudioRecorder.shared().duration() < 1000) {
+                // Wait and then stop the recording
+                Completable.timer(200, TimeUnit.MILLISECONDS).subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        AudioRecorder.shared().stopRecording();
+                    }
+                });
+            }
+            else {
+                AudioRecorder.shared().stopRecording();
+                durationMillis = AudioRecorder.shared().stopRecording();
+            }
+        }
     }
 
     public String getName () {

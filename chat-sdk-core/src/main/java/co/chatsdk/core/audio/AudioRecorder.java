@@ -57,7 +57,7 @@ public class AudioRecorder {
     }
 
     public int stopRecording() {
-        long duration = System.currentTimeMillis() - startTime;
+        long duration = duration();
         if(recorder != null) {
             try {
                 recorder.stop();
@@ -71,6 +71,8 @@ public class AudioRecorder {
         return (int) duration;
     }
 
-
+    public long duration () {
+        return System.currentTimeMillis() - startTime;
+    }
 
 }

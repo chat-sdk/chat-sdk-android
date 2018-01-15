@@ -27,6 +27,8 @@ import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.InfiniteToast;
+import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.functions.Action;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
@@ -97,17 +99,24 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
                     // Start recording when we press down
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                         recording = new Recording();
-                        recording.start();
-                        toast = new InfiniteToast(getContext(), R.string.recording, true);
+                        recording.start().subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                toast = new InfiniteToast(getContext(), R.string.recording, true);
+                            }
+                        });
                     }
 
                     // Stop recording
                     if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         if(recording != null) {
                             recording.stop();
-                            if(delegate != null) {
+                            if(delegate != null && recording.getDurationMillis() > 1000) {
                                 delegate.get().sendAudio(recording);
                                 recording = null;
+                            }
+                            else {
+                                ToastHelper.show(getContext(), "Recording is too short");
                             }
                         }
                         if(toast != null) {
