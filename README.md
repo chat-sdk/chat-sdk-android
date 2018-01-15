@@ -44,7 +44,7 @@ The user interface has seen a major update. We have improved the chat view as we
 - User search
 - Powered by Firebase
 - Firebase UI
-- [Android Version](https://github.com/chat-sdk/chat-sdk-android)
+- [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
 ## Modules
