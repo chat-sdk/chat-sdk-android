@@ -26,6 +26,7 @@ public abstract class BaseFragment extends DialogFragment {
     private ProgressDialog progressDialog;
 
     protected View mainView;
+    protected boolean tabIsVisible;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,10 @@ public abstract class BaseFragment extends DialogFragment {
         else {
             progressDialog.setMessage(message);
         }
+    }
+
+    public void setTabVisibility (boolean isVisible) {
+        tabIsVisible = isVisible;
     }
 
     protected void dismissProgressDialog() {

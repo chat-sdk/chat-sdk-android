@@ -95,6 +95,10 @@ public class FirebasePaths{
         return threadRef().child(firebaseId).child(DetailsPath);
     }
 
+    public static DatabaseReference threadLastMessageRef(String firebaseId){
+        return threadRef().child(firebaseId).child(LastMessagePath);
+    }
+
     public static DatabaseReference threadMessagesRef(String firebaseId){
         return threadRef(firebaseId).child(MessagesPath);
     }

@@ -4,9 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,9 +42,6 @@ import timber.log.Timber;
 
 public class FirebaseCoreHandler extends AbstractCoreHandler {
 
-    private UserWrapper currentUser(){
-        return UserWrapper.initWithModel(currentUserModel());
-    }
     private DisposableList disposableList = new DisposableList();
 
     public FirebaseCoreHandler () {
@@ -139,10 +134,10 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void goOnline() {
-        final ValueEventListener listener = FirebasePaths.firebaseRawRef().child(".info/connected").addValueEventListener(new ValueEventListener() {
+        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue() != null) {
+            public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                if(hasValue) {
                     Timber.v("Already online!");
                 }
                 else {
@@ -150,13 +145,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     disposableList.add(setUserOnline().subscribe());
                 }
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+        }));
     }
 
     public Completable updateLastOnline () {
@@ -180,7 +169,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     return;
                 }
 
-                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
+                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
                     public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         disposableList.add(updateLastOnline().subscribe());

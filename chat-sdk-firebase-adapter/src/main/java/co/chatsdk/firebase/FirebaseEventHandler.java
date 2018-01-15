@@ -89,6 +89,13 @@ public class FirebaseEventHandler implements EventHandler {
                         }
                     }).subscribe());
 
+                    disposableList.add(thread.lastMessageOn().doOnNext(new Consumer<Thread>() {
+                        @Override
+                        public void accept(Thread thread) throws Exception {
+                            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread));
+                        }
+                    }).subscribe());
+
                     disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
                         @Override
                         public void accept(Message message) throws Exception {
@@ -132,6 +139,13 @@ public class FirebaseEventHandler implements EventHandler {
                         eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
                     }
                 }).subscribe());
+
+                disposableList.add(thread.lastMessageOn().subscribe(new Consumer<Thread>() {
+                    @Override
+                    public void accept(Thread thread) throws Exception {
+                        eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread));
+                    }
+                }));
 
                 disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
                     @Override

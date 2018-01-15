@@ -59,7 +59,9 @@ public class PublicThreadsFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
             @Override
             public void accept(NetworkEvent networkEvent) throws Exception {
-                reloadData();
+                if(tabIsVisible) {
+                    reloadData();
+                }
             }
         });
 
@@ -68,8 +70,10 @@ public class PublicThreadsFragment extends BaseFragment {
                 .subscribe(new Consumer<NetworkEvent>() {
                     @Override
                     public void accept(NetworkEvent networkEvent) throws Exception {
-                        adapter.setTyping(networkEvent.thread, networkEvent.text);
-                        adapter.notifyDataSetChanged();
+                        if(tabIsVisible) {
+                            adapter.setTyping(networkEvent.thread, networkEvent.text);
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                 });
 
@@ -94,10 +98,6 @@ public class PublicThreadsFragment extends BaseFragment {
         });
     }
 
-    @Override
-    public void reloadData() {
-        adapter.setThreads(NM.thread().getThreads(ThreadType.Public));
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -181,4 +181,17 @@ public class PublicThreadsFragment extends BaseFragment {
             adapter.clearData();
         }
     }
+
+    public void setTabVisibility (boolean isVisible) {
+        super.setTabVisibility(isVisible);
+        reloadData();
+    }
+
+    @Override
+    public void reloadData() {
+        if(adapter != null) {
+            adapter.updateThreads(NM.thread().getThreads(ThreadType.Public));
+        }
+    }
+
 }

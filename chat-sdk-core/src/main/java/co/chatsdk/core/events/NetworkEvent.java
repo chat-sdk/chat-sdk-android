@@ -66,6 +66,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
     }
 
+    public static NetworkEvent threadLastMessageUpdated (Thread thread) {
+        return new NetworkEvent(EventType.ThreadLastMessageUpdated, thread);
+    }
+
     public static NetworkEvent messageAdded (Thread thread, Message message) {
         return new NetworkEvent(EventType.MessageAdded, thread, message);
     }
@@ -180,7 +184,7 @@ public class NetworkEvent {
                 EventType.ThreadDetailsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
-                EventType.MessageAdded,
+                EventType.ThreadLastMessageUpdated,
                 EventType.ThreadUsersChanged
         );
     }

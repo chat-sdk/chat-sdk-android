@@ -97,6 +97,7 @@ public class UserWrapper {
 
         String name = authData.getDisplayName();
         String email = authData.getEmail();
+        String phoneNumber = authData.getPhoneNumber();
         String profileURL = null;
 
         if(authData.getPhotoUrl() != null) {
@@ -114,6 +115,10 @@ public class UserWrapper {
         // Setting the email.//
         if (!StringChecker.isNullOrEmpty(email) && StringChecker.isNullOrEmpty(model.getEmail())) {
             model.setEmail(email);
+        }
+
+        if (!StringChecker.isNullOrEmpty(phoneNumber) && StringChecker.isNullOrEmpty(model.getPhoneNumber())) {
+            model.setPhoneNumber(phoneNumber);
         }
 
         if (!StringChecker.isNullOrEmpty(profileURL) && StringChecker.isNullOrEmpty(model.getAvatarURL())) {
@@ -174,7 +179,7 @@ public class UserWrapper {
 
                 final DatabaseReference ref = ref();
 
-                ref.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
+                ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
                     public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         if(hasValue) {
@@ -201,20 +206,15 @@ public class UserWrapper {
                     e.onNext(model);
                 }
 
-                ValueEventListener listener = userMetaRef.addValueEventListener(new ValueEventListener() {
+                ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.getValue() != null) {
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if (hasValue && snapshot.getValue() instanceof Map) {
                             deserializeMeta((Map<String, Object>) snapshot.getValue());
                             e.onNext(model);
                         }
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-//                        e.onError(databaseError.toException());
-                    }
-                });
+                }));
 
                 FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
 
@@ -270,24 +270,22 @@ public class UserWrapper {
             public void subscribe(final ObservableEmitter<Boolean> e) throws Exception {
                 DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
 
-                ValueEventListener listener = ref.addValueEventListener(new ValueEventListener() {
+                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+
                         Boolean available = false;
-                        if(snapshot.getValue() != null) {
-                            available = (Boolean) snapshot.getValue();
+                        if(hasValue) {
+                            available = (boolean) snapshot.getValue();
                         }
                         model.setAvailability(available ? Availability.Available : Availability.Unavailable);
                         model.update();
                         e.onNext(available);
                     }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                }));
                 FirebaseReferenceManager.shared().addRef(ref, listener);
-/**/            }
+            }
         }).subscribeOn(Schedulers.single());
     }
 

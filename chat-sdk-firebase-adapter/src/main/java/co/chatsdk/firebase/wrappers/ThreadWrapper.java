@@ -48,7 +48,6 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 public class ThreadWrapper  {
 
@@ -74,38 +73,56 @@ public class ThreadWrapper  {
             @Override
             public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
 
-
                 DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
                 if (FirebaseReferenceManager.shared().isOn(detailsRef)) {
                     e.onComplete();
+                    return;
                 }
 
-                ValueEventListener listener = detailsRef.addValueEventListener(new ValueEventListener() {
+                ValueEventListener listener = detailsRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        if (dataSnapshot.getValue() instanceof Map) {
-                            deserialize((Map<String, Object>)dataSnapshot.getValue());
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if (hasValue && snapshot.getValue() instanceof Map) {
+                            deserialize((Map<String, Object>)snapshot.getValue());
                         }
 
                         updateReadReceipts();
 
                         e.onNext(model);
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        //e.onError(databaseError.toException());
-                        Timber.v(databaseError.getMessage());
-                    }
-                });
-
-                FirebaseReferenceManager.shared().addRef(detailsRef, listener);
+                }));
 
                 if(NM.typingIndicator() != null) {
                     NM.typingIndicator().typingOn(model);
                 }
+            }
+        }).subscribeOn(Schedulers.single());
+    }
+
+    public Observable<Thread> lastMessageOn () {
+        return Observable.create(new ObservableOnSubscribe<Thread>() {
+            @Override
+            public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
+
+                DatabaseReference ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
+
+                if (FirebaseReferenceManager.shared().isOn(ref)) {
+                    e.onComplete();
+                    return;
+                }
+
+                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
+                    @Override
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        // We just update the thread. The last message will already have been
+                        // set by the message listener
+                        e.onNext(model);
+                    }
+                }));
+
+                FirebaseReferenceManager.shared().addRef(ref, listener);
+
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -117,24 +134,16 @@ public class ThreadWrapper  {
 
                 DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
-                detailsRef.addValueEventListener(new ValueEventListener() {
+                detailsRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        if (dataSnapshot.getValue() instanceof Map) {
-                            deserialize((Map<String, Object>)dataSnapshot.getValue());
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if(hasValue &&  snapshot.getValue() instanceof Map) {
+                            deserialize((Map<String, Object>) snapshot.getValue());
                         }
-
-                        //updateReadReceipts();
-
                         e.onComplete();
                     }
+                }));
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        e.onError(databaseError.toException());
-                    }
-                });
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -143,8 +152,8 @@ public class ThreadWrapper  {
      * Stop listening to thread details change
      **/
     public void off() {
-        final DatabaseReference ref = FirebasePaths.threadDetailsRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListener(ref);
+        FirebaseReferenceManager.shared().removeListener(FirebasePaths.threadDetailsRef(model.getEntityID()));
+        FirebaseReferenceManager.shared().removeListener(FirebasePaths.threadLastMessageRef(model.getEntityID()));
         if(NM.typingIndicator() != null) {
             NM.typingIndicator().typingOff(model);
         }
@@ -213,6 +222,7 @@ public class ThreadWrapper  {
                                     message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
                                     model.addMessage(message.getModel());
+                                    model.setLastMessage(message.getModel());
 
                                     // Update the message and thread
                                     message.getModel().update();
@@ -307,7 +317,7 @@ public class ThreadWrapper  {
                         .child(user.getEntityID())
                         .child(Keys.Deleted);;
 
-                currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
+                currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
                     public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         if(hasValue) {
@@ -415,7 +425,7 @@ public class ThreadWrapper  {
                             .endAt(endDate.getTime() - 1)
                             .limitToLast(numberOfMessages + 1);
 
-                    query.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
+                    query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                         @Override
                         public void trigger(DataSnapshot snapshot, boolean hasValue) {
                             if(hasValue) {

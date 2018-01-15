@@ -17,6 +17,8 @@ import android.view.MenuItem;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -216,9 +218,12 @@ public class MainActivity extends BaseActivity {
             adapter = new PagerAdapterTabs(getSupportFragmentManager());
         }
 
-        for (Tab tab : adapter.getTabs()) {
+        final List<Tab> tabs = adapter.getTabs();
+        for (Tab tab : tabs) {
             tabLayout.addTab(tabLayout.newTab().setText(tab.title));
         }
+
+        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
 
         viewPager.setAdapter(adapter);
 
@@ -227,6 +232,12 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+
+                // We mark the tab as visible. This lets us be more efficient with updates
+                // because we only
+                for(int i = 0; i < tabs.size(); i++) {
+                    ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+                }
             }
 
             @Override

@@ -45,7 +45,7 @@ public class FirebaseEventListener implements ChildEventListener, ValueEventList
         return this;
     }
 
-    public FirebaseEventListener onSingleValue (Value event) {
+    public FirebaseEventListener onValue(Value event) {
         onValue = event;
         return this;
     }

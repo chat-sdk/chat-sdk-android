@@ -211,7 +211,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(NM.audioMessage() != null);
 
-        progressBar = findViewById(R.id.chat_sdk_progressbar);
+        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
 
         final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.ptr_layout);
 
@@ -296,7 +296,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     @Override
                     public void onNext(@NonNull MessageSendProgress messageSendProgress) {
                         Timber.v("Message Status: " + messageSendProgress.getStatus());
-                        messageListAdapter.addRow(messageSendProgress.message, true, true);
+                        if(messageListAdapter.addRow(messageSendProgress.message, true, true)) {
+                            messageListAdapter.notifyDataSetChanged();
+                            scrollListTo(ListPosition.Bottom, false);
+                        }
                     }
 
                     @Override
@@ -407,7 +410,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         }
                     }
                 }));
-
     }
 
     protected void setSubtitleText(String text) {
@@ -462,7 +464,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
         markRead();
-        messageListAdapter.notifyDataSetChanged();
+
+        // We have to do this because otherwise if we background the app
+        // we will miss any messages that came through while we were in
+        // the background
+        messageListAdapter.setMessages(thread.getMessages());
+        scrollListTo(ListPosition.Bottom, false);
 
     }
 

@@ -183,12 +183,20 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         return onLongClickSubject;
     }
 
-    public void setThreads(List<Thread> threads) {
-        clearData(false);
+    public void updateThreads (List<Thread> threads) {
+        boolean added = false;
         for(Thread t : threads) {
             addRow(t, false);
+            added = true;
         }
-        sort();
+        if(added) {
+            sort();
+        }
         notifyDataSetChanged();
+    }
+
+    public void setThreads(List<Thread> threads) {
+        clearData(false);
+        updateThreads(threads);
     }
 }

@@ -340,7 +340,7 @@ public class SelectContactActivity extends BaseActivity {
         View.OnClickListener searchClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SearchActivity.startSearchActivity(getApplicationContext());
+                SearchActivity.startSearchActivity(SelectContactActivity.this);
             }
         };
 

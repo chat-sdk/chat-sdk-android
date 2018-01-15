@@ -51,6 +51,9 @@ public class Configuration {
     public boolean xmppCompressionEnabled;
     public String xmppSecurityMode = "disabled";
 
+    // Push notification
+    public int pushNotificationImageDefaultResourceId;
+
     // Contact Book
     public String contactBookInviteContactEmailSubject;
     public String contactBookInviteContactEmailBody;
@@ -152,14 +155,20 @@ public class Configuration {
             return this;
         }
 
+        public Builder firebaseCloudMessagingServerKey (String cloudMessagingServerKey) {
+            config.firebaseCloudMessagingServerKey = cloudMessagingServerKey;
+            return this;
+        }
+
         public Builder firebase (String rootPath, String cloudMessagingServerKey) {
 
             if(rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
             }
 
-            config.firebaseRootPath = rootPath;
-            config.firebaseCloudMessagingServerKey = cloudMessagingServerKey;
+            firebaseRootPath(rootPath);
+            firebaseCloudMessagingServerKey(cloudMessagingServerKey);
+
             return this;
         }
 
@@ -354,6 +363,11 @@ public class Configuration {
 
         public Builder addCustomSetting (String key, Object value) {
             config.customProperties.put(key, value);
+            return this;
+        }
+
+        public Builder pushNotificationImageDefaultResourceId (int resourceId) {
+            config.pushNotificationImageDefaultResourceId = resourceId;
             return this;
         }
 

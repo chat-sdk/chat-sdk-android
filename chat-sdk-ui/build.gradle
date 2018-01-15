@@ -41,7 +41,7 @@ dependencies {
     compile 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:support-v4:" + project.ANDROID_SUPPORT_VERSION
+//    compile "com.android.support:support-v4:" + project.ANDROID_SUPPORT_VERSION
     compile "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
     compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
     compile "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION

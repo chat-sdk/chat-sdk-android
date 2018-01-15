@@ -42,7 +42,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                         .startAt(value)
                         .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
 
-                query.addListenerForSingleValueEvent(new FirebaseEventListener().onSingleValue(new FirebaseEventListener.Value() {
+                query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
                     @Override
                     public void trigger(DataSnapshot snapshot, boolean hasValue) {
                         if (hasValue) {
