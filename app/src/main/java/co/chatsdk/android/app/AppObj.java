@@ -24,7 +24,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder builder = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        builder.firebaseRootPath("firebase_v4_web_new_4_test");
+        builder.firebaseRootPath("18_02");
 
         ChatSDK.initialize(builder.build());
 
@@ -34,6 +34,7 @@ public class AppObj extends MultiDexApplication {
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();
+
 
     }
 

@@ -116,6 +116,7 @@ public class Configuration {
 
         public Builder (Context context) {
             config = new Configuration();
+            configureFromManifest(context);
             config.context = new WeakReference<>(context);
         }
 
@@ -373,6 +374,7 @@ public class Configuration {
 
         public Builder configureFromManifest (Context context) {
             try {
+
                 ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
                 Bundle appBundle = ai.metaData;
 
