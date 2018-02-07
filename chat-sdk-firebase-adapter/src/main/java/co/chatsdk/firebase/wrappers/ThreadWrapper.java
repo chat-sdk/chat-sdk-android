@@ -152,8 +152,8 @@ public class ThreadWrapper  {
      * Stop listening to thread details change
      **/
     public void off() {
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.threadDetailsRef(model.getEntityID()));
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.threadLastMessageRef(model.getEntityID()));
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadDetailsRef(model.getEntityID()));
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadLastMessageRef(model.getEntityID()));
         if(NM.typingIndicator() != null) {
             NM.typingIndicator().typingOff(model);
         }
@@ -175,6 +175,19 @@ public class ThreadWrapper  {
                     e.onComplete();
                     return;
                 }
+
+                // Add the delete listener
+                ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved(new FirebaseEventListener.Removed() {
+                    @Override
+                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+                        if(hasValue) {
+                            MessageWrapper message = new MessageWrapper(snapshot);
+
+                        }
+                    }
+                }));
+
+                FirebaseReferenceManager.shared().addRef(ref, removedListener);
 
                 threadDeletedDate()
                         .subscribeOn(Schedulers.single())
@@ -248,7 +261,7 @@ public class ThreadWrapper  {
      **/
     public void messagesOff() {
         DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListener(ref);
+        FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
     //Note the old listener that was used to process the thread bundle is still in use.
@@ -298,7 +311,7 @@ public class ThreadWrapper  {
      **/
     public void usersOff(){
         DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListener(ref);
+        FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
     //Note - Maybe should reject when cant find value in the user deleted path.
@@ -463,15 +476,7 @@ public class ThreadWrapper  {
         Map<String , Object> value = new HashMap<String, Object>();
         Map<String , Object> nestedMap = new HashMap<String, Object>();
 
-        // If the creation date is null we assume that the thread is now being created so we push the server timestamp with it.
-        // Else we will push the saved creation date from the db.
-        // No treating this as so can cause problems with firebase security rules.
-        if (model.getCreationDate() == null) {
-            nestedMap.put(Keys.CreationDate, ServerValue.TIMESTAMP);
-        }
-        else {
-            nestedMap.put(Keys.CreationDate, model.getCreationDate().getTime());
-        }
+        nestedMap.put(Keys.CreationDate, ServerValue.TIMESTAMP);
 
         nestedMap.put(Keys.Name, model.getName());
 

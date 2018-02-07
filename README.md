@@ -62,6 +62,10 @@ The Chat SDK has a number of additional modules that can easily be installed inc
 - [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
 - [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) (Included in basic setup instructions)
  
+## Firebase Firestore
+
+If you are interested in a version of the Chat SDK that supports Firebase's new database please vote on [this issue](https://github.com/chat-sdk/chat-sdk-android/issues/148). 
+ 
 ## Get involved!
 We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
 

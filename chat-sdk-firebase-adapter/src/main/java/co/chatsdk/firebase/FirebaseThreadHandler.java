@@ -42,6 +42,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class FirebaseThreadHandler extends AbstractThreadHandler {
 
+    public static int UserThreadLinkTypeAddUser = 1;
+    public static int UserThreadLinkTypeRemoveUser = 2;
+
     public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage,final Thread thread) {
         return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(new Function<List<Message>, SingleSource<? extends List<Message>>>() {
             @Override
@@ -61,7 +64,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * When all users are added the system will call the "onDone" method.
      **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
-        return setUserThreadLinkValue(thread, users, Keys.Null);
+        return setUserThreadLinkValue(thread, users, UserThreadLinkTypeAddUser);
     }
 
     /**
@@ -72,36 +75,37 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * path and the thread will be removed from the user/threads path
      * @param thread
      * @param users
-     * @param value
+     * @param userThreadLinkType - 1 => Add, 2 => Remove
      * @return
      */
-    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final String value) {
+    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
 
-                DatabaseReference ref = FirebasePaths.firebaseRef();
+                DatabaseReference ref = FirebasePaths.firebaseRawRef();
                 final HashMap<String, Object> data = new HashMap<>();
 
                 for (final User u : users) {
-                    PathBuilder threadUsersPath = FirebasePaths.threadUsersPath(thread.getEntityID(), u.getEntityID());
-                    PathBuilder userThreadsPath = FirebasePaths.userThreadsPath(u.getEntityID(), thread.getEntityID());
 
-                    if (value != null) {
-                        threadUsersPath.append(Keys.Null);
-                        userThreadsPath.append(Keys.InvitedBy);
+                    DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(u.getEntityID()).child(Keys.Status);
+                    DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(thread.getEntityID()).child(Keys.InvitedBy);
+
+                    String threadUsersPath = threadUsersRef.toString().replace(threadUsersRef.getRoot().toString(), "");
+                    String userThreadsPath = userThreadsRef.toString().replace(userThreadsRef.getRoot().toString(), "");
+
+                    //
+                    if(userThreadLinkType == UserThreadLinkTypeAddUser) {
+                        data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
+                        data.put(userThreadsPath, NM.currentUser().getEntityID());
+
+                        if (thread.typeIs(ThreadType.Public)) {
+                            threadUsersRef.onDisconnect().removeValue();
+                        }
                     }
-
-                    data.put(threadUsersPath.build(), value);
-
-                    if (thread.typeIs(ThreadType.Private)) {
-                        data.put(userThreadsPath.build(), value != null ? NM.currentUser().getEntityID() : value);
-                    }
-                    else if (value != null) {
-                        // TODO: Check this
-                        // If we add users to a public thread, make sure that they are removed if we
-                        // log off
-                        FirebasePaths.firebaseRef().child(threadUsersPath.build()).onDisconnect().removeValue();
+                    else if (userThreadLinkType == UserThreadLinkTypeRemoveUser) {
+                        data.put(threadUsersPath, null);
+                        data.put(userThreadsPath, null);
                     }
                 }
 
@@ -124,7 +128,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
-        return setUserThreadLinkValue(thread, users, null);
+        return setUserThreadLinkValue(thread, users, UserThreadLinkTypeRemoveUser);
     }
 
     public Completable pushThread(Thread thread) {

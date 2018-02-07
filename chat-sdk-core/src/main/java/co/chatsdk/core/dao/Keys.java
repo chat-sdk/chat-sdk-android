@@ -54,6 +54,9 @@ public class Keys {
     public static final String Users = "users";
     public static final String UID = "uid";
 
+    public static final String Owner = "owner";
+    public static final String Member = "member";
+
     public static final String ImageUrl = "image-url";
     public static final String CreatorEntityId = "creator-entity-id";
     public static final String Deleted = "deleted";
@@ -95,6 +98,8 @@ public class Keys {
     public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
     public static final String PushToken = "pushToken";
+
+
 
 //    public static final class ThirdParty {
 //        public static final String Name = "name";

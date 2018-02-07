@@ -227,7 +227,7 @@ public class UserWrapper {
 
     public void metaOff(){
         DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListener(userMetaRef);
+        FirebaseReferenceManager.shared().removeListeners(userMetaRef);
     }
 
 
@@ -291,7 +291,7 @@ public class UserWrapper {
 
     public void onlineOff () {
         DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListener(ref);
+        FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
     Map<String, Object> serialize(){

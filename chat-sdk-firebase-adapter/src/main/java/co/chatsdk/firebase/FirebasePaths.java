@@ -10,7 +10,6 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 
 public class FirebasePaths{
@@ -115,23 +114,6 @@ public class FirebasePaths{
     /* Index */
     public static DatabaseReference indexRef(){
         return firebaseRef().child(IndexPath);
-    }
-
-
-    public static PathBuilder userThreadsPath (String userID, String threadID) {
-        return new PathBuilder(Keys.Users)
-                .append(userID)
-                .append(Keys.Threads)
-                .append(threadID);
-
-    }
-
-    public static PathBuilder threadUsersPath (String threadID, String userID) {
-        return new PathBuilder(Keys.Threads)
-                .append(threadID)
-                .append(Keys.Users)
-                .append(userID);
-
     }
 
 }

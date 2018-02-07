@@ -28,7 +28,6 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.ExitHelper;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
@@ -41,7 +40,6 @@ import io.reactivex.functions.Consumer;
 
 public class MainActivity extends BaseActivity {
 
-    private ExitHelper exitHelper;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     protected PagerAdapterTabs adapter;
@@ -52,8 +50,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        exitHelper = new ExitHelper(this);
 
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             // Activity was brought to front and not created,
@@ -321,12 +317,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    /* Exit Stuff*/
-    @Override
-    public void onBackPressed() {
-        exitHelper.triggerExit();
     }
 
 }

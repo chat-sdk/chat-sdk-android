@@ -217,6 +217,26 @@ public class Thread implements CoreEntity {
         resetMessages();
     }
 
+//    public void removeMessage (Message message) {
+//        // If this is the last message
+//        if(message.getEntityID().equals(lastMessage().getEntityID())) {
+//            List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
+//            if (messages.size() > 1) {
+//                setLastMessage(messages.get(messages.size() - 1));
+//            }
+//            else {
+//                setLastMessage(null);
+//            }
+//        }
+//
+//        setLastMessage(message);
+//        message.setThreadId(this.getId());
+//        message.update();
+//
+//        update();
+//        resetMessages();
+//    }
+
     public boolean hasUser(User user) {
 
         UserThreadLink data =

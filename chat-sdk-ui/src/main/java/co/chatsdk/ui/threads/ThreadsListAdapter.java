@@ -138,13 +138,18 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         return threads.size();
     }
 
-    public void addRow (Thread thread, boolean notify) {
-        if(!threads.contains(thread)) {
-            threads.add(thread);
-            if(notify) {
-                notifyDataSetChanged();
+    public boolean addRow (Thread thread, boolean notify) {
+        for(Thread t : threads) {
+            if(t.getEntityID().equals(thread.getEntityID())) {
+                return false;
             }
         }
+
+        threads.add(thread);
+        if(notify) {
+            notifyDataSetChanged();
+        }
+        return true;
     }
 
     public void addRow(Thread thread){
@@ -186,13 +191,12 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
     public void updateThreads (List<Thread> threads) {
         boolean added = false;
         for(Thread t : threads) {
-            addRow(t, false);
-            added = true;
+            added = addRow(t, false) || added;
         }
         if(added) {
             sort();
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
     }
 
     public void setThreads(List<Thread> threads) {

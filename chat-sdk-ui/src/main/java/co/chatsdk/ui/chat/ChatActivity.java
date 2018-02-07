@@ -80,6 +80,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     private ChatOptionsHandler optionsHandler;
     public PublishSubject<ActivityResult> activityResultPublishSubject = PublishSubject.create();
 
+    // Should we remove the user from the public chat when we stop this activity?
+    // If we are showing a temporary screen like the sticker message screen
+    // this should be set to no
+    private boolean removeUserFromChatOnExit = true;
+
     private enum ListPosition {
         Top, Current, Bottom
     }
@@ -414,14 +419,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected void setSubtitleText(String text) {
         if(StringChecker.isNullOrEmpty(text)) {
-            text = "";
-            for(User u : thread.getUsers()) {
-                if(!u.isMe()) {
-                    text += u.getName() + ", ";
-                }
+            if(thread.typeIs(ThreadType.Private1to1)) {
+                text = getString(R.string.tap_here_for_contact_info);
             }
-            if(text.length() > 0) {
-                text = text.substring(0, text.length() - 2);
+            else {
+                text = "";
+                for(User u : thread.getUsers()) {
+                    if(!u.isMe()) {
+                        text += u.getName() + ", ";
+                    }
+                }
+                if(text.length() > 0) {
+                    text = text.substring(0, text.length() - 2);
+                }
             }
         }
         subtitleTextView.setText(text);
@@ -430,6 +440,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onResume() {
         super.onResume();
+
+        removeUserFromChatOnExit = true;
 
         if (!updateThreadFromBundle(bundle)) {
             return;
@@ -491,7 +503,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         stopTyping(true);
         markRead();
 
-        if (thread != null && thread.typeIs(ThreadType.Public)) {
+        if (thread != null && thread.typeIs(ThreadType.Public) && removeUserFromChatOnExit) {
             NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe();
         }
     }
@@ -837,12 +849,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void showOptions() {
+       removeUserFromChatOnExit = false;
        optionsHandler = InterfaceManager.shared().a.getChatOptionsHandler(this);
        optionsHandler.show(this);
     }
 
     @Override
     public void hideOptions() {
+        removeUserFromChatOnExit = true;
         if(optionsHandler != null) {
             optionsHandler.hide();
         }

@@ -43,7 +43,7 @@ public class StorageManager {
             entity = DaoCore.getEntityForClass(c);
 
             if(entityId instanceof String) {
-                entity.setEntityID((String) entityId);
+                entity.setEntityID(entityId);
             }
             else {
                 entity.setEntityID(entityId.toString());

@@ -2,12 +2,10 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by benjaminsmiley-andrews on 18/05/2017.
@@ -64,7 +62,7 @@ public class FirebaseReferenceManager {
         return references.get(ref.toString()) != null;
     }
 
-    public void removeListener (DatabaseReference ref) {
+    public void removeListeners (DatabaseReference ref) {
         if(isOn(ref)) {
             Value v = references.get(ref.toString());
             v.removeListener();

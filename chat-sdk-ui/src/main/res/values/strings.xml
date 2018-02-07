@@ -21,6 +21,7 @@
     <string name="search_upper_case">SEARCH</string>
     <string name="send">Send</string>
     <string name="pick_friends">Pick Friends</string>
+    <string name="tap_here_for_contact_info">Tap here for contact info</string>
 
     <!--ThreadDetails context-->
     <string name="thread_details_activity_title">Thread Details</string>

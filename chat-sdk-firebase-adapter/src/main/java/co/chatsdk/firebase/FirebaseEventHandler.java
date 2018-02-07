@@ -256,10 +256,10 @@ public class FirebaseEventHandler implements EventHandler {
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.userThreadsRef(entityID));
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.publicThreadsRef());
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.userFollowersRef(entityID));
-        FirebaseReferenceManager.shared().removeListener(FirebasePaths.userFollowingRef(entityID));
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userFollowersRef(entityID));
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userFollowingRef(entityID));
 
         ThreadWrapper wrapper;
         for (Thread thread : NM.thread().getThreads(ThreadType.All))
