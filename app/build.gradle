@@ -20,15 +20,6 @@ android {
         versionCode CHAT_SDK_BUILD_NUMBER as int
     }
 
-    productFlavors {
-        dev {
-            minSdkVersion 21
-        }
-        prod {
-            minSdkVersion Integer.parseInt(project.MIN_SDK)
-        }
-    }
-
     signingConfigs {
         release {
             storeFile file('/Users/ben/.android/release.keystore')
@@ -39,7 +30,7 @@ android {
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'D3bug123'
-            storeFile file('/Users/ben/.android/debug.keystore')
+            storeFile file('debug.keystore')
             storePassword 'D3bug123'
         }
     }
