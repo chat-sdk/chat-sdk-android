@@ -73,103 +73,51 @@ public class FirebaseEventHandler implements EventHandler {
         }
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
-        ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-            @Override
-            public void trigger(final DataSnapshot snapshot, String s, boolean hasValue) {
-                if(hasValue) {
-                    final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+        ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+            if(hasValue) {
+                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                    thread.getModel().addUser(user);
+                thread.getModel().addUser(user);
 
-                    // Starting to listen to thread changes.
-                    disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {
-                        @Override
-                        public void accept(Thread thread) throws Exception {
-                            eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
-                        }
-                    }).subscribe());
+                // Starting to listen to thread changes.
+                disposableList.add(thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe());
 
-                    disposableList.add(thread.lastMessageOn().doOnNext(new Consumer<Thread>() {
-                        @Override
-                        public void accept(Thread thread) throws Exception {
-                            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread));
-                        }
-                    }).subscribe());
+                disposableList.add(thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe());
 
-                    disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
-                        @Override
-                        public void accept(Message message) throws Exception {
-                            eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
-                        }
-                    }).subscribe());
+                disposableList.add(thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe());
 
-                    disposableList.add(thread.usersOn().doOnNext(new Consumer<User>() {
-                        @Override
-                        public void accept(User user) throws Exception {
-                            eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
-                        }
-                    }).subscribe());
+                disposableList.add(thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe());
 
-                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
-                }
             }
-        }).onChildRemoved(new FirebaseEventListener.Removed() {
-            @Override
-            public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                if (hasValue) {
-                    ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-                    thread.off();
-                    eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-                }
+        }).onChildRemoved((snapshot, hasValue) -> {
+            if (hasValue) {
+                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+                thread.off();
+                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
             }
         }));
         FirebaseReferenceManager.shared().addRef(threadsRef, threadsListener);
 
         DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
-        ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-            @Override
-            public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
-                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+        ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+            final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                // Starting to listen to thread changes.
-                disposableList.add(thread.on().doOnNext(new Consumer<Thread>() {
-                    @Override
-                    public void accept(Thread thread) throws Exception {
-                        eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread));
-                    }
-                }).subscribe());
+            // Starting to listen to thread changes.
+            disposableList.add(thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe());
 
-                disposableList.add(thread.lastMessageOn().subscribe(new Consumer<Thread>() {
-                    @Override
-                    public void accept(Thread thread) throws Exception {
-                        eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread));
-                    }
-                }));
+            disposableList.add(thread.lastMessageOn().subscribe(thread1 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1))));
 
-                disposableList.add(thread.messagesOn().doOnNext(new Consumer<Message>() {
-                    @Override
-                    public void accept(Message message) throws Exception {
-                        eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
-                    }
-                }).subscribe());
+            disposableList.add(thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe());
 
-                disposableList.add(thread.usersOn().doOnNext(new Consumer<User>() {
-                    @Override
-                    public void accept(User user) throws Exception {
-                        eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user));
-                    }
-                }).subscribe());
+            disposableList.add(thread.usersOn().doOnNext(user1 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1))).subscribe());
 
-                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
-            }
-        }).onChildRemoved(new FirebaseEventListener.Removed() {
-            @Override
-            public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-                thread.off();
-                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-            }
+            eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+        }).onChildRemoved((snapshot, hasValue) -> {
+            ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+            thread.off();
+            eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
         }));
         FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
 
@@ -179,13 +127,11 @@ public class FirebaseEventHandler implements EventHandler {
 
         // TODO: Check this
         DatabaseReference followersRef = FirebasePaths.userFollowersRef(entityID);
-        ChildEventListener followersListener = followersRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-            @Override
-            public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
+        ChildEventListener followersListener = followersRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
 
-                //TODO: Implement this
+            //TODO: Implement this
 
-                //FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
+            //FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
 //
 //
 //
@@ -193,46 +139,36 @@ public class FirebaseEventHandler implements EventHandler {
 //                wrapper.once();
 //                wrapper.metaOn();
 
-                eventSource.onNext(NetworkEvent.followerAdded());
+            eventSource.onNext(NetworkEvent.followerAdded());
 
-            }
-        }).onChildRemoved(new FirebaseEventListener.Removed() {
-            @Override
-            public void trigger(DataSnapshot snapshot, boolean hasValue) {
+        }).onChildRemoved((snapshot, hasValue) -> {
 
 //                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
 //                DaoCore.deleteEntity(follower);
 
-                eventSource.onNext(NetworkEvent.followerRemoved());
+            eventSource.onNext(NetworkEvent.followerRemoved());
 
-            }
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followersListener);
 
         DatabaseReference followingRef = FirebasePaths.userFollowingRef(entityID);
-        ChildEventListener followingListener = followingRef.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-            @Override
-            public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
+        ChildEventListener followingListener = followingRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
 
-                // TODO: Implement this
+            // TODO: Implement this
 //                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
 //
 //                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
 //                wrapper.once();
 //                wrapper.metaOn();
 
-                eventSource.onNext(NetworkEvent.followingAdded());
+            eventSource.onNext(NetworkEvent.followingAdded());
 
-            }
-        }).onChildRemoved(new FirebaseEventListener.Removed() {
-            @Override
-            public void trigger(DataSnapshot snapshot, boolean hasValue) {
+        }).onChildRemoved((snapshot, hasValue) -> {
 
 //                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
 //                DaoCore.deleteEntity(follower);
 
-                eventSource.onNext(NetworkEvent.followingRemoved());
-            }
+            eventSource.onNext(NetworkEvent.followingRemoved());
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
 
@@ -240,14 +176,11 @@ public class FirebaseEventHandler implements EventHandler {
     }
 
     private Completable contactsMetaOn () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                for (User contact : NM.contact().contacts()) {
-                    NM.core().userOn(contact);
-                }
-                e.onComplete();
+        return Completable.create(e -> {
+            for (User contact : NM.contact().contacts()) {
+                NM.core().userOn(contact);
             }
+            e.onComplete();
         }).subscribeOn(Schedulers.single());
     }
 
@@ -271,12 +204,9 @@ public class FirebaseEventHandler implements EventHandler {
             wrapper.usersOff();
         }
 
-        Executor.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                for (User contact : NM.contact().contacts())
-                    UserWrapper.initWithModel(contact).metaOff();
-            }
+        Executor.getInstance().execute(() -> {
+            for (User contact : NM.contact().contacts())
+                UserWrapper.initWithModel(contact).metaOff();
         });
 
         if (NM.push() != null) {

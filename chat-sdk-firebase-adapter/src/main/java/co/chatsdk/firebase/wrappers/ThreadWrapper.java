@@ -69,82 +69,64 @@ public class ThreadWrapper  {
      * Start listening to thread details changes.
      **/
     public Observable<Thread> on() {
-        return Observable.create(new ObservableOnSubscribe<Thread>() {
-            @Override
-            public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<Thread>) e -> {
 
-                DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
+            DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
-                if (FirebaseReferenceManager.shared().isOn(detailsRef)) {
-                    e.onComplete();
-                    return;
+            if (FirebaseReferenceManager.shared().isOn(detailsRef)) {
+                e.onComplete();
+                return;
+            }
+
+            ValueEventListener listener = detailsRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if (hasValue && snapshot.getValue() instanceof Map) {
+                    deserialize((Map<String, Object>)snapshot.getValue());
                 }
 
-                ValueEventListener listener = detailsRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if (hasValue && snapshot.getValue() instanceof Map) {
-                            deserialize((Map<String, Object>)snapshot.getValue());
-                        }
+                updateReadReceipts();
 
-                        updateReadReceipts();
+                e.onNext(model);
+            }));
 
-                        e.onNext(model);
-                    }
-                }));
-
-                if(NM.typingIndicator() != null) {
-                    NM.typingIndicator().typingOn(model);
-                }
+            if(NM.typingIndicator() != null) {
+                NM.typingIndicator().typingOn(model);
             }
         }).subscribeOn(Schedulers.single());
     }
 
     public Observable<Thread> lastMessageOn () {
-        return Observable.create(new ObservableOnSubscribe<Thread>() {
-            @Override
-            public void subscribe(final ObservableEmitter<Thread> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<Thread>) e -> {
 
-                DatabaseReference ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
+            DatabaseReference ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
 
-                if (FirebaseReferenceManager.shared().isOn(ref)) {
-                    e.onComplete();
-                    return;
-                }
-
-                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        // We just update the thread. The last message will already have been
-                        // set by the message listener
-                        e.onNext(model);
-                    }
-                }));
-
-                FirebaseReferenceManager.shared().addRef(ref, listener);
-
+            if (FirebaseReferenceManager.shared().isOn(ref)) {
+                e.onComplete();
+                return;
             }
+
+            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                // We just update the thread. The last message will already have been
+                // set by the message listener
+                e.onNext(model);
+            }));
+
+            FirebaseReferenceManager.shared().addRef(ref, listener);
+
         }).subscribeOn(Schedulers.single());
     }
 
     public Completable once () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
+            DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
 
-                detailsRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if(hasValue &&  snapshot.getValue() instanceof Map) {
-                            deserialize((Map<String, Object>) snapshot.getValue());
-                        }
-                        e.onComplete();
-                    }
-                }));
+            detailsRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue &&  snapshot.getValue() instanceof Map) {
+                    deserialize((Map<String, Object>) snapshot.getValue());
+                }
+                e.onComplete();
+            }));
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 
@@ -163,37 +145,30 @@ public class ThreadWrapper  {
      * Start listening to incoming messages.
      **/
     public Observable<Message> messagesOn() {
-        return Observable.create(new ObservableOnSubscribe<Message>() {
-            @Override
-            public void subscribe(final ObservableEmitter<Message> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<Message>) e -> {
 
-                updateReadReceipts();
+            updateReadReceipts();
 
-                final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
+            final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                if(FirebaseReferenceManager.shared().isOn(ref)) {
-                    e.onComplete();
-                    return;
+            if(FirebaseReferenceManager.shared().isOn(ref)) {
+                e.onComplete();
+                return;
+            }
+
+            // Add the delete listener
+            ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
+                if(hasValue) {
+                    MessageWrapper message = new MessageWrapper(snapshot);
+
                 }
+            }));
 
-                // Add the delete listener
-                ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved(new FirebaseEventListener.Removed() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if(hasValue) {
-                            MessageWrapper message = new MessageWrapper(snapshot);
+            FirebaseReferenceManager.shared().addRef(ref, removedListener);
 
-                        }
-                    }
-                }));
-
-                FirebaseReferenceManager.shared().addRef(ref, removedListener);
-
-                threadDeletedDate()
-                        .subscribeOn(Schedulers.single())
-                        .subscribe(new Consumer<Long>() {
-                    @Override
-                    public void accept(Long deletedTimestamp) throws Exception {
+            threadDeletedDate()
+                    .subscribeOn(Schedulers.single())
+                    .subscribe(deletedTimestamp -> {
 
                         Query query = ref;
 
@@ -215,43 +190,38 @@ public class ThreadWrapper  {
 
                         query = query.orderByPriority().limitToLast(ChatSDK.config().maxMessagesToLoad);
 
-                        ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-                            @Override
-                            public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
-                                if (hasValue) {
+                        ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+                            if (hasValue) {
 
-                                    model.setDeleted(false);
+                                model.setDeleted(false);
 
-                                    MessageWrapper message = new MessageWrapper(snapshot);
+                                MessageWrapper message = new MessageWrapper(snapshot);
 
-                                    boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
+                                boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
-                                    if(NM.hook() != null) {
-                                        HashMap<String, Object> data = new HashMap<>();
-                                        data.put(BaseHookHandler.MessageReceived_Message, message);
-                                        NM.hook().executeHook(BaseHookHandler.MessageReceived, data);
-                                    }
-
-                                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
-
-                                    model.addMessage(message.getModel());
-                                    model.setLastMessage(message.getModel());
-
-                                    // Update the message and thread
-                                    message.getModel().update();
-                                    model.update();
-
-                                    if (newMessage) {
-                                        e.onNext(message.getModel());
-                                    }
-                                    updateReadReceipts();
+                                if(NM.hook() != null) {
+                                    HashMap<String, Object> data = new HashMap<>();
+                                    data.put(BaseHookHandler.MessageReceived_Message, message);
+                                    NM.hook().executeHook(BaseHookHandler.MessageReceived, data);
                                 }
+
+                                message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+
+                                model.addMessage(message.getModel());
+                                model.setLastMessage(message.getModel());
+
+                                // Update the message and thread
+                                message.getModel().update();
+                                model.update();
+
+                                if (newMessage) {
+                                    e.onNext(message.getModel());
+                                }
+                                updateReadReceipts();
                             }
                         }));
                         FirebaseReferenceManager.shared().addRef(ref, listener);
-                    }
-                });
-            }
+                    });
         }).subscribeOn(Schedulers.single());
 
     }
@@ -269,40 +239,31 @@ public class ThreadWrapper  {
      * Start listening to users added to this thread.
      **/
     public Observable<User> usersOn() {
-        return Observable.create(new ObservableOnSubscribe<User>() {
-            @Override
-            public void subscribe(final ObservableEmitter<User> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<User>) e -> {
 
-                final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
+            final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
-                if(FirebaseReferenceManager.shared().isOn(ref)) {
-                    e.onComplete();
-                    return;
-                }
+            if(FirebaseReferenceManager.shared().isOn(ref)) {
+                e.onComplete();
+                return;
+            }
 
-                ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener()
-                        .onChildAdded(new FirebaseEventListener.Change() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
+            ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener()
+                    .onChildAdded((snapshot, s, hasValue) -> {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
                         NM.core().userOn(user.getModel());
                         e.onNext(user.getModel());
 
-                    }
-                }).onChildRemoved(new FirebaseEventListener.Removed() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        UserWrapper user = new UserWrapper(snapshot);
-                        // We don't call meta off because we may have other therads
-                        // with this user
-                        model.removeUser(user.getModel());
-                        e.onNext(user.getModel());
-                    }
-                }));
+                    }).onChildRemoved((snapshot, hasValue) -> {
+                UserWrapper user = new UserWrapper(snapshot);
+                // We don't call meta off because we may have other therads
+                // with this user
+                model.removeUser(user.getModel());
+                e.onNext(user.getModel());
+            }));
 
-                FirebaseReferenceManager.shared().addRef(ref, listener);
-            }
+            FirebaseReferenceManager.shared().addRef(ref, listener);
         }).subscribeOn(Schedulers.single());
     }
 
@@ -320,29 +281,23 @@ public class ThreadWrapper  {
      * @return Single On success return the date or -1 if the thread hasn't been deleted
      **/
     private Single<Long> threadDeletedDate() {
-        return Single.create(new SingleOnSubscribe<Long>() {
-            @Override
-            public void subscribe(final SingleEmitter<Long> e) {
-                User user = NM.currentUser();
+        return Single.create((SingleOnSubscribe<Long>) e -> {
+            User user = NM.currentUser();
 
-                DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
-                        .child(FirebasePaths.UsersPath)
-                        .child(user.getEntityID())
-                        .child(Keys.Deleted);;
+            DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
+                    .child(FirebasePaths.UsersPath)
+                    .child(user.getEntityID())
+                    .child(Keys.Deleted);;
 
-                currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if(hasValue) {
-                            e.onSuccess((Long) snapshot.getValue());
-                        }
-                        else {
-                            e.onSuccess(Long.valueOf(-1));
-                        }
-                    }
-                }));
+            currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue) {
+                    e.onSuccess((Long) snapshot.getValue());
+                }
+                else {
+                    e.onSuccess(Long.valueOf(-1));
+                }
+            }));
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 
@@ -352,118 +307,100 @@ public class ThreadWrapper  {
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
     public Completable deleteThread() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                // TODO: Check this
-                if (model.typeIs(ThreadType.Public)) {
-                    e.onComplete();
+            // TODO: Check this
+            if (model.typeIs(ThreadType.Public)) {
+                e.onComplete();
+            }
+            else {
+                List<Message> messages = model.getMessages();
+
+                for (Message m : messages) {
+                    DaoCore.deleteEntity(m);
                 }
-                else {
-                    List<Message> messages = model.getMessages();
 
-                    for (Message m : messages) {
-                        DaoCore.deleteEntity(m);
-                    }
+                model.update();
 
+                final User currentUser = NM.currentUser();
+
+                DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
+                        .child(currentUser.getEntityID());
+
+                if(model.typeIs(ThreadType.Private) && model.getUsers().size() == 2) {
+
+                    model.setDeleted(true);
                     model.update();
 
-                    final User currentUser = NM.currentUser();
+                    HashMap<String, Object> value = new HashMap<>();
+                    value.put(Keys.Name, currentUser.getName());
+                    value.put(Keys.Deleted, ServerValue.TIMESTAMP);
 
-                    DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
-                            .child(currentUser.getEntityID());
+                    currentThreadUser.setValue(value, (databaseError, databaseReference) -> {
+                        if (databaseError != null) {
+                            e.onError(databaseError.toException());
+                        }
+                        else {
+                            e.onComplete();
+                        }
+                    });
+                }
+                else {
 
-                    if(model.typeIs(ThreadType.Private) && model.getUsers().size() == 2) {
-
-                        model.setDeleted(true);
-                        model.update();
-
-                        HashMap<String, Object> value = new HashMap<>();
-                        value.put(Keys.Name, currentUser.getName());
-                        value.put(Keys.Deleted, ServerValue.TIMESTAMP);
-
-                        currentThreadUser.setValue(value, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                if (databaseError != null) {
-                                    e.onError(databaseError.toException());
-                                }
-                                else {
-                                    e.onComplete();
-                                }
-                            }
-                        });
-                    }
-                    else {
-
-                        NM.thread().removeUsersFromThread(model, currentUser).subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                e.onComplete();
-                                //DaoCore.deleteEntity(model);
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                throwable.printStackTrace();
-                                e.onError(throwable);
-                            }
-                        });
-                    }
+                    NM.thread().removeUsersFromThread(model, currentUser).subscribe(() -> {
+                        e.onComplete();
+                        //DaoCore.deleteEntity(model);
+                    }, throwable -> {
+                        throwable.printStackTrace();
+                        e.onError(throwable);
+                    });
                 }
             }
         }).subscribeOn(Schedulers.single());
     }
 
     public Single<List<Message>> loadMoreMessages(final Message fromMessage, final Integer numberOfMessages){
-        return Single.create(new SingleOnSubscribe<List<Message>>() {
-            @Override
-            public void subscribe(final SingleEmitter<List<Message>> e) throws Exception {
+        return Single.create((SingleOnSubscribe<List<Message>>) e -> {
 
-                Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
+            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
-                // First try to load the messages from the database
-                List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
+            // First try to load the messages from the database
+            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
 
-                if(!list.isEmpty()) {
-                    e.onSuccess(list);
-                }
-                else {
-                    Date endDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
+            if(!list.isEmpty()) {
+                e.onSuccess(list);
+            }
+            else {
+                Date endDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
-                    DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
+                DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                    Query query = messageRef.orderByPriority()
-                            .endAt(endDate.getTime() - 1)
-                            .limitToLast(numberOfMessages + 1);
+                Query query = messageRef.orderByPriority()
+                        .endAt(endDate.getTime() - 1)
+                        .limitToLast(numberOfMessages + 1);
 
-                    query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                        @Override
-                        public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                            if(hasValue) {
-                                List<Message> messages = new ArrayList<Message>();
+                query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                    if(hasValue) {
+                        List<Message> messages = new ArrayList<Message>();
 
-                                MessageWrapper message;
-                                for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
-                                {
-                                    message = new MessageWrapper(snapshot.child(key));
-                                    model.addMessage(message.getModel());
+                        MessageWrapper message;
+                        for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
+                        {
+                            message = new MessageWrapper(snapshot.child(key));
+                            model.addMessage(message.getModel());
 
-                                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
-                                    messages.add(message.getModel());
+                            message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+                            messages.add(message.getModel());
 
-                                    message.getModel().update();
-                                    model.update();
-                                }
-                                e.onSuccess(messages);
-                            }
-                            else {
-                                e.onSuccess(new ArrayList<Message>());
-                            }
+                            message.getModel().update();
+                            model.update();
                         }
-                    }));
-                }
+                        e.onSuccess(messages);
+                    }
+                    else {
+                        e.onSuccess(new ArrayList<Message>());
+                    }
+                }));
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -554,54 +491,40 @@ public class ThreadWrapper  {
      * Push the thread to firebase.
      **/
     public Completable push() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                DatabaseReference ref = null;
+            DatabaseReference ref = null;
 
-                if (model.getEntityID() != null && model.getEntityID().length() > 0) {
-                    ref = FirebasePaths.threadRef(model.getEntityID());
+            if (model.getEntityID() != null && model.getEntityID().length() > 0) {
+                ref = FirebasePaths.threadRef(model.getEntityID());
+            }
+            else {
+                ref = FirebasePaths.threadRef().push();
+                model.setEntityID(ref.getKey());
+                DaoCore.updateEntity(model);
+            }
+
+            ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe();
+                    e.onComplete();
                 }
                 else {
-                    ref = FirebasePaths.threadRef().push();
-                    model.setEntityID(ref.getKey());
-                    DaoCore.updateEntity(model);
+                    e.onError(databaseError.toException());
                 }
-
-                ref.updateChildren(serialize(), new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if (databaseError == null) {
-                            FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe();
-                            e.onComplete();
-                        }
-                        else {
-                            e.onError(databaseError.toException());
-                        }
-                    }
-                });
-            }
+            });
         }).subscribeOn(Schedulers.single());
     }
 
     public Completable pushLastMessage (final HashMap<Object, Object> messageData) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-                FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.LastMessagePath).setValue(messageData, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError == null) {
-                            e.onComplete();
-                        }
-                        else {
-                            e.onError(databaseError.toException());
-                        }
-                    }
-                });
+        return Completable.create(e -> FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.LastMessagePath).setValue(messageData, (databaseError, databaseReference) -> {
+            if(databaseError == null) {
+                e.onComplete();
             }
-        }).subscribeOn(Schedulers.single());
+            else {
+                e.onError(databaseError.toException());
+            }
+        })).subscribeOn(Schedulers.single());
     }
 
     private void updateReadReceipts() {

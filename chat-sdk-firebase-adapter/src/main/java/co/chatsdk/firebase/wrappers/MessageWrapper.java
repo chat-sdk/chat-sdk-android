@@ -147,55 +147,40 @@ public class MessageWrapper  {
     }
 
     public Completable push() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                // Getting the message ref. Will be created if not exist.
-                final DatabaseReference ref = ref();
-                model.setEntityID(ref.getKey());
+            // Getting the message ref. Will be created if not exist.
+            final DatabaseReference ref = ref();
+            model.setEntityID(ref.getKey());
 
-                DaoCore.updateEntity(model);
+            DaoCore.updateEntity(model);
 
-                ref.setValue(serialize(), ServerValue.TIMESTAMP, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                        if (firebaseError == null) {
-                            e.onComplete();
-                        } else {
-                            e.onError(firebaseError.toException());
-                        }
-                    }
-                });
-            }
+            ref.setValue(serialize(), ServerValue.TIMESTAMP, (firebaseError, firebase) -> {
+                if (firebaseError == null) {
+                    e.onComplete();
+                } else {
+                    e.onError(firebaseError.toException());
+                }
+            });
         });
     }
     
     public Completable send() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-                if(model.getThread() != null) {
-                    push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
-                            model.setMessageStatus(MessageSendStatus.Sent);
-                            model.update();
-                            e.onComplete();
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            e.onError(throwable);
-                        }
-                    });
-                }
-                else {
-                    // TODO: Localize
-                    e.onError(new Throwable("Message doesn't have a thread"));
-                }
+        return Completable.create(e -> {
+            if(model.getThread() != null) {
+                push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).subscribe(() -> {
+                    FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
+                    model.setMessageStatus(MessageSendStatus.Sent);
+                    model.update();
+                    e.onComplete();
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    e.onError(throwable);
+                });
+            }
+            else {
+                // TODO: Localize
+                e.onError(new Throwable("Message doesn't have a thread"));
             }
         }).subscribeOn(Schedulers.single());
 

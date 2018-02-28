@@ -32,66 +32,54 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
     }
 
     public Single<Thread> createPublicThreadWithName(final String name, final String entityID) {
-        return Single.create(new SingleOnSubscribe<Thread>() {
-            @Override
-            public void subscribe(final SingleEmitter<Thread> e) throws Exception {
+        return Single.create((SingleOnSubscribe<Thread>) e -> {
 
-                // Crating the new thread.
-                // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
-                final Thread thread = new Thread();
+            // Crating the new thread.
+            // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
+            final Thread thread = new Thread();
 
-                User currentUser = NM.currentUser();
-                thread.setCreator(currentUser);
-                thread.setCreatorEntityId(currentUser.getEntityID());
-                thread.setType(ThreadType.PublicGroup);
-                thread.setName(name);
-                thread.setEntityID(entityID);
+            User currentUser = NM.currentUser();
+            thread.setCreator(currentUser);
+            thread.setCreatorEntityId(currentUser.getEntityID());
+            thread.setType(ThreadType.PublicGroup);
+            thread.setName(name);
+            thread.setEntityID(entityID);
 
-                // Add the path and API key
-                // This allows you to restrict public threads to a particular
-                // API key or root key
-                thread.setRootKey(ChatSDK.config().firebaseRootPath);
+            // Add the path and API key
+            // This allows you to restrict public threads to a particular
+            // API key or root key
+            thread.setRootKey(ChatSDK.config().firebaseRootPath);
 
-                // Save the entity to the local db.
-                DaoCore.createEntity(thread);
+            // Save the entity to the local db.
+            DaoCore.createEntity(thread);
 
-                ThreadWrapper wrapper = new ThreadWrapper(thread);
+            ThreadWrapper wrapper = new ThreadWrapper(thread);
 
-                wrapper.push().doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        DaoCore.deleteEntity(thread);
-                        throwable.printStackTrace();
-                        e.onError(throwable);
+            wrapper.push().doOnError(throwable -> {
+                DaoCore.deleteEntity(thread);
+                throwable.printStackTrace();
+                e.onError(throwable);
+            }).subscribe(() -> {
+                DaoCore.updateEntity(thread);
+
+                // Add the thread to the list of public threads
+                DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
+                        .child(thread.getEntityID());
+
+                HashMap<String, Object> value = new HashMap<>();
+                value.put(Keys.Null, "");
+
+                publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
+                    if(databaseError == null) {
+                        e.onSuccess(thread);
                     }
-                }).subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        DaoCore.updateEntity(thread);
-
-                        // Add the thread to the list of public threads
-                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
-                                .child(thread.getEntityID());
-
-                        HashMap<String, Object> value = new HashMap<>();
-                        value.put(Keys.Null, "");
-
-                        publicThreadRef.setValue(value, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                if(databaseError == null) {
-                                    e.onSuccess(thread);
-                                }
-                                else {
-                                    DaoCore.deleteEntity(thread);
-                                    e.onError(databaseError.toException());
-                                }
-                            }
-                        });
+                    else {
+                        DaoCore.deleteEntity(thread);
+                        e.onError(databaseError.toException());
                     }
                 });
+            });
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 }

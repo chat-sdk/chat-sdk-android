@@ -173,54 +173,42 @@ public class UserWrapper {
     }
 
     public Completable once(){
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                final DatabaseReference ref = ref();
+            final DatabaseReference ref = ref();
 
-                ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if(hasValue) {
-                            deserialize((Map<String, Object>) snapshot.getValue());
-                        }
-                        e.onComplete();
-                    }
-                }));
+            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue) {
+                    deserialize((Map<String, Object>) snapshot.getValue());
+                }
+                e.onComplete();
+            }));
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 
     public Observable<User> metaOn() {
-        return Observable.create(new ObservableOnSubscribe<User>() {
-            @Override
-            public void subscribe(final ObservableEmitter<User> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<User>) e -> {
 
-                metaOff();
+            metaOff();
 
-                final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
+            final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
 
-                if(FirebaseReferenceManager.shared().isOn(userMetaRef)) {
+            if(FirebaseReferenceManager.shared().isOn(userMetaRef)) {
+                e.onNext(model);
+            }
+
+            ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if (hasValue && snapshot.getValue() instanceof Map) {
+                    deserializeMeta((Map<String, Object>) snapshot.getValue());
                     e.onNext(model);
                 }
+            }));
 
-                ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if (hasValue && snapshot.getValue() instanceof Map) {
-                            deserializeMeta((Map<String, Object>) snapshot.getValue());
-                            e.onNext(model);
-                        }
-                    }
-                }));
-
-                FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
+            FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
 
 
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 
@@ -265,27 +253,20 @@ public class UserWrapper {
 
     public Observable<Boolean> onlineOn () {
         onlineOff();
-        return Observable.create(new ObservableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(final ObservableEmitter<Boolean> e) throws Exception {
-                DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
+        return Observable.create((ObservableOnSubscribe<Boolean>) e -> {
+            DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
 
-                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
+            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
 
-                        Boolean available = false;
-                        if(hasValue) {
-                            available = (boolean) snapshot.getValue();
-                        }
-                        model.setAvailability(available ? Availability.Available : Availability.Unavailable);
-                        model.update();
-                        e.onNext(available);
-                    }
-
-                }));
-                FirebaseReferenceManager.shared().addRef(ref, listener);
-            }
+                Boolean available = false;
+                if(hasValue) {
+                    available = (boolean) snapshot.getValue();
+                }
+                model.setAvailability(available ? Availability.Available : Availability.Unavailable);
+                model.update();
+                e.onNext(available);
+            }));
+            FirebaseReferenceManager.shared().addRef(ref, listener);
         }).subscribeOn(Schedulers.single());
     }
 
@@ -304,54 +285,40 @@ public class UserWrapper {
     }
     
     public Completable push() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                final DatabaseReference ref = ref();
+            final DatabaseReference ref = ref();
 
-                updateFirebaseUser().subscribe();
+            updateFirebaseUser().subscribe();
 
-                ref.updateChildren(serialize(), new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                        if (firebaseError == null) {
-                            // index should be updated whenever the user is pushed
-                            FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe();
-                            e.onComplete();
-                        }
-                        else {
-                            e.onError(firebaseError.toException());
-                        }
-                    }
-                });
-            }
+            ref.updateChildren(serialize(), (firebaseError, firebase) -> {
+                if (firebaseError == null) {
+                    // index should be updated whenever the user is pushed
+                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe();
+                    e.onComplete();
+                }
+                else {
+                    e.onError(firebaseError.toException());
+                }
+            });
         }).subscribeOn(Schedulers.single()).andThen(updateIndex());
     }
 
     public Completable updateFirebaseUser () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(model.getName());
+            UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(model.getName());
 
-                if(model.getAvatarURL() != null && model.getAvatarURL().length() > 0) {
-                    builder.setPhotoUri(Uri.parse(model.getAvatarURL()));
-                }
-
-                final UserProfileChangeRequest changeRequest = builder.build();
-
-                user.updateProfile(changeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        e.onComplete();
-                    }
-                });
+            if(model.getAvatarURL() != null && model.getAvatarURL().length() > 0) {
+                builder.setPhotoUri(Uri.parse(model.getAvatarURL()));
             }
+
+            final UserProfileChangeRequest changeRequest = builder.build();
+
+            user.updateProfile(changeRequest).addOnCompleteListener(task -> e.onComplete());
         }).subscribeOn(Schedulers.single());
     }
     
@@ -383,34 +350,28 @@ public class UserWrapper {
     }
 
     public Completable updateIndex() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                final Map<String, String> values = new HashMap<String, String>();
+            final Map<String, String> values = new HashMap<String, String>();
 
-                String name = model.getName();
-                String email = model.getEmail();
-                String phoneNumber = model.metaStringForKey(Keys.Phone);
+            String name = model.getName();
+            String email = model.getEmail();
+            String phoneNumber = model.metaStringForKey(Keys.Phone);
 
-                values.put(Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
-                values.put(Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
-                values.put(Keys.Phone, StringUtils.isNotEmpty(phoneNumber) ? processForQuery(phoneNumber) : "");
+            values.put(Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
+            values.put(Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
+            values.put(Keys.Phone, StringUtils.isNotEmpty(phoneNumber) ? processForQuery(phoneNumber) : "");
 
-                final DatabaseReference ref = FirebasePaths.indexRef().child(model.getEntityID());
+            final DatabaseReference ref = FirebasePaths.indexRef().child(model.getEntityID());
 
 
-                ref.setValue(values, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError firebaseError, DatabaseReference firebase) {
-                        if (firebaseError == null) {
-                            e.onComplete();
-                        } else {
-                            e.onError(firebaseError.toException());
-                        }
-                    }
-                });
-            }
+            ref.setValue(values, (firebaseError, firebase) -> {
+                if (firebaseError == null) {
+                    e.onComplete();
+                } else {
+                    e.onError(firebaseError.toException());
+                }
+            });
         }).subscribeOn(Schedulers.single());
     }
     

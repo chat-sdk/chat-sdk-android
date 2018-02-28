@@ -27,41 +27,35 @@ import io.reactivex.schedulers.Schedulers;
 public class FirebaseSearchHandler implements SearchHandler {
 
     public Observable<User> usersForIndex(final String index, final String value) {
-        return Observable.create(new ObservableOnSubscribe<User>() {
-            @Override
-            public void subscribe(final ObservableEmitter<User> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<User>) e -> {
 
-                if (StringUtils.isBlank(value))
-                {
-                    e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
-                    return;
-                }
+            if (StringUtils.isBlank(value))
+            {
+                e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
+                return;
+            }
 
-                final Query query = FirebasePaths.usersRef()
-                        .orderByChild(Keys.Meta + '/' + index)
-                        .startAt(value)
-                        .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
+            final Query query = FirebasePaths.usersRef()
+                    .orderByChild(Keys.Meta + '/' + index)
+                    .startAt(value)
+                    .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
 
-                query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        if (hasValue) {
-                            Object valueObject = snapshot.getValue();
-                            if (valueObject instanceof HashMap) {
-                                for (Object key : ((HashMap) valueObject).keySet()) {
-                                    if (key instanceof String) {
-                                        DataSnapshot userSnapshot = snapshot.child((String) key);
+            query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if (hasValue) {
+                    Object valueObject = snapshot.getValue();
+                    if (valueObject instanceof HashMap) {
+                        for (Object key : ((HashMap) valueObject).keySet()) {
+                            if (key instanceof String) {
+                                DataSnapshot userSnapshot = snapshot.child((String) key);
 
-                                        if (userSnapshot.hasChild(Keys.Meta)) {
-                                            DataSnapshot meta = userSnapshot.child(Keys.Meta);
-                                            if (meta.hasChild(index)) {
-                                                String childValue = (String) meta.child(index).getValue();
-                                                if (childValue.toLowerCase().contains(value.toLowerCase())) {
-                                                    final UserWrapper wrapper = new UserWrapper(userSnapshot);
-                                                    if (!wrapper.getModel().equals(NM.currentUser())) {
-                                                        e.onNext(wrapper.getModel());
-                                                    }
-                                                }
+                                if (userSnapshot.hasChild(Keys.Meta)) {
+                                    DataSnapshot meta = userSnapshot.child(Keys.Meta);
+                                    if (meta.hasChild(index)) {
+                                        String childValue = (String) meta.child(index).getValue();
+                                        if (childValue.toLowerCase().contains(value.toLowerCase())) {
+                                            final UserWrapper wrapper = new UserWrapper(userSnapshot);
+                                            if (!wrapper.getModel().equals(NM.currentUser())) {
+                                                e.onNext(wrapper.getModel());
                                             }
                                         }
                                     }
@@ -69,7 +63,8 @@ public class FirebaseSearchHandler implements SearchHandler {
                             }
                         }
                     }
-                }));
+                }
+            }));
 
 //                final ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
 //                    @Override
@@ -92,18 +87,17 @@ public class FirebaseSearchHandler implements SearchHandler {
 //                    }
 //                }));
 
-                e.setDisposable(new Disposable() {
-                    @Override
-                    public void dispose() {
-                        //query.removeEventListener(listener);
-                    }
+            e.setDisposable(new Disposable() {
+                @Override
+                public void dispose() {
+                    //query.removeEventListener(listener);
+                }
 
-                    @Override
-                    public boolean isDisposed() {
-                        return false;
-                    }
-                });
-            }
+                @Override
+                public boolean isDisposed() {
+                    return false;
+                }
+            });
         }).subscribeOn(Schedulers.single());
     }
 

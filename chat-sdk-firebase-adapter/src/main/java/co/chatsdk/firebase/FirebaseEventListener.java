@@ -68,72 +68,42 @@ public class FirebaseEventListener implements ChildEventListener, ValueEventList
     @Override
     public void onChildAdded(final DataSnapshot var1, final String var2) {
         if(onChildAdded != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onChildAdded.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            AsyncTask.execute(() -> onChildAdded.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildChanged(final DataSnapshot var1, final String var2) {
         if(onChildChanged != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onChildChanged.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            AsyncTask.execute(() -> onChildChanged.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildRemoved(final DataSnapshot var1) {
         if(onChildRemoved != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onChildRemoved.trigger(var1, hasValue(var1));
-                }
-            });
+            AsyncTask.execute(() -> onChildRemoved.trigger(var1, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildMoved(final DataSnapshot var1, final String var2) {
         if(onChildMoved != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onChildMoved.trigger(var1, var2, hasValue(var1));
-                }
-            });
+            AsyncTask.execute(() -> onChildMoved.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onDataChange(final DataSnapshot dataSnapshot) {
         if(onValue != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onValue.trigger(dataSnapshot, hasValue(dataSnapshot));
-                }
-            });
+            AsyncTask.execute(() -> onValue.trigger(dataSnapshot, hasValue(dataSnapshot)));
         }
     }
 
     @Override
     public void onCancelled(final DatabaseError var1) {
         if(onCancelled != null) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onCancelled.trigger(var1);
-                }
-            });
+            AsyncTask.execute(() -> onCancelled.trigger(var1));
         }
     }
 

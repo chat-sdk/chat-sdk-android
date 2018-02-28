@@ -46,14 +46,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public static int UserThreadLinkTypeRemoveUser = 2;
 
     public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage,final Thread thread) {
-        return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(new Function<List<Message>, SingleSource<? extends List<Message>>>() {
-            @Override
-            public SingleSource<? extends List<Message>> apply(List<Message> messages) throws Exception {
-                if(messages.isEmpty()) {
-                    return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
-                }
-                return Single.just(messages);
+        return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(messages -> {
+            if(messages.isEmpty()) {
+                return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
             }
+            return Single.just(messages);
         });
     }
 
@@ -79,51 +76,45 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @return
      */
     private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                DatabaseReference ref = FirebasePaths.firebaseRawRef();
-                final HashMap<String, Object> data = new HashMap<>();
+            DatabaseReference ref = FirebasePaths.firebaseRawRef();
+            final HashMap<String, Object> data = new HashMap<>();
 
-                for (final User u : users) {
+            for (final User u : users) {
 
-                    DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(u.getEntityID()).child(Keys.Status);
-                    DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(thread.getEntityID()).child(Keys.InvitedBy);
+                DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(u.getEntityID()).child(Keys.Status);
+                DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(thread.getEntityID()).child(Keys.InvitedBy);
 
-                    String threadUsersPath = threadUsersRef.toString().replace(threadUsersRef.getRoot().toString(), "");
-                    String userThreadsPath = userThreadsRef.toString().replace(userThreadsRef.getRoot().toString(), "");
+                String threadUsersPath = threadUsersRef.toString().replace(threadUsersRef.getRoot().toString(), "");
+                String userThreadsPath = userThreadsRef.toString().replace(userThreadsRef.getRoot().toString(), "");
 
-                    //
-                    if(userThreadLinkType == UserThreadLinkTypeAddUser) {
-                        data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
-                        data.put(userThreadsPath, NM.currentUser().getEntityID());
+                //
+                if(userThreadLinkType == UserThreadLinkTypeAddUser) {
+                    data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
+                    data.put(userThreadsPath, NM.currentUser().getEntityID());
 
-                        if (thread.typeIs(ThreadType.Public)) {
-                            threadUsersRef.onDisconnect().removeValue();
-                        }
-                    }
-                    else if (userThreadLinkType == UserThreadLinkTypeRemoveUser) {
-                        data.put(threadUsersPath, null);
-                        data.put(userThreadsPath, null);
+                    if (thread.typeIs(ThreadType.Public)) {
+                        threadUsersRef.onDisconnect().removeValue();
                     }
                 }
-
-                ref.updateChildren(data, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if (databaseError == null) {
-                            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe();
-                            for(User u : users) {
-                                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe();
-                            }
-                            e.onComplete();
-                        } else {
-                            e.onError(databaseError.toException());
-                        }
-                    }
-                });
+                else if (userThreadLinkType == UserThreadLinkTypeRemoveUser) {
+                    data.put(threadUsersPath, null);
+                    data.put(userThreadsPath, null);
+                }
             }
+
+            ref.updateChildren(data, (databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe();
+                    for(User u : users) {
+                        FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe();
+                    }
+                    e.onComplete();
+                } else {
+                    e.onError(databaseError.toException());
+                }
+            });
         }).subscribeOn(Schedulers.single());
     }
 
@@ -140,26 +131,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      *  If the destination thread is public the system will add the user to the message thread if needed.
      *  The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.*/
     public Observable<MessageSendProgress> sendMessage(final Message message){
-        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
-            @Override
-            public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
-                new MessageWrapper(message).send()
-                        .subscribeOn(Schedulers.single())
-                        .subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                pushForMessage(message);
-                                e.onNext(new MessageSendProgress(message));
-                                e.onComplete();
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                e.onError(throwable);
-                            }
-                        });
-            }
-        });
+        return Observable.create(e -> new MessageWrapper(message).send()
+                .subscribeOn(Schedulers.single())
+                .subscribe(() -> {
+                    pushForMessage(message);
+                    e.onNext(new MessageSendProgress(message));
+                    e.onComplete();
+                }, throwable -> e.onError(throwable)));
     }
 
     /**
@@ -179,101 +157,77 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Single<Thread> createThread(final String name, final List<User> users, final int type) {
-        return Single.create(new SingleOnSubscribe<Thread>() {
-            @Override
-            public void subscribe(final SingleEmitter<Thread> e) throws Exception {
+        return Single.create((SingleOnSubscribe<Thread>) e -> {
 
-                User currentUser = NM.currentUser();
+            User currentUser = NM.currentUser();
 
-                if(!users.contains(currentUser)) {
-                    users.add(currentUser);
-                }
+            if(!users.contains(currentUser)) {
+                users.add(currentUser);
+            }
 
-                if(users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
+            if(users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
 
-                    User otherUser = null;
-                    Thread jointThread = null;
+                User otherUser = null;
+                Thread jointThread = null;
 
-                    for(User user : users) {
-                        if(!user.equals(currentUser)) {
-                            otherUser = user;
-                            break;
-                        }
-                    }
-
-                    // Check to see if a thread already exists with these
-                    // two users
-                    for(Thread thread : getThreads(ThreadType.Private1to1, true)) {
-                        if(thread.getUsers().size() == 2 &&
-                                thread.getUsers().contains(currentUser) &&
-                                thread.getUsers().contains(otherUser))
-                        {
-                            jointThread = thread;
-                            break;
-                        }
-                    }
-
-                    if(jointThread != null) {
-                        jointThread.setDeleted(false);
-                        DaoCore.updateEntity(jointThread);
-                        e.onSuccess(jointThread);
-                        return;
+                for(User user : users) {
+                    if(!user.equals(currentUser)) {
+                        otherUser = user;
+                        break;
                     }
                 }
 
-                final Thread thread = DaoCore.getEntityForClass(Thread.class);
-                DaoCore.createEntity(thread);
-                thread.setCreator(currentUser);
-                thread.setCreatorEntityId(currentUser.getEntityID());
-                thread.setCreationDate(new Date());
-                thread.setName(name);
-
-                if(type != -1) {
-                    thread.setType(type);
-                }
-                else {
-                    thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+                // Check to see if a thread already exists with these
+                // two users
+                for(Thread thread : getThreads(ThreadType.Private1to1, true)) {
+                    if(thread.getUsers().size() == 2 &&
+                            thread.getUsers().contains(currentUser) &&
+                            thread.getUsers().contains(otherUser))
+                    {
+                        jointThread = thread;
+                        break;
+                    }
                 }
 
-                // Save the thread to the database.
+                if(jointThread != null) {
+                    jointThread.setDeleted(false);
+                    DaoCore.updateEntity(jointThread);
+                    e.onSuccess(jointThread);
+                    return;
+                }
+            }
+
+            final Thread thread = DaoCore.getEntityForClass(Thread.class);
+            DaoCore.createEntity(thread);
+            thread.setCreator(currentUser);
+            thread.setCreatorEntityId(currentUser.getEntityID());
+            thread.setCreationDate(new Date());
+            thread.setName(name);
+
+            if(type != -1) {
+                thread.setType(type);
+            }
+            else {
+                thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+            }
+
+            // Save the thread to the database.
+            e.onSuccess(thread);
+
+        }).flatMap((Function<Thread, SingleSource<? extends Thread>>) thread -> Single.create(e -> {
+            if(thread.getEntityID() == null) {
+                ThreadWrapper wrapper = new ThreadWrapper(thread);
+
+                wrapper.push().concatWith(addUsersToThread(thread, users)).doOnError(throwable -> {
+                    throwable.printStackTrace();
+                    e.onError(throwable);
+                }).subscribe(() -> e.onSuccess(thread));
+
+            }
+            else {
                 e.onSuccess(thread);
-
             }
-        }).flatMap(new Function<Thread, SingleSource<? extends Thread>>() {
-            @Override
-            public SingleSource<? extends Thread> apply(final Thread thread) throws Exception {
-                return Single.create(new SingleOnSubscribe<Thread>() {
-                    @Override
-                    public void subscribe(final SingleEmitter<Thread> e) throws Exception {
-                        if(thread.getEntityID() == null) {
-                            ThreadWrapper wrapper = new ThreadWrapper(thread);
-
-                            wrapper.push().concatWith(addUsersToThread(thread, users)).doOnError(new Consumer<Throwable>() {
-                                @Override
-                                public void accept(Throwable throwable) throws Exception {
-                                    throwable.printStackTrace();
-                                    e.onError(throwable);
-                                }
-                            }).subscribe(new Action() {
-                                @Override
-                                public void run() throws Exception {
-                                    e.onSuccess(thread);
-                                }
-                            });
-
-                        }
-                        else {
-                            e.onSuccess(thread);
-                        }
-                    }
-                });
-            }
-        }).doOnSuccess(new Consumer<Thread>() {
-            @Override
-            public void accept(Thread thread) throws Exception {
-                thread.addUser(NM.currentUser());
-            }
-        }).subscribeOn(Schedulers.single());
+        })).doOnSuccess(thread -> thread.addUser(NM.currentUser())).subscribeOn(Schedulers.single());
     }
 
     public Completable deleteThread(Thread thread) {
@@ -281,18 +235,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable deleteThreadWithEntityID(final String entityID) {
-        return Single.create(new SingleOnSubscribe<Thread>() {
-            @Override
-            public void subscribe(SingleEmitter<Thread> e) throws Exception {
-                final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
-                e.onSuccess(thread);
-            }
-        }).flatMapCompletable(new Function<Thread, Completable>() {
-            @Override
-            public Completable apply(Thread thread) throws Exception {
-                return new ThreadWrapper(thread).deleteThread();
-            }
-        }).subscribeOn(Schedulers.single());
+        return Single.create((SingleOnSubscribe<Thread>) e -> {
+            final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
+            e.onSuccess(thread);
+        }).flatMapCompletable(thread -> new ThreadWrapper(thread).deleteThread()).subscribeOn(Schedulers.single());
     }
 
     protected void pushForMessage(final Message message){

@@ -17,22 +17,14 @@ import io.reactivex.schedulers.Schedulers;
 public class FirebaseRX {
 
     public static Completable remove (final DatabaseReference ref) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-                ref.removeValue(new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError != null) {
-                            e.onError(new Throwable(databaseError.getMessage()));
-                        }
-                        else {
-                            e.onComplete();
-                        }
-                    }
-                });
+        return Completable.create(e -> ref.removeValue((databaseError, databaseReference) -> {
+            if(databaseError != null) {
+                e.onError(new Throwable(databaseError.getMessage()));
             }
-        }).subscribeOn(Schedulers.single());
+            else {
+                e.onComplete();
+            }
+        })).subscribeOn(Schedulers.single());
     }
 
     public static Completable set (final DatabaseReference ref, final Object value) {
@@ -40,23 +32,17 @@ public class FirebaseRX {
     }
 
     public static Completable set (final DatabaseReference ref, final Object value, final boolean onDisconnectRemoveValue) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
-                ref.setValue(value, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError != null) {
-                            e.onError(new Throwable(databaseError.getMessage()));
-                        }
-                        else {
-                            e.onComplete();
-                        }
-                    }
-                });
-                if(onDisconnectRemoveValue) {
-                    ref.onDisconnect().removeValue();
+        return Completable.create(e -> {
+            ref.setValue(value, (databaseError, databaseReference) -> {
+                if(databaseError != null) {
+                    e.onError(new Throwable(databaseError.getMessage()));
                 }
+                else {
+                    e.onComplete();
+                }
+            });
+            if(onDisconnectRemoveValue) {
+                ref.onDisconnect().removeValue();
             }
         }).subscribeOn(Schedulers.single());
     }

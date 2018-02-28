@@ -48,59 +48,46 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         // When the user logs out, turn off all the existing listeners
         FirebaseEventHandler.shared().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(new Consumer<NetworkEvent>() {
-            @Override
-            public void accept(NetworkEvent networkEvent) throws Exception {
-                disposableList.dispose();
-            }
-        });
+                .subscribe(networkEvent -> disposableList.dispose());
     }
 
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
     public Completable pushUser () {
-        return Single.create(new SingleOnSubscribe<User>() {
-            @Override
-            public void subscribe(@NonNull final SingleEmitter<User> e) throws Exception {
-                // Check to see if the avatar URL is local or remote
-                File avatar = new File(NM.currentUser().getAvatarURL());
-                if (avatar.exists() && NM.upload() != null) {
-                    // Upload the image
-                    Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
-                    NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-                        }
+        return Single.create((SingleOnSubscribe<User>) e -> {
+            // Check to see if the avatar URL is local or remote
+            File avatar = new File(NM.currentUser().getAvatarURL());
+            if (avatar.exists() && NM.upload() != null) {
+                // Upload the image
+                Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
+                NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
-                        @Override
-                        public void onNext(@NonNull FileUploadResult fileUploadResult) {
-                            if (fileUploadResult.urlValid()) {
-                                NM.currentUser().setAvatarURL(fileUploadResult.url);
-                                NM.currentUser().update();
-                                NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
-                            }
+                    @Override
+                    public void onNext(@NonNull FileUploadResult fileUploadResult) {
+                        if (fileUploadResult.urlValid()) {
+                            NM.currentUser().setAvatarURL(fileUploadResult.url);
+                            NM.currentUser().update();
+                            NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
                         }
+                    }
 
-                        @Override
-                        public void onError(@NonNull Throwable ex) {
-                            ex.printStackTrace();
-                            e.onSuccess(NM.currentUser());
-                        }
+                    @Override
+                    public void onError(@NonNull Throwable ex) {
+                        ex.printStackTrace();
+                        e.onSuccess(NM.currentUser());
+                    }
 
-                        @Override
-                        public void onComplete() {
-                            e.onSuccess(NM.currentUser());
-                        }
-                    });
-                } else {
-                    e.onSuccess(NM.currentUser());
-                }
+                    @Override
+                    public void onComplete() {
+                        e.onSuccess(NM.currentUser());
+                    }
+                });
+            } else {
+                e.onSuccess(NM.currentUser());
             }
-        }).flatMapCompletable(new Function<User, CompletableSource>() {
-            @Override
-            public CompletableSource apply(@NonNull User user) throws Exception {
-                return new UserWrapper(user).push();
-            }
-        }).subscribeOn(Schedulers.single());
+        }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
     }
 
     public Completable setUserOnline() {
@@ -125,86 +112,49 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         NM.core().save();
-        disposableList.add(setUserOffline().subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                DatabaseReference.goOffline();
-            }
-        }));
+        disposableList.add(setUserOffline().subscribe(() -> DatabaseReference.goOffline()));
     }
 
     public void goOnline() {
-        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-            @Override
-            public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                if(hasValue) {
-                    Timber.v("Already online!");
-                }
-                else {
-                    DatabaseReference.goOnline();
-                    disposableList.add(setUserOnline().subscribe());
-                }
+        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+            if(hasValue) {
+                Timber.v("Already online!");
+            }
+            else {
+                DatabaseReference.goOnline();
+                disposableList.add(setUserOnline().subscribe());
             }
         }));
     }
 
     public Completable updateLastOnline () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter e) throws Exception {
-                User currentUser = NM.currentUser();
-                currentUser.setLastOnline(new Date());
-                currentUser.update();
-                e.onComplete();
-            }
+        return Completable.create(e -> {
+            User currentUser = NM.currentUser();
+            currentUser.setLastOnline(new Date());
+            currentUser.update();
+            e.onComplete();
         }).concatWith(pushUser()).subscribeOn(Schedulers.single());
     }
 
     public Single<Boolean> isOnline() {
-        return Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(final SingleEmitter<Boolean> e) throws Exception {
-                if (NM.currentUser() == null) {
-                    e.onError(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
-                    return;
-                }
-
-                FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onValue(new FirebaseEventListener.Value() {
-                    @Override
-                    public void trigger(DataSnapshot snapshot, boolean hasValue) {
-                        disposableList.add(updateLastOnline().subscribe());
-                        e.onSuccess((Boolean) snapshot.getValue());
-                    }
-                }));
-
+        return Single.create((SingleOnSubscribe<Boolean>) e -> {
+            if (NM.currentUser() == null) {
+                e.onError(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
+                return;
             }
+
+            FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                disposableList.add(updateLastOnline().subscribe());
+                e.onSuccess((Boolean) snapshot.getValue());
+            }));
+
         }).subscribeOn(Schedulers.single());
     }
 
     public void userOn (final User user) {
         final UserWrapper wrapper = new UserWrapper(user);
-        disposableList.add(wrapper.onlineOn().doOnDispose(new Action() {
-            @Override
-            public void run() throws Exception {
-                wrapper.onlineOff();
-            }
-        }).subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                NM.events().source().onNext(NetworkEvent.userPresenceUpdated(user));
-            }
-        }));
-        disposableList.add(wrapper.metaOn().doOnDispose(new Action() {
-            @Override
-            public void run() throws Exception {
-                wrapper.metaOff();
-            }
-        }).subscribe(new Consumer<User>() {
-            @Override
-            public void accept(User user) throws Exception {
-            NM.events().source().onNext(NetworkEvent.userMetaUpdated(user));
-            }
-        }));
+        disposableList.add(wrapper.onlineOn().doOnDispose(() -> wrapper.onlineOff()).subscribe(aBoolean -> NM.events().source().onNext(NetworkEvent.userPresenceUpdated(user))));
+        disposableList.add(wrapper.metaOn().doOnDispose(() -> wrapper.metaOff()).subscribe(user1 -> NM.events().source().onNext(NetworkEvent.userMetaUpdated(user1))));
     }
 
     public void userOff (final User user) {
