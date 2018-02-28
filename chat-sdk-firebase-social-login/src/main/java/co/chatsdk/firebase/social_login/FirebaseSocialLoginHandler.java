@@ -89,111 +89,84 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
 
     @Override
     public Completable loginWithFacebook(final Activity activity) {
-        return Single.create(new SingleOnSubscribe<AuthCredential>() {
-            @Override
-            public void subscribe(final SingleEmitter<AuthCredential> e) throws Exception {
+        return Single.create((SingleOnSubscribe<AuthCredential>) e -> {
 
-                LoginButton button = new LoginButton(activity);
-                facebookCallbackManager = CallbackManager.Factory.create();
-                button.registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
+            LoginButton button = new LoginButton(activity);
+            facebookCallbackManager = CallbackManager.Factory.create();
+            button.registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
 
-                        NM.auth().addLoginInfoData(AuthKeys.Token, loginResult.getAccessToken().getToken());
-                        NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Facebook.ordinal());
+                    NM.auth().addLoginInfoData(AuthKeys.Token, loginResult.getAccessToken().getToken());
+                    NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Facebook.ordinal());
 
-                        e.onSuccess(FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken()));
-                    }
+                    e.onSuccess(FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken()));
+                }
 
-                    @Override
-                    public void onCancel() {
-                        e.onError(null);
-                    }
+                @Override
+                public void onCancel() {
+                    e.onError(null);
+                }
 
-                    @Override
-                    public void onError(FacebookException error) {
-                        e.onError(error);
-                    }
-                });
+                @Override
+                public void onError(FacebookException error) {
+                    e.onError(error);
+                }
+            });
 
-                button.callOnClick();
+            button.callOnClick();
 
-            }
-        }).flatMapCompletable(new Function<AuthCredential, Completable>() {
-            @Override
-            public Completable apply(AuthCredential authCredential) throws Exception {
-                return signInWithCredential(activity, authCredential);
-            }
-        });
+        }).flatMapCompletable(authCredential -> signInWithCredential(activity, authCredential));
     }
 
     @Override
     public Completable loginWithTwitter(final Activity activity) {
-        return Single.create(new SingleOnSubscribe<AuthCredential>() {
-            @Override
-            public void subscribe(final SingleEmitter<AuthCredential> e) throws Exception {
+        return Single.create((SingleOnSubscribe<AuthCredential>) e -> {
 
-                twitterButton = new TwitterLoginButton(activity);
-                twitterButton.setCallback(new Callback<TwitterSession>() {
-                    @Override
-                    public void success(Result<TwitterSession> result) {
+            twitterButton = new TwitterLoginButton(activity);
+            twitterButton.setCallback(new Callback<TwitterSession>() {
+                @Override
+                public void success(Result<TwitterSession> result) {
 
-                        NM.auth().addLoginInfoData(AuthKeys.Token, result.data.getAuthToken().token);
-                        NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Twitter.ordinal());
+                    NM.auth().addLoginInfoData(AuthKeys.Token, result.data.getAuthToken().token);
+                    NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Twitter.ordinal());
 
-                        e.onSuccess(TwitterAuthProvider.getCredential(result.data.getAuthToken().token, result.data.getAuthToken().secret));
-                    }
+                    e.onSuccess(TwitterAuthProvider.getCredential(result.data.getAuthToken().token, result.data.getAuthToken().secret));
+                }
 
-                    @Override
-                    public void failure(TwitterException exception) {
-                        exception.printStackTrace();
-                        e.onError(exception);
-                    }
-                });
-                twitterButton.callOnClick();
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                    e.onError(exception);
+                }
+            });
+            twitterButton.callOnClick();
 
-            }
-        }).flatMapCompletable(new Function<AuthCredential, Completable>() {
-            @Override
-            public Completable apply(AuthCredential authCredential) throws Exception {
-                return signInWithCredential(activity, authCredential);
-            }
-        });
+        }).flatMapCompletable(authCredential -> signInWithCredential(activity, authCredential));
     }
 
     @Override
     public Completable loginWithGoogle(final Activity activity) {
-        return Single.create(new SingleOnSubscribe<AuthCredential>() {
-            @Override
-            public void subscribe(final SingleEmitter<AuthCredential> e) throws Exception {
+        return Single.create((SingleOnSubscribe<AuthCredential>) e -> {
 
-                googleClient = new GoogleApiClient.Builder(activity)
-                        .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                        .build();
+            googleClient = new GoogleApiClient.Builder(activity)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
 
-                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleClient);
-                activity.startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
+            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleClient);
+            activity.startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
 
-                googleSignInCompleteListener = new GoogleSignInCompleteListener() {
-                    @Override
-                    public void complete(GoogleSignInResult result) {
-                        if(result.isSuccess()) {
-                            AuthCredential credential = GoogleAuthProvider.getCredential(result.getSignInAccount().getIdToken(), null);
-                            e.onSuccess(credential);
-                        }
-                        else {
-                            e.onError(new Exception(result.getStatus().getStatusMessage()));
-                        }
-                    }
-                };
+            googleSignInCompleteListener = result -> {
+                if(result.isSuccess()) {
+                    AuthCredential credential = GoogleAuthProvider.getCredential(result.getSignInAccount().getIdToken(), null);
+                    e.onSuccess(credential);
+                }
+                else {
+                    e.onError(new Exception(result.getStatus().getStatusMessage()));
+                }
+            };
 
-            }
-        }).flatMapCompletable(new Function<AuthCredential, Completable>() {
-            @Override
-            public Completable apply(AuthCredential authCredential) throws Exception {
-                return signInWithCredential(activity, authCredential);
-            }
-        });
+        }).flatMapCompletable(authCredential -> signInWithCredential(activity, authCredential));
     }
 
     @Override
@@ -235,41 +208,24 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
     }
 
     public Completable signInWithCredential (final Activity activity, final AuthCredential credential) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter e) throws Exception {
+        return Completable.create(e -> FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(activity, task -> {
+                    if (task.isSuccessful() && task.isComplete()) {
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                FirebaseAuth.getInstance().signInWithCredential(credential)
-                        .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful() && task.isComplete()) {
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) NM.auth();
 
-                                    FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) NM.auth();
-
-                                    handler.authenticateWithUser(user).doOnError(new Consumer<Throwable>() {
-                                        @Override
-                                        public void accept(Throwable throwable) throws Exception {
-                                            throwable.printStackTrace();
-                                            e.onError(throwable);
-                                        }
-                                    }).subscribe(new Action() {
-                                        @Override
-                                        public void run() throws Exception {
-                                            e.onComplete();
-                                        }
-                                    });
-                                }
-                                else {
+                        handler.authenticateWithUser(user).doOnError(throwable -> {
+                            throwable.printStackTrace();
+                            e.onError(throwable);
+                        }).subscribe(() -> e.onComplete());
+                    }
+                    else {
 //                                    Toast.makeText(context, "Authentication failed.",
 //                                            Toast.LENGTH_SHORT).show();
-                                    e.onError(task.getException());
-                                }
-                            }
-                        });
-            }
-        });
+                        e.onError(task.getException());
+                    }
+                }));
     }
 
 

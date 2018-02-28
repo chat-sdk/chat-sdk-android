@@ -98,21 +98,11 @@ public class SelectContactActivity extends BaseActivity {
         // Refresh the list when the contacts change
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData();
-                    }
-                });
+                .subscribe(networkEvent -> loadData());
 
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData();
-                    }
-                });
+                .subscribe(networkEvent -> loadData());
 
         initViews();
     }
@@ -171,17 +161,14 @@ public class SelectContactActivity extends BaseActivity {
 
         loadData();
 
-        adapter.getItemClicks().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(@NonNull Object item) throws Exception {
-                if(item instanceof User) {
-                    if (ChatSDK.config().groupsEnabled) {
-                        adapter.toggleSelection(item);
-                    }
-                    else {
-                        UserListItem user = (UserListItem) item;
-                        createAndOpenThread("", (User) user, NM.currentUser());
-                    }
+        adapter.getItemClicks().subscribe(item -> {
+            if(item instanceof User) {
+                if (ChatSDK.config().groupsEnabled) {
+                    adapter.toggleSelection(item);
+                }
+                else {
+                    UserListItem user = (UserListItem) item;
+                    createAndOpenThread("", (User) user, NM.currentUser());
                 }
             }
         });
@@ -195,19 +182,11 @@ public class SelectContactActivity extends BaseActivity {
     private Single<Thread> createAndOpenThread (String name, List<User> users) {
         return NM.thread().createThread(name, users)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(new Consumer<Thread>() {
-            @Override
-            public void accept(Thread thread) throws Exception {
-                if (thread != null) {
-                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
-                }
-            }
-        }).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast);
-            }
-        });
+                .doOnSuccess(thread -> {
+                    if (thread != null) {
+                        InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
+                    }
+                }).doOnError(throwable -> ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast));
     }
 
     private void loadData () {
@@ -240,109 +219,81 @@ public class SelectContactActivity extends BaseActivity {
 
         initList();
 
-        btnStartChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnStartChat.setOnClickListener(v -> {
 
-                if (adapter.getSelectedCount() == 0) {
-                    showToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
-                    return;
-                }
+            if (adapter.getSelectedCount() == 0) {
+                showToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
+                return;
+            }
 
-                if (mode == MODE_ADD_TO_CONVERSATION) {
-                    showProgressDialog( getString(R.string.pick_friends_activity_prog_dialog_add_to_convo_message));
-                }
-                else if (mode == MODE_NEW_CONVERSATION) {
-                    showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
-                }
+            if (mode == MODE_ADD_TO_CONVERSATION) {
+                showProgressDialog( getString(R.string.pick_friends_activity_prog_dialog_add_to_convo_message));
+            }
+            else if (mode == MODE_NEW_CONVERSATION) {
+                showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
+            }
 
-                final ArrayList<User> users = new ArrayList<>();
+            final ArrayList<User> users = new ArrayList<>();
 
-                users.addAll(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
+            users.addAll(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
 
-                if (mode == MODE_NEW_CONVERSATION) {
-                    users.add(NM.currentUser());
-                    // If there are more than 2 users then show a dialog to enter the name
-                    if(users.size() > 2) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(SelectContactActivity.this);
-                        builder.setTitle(getString(R.string.pick_friends_activity_prog_group_name_dialog));
+            if (mode == MODE_NEW_CONVERSATION) {
+                users.add(NM.currentUser());
+                // If there are more than 2 users then show a dialog to enter the name
+                if(users.size() > 2) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SelectContactActivity.this);
+                    builder.setTitle(getString(R.string.pick_friends_activity_prog_group_name_dialog));
 
-                        // Set up the input
-                        final EditText input = new EditText(SelectContactActivity.this);
-                        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                        builder.setView(input);
+                    // Set up the input
+                    final EditText input = new EditText(SelectContactActivity.this);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                    builder.setView(input);
 
-                        // Set up the buttons
-                        builder.setPositiveButton(getString(R.string.create), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, int which) {
-                                SelectContactActivity.this.createAndOpenThread(input.getText().toString(), users)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new BiConsumer<Thread, Throwable>() {
-                                    @Override
-                                    public void accept(Thread thread, Throwable throwable) throws Exception {
-                                        dismissProgressDialog();
-                                        finish();
-                                    }
-                                });
-                            }
-                        });
-                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                                dismissProgressDialog();
-                            }
-                        });
-
-                        builder.show();
-
-                    }
-                    else {
-                        createAndOpenThread("", users)
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new BiConsumer<Thread, Throwable>() {
-                            @Override
-                            public void accept(Thread thread, Throwable throwable) throws Exception {
+                    // Set up the buttons
+                    builder.setPositiveButton(getString(R.string.create), (dialog, which) -> SelectContactActivity.this.createAndOpenThread(input.getText().toString(), users)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe((thread, throwable) -> {
                                 dismissProgressDialog();
                                 finish();
-                            }
-                        });
-                    }
-                }
-                else if (mode == MODE_ADD_TO_CONVERSATION){
+                            }));
+                    builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        dialog.cancel();
+                        dismissProgressDialog();
+                    });
 
-                    NM.thread().addUsersToThread(thread, users)
+                    builder.show();
+
+                }
+                else {
+                    createAndOpenThread("", users)
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Action() {
-                                @Override
-                                public void run() throws Exception {
-                                    setResult(AppCompatActivity.RESULT_OK);
-                                    dismissProgressDialog();
-                                    finish();
-                                    if (animateExit) {
-                                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                                    }
-                                }
-                            }, new Consumer<Throwable>() {
-                                @Override
-                                public void accept(@NonNull Throwable throwable) throws Exception {
-                                    throwable.printStackTrace();
-                                    dismissProgressDialog();
-                                    setResult(AppCompatActivity.RESULT_CANCELED);
-                                    finish();
-                                }
+                            .subscribe((thread, throwable) -> {
+                                dismissProgressDialog();
+                                finish();
                             });
                 }
             }
+            else if (mode == MODE_ADD_TO_CONVERSATION){
+
+                NM.thread().addUsersToThread(thread, users)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            setResult(AppCompatActivity.RESULT_OK);
+                            dismissProgressDialog();
+                            finish();
+                            if (animateExit) {
+                                overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
+                            }
+                        }, throwable -> {
+                            throwable.printStackTrace();
+                            dismissProgressDialog();
+                            setResult(AppCompatActivity.RESULT_CANCELED);
+                            finish();
+                        });
+            }
         });
 
-        View.OnClickListener searchClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchActivity.startSearchActivity(SelectContactActivity.this);
-            }
-        };
+        View.OnClickListener searchClickListener = v -> SearchActivity.startSearchActivity(SelectContactActivity.this);
 
         txtSearch.setOnClickListener(searchClickListener);
         imgSearch.setOnClickListener(searchClickListener);

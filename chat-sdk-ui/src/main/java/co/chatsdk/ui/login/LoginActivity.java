@@ -72,12 +72,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
-        PermissionRequestHandler.shared().requestReadExternalStorage(this).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        }).subscribe();
+        PermissionRequestHandler.shared().requestReadExternalStorage(this).doOnError(throwable -> throwable.printStackTrace()).subscribe();
 
     }
 
@@ -150,27 +145,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onClick(View v) {
         int i = v.getId();
 
-        Action completion = new Action() {
-            @Override
-            public void run() throws Exception {
-                afterLogin();
-            }
+        Action completion = () -> afterLogin();
+
+        Consumer<Throwable> error = throwable -> {
+            throwable.printStackTrace();
+            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         };
 
-        Consumer<Throwable> error = new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-                Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-            }
-        };
-
-        Action doFinally = new Action() {
-            @Override
-            public void run() throws Exception {
-                dismissProgressDialog();
-            }
-        };
+        Action doFinally = () -> dismissProgressDialog();
 
         showProgressDialog(getString(R.string.authenticating));
 
@@ -227,25 +209,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             NM.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            dismissProgressDialog();
-                        }
-                    })
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            afterLogin();
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            dismissProgressDialog();
-                            // This is annoying because if the login fails it just says - details not valid...
+                    .doFinally(() -> dismissProgressDialog())
+                    .subscribe(() -> afterLogin(), throwable -> {
+                        throwable.printStackTrace();
+                        dismissProgressDialog();
+                        // This is annoying because if the login fails it just says - details not valid...
 //                            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        }
                     });
         }
     }
@@ -280,24 +249,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         NM.auth().authenticate(details)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        authenticating = false;
-                        dismissProgressDialog();
-                    }
+                .doFinally(() -> {
+                    authenticating = false;
+                    dismissProgressDialog();
                 })
-                .subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        afterLogin();
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable e) throws Exception {
-                        toastErrorMessage(e, false);
-                        e.printStackTrace();
-                    }
+                .subscribe(() -> afterLogin(), e -> {
+                    toastErrorMessage(e, false);
+                    e.printStackTrace();
                 });
     }
 

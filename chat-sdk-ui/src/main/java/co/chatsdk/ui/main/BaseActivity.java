@@ -127,12 +127,9 @@ public class BaseActivity extends AppCompatActivity {
      * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
      * */
     public void setupTouchUIToDismissKeyboard(View view) {
-        setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                hideSoftKeyboard(BaseActivity.this);
-                return false;
-            }
+        setupTouchUIToDismissKeyboard(view, (v, event) -> {
+            hideSoftKeyboard(BaseActivity.this);
+            return false;
         }, -1);
     }
 

@@ -109,35 +109,27 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        avatarImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mediaSelector.startChooseImageActivity(EditProfileActivity.this, new MediaSelector.Result() {
-                    @Override
-                    public void result(String result) {
+        avatarImageView.setOnClickListener(view -> mediaSelector.startChooseImageActivity(EditProfileActivity.this, result -> {
 
-                        try{
-                            File compress = new Compressor(ChatSDK.shared().context())
-                                    .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
-                                    .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                                    .compressToFile(new File(result));
+            try{
+                File compress = new Compressor(ChatSDK.shared().context())
+                        .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
+                        .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
+                        .compressToFile(new File(result));
 
-                            Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
+                Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
 
-                            // Cache the file
-                            File file = ImageUtils.saveImageToCache(ChatSDK.shared().context(), bitmap, NM.currentUser().getEntityID());
+                // Cache the file
+                File file = ImageUtils.saveImageToCache(ChatSDK.shared().context(), bitmap, NM.currentUser().getEntityID());
 
-                            avatarImageView.setImageURI(Uri.fromFile(file));
-                            currentUser.setAvatarURL(Uri.fromFile(file).toString());
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                avatarImageView.setImageURI(Uri.fromFile(file));
+                currentUser.setAvatarURL(Uri.fromFile(file).toString());
             }
-        });
+            catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }));
 
         avatarImageView.setImageURI(currentUser.getAvatarURL());
 
@@ -146,29 +138,18 @@ public class EditProfileActivity extends BaseActivity {
             countryButton.setText(l.getDisplayCountry());
         }
 
-        countryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        countryButton.setOnClickListener(view -> {
 
-                final CountryPicker picker = CountryPicker.newInstance(getString(R.string.select_country));
-                picker.setListener(new CountryPickerListener() {
-                    @Override
-                    public void onSelectCountry(String name, String countryCode, String phoneExtension, int i) {
-                        countryButton.setText(name);
-                        currentUser.setCountryCode(countryCode);
-                        picker.dismiss();
-                    }
-                });
-                picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
-            }
+            final CountryPicker picker = CountryPicker.newInstance(getString(R.string.select_country));
+            picker.setListener((name1, countryCode1, phoneExtension, i) -> {
+                countryButton.setText(name1);
+                currentUser.setCountryCode(countryCode1);
+                picker.dismiss();
+            });
+            picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
         });
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logout();
-            }
-        });
+        logoutButton.setOnClickListener(view -> logout());
 
         statusEditText.setText(status);
 
@@ -186,17 +167,9 @@ public class EditProfileActivity extends BaseActivity {
     private void logout () {
         NM.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false);
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-                Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
+                .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
+            throwable.printStackTrace();
+            Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -301,17 +274,14 @@ public class EditProfileActivity extends BaseActivity {
 //        }
 //        else if (changed) {
 
-        final Runnable finished = new Runnable() {
-            @Override
-            public void run() {
-                View v = getCurrentFocus();
-                if(v instanceof EditText) {
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-
-                finish();
+        final Runnable finished = () -> {
+            View v = getCurrentFocus();
+            if(v instanceof EditText) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
+
+            finish();
         };
 
 
@@ -321,12 +291,9 @@ public class EditProfileActivity extends BaseActivity {
 
             NM.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            dismissProgressDialog();
-                            finished.run();
-                        }
+                    .subscribe(() -> {
+                        dismissProgressDialog();
+                        finished.run();
                     });
         }
         else {

@@ -88,14 +88,11 @@ public class ProfileFragment extends BaseFragment {
 
         disposables.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<NetworkEvent>() {
-            @Override
-            public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.user.equals(getUser())) {
-                    reloadData();
-                }
-            }
-        }));
+                .subscribe(networkEvent -> {
+                    if(networkEvent.user.equals(getUser())) {
+                        reloadData();
+                    }
+                }));
 
         initViews(inflater);
 
@@ -133,14 +130,11 @@ public class ProfileFragment extends BaseFragment {
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<NetworkEvent>() {
-            @Override
-            public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.user.equals(getUser())) {
-                    reloadData();
-                }
-            }
-        }));
+                .subscribe(networkEvent -> {
+                    if(networkEvent.user.equals(getUser())) {
+                        reloadData();
+                    }
+                }));
     }
 
     private void setRowVisible (int textViewID, int imageViewID, boolean visible) {
@@ -195,84 +189,48 @@ public class ProfileFragment extends BaseFragment {
             if(NM.blocking() != null && NM.blocking().blockingSupported()) {
                 disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new BiConsumer<Boolean, Throwable>() {
-                            @Override
-                            public void accept(Boolean blocked, Throwable throwable) throws Exception {
-                                updateBlockedButton(blocked);
+                        .subscribe((blocked, throwable) -> updateBlockedButton(blocked)));
+                blockButton.setOnClickListener(view -> disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe((blocked, throwable) -> {
+                            if(blocked) {
+                                disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(() -> {
+                                            updateBlockedButton(false);
+                                            ToastHelper.show(getContext(), R.string.user_unblocked);
+                                        }, throwable12 -> {
+                                            throwable12.printStackTrace();
+                                            Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                        }));
                             }
-                        }));
-                blockButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new BiConsumer<Boolean, Throwable>() {
-                                    @Override
-                                    public void accept(Boolean blocked, Throwable throwable) throws Exception {
-                                        if(blocked) {
-                                            disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe(new Action() {
-                                                        @Override
-                                                        public void run() throws Exception {
-                                                            updateBlockedButton(false);
-                                                            ToastHelper.show(getContext(), R.string.user_unblocked);
-                                                        }
-                                                    }, new Consumer<Throwable>() {
-                                                        @Override
-                                                        public void accept(@NonNull Throwable throwable) throws Exception {
-                                                            throwable.printStackTrace();
-                                                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }));
-                                        }
-                                        else {
-                                            disposables.add(NM.blocking().blockUser(getUser().getEntityID())
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe(new Action() {
-                                                        @Override
-                                                        public void run() throws Exception {
-                                                            updateBlockedButton(true);
-                                                            ToastHelper.show(getContext(), getString(R.string.user_blocked));
-                                                        }
-                                                    }, new Consumer<Throwable>() {
-                                                        @Override
-                                                        public void accept(@NonNull Throwable throwable) throws Exception {
-                                                            throwable.printStackTrace();
-                                                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }));
-                                        }
-                                    }
-                                }));
-                    }
-                });
+                            else {
+                                disposables.add(NM.blocking().blockUser(getUser().getEntityID())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(() -> {
+                                            updateBlockedButton(true);
+                                            ToastHelper.show(getContext(), getString(R.string.user_blocked));
+                                        }, throwable1 -> {
+                                            throwable1.printStackTrace();
+                                            Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                        }));
+                            }
+                        })));
             }
             else {
                 // TODO: Set height to zero
                 blockButton.setVisibility(View.INVISIBLE);
             }
 
-            deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    disposables.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            ToastHelper.show(getContext(), getString(R.string.user_deleted));
-                            getActivity().finish();
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                            Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }));
-                }
-            });
+            deleteButton.setOnClickListener(view -> disposables.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {
+                        ToastHelper.show(getContext(), getString(R.string.user_deleted));
+                        getActivity().finish();
+                    }, throwable -> {
+                throwable.printStackTrace();
+                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            })));
         }
 
 

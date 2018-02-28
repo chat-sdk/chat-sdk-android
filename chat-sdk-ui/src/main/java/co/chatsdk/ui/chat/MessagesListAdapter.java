@@ -65,16 +65,13 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             extraLayout = (LinearLayout) itemView.findViewById(R.id.extra_layout);
             readReceiptImageView = (ImageView) itemView.findViewById(R.id.read_receipt);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (messageItem.getMessage().getMessageType() == MessageType.Location) {
-                        LatLng latLng = messageItem.getLatLng();
-                        new LocationMessageClickListener(activity, latLng).onClick(view);
-                    }
-                    else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
-                        new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
-                    }
+            itemView.setOnClickListener(view -> {
+                if (messageItem.getMessage().getMessageType() == MessageType.Location) {
+                    LatLng latLng = messageItem.getLatLng();
+                    new LocationMessageClickListener(activity, latLng).onClick(view);
+                }
+                else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
+                    new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
                 }
             });
         }

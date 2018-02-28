@@ -48,16 +48,13 @@ import timber.log.Timber;
 public abstract class AbstractThreadHandler implements ThreadHandler {
 
     public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage, final Thread thread) {
-        return Single.create(new SingleOnSubscribe<List<Message>>() {
-            @Override
-            public void subscribe(final SingleEmitter<List<Message>> e) throws Exception {
+        return Single.create((SingleOnSubscribe<List<Message>>) e -> {
 
-                Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
+            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
-                // First try to load the messages from the database
-                List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
-                e.onSuccess(list);
-            }
+            // First try to load the messages from the database
+            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
+            e.onSuccess(list);
         }).subscribeOn(Schedulers.single());
     }
 
@@ -71,19 +68,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When done or when an error occurred the calling method will be notified.
      */
     public Observable<MessageSendProgress> sendMessageWithText(final String text, final Thread thread) {
-        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
-            @Override
-            public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
+        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
 
-                final Message message = newMessage(MessageType.Text, thread);
-                message.setTextString(text);
+            final Message message = newMessage(MessageType.Text, thread);
+            message.setTextString(text);
 
-                e.onNext(new MessageSendProgress(message));
+            e.onNext(new MessageSendProgress(message));
 
-                ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                connector.connect(implSendMessage(message), e);
+            ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+            connector.connect(implSendMessage(message), e);
 
-            }
         }).subscribeOn(Schedulers.single());
 
     }
@@ -105,40 +99,21 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * send method so it can be sent via the network
      */
     public Observable<MessageSendProgress> implSendMessage(final Message message) {
-        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
-            @Override
-            public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
-                message.update();
-                message.getThread().update();
-                e.onNext(new MessageSendProgress(message));
-                e.onComplete();
-            }
-        }).flatMap(new Function<MessageSendProgress, ObservableSource<MessageSendProgress>>() {
-            @Override
-            public ObservableSource<MessageSendProgress> apply(MessageSendProgress messageSendProgress) throws Exception {
-                return handleMessageSend(message, sendMessage(message));
-            }
-        }).subscribeOn(Schedulers.single()).doOnComplete(new Action() {
-            @Override
-            public void run() throws Exception {
-                Timber.v("Complete");
-            }
-        });
+        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
+            message.update();
+            message.getThread().update();
+            e.onNext(new MessageSendProgress(message));
+            e.onComplete();
+        }).flatMap(messageSendProgress -> handleMessageSend(message, sendMessage(message))).subscribeOn(Schedulers.single()).doOnComplete(() -> Timber.v("Complete"));
     }
 
     public static Observable<MessageSendProgress> handleMessageSend (final Message message, Observable<MessageSendProgress> messageSendObservable) {
-        return messageSendObservable.doOnComplete(new Action() {
-            @Override
-            public void run() throws Exception {
-                message.setMessageStatus(MessageSendStatus.Sent);
-                message.update();
-            }
-        }).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                message.setMessageStatus(MessageSendStatus.Failed);
-                message.update();
-            }
+        return messageSendObservable.doOnComplete(() -> {
+            message.setMessageStatus(MessageSendStatus.Sent);
+            message.update();
+        }).doOnError(throwable -> {
+            message.setMessageStatus(MessageSendStatus.Failed);
+            message.update();
         }).subscribeOn(Schedulers.single());
     }
 

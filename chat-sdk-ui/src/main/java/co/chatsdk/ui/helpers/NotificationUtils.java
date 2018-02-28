@@ -177,20 +177,12 @@ public class NotificationUtils {
 
         getNotificationLines(context, data);
 
-        ThreadImageBuilder.getImageUriForThread(context, message.getThread()).flatMap(new Function<Uri, SingleSource<Bitmap>>() {
-            @Override
-            public SingleSource<Bitmap> apply(@NonNull Uri uri) throws Exception {
-                return ImageBuilder.bitmapForURL(context, uri.toString());
+        ThreadImageBuilder.getImageUriForThread(context, message.getThread()).flatMap(uri -> ImageBuilder.bitmapForURL(context, uri.toString())).subscribe((bitmap, throwable) -> {
+            if(throwable == null) {
+                createAlertNotification(context, id, resultIntent, data, bitmap, smallIconResID, soundUri, number);
             }
-        }).subscribe(new BiConsumer<Bitmap, Throwable>() {
-            @Override
-            public void accept(Bitmap bitmap, Throwable throwable) throws Exception {
-                if(throwable == null) {
-                    createAlertNotification(context, id, resultIntent, data, bitmap, smallIconResID, soundUri, number);
-                }
-                else {
-                    createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
-                }
+            else {
+                createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
             }
         });
     }

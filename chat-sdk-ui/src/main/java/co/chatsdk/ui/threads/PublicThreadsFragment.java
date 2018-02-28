@@ -56,24 +56,18 @@ public class PublicThreadsFragment extends BaseFragment {
 
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterPublicThreadsUpdated())
-                .subscribe(new Consumer<NetworkEvent>() {
-            @Override
-            public void accept(NetworkEvent networkEvent) throws Exception {
-                if(tabIsVisible) {
-                    reloadData();
-                }
-            }
-        });
+                .subscribe(networkEvent -> {
+                    if(tabIsVisible) {
+                        reloadData();
+                    }
+                });
 
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        if(tabIsVisible) {
-                            adapter.setTyping(networkEvent.thread, networkEvent.text);
-                            adapter.notifyDataSetChanged();
-                        }
+                .subscribe(networkEvent -> {
+                    if(tabIsVisible) {
+                        adapter.setTyping(networkEvent.thread, networkEvent.text);
+                        adapter.notifyDataSetChanged();
                     }
                 });
 
@@ -90,12 +84,7 @@ public class PublicThreadsFragment extends BaseFragment {
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        adapter.onClickObservable().subscribe(new Consumer<Thread>() {
-            @Override
-            public void accept(@NonNull Thread thread) throws Exception {
-                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
-            }
-        });
+        adapter.onClickObservable().subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID()));
     }
 
 
@@ -125,18 +114,14 @@ public class PublicThreadsFragment extends BaseFragment {
             builder.setView(input);
 
             // Set up the buttons
-            builder.setPositiveButton(getString(R.string.create), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialog, int which) {
+            builder.setPositiveButton(getString(R.string.create), (dialog, which) -> {
 
-                    showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                    final String threadName = input.getText().toString();
+                showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
+                final String threadName = input.getText().toString();
 
-                    NM.publicThread().createPublicThreadWithName(threadName)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new BiConsumer<Thread, Throwable>() {
-                        @Override
-                        public void accept(Thread thread, Throwable throwable) throws Exception {
+                NM.publicThread().createPublicThreadWithName(threadName)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe((thread, throwable) -> {
                             if(throwable == null) {
                                 dismissProgressDialog();
                                 adapter.addRow(thread);
@@ -150,17 +135,10 @@ public class PublicThreadsFragment extends BaseFragment {
                                 throwable.printStackTrace();
                                 Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 dismissProgressDialog();                            }
-                        }
-                    });
+                        });
 
-                }
             });
-            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
 
             builder.show();
 

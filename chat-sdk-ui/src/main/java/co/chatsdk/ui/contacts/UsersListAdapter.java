@@ -132,12 +132,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         int type = getItemViewType(position);
         final Object item = items.get(position);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickSubject.onNext(item);
-            }
-        });
+        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
 
         if(type == TYPE_HEADER) {
             HeaderViewHolder hh = (HeaderViewHolder) holder;
@@ -261,20 +256,17 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * This will be used each time after setting the user item
      * * */
     protected void sortList(List<UserListItem> list){
-        Comparator comparator = new Comparator<UserListItem>() {
-            @Override
-            public int compare(UserListItem u1, UserListItem u2) {
-                String s1 = "";
-                if(u1 != null && u1.getName() != null) {
-                    s1 = u1.getName();
-                }
-                String s2 = "";
-                if(u2 != null && u2.getName() != null) {
-                    s2 = u2.getName();
-                }
-
-                return s1.compareToIgnoreCase(s2);
+        Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
+            String s1 = "";
+            if(u1 != null && u1.getName() != null) {
+                s1 = u1.getName();
             }
+            String s2 = "";
+            if(u2 != null && u2.getName() != null) {
+                s2 = u2.getName();
+            }
+
+            return s1.compareToIgnoreCase(s2);
         };
         Collections.sort(list, comparator);
     }

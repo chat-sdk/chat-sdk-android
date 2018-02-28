@@ -86,24 +86,11 @@ public class ProfileActivity extends BaseActivity {
 
         NM.thread().createThread("", user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        dismissProgressDialog();
-                        startingChat = false;
-                    }
+                .doFinally(() -> {
+                    dismissProgressDialog();
+                    startingChat = false;
                 })
-                .subscribe(new Consumer<Thread>() {
-            @Override
-            public void accept(@NonNull Thread thread) throws Exception {
-                InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast);
-            }
-        });
+                .subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID()), throwable -> ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast));
     }
 
     @Override

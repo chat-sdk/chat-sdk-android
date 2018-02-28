@@ -34,19 +34,11 @@ public class AudioPlayer {
 
             playingDisposable = Observable.interval(0, 200, TimeUnit.MILLISECONDS)
                     .subscribeOn(Schedulers.single())
-                    .subscribe(new Consumer<Long>() {
-                        @Override
-                        public void accept(@NonNull Long aLong) throws Exception {
-                            if(progressListener != null && player != null) {
-                                final int pos = player.getCurrentPosition();
+                    .subscribe(aLong -> {
+                        if(progressListener != null && player != null) {
+                            final int pos = player.getCurrentPosition();
 
-                                AndroidSchedulers.mainThread().scheduleDirect(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressListener.update(pos);
-                                    }
-                                });
-                            }
+                            AndroidSchedulers.mainThread().scheduleDirect(() -> progressListener.update(pos));
                         }
                     });
 
@@ -123,12 +115,7 @@ public class AudioPlayer {
 
     public void setPosition (final int position) {
         if(player != null) {
-            Schedulers.single().scheduleDirect(new Runnable() {
-                @Override
-                public void run() {
-                    player.seekTo(position);
-                }
-            });
+            Schedulers.single().scheduleDirect(() -> player.seekTo(position));
         }
     }
 

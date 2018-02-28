@@ -71,12 +71,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.threadUsersUpdated())
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData();
-                    }
-                }));
+                .subscribe(networkEvent -> loadData()));
 
         loadData();
     }
@@ -90,12 +85,9 @@ public class ThreadDetailsActivity extends BaseActivity {
         final View actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_activity_thread_details, null);
 
         // Allow the thread name to be modified by a long click
-        actionBarView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                // TODO: Implement this
-                return true;
-            }
+        actionBarView.setOnLongClickListener(v -> {
+            // TODO: Implement this
+            return true;
         });
 
         threadImageView = (SimpleDraweeView) findViewById(R.id.chat_sdk_thread_image_view);

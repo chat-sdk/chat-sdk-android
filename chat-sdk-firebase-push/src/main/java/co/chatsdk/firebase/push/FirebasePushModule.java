@@ -2,8 +2,6 @@ package co.chatsdk.firebase.push;
 
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.NetworkManager;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 9/1/17.
@@ -12,36 +10,11 @@ import io.reactivex.functions.Consumer;
 public class FirebasePushModule  {
 
     public static void activateForFirebase () {
-        FirebasePushModule.activate(new FirebasePushHandler.TokenPusher() {
-            @Override
-            public void pushToken() {
-                NM.core().pushUser().doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                }).subscribe();
-            }
-        });
+        FirebasePushModule.activate(() -> NM.core().pushUser().doOnError(throwable -> throwable.printStackTrace()).subscribe());
     }
 
     public static void activateForXMPP () {
-        FirebasePushModule.activate(new FirebasePushHandler.TokenPusher() {
-            @Override
-            public void pushToken() {
-                NM.core().pushUser().doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        NM.core().goOnline();
-                    }
-                }).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                }).subscribe();
-            }
-        });
+        FirebasePushModule.activate(() -> NM.core().pushUser().doOnComplete(() -> NM.core().goOnline()).doOnError(throwable -> throwable.printStackTrace()).subscribe());
     }
 
 

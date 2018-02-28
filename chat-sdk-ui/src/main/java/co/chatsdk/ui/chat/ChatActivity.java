@@ -183,12 +183,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
             actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_actionbar_chat_activity, null);
 
-            actionBarView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (ChatSDK.config().threadDetailsEnabled) {
-                        openThreadDetailsActivity();
-                    }
+            actionBarView.setOnClickListener(v -> {
+                if (ChatSDK.config().threadDetailsEnabled) {
+                    openThreadDetailsActivity();
                 }
             });
 
@@ -220,21 +217,17 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.ptr_layout);
 
-        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
+        mSwipeRefresh.setOnRefreshListener(() -> {
 
-                List<MessageListItem> items = messageListAdapter.getMessageItems();
-                Message firstMessage = null;
-                if(items.size() > 0) {
-                    firstMessage = items.get(0).message;
-                }
+            List<MessageListItem> items = messageListAdapter.getMessageItems();
+            Message firstMessage = null;
+            if(items.size() > 0) {
+                firstMessage = items.get(0).message;
+            }
 
-                disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new BiConsumer<List<Message>, Throwable>() {
-                    @Override
-                    public void accept(final List<Message> messages, Throwable throwable) throws Exception {
+            disposableList.add(NM.thread().loadMoreMessagesForThread(firstMessage, thread)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((messages, throwable) -> {
                         if (throwable == null) {
                             if (messages.size() < 2) {
                                 showToast(getString(R.string.chat_activity_no_more_messages_to_load_toast));
@@ -248,9 +241,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                             }
                         }
                         mSwipeRefresh.setRefreshing(false);
-                    }
-                }));
-            }
+                    }));
         });
 
         recyclerView = (RecyclerView) findViewById(R.id.list_chat);
@@ -346,39 +337,36 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
+                .subscribe(networkEvent -> {
 
-                        Message message = networkEvent.message;
+                    Message message = networkEvent.message;
 
-                        // Check that the message is relevant to the current thread.
-                        if (message.getThreadId() != thread.getId().intValue()) {
-                            return;
+                    // Check that the message is relevant to the current thread.
+                    if (message.getThreadId() != thread.getId().intValue()) {
+                        return;
+                    }
+
+                    message.setRead(true);
+                    message.update();
+
+                    boolean isAdded = messageListAdapter.addRow(message);
+                    if(!isAdded) {
+                        messageListAdapter.notifyDataSetChanged();
+                    }
+
+                    // Check if the message from the current user, If so return so we wont vibrate for the user messages.
+                    if (message.getSender().isMe() && isAdded) {
+                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
+                    }
+                    else {
+                        // If the user is near the bottom, then we scroll down when a message comes in
+                        if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
+                            scrollListTo(ListPosition.Bottom, true);
                         }
+                    }
 
-                        message.setRead(true);
-                        message.update();
-
-                        boolean isAdded = messageListAdapter.addRow(message);
-                        if(!isAdded) {
-                            messageListAdapter.notifyDataSetChanged();
-                        }
-
-                        // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                        if (message.getSender().isMe() && isAdded) {
-                            scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
-                        }
-                        else {
-                            // If the user is near the bottom, then we scroll down when a message comes in
-                            if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
-                                scrollListTo(ListPosition.Bottom, true);
-                            }
-                        }
-
-                        if(NM.readReceipts() != null) {
-                            NM.readReceipts().markRead(thread);
-                        }
+                    if(NM.readReceipts() != null) {
+                        NM.readReceipts().markRead(thread);
                     }
                 }));
 
@@ -387,32 +375,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         EventType.ThreadDetailsUpdated,
                         EventType.ThreadUsersChanged))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        messageListAdapter.notifyDataSetChanged();
-                    }
-                }));
+                .subscribe(networkEvent -> messageListAdapter.notifyDataSetChanged()));
 
         disposableList.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        messageListAdapter.notifyDataSetChanged();
-                    }
-                }));
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(networkEvent -> messageListAdapter.notifyDataSetChanged()));
 
         disposableList.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateChanged)).subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        if(networkEvent.thread.equals(thread)) {
-                            if(networkEvent.text != null) {
-                                networkEvent.text += getString(R.string.typing);
-                            }
-                            Timber.v(networkEvent.text);
-                            setSubtitleText(networkEvent.text);
+                .filter(NetworkEvent.filterType(EventType.TypingStateChanged)).subscribe(networkEvent -> {
+                    if(networkEvent.thread.equals(thread)) {
+                        if(networkEvent.text != null) {
+                            networkEvent.text += getString(R.string.typing);
                         }
+                        Timber.v(networkEvent.text);
+                        setSubtitleText(networkEvent.text);
                     }
                 }));
     }
@@ -456,23 +431,17 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
-        setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        setupTouchUIToDismissKeyboard(findViewById(R.id.chat_sdk_root_view), (v, event) -> {
 
-                // Using small delay for better accuracy in catching the scrolls.
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!scrolling) {
-                            hideSoftKeyboard(ChatActivity.this);
-                            stopTyping(false);
-                        }
-                    }
-                }, 300);
+            // Using small delay for better accuracy in catching the scrolls.
+            v.postDelayed(() -> {
+                if (!scrolling) {
+                    hideSoftKeyboard(ChatActivity.this);
+                    stopTyping(false);
+                }
+            }, 300);
 
-                return false;
-            }
+            return false;
         }, R.id.chat_sdk_btn_chat_send_message, R.id.chat_sdk_btn_options);
 
         markRead();
@@ -698,12 +667,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         setChatState(TypingIndicatorHandler.State.composing);
         typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(@NonNull Boolean aBoolean) throws Exception {
-                setChatState(TypingIndicatorHandler.State.active);
-            }
-        });
+                .subscribe(aBoolean -> setChatState(TypingIndicatorHandler.State.active));
     }
 
     @Override
@@ -789,21 +753,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         NM.thread().loadMoreMessagesForThread(null, thread)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BiConsumer<List<Message>, Throwable>() {
-            @Override
-            public void accept(List<Message> messages, Throwable throwable) throws Exception {
-                progressBar.setVisibility(View.INVISIBLE);
+                .subscribe((messages, throwable) -> {
+                    progressBar.setVisibility(View.INVISIBLE);
 
-                messageListAdapter.setMessages(messages);
+                    messageListAdapter.setMessages(messages);
 
-                if (showLoadingIndicator) {
-                    //animateListView();
-                }
-                recyclerView.setVisibility(View.VISIBLE);
+                    if (showLoadingIndicator) {
+                        //animateListView();
+                    }
+                    recyclerView.setVisibility(View.VISIBLE);
 
-                scrollListTo(toPosition, !showLoadingIndicator);
-            }
-        });
+                    scrollListTo(toPosition, !showLoadingIndicator);
+                });
     }
 
     public void markAsDelivered(List<Message> messages){

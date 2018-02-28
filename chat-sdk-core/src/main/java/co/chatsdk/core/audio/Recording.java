@@ -46,18 +46,12 @@ public class Recording {
 
     // When we start, we need to start a timer to check that the user doesn't stop the recording too quickly
     public Completable start () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
-                Completable timer = Completable.timer(200, TimeUnit.MILLISECONDS);
-                delayStartDisposable = timer.subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        startRecording();
-                        e.onComplete();
-                    }
-                });
-            }
+        return Completable.create(e -> {
+            Completable timer = Completable.timer(200, TimeUnit.MILLISECONDS);
+            delayStartDisposable = timer.subscribe(() -> {
+                startRecording();
+                e.onComplete();
+            });
         });
     }
 
@@ -73,12 +67,7 @@ public class Recording {
         else {
             if(AudioRecorder.shared().duration() < 1000) {
                 // Wait and then stop the recording
-                Completable.timer(200, TimeUnit.MILLISECONDS).subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        AudioRecorder.shared().stopRecording();
-                    }
-                });
+                Completable.timer(200, TimeUnit.MILLISECONDS).subscribe(() -> AudioRecorder.shared().stopRecording());
             }
             else {
                 AudioRecorder.shared().stopRecording();

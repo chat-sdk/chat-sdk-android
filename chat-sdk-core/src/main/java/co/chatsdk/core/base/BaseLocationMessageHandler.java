@@ -26,36 +26,33 @@ import co.chatsdk.core.dao.Thread;
 public class BaseLocationMessageHandler implements LocationMessageHandler {
 
     public Observable<MessageSendProgress> sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
-        return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
-            @Override
-            public void subscribe(ObservableEmitter<MessageSendProgress> e) throws Exception {
-                final Message message = AbstractThreadHandler.newMessage(MessageType.Location, thread);
+        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
+            final Message message = AbstractThreadHandler.newMessage(MessageType.Location, thread);
 
-                int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
-                String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
+            int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
+            String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
-                // Add the LatLng data to the message and the image url and thumbnail url
-                // TODO: Deprecated
-                message.setTextString(String.valueOf(location.latitude)
-                        + Defines.DIVIDER
-                        + String.valueOf(location.longitude)
-                        + Defines.DIVIDER + imageURL
-                        + Defines.DIVIDER + imageURL
-                        + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
+            // Add the LatLng data to the message and the image url and thumbnail url
+            // TODO: Deprecated
+            message.setTextString(String.valueOf(location.latitude)
+                    + Defines.DIVIDER
+                    + String.valueOf(location.longitude)
+                    + Defines.DIVIDER + imageURL
+                    + Defines.DIVIDER + imageURL
+                    + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
 
-                message.setValueForKey(location.longitude, Keys.MessageLongitude);
-                message.setValueForKey(location.latitude, Keys.MessageLatitude);
-                message.setValueForKey(maxSize, Keys.MessageImageWidth);
-                message.setValueForKey(maxSize, Keys.MessageImageHeight);
-                message.setValueForKey(imageURL, Keys.MessageImageURL);
-                message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
+            message.setValueForKey(location.longitude, Keys.MessageLongitude);
+            message.setValueForKey(location.latitude, Keys.MessageLatitude);
+            message.setValueForKey(maxSize, Keys.MessageImageWidth);
+            message.setValueForKey(maxSize, Keys.MessageImageHeight);
+            message.setValueForKey(imageURL, Keys.MessageImageURL);
+            message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
 
-                e.onNext(new MessageSendProgress(message));
+            e.onNext(new MessageSendProgress(message));
 
-                ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                connector.connect(NM.thread().sendMessage(message), e);
+            ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+            connector.connect(NM.thread().sendMessage(message), e);
 
-            }
         }).subscribeOn(Schedulers.single());
     }
 

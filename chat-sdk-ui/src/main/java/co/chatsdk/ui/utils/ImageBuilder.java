@@ -29,31 +29,28 @@ public class ImageBuilder {
 
     // TODO: Localize
     public static Single<Bitmap> bitmapForURL (final Context context, final String url) {
-        return Single.create(new SingleOnSubscribe<Bitmap>() {
-            @Override
-            public void subscribe(@NonNull final SingleEmitter<Bitmap> e) throws Exception {
-                if(!StringChecker.isNullOrEmpty(url)) {
-                    Uri uri = Uri.parse(url);
-                    ImageRequest request = ImageRequestBuilder
-                            .newBuilderWithSource(uri)
-                            .build();
-                    ImagePipeline pipeline = Fresco.getImagePipeline();
-                    DataSource dataSource = pipeline.fetchDecodedImage(request, context);
-                    dataSource.subscribe(new BaseBitmapDataSubscriber() {
-                        @Override
-                        protected void onNewResultImpl(Bitmap bitmap) {
-                            e.onSuccess(bitmap);
-                        }
+        return Single.create((SingleOnSubscribe<Bitmap>) e -> {
+            if(!StringChecker.isNullOrEmpty(url)) {
+                Uri uri = Uri.parse(url);
+                ImageRequest request = ImageRequestBuilder
+                        .newBuilderWithSource(uri)
+                        .build();
+                ImagePipeline pipeline = Fresco.getImagePipeline();
+                DataSource dataSource = pipeline.fetchDecodedImage(request, context);
+                dataSource.subscribe(new BaseBitmapDataSubscriber() {
+                    @Override
+                    protected void onNewResultImpl(Bitmap bitmap) {
+                        e.onSuccess(bitmap);
+                    }
 
-                        @Override
-                        protected void onFailureImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
-                            e.onError(new Throwable("Unable to load image"));
-                        }
-                    }, CallerThreadExecutor.getInstance());
-                }
-                else {
-                    e.onError(new Throwable("Unable to load image"));
-                }
+                    @Override
+                    protected void onFailureImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
+                        e.onError(new Throwable("Unable to load image"));
+                    }
+                }, CallerThreadExecutor.getInstance());
+            }
+            else {
+                e.onError(new Throwable("Unable to load image"));
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }

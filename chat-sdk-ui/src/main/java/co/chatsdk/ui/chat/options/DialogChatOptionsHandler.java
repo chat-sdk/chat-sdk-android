@@ -40,14 +40,11 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
         hasExecuted = false;
 
         // TODO: Localize
-        builder.setTitle("Actions").setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(!hasExecuted) {
-                    executeOption(options.get(i));
-                }
-                hasExecuted = true;
+        builder.setTitle("Actions").setItems(items, (dialogInterface, i1) -> {
+            if(!hasExecuted) {
+                executeOption(options.get(i1));
             }
+            hasExecuted = true;
         });
 
         dialog = builder.show();

@@ -60,23 +60,10 @@ public class ImageMessageClickListener implements View.OnClickListener {
 
             ImageBuilder.bitmapForURL(activity, url)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(new Action() {
-                @Override
-                public void run() throws Exception {
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            })
-            .subscribe(new Consumer<Bitmap>() {
-                @Override
-                public void accept(Bitmap bitmap) throws Exception {
-                    imageView.setImageBitmap(bitmap);
-                }
-            }, new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable throwable) throws Exception {
-                    ToastHelper.show(activity, R.string.unable_to_fetch_image);
-                    imagePopup.dismiss();
-                }
+                    .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
+            .subscribe(bitmap -> imageView.setImageBitmap(bitmap), throwable -> {
+                ToastHelper.show(activity, R.string.unable_to_fetch_image);
+                imagePopup.dismiss();
             });
 
             imagePopup.showAtLocation(v, Gravity.CENTER, 0, 0);

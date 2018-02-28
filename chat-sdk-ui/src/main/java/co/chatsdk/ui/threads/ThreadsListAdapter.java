@@ -59,19 +59,11 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         holder.nameTextView.setText(Strings.nameForThread(thread));
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickSubject.onNext(thread);
-            }
-        });
+        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(thread));
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                onLongClickSubject.onNext(thread);
-                return true;
-            }
+        holder.itemView.setOnLongClickListener(view -> {
+            onLongClickSubject.onNext(thread);
+            return true;
         });
 
         Date lastMessageAddedDate = thread.getLastMessageAddedDate();

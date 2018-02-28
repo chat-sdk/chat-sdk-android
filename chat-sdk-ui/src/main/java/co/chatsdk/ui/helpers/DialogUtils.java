@@ -27,30 +27,26 @@ public class DialogUtils {
         alertDialogBuilder
                 .setMessage(alert)
                 .setCancelable(false)
-                .setPositiveButton(p, new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int id) {
-                        if (pos != null)
-                            try {
-                                pos.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        dialog.dismiss();
-                    }
+                .setPositiveButton(p, (dialog, id) -> {
+                    if (pos != null)
+                        try {
+                            pos.call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    dialog.dismiss();
                 })
-                .setNegativeButton(n, new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
-                        if (neg != null)
-                            try {
-                                neg.call();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                .setNegativeButton(n, (dialog, id) -> {
+                    // if this button is clicked, just close
+                    // the dialog box and do nothing
+                    if (neg != null)
+                        try {
+                            neg.call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-                        dialog.cancel();
-                    }
+                    dialog.cancel();
                 });
 
         // create alert dialog

@@ -131,51 +131,37 @@ public class NetworkEvent {
 //    }
 
     public static Predicate<NetworkEvent> filterType (final EventType type) {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(NetworkEvent networkEvent) throws Exception {
-                return networkEvent.type == type;
-            }
-        };
+        return networkEvent -> networkEvent.type == type;
     }
 
     public static Predicate<NetworkEvent> filterType (final EventType... types) {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(NetworkEvent networkEvent) throws Exception {
-                for(EventType type: types) {
-                    if(networkEvent.type == type)
-                        return true;
-                }
-                return false;
+        return networkEvent -> {
+            for(EventType type: types) {
+                if(networkEvent.type == type)
+                    return true;
             }
+            return false;
         };
     }
 
     public static Predicate<NetworkEvent> filterThreadEntityID (final String entityID) {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.thread != null) {
-                    if (networkEvent.thread.getEntityID().equals(entityID)) {
-                        return true;
-                    }
+        return networkEvent -> {
+            if(networkEvent.thread != null) {
+                if (networkEvent.thread.getEntityID().equals(entityID)) {
+                    return true;
                 }
-                return false;
             }
+            return false;
         };
     }
 
     public static Predicate<NetworkEvent> filterThreadType (final int type) {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(NetworkEvent networkEvent) throws Exception {
-                if(networkEvent.thread != null) {
-                    Thread thread = networkEvent.thread;
-                    return thread.typeIs(type);
-                }
-                return false;
+        return networkEvent -> {
+            if(networkEvent.thread != null) {
+                Thread thread = networkEvent.thread;
+                return thread.typeIs(type);
             }
+            return false;
         };
     }
 
@@ -191,21 +177,11 @@ public class NetworkEvent {
 
 
     public static Predicate<NetworkEvent> filterPrivateThreadsUpdated () {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(@NonNull NetworkEvent networkEvent) throws Exception {
-                return threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Private).test(networkEvent);
-            }
-        };
+        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Private).test(networkEvent);
      }
 
     public static Predicate<NetworkEvent> filterPublicThreadsUpdated () {
-        return new Predicate<NetworkEvent>() {
-            @Override
-            public boolean test(@NonNull NetworkEvent networkEvent) throws Exception {
-                return threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Public).test(networkEvent);
-            }
-        };
+        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Public).test(networkEvent);
     }
 
     public static Predicate<NetworkEvent> filterContactsChanged () {

@@ -75,55 +75,47 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public Completable authenticateWithMap (final Map<String, Object> details) {
-        return Single.create(new SingleOnSubscribe<AccountDetails>() {
-            @Override
-            public void subscribe(SingleEmitter<AccountDetails> e) throws Exception {
+        return Single.create((SingleOnSubscribe<AccountDetails>) e -> {
 
-                AccountDetails accountDetails = new AccountDetails();
+            AccountDetails accountDetails = new AccountDetails();
 
-                int loginType = (Integer) details.get(AuthKeys.Type);
+            int loginType = (Integer) details.get(AuthKeys.Type);
 
-                String password = (String) details.get(AuthKeys.Password);
-                String email = (String) details.get(AuthKeys.Email);
-                String token = (String) details.get(AuthKeys.Token);
+            String password = (String) details.get(AuthKeys.Password);
+            String email = (String) details.get(AuthKeys.Email);
+            String token = (String) details.get(AuthKeys.Token);
 
-                switch (loginType) {
-                    case AccountType.Password:
-                        accountDetails = AccountDetails.username(email, password);
-                        break;
-                    case AccountType.Register:
-                        accountDetails = AccountDetails.signUp(email, password);
-                        break;
-                    case AccountType.Facebook:
-                        accountDetails = AccountDetails.facebook();
-                        break;
-                    case AccountType.Twitter:
-                        accountDetails = AccountDetails.twitter();
-                        break;
-                    case AccountType.Google:
-                        accountDetails = AccountDetails.google();
-                        break;
-                    case AccountType.Anonymous:
-                        accountDetails = AccountDetails.anonymous();
-                        break;
-                    case AccountType.Custom:
-                        accountDetails = AccountDetails.token(token);
-                        break;
-                }
-
-                if(accountDetails != null) {
-                    e.onSuccess(accountDetails);
-                }
-                else {
-                    e.onError(new Throwable("No valid login method defined"));
-                }
+            switch (loginType) {
+                case AccountType.Password:
+                    accountDetails = AccountDetails.username(email, password);
+                    break;
+                case AccountType.Register:
+                    accountDetails = AccountDetails.signUp(email, password);
+                    break;
+                case AccountType.Facebook:
+                    accountDetails = AccountDetails.facebook();
+                    break;
+                case AccountType.Twitter:
+                    accountDetails = AccountDetails.twitter();
+                    break;
+                case AccountType.Google:
+                    accountDetails = AccountDetails.google();
+                    break;
+                case AccountType.Anonymous:
+                    accountDetails = AccountDetails.anonymous();
+                    break;
+                case AccountType.Custom:
+                    accountDetails = AccountDetails.token(token);
+                    break;
             }
-        }).flatMapCompletable(new Function<AccountDetails, Completable>() {
-            @Override
-            public Completable apply(AccountDetails accountDetails) throws Exception {
-                return authenticate(accountDetails);
+
+            if(accountDetails != null) {
+                e.onSuccess(accountDetails);
             }
-        }).subscribeOn(Schedulers.io());
+            else {
+                e.onError(new Throwable("No valid login method defined"));
+            }
+        }).flatMapCompletable(accountDetails -> authenticate(accountDetails)).subscribeOn(Schedulers.io());
     }
 
     /**

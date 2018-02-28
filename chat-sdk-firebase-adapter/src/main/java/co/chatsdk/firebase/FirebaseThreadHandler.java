@@ -1,9 +1,7 @@
 package co.chatsdk.firebase;
 
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,21 +16,13 @@ import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.utils.Strings;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -247,107 +237,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }
 
         if (message.getThread().typeIs(ThreadType.Private)) {
-
             NM.push().pushToUsers(message.getThread().getUsers(), message);
-
-
-//            // Loading the message from firebase to get the timestamp from server.
-//            DatabaseReference firebase = FirebasePaths.threadRef(message.getThread().getEntityID())
-//                    .child(FirebasePaths.MessagesPath)
-//                    .child(message.getEntityID());
-//
-//            firebase.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(DataSnapshot snapshot) {
-//                    Long date = null;
-//                    try {
-//                        date = (Long) snapshot.child(Keys.Date).getValue();
-//                    } catch (ClassCastException e) {
-//                        date = (((Double)snapshot.child(Keys.Date).getValue()).longValue());
-//                    }
-//                    finally {
-//                        if (date != null)
-//                        {
-//                            message.setDate(new DateTime(date));
-//                            DaoCore.updateEntity(message);
-//                        }
-//                    }
-//
-//                    // If we failed to get date dont push.
-//                    if (message.getDate()==null)
-//                        return;
-//
-//                    User currentUser = NM.currentUser();
-//                    List<User> users = new ArrayList<User>();
-//
-//                    for (User user : message.getThread().getUsers())
-//                        if (!user.equals(currentUser))
-//                            if (!user.equals(currentUser)) {
-//                                // Timber.v(user.getEntityID() + ", " + user.getOnline().toString());
-//                                // sends push notification regardless of receiver online status
-//                                // TODO: add observer to online status
-//                                // if (user.getOnline() == null || !user.getOnline())
-//                                users.add(user);
-//                            }
-//
-//                    pushToUsers(message, users);
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError firebaseError) {
-//
-//                }
-//            });
         }
     }
 
-    protected void pushToUsers(Message message, List<User> users){
-
-        if (NM.push() == null || users.size() == 0)
-            return;
-
-        // We'recyclerView identifying each user using push channels. This means that
-        // when a user signs up, they signUp with backendless on a particular
-        // channel. In this case user_[user id] this means that we can
-        // send a push to a specific user if we know their user id.
-        List<String> channels = new ArrayList<>();
-        for (User user : users) {
-            channels.add(user.getPushChannel());
-        }
-
-        String messageText = Strings.payloadAsString(message);
-
-        String sender = message.getSender().getName();
-        String fullText = sender + " " + messageText;
-
-        HashMap<String, String> data = new HashMap<>();
-
-        data.put("content", fullText);
-
-//        JSONObject data = new JSONObject();
-//        try {
-//            data.put(Keys.ACTION, ChatSDKReceiver.ACTION_MESSAGE);
-//
-//            data.put(Keys.CONTENT, fullText);
-//            data.put(Keys.MESSAGE_ENTITY_ID, message.getEntityID());
-//            data.put(Keys.THREAD_ENTITY_ID, message.getThread().getEntityID());
-//            data.put(Keys.MESSAGE_DATE, message.getDate().toDate().getTime());
-//            data.put(Keys.MESSAGE_SENDER_ENTITY_ID, message.getSender().getEntityID());
-//            data.put(Keys.MESSAGE_SENDER_NAME, message.getSender().getName());
-//            data.put(Keys.MESSAGE_TYPE, message.getType());
-//            data.put(Keys.MESSAGE_PAYLOAD, message.getTextString());
-//            //For iOS
-//            data.put(Keys.BADGE, Keys.INCREMENT);
-//            data.put(Keys.ALERT, fullText);
-//            // For making sound in iOS
-//            data.put(Keys.SOUND, Keys.Default);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
-        // TODO: Check this
-        NM.push().pushToChannels(channels, data);
-    }
 
     public Completable leaveThread (Thread thread) {
         return null;

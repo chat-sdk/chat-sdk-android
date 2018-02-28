@@ -63,34 +63,21 @@ public class PermissionRequestHandler {
         if(completableMap.containsKey(result)) {
             return Completable.complete();
         }
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter e) throws Exception {
+        return Completable.create(e -> {
 
-                completableMap.put(result, e);
+            completableMap.put(result, e);
 
-                int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission);
+            int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission);
 
-                if(permissionCheck == PERMISSION_DENIED) {
-                    ActivityCompat.requestPermissions(activity,
-                            new String[]{permission},
-                            result);
-                }
-                else {
-                    e.onComplete();
-                }
+            if(permissionCheck == PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{permission},
+                        result);
             }
-        }).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                throwable.printStackTrace();
+            else {
+                e.onComplete();
             }
-        }).doOnTerminate(new Action() {
-            @Override
-            public void run() throws Exception {
-                completableMap.remove(result);
-            }
-        });
+        }).doOnError(throwable -> throwable.printStackTrace()).doOnTerminate(() -> completableMap.remove(result));
     }
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {

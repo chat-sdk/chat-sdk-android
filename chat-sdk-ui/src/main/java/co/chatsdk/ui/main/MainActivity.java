@@ -68,37 +68,16 @@ public class MainActivity extends BaseActivity {
             InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
         }
 
-        requestPermissionSafely(requestExternalStorage().doFinally(new Action() {
-            @Override
-            public void run() throws Exception {
-                requestPermissionSafely(requestMicrophoneAccess().doFinally(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        requestPermissionSafely(requestReadContacts().doFinally(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                //requestVideoAccess().subscribe();
-                            }
-                        }));
-                    }
-                }));
-            }
-        }));
+        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestMicrophoneAccess().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
+            //requestVideoAccess().subscribe();
+        }))))));
 
     }
 
     public void requestPermissionSafely (Completable c) {
-        c.subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
+        c.subscribe(() -> {
 
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        });
+        }, throwable -> throwable.printStackTrace());
     }
 
     public Completable requestMicrophoneAccess () {
@@ -145,15 +124,12 @@ public class MainActivity extends BaseActivity {
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        if(networkEvent.message != null) {
-                            if(!networkEvent.message.getSender().isMe()) {
-                                // Only show the alert if we'recyclerView not on the private threads tab
-                                if(!(adapter.getTabs().get(viewPager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
-                                    NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
-                                }
+                .subscribe(networkEvent -> {
+                    if(networkEvent.message != null) {
+                        if(!networkEvent.message.getSender().isMe()) {
+                            // Only show the alert if we'recyclerView not on the private threads tab
+                            if(!(adapter.getTabs().get(viewPager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
                             }
                         }
                     }
@@ -161,12 +137,7 @@ public class MainActivity extends BaseActivity {
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        clearData();
-                    }
-                }));
+                .subscribe(networkEvent -> clearData()));
 
 
         reloadData();

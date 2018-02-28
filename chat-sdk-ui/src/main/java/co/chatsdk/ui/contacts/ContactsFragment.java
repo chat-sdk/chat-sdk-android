@@ -196,21 +196,11 @@ public class ContactsFragment extends BaseFragment {
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
-                .subscribe(new Consumer<NetworkEvent>() {
-            @Override
-            public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                loadData(false);
-            }
-        }));
+                .subscribe(networkEvent -> loadData(false)));
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(@NonNull NetworkEvent networkEvent) throws Exception {
-                        loadData(true);
-                    }
-                }));
+                .subscribe(networkEvent -> loadData(true)));
 
     }
 
@@ -289,21 +279,13 @@ public class ContactsFragment extends BaseFragment {
         final ArrayList<User> originalUserList = new ArrayList<>();
         originalUserList.addAll(sourceUsers);
 
-        reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                if (!originalUserList.equals(sourceUsers) || force) {
-                    adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
-                    Timber.v("Update Contact List");
-                }
-                setupListClickMode();
+        reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+            if (!originalUserList.equals(sourceUsers) || force) {
+                adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
+                Timber.v("Update Contact List");
             }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        });
+            setupListClickMode();
+        }, throwable -> throwable.printStackTrace());
     }
 
     @Override
@@ -317,89 +299,77 @@ public class ContactsFragment extends BaseFragment {
         if(listOnClickListenerDisposable != null) {
             listOnClickListenerDisposable.dispose();
         }
-        listOnClickListenerDisposable = adapter.getItemClicks().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(@NonNull Object o) throws Exception {
-                if(o instanceof User) {
-                    final User clickedUser = (User) o;
+        listOnClickListenerDisposable = adapter.getItemClicks().subscribe(o -> {
+            if(o instanceof User) {
+                final User clickedUser = (User) o;
 
-                    switch (clickMode) {
-                        case CLICK_MODE_ADD_USER_TO_THREAD:
+                switch (clickMode) {
+                    case CLICK_MODE_ADD_USER_TO_THREAD:
 
-                            Thread thread = null;
-                            if (extraData instanceof Long) {
-                                thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
-                            }
-                            else if (extraData instanceof String) {
-                                thread = StorageManager.shared().fetchThreadWithEntityID((String) extraData);
-                            }
+                        Thread thread = null;
+                        if (extraData instanceof Long) {
+                            thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                        }
+                        else if (extraData instanceof String) {
+                            thread = StorageManager.shared().fetchThreadWithEntityID((String) extraData);
+                        }
 
-                            if(thread != null) {
-                                NM.thread().addUsersToThread(thread, clickedUser)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new Action() {
-                                            @Override
-                                            public void run() throws Exception {
-                                                ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
-                                                if (isDialog) {
-                                                    getDialog().dismiss();
-                                                }
-                                            }
-                                        }, new Consumer<Throwable>() {
-                                            @Override
-                                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                                throwable.printStackTrace();
-                                                ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
-                                            }
-                                        });
-                            }
-                            break;
+                        if(thread != null) {
+                            NM.thread().addUsersToThread(thread, clickedUser)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(() -> {
+                                        ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
+                                        if (isDialog) {
+                                            getDialog().dismiss();
+                                        }
+                                    }, throwable -> {
+                                        throwable.printStackTrace();
+                                        ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
+                                    });
+                        }
+                        break;
 
-                        case CLICK_MODE_NONE:
-                            break;
-                        default:
-                            InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
-                    }
+                    case CLICK_MODE_NONE:
+                        break;
+                    default:
+                        InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
                 }
             }
         });
     }
 
     private Completable reloadUsers () {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                if (loadingMode != MODE_USE_SOURCE) {
+        return Completable.create(e -> {
+            if (loadingMode != MODE_USE_SOURCE) {
 
-                    sourceUsers.clear();
-                   // If this is not a dialog we will load the contacts of the user.
-                    switch (loadingMode) {
-                        case MODE_LOAD_CONTACTS:
-                            sourceUsers.addAll(NM.contact().contacts());
-                            Timber.d("Contacts: " + sourceUsers.size());
-                            break;
+                sourceUsers.clear();
+               // If this is not a dialog we will load the contacts of the user.
+                switch (loadingMode) {
+                    case MODE_LOAD_CONTACTS:
+                        sourceUsers.addAll(NM.contact().contacts());
+                        Timber.d("Contacts: " + sourceUsers.size());
+                        break;
 
-                        case MODE_LOAD_THREAD_USERS:
-                            Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
+                    case MODE_LOAD_THREAD_USERS:
+                        Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
 
-                            // Remove the current user from the list.
-                            List<User> users = thread.getUsers();
-                            users.remove(NM.currentUser());
+                        // Remove the current user from the list.
+                        List<User> users = thread.getUsers();
+                        users.remove(NM.currentUser());
 
-                            sourceUsers.addAll(users);
-                            break;
+                        sourceUsers.addAll(users);
+                        break;
 
-                        case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                            List<User> users1 = NM.contact().contacts();
-                            thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
-                            List<User> threadUser = thread.getUsers();
-                            users1.removeAll(threadUser);
-                            sourceUsers.addAll(users1);
-                            break;
-                    }
+                    case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
+                        List<User> users1 = NM.contact().contacts();
+                        thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                        List<User> threadUser = thread.getUsers();
+                        users1.removeAll(threadUser);
+                        sourceUsers.addAll(users1);
+                        break;
                 }
-                e.onComplete();
             }
+            e.onComplete();
         }).subscribeOn(Schedulers.single());
     }
 

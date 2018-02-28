@@ -79,76 +79,57 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
             return;
         }
 
-        btnSend.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!recordOnPress) {
-                    if (delegate != null) {
-                        delegate.get().onSendPressed(getMessageText());
-                    }
+        btnSend.setOnClickListener(view -> {
+            if(!recordOnPress) {
+                if (delegate != null) {
+                    delegate.get().onSendPressed(getMessageText());
                 }
             }
         });
 
         // Handle recording when the record button is held down
-        btnSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(recordOnPress) {
+        btnSend.setOnTouchListener((view, motionEvent) -> {
+            if(recordOnPress) {
 
-                    // Start recording when we press down
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                        recording = new Recording();
-                        recording.start().subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                toast = new InfiniteToast(getContext(), R.string.recording, true);
-                            }
-                        });
+                // Start recording when we press down
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    recording = new Recording();
+                    recording.start().subscribe(() -> toast = new InfiniteToast(getContext(), R.string.recording, true));
+                }
+
+                // Stop recording
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(recording != null) {
+                        recording.stop();
+                        if(delegate != null && recording.getDurationMillis() > 1000) {
+                            delegate.get().sendAudio(recording);
+                            recording = null;
+                        }
+                        else {
+                            ToastHelper.show(getContext(), "Recording is too short");
+                        }
                     }
-
-                    // Stop recording
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                        if(recording != null) {
-                            recording.stop();
-                            if(delegate != null && recording.getDurationMillis() > 1000) {
-                                delegate.get().sendAudio(recording);
-                                recording = null;
-                            }
-                            else {
-                                ToastHelper.show(getContext(), "Recording is too short");
-                            }
-                        }
-                        if(toast != null) {
-                            toast.cancel();
-                        }
+                    if(toast != null) {
+                        toast.cancel();
                     }
                 }
-                return btnSend.onTouchEvent(motionEvent);
             }
+            return btnSend.onTouchEvent(motionEvent);
         });
 
-        btnOptions.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showOption();
-            }
-        });
+        btnOptions.setOnClickListener(view -> showOption());
 
         etMessage.setOnEditorActionListener(this);
         etMessage.setOnKeyListener(this);
         etMessage.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
-        etMessage.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean focus) {
-                if(delegate != null) {
-                    if(focus) {
-                        delegate.get().onKeyboardShow();
-                    }
-                    else {
-                        delegate.get().onKeyboardHide();
-                    }
+        etMessage.setOnFocusChangeListener((view, focus) -> {
+            if(delegate != null) {
+                if(focus) {
+                    delegate.get().onKeyboardShow();
+                }
+                else {
+                    delegate.get().onKeyboardHide();
                 }
             }
         });

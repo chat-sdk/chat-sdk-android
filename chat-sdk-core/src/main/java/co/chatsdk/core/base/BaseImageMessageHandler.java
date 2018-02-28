@@ -35,76 +35,73 @@ import co.chatsdk.core.dao.Thread;
 public class BaseImageMessageHandler implements ImageMessageHandler {
         @Override
         public Observable<MessageSendProgress> sendMessageWithImage(final String filePath, final Thread thread) {
-            return Observable.create(new ObservableOnSubscribe<MessageSendProgress>() {
-                @Override
-                public void subscribe(final ObservableEmitter<MessageSendProgress> e) throws Exception {
+            return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
 
-                    final Message message = AbstractThreadHandler.newMessage(MessageType.Image, thread);
+                final Message message = AbstractThreadHandler.newMessage(MessageType.Image, thread);
 
-                    // First pass back an empty result so that we add the cell to the table view
-                    message.setMessageStatus(MessageSendStatus.Uploading);
-                    message.update();
-                    e.onNext(new MessageSendProgress(message));
+                // First pass back an empty result so that we add the cell to the table view
+                message.setMessageStatus(MessageSendStatus.Uploading);
+                message.update();
+                e.onNext(new MessageSendProgress(message));
 
-                    File compress = new Compressor(ChatSDK.shared().context())
-                            .setMaxHeight(ChatSDK.config().imageMaxHeight)
-                            .setMaxWidth(ChatSDK.config().imageMaxWidth)
-                            .compressToFile(new File(filePath));
+                File compress = new Compressor(ChatSDK.shared().context())
+                        .setMaxHeight(ChatSDK.config().imageMaxHeight)
+                        .setMaxWidth(ChatSDK.config().imageMaxWidth)
+                        .compressToFile(new File(filePath));
 
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                    final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
 
-                    if(image == null) {
-                        // TODO: Localize
-                        e.onError(new Throwable("Unable to save image to disk"));
-                        return;
-                    }
+                if(image == null) {
+                    // TODO: Localize
+                    e.onError(new Throwable("Unable to save image to disk"));
+                    return;
+                }
 
-                    NM.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {}
+                NM.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {}
 
-                        @Override
-                        public void onNext(FileUploadResult result) {
-                            if(!StringChecker.isNullOrEmpty(result.url))  {
+                    @Override
+                    public void onNext(FileUploadResult result) {
+                        if(!StringChecker.isNullOrEmpty(result.url))  {
 
-                                message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
+                            message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
 
-                                message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
-                                message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
-                                message.setValueForKey(result.url, Keys.MessageImageURL);
-                                message.setValueForKey(result.url, Keys.MessageThumbnailURL);
+                            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
+                            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
+                            message.setValueForKey(result.url, Keys.MessageImageURL);
+                            message.setValueForKey(result.url, Keys.MessageThumbnailURL);
 
-                                message.update();
-
-                                Timber.v("ProgressListener: " + result.progress.asFraction());
-
-                            }
-
-                            e.onNext(new MessageSendProgress(message, result.progress));
-
-                        }
-
-                        @Override
-                        public void onError(Throwable ex) {
-                            e.onError(ex);
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                            message.setMessageStatus(MessageSendStatus.Sending);
                             message.update();
 
-                            e.onNext(new MessageSendProgress(message));
-
-                            ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                            connector.connect(NM.thread().sendMessage(message), e);
+                            Timber.v("ProgressListener: " + result.progress.asFraction());
 
                         }
-                    });
-                }
+
+                        e.onNext(new MessageSendProgress(message, result.progress));
+
+                    }
+
+                    @Override
+                    public void onError(Throwable ex) {
+                        e.onError(ex);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        message.setMessageStatus(MessageSendStatus.Sending);
+                        message.update();
+
+                        e.onNext(new MessageSendProgress(message));
+
+                        ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
+                        connector.connect(NM.thread().sendMessage(message), e);
+
+                    }
+                });
             }).subscribeOn(Schedulers.single());
 
         }

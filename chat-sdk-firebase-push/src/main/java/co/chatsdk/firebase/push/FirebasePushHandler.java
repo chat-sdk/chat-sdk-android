@@ -21,9 +21,6 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,27 +44,21 @@ public class FirebasePushHandler implements PushHandler {
 
         token = FirebaseInstanceId.getInstance().getToken();
 
-        Hook authHook = new Hook(new Hook.Executor() {
-            @Override
-            public void execute(HashMap<String, Object> data) {
-                authFinished = true;
-                if(updatePushToken()) {
-                    pushToken();
-                }
+        Hook authHook = new Hook(data -> {
+            authFinished = true;
+            if(updatePushToken()) {
+                pushToken();
             }
         });
 
         NM.hook().addHook(authHook, BaseHookHandler.UserAuthFinished);
 
-        TokenChangeConnector.shared().addListener(new InstanceIdService.TokenChangeListener() {
-            @Override
-            public void updated(String token) {
+        TokenChangeConnector.shared().addListener(token -> {
 
-                FirebasePushHandler.this.token = token;
+            FirebasePushHandler.this.token = token;
 
-                if(authFinished && updatePushToken()) {
-                    pushToken();
-                }
+            if(authFinished && updatePushToken()) {
+                pushToken();
             }
         });
 
@@ -105,44 +96,41 @@ public class FirebasePushHandler implements PushHandler {
     public void pushToChannels(List<String> channels, Map<String, String> data) {
 
         for(String channel : channels) {
-            pushToChannel(channel, data).doOnError(new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable throwable) throws Exception {
-                    throwable.printStackTrace();
-                }
-            }).subscribe();
+            pushToChannel(channel, data).doOnError(throwable -> throwable.printStackTrace()).subscribe(() -> {
+
+            }, throwable -> {
+                // Catch the error to stop the app crashing if it fails
+                throwable.printStackTrace();
+            });
         }
     }
 
     private Completable pushToChannel (final String channel, final Map<String, String> data) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter e) throws Exception {
-                final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-                String serverKey = "key=" + ChatSDK.config().firebaseCloudMessagingServerKey;
+        return Completable.create(e -> {
+            final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            String serverKey = "key=" + ChatSDK.config().firebaseCloudMessagingServerKey;
 
-                HashMap<String, Object> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
 
-                params.put("to", channel);
-                params.put("notification", data);
-                params.put("data", data);
+            params.put("to", channel);
+            params.put("notification", data);
+            params.put("data", data);
 
-                String json = new JSONObject(params).toString();
+            String json = new JSONObject(params).toString();
 
-                OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient();
 
-                RequestBody body = RequestBody.create(JSON, json);
-                Request request = new Request.Builder()
-                        .url("https://fcm.googleapis.com/fcm/send")
-                        .header("Authorization", serverKey)
-                        .post(body).build();
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url("https://fcm.googleapis.com/fcm/send")
+                    .header("Authorization", serverKey)
+                    .post(body).build();
 
-                Response response = client.newCall(request).execute();
+            Response response = client.newCall(request).execute();
 
-                Timber.v("Push response: " + response.toString());
+            Timber.v("Push response: " + response.toString());
 
-                e.onComplete();
-            }
+            e.onComplete();
         }).subscribeOn(Schedulers.single());
     }
 

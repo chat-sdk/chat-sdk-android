@@ -106,68 +106,49 @@ public class SearchActivity extends BaseActivity {
 
         // Listening to key press - if they click the ok button on the keyboard
         // we start the search
-        searchTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH)
-                {
-                    searchImageView.callOnClick();
-                }
-
-                return false;
+        searchTextView.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH)
+            {
+                searchImageView.callOnClick();
             }
+
+            return false;
         });
 
-        adapter.getItemClicks().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(@NonNull Object item) throws Exception {
-                adapter.toggleSelection(item);
-            }
-        });
+        adapter.getItemClicks().subscribe(item -> adapter.toggleSelection(item));
 
         searchImageView.setOnClickListener(searchOnClickListener);
 
-        addContactsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        addContactsButton.setOnClickListener(v -> {
 
-                if (adapter.getSelectedCount() == 0)
-                {
-                    showToast(getString(R.string.search_activity_no_contact_selected_toast));
-                    return;
+            if (adapter.getSelectedCount() == 0)
+            {
+                showToast(getString(R.string.search_activity_no_contact_selected_toast));
+                return;
+            }
+
+            ArrayList<Completable> completables = new ArrayList<>();
+
+            for(UserListItem u : adapter.getSelectedUsers()) {
+                if(u instanceof User && !((User) u).isMe()) {
+                    completables.add(NM.contact().addContact((User) u, ConnectionType.Contact));
                 }
+            }
 
-                ArrayList<Completable> completables = new ArrayList<>();
+            final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
+            dialog.setMessage(getString(R.string.alert_save_contact));
+            dialog.show();
 
-                for(UserListItem u : adapter.getSelectedUsers()) {
-                    if(u instanceof User && !((User) u).isMe()) {
-                        completables.add(NM.contact().addContact((User) u, ConnectionType.Contact));
-                    }
-                }
-
-                final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
-                dialog.setMessage(getString(R.string.alert_save_contact));
-                dialog.show();
-
-                Completable.merge(completables)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
+            Completable.merge(completables)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {
                         showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
 
                         disposableList.dispose();
 
                         dialog.dismiss();
                         finish();
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                });
-            }
+                    }, throwable -> throwable.printStackTrace());
         });
 
     }
@@ -226,12 +207,7 @@ public class SearchActivity extends BaseActivity {
                 }
             });
 
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    disposableList.dispose();
-                }
-            });
+            dialog.setOnCancelListener(dialog1 -> disposableList.dispose());
 
         }
     };
@@ -255,12 +231,9 @@ public class SearchActivity extends BaseActivity {
             items[i++] = activity.title;
         }
 
-        builder.setTitle("Search").setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                // Launch the appropriate context
-                InterfaceManager.shared().a.startActivity(context, activities.get(i).className);
-            }
+        builder.setTitle("Search").setItems(items, (dialogInterface, i1) -> {
+            // Launch the appropriate context
+            InterfaceManager.shared().a.startActivity(context, activities.get(i1).className);
         });
 
         builder.show();

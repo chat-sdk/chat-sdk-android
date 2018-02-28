@@ -9,28 +9,18 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Open Source.** The Chat SDK is open source
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
-- **Firebase** Powered by Google Firebase
 - **[Download the APK](https://www.dropbox.com/s/0yk4hqfz962xyiy/chat-sdk-all-features.apk?dl=0)** to try out the Firebase Chat SDK for Android now! 
+- **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
+- **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 
-## v4.0 Released
+## Technical details
 
-We have just released the latest version of the Android Chat SDK. In this update we have gone over every class and rewritten large portions of the SDK to bring it fully up to date. The changes have focused around four key areas:
-
-### Architecture
-
-The project has been completely refactored to make it's architecture fully modular. The project has been split into 3 main modules: core, ui and firebase network adapter. The architecture is now almost identical to the iOS version of the project. 
-
-### Technology Stack
-
-The technology stack has been fully updated. Promises have been replaced by the more flexible RXJava library. All images are loaded using Fresco. GreenDao and all the other support libraries have been updated to the latest version. 
-
-### Performance
-
-Performance has been improved in a number of areas. All the list views have been updated to recycler views. Now all network processing happens on background threads. We have also stress tested the code with up to 1000 threads in a view and 10,000 messages in a thread. 
-
-### UX
-
-The user interface has seen a major update. We have improved the chat view as well as making the entire app more consistent. We have also added an advanced user profile. 
+- **Multiple backend support** [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
+- **Data storage** all data is persisted using the [GreenDao](http://greenrobot.org/greendao/)
+- **Dynamic image loading** using [Fresco](http://frescolib.org/)
+- **Reactive** using [RXAndroid](https://github.com/ReactiveX/RxAndroid)
+- **Java 8** supports Java 8 and lamda expressions
+- **API Level 16+** Compatible with 99.3% of Android devices
 
 ## Features
 
@@ -135,6 +125,15 @@ compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.8'
 compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.8'
 compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.8'
 compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.8'
+```
+
+You may also need to enable Java 8:
+
+```
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
 ```
 
 You can also add the [modules manually](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually) by downloading source code and importing the modules to Android Studio. 
@@ -544,27 +543,32 @@ Now that the modules have been added, we need to configure the project.
 
 **SDK Version**
 
-Now you will see that gradle cannot be sync because it missing some parameters. Open to **gradle.properties** file in the root of the project and add the following lines.
+Now you will see that gradle cannot be sync because it missing some parameters. Open to **gradle.properties** file in the root of the project and make sure the following lines are set to the [latest values](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties).
 
 ```
-MIN_SDK = 16
-ANDROID_BUILD_SDK_VERSION = 25
-ANDROID_BUILD_TOOLS_VERSION = 25.0.2
-ANDROID_BUILD_TARGET_SDK_VERSION = 25
-ANDROID_COMPILE_SDK_VERSION = 25
+MIN_SDK = 
+ANDROID_BUILD_TARGET_SDK_VERSION = 
+ANDROID_COMPILE_SDK_VERSION = 
 
-GOOGLE_SERVICES_VERSION = 10.2.1
-ANDROID_SUPPORT_VERSION = 25.3.1
-
-CHAT_SDK_VERSION = 4.0.0
-CHAT_SDK_BUILD_NUMBER = 4000
-CHAT_SDK_GROUP = co.chatsdk
+GOOGLE_SERVICES_VERSION = 
+ANDROID_SUPPORT_VERSION = 
+ANDROID_BUILD_TOOLS_VERSION = 
 ```
 
 > **Note:**
 >You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavior** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version 21.1.0 should be installed. 
 
 Add any other modules that you need. Then sync the project with gradle. 
+
+## Backend agnostic architecture
+
+The user interface for the Chat SDK is completely decoupled from the backend. This means that the Chat SDK can be adapted to connect to any type of messaging server by creating a custom network adapter. Currently we have written two network adapters, one for Firebase and another for XMPP. This has a number of benefits:
+
+1. You can connect the Chat SDK user interface to your messaging server by writing a custom network adapter. This saves you the complex job of building a full user interface. 
+
+2. You can switch the backend your app uses. Imagine that you decide to start off with the Firebase version of the Chat SDK but at some point you decide that you want to switch to using an XMPP server. Usually, this would require a full rewrite of the messaging client but with the Chat SDK it can be achieved by changing one line of code! 
+
+If you want more details about writing a custom network adapter you can email us at [team@chatsdk.co](mailto:team@chatsdk.co).
   
 ## The license
 

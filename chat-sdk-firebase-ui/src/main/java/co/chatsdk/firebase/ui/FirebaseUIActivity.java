@@ -45,24 +45,11 @@ public class FirebaseUIActivity extends BaseActivity {
             showProgressDialog(getString(R.string.authenticating));
             NM.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            dismissProgressDialog();
-                        }
-                    })
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() throws Exception {
-                            AppBackgroundMonitor.shared().setEnabled(true);
-                            InterfaceManager.shared().a.startMainActivity(FirebaseUIActivity.this);
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            throwable.printStackTrace();
-                        }
-                    });
+                    .doFinally(() -> dismissProgressDialog())
+                    .subscribe(() -> {
+                        AppBackgroundMonitor.shared().setEnabled(true);
+                        InterfaceManager.shared().a.startMainActivity(FirebaseUIActivity.this);
+                    }, throwable -> throwable.printStackTrace());
         }
     }
 

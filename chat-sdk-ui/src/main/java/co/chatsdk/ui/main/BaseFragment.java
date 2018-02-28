@@ -44,12 +44,9 @@ public abstract class BaseFragment extends DialogFragment {
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
-        BaseActivity.setupTouchUIToDismissKeyboard(view, new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                BaseActivity.hideSoftKeyboard((AppCompatActivity) getActivity());
-                return false;
-            }
+        BaseActivity.setupTouchUIToDismissKeyboard(view, (v, event) -> {
+            BaseActivity.hideSoftKeyboard((AppCompatActivity) getActivity());
+            return false;
         }, exceptIDs);
     }
 

@@ -59,24 +59,18 @@ public class PrivateThreadsFragment extends BaseFragment {
 
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterPrivateThreadsUpdated())
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        if(tabIsVisible) {
-                            reloadData();
-                        }
+                .subscribe(networkEvent -> {
+                    if(tabIsVisible) {
+                        reloadData();
                     }
                 });
 
         NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        if(tabIsVisible) {
-                            adapter.setTyping(networkEvent.thread, networkEvent.text);
-                            adapter.notifyDataSetChanged();
-                        }
+                .subscribe(networkEvent -> {
+                    if(tabIsVisible) {
+                        adapter.setTyping(networkEvent.thread, networkEvent.text);
+                        adapter.notifyDataSetChanged();
                     }
                 });
 
@@ -97,43 +91,30 @@ public class PrivateThreadsFragment extends BaseFragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setClickable(true);
 
-        adapter.onClickObservable().subscribe(new Consumer<Thread>() {
-            @Override
-            public void accept(@NonNull Thread thread) throws Exception {
-                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
-            }
-        });
+        adapter.onClickObservable().subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID()));
 
-        adapter.onLongClickObservable().subscribe(new Consumer<Thread>() {
-            @Override
-            public void accept(@NonNull final Thread thread) throws Exception {
-                DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                        getResources().getString(R.string.cancel), null, new Callable() {
-                            @Override
-                            public Object call() throws Exception {
-                                NM.thread().deleteThread(thread)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new CompletableObserver() {
-                                            @Override
-                                            public void onSubscribe(Disposable d) {
-                                            }
+        adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                getResources().getString(R.string.cancel), null, () -> {
+                    NM.thread().deleteThread(thread)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new CompletableObserver() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+                                }
 
-                                            @Override
-                                            public void onComplete() {
-                                                reloadData();
-                                                ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
-                                            }
+                                @Override
+                                public void onComplete() {
+                                    reloadData();
+                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
+                                }
 
-                                            @Override
-                                            public void onError(Throwable e) {
-                                                ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
-                                            }
-                                        });
-                                return null;
-                            }
-                        });
-            }
-        });
+                                @Override
+                                public void onError(Throwable e) {
+                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
+                                }
+                            });
+                    return null;
+                }));
     }
 
     public void clearData() {

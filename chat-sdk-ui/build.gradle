@@ -25,12 +25,14 @@ android {
 
     buildTypes {
         release {
-//            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-fresco.pro'
         }
-
         debug {
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
