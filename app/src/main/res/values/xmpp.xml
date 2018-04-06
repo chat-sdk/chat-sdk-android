@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="service_name">mycruise</string>
-    <string name="service_host">195.72.210.134</string>
-    <string name="service_port">60005</string>
-    <string name="search_service">vjud.195.72.210.134</string>
-    <string name="resource">iphone</string>
+
+    <!-- My cruise -->
+    <!--<string name="service_name">mycruise</string>-->
+    <!--<string name="service_host">195.72.210.134</string>-->
+    <!--<string name="service_port">60005</string>-->
+    <!--<string name="search_service">vjud.195.72.210.134</string>-->
+    <!--<string name="resource">iphone</string>-->
+    <!--<string name="debug_mode_enabled">no</string>-->
+
+    <string name="service_name">unitywfms.m.in-app.io</string>
+    <string name="service_host">unitywfms.m.in-app.io</string>
+    <string name="service_port">5222</string>
+    <string name="resource">Android</string>
     <string name="debug_mode_enabled">no</string>
 
     <!--<string name="service_name">server.chatcatapp.com</string>-->

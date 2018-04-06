@@ -35,7 +35,6 @@ public class AppObj extends MultiDexApplication {
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();
 
-
     }
 
     @Override

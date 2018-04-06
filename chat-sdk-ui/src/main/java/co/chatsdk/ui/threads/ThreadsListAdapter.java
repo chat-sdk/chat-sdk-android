@@ -185,10 +185,12 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         for(Thread t : threads) {
             added = addRow(t, false) || added;
         }
-        if(added) {
+        // Maybe the last message has changed. I think this can lead to a race condition
+        // Which causes the thread not to update when a new message comes in
+//        if(added) {
             sort();
             notifyDataSetChanged();
-        }
+//        }
     }
 
     public void setThreads(List<Thread> threads) {
