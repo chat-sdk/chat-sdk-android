@@ -177,8 +177,11 @@ public class Message implements CoreEntity {
 
     public ReadReceiptUserLink linkForUser (User user) {
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if(link.getUser().equals(user)) {
-                return link;
+            User linkUser = link.getUser();
+            if (linkUser != null && user != null) {
+                if(linkUser.equals(user)) {
+                    return link;
+                }
             }
         }
         return null;

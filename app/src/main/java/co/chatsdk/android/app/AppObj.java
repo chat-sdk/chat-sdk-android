@@ -24,7 +24,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder builder = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        builder.firebaseRootPath("18_02");
+        builder.firebaseRootPath("18_02_t");
 
         ChatSDK.initialize(builder.build());
 
