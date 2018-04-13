@@ -217,25 +217,12 @@ public class EditProfileActivity extends BaseActivity {
         String phoneNumber = phoneNumberEditText.getText().toString();
         String email = emailEditText.getText().toString();
 
-        if(!StringUtils.isEmpty(status)) {
-            currentUser.setStatus(status);
-        }
-        if(!StringUtils.isEmpty(availability)) {
-            currentUser.setAvailability(availability);
-        }
-        if(!StringUtils.isEmpty(name)) {
-            currentUser.setName(name);
-        }
-        if(!StringUtils.isEmpty(location)) {
-            currentUser.setLocation(location);
-        }
-        if(!StringUtils.isEmpty(phoneNumber)) {
-            currentUser.setPhoneNumber(phoneNumber);
-        }
-        if(!StringUtils.isEmpty(email)) {
-            currentUser.setEmail(email);
-        }
-
+        currentUser.setStatus(status);
+        currentUser.setAvailability(availability);
+        currentUser.setName(name);
+        currentUser.setLocation(location);
+        currentUser.setPhoneNumber(phoneNumber);
+        currentUser.setEmail(email);
 
         boolean changed = !userMeta.equals(currentUser.metaMap());
         boolean imageChanged = false;

@@ -182,6 +182,7 @@ public class ProfileFragment extends BaseFragment {
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
+        setRowVisible(R.id.ivEmail, R.id.tvEmail, !StringChecker.isNullOrEmpty(user.getEmail()));
         setRowVisible(R.id.ivFollows, R.id.tvFollows, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
         setRowVisible(R.id.ivFollowed, R.id.tvFollowed, !StringChecker.isNullOrEmpty(user.getPresenceSubscription()));
 
