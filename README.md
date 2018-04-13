@@ -121,10 +121,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.10'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.10'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.10'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.10'
 ```
 
 You may also need to enable Java 8:
@@ -223,7 +223,7 @@ InterfaceManager.shared().a.startLoginActivity(context, true);
 
 ### Enabling location messages
 
-The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Maps API](https://developers.google.com/maps/documentation/android-api/) to display the location. 
+The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Static Maps API](https://developers.google.com/maps/documentation/static-maps/) to display the location.
 
 Then add the following to your `AndroidManifest.xml` file:
 
@@ -314,7 +314,7 @@ The free modules are located in the main [Github repository](https://github.com/
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.0.10'
 ```
 
 ##### Enable the module
@@ -350,7 +350,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.10'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -384,6 +384,18 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
   ```
   <string name="facebook_app_identifier">[FACEBOOK APP KEY]</string>
   ```
+  
+6. Go back to the Facebook site and click "Add Platform". Choose Android and enter your **Bundle ID**. Then you will need to enter add the **Key Hashes** property. To do this first generate a [key store](https://developer.android.com/studio/publish/app-signing.html) for your app. Then generate the hash by running the following on MacOS:
+
+  ```
+  keytool -exportcert -alias <RELEASE_KEY_ALIAS> -keystore <RELEASE_KEY_PATH> | openssl sha1 -  binary | openssl base64
+  ```
+
+  On Windows, use:
+
+  ```
+  keytool -exportcert -alias <RELEASE_KEY_ALIAS> -keystore <RELEASE_KEY_PATH> | openssl sha1 -binary | openssl base64
+  ```
 
 #### Twitter
 
@@ -408,6 +420,14 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
 #### Google
   
 1. If you haven't yet specified your app's SHA-1 fingerprint, do so from the [Settings page](https://console.firebase.google.com/project/_/settings/general/) of the Firebase console. See [Authenticating Your Client](https://developers.google.com/android/guides/client-auth) for details on how to get your app's SHA-1 fingerprint.
+
+  ```
+  keytool -exportcert -alias [KEY ALIAS] -keystore [PATH/TO/KEYSTORE] -list -v  
+  ```
+  
+ >**Note:**
+ >You may need to add multiple keys for debug and release
+
 2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
 3. On the **Sign in method** tab, enable the **Google** sign-in method and click **Save**.
 4. You must pass your [server's client ID](https://developers.google.com/identity/sign-in/android/start-integrating#get_your_backend_servers_oauth_20_client_id) to the requestIdToken method. To find the OAuth 2.0 client ID.
@@ -436,7 +456,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.104.0.10'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)

@@ -47,6 +47,7 @@ public class ProfileFragment extends BaseFragment {
     private ImageView flagImageView;
     private ImageView availabilityImageView;
     private TextView nameTextView;
+    private TextView emailTextView;
     private TextView statusTextView;
     private TextView locationTextView;
     private TextView phoneTextView;
@@ -59,6 +60,7 @@ public class ProfileFragment extends BaseFragment {
 
     private ImageView locationImageView;
     private ImageView phoneImageView;
+    private ImageView emailImageView;
 
     private ArrayList<Disposable> disposables = new ArrayList<>();
 
@@ -108,6 +110,7 @@ public class ProfileFragment extends BaseFragment {
 
         locationTextView = (TextView) mainView.findViewById(R.id.tvLocation);
         phoneTextView = (TextView) mainView.findViewById(R.id.tvPhone);
+        emailTextView = (TextView) mainView.findViewById(R.id.tvEmail);
         followsTextView = (TextView) mainView.findViewById(R.id.tvFollows);
         followedTextView = (TextView) mainView.findViewById(R.id.tvFollowed);
         blockButton = (Button) mainView.findViewById(R.id.btnBlock);
@@ -118,6 +121,8 @@ public class ProfileFragment extends BaseFragment {
 
         locationImageView = (ImageView) mainView.findViewById(R.id.ivLocation);
         phoneImageView = (ImageView) mainView.findViewById(R.id.ivPhone);
+        emailImageView = (ImageView) mainView.findViewById(R.id.ivEmail);
+
         followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
         followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
 
@@ -272,6 +277,8 @@ public class ProfileFragment extends BaseFragment {
         // Phone
         phoneTextView.setText(getUser().getPhoneNumber());
 
+        emailTextView.setText(getUser().getEmail());
+
         String presenceSubscription = getUser().getPresenceSubscription();
 
         boolean follows = false;
@@ -306,6 +313,7 @@ public class ProfileFragment extends BaseFragment {
         ArrayList<Integer> imageViewIds = new ArrayList<>();
         imageViewIds.add(R.id.ivLocation);
         imageViewIds.add(R.id.ivPhone);
+        imageViewIds.add(R.id.ivEmail);
         imageViewIds.add(R.id.ivFollows);
         imageViewIds.add(R.id.ivFollowed);
 
@@ -314,6 +322,7 @@ public class ProfileFragment extends BaseFragment {
         ArrayList<Integer> textViewIds = new ArrayList<>();
         textViewIds.add(R.id.tvLocation);
         textViewIds.add(R.id.tvPhone);
+        textViewIds.add(R.id.tvEmail);
         textViewIds.add(R.id.tvFollows);
         textViewIds.add(R.id.tvFollowed);
         textViewIds.add(R.id.btnDelete);

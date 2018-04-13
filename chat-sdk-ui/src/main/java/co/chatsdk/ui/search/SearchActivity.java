@@ -10,41 +10,36 @@ package co.chatsdk.ui.search;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.manager.InterfaceManager;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by braunster on 29/06/14.
@@ -217,7 +212,7 @@ public class SearchActivity extends BaseActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         // TODO: Localize
         final List<SearchActivityType> activities = new ArrayList<>(InterfaceManager.shared().a.getSearchActivities());
-        activities.add(new SearchActivityType(SearchActivity.class, "Search with name"));
+        activities.add(new SearchActivityType(InterfaceManager.shared().a.getSearchActivity(), "Search with name"));
 
         if(activities.size() == 1) {
             InterfaceManager.shared().a.startActivity(context, activities.get(0).className);

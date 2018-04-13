@@ -3,12 +3,13 @@ package co.chatsdk.firebase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
@@ -21,18 +22,11 @@ import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -52,13 +46,53 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     /** Unlike the iOS code the current user need to be saved before you call this method.*/
+//    public Completable pushUser () {
+//        return Single.create((SingleOnSubscribe<User>) e -> {
+//            // Check to see if the avatar URL is local or remote
+//            File avatar = new File(NM.currentUser().getAvatarURL());
+//            if (avatar.exists() && NM.upload() != null) {
+//                // Upload the image
+//                Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
+//                NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
+//                    @Override
+//                    public void onSubscribe(@NonNull Disposable d) {
+//                    }
+//
+//                    @Override
+//                    public void onNext(@NonNull FileUploadResult fileUploadResult) {
+//                        if (fileUploadResult.urlValid()) {
+//                            NM.currentUser().setAvatarURL(fileUploadResult.url);
+//                            NM.currentUser().update();
+//                            NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(@NonNull Throwable ex) {
+//                        ex.printStackTrace();
+//                        e.onSuccess(NM.currentUser());
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        e.onSuccess(NM.currentUser());
+//                    }
+//                });
+//            } else {
+//                e.onSuccess(NM.currentUser());
+//            }
+//        }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
+//    }
+
     public Completable pushUser () {
         return Single.create((SingleOnSubscribe<User>) e -> {
+
             // Check to see if the avatar URL is local or remote
-            File avatar = new File(NM.currentUser().getAvatarURL());
-            if (avatar.exists() && NM.upload() != null) {
+            File avatar = new File(new URI(NM.currentUser().getAvatarURL()).getPath());
+            Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
+
+            if (new URL(NM.currentUser().getAvatarURL()).getHost() != null && bitmap != null && NM.upload() != null) {
                 // Upload the image
-                Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
                 NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
@@ -87,6 +121,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             } else {
                 e.onSuccess(NM.currentUser());
             }
+
         }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
     }
 

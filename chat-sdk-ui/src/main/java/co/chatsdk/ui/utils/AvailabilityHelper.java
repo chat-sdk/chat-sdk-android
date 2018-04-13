@@ -1,7 +1,6 @@
 package co.chatsdk.ui.utils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.ui.R;
@@ -19,8 +18,8 @@ public class AvailabilityHelper {
         if(availability.equals(Availability.Unavailable)) {
             availabilityString = context.getString(R.string.availability_unavailable);
         }
-        if(availability.equals(Availability.Available)) {
-            availabilityString = context.getString(R.string.availability_unavailable);
+        if(availability.equals(Availability.Available) || availability.equals(Availability.Chat)) {
+            availabilityString = context.getString(R.string.availability_available);
         }
         if(availability.equals(Availability.Busy)) {
             availabilityString = context.getString(R.string.availability_busy);
@@ -42,7 +41,7 @@ public class AvailabilityHelper {
         if(availability == null || availability.equals(Availability.Unavailable)) {
             imageId = R.drawable.icn_20_offline;
         }
-        else if(availability.equals(Availability.Available)) {
+        else if(availability.equals(Availability.Available) || availability.equals(Availability.Chat)) {
             imageId = R.drawable.icn_20_online;
         }
         else if(availability.equals(Availability.Busy)) {

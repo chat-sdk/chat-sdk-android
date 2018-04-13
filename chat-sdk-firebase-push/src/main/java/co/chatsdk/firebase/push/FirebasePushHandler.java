@@ -96,12 +96,7 @@ public class FirebasePushHandler implements PushHandler {
     public void pushToChannels(List<String> channels, Map<String, String> data) {
 
         for(String channel : channels) {
-            pushToChannel(channel, data).doOnError(throwable -> throwable.printStackTrace()).subscribe(() -> {
-
-            }, throwable -> {
-                // Catch the error to stop the app crashing if it fails
-                throwable.printStackTrace();
-            });
+            pushToChannel(channel, data).doOnError(throwable -> throwable.printStackTrace()).subscribe();
         }
     }
 

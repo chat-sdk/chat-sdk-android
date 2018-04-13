@@ -170,6 +170,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     @Override
     public void reloadData() {
         if(adapter != null) {
+            adapter.clearData();
             adapter.updateThreads(NM.thread().getThreads(ThreadType.Private));
         }
     }

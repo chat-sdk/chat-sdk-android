@@ -278,7 +278,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
     public boolean addRow(Message message, boolean sort, boolean notify){
         if(message != null && !messageExists(message)) {
-            MessageListItem item = new MessageListItem(message, maxWidth());
+            MessageListItem item = new MessageListItem(message);
             return addRow(item, sort, notify);
         }
         return false;

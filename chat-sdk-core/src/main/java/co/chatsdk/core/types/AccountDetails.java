@@ -1,5 +1,7 @@
 package co.chatsdk.core.types;
 
+import java.util.HashMap;
+
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.
  */
@@ -20,6 +22,7 @@ public class AccountDetails {
     public String username;
     public String password;
     public String token;
+    public HashMap<String, String> meta = new HashMap<>();
 
     public static AccountDetails facebook () {
         AccountDetails a = new AccountDetails();
@@ -70,6 +73,14 @@ public class AccountDetails {
 
     public boolean loginDetailsValid () {
         return username != null && !username.isEmpty() && password != null && !password.isEmpty();
+    }
+
+    public void setMetaValue(String key, String value) {
+        meta.put(key, value);
+    }
+
+    public String getMetaValue (String key) {
+        return meta.get(key);
     }
 
 }

@@ -11,40 +11,40 @@
         android:allowBackup="true"
         android:supportsRtl="true">
 
-        <activity android:name="co.chatsdk.ui.login.LoginActivity"
+        <activity android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SdkTheme">
         </activity>
 
-        <activity android:name="co.chatsdk.ui.threads.ThreadDetailsActivity"
+        <activity android:name=".threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="co.chatsdk.ui.chat.ChatActivity"
+        <activity android:name=".chat.ChatActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name="co.chatsdk.ui.profile.EditProfileActivity"
+        <activity android:name=".profile.EditProfileActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name="co.chatsdk.ui.profile.ProfileActivity"
+        <activity android:name=".search.SearchActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name="co.chatsdk.ui.main.MainActivity"
+        <activity android:name=".profile.ProfileActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/SdkTheme"/>
+
+        <activity android:name=".main.MainActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name="co.chatsdk.ui.contacts.SelectContactActivity"
+        <activity android:name=".contacts.SelectContactActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
-
-        <activity android:name="co.chatsdk.ui.search.SearchActivity"
-            android:theme="@style/SdkTheme">
-        </activity>
 
         <!--Crop image-->
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />

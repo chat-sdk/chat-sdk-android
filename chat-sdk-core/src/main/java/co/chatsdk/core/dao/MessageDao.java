@@ -40,6 +40,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property Status = new Property(7, Integer.class, "status", false, "STATUS");
         public final static Property SenderId = new Property(8, Long.class, "senderId", false, "SENDER_ID");
         public final static Property ThreadId = new Property(9, Long.class, "threadId", false, "THREAD_ID");
+        public final static Property NextMessageId = new Property(10, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
+        public final static Property LastMessageId = new Property(11, Long.class, "lastMessageId", false, "LAST_MESSAGE_ID");
     }
 
     private DaoSession daoSession;
@@ -69,7 +71,9 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"TYPE\" INTEGER," + // 6: type
                 "\"STATUS\" INTEGER," + // 7: status
                 "\"SENDER_ID\" INTEGER," + // 8: senderId
-                "\"THREAD_ID\" INTEGER);"); // 9: threadId
+                "\"THREAD_ID\" INTEGER," + // 9: threadId
+                "\"NEXT_MESSAGE_ID\" INTEGER," + // 10: nextMessageId
+                "\"LAST_MESSAGE_ID\" INTEGER);"); // 11: lastMessageId
     }
 
     /** Drops the underlying database table. */
@@ -131,6 +135,16 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (threadId != null) {
             stmt.bindLong(10, threadId);
         }
+ 
+        Long nextMessageId = entity.getNextMessageId();
+        if (nextMessageId != null) {
+            stmt.bindLong(11, nextMessageId);
+        }
+ 
+        Long lastMessageId = entity.getLastMessageId();
+        if (lastMessageId != null) {
+            stmt.bindLong(12, lastMessageId);
+        }
     }
 
     @Override
@@ -186,6 +200,16 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (threadId != null) {
             stmt.bindLong(10, threadId);
         }
+ 
+        Long nextMessageId = entity.getNextMessageId();
+        if (nextMessageId != null) {
+            stmt.bindLong(11, nextMessageId);
+        }
+ 
+        Long lastMessageId = entity.getLastMessageId();
+        if (lastMessageId != null) {
+            stmt.bindLong(12, lastMessageId);
+        }
     }
 
     @Override
@@ -211,7 +235,9 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
             cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // status
             cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // senderId
-            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9) // threadId
+            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // threadId
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10), // nextMessageId
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // lastMessageId
         );
         return entity;
     }
@@ -228,6 +254,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setStatus(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
         entity.setSenderId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
         entity.setThreadId(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
+        entity.setNextMessageId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
+        entity.setLastMessageId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
      }
     
     @Override
@@ -280,9 +308,15 @@ public class MessageDao extends AbstractDao<Message, Long> {
             SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(',');
             SqlUtils.appendColumns(builder, "T1", daoSession.getThreadDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T2", daoSession.getMessageDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T3", daoSession.getMessageDao().getAllColumns());
             builder.append(" FROM MESSAGE T");
             builder.append(" LEFT JOIN USER T0 ON T.\"SENDER_ID\"=T0.\"_id\"");
             builder.append(" LEFT JOIN THREAD T1 ON T.\"THREAD_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN MESSAGE T2 ON T.\"NEXT_MESSAGE_ID\"=T2.\"_id\"");
+            builder.append(" LEFT JOIN MESSAGE T3 ON T.\"LAST_MESSAGE_ID\"=T3.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -299,6 +333,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
 
         Thread thread = loadCurrentOther(daoSession.getThreadDao(), cursor, offset);
         entity.setThread(thread);
+        offset += daoSession.getThreadDao().getAllColumns().length;
+
+        Message nextMessage = loadCurrentOther(daoSession.getMessageDao(), cursor, offset);
+        entity.setNextMessage(nextMessage);
+        offset += daoSession.getMessageDao().getAllColumns().length;
+
+        Message lastMessage = loadCurrentOther(daoSession.getMessageDao(), cursor, offset);
+        entity.setLastMessage(lastMessage);
 
         return entity;    
     }

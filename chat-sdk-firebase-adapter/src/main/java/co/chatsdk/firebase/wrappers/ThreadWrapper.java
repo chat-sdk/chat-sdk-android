@@ -99,7 +99,9 @@ public class ThreadWrapper  {
             ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                 // We just update the thread. The last message will already have been
                 // set by the message listener
-                e.onNext(model);
+                if (hasValue) {
+                    e.onNext(model);
+                }
             }));
 
             FirebaseReferenceManager.shared().addRef(ref, listener);

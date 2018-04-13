@@ -8,15 +8,11 @@
 package co.chatsdk.firebase.wrappers;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -40,10 +36,7 @@ import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -123,13 +116,10 @@ public class UserWrapper {
 
         if (!StringChecker.isNullOrEmpty(profileURL) && StringChecker.isNullOrEmpty(model.getAvatarURL())) {
             model.setAvatarURL(profileURL);
-            model.setThumbnailURL(profileURL);
         }
         else {
             String url = ChatSDK.config().defaultUserAvatarURL;
             model.setAvatarURL(url);
-            model.setThumbnailURL(url);
-
         }
 
         model.update();

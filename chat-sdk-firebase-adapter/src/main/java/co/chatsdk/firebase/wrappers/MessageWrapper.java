@@ -8,7 +8,6 @@
 package co.chatsdk.firebase.wrappers;
 
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
@@ -28,15 +27,10 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageWrapper  {
 
-    private static boolean DEBUG = true;
     private Message model;
 
     public MessageWrapper(Message model){
@@ -143,7 +137,7 @@ public class MessageWrapper  {
 
         }
 
-        DaoCore.updateEntity(model);
+        model.update();
     }
 
     public Completable push() {

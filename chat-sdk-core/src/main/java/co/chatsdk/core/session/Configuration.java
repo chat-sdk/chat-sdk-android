@@ -75,6 +75,11 @@ public class Configuration {
     public boolean publicRoomCreationEnabled = false;
     public boolean saveImagesToDirectory = false;
 
+    public String messageColorMe = null;
+    public String messageColorReply = null;
+
+    public String messageTimeFormat = "HH:mm";
+
     public int maxMessagesToLoad = 30;
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
@@ -83,7 +88,8 @@ public class Configuration {
     public boolean imageCroppingEnabled = true;
 
     public String defaultNamePrefix = "ChatSDK";
-    public String defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
+    public String defaultName = null;
+
     public String imageDirectoryName = "ChatSDK";
     public String contactDeveloperEmailAddress = "support@chatsdk.co";
     public String contactDeveloperEmailSubject = "";
@@ -92,12 +98,18 @@ public class Configuration {
 
     public String pushNotificationSound = "";
 
+    public int loginScreenDrawableResourceID = -1;
+
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
 
     public HashMap<String, Object> customProperties = new HashMap<>();
 
     public Object getCustomProperty (String key) {
         return customProperties.get(key);
+    }
+
+    public void updateDefaultName () {
+        defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
     }
 
     public boolean twitterLoginEnabled () {
@@ -326,11 +338,22 @@ public class Configuration {
 
         public Builder defaultNamePrefix(String value) {
             config.defaultNamePrefix = value;
+            config.updateDefaultName();
             return this;
         }
 
         public Builder defaultName(String value) {
             config.defaultName = value;
+            return this;
+        }
+
+        public Builder setMessageTimeFormat (String format) {
+            config.messageTimeFormat = format;
+            return this;
+        }
+
+        public Builder loginScreenDrawableResourceID (int resource) {
+            config.loginScreenDrawableResourceID = resource;
             return this;
         }
 

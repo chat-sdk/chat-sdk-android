@@ -38,6 +38,7 @@ import co.chatsdk.ui.main.MainActivity;
 import co.chatsdk.ui.profile.EditProfileActivity;
 import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.profile.ProfileFragment;
+import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 import co.chatsdk.ui.threads.PublicThreadsFragment;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
@@ -175,7 +176,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Class getSearchActivity() {
-        return SearchActivityType.class;
+        return SearchActivity.class;
     }
 
     @Override

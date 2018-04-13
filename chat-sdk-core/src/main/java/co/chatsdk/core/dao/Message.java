@@ -47,6 +47,8 @@ public class Message implements CoreEntity {
     private Integer status;
     private Long senderId;
     private Long threadId;
+    private Long nextMessageId;
+    private Long lastMessageId;
 
     @ToMany(referencedJoinProperty = "readReceiptId")
     private List<ReadReceiptUserLink> readReceiptLinks;
@@ -56,6 +58,12 @@ public class Message implements CoreEntity {
 
     @ToOne(joinProperty = "threadId")
     private Thread thread;
+
+    @ToOne(joinProperty = "nextMessageId")
+    private Message nextMessage;
+
+    @ToOne(joinProperty = "lastMessageId")
+    private Message lastMessage;
 
     @Transient
     public static final String TAG = Message.class.getSimpleName();
@@ -72,9 +80,10 @@ public class Message implements CoreEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 1966433252)
+    @Generated(hash = 2031601659)
     public Message(Long id, String entityID, DateTime date, Boolean read, String resources, String text,
-            Integer type, Integer status, Long senderId, Long threadId) {
+            Integer type, Integer status, Long senderId, Long threadId, Long nextMessageId,
+            Long lastMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -85,6 +94,8 @@ public class Message implements CoreEntity {
         this.status = status;
         this.senderId = senderId;
         this.threadId = threadId;
+        this.nextMessageId = nextMessageId;
+        this.lastMessageId = lastMessageId;
     }
 
     @Generated(hash = 637306882)
@@ -96,6 +107,12 @@ public class Message implements CoreEntity {
 
     @Generated(hash = 880682693)
     private transient Long sender__resolvedKey;
+
+    @Generated(hash = 992601680)
+    private transient Long nextMessage__resolvedKey;
+
+    @Generated(hash = 88977546)
+    private transient Long lastMessage__resolvedKey;
 
     /** Null safe version of getIsRead*/
     public boolean wasRead() {
@@ -490,6 +507,80 @@ public class Message implements CoreEntity {
     @Generated(hash = 273652628)
     public synchronized void resetReadReceiptLinks() {
         readReceiptLinks = null;
+    }
+
+    public Long getNextMessageId() {
+        return this.nextMessageId;
+    }
+
+    public void setNextMessageId(Long nextMessageId) {
+        this.nextMessageId = nextMessageId;
+    }
+
+    public Long getLastMessageId() {
+        return this.lastMessageId;
+    }
+
+    public void setLastMessageId(Long lastMessageId) {
+        this.lastMessageId = lastMessageId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 871948279)
+    public Message getNextMessage() {
+        Long __key = this.nextMessageId;
+        if (nextMessage__resolvedKey == null || !nextMessage__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MessageDao targetDao = daoSession.getMessageDao();
+            Message nextMessageNew = targetDao.load(__key);
+            synchronized (this) {
+                nextMessage = nextMessageNew;
+                nextMessage__resolvedKey = __key;
+            }
+        }
+        return nextMessage;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1912932494)
+    public void setNextMessage(Message nextMessage) {
+        synchronized (this) {
+            this.nextMessage = nextMessage;
+            nextMessageId = nextMessage == null ? null : nextMessage.getId();
+            nextMessage__resolvedKey = nextMessageId;
+        }
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1697405005)
+    public Message getLastMessage() {
+        Long __key = this.lastMessageId;
+        if (lastMessage__resolvedKey == null || !lastMessage__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MessageDao targetDao = daoSession.getMessageDao();
+            Message lastMessageNew = targetDao.load(__key);
+            synchronized (this) {
+                lastMessage = lastMessageNew;
+                lastMessage__resolvedKey = __key;
+            }
+        }
+        return lastMessage;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 944284900)
+    public void setLastMessage(Message lastMessage) {
+        synchronized (this) {
+            this.lastMessage = lastMessage;
+            lastMessageId = lastMessage == null ? null : lastMessage.getId();
+            lastMessage__resolvedKey = lastMessageId;
+        }
     }
 
 }

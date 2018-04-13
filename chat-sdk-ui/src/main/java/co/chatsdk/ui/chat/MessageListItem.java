@@ -7,41 +7,27 @@ import java.util.Date;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendStatus;
-import timber.log.Timber;
 
 public class MessageListItem {
 
-    // TODO: Move this to settings
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ChatSDK.config().messageTimeFormat);
 
     public Message message;
     public float progress;
-    private long timeInMillis;
 
-//    @Deprecated
-//    private int[] dimensions = null;
-
-    public MessageListItem (Message message, int maxWidth) {
+    public MessageListItem (Message message) {
 
         // If null that means no custom format was added to the adapter so we use the default.
-        if (simpleDateFormat == null)
+        if (simpleDateFormat == null) {
             simpleDateFormat = getFormat(message);
+        }
 
         this.message = message;
 
-        if (message.getDate() != null) {
-            timeInMillis = message.getDate().toDate().getTime();
-        }
-        else {
-            Timber.v("");
-        }
-
         message.valueForKey(Keys.MessageImageWidth);
-
-//        // TODO: This is only here for backwards compatibility
-//        dimensions = getDimensions(maxWidth);
 
     }
 
@@ -68,30 +54,12 @@ public class MessageListItem {
     public MessageSendStatus status () {
         return message.getMessageStatus();
     }
-//
-//    public int width () {
-//        Object width = message.valueForKey(Keys.MessageImageWidth);
-//        int w = objectToInteger(width);
-//        if(w > 0) {
-//            return w;
-//        }
-//        return dimensions[0];
-//    }
 
     public LatLng getLatLng() {
         double longitude = objectToDouble(message.valueForKey(Keys.MessageLongitude));
         double latitude = objectToDouble(message.valueForKey(Keys.MessageLatitude));
         return new LatLng(latitude, longitude);
     }
-
-//    public int height () {
-//        Object height = message.valueForKey(Keys.MessageImageHeight);
-//        int h = objectToInteger(height);
-//        if(h > 0) {
-//            return h;
-//        }
-//        return dimensions[1];
-//    }
 
     public Double objectToDouble (Object value) {
         if(value != null) {
@@ -140,40 +108,12 @@ public class MessageListItem {
         }
     }
 
-//    @Deprecated
-//    private int[] getDimensions(int maxWidth){
-//
-//        if (StringUtils.isNotEmpty(message.getTextString())) {
-//
-//            // Text comes in the form: url1, url2, W[width]&H[height]
-//            try {
-//                String[] data = message.getTextString().split(Defines.DIVIDER);
-//                dimensions = ImageUtils.getDimensionsFromString(data[data.length - 1]);
-//                dimensions = ImageUtils.calcNewImageSize(dimensions, maxWidth);
-//
-//                if (dimensions.length != 2)
-//                    dimensions = null;
-//
-//            }
-//            catch (Exception e){  dimensions = null;}
-//        }
-//
-//        return dimensions;
-//    }
-
-//    public boolean isValid () {
-//        if(message.getMessageType() == MessageType.Image && dimensions == null) {
-//            return false;
-//        }
-//        return true;
-//    }
-
     public boolean equals (MessageListItem item) {
         return item.message.equals(message);
     }
 
     public long getTimeInMillis() {
-        return timeInMillis;
+        return message.getDate().toDate().getTime();
     }
 
 
