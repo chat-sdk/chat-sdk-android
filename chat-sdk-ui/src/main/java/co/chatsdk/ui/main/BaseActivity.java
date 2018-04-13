@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -36,7 +35,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private ProgressDialog progressDialog;
+    protected ProgressDialog progressDialog;
 
     public BaseActivity() {
     }

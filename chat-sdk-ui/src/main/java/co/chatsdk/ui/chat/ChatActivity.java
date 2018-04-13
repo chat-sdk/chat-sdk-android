@@ -74,19 +74,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public static final int ADD_USERS = 103;
     public static final int SHOW_DETAILS = 200;
 
-    private ChatOptionsHandler optionsHandler;
+    protected ChatOptionsHandler optionsHandler;
     public PublishSubject<ActivityResult> activityResultPublishSubject = PublishSubject.create();
 
     // Should we remove the user from the public chat when we stop this activity?
     // If we are showing a temporary screen like the sticker message screen
     // this should be set to no
-    private boolean removeUserFromChatOnExit = true;
+    protected boolean removeUserFromChatOnExit = true;
 
-    private enum ListPosition {
+    protected enum ListPosition {
         Top, Current, Bottom
     }
 
-    private static boolean enableTrace = false;
+    protected static boolean enableTrace = false;
 
     /**
      * The key to get the thread long id.
@@ -107,8 +107,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected TextView subtitleTextView;
     protected PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
-    private DisposableList disposableList = new DisposableList();
-    private Disposable typingTimerDisposable;
+    protected DisposableList disposableList = new DisposableList();
+    protected Disposable typingTimerDisposable;
 
     protected ProgressBar progressBar;
     protected int listPos = -1;
@@ -278,7 +278,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         scrollListTo(ListPosition.Bottom, false);
     }
 
-    private void handleMessageSend (Observable<MessageSendProgress> observable) {
+    protected void handleMessageSend (Observable<MessageSendProgress> observable) {
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<MessageSendProgress>() {
                     @Override
@@ -565,7 +565,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return super.onOptionsItemSelected(item);
     }
 
-    private void markRead () {
+    protected void markRead () {
         if(NM.readReceipts() != null) {
             NM.readReceipts().markRead(thread);
         }
@@ -617,7 +617,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     /**
      * Get the current thread from the bundle bundle, CoreThread could be in the getIntent or in onNewIntent.
      */
-    private boolean updateThreadFromBundle(Bundle bundle) {
+    protected boolean updateThreadFromBundle(Bundle bundle) {
 
         if (bundle != null && (bundle.containsKey(BaseInterfaceAdapter.THREAD_ENTITY_ID))) {
             this.bundle = bundle;
@@ -654,7 +654,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      * Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
      * Finally update the action bar for thread messageImageView and name, The update will occur only if needed so free to call.
      */
-    private void updateChat() {
+    protected void updateChat() {
         updateThreadFromBundle(this.bundle);
         supportInvalidateOptionsMenu();
         initActionBar();
@@ -689,7 +689,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         scrollListTo(ListPosition.Bottom, false);
     }
 
-    private void stopTyping (boolean inactive) {
+    protected void stopTyping (boolean inactive) {
         if (typingTimerDisposable != null) {
             typingTimerDisposable.dispose();
             typingTimerDisposable = null;
@@ -702,7 +702,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
     }
 
-    private void setChatState (TypingIndicatorHandler.State state) {
+    protected void setChatState (TypingIndicatorHandler.State state) {
         if(NM.typingIndicator() != null) {
             disposableList.add(NM.typingIndicator().setChatState(state, thread)
                     .observeOn(AndroidSchedulers.mainThread())

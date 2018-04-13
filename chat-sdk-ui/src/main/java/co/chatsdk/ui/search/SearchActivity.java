@@ -70,7 +70,7 @@ public class SearchActivity extends BaseActivity {
         super.onNewIntent(intent);
     }
 
-    private void initViews(){
+    protected void initViews(){
         searchImageView = (ImageView) findViewById(R.id.chat_sdk_btn_search);
         addContactsButton = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
         searchTextView = (EditText) findViewById(R.id.chat_sdk_et_search_input);
@@ -148,7 +148,7 @@ public class SearchActivity extends BaseActivity {
 
     }
     
-    private View.OnClickListener searchOnClickListener = new View.OnClickListener() {
+    protected View.OnClickListener searchOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (searchTextView.getText().toString().isEmpty())

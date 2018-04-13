@@ -13,7 +13,7 @@ import co.chatsdk.core.types.MessageSendStatus;
 
 public class MessageListItem {
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ChatSDK.config().messageTimeFormat);
+    protected static SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ChatSDK.config().messageTimeFormat);
 
     public Message message;
     public float progress;
@@ -82,7 +82,7 @@ public class MessageListItem {
         return message;
     }
 
-    private static SimpleDateFormat getFormat(Message message){
+    protected static SimpleDateFormat getFormat(Message message){
 
         Date curTime = new Date();
         long interval = (curTime.getTime() - message.getDate().toDate().getTime()) / 1000L;

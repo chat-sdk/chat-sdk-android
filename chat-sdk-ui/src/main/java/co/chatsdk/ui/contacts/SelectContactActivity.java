@@ -8,9 +8,7 @@
 package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,18 +34,15 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.UserListItemConverter;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -59,23 +54,23 @@ public class SelectContactActivity extends BaseActivity {
 
     public static final String MODE = "mode";
 
-    private RecyclerView recyclerView;
-    private UsersListAdapter adapter;
-    private Button btnStartChat;
-    private TextView txtSearch;
-    private ImageView imgSearch;
+    protected RecyclerView recyclerView;
+    protected UsersListAdapter adapter;
+    protected Button btnStartChat;
+    protected TextView txtSearch;
+    protected ImageView imgSearch;
 
     /** Default value - MODE_NEW_CONVERSATION*/
     private int mode = MODE_NEW_CONVERSATION;
 
     /** For add to conversation mode.*/
-    private String threadEntityID = "";
+    protected String threadEntityID = "";
 
     /** For add to conversation mode.*/
-    private Thread thread;
+    protected Thread thread;
 
     /** Set true if you want slide down animation for this context exit. */
-    private boolean animateExit = false;
+    protected boolean animateExit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +102,7 @@ public class SelectContactActivity extends BaseActivity {
         initViews();
     }
 
-    private void getDataFromBundle(Bundle bundle){
+    protected void getDataFromBundle(Bundle bundle){
         mode = bundle.getInt(MODE, mode);
         threadEntityID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadEntityID);
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
@@ -140,7 +135,7 @@ public class SelectContactActivity extends BaseActivity {
         return true;
     }
 
-    private void initViews() {
+    protected void initViews() {
         recyclerView = (RecyclerView) findViewById(R.id.chat_sdk_list_contacts);
         txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
         imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
@@ -152,7 +147,7 @@ public class SelectContactActivity extends BaseActivity {
 
     }
 
-    private void initList() {
+    protected void initList() {
         boolean enableMultiSelect = ChatSDK.config().groupsEnabled;
         adapter = new UsersListAdapter(enableMultiSelect);
 
@@ -175,11 +170,11 @@ public class SelectContactActivity extends BaseActivity {
 
     }
 
-    private void createAndOpenThread (String name, User... users) {
+    protected void createAndOpenThread (String name, User... users) {
         createAndOpenThread(name, Arrays.asList(users));
     }
 
-    private Single<Thread> createAndOpenThread (String name, List<User> users) {
+    protected Single<Thread> createAndOpenThread (String name, List<User> users) {
         return NM.thread().createThread(name, users)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess(thread -> {
@@ -189,7 +184,7 @@ public class SelectContactActivity extends BaseActivity {
                 }).doOnError(throwable -> ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast));
     }
 
-    private void loadData () {
+    protected void loadData () {
         final List<User> list = NM.contact().contacts();
 
         // Removing the users that is already inside the thread.

@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -43,9 +42,9 @@ import timber.log.Timber;
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
-    private boolean exitOnBackPressed = false;
-    private LinearLayout mainView;
-    private boolean authenticating = false;
+    protected boolean exitOnBackPressed = false;
+    protected LinearLayout mainView;
+    protected boolean authenticating = false;
 
     protected EditText usernameEditText;
     protected EditText passwordEditText;
@@ -123,7 +122,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    private void initListeners() {
+    protected void initListeners() {
 
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
@@ -321,7 +320,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         return true;
     }
 
-    private boolean isNetworkAvailable() {
+    protected boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

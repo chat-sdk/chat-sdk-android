@@ -30,8 +30,8 @@ public class MediaSelector {
     public static final int CHOOSE_PHOTO = 101;
     public static final int TAKE_VIDEO = 102;
     public static final int CHOOSE_VIDEO = 103;
-    private String filePath;
-    private Result resultHandler;
+    protected String filePath;
+    protected Result resultHandler;
 
     public interface Result {
         void result (String result);
@@ -69,7 +69,7 @@ public class MediaSelector {
         activity.startActivityForResult(intent, CHOOSE_PHOTO);
     }
 
-    private void processPickedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
+    protected void processPickedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
 
         switch (resultCode)
         {
@@ -115,7 +115,7 @@ public class MediaSelector {
         }
     }
 
-    private void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
+    protected void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
 
         if (resultCode == Crop.RESULT_ERROR || resultCode == AppCompatActivity.RESULT_CANCELED) {
             throw new Exception();

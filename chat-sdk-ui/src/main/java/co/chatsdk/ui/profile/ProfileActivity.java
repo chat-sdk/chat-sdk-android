@@ -1,22 +1,18 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 8/23/17.
@@ -24,8 +20,8 @@ import io.reactivex.functions.Consumer;
 
 public class ProfileActivity extends BaseActivity {
 
-    private User user;
-    private boolean startingChat = false;
+    protected User user;
+    protected boolean startingChat = false;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {

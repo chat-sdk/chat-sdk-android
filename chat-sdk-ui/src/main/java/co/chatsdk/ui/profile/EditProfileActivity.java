@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
-import com.mukesh.countrypicker.CountryPickerListener;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,8 +40,6 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 8/14/17.
@@ -51,20 +47,20 @@ import io.reactivex.functions.Consumer;
 
 public class EditProfileActivity extends BaseActivity {
 
-    private SimpleDraweeView avatarImageView;
-    private EditText statusEditText;
-    private Spinner availabilitySpinner;
-    private EditText nameEditText;
-    private EditText locationEditText;
-    private EditText phoneNumberEditText;
-    private EditText emailEditText;
-    private Button countryButton;
-    private Button logoutButton;
-    private HashMap<String, Object> userMeta;
+    protected SimpleDraweeView avatarImageView;
+    protected EditText statusEditText;
+    protected Spinner availabilitySpinner;
+    protected EditText nameEditText;
+    protected EditText locationEditText;
+    protected EditText phoneNumberEditText;
+    protected EditText emailEditText;
+    protected Button countryButton;
+    protected Button logoutButton;
+    protected HashMap<String, Object> userMeta;
     private String avatarURL;
-    private MediaSelector mediaSelector = new MediaSelector();
+    protected MediaSelector mediaSelector = new MediaSelector();
 
-    private User currentUser;
+    protected User currentUser;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -87,7 +83,7 @@ public class EditProfileActivity extends BaseActivity {
         initViews();
     }
 
-    private void initViews() {
+    protected void initViews() {
 
         avatarImageView = (SimpleDraweeView) findViewById(R.id.ivAvatar);
         statusEditText = (EditText) findViewById(R.id.etStatus);
@@ -164,7 +160,7 @@ public class EditProfileActivity extends BaseActivity {
 
     }
 
-    private void logout () {
+    protected void logout () {
         NM.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
@@ -212,7 +208,7 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    private void saveAndExit () {
+    protected void saveAndExit () {
 
         String status = statusEditText.getText().toString();
         String availability = getAvailability();
@@ -301,7 +297,7 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    private boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {
+    protected boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {
         Object o1 = h1.get(key);
         Object o2 = h2.get(key);
         if (o1 == null) {
@@ -315,7 +311,7 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    private int getIndex(Spinner spinner, String myString)
+    protected int getIndex(Spinner spinner, String myString)
     {
         int index = 0;
 
@@ -328,7 +324,7 @@ public class EditProfileActivity extends BaseActivity {
         return index;
     }
 
-    private String getAvailability () {
+    protected String getAvailability () {
         String a = availabilitySpinner.getSelectedItem().toString().toLowerCase();
         if(a.equals("away")) {
             return Availability.Away;
@@ -344,7 +340,7 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    private void setAvailability (String a) {
+    protected void setAvailability (String a) {
         String availability = "available";
         if(a.equals(Availability.Away)) {
             availability = "away";

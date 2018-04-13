@@ -107,9 +107,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
     }
 
-    private AppCompatActivity activity;
+    protected AppCompatActivity activity;
 
-    private List<MessageListItem> messageItems = new ArrayList<>();
+    protected List<MessageListItem> messageItems = new ArrayList<>();
 
     public MessagesListAdapter(AppCompatActivity activity) {
         this.activity = activity;
@@ -212,7 +212,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         return messageItems.size();
     }
 
-    private void updateReadStatus (MessageViewHolder holder, Message message) {
+    protected void updateReadStatus (MessageViewHolder holder, Message message) {
         int resource = R.drawable.ic_message_received;
         ReadStatus status = message.getReadStatus();
 
@@ -237,7 +237,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         return messageItems;
     }
 
-    private boolean addRow(MessageListItem item, boolean sort, boolean notify){
+    protected boolean addRow(MessageListItem item, boolean sort, boolean notify){
         if (item == null)
             return false;
 
@@ -284,7 +284,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         return false;
     }
 
-    private boolean messageExists (Message message) {
+    protected boolean messageExists (Message message) {
         for(MessageListItem i : messageItems) {
             if(i.message.getEntityID().equals(message.getEntityID())) {
                 return true;

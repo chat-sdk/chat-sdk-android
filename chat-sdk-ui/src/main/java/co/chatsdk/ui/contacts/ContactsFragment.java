@@ -9,7 +9,6 @@ package co.chatsdk.ui.contacts;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,27 +23,23 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.session.NM;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -86,7 +81,7 @@ public class ContactsFragment extends BaseFragment {
 
     protected Disposable listOnClickListenerDisposable;
 
-    private DisposableList disposables = new DisposableList();
+    protected DisposableList disposables = new DisposableList();
 
     /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
      * {@link #loadingMode}*/
@@ -124,7 +119,7 @@ public class ContactsFragment extends BaseFragment {
     protected boolean inflateMenu = true;
 
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
-    private boolean isDialog = false;
+    protected boolean isDialog = false;
 
     public static ContactsFragment newInstance() {
         ContactsFragment f = new ContactsFragment();
@@ -295,7 +290,7 @@ public class ContactsFragment extends BaseFragment {
         }
     }
 
-    private void setupListClickMode() {
+    protected void setupListClickMode() {
         if(listOnClickListenerDisposable != null) {
             listOnClickListenerDisposable.dispose();
         }
@@ -338,7 +333,7 @@ public class ContactsFragment extends BaseFragment {
         });
     }
 
-    private Completable reloadUsers () {
+    protected Completable reloadUsers () {
         return Completable.create(e -> {
             if (loadingMode != MODE_USE_SOURCE) {
 

@@ -37,7 +37,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
     protected List<Thread> threads = new ArrayList<>();
 
-    private HashMap<Thread, String> typing = new HashMap<>();
+    protected HashMap<Thread, String> typing = new HashMap<>();
     protected PublishSubject<Thread> onClickSubject = PublishSubject.create();
     protected PublishSubject<Thread> onLongClickSubject = PublishSubject.create();
 

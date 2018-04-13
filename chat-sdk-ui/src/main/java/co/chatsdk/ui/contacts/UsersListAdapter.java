@@ -33,18 +33,18 @@ import timber.log.Timber;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int TYPE_USER = 0;
-    private static final int TYPE_HEADER = 1;
+    protected static final int TYPE_USER = 0;
+    protected static final int TYPE_HEADER = 1;
 
-    private List<Object> items = new ArrayList<>();
-    private List<String> headers = new ArrayList<>();
+    protected List<Object> items = new ArrayList<>();
+    protected List<String> headers = new ArrayList<>();
 
-    private SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
+    protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
-    private boolean isMultiSelect = false;
-    private final PublishSubject<Object> onClickSubject = PublishSubject.create();
+    protected boolean isMultiSelect = false;
+    protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
 
-    private class HeaderViewHolder extends RecyclerView.ViewHolder {
+    protected class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         TextView textView;
 
@@ -54,7 +54,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    private class UserViewHolder extends RecyclerView.ViewHolder {
+    protected class UserViewHolder extends RecyclerView.ViewHolder {
 
         SimpleDraweeView avatarImageView;
         TextView nameTextView;

@@ -9,7 +9,6 @@ package co.chatsdk.ui.threads;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -19,19 +18,18 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
 
-import co.chatsdk.core.session.NM;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.core.utils.Strings;
-import io.reactivex.functions.Consumer;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
  * Created by braunster on 24/11/14.
@@ -42,12 +40,12 @@ public class ThreadDetailsActivity extends BaseActivity {
     protected boolean animateExit = false;
 
     protected Thread thread;
-    private SimpleDraweeView threadImageView;
+    protected SimpleDraweeView threadImageView;
 
-    private ContactsFragment contactsFragment;
-    private DisposableList disposableList = new DisposableList();
+    protected ContactsFragment contactsFragment;
+    protected DisposableList disposableList = new DisposableList();
 
-    private ActionBar actionBar;
+    protected ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +91,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         threadImageView = (SimpleDraweeView) findViewById(R.id.chat_sdk_thread_image_view);
     }
 
-    private void loadData () {
+    protected void loadData () {
 
         ThreadImageBuilder.load(threadImageView, thread);
 
@@ -152,7 +150,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         getDataFromBundle(intent.getExtras());
     }
 
-    private void getDataFromBundle(Bundle bundle){
+    protected void getDataFromBundle(Bundle bundle){
         if (bundle == null) {
             return;
         }

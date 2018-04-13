@@ -76,7 +76,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         initList();
     }
 
-    private void initList() {
+    protected void initList() {
 
         // Create the adapter only if null, This is here so we wont
         // override the adapter given from the extended class with setAdapter.

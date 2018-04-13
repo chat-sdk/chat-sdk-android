@@ -34,16 +34,14 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
 import io.reactivex.Completable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 
 public class MainActivity extends BaseActivity {
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
+    protected TabLayout tabLayout;
+    protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
-    private OpenFromPushChecker mOpenFromPushChecker;
+    protected OpenFromPushChecker mOpenFromPushChecker;
 
     DisposableList disposables = new DisposableList();
 
@@ -173,7 +171,7 @@ public class MainActivity extends BaseActivity {
         mOpenFromPushChecker.onSaveInstanceState(outState);
     }
 
-    private void initViews() {
+    protected void initViews() {
 
         viewPager = (ViewPager) findViewById(R.id.pager);
 

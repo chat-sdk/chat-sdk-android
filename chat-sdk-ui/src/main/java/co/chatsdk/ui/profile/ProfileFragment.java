@@ -43,28 +43,28 @@ public class ProfileFragment extends BaseFragment {
     public static int ProfileDetailRowHeight = 25;
     public static int ProfileDetailMargin = 8;
 
-    private SimpleDraweeView avatarImageView;
-    private ImageView flagImageView;
-    private ImageView availabilityImageView;
-    private TextView nameTextView;
-    private TextView emailTextView;
-    private TextView statusTextView;
-    private TextView locationTextView;
-    private TextView phoneTextView;
-    private TextView followsTextView;
-    private TextView followedTextView;
-    private Button blockButton;
-    private Button deleteButton;
-    private ImageView followsImageView;
-    private ImageView followedImageView;
+    protected SimpleDraweeView avatarImageView;
+    protected ImageView flagImageView;
+    protected ImageView availabilityImageView;
+    protected TextView nameTextView;
+    protected TextView emailTextView;
+    protected TextView statusTextView;
+    protected TextView locationTextView;
+    protected TextView phoneTextView;
+    protected TextView followsTextView;
+    protected TextView followedTextView;
+    protected Button blockButton;
+    protected Button deleteButton;
+    protected ImageView followsImageView;
+    protected ImageView followedImageView;
 
-    private ImageView locationImageView;
-    private ImageView phoneImageView;
-    private ImageView emailImageView;
+    protected ImageView locationImageView;
+    protected ImageView phoneImageView;
+    protected ImageView emailImageView;
 
-    private ArrayList<Disposable> disposables = new ArrayList<>();
+    protected ArrayList<Disposable> disposables = new ArrayList<>();
 
-    private User user;
+    protected User user;
 
     public static ProfileFragment newInstance() {
         return ProfileFragment.newInstance(null);
@@ -138,12 +138,12 @@ public class ProfileFragment extends BaseFragment {
                 }));
     }
 
-    private void setRowVisible (int textViewID, int imageViewID, boolean visible) {
+    protected void setRowVisible (int textViewID, int imageViewID, boolean visible) {
         mainView.findViewById(textViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
         mainView.findViewById(imageViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private void updateBlockedButton (boolean blocked) {
+    protected void updateBlockedButton (boolean blocked) {
         if (blocked) {
             blockButton.setText(getString(R.string.unblock));
         }
@@ -333,7 +333,7 @@ public class ProfileFragment extends BaseFragment {
         set.applyTo(layout);
     }
 
-    private void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
+    protected void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
         int lastViewId = firstViewId;
         final float density = getContext().getResources().getDisplayMetrics().density;
         for(int viewId : viewIds) {
@@ -346,7 +346,7 @@ public class ProfileFragment extends BaseFragment {
         }
     }
 
-    private User getUser () {
+    protected User getUser () {
         return user != null ? user : NM.currentUser();
     }
 
