@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
@@ -41,7 +41,6 @@ dependencies {
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
-    testCompile 'junit:junit:4.12'
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.jakewharton.timber:timber:4.3.1'
