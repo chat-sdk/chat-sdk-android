@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
@@ -52,7 +52,7 @@ dependencies {
 
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile 'id.zelory:compressor:2.0.0'
+    compile 'id.zelory:compressor:2.1.0'
     compile 'com.soundcloud.android:android-crop:1.0.1@aar'
     compile 'com.facebook.fresco:fresco:1.5.0'
 

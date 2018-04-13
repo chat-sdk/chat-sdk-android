@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
     }
 }
 
@@ -42,7 +42,7 @@ dependencies {
     compile project(':chat-sdk-ui')
     compile project(':chat-sdk-firebase-adapter')
 
-    compile 'com.firebaseui:firebase-ui-auth:3.1.0'
+    compile 'com.firebaseui:firebase-ui-auth:3.1.2'
     compile 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
     compile 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
 
