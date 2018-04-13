@@ -8,6 +8,7 @@
 package co.chatsdk.ui.chat;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -28,7 +29,6 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.InfiniteToast;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.functions.Action;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
@@ -40,6 +40,7 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     protected Recording recording = null;
     protected InfiniteToast toast;
     protected WeakReference<TextInputDelegate> delegate;
+    protected Rect rect;
 
     public TextInputView(Context context) {
         super(context);
@@ -95,6 +96,8 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     recording = new Recording();
                     recording.start().subscribe(() -> toast = new InfiniteToast(getContext(), R.string.recording, true));
+
+                    rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
                 }
 
                 // Stop recording
@@ -102,12 +105,18 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
                     if(recording != null) {
                         recording.stop();
                         if(delegate != null && recording.getDurationMillis() > 1000) {
-                            delegate.get().sendAudio(recording);
-                            recording = null;
+                            if(!rect.contains(view.getLeft() + (int) motionEvent.getX(), view.getTop() + (int) motionEvent.getY())){
+                                // User moved outside bounds
+                                ToastHelper.show(getContext(), "Recording cancelled");
+                            }
+                            else {
+                                delegate.get().sendAudio(recording);
+                            }
                         }
                         else {
                             ToastHelper.show(getContext(), "Recording is too short");
                         }
+                        recording = null;
                     }
                     if(toast != null) {
                         toast.cancel();

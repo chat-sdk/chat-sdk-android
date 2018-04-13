@@ -90,6 +90,8 @@ public class Configuration {
     public String contactDeveloperDialogTitle = "";
     public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
 
+    public String pushNotificationSound = "";
+
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
 
     public HashMap<String, Object> customProperties = new HashMap<>();
@@ -369,6 +371,11 @@ public class Configuration {
 
         public Builder pushNotificationImageDefaultResourceId (int resourceId) {
             config.pushNotificationImageDefaultResourceId = resourceId;
+            return this;
+        }
+
+        public Builder pushNotificationSound (String sound) {
+            config.pushNotificationSound = sound;
             return this;
         }
 

@@ -335,6 +335,9 @@ public class Message implements CoreEntity {
         if(total >= ReadStatus.Read * userCount) {
             status = ReadStatus.Read;
         }
+        if (total == 0) {
+            status = ReadStatus.None;
+        }
         return new ReadStatus(status);
 
     }

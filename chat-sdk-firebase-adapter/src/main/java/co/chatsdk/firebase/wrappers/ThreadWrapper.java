@@ -8,8 +8,6 @@
 package co.chatsdk.firebase.wrappers;
 
 import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
@@ -37,16 +35,10 @@ import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class ThreadWrapper  {
@@ -192,6 +184,18 @@ public class ThreadWrapper  {
 
                         ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
                             if (hasValue) {
+
+                                Object value = snapshot.getValue();
+                                if (value instanceof HashMap) {
+                                    HashMap<String, Object> hashValue = (HashMap) snapshot.getValue();
+                                    Object userIDObject = hashValue.get(Keys.UserFirebaseId);
+                                    if (userIDObject instanceof String) {
+                                        String userID = (String) userIDObject;
+                                        if (NM.blocking() != null && NM.blocking().isBlocked(userID)) {
+                                            return;
+                                        }
+                                    }
+                                }
 
                                 model.setDeleted(false);
 

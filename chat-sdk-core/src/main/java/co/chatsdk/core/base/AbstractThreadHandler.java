@@ -28,17 +28,10 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 
 /**
@@ -104,17 +97,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             message.getThread().update();
             e.onNext(new MessageSendProgress(message));
             e.onComplete();
-        }).flatMap(messageSendProgress -> handleMessageSend(message, sendMessage(message))).subscribeOn(Schedulers.single()).doOnComplete(() -> Timber.v("Complete"));
-    }
-
-    public static Observable<MessageSendProgress> handleMessageSend (final Message message, Observable<MessageSendProgress> messageSendObservable) {
-        return messageSendObservable.doOnComplete(() -> {
-            message.setMessageStatus(MessageSendStatus.Sent);
-            message.update();
-        }).doOnError(throwable -> {
-            message.setMessageStatus(MessageSendStatus.Failed);
-            message.update();
-        }).subscribeOn(Schedulers.single());
+        }).concatWith(sendMessage(message))
+                .subscribeOn(Schedulers.single()).doOnComplete(() -> {
+                    message.setMessageStatus(MessageSendStatus.Sent);
+                    message.update();
+                }).doOnError(throwable -> {
+                    message.setMessageStatus(MessageSendStatus.Failed);
+                    message.update();
+                });
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){

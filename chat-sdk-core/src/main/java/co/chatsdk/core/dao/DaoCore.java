@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.session.ChatSDK;
 import timber.log.Timber;
 
 /**
@@ -41,7 +42,7 @@ public class DaoCore {
 
     private static Context context;
 
-    private static DaoMaster.DevOpenHelper helper;
+    private static DaoMaster.OpenHelper helper;
 
     @SuppressWarnings("all")
     private static SQLiteDatabase db;
@@ -76,7 +77,13 @@ public class DaoCore {
         if (context == null)
             throw new NullPointerException("Context is null, Did you initialized DaoCore?");
 
-        helper = new DaoMaster.DevOpenHelper(context, dbName, null);
+        if (ChatSDK.config().debug) {
+            helper = new DaoMaster.DevOpenHelper(context, dbName, null);
+        }
+        else {
+            helper = new DatabaseUpgradeHelper(context, dbName);
+        }
+
         db = helper.getWritableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();

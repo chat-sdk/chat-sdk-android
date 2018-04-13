@@ -244,18 +244,6 @@ public class User implements CoreEntity, UserListItem {
         return metaStringForKey(Keys.AvatarHash);
     }
 
-    // Use getAvatarURL
-    @Deprecated
-    public String getThumbnailURL() {
-        return getAvatarURL();
-    }
-
-    // Use getAvatarURL
-    @Deprecated
-    public void setThumbnailURL(String thumbnailUrl) {
-        setMetaString(Keys.AvatarThumbnailURL, thumbnailUrl);
-    }
-
     public void setName(String name) {
         setMetaString(Keys.Name, name);
     }

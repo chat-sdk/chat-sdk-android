@@ -1,31 +1,25 @@
 package co.chatsdk.firebase;
 
 import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Executor;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 

@@ -1,7 +1,6 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.view.LayoutInflater;
@@ -21,22 +20,19 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 8/15/17.
@@ -187,35 +183,34 @@ public class ProfileFragment extends BaseFragment {
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
             if(NM.blocking() != null && NM.blocking().blockingSupported()) {
-                disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe((blocked, throwable) -> updateBlockedButton(blocked)));
-                blockButton.setOnClickListener(view -> disposables.add(NM.blocking().isBlocked(getUser().getEntityID())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe((blocked, throwable) -> {
-                            if(blocked) {
-                                disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(() -> {
-                                            updateBlockedButton(false);
-                                            ToastHelper.show(getContext(), R.string.user_unblocked);
-                                        }, throwable12 -> {
-                                            throwable12.printStackTrace();
-                                            Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                        }));
-                            }
-                            else {
-                                disposables.add(NM.blocking().blockUser(getUser().getEntityID())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(() -> {
-                                            updateBlockedButton(true);
-                                            ToastHelper.show(getContext(), getString(R.string.user_blocked));
-                                        }, throwable1 -> {
-                                            throwable1.printStackTrace();
-                                            Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                        }));
-                            }
-                        })));
+
+                updateBlockedButton(NM.blocking().isBlocked(getUser().getEntityID()));
+
+                blockButton.setOnClickListener(v -> {
+                    boolean blocked = NM.blocking().isBlocked(getUser().getEntityID());
+                    if(blocked) {
+                        disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(() -> {
+                                    updateBlockedButton(false);
+                                    ToastHelper.show(getContext(), R.string.user_unblocked);
+                                }, throwable12 -> {
+                                    throwable12.printStackTrace();
+                                    Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                }));
+                    }
+                    else {
+                        disposables.add(NM.blocking().blockUser(getUser().getEntityID())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(() -> {
+                                    updateBlockedButton(true);
+                                    ToastHelper.show(getContext(), getString(R.string.user_blocked));
+                                }, throwable1 -> {
+                                    throwable1.printStackTrace();
+                                    Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                }));
+                    }
+                });
             }
             else {
                 // TODO: Set height to zero

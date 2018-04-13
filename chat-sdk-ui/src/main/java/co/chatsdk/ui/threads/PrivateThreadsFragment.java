@@ -8,7 +8,6 @@
 package co.chatsdk.ui.threads;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,22 +17,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.concurrent.Callable;
-
-import co.chatsdk.core.session.NM;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.main.BaseFragment;
+import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -104,6 +99,7 @@ public class PrivateThreadsFragment extends BaseFragment {
 
                                 @Override
                                 public void onComplete() {
+                                    adapter.clearData();
                                     reloadData();
                                     ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
                                 }

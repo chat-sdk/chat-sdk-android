@@ -115,6 +115,7 @@ public class FirebasePushHandler implements PushHandler {
             params.put("to", channel);
             params.put("notification", data);
             params.put("data", data);
+            params.put("sound", ChatSDK.config().pushNotificationSound);
 
             String json = new JSONObject(params).toString();
 

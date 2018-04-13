@@ -1,19 +1,14 @@
 package co.chatsdk.core.audio;
 
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
-
-import com.google.android.gms.drive.events.CompletionListener;
-import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by ben on 9/28/17.
@@ -40,7 +35,7 @@ public class AudioPlayer {
 
                             AndroidSchedulers.mainThread().scheduleDirect(() -> progressListener.update(pos));
                         }
-                    });
+                    }, throwable -> Timber.v(throwable.getMessage()));
 
             player.setOnCompletionListener(completionListener);
         }
