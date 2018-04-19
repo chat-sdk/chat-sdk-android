@@ -35,7 +35,7 @@
             android:layout_marginLeft="2dp"
             android:layout_marginRight="4dp"
             android:autoLink="all"
-            android:background="@drawable/message_received_2"/>
+            android:background="@drawable/message_received_3"/>
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:layout_width="wrap_content"

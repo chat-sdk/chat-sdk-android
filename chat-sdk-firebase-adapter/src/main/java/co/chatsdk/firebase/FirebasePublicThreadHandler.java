@@ -1,6 +1,5 @@
 package co.chatsdk.firebase;
 
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
@@ -13,12 +12,10 @@ import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -33,6 +30,15 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
 
     public Single<Thread> createPublicThreadWithName(final String name, final String entityID) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
+
+            // If the entity ID is set, see if the thread exists and return it if it does
+            if (entityID != null) {
+                Thread t = StorageManager.shared().a.fetchThreadWithEntityID(entityID);
+                if (t != null) {
+                    e.onSuccess(t);
+                    return;
+                }
+            }
 
             // Crating the new thread.
             // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.

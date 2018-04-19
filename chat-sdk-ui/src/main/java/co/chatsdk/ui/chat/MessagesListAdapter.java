@@ -7,6 +7,7 @@
 
 package co.chatsdk.ui.chat;
 
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +33,7 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
@@ -74,6 +76,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                     new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
                 }
             });
+
+
         }
 
         public void setImageHidden (boolean hidden) {
@@ -193,6 +197,15 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         holder.extraLayout.setAlpha(alpha);
 
         holder.avatarImageView.setImageURI(messageItem.getMessage().getSender().getAvatarURL());
+
+        // Apply a color filter
+        if (ChatSDK.config().messageColorMe != 0 && messageItem.message.getSender().isMe()) {
+            holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
+        }
+        if (ChatSDK.config().messageColorReply != 0 && !messageItem.message.getSender().isMe()) {
+            holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
+        }
+
 
         updateReadStatus(holder, messageItem.message);
     }

@@ -3,6 +3,7 @@ package co.chatsdk.core.session;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import java.lang.ref.WeakReference;
@@ -75,8 +76,8 @@ public class Configuration {
     public boolean publicRoomCreationEnabled = false;
     public boolean saveImagesToDirectory = false;
 
-    public String messageColorMe = null;
-    public String messageColorReply = null;
+    public int messageColorMe = Color.parseColor("#b0cfea");
+    public int messageColorReply = Color.parseColor("#dadada");;
 
     public String messageTimeFormat = "HH:mm";
 
@@ -298,6 +299,26 @@ public class Configuration {
 
         public Builder groupsEnabled (boolean value) {
             config.groupsEnabled = value;
+            return this;
+        }
+
+        public Builder setMessageColorMe (int color) {
+            config.messageColorMe = color;
+            return this;
+        }
+
+        public Builder setMessageColorReply (int color) {
+            config.messageColorReply = color;
+            return this;
+        }
+
+        public Builder setMessageColorMe (String hexColor) {
+            config.messageColorMe = Color.parseColor(hexColor);
+            return this;
+        }
+
+        public Builder setMessageColorReply (String hexColor) {
+            config.messageColorReply = Color.parseColor(hexColor);
             return this;
         }
 

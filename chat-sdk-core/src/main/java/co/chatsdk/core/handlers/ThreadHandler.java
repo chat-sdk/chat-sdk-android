@@ -23,6 +23,7 @@ public interface ThreadHandler {
     Single<Thread> createThread(List<User> users);
     Single<Thread> createThread(String name, User... users);
     Single<Thread> createThread(String name, List<User> users, int type);
+    Single<Thread> createThread(String name, List<User> users, int type, String entityID);
     /**
      * Remove users from a thread
      */
