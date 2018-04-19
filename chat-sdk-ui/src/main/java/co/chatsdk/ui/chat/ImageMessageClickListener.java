@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +20,6 @@ import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import uk.co.senab.photoview.PhotoView;
 
 /**
@@ -30,6 +30,7 @@ public class ImageMessageClickListener implements View.OnClickListener {
 
     private String url;
     private Activity activity;
+    private Bitmap bitmap;
 
     public ImageMessageClickListener (Activity activity, String  url) {
         this.url = url;
@@ -55,13 +56,26 @@ public class ImageMessageClickListener implements View.OnClickListener {
 
             final PhotoView imageView = (PhotoView) popupView.findViewById(R.id.photo_view);
             final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+            final FloatingActionButton saveButton = (FloatingActionButton) popupView.findViewById(R.id.floating_button);
+
+            saveButton.setOnClickListener(v1 -> {
+                if (bitmap != null) {
+                    MediaStore.Images.Media.insertImage(activity.getContentResolver(), this.bitmap, "" , "");
+                }
+            });
+
+            saveButton.setVisibility(View.INVISIBLE);
 
             progressBar.setVisibility(View.VISIBLE);
 
             ImageBuilder.bitmapForURL(activity, url)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-            .subscribe(bitmap -> imageView.setImageBitmap(bitmap), throwable -> {
+            .subscribe(bitmap -> {
+                imageView.setImageBitmap(bitmap);
+                this.bitmap = bitmap;
+                saveButton.setVisibility(View.VISIBLE);
+            }, throwable -> {
                 ToastHelper.show(activity, R.string.unable_to_fetch_image);
                 imagePopup.dismiss();
             });
