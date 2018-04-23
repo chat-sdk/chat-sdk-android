@@ -406,7 +406,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 text = "";
                 for(User u : thread.getUsers()) {
                     if(!u.isMe()) {
-                        text += u.getName() + ", ";
+                        String name = u.getName();
+                        if (name != null && name.length() > 0) {
+                            text += name + ", ";
+                        }
                     }
                 }
                 if(text.length() > 0) {
