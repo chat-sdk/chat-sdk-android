@@ -45,8 +45,8 @@ import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
-    public static String USER_ENTITY_ID = "USER_ENTITY_ID";
-    public static final String THREAD_ENTITY_ID = "THREAD_ENTITY_ID";
+    public static String USER_ENTITY_ID = "chat_sdk_user_entity_id";
+    public static final String THREAD_ENTITY_ID = "chat_sdk_thread_entity_id";
     public static final String ATTEMPT_CACHED_LOGIN = "ATTEMPT_CACHED_LOGIN";
 
     public List<SearchActivityType> searchActivities = new ArrayList<>();

@@ -20,6 +20,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
@@ -34,6 +35,8 @@ import timber.log.Timber;
  */
 
 public class FirebasePushHandler implements PushHandler {
+
+    public static String QuickReplyNotificationCategory = "co.chatsdk.QuickReply";
 
     private boolean authFinished = false;
     private TokenPusher pusher;
@@ -93,14 +96,45 @@ public class FirebasePushHandler implements PushHandler {
     }
 
     @Override
-    public void pushToChannels(List<String> channels, Map<String, String> data) {
+    public void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data) {
 
         for(String channel : channels) {
-            pushToChannel(channel, data).doOnError(throwable -> throwable.printStackTrace()).subscribe();
+            pushToChannel(channel, notification, data).doOnError(throwable -> throwable.printStackTrace()).subscribe();
         }
     }
 
-    private Completable pushToChannel (final String channel, final Map<String, String> data) {
+    @Override
+    public void pushToUsers(List<User> users, Message message) {
+        ArrayList<String> channels = new ArrayList<>();
+
+        User currentUser = NM.currentUser();
+
+        for(User user : users) {
+            String pushToken = user.metaStringForKey(Keys.PushToken);
+            if(!user.equals(currentUser) && !StringChecker.isNullOrEmpty(pushToken) && (!user.getIsOnline() || !ChatSDK.config().onlySendPushToOfflineUsers)) {
+                channels.add(pushToken);
+            }
+        }
+
+        String text = Strings.payloadAsString(message);
+
+        HashMap<String, String> notification = new HashMap<>();
+        notification.put("title", message.getSender().getName());
+        notification.put("body", text);
+        notification.put("badge", "1");
+        notification.put("priority", "high");
+        notification.put("click_action", QuickReplyNotificationCategory);
+
+        HashMap<String, String> data = new HashMap<>();
+
+        data.put(BaseInterfaceAdapter.THREAD_ENTITY_ID, message.getThread().getEntityID());
+        data.put(BaseInterfaceAdapter.USER_ENTITY_ID, message.getSender().getEntityID());
+
+        pushToChannels(channels, notification, data);
+
+    }
+
+    private Completable pushToChannel (final String channel, final Map<String, String> notification, final Map<String, String> data) {
         return Completable.create(e -> {
             final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             String serverKey = "key=" + ChatSDK.config().firebaseCloudMessagingServerKey;
@@ -108,8 +142,9 @@ public class FirebasePushHandler implements PushHandler {
             HashMap<String, Object> params = new HashMap<>();
 
             params.put("to", channel);
-            params.put("notification", data);
+            params.put("notification", notification);
             params.put("data", data);
+//            params.put("priority", "high");
             params.put("sound", ChatSDK.config().pushNotificationSound);
 
             String json = new JSONObject(params).toString();
@@ -130,32 +165,6 @@ public class FirebasePushHandler implements PushHandler {
         }).subscribeOn(Schedulers.single());
     }
 
-    @Override
-    public void pushToUsers(List<User> users, Message message) {
-        ArrayList<String> channels = new ArrayList<>();
-
-        User currentUser = NM.currentUser();
-
-        for(User user : users) {
-            String pushToken = user.metaStringForKey(Keys.PushToken);
-            if(!user.equals(currentUser) && !StringChecker.isNullOrEmpty(pushToken)) {
-                channels.add(pushToken);
-            }
-        }
-
-        String text = Strings.payloadAsString(message);
-
-        HashMap<String, String> data = new HashMap<>();
-        data.put("body", text);
-        data.put("title", message.getSender().getName());
-        data.put("badge", "1");
-
-        data.put("chat_sdk_thread_entity_id", message.getThread().getEntityID());
-        data.put("chat_sdk_user_entity_id", message.getSender().getEntityID());
-
-        pushToChannels(channels, data);
-
-    }
 
     public interface TokenPusher {
         void pushToken ();

@@ -55,6 +55,9 @@ public class Configuration {
     // Push notification
     public int pushNotificationImageDefaultResourceId;
 
+    // If this is true, then we will only send a push notification if the recipient is offline
+    public boolean onlySendPushToOfflineUsers = false;
+
     // Contact Book
     public String contactBookInviteContactEmailSubject;
     public String contactBookInviteContactEmailBody;
@@ -78,6 +81,9 @@ public class Configuration {
 
     public int messageColorMe = Color.parseColor("#b0cfea");
     public int messageColorReply = Color.parseColor("#dadada");;
+
+    public int messageTextColorMe = Color.parseColor("#222222");
+    public int messageTextColorReply = Color.parseColor("#222222");;
 
     public String messageTimeFormat = "HH:mm";
 
@@ -322,6 +328,26 @@ public class Configuration {
             return this;
         }
 
+        public Builder setMessageTextColorMe (int color) {
+            config.messageTextColorMe = color;
+            return this;
+        }
+
+        public Builder setMessageTextColorReply (int color) {
+            config.messageTextColorReply = color;
+            return this;
+        }
+
+        public Builder setMessageTextColorMe (String hexColor) {
+            config.messageTextColorMe = Color.parseColor(hexColor);
+            return this;
+        }
+
+        public Builder setMessageTextColorReply (String hexColor) {
+            config.messageTextColorReply = Color.parseColor(hexColor);
+            return this;
+        }
+
         public Builder threadDetailsEnabled (boolean value) {
             config.threadDetailsEnabled = value;
             return this;
@@ -415,6 +441,11 @@ public class Configuration {
 
         public Builder pushNotificationImageDefaultResourceId (int resourceId) {
             config.pushNotificationImageDefaultResourceId = resourceId;
+            return this;
+        }
+
+        public Builder onlySendPushToOfflineUsers (boolean value) {
+            config.onlySendPushToOfflineUsers = value;
             return this;
         }
 

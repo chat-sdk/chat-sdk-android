@@ -7,11 +7,13 @@
 
 package co.chatsdk.ui.login;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +34,7 @@ import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.AppBackgroundMonitor;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -52,7 +55,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
 
-    protected Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook;
+    protected Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook, btnResetPassword;
     protected ImageView appIconImage;
 
     @Override
@@ -86,6 +89,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
         btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
         appIconImage = (ImageView) findViewById(R.id.app_icon);
+        btnResetPassword = (Button) findViewById(R.id.chat_sdk_btn_reset_password);
 
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
             ((ViewGroup) btnFacebook.getParent()).removeView(btnFacebook);
@@ -130,6 +134,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnTwitter.setOnClickListener(this);
         btnFacebook.setOnClickListener(this);
         btnGoogle.setOnClickListener(this);
+        btnResetPassword.setOnClickListener(this);
+
 
     }
 
@@ -156,6 +162,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.chat_sdk_btn_register) {
             register();
+        }
+        else if (i == R.id.chat_sdk_btn_reset_password) {
+            showForgotPasswordDialog();
         }
         else if (i == R.id.chat_sdk_btn_twitter_login) {
             if(NM.socialLogin() != null) {
@@ -318,6 +327,38 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
 
         return true;
+    }
+
+    protected void showForgotPasswordDialog () {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.forgot_password));
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        builder.setView(input);
+
+        builder.setPositiveButton(getString(R.string.submit), (dialog, which) -> {
+            showOrUpdateProgressDialog(getString(R.string.requesting));
+            requestNewPassword(input.getText().toString()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+                dismissProgressDialog();
+                showToast(getString(R.string.password_reset_success));
+            }, throwable -> {
+                showToast(throwable.getLocalizedMessage());
+            });
+        });
+
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            dialog.cancel();
+            dismissProgressDialog();
+        });
+
+        builder.show();
+
+    }
+
+    protected Completable requestNewPassword (String email) {
+        return NM.auth().sendPasswordResetMail(email);
     }
 
     protected boolean isNetworkAvailable() {

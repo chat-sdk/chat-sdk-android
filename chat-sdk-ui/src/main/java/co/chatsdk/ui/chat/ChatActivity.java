@@ -132,6 +132,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         initViews();
 
+//        Bundle bundle = getIntent().getExtras();
+//        if (bundle != null) {
+//            String threadEnityID = bundle.getString(FirebasePushHandler.ThreadEntityID);
+//            if (threadEnityID != null && threadEnityID.length() > 0) {
+//                InterfaceManager.shared().a.startChatActivityForID(this, threadEnityID);
+//            }
+//        }
+
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
         }

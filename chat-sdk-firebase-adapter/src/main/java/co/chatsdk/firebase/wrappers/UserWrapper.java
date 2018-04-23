@@ -252,8 +252,7 @@ public class UserWrapper {
                 if(hasValue) {
                     available = (boolean) snapshot.getValue();
                 }
-                model.setAvailability(available ? Availability.Available : Availability.Unavailable);
-                model.update();
+                model.setIsOnline(available);
                 e.onNext(available);
             }));
             FirebaseReferenceManager.shared().addRef(ref, listener);

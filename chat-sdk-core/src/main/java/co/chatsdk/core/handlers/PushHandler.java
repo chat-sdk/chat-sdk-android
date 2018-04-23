@@ -1,8 +1,5 @@
 package co.chatsdk.core.handlers;
 
-import org.json.JSONObject;
-
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +15,7 @@ public interface PushHandler {
     void subscribeToPushChannel(String channel);
     void unsubscribeToPushChannel(String channel);
 
-    void pushToChannels(List<String> channels, Map<String, String> data);
+    void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data);
     void pushToUsers (List<User> users, Message message);
 
 }

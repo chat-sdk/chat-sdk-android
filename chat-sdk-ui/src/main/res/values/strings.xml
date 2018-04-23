@@ -72,6 +72,7 @@
     <string name="stay">Stay</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
 
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
@@ -193,5 +194,10 @@
         <item>Extended Away</item>
         <item>Busy</item>
     </string-array>
+
+    <string name="forgot_password">Forgot Password</string>
+    <string name="requesting">Requesting</string>
+    <string name="password_reset_success">You have been sent an email with instructions to reset your password</string>
+    <string name="reset_password">Reset Password</string>
 
 </resources>

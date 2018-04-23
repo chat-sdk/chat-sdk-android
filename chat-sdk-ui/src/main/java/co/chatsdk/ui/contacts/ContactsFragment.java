@@ -100,7 +100,7 @@ public class ContactsFragment extends BaseFragment {
      *  #MODE_LOAD_THREAD_USERS
      *  #MODE_USE_SOURCE
      *  */
-    protected int loadingMode;
+    protected int loadingMode = MODE_LOAD_CONTACTS;
 
     /** Determine what happen after a user is clicked.
      *

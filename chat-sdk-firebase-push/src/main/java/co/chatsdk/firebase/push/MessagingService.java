@@ -1,13 +1,23 @@
 package co.chatsdk.firebase.push;
 
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 
 import com.example.firebasepushnotifications.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.manager.InterfaceManager;
 import timber.log.Timber;
 
 /**
@@ -15,6 +25,8 @@ import timber.log.Timber;
  */
 
 public class MessagingService extends FirebaseMessagingService {
+
+    public static String ChatSDKMessageChannel = "co.chatsdk.notification.Message";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -30,26 +42,51 @@ public class MessagingService extends FirebaseMessagingService {
             pushIcon = R.drawable.push_icon;
         }
 
-        Notification n  = new Notification.Builder(this)
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(pushIcon)
                 .setContentTitle(remoteMessage.getNotification().getTitle())
                 .setContentText(remoteMessage.getNotification().getBody())
-                .setSmallIcon(pushIcon)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(alarmSound)
+                .setAutoCancel(true);
 
-//                .setSmallIcon()
-//                .setSmallIcon(R.drawable.icon)
-//                .setContentIntent(pIntent)
-//                .setAutoCancel(true)
+        String threadEntityID = remoteMessage.getData().get(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+
+        // Tap Action
+        if (threadEntityID != null && threadEntityID.length() > 0) {
+            Intent intent = new Intent(this, InterfaceManager.shared().a.getChatActivity());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadEntityID);
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            PendingIntent pendingIntent = TaskStackBuilder.create(this)
+                    .addParentStack(InterfaceManager.shared().a.getLoginActivity())
+                    .addNextIntent(intent)
+                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            mBuilder.setContentIntent(pendingIntent);
+        }
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            CharSequence name = getString(R.string.app_name);
+            String description = getString(R.string.push_channel_name);
+            NotificationChannel channel = new NotificationChannel(ChatSDKMessageChannel, name, NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription(description);
+            // Register the channel with the system
+//            notificationManager.createNotificationChannel(channel);
+        }
+
 //                .addAction(R.drawable.icon, "Call", pIntent)
 //                .addAction(R.drawable.icon, "More", pIntent)
 //                .addAction(R.drawable.icon, "And more", pIntent).
- .build();
 
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0, n);
-
+        notificationManager.notify(0, mBuilder.build());
 
     }
 

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.NM;
@@ -294,6 +295,15 @@ public class User implements CoreEntity, UserListItem {
 
     public void setAvailability (String availability) {
         setMetaString(Keys.Availability, availability);
+    }
+
+    public boolean getIsOnline () {
+        return getAvailability().equals(Availability.Available);
+    }
+
+    public void setIsOnline (boolean isOnline) {
+        setAvailability(isOnline ? Availability.Available : Availability.Unavailable);
+        update();
     }
 
     public String getState () {

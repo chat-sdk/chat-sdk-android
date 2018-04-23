@@ -31,6 +31,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':chat-sdk-core')
+    compile project(':chat-sdk-ui')
 
     compile 'com.google.firebase:firebase-messaging:' + project.GOOGLE_SERVICES_VERSION
     compile 'com.squareup.okhttp3:okhttp:3.9.0'

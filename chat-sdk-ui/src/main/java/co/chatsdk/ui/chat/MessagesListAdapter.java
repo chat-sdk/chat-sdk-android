@@ -198,14 +198,14 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         holder.avatarImageView.setImageURI(messageItem.getMessage().getSender().getAvatarURL());
 
-        // Apply a color filter
-        if (ChatSDK.config().messageColorMe != 0 && messageItem.message.getSender().isMe()) {
+        if (messageItem.message.getSender().isMe()) {
+            holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);
             holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
-        if (ChatSDK.config().messageColorReply != 0 && !messageItem.message.getSender().isMe()) {
+        else {
+            holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorReply);
             holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
-
 
         updateReadStatus(holder, messageItem.message);
     }
