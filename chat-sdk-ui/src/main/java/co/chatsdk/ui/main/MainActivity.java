@@ -32,7 +32,6 @@ import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.threads.PrivateThreadsFragment;
 import io.reactivex.Completable;
 
 
@@ -118,7 +117,7 @@ public class MainActivity extends BaseActivity {
 
         disposables.dispose();
 
-        // TODO: Check this
+         // TODO: Check this
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
@@ -126,7 +125,7 @@ public class MainActivity extends BaseActivity {
                     if(networkEvent.message != null) {
                         if(!networkEvent.message.getSender().isMe()) {
                             // Only show the alert if we'recyclerView not on the private threads tab
-                            if(!(adapter.getTabs().get(viewPager.getCurrentItem()).fragment instanceof PrivateThreadsFragment)) {
+                            if(!(InterfaceManager.shared().a.privateThreadsFragment().getClass().isInstance(adapter.getTabs().get(viewPager.getCurrentItem()).fragment))) {
                                 NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
                             }
                         }

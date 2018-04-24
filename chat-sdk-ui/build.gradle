@@ -18,6 +18,7 @@ android {
 
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
@@ -49,6 +50,7 @@ dependencies {
 
     // Seems to be an issue with Android Studio... Not actually a problem
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
 
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'

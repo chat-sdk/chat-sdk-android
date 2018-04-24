@@ -26,8 +26,10 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.audio.Recording;
@@ -147,6 +149,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (savedInstanceState != null) {
             listPos = savedInstanceState.getInt(LIST_POS, -1);
             savedInstanceState.remove(LIST_POS);
+        }
+
+        if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && NM.lastOnline() != null) {
+            NM.lastOnline().getLastOnline(thread.otherUser())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe((date, throwable) -> {
+                if (throwable == null && date != null) {
+                    Locale current = getResources().getConfiguration().locale;
+                    PrettyTime pt = new PrettyTime(current);
+                    setSubtitleText(String.format(getString(R.string.last_seen__), pt.format(date)));
+                }
+            });
         }
 
         initActionBar();

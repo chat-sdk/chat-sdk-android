@@ -199,5 +199,7 @@
     <string name="requesting">Requesting</string>
     <string name="password_reset_success">You have been sent an email with instructions to reset your password</string>
     <string name="reset_password">Reset Password</string>
+    <string name="last_seen__">Last seen %s</string>
+    <string name="last_seen_on__at__">Last seen on %s at %s</string>
 
 </resources>

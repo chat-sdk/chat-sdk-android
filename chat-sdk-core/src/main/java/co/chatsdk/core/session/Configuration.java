@@ -69,6 +69,8 @@ public class Configuration {
     public boolean twitterLoginEnabled = true;
     public boolean googleLoginEnabled = true;
 
+    public boolean resetPasswordEnabled = true;
+
     // Message types
     public boolean imageMessagesEnabled = true;
     public boolean locationMessagesEnabled = true;
@@ -86,6 +88,7 @@ public class Configuration {
     public int messageTextColorReply = Color.parseColor("#222222");;
 
     public String messageTimeFormat = "HH:mm";
+    public String lastOnlineTimeFormat = "HH:mm";
 
     public int maxMessagesToLoad = 30;
     public int imageMaxWidth = 1920;
@@ -220,6 +223,11 @@ public class Configuration {
 
         public Builder xmppAcceptAllCertificates (boolean acceptAllCertificates) {
             config.xmppAcceptAllCertificates = acceptAllCertificates;
+            return this;
+        }
+
+        public Builder resetPasswordEnabled (boolean resetPasswordEnabled) {
+            config.resetPasswordEnabled = resetPasswordEnabled;
             return this;
         }
 
@@ -396,6 +404,11 @@ public class Configuration {
 
         public Builder setMessageTimeFormat (String format) {
             config.messageTimeFormat = format;
+            return this;
+        }
+
+        public Builder setLastOnlineTimeFormat (String format) {
+            config.lastOnlineTimeFormat = format;
             return this;
         }
 

@@ -86,7 +86,13 @@ public class ProfileActivity extends BaseActivity {
                     dismissProgressDialog();
                     startingChat = false;
                 })
-                .subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID()), throwable -> ToastHelper.show(getApplicationContext(), R.string.create_thread_with_users_fail_toast));
+                .subscribe(thread -> {
+                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
+                }, throwable -> {
+                    ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
+                });
+
+
     }
 
     @Override

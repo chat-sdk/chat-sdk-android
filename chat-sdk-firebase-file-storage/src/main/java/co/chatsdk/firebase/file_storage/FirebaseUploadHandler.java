@@ -1,11 +1,6 @@
 package co.chatsdk.firebase.file_storage;
 
-import android.support.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -15,7 +10,6 @@ import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
@@ -44,6 +38,9 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 
             uploadTask.addOnProgressListener(taskSnapshot -> {
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                System.out.print("Progress: " + progress);
 
                 // TODO: With Firebase this appears to be broken
                 //e.onNext(result);

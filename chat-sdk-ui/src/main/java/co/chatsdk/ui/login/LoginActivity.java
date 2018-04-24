@@ -91,6 +91,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         appIconImage = (ImageView) findViewById(R.id.app_icon);
         btnResetPassword = (Button) findViewById(R.id.chat_sdk_btn_reset_password);
 
+        btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
+
         if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
             ((ViewGroup) btnFacebook.getParent()).removeView(btnFacebook);
         }

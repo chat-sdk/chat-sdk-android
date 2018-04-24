@@ -148,6 +148,17 @@ public class Thread implements CoreEntity {
         user.update();
     }
 
+    public User otherUser () {
+        if (getUsers().size() == 2) {
+            for (User u : getUsers()) {
+                if (!u.isMe()) {
+                    return u;
+                }
+            }
+        }
+        return null;
+    }
+
     public void addUsers (User... users) {
         addUsers(Arrays.asList(users));
     }
