@@ -12,7 +12,7 @@
     <string name="google_maps_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
     <string name="google_web_client_id">1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com</string>
 
-    <string name="firebase_root_path">firebase_v4_web_new_4</string>
-    <string name="firebase_cloud_messaging_server_key">AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug</string>
+    <!--<string name="firebase_root_path">firebase_v4_web_new_4</string>-->
+    <!--<string name="firebase_cloud_messaging_server_key">AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug</string>-->
 
 </resources>

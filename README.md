@@ -94,7 +94,6 @@ The next step is to setup the Chat SDK using your Firebase and Social Accounts. 
 There are three main branches in the project:
 
 - **master** - the latest stable release version of the code
-- **dev** - the latest unstable version of the code 
 - **v3_final** - the legacy version of the project (no longer maintained)
 
 ### Setup Service
@@ -121,10 +120,9 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.0.17'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.17'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.17'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.17'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.19'
 ```
 
 You may also need to enable Java 8:
@@ -138,7 +136,7 @@ compileOptions {
 
 You can also add the [modules manually](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually) by downloading source code and importing the modules to Android Studio. 
 
-Firebase depends on Google Services so we need to apply the google services plugin. This will read the **Google Services** file that we will add during Firebase setup.
+Firebase depends on Google Services so we need to apply the google services plugin. This will read the **Google Services** file that we will add during Firebase setup. Add this to your top level `build.gradle` file.
 
 ```
 buildscript {
@@ -146,12 +144,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.google.gms:google-services:3.1.0'
+        classpath 'com.google.gms:google-services:3.1.1'
     }
 }
 ```
 
-At the end of this file, add the following:
+Add this to the end of your app level `build.gradle` file:
 
 ```
 apply plugin: 'com.google.gms.google-services'
@@ -225,20 +223,19 @@ InterfaceManager.shared().a.startLoginActivity(context, true);
 
 The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Static Maps API](https://developers.google.com/maps/documentation/static-maps/) to display the location.
 
-Then add the following to your `AndroidManifest.xml` file:
+Add the following during the configuration stage:
 
 ```
-<meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/> 
+builder.googleMaps("YOUR GOOGLE MAPS STATIC API KEY");
 ```
 
-Add this to your `chat_sdk_firebase.xml` file:
+You will also need to add your Google Places API key to the app manifest:
 
 ```
-<string name="google_maps_api_key">YOUR KEY</string>
+<meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR GOOGLE PLACES API KEY"/>
 ```
 
-You can disable location messages using the `configurationBuilder.locationMessagesEnabled(false)
-` option. 
+You can disable location messages using the `builder.locationMessagesEnabled(false)` option. 
 
 ### Conclusion
 
@@ -263,12 +260,6 @@ The Chat SDK can be customized during setup using the configuration builder obje
 In your main `onCreate` method you create a new instance of the `Configuration.Builder` and pass it to the `ChatSDK` singleton on initialization.
 
 Here you have the option to set far more properties. For example:
-
-##### Configure Firebase
-
-```
-builder.firebase("FirebaseURL", "rootPath", "storageUrl", "CloudMessaging Api Key");
-``` 
 
 ##### Disable Facebook and Twitter login
 
@@ -307,6 +298,39 @@ For the following modules:
 
 The free modules are located in the main [Github repository](https://github.com/chat-sdk/chat-sdk-android). The premium modules can be purchased and downloaded from the links provided above. 
 
+### Push Notifications
+
+Add the following to your `build.gradle`
+
+##### Add the library
+
+*Gradle*
+
+```
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.19'
+```
+
+[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
+
+```
+compile project(path: ':chat-sdk-firebase-push')
+```
+
+##### Enable the module
+
+In your main class `onCreate` method add:
+
+```
+FirebasePushModule.activateForFirebase();
+```
+
+3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
+4. Add the following to the setup code in the apps' main `onCreate` method.
+
+   ```
+   builder.firebaseCloudMessagingServerKey("YOUR FIREBASE CLOUD MESSAGING KEY");
+   ```
+
 ### Firebase UI
 
 ##### Add the library
@@ -314,7 +338,7 @@ The free modules are located in the main [Github repository](https://github.com/
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.0.17'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.0.19'
 ```
 
 ##### Enable the module
@@ -350,7 +374,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.17'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.0.19'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -446,39 +470,6 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
   ```
   
 Social login can also be enabled or disabled by changing the Chat SDK [configuration](https://github.com/chat-sdk/chat-sdk-android#configuration).   
-
-### Push Notifications
-
-Add the following to your `build.gradle`
-
-##### Add the library
-
-*Gradle*
-
-```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.0.17'
-```
-
-[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
-
-```
-compile project(path: ':chat-sdk-firebase-push')
-```
-
-##### Enable the module
-
-In your main class `onCreate` method add:
-
-```
-FirebasePushModule.activateForFirebase();
-```
-
-3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
-4. Add the following to the setup code in the apps' main `onCreate` method.
-
-   ```
-   builder.firebase("your_root_path", "cloud_messaging_server_key");
-   ```
   
 ### Other Modules
 
@@ -528,9 +519,8 @@ In Android Studio:
 
 **File** -> **New** -> **Import Module**
 
-You must import the following core modules:
+You must import the following core module:
 
-- `chat-sdk-core`
 - `chat-sdk-ui`
 
 And at least **one** network adapter:
@@ -556,6 +546,14 @@ Now import the modules in your `build.gradle` file.
 compile project(path: ':chat-sdk-ui')
 compile project(path: ':chat-sdk-firebase-push')
 ``` 
+
+If you want to import modules manually, you should add the following to your `gradle.properties` file:
+
+```
+useLocal=true
+```
+
+This will prompt the modules to use local versions of the core Chat SDK modules rather than the versions hosted on Gradle. 
 
 #### Configuring the project
 
