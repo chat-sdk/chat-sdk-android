@@ -215,11 +215,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(() -> dismissProgressDialog())
                     .subscribe(() -> afterLogin(), throwable -> {
-                        ChatSDK.logError(throwable);
+//                        ChatSDK.logError(throwable);
 
                         dismissProgressDialog();
-                        // This is annoying because if the login fails it just says - details not valid...
-//                            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                     });
         }
     }

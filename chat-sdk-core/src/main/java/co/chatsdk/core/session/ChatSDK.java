@@ -65,7 +65,7 @@ public class ChatSDK {
 
     public static void logError (Exception e) {
         if (config().debug) {
-            ChatSDK.logError(e);
+            e.printStackTrace();
         }
         if (config().crashHandler != null) {
             config().crashHandler.log(e);
