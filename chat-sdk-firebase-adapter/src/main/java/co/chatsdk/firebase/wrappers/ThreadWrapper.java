@@ -40,6 +40,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 public class ThreadWrapper  {
@@ -80,6 +81,8 @@ public class ThreadWrapper  {
 
                 e.onNext(model);
             }));
+
+            FirebaseReferenceManager.shared().addRef(detailsRef, listener);
 
             if(NM.typingIndicator() != null) {
                 NM.typingIndicator().typingOn(model);
@@ -259,15 +262,19 @@ public class ThreadWrapper  {
                     .onChildAdded((snapshot, s, hasValue) -> {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
-                        NM.core().userOn(user.getModel());
-                        e.onNext(user.getModel());
+                        NM.core().userOn(user.getModel()).subscribe(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                e.onNext(user.getModel());
+                            }
+                        }, e::onError);
 
                     }).onChildRemoved((snapshot, hasValue) -> {
-                UserWrapper user = new UserWrapper(snapshot);
-                // We don't call meta off because we may have other therads
-                // with this user
-                model.removeUser(user.getModel());
-                e.onNext(user.getModel());
+                        UserWrapper user = new UserWrapper(snapshot);
+                        // We don't call meta off because we may have other therads
+                        // with this user
+                        model.removeUser(user.getModel());
+                        e.onNext(user.getModel());
             }));
 
             FirebaseReferenceManager.shared().addRef(ref, listener);
@@ -294,7 +301,7 @@ public class ThreadWrapper  {
             DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
                     .child(FirebasePaths.UsersPath)
                     .child(user.getEntityID())
-                    .child(Keys.Deleted);;
+                    .child(Keys.Deleted);
 
             currentThreadUser.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                 if(hasValue) {

@@ -21,6 +21,7 @@ import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rx.ObservableConnector;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -144,7 +145,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return getThreads(type, false);
     }
 
-    public List<Thread> getThreads(int type, boolean allowDeleted){
+    public List<Thread> getThreads(int type, boolean allowDeleted) {
+        return getThreads(type, allowDeleted, ChatSDK.config().showEmptyChats);
+    }
+
+    public List<Thread> getThreads(int type, boolean allowDeleted, boolean showEmpty){
 
         if(ThreadType.isPublic(type)) {
             return StorageManager.shared().fetchThreadsWithType(ThreadType.PublicGroup);
@@ -162,7 +167,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
         for (UserThreadLink link : links) {
             if(link.getThread().typeIs(type) && (!link.getThread().getDeleted() || allowDeleted)) {
-                threads.add(link.getThread());
+                if (showEmpty || link.getThread().getMessages().size() > 0) {
+                    threads.add(link.getThread());
+                }
             }
         }
 

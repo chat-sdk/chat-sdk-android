@@ -88,7 +88,7 @@ public class ThreadDetailsActivity extends BaseActivity {
             return true;
         });
 
-        threadImageView = (SimpleDraweeView) findViewById(R.id.chat_sdk_thread_image_view);
+        threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
     }
 
     protected void loadData () {

@@ -136,10 +136,10 @@ public class SelectContactActivity extends BaseActivity {
     }
 
     protected void initViews() {
-        recyclerView = (RecyclerView) findViewById(R.id.chat_sdk_list_contacts);
-        txtSearch = (TextView) findViewById(R.id.chat_sdk_et_search);
-        imgSearch = (ImageView) findViewById(R.id.chat_sdk_search_image);
-        btnStartChat = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
+        recyclerView = findViewById(R.id.chat_sdk_list_contacts);
+        txtSearch = findViewById(R.id.chat_sdk_et_search);
+        imgSearch = findViewById(R.id.chat_sdk_search_image);
+        btnStartChat = findViewById(R.id.chat_sdk_btn_add_contacts);
 
         if (mode == MODE_ADD_TO_CONVERSATION) {
             btnStartChat.setText(getResources().getString(R.string.add_users));

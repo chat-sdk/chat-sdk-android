@@ -74,7 +74,7 @@ public class PublicThreadsFragment extends BaseFragment {
 
     public void initViews(LayoutInflater inflater) {
         mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
-        listThreads = (RecyclerView) mainView.findViewById(R.id.list_threads);
+        listThreads = mainView.findViewById(R.id.list_threads);
         adapter = new ThreadsListAdapter(getActivity());
 
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));

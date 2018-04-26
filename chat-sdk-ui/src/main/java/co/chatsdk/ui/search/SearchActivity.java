@@ -72,10 +72,10 @@ public class SearchActivity extends BaseActivity {
     }
 
     protected void initViews(){
-        searchImageView = (ImageView) findViewById(R.id.chat_sdk_btn_search);
-        addContactsButton = (Button) findViewById(R.id.chat_sdk_btn_add_contacts);
-        searchTextView = (EditText) findViewById(R.id.chat_sdk_et_search_input);
-        recyclerView = (RecyclerView) findViewById(R.id.chat_sdk_list_search_results);
+        searchImageView = findViewById(R.id.chat_sdk_btn_search);
+        addContactsButton = findViewById(R.id.chat_sdk_btn_add_contacts);
+        searchTextView = findViewById(R.id.chat_sdk_et_search_input);
+        recyclerView = findViewById(R.id.chat_sdk_list_search_results);
     }
 
     @Override

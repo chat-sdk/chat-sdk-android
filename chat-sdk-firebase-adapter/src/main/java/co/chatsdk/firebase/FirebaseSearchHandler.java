@@ -15,7 +15,6 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -54,7 +53,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                                         String childValue = (String) meta.child(index).getValue();
                                         if (childValue.toLowerCase().contains(value.toLowerCase())) {
                                             final UserWrapper wrapper = new UserWrapper(userSnapshot);
-                                            if (!wrapper.getModel().equals(NM.currentUser())) {
+                                            if (!wrapper.getModel().equals(NM.currentUser()) && !NM.contact().exists(wrapper.getModel())) {
                                                 e.onNext(wrapper.getModel());
                                             }
                                         }
@@ -64,28 +63,8 @@ public class FirebaseSearchHandler implements SearchHandler {
                         }
                     }
                 }
+                e.onComplete();
             }));
-
-//                final ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded(new FirebaseEventListener.Change() {
-//                    @Override
-//                    public void trigger(DataSnapshot snapshot, String s, boolean hasValue) {
-//                        if(hasValue) {
-//                            // Check that the meta/index path contains the necessary value
-//                            if(snapshot.hasChild(Keys.Meta)) {
-//                                DataSnapshot meta = snapshot.child(Keys.Meta);
-//                                if(meta.hasChild(index)) {
-//                                    String childValue = (String) meta.child(index).getValue();
-//                                    if(childValue.toLowerCase().contains(value.toLowerCase())) {
-//                                        final UserWrapper wrapper = new UserWrapper(snapshot);
-//                                        if(!wrapper.getModel().equals(NM.currentUser())) {
-//                                            e.onNext(wrapper.getModel());
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }));
 
             e.setDisposable(new Disposable() {
                 @Override

@@ -171,9 +171,9 @@ public class MainActivity extends BaseActivity {
 
     protected void initViews() {
 
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         // Only creates the adapter if it wasn't initiated already

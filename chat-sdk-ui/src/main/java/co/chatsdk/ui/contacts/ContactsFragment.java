@@ -229,9 +229,9 @@ public class ContactsFragment extends BaseFragment {
     }
 
     public void initViews() {
-        recyclerView = (RecyclerView) mainView.findViewById(R.id.chat_sdk_list_contacts);
+        recyclerView = mainView.findViewById(R.id.chat_sdk_list_contacts);
 
-        progressBar = (ProgressBar) mainView.findViewById(R.id.chat_sdk_progressbar);
+        progressBar = mainView.findViewById(R.id.chat_sdk_progressbar);
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.

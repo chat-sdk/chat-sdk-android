@@ -11,8 +11,8 @@ import co.chatsdk.core.dao.User;
 
 public interface StorageAdapter {
 
-    public User fetchUserWithEntityID (String entityID);
-    public Thread fetchThreadWithEntityID (String entityID);
-    public Message fetchMessageWithEntityID (String entityID);
+    User fetchUserWithEntityID(String entityID);
+    Thread fetchThreadWithEntityID(String entityID);
+    Message fetchMessageWithEntityID(String entityID);
 
 }

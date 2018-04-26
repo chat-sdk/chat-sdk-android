@@ -24,11 +24,11 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     public ThreadViewHolder(View itemView) {
         super(itemView);
 
-        nameTextView = (TextView) itemView.findViewById(R.id.chat_sdk_txt);
-        lastMessageTextView = (TextView) itemView.findViewById(R.id.txt_last_message);
-        dateTextView = (TextView) itemView.findViewById(R.id.txt_last_message_date);
-        imageView = (SimpleDraweeView) itemView.findViewById(R.id.img_thread_image);
-        unreadMessageCountTextView = (TextView) itemView.findViewById(R.id.txt_unread_messages);
+        nameTextView = itemView.findViewById(R.id.chat_sdk_txt);
+        lastMessageTextView = itemView.findViewById(R.id.txt_last_message);
+        dateTextView = itemView.findViewById(R.id.txt_last_message_date);
+        imageView = itemView.findViewById(R.id.img_thread_image);
+        unreadMessageCountTextView = itemView.findViewById(R.id.txt_unread_messages);
         indicator = itemView.findViewById(R.id.chat_sdk_indicator);
 
     }

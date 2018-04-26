@@ -211,15 +211,15 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }
             });
 
-            TextView textView = (TextView) actionBarView.findViewById(R.id.tvName);
+            TextView textView = actionBarView.findViewById(R.id.tvName);
 
             String displayName = Strings.nameForThread(thread);
             setTitle(displayName);
             textView.setText(displayName);
 
-            subtitleTextView = (TextView) actionBarView.findViewById(R.id.tvSubtitle);
+            subtitleTextView = actionBarView.findViewById(R.id.tvSubtitle);
 
-            final SimpleDraweeView circleImageView = (SimpleDraweeView) actionBarView.findViewById(R.id.ivAvatar);
+            final SimpleDraweeView circleImageView = actionBarView.findViewById(R.id.ivAvatar);
             ThreadImageBuilder.load(circleImageView, thread);
 
             ab.setCustomView(actionBarView);
@@ -231,13 +231,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         setContentView(R.layout.chat_sdk_activity_chat);
 
         // Set up the message box - this is the box that sits above the keyboard
-        textInputView = (TextInputView) findViewById(R.id.chat_sdk_message_box);
+        textInputView = findViewById(R.id.chat_sdk_message_box);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(NM.audioMessage() != null);
 
-        progressBar = (ProgressBar) findViewById(R.id.chat_sdk_progressbar);
+        progressBar = findViewById(R.id.chat_sdk_progressbar);
 
-        final SwipeRefreshLayout mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.ptr_layout);
+        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.ptr_layout);
 
         mSwipeRefresh.setOnRefreshListener(() -> {
 
@@ -266,7 +266,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }));
         });
 
-        recyclerView = (RecyclerView) findViewById(R.id.list_chat);
+        recyclerView = findViewById(R.id.list_chat);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if (messageListAdapter == null) {

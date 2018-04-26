@@ -124,7 +124,7 @@ public class FirebasePushHandler implements PushHandler {
         notification.put("body", text);
         notification.put("badge", "1");
         notification.put("priority", "high");
-        notification.put("click_action", QuickReplyNotificationCategory);
+        notification.put("click_action", ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
 
         HashMap<String, String> data = new HashMap<>();
 

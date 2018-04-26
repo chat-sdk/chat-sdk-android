@@ -72,7 +72,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     }
 
     public void initViews() {
-        recyclerView = (RecyclerView) mainView.findViewById(R.id.list_threads);
+        recyclerView = mainView.findViewById(R.id.list_threads);
         initList();
     }
 

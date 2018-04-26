@@ -67,7 +67,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         setExitOnBackPressed(true);
 
-        mainView = (LinearLayout) findViewById(R.id.chat_sdk_root_view);
+        mainView = findViewById(R.id.chat_sdk_root_view);
 
         setupTouchUIToDismissKeyboard(mainView);
 
@@ -81,16 +81,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected void initViews () {
 
-        btnLogin = (Button) findViewById(R.id.chat_sdk_btn_login);
-        btnAnonymous = (Button) findViewById(R.id.chat_sdk_btn_anon_login);
-        btnTwitter = (Button) findViewById(R.id.chat_sdk_btn_twitter_login);
-        btnReg = (Button) findViewById(R.id.chat_sdk_btn_register);
-        usernameEditText = (EditText) findViewById(R.id.chat_sdk_et_username);
-        passwordEditText = (EditText) findViewById(R.id.chat_sdk_et_password);
-        btnGoogle = (Button) findViewById(R.id.chat_sdk_btn_google_login);
-        btnFacebook = (Button) findViewById(R.id.chat_sdk_btn_facebook_login);
-        appIconImage = (ImageView) findViewById(R.id.app_icon);
-        btnResetPassword = (Button) findViewById(R.id.chat_sdk_btn_reset_password);
+        btnLogin = findViewById(R.id.chat_sdk_btn_login);
+        btnAnonymous = findViewById(R.id.chat_sdk_btn_anon_login);
+        btnTwitter = findViewById(R.id.chat_sdk_btn_twitter_login);
+        btnReg = findViewById(R.id.chat_sdk_btn_register);
+        usernameEditText = findViewById(R.id.chat_sdk_et_username);
+        passwordEditText = findViewById(R.id.chat_sdk_et_password);
+        btnGoogle = findViewById(R.id.chat_sdk_btn_google_login);
+        btnFacebook = findViewById(R.id.chat_sdk_btn_facebook_login);
+        appIconImage = findViewById(R.id.app_icon);
+        btnResetPassword = findViewById(R.id.chat_sdk_btn_reset_password);
 
         btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 

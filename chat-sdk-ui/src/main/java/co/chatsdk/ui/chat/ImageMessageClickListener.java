@@ -54,13 +54,19 @@ public class ImageMessageClickListener implements View.OnClickListener {
             imagePopup.setOutsideTouchable(true);
             imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 
-            final PhotoView imageView = (PhotoView) popupView.findViewById(R.id.photo_view);
-            final ProgressBar progressBar = (ProgressBar) popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
-            final FloatingActionButton saveButton = (FloatingActionButton) popupView.findViewById(R.id.floating_button);
+            final PhotoView imageView = popupView.findViewById(R.id.photo_view);
+            final ProgressBar progressBar = popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
+            final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button);
 
             saveButton.setOnClickListener(v1 -> {
                 if (bitmap != null) {
-                    MediaStore.Images.Media.insertImage(activity.getContentResolver(), this.bitmap, "" , "");
+                    String url = MediaStore.Images.Media.insertImage(activity.getContentResolver(), this.bitmap, "" , "");
+                    if (url != null) {
+                        ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                    }
+                    else {
+                        ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                    }
                 }
             });
 

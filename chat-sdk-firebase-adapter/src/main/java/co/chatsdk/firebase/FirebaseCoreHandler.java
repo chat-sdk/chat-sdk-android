@@ -188,10 +188,15 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         }).subscribeOn(Schedulers.single());
     }
 
-    public void userOn (final User user) {
-        final UserWrapper wrapper = new UserWrapper(user);
-        disposableList.add(wrapper.onlineOn().doOnDispose(() -> wrapper.onlineOff()).subscribe(aBoolean -> NM.events().source().onNext(NetworkEvent.userPresenceUpdated(user))));
-        disposableList.add(wrapper.metaOn().doOnDispose(() -> wrapper.metaOff()).subscribe(user1 -> NM.events().source().onNext(NetworkEvent.userMetaUpdated(user1))));
+    public Completable userOn (final User user) {
+        return Completable.create(e -> {
+            final UserWrapper wrapper = new UserWrapper(user);
+            disposableList.add(wrapper.onlineOn().doOnDispose(wrapper::onlineOff).subscribe(aBoolean -> NM.events().source().onNext(NetworkEvent.userPresenceUpdated(user)), e::onError));
+            disposableList.add(wrapper.metaOn().doOnDispose(wrapper::metaOff).subscribe(user1 -> {
+                NM.events().source().onNext(NetworkEvent.userMetaUpdated(user1));
+                e.onComplete();
+            }, e::onError));
+        });
     }
 
     public void userOff (final User user) {

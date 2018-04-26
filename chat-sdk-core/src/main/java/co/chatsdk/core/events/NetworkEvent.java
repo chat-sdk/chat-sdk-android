@@ -4,7 +4,6 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -171,7 +170,8 @@ public class NetworkEvent {
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
                 EventType.ThreadLastMessageUpdated,
-                EventType.ThreadUsersChanged
+                EventType.ThreadUsersChanged,
+                EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }
 

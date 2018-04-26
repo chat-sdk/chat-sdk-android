@@ -50,7 +50,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         public HeaderViewHolder(View itemView) {
             super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.header_text);
+            textView = itemView.findViewById(R.id.header_text);
         }
     }
 
@@ -65,11 +65,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public UserViewHolder(View view) {
             super(view);
 
-            nameTextView = (TextView) view.findViewById(R.id.chat_sdk_txt);
-            statusTextView = (TextView) view.findViewById(R.id.tvStatus);
-            availabilityImageView = (ImageView) view.findViewById(R.id.ivAvailability);
-            avatarImageView = (SimpleDraweeView) view.findViewById(R.id.img_profile_picture);
-            checkBox = (CheckBox) view.findViewById(R.id.checkbox);
+            nameTextView = view.findViewById(R.id.chat_sdk_txt);
+            statusTextView = view.findViewById(R.id.tvStatus);
+            availabilityImageView = view.findViewById(R.id.ivAvailability);
+            avatarImageView = view.findViewById(R.id.img_profile_picture);
+            checkBox = view.findViewById(R.id.checkbox);
 
             // Clicks are handled at the list item level
             checkBox.setClickable(false);

@@ -12,6 +12,6 @@ public interface PublicThreadHandler {
     /**
      * Create a public group thread with a name. This can be used for group discussion
      */
-    public Single<Thread> createPublicThreadWithName(final String name);
-    public Single<Thread> createPublicThreadWithName(final String name, final String entityID);
+    Single<Thread> createPublicThreadWithName(final String name);
+    Single<Thread> createPublicThreadWithName(final String name, final String entityID);
 }

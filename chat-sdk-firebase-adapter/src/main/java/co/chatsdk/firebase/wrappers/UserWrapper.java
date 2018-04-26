@@ -61,7 +61,7 @@ public class UserWrapper {
     }
 
     public static UserWrapper initWithEntityId(String entityId){
-        User model = (User) StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityId);
+        User model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityId);
         return initWithModel(model);
     }
     

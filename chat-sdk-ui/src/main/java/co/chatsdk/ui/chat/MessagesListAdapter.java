@@ -60,12 +60,12 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         public MessageViewHolder(View itemView) {
             super(itemView);
 
-            timeTextView = (TextView) itemView.findViewById(R.id.txt_time);
-            avatarImageView = (SimpleDraweeView) itemView.findViewById(R.id.img_user_image);
-            messageTextView = (TextView) itemView.findViewById(R.id.txt_content);
-            messageImageView = (SimpleDraweeView) itemView.findViewById(R.id.chat_sdk_image);
-            extraLayout = (LinearLayout) itemView.findViewById(R.id.extra_layout);
-            readReceiptImageView = (ImageView) itemView.findViewById(R.id.read_receipt);
+            timeTextView = itemView.findViewById(R.id.txt_time);
+            avatarImageView = itemView.findViewById(R.id.img_user_image);
+            messageTextView = itemView.findViewById(R.id.txt_content);
+            messageImageView = itemView.findViewById(R.id.chat_sdk_image);
+            extraLayout = itemView.findViewById(R.id.extra_layout);
+            readReceiptImageView = itemView.findViewById(R.id.read_receipt);
 
             itemView.setOnClickListener(view -> {
                 if (messageItem.getMessage().getMessageType() == MessageType.Location) {

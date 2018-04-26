@@ -85,16 +85,16 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void initViews() {
 
-        avatarImageView = (SimpleDraweeView) findViewById(R.id.ivAvatar);
-        statusEditText = (EditText) findViewById(R.id.etStatus);
-        availabilitySpinner = (Spinner) findViewById(R.id.spAvailability);
-        nameEditText = (EditText) findViewById(R.id.etName);
-        locationEditText = (EditText) findViewById(R.id.etLocation);
-        phoneNumberEditText = (EditText) findViewById(R.id.etPhone);
-        emailEditText = (EditText) findViewById(R.id.etEmail);
+        avatarImageView = findViewById(R.id.ivAvatar);
+        statusEditText = findViewById(R.id.etStatus);
+        availabilitySpinner = findViewById(R.id.spAvailability);
+        nameEditText = findViewById(R.id.etName);
+        locationEditText = findViewById(R.id.etLocation);
+        phoneNumberEditText = findViewById(R.id.etPhone);
+        emailEditText = findViewById(R.id.etEmail);
 
-        countryButton = (Button) findViewById(R.id.btnCountry);
-        logoutButton = (Button) findViewById(R.id.btnLogout);
+        countryButton = findViewById(R.id.btnCountry);
+        logoutButton = findViewById(R.id.btnLogout);
 
         // Set the current user's information
         String status = currentUser.getStatus();
@@ -288,11 +288,7 @@ public class EditProfileActivity extends BaseActivity {
         Object o1 = h1.get(key);
         Object o2 = h2.get(key);
         if (o1 == null) {
-            if (o2 != null) {
-                return true;
-            } else {
-                return false;
-            }
+            return o2 != null;
         } else {
             return !o1.equals(o2);
         }

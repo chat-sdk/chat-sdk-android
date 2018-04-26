@@ -18,6 +18,11 @@ public interface ContactHandler {
     */
     List<User> contacts();
 
+    /*
+    * Check if contact exists
+     */
+    boolean exists (User user);
+
     /**
     * Get a list of the user's contacts
     */

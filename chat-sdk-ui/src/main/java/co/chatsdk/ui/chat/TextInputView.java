@@ -66,9 +66,9 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     }
 
     protected void initViews(){
-        btnSend = (ImageButton) findViewById(R.id.chat_sdk_btn_chat_send_message);
-        btnOptions = (ImageButton) findViewById(R.id.chat_sdk_btn_options);
-        etMessage = (EditText) findViewById(R.id.chat_sdk_et_message_to_send);
+        btnSend = findViewById(R.id.chat_sdk_btn_chat_send_message);
+        btnOptions = findViewById(R.id.chat_sdk_btn_options);
+        etMessage = findViewById(R.id.chat_sdk_et_message_to_send);
     }
 
     @Override

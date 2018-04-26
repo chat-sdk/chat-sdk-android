@@ -200,6 +200,10 @@
     <string name="typing">Typing&#8230;</string>
     <string name="recording">Recording</string>
 
+    <string name="image_saved">Image saved successfully</string>
+    <string name="image_save_failed">Image save failed</string>
+
+
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="action_edit">Edit</string>

@@ -103,29 +103,29 @@ public class ProfileFragment extends BaseFragment {
 
         setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
 
-        avatarImageView = (SimpleDraweeView) mainView.findViewById(R.id.ivAvatar);
-        flagImageView = (ImageView) mainView.findViewById(R.id.ivFlag);
-        availabilityImageView = (ImageView) mainView.findViewById(R.id.ivAvailability);
-        nameTextView = (TextView) mainView.findViewById(R.id.tvName);
-        statusTextView = (TextView) mainView.findViewById(R.id.tvStatus);
+        avatarImageView = mainView.findViewById(R.id.ivAvatar);
+        flagImageView = mainView.findViewById(R.id.ivFlag);
+        availabilityImageView = mainView.findViewById(R.id.ivAvailability);
+        nameTextView = mainView.findViewById(R.id.tvName);
+        statusTextView = mainView.findViewById(R.id.tvStatus);
 
-        locationTextView = (TextView) mainView.findViewById(R.id.tvLocation);
-        phoneTextView = (TextView) mainView.findViewById(R.id.tvPhone);
-        emailTextView = (TextView) mainView.findViewById(R.id.tvEmail);
-        followsTextView = (TextView) mainView.findViewById(R.id.tvFollows);
-        followedTextView = (TextView) mainView.findViewById(R.id.tvFollowed);
-        blockButton = (Button) mainView.findViewById(R.id.btnBlock);
-        deleteButton = (Button) mainView.findViewById(R.id.btnDelete);
+        locationTextView = mainView.findViewById(R.id.tvLocation);
+        phoneTextView = mainView.findViewById(R.id.tvPhone);
+        emailTextView = mainView.findViewById(R.id.tvEmail);
+        followsTextView = mainView.findViewById(R.id.tvFollows);
+        followedTextView = mainView.findViewById(R.id.tvFollowed);
+        blockButton = mainView.findViewById(R.id.btnBlock);
+        deleteButton = mainView.findViewById(R.id.btnDelete);
 
 //        followsHeight = followsTextView.getHeight();
 //        followedHeight = followedTextView.getHeight();
 
-        locationImageView = (ImageView) mainView.findViewById(R.id.ivLocation);
-        phoneImageView = (ImageView) mainView.findViewById(R.id.ivPhone);
-        emailImageView = (ImageView) mainView.findViewById(R.id.ivEmail);
+        locationImageView = mainView.findViewById(R.id.ivLocation);
+        phoneImageView = mainView.findViewById(R.id.ivPhone);
+        emailImageView = mainView.findViewById(R.id.ivEmail);
 
-        followsImageView = (ImageView) mainView.findViewById(R.id.ivFollows);
-        followedImageView = (ImageView) mainView.findViewById(R.id.ivFollowed);
+        followsImageView = mainView.findViewById(R.id.ivFollows);
+        followedImageView = mainView.findViewById(R.id.ivFollowed);
 
         reloadData();
 
@@ -308,7 +308,7 @@ public class ProfileFragment extends BaseFragment {
 //        }
 
 
-        ConstraintLayout layout = (ConstraintLayout) mainView.findViewById(R.id.mainConstraintLayout);
+        ConstraintLayout layout = mainView.findViewById(R.id.mainConstraintLayout);
         ConstraintSet set = new ConstraintSet();
         set.clone(layout);
 
