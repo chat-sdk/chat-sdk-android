@@ -20,6 +20,7 @@ import java.util.Map;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import timber.log.Timber;
@@ -331,11 +332,13 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public void setMetaString(String key, String value){
-        Map<String, Object> map = metaMap();
-        map.put(key, value);
-        
-        setMetaMap(map);
-        update();
+        if (key != null && value != null) {
+            Map<String, Object> map = metaMap();
+            map.put(key, value);
+
+            setMetaMap(map);
+            update();
+        }
     }
 
     /**
@@ -382,13 +385,13 @@ public class User implements CoreEntity, UserListItem {
                 try {
                     metaMapCache = JsonHelper.toMap(new JSONObject(metaData));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    ChatSDK.logError(e);
                     Timber.e(e.getCause(), "Cant parse metaData json to map. Meta: %s", metaData);
                 }
             }
-            if(metaMapCache == null) {
-                metaMapCache = new HashMap<>();
-            }
+        }
+        if(metaMapCache == null) {
+            metaMapCache = new HashMap<>();
         }
         return metaMapCache;
     }

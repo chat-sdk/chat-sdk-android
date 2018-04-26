@@ -21,11 +21,13 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
+import co.chatsdk.firebase.R;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -167,14 +169,10 @@ public class MessageWrapper  {
                     model.setMessageStatus(MessageSendStatus.Sent);
                     model.update();
                     e.onComplete();
-                }, throwable -> {
-                    throwable.printStackTrace();
-                    e.onError(throwable);
-                });
+                }, e::onError);
             }
             else {
-                // TODO: Localize
-                e.onError(new Throwable("Message doesn't have a thread"));
+                e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.message_doesnt_have_a_thread)));
             }
         }).subscribeOn(Schedulers.single());
 

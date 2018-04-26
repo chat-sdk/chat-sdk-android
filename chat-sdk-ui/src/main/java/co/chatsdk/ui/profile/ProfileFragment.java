@@ -23,6 +23,7 @@ import java.util.Locale;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringChecker;
@@ -201,7 +202,7 @@ public class ProfileFragment extends BaseFragment {
                                     updateBlockedButton(false);
                                     ToastHelper.show(getContext(), R.string.user_unblocked);
                                 }, throwable12 -> {
-                                    throwable12.printStackTrace();
+                                    ChatSDK.logError(throwable12);
                                     Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 }));
                     }
@@ -212,7 +213,7 @@ public class ProfileFragment extends BaseFragment {
                                     updateBlockedButton(true);
                                     ToastHelper.show(getContext(), getString(R.string.user_blocked));
                                 }, throwable1 -> {
-                                    throwable1.printStackTrace();
+                                    ChatSDK.logError(throwable1);
                                     Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 }));
                     }
@@ -229,8 +230,8 @@ public class ProfileFragment extends BaseFragment {
                         ToastHelper.show(getContext(), getString(R.string.user_deleted));
                         getActivity().finish();
                     }, throwable -> {
-                throwable.printStackTrace();
-                Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        ChatSDK.logError(throwable);
+                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             })));
         }
 
@@ -370,7 +371,7 @@ public class ProfileFragment extends BaseFragment {
             Field field = res.getField(drawableName);
             return field.getInt(null);
         } catch (Exception e) {
-            e.printStackTrace();
+            ChatSDK.logError(e);
         }
         return -1;
     }

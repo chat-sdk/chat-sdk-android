@@ -9,11 +9,9 @@ import android.support.v4.content.ContextCompat;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
 
@@ -77,7 +75,7 @@ public class PermissionRequestHandler {
             else {
                 e.onComplete();
             }
-        }).doOnError(throwable -> throwable.printStackTrace()).doOnTerminate(() -> completableMap.remove(result));
+        }).doOnError(throwable -> ChatSDK.logError(throwable)).doOnTerminate(() -> completableMap.remove(result));
     }
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {

@@ -63,7 +63,6 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
 
             wrapper.push().doOnError(throwable -> {
                 DaoCore.deleteEntity(thread);
-                throwable.printStackTrace();
                 e.onError(throwable);
             }).subscribe(() -> {
                 DaoCore.updateEntity(thread);

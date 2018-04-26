@@ -172,8 +172,7 @@ public class NotificationUtils {
         String title = !StringUtils.isEmpty(
                 message.getSender().getName()) ? message.getSender().getName() : " ";
 
-        // TODO: Localize
-        final Bundle data = NotificationUtils.getDataBundle(title, "New message from " + message.getSender().getName(), messageContent);
+        final Bundle data = NotificationUtils.getDataBundle(title, String.format(context.getString(R.string.new_message_from__), message.getSender().getName()), messageContent);
 
         getNotificationLines(context, data);
 

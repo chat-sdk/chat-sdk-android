@@ -1,6 +1,3 @@
 <resources>
     <string name="chat_sdk__activity_main_title">MainTabbedActivity</string>
-
-    <!-- Alerts / Toasts -->
-    <string name="toast_disconnected">Server connection lost</string>
 </resources>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -16,17 +15,12 @@ import java.util.List;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 import static co.chatsdk.ui.utils.ImageBuilder.bitmapForURL;
 
@@ -36,7 +30,6 @@ import static co.chatsdk.ui.utils.ImageBuilder.bitmapForURL;
 
 public class ThreadImageBuilder {
 
-    // TODO: Localize
     public static void load (final SimpleDraweeView imageView, final Thread thread) {
         getImageUriForThread(imageView.getContext(), thread).subscribe(uri -> imageView.setImageURI(uri), throwable -> imageView.setImageURI(defaultBitmapUri(imageView.getContext(), thread)));
     }
@@ -60,7 +53,7 @@ public class ThreadImageBuilder {
 
             // If the URL is empty
             if (urls.size() == 0) {
-                e.onError(new Throwable("Thread users have no valid avatar URLs"));
+                e.onError(new Throwable(context.getString(R.string.thread_users_have_no_valid_avatar_urls)));
             }
             else if (urls.size() == 1) {
                 e.onSuccess(Uri.parse(urls.get(0)));
@@ -72,7 +65,7 @@ public class ThreadImageBuilder {
                         e.onSuccess(Uri.fromFile(file));
                     }
                     else {
-                        e.onError(new Throwable("Could not save composite thread image to file"));
+                        e.onError(new Throwable(context.getString(R.string.could_not_save_composite_thread_image_to_file)));
                     }
                 }, throwable -> e.onError(throwable));
             }
@@ -98,15 +91,15 @@ public class ThreadImageBuilder {
                         Bitmap bitmap = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
 
                         if(bitmap == null) {
-                            e.onError(new Throwable("Thread image could not be created"));
+                            e.onError(new Throwable(context.getString(R.string.thread_image_could_not_be_created)));
                         }
                         else {
                             e.onSuccess(bitmap);
                         }
                     })
-                    .subscribe(bitmap -> bitmaps.add(bitmap), throwable -> {
+                    .subscribe(bitmaps::add, throwable -> {
                         e.onError(throwable);
-                        throwable.printStackTrace();
+                        ChatSDK.logError(throwable);
                     });
         });
     }

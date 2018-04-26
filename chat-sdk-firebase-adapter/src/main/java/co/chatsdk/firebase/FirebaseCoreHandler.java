@@ -16,9 +16,11 @@ import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
@@ -109,7 +111,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
                     @Override
                     public void onError(@NonNull Throwable ex) {
-                        ex.printStackTrace();
+                        ChatSDK.logError(ex);
                         e.onSuccess(NM.currentUser());
                     }
 
@@ -157,7 +159,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             }
             else {
                 DatabaseReference.goOnline();
-                disposableList.add(setUserOnline().subscribe());
+                setUserOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
             }
         }));
     }
@@ -179,7 +181,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             }
 
             FirebasePaths.userOnlineRef(NM.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                disposableList.add(updateLastOnline().subscribe());
+                updateLastOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
                 e.onSuccess((Boolean) snapshot.getValue());
             }));
 

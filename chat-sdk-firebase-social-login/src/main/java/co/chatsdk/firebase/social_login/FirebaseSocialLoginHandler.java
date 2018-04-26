@@ -3,7 +3,6 @@ package co.chatsdk.firebase.social_login;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -15,10 +14,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,14 +36,8 @@ import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.firebase.FirebaseAuthenticationHandler;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 /**
  * Created by ben on 9/4/17.
@@ -136,7 +126,6 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
 
                 @Override
                 public void failure(TwitterException exception) {
-                    exception.printStackTrace();
                     e.onError(exception);
                 }
             });
@@ -215,14 +204,9 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
 
                         FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) NM.auth();
 
-                        handler.authenticateWithUser(user).doOnError(throwable -> {
-                            throwable.printStackTrace();
-                            e.onError(throwable);
-                        }).subscribe(() -> e.onComplete());
+                        handler.authenticateWithUser(user).subscribe(e::onComplete, e::onError);
                     }
                     else {
-//                                    Toast.makeText(context, "Authentication failed.",
-//                                            Toast.LENGTH_SHORT).show();
                         e.onError(task.getException());
                     }
                 }));

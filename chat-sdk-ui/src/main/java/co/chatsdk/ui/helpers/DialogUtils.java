@@ -12,6 +12,8 @@ import android.content.Context;
 
 import java.util.concurrent.Callable;
 
+import co.chatsdk.core.session.ChatSDK;
+
 @Deprecated
 public class DialogUtils {
 
@@ -32,7 +34,7 @@ public class DialogUtils {
                         try {
                             pos.call();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            ChatSDK.logError(e);
                         }
                     dialog.dismiss();
                 })
@@ -43,7 +45,7 @@ public class DialogUtils {
                         try {
                             neg.call();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            ChatSDK.logError(e);
                         }
 
                     dialog.cancel();

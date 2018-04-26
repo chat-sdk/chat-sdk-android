@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import co.chatsdk.core.interfaces.CrashHandler;
 import co.chatsdk.core.utils.StringChecker;
 
 /**
@@ -25,6 +26,7 @@ public class Configuration {
     public boolean debug = true;
     public String debugUsername = null;
     public String debugPassword = null;
+    public CrashHandler crashHandler;
 
     // Twitter Login
     public String twitterKey;
@@ -356,6 +358,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setCrashHandler (CrashHandler handler) {
+            config.crashHandler = handler;
+            return this;
+        }
+
         public Builder threadDetailsEnabled (boolean value) {
             config.threadDetailsEnabled = value;
             return this;
@@ -497,7 +504,7 @@ public class Configuration {
                 googleLogin(appBundle.getString("google_web_client_id"));
 
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                ChatSDK.logError(e);
             }
 
             return this;

@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory;
 
 import java.io.File;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
@@ -20,13 +22,11 @@ import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
-import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by ben on 10/24/17.
@@ -54,8 +54,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                 final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
 
                 if(image == null) {
-                    // TODO: Localize
-                    e.onError(new Throwable("Unable to save image to disk"));
+                    e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.unable_to_save_image_to_disk)));
                     return;
                 }
 

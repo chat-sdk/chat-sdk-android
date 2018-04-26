@@ -28,8 +28,10 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
@@ -280,7 +282,7 @@ public class ContactsFragment extends BaseFragment {
                 Timber.v("Update Contact List");
             }
             setupListClickMode();
-        }, throwable -> throwable.printStackTrace());
+        }, throwable -> ChatSDK.logError(throwable));
     }
 
     @Override
@@ -318,7 +320,7 @@ public class ContactsFragment extends BaseFragment {
                                             getDialog().dismiss();
                                         }
                                     }, throwable -> {
-                                        throwable.printStackTrace();
+                                        ChatSDK.logError(throwable);
                                         ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
                                     });
                         }
@@ -376,7 +378,7 @@ public class ContactsFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        reloadUsers().subscribe();
+        reloadUsers().subscribe(new CrashReportingCompletableObserver());
     }
 
     @Override

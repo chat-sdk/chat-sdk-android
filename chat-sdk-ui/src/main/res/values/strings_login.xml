@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- AppContext -->
-    <string name="preference_database_id">PREFERENCE_DATABASE_SESSION_ID</string>
 
-    <!-- Hints -->
-    <string name="email_field">Email</string>
-    <string name="password_field">Password</string>
-
-    <!-- Buttons -->
-    <string name="button_login_text">Log in</string>
-    <string name="button_register_text">Register</string>
-
-    <!-- Alerts / Toasts -->
-    <string name="toast_no_email">Please enter your email</string>
-    <string name="toast_no_password">Please enter password</string>
-    <string name="toast_connection_failed">Failed to connect</string>
-    <string name="toast_password_incorrect">Username or password is incorrect</string>
-    <string name="toast_register_failed">Failed to register</string>
-    <string name="toast_connected">Connected</string>
-    <string name="toast_authenticated">Authenticated</string>
 
 </resources>

@@ -9,6 +9,7 @@ import java.util.List;
 import co.chatsdk.ui.AbstractChatOptionsHandler;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.manager.InterfaceManager;
 
 /**
@@ -39,8 +40,7 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
 
         hasExecuted = false;
 
-        // TODO: Localize
-        builder.setTitle("Actions").setItems(items, (dialogInterface, i1) -> {
+        builder.setTitle(context.getString(R.string.actions)).setItems(items, (dialogInterface, i1) -> {
             if(!hasExecuted) {
                 executeOption(options.get(i1));
             }

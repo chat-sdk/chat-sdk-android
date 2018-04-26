@@ -68,7 +68,7 @@ public class MessageListItem {
                     return Double.parseDouble((String) value);
                 }
                 catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    ChatSDK.logError(e);
                 }
             }
             if(value instanceof Double) {

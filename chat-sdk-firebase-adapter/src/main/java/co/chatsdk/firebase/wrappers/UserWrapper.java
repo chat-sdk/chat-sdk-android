@@ -29,6 +29,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
@@ -278,12 +279,12 @@ public class UserWrapper {
 
             final DatabaseReference ref = ref();
 
-            updateFirebaseUser().subscribe();
+            updateFirebaseUser().subscribe(new CrashReportingCompletableObserver());
 
             ref.updateChildren(serialize(), (firebaseError, firebase) -> {
                 if (firebaseError == null) {
                     // index should be updated whenever the user is pushed
-                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe();
+                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
                     e.onComplete();
                 }
                 else {

@@ -84,8 +84,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         }
 
         if(typing.get(thread) != null) {
-            // TODO: Localize
-            holder.lastMessageTextView.setText(typing.get(thread) + context.get().getString(R.string.typing));
+            holder.lastMessageTextView.setText(String.format(context.get().getString(R.string.__typing), typing.get(thread)));
         }
 
         int unreadMessageCount = thread.getUnreadMessagesCount();

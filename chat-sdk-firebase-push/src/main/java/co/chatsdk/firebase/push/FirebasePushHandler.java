@@ -18,6 +18,7 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
@@ -99,7 +100,7 @@ public class FirebasePushHandler implements PushHandler {
     public void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data) {
 
         for(String channel : channels) {
-            pushToChannel(channel, notification, data).doOnError(throwable -> throwable.printStackTrace()).subscribe();
+            pushToChannel(channel, notification, data).subscribe(new CrashReportingCompletableObserver());
         }
     }
 

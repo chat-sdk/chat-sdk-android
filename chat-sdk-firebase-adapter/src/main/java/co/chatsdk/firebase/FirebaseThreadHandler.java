@@ -17,6 +17,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
@@ -97,9 +98,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
             ref.updateChildren(data, (databaseError, databaseReference) -> {
                 if (databaseError == null) {
-                    FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe();
+                    FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(new CrashReportingCompletableObserver());
                     for(User u : users) {
-                        FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe();
+                        FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(new CrashReportingCompletableObserver());
                     }
                     e.onComplete();
                 } else {
@@ -224,10 +225,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             if(thread.getEntityID() == null) {
                 ThreadWrapper wrapper = new ThreadWrapper(thread);
 
-                wrapper.push().concatWith(addUsersToThread(thread, users)).doOnError(throwable -> {
-                    throwable.printStackTrace();
-                    e.onError(throwable);
-                }).subscribe(() -> e.onSuccess(thread));
+                wrapper.push().concatWith(addUsersToThread(thread, users)).subscribe(() -> e.onSuccess(thread), e::onError);
 
             }
             else {

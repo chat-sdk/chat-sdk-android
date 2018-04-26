@@ -59,4 +59,17 @@ public class ChatSDK {
         return shared().config;
     }
 
+    public static void logError (Throwable t) {
+        logError(new Exception(t));
+    }
+
+    public static void logError (Exception e) {
+        if (config().debug) {
+            ChatSDK.logError(e);
+        }
+        if (config().crashHandler != null) {
+            config().crashHandler.log(e);
+        }
+    }
+
 }

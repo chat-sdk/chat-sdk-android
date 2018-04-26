@@ -21,6 +21,7 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -72,7 +73,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         if (task.isComplete() && task.isSuccessful()) {
                             emitter.onSuccess(task.getResult().getUser());
                         } else {
-                            task.getException().printStackTrace();
                             emitter.onError(task.getException());
                         }
                     });
@@ -136,13 +136,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             NM.hook().executeHook(BaseHookHandler.UserAuthFinished, data);
                         }
 
-                        NM.core().setUserOnline().subscribe();
+                        NM.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
 
-                        userWrapper.push().subscribe(emitter::onComplete, Throwable::printStackTrace);
-                    }, throwable->{
-                        throwable.printStackTrace();
-                        emitter.onError(throwable);
-                    });
+                        userWrapper.push().subscribe(emitter::onComplete, emitter::onError);
+                    }, emitter::onError);
                 })
                 .subscribeOn(Schedulers.single());
     }

@@ -30,6 +30,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
@@ -353,13 +354,7 @@ public class ThreadWrapper  {
                 }
                 else {
 
-                    NM.thread().removeUsersFromThread(model, currentUser).subscribe(() -> {
-                        e.onComplete();
-                        //DaoCore.deleteEntity(model);
-                    }, throwable -> {
-                        throwable.printStackTrace();
-                        e.onError(throwable);
-                    });
+                    NM.thread().removeUsersFromThread(model, currentUser).subscribe(e::onComplete, e::onError);
                 }
             }
         }).subscribeOn(Schedulers.single());
@@ -512,7 +507,7 @@ public class ThreadWrapper  {
 
             ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
                 if (databaseError == null) {
-                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe();
+                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
                     e.onComplete();
                 }
                 else {

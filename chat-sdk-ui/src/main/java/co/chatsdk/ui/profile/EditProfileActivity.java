@@ -122,7 +122,7 @@ public class EditProfileActivity extends BaseActivity {
                 currentUser.setAvatarURL(Uri.fromFile(file).toString());
             }
             catch (Exception e) {
-                e.printStackTrace();
+                ChatSDK.logError(e);
                 Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         }));
@@ -164,7 +164,7 @@ public class EditProfileActivity extends BaseActivity {
         NM.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
-            throwable.printStackTrace();
+            ChatSDK.logError(throwable);
             Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         });
     }
@@ -204,7 +204,7 @@ public class EditProfileActivity extends BaseActivity {
         }
         catch (Exception e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            ChatSDK.logError(e);
         }
     }
 

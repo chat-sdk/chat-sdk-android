@@ -25,6 +25,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
@@ -72,9 +73,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void requestPermissionSafely (Completable c) {
-        c.subscribe(() -> {
-
-        }, throwable -> throwable.printStackTrace());
+        c.subscribe(new CrashReportingCompletableObserver());
     }
 
     public Completable requestMicrophoneAccess () {

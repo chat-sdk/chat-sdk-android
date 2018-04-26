@@ -125,9 +125,7 @@ public class PrivateThreadsFragment extends BaseFragment {
             return;
 
         super.onCreateOptionsMenu(menu, inflater);
-        // TODO: Localise
-        MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Conversation");
+        MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getActivity().getString(R.string.add_conversation));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
     }

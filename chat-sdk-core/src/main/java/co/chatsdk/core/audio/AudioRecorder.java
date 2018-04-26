@@ -6,6 +6,7 @@ import android.os.Environment;
 import java.io.File;
 import java.io.IOException;
 
+import co.chatsdk.core.session.ChatSDK;
 import timber.log.Timber;
 
 /**
@@ -47,7 +48,7 @@ public class AudioRecorder {
         try {
             recorder.prepare();
         } catch (IOException e) {
-            e.printStackTrace();
+            ChatSDK.logError(e);
         }
 
         recorder.start();
@@ -63,7 +64,7 @@ public class AudioRecorder {
                 recorder.stop();
             }
             catch (IllegalStateException e) {
-                e.printStackTrace();
+                ChatSDK.logError(e);
             }
             recorder.release();
             recorder = null;

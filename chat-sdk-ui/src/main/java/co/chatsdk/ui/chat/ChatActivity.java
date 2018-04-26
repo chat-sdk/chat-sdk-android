@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -51,6 +52,8 @@ import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.ActivityResult;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.CrashReportingObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
@@ -153,7 +156,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && NM.lastOnline() != null) {
             NM.lastOnline().getLastOnline(thread.otherUser())
-                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((date, throwable) -> {
                 if (throwable == null && date != null) {
                     Locale current = getResources().getConfiguration().locale;
@@ -319,7 +322,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        e.printStackTrace();
+                        ChatSDK.logError(e);
                         ToastHelper.show(getApplicationContext(), e.getLocalizedMessage());
                     }
 
@@ -431,7 +434,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }
             }
         }
-        subtitleTextView.setText(text);
+        final String finalText = text;
+        new Handler(getMainLooper()).post(() -> subtitleTextView.setText(finalText));
     }
 
     @Override
@@ -446,9 +450,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         if (thread != null && thread.typeIs(ThreadType.Public)) {
             User currentUser = NM.currentUser();
-            disposableList.add(NM.thread().addUsersToThread(thread, currentUser)
+            NM.thread().addUsersToThread(thread, currentUser)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe());
+                    .subscribe(new CrashReportingCompletableObserver(disposableList));
         }
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
@@ -495,7 +499,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         markRead();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && removeUserFromChatOnExit) {
-            NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe();
+            NM.thread().removeUsersFromThread(thread, NM.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CrashReportingCompletableObserver());
         }
     }
 
@@ -619,9 +623,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      * Show a dialog containing all the users in this chat.
      */
     protected void showUsersDialog() {
-        // TODO: Localize
-        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), "Thread Users:");
-        contactsFragment.show(getSupportFragmentManager(), "Contacts");
+        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), getString(R.string.thread_users));
+        contactsFragment.show(getSupportFragmentManager(), getString(R.string.contacts));
     }
 
     /**
@@ -729,9 +732,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected void setChatState (TypingIndicatorHandler.State state) {
         if(NM.typingIndicator() != null) {
-            disposableList.add(NM.typingIndicator().setChatState(state, thread)
+            NM.typingIndicator().setChatState(state, thread)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe());
+                    .subscribe(new CrashReportingCompletableObserver(disposableList));
         }
     }
 
@@ -856,7 +859,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             handleMessageSend((Observable<MessageSendProgress>) option.execute(this, activityResultPublishSubject, thread));
         }
         else {
-            option.execute(this, activityResultPublishSubject, thread).subscribe();
+            option.execute(this, activityResultPublishSubject, thread).subscribe(new CrashReportingObserver<>());
         }
     }
 

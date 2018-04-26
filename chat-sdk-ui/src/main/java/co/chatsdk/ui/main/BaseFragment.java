@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 
 /**
@@ -74,8 +75,8 @@ public abstract class BaseFragment extends DialogFragment {
                 progressDialog.dismiss();
             }
         } catch (Exception e) {
+            ChatSDK.logError(e);
             // For handling orientation changed.
-            e.printStackTrace();
         }
     }
 

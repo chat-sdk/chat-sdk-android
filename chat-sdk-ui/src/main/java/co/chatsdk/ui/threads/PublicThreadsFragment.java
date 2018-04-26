@@ -124,13 +124,12 @@ public class PublicThreadsFragment extends BaseFragment {
                                 dismissProgressDialog();
                                 adapter.addRow(thread);
 
-                                // TODO: Improve this
-                                ToastHelper.show(getContext(), getString(R.string.add_public_chat_dialog_toast_success_before_thread_name) + threadName + getString(R.string.add_public_chat_dialog_toast_success_after_thread_name) );
+                                ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__is_created), threadName));
 
                                 InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
                             }
                             else {
-                                throwable.printStackTrace();
+                                ChatSDK.logError(throwable);
                                 Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 dismissProgressDialog();                            }
                         });

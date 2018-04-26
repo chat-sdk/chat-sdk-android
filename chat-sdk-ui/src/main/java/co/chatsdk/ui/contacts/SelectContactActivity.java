@@ -280,7 +280,7 @@ public class SelectContactActivity extends BaseActivity {
                                 overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
                             }
                         }, throwable -> {
-                            throwable.printStackTrace();
+                            ChatSDK.logError(throwable);
                             dismissProgressDialog();
                             setResult(AppCompatActivity.RESULT_CANCELED);
                             finish();

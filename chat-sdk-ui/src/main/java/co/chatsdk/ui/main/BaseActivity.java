@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -210,7 +211,7 @@ public class BaseActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            ChatSDK.logError(e);
         }
     }
 

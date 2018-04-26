@@ -8,14 +8,13 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 1/2/18.
@@ -45,11 +44,11 @@ public class FirebaseUIActivity extends BaseActivity {
             showProgressDialog(getString(R.string.authenticating));
             NM.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(() -> dismissProgressDialog())
+                    .doFinally(this::dismissProgressDialog)
                     .subscribe(() -> {
                         AppBackgroundMonitor.shared().setEnabled(true);
                         InterfaceManager.shared().a.startMainActivity(FirebaseUIActivity.this);
-                    }, throwable -> throwable.printStackTrace());
+                    }, throwable -> ChatSDK.logError(throwable));
         }
     }
 

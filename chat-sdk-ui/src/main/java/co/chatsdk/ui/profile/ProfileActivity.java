@@ -77,8 +77,7 @@ public class ProfileActivity extends BaseActivity {
 
         startingChat = true;
 
-        // TODO: Localize
-        showProgressDialog("Creating Thread");
+        showProgressDialog(getString(R.string.creating_thread));
 
         NM.thread().createThread("", user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())

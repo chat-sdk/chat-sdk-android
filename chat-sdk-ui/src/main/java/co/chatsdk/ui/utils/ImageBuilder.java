@@ -3,7 +3,6 @@ package co.chatsdk.ui.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.facebook.common.executors.CallerThreadExecutor;
 import com.facebook.common.references.CloseableReference;
@@ -16,8 +15,8 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.ui.R;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -45,7 +44,7 @@ public class ImageBuilder {
 
                     @Override
                     protected void onFailureImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
-                        e.onError(new Throwable("Unable to load image"));
+                        e.onError(new Throwable(context.getString(R.string.unable_to_load_image)));
                     }
                 }, CallerThreadExecutor.getInstance());
             }

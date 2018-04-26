@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
@@ -74,7 +75,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
-        PermissionRequestHandler.shared().requestReadExternalStorage(this).doOnError(throwable -> throwable.printStackTrace()).subscribe();
+        PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
 
     }
 
@@ -145,14 +146,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onClick(View v) {
         int i = v.getId();
 
-        Action completion = () -> afterLogin();
+        Action completion = this::afterLogin;
 
         Consumer<Throwable> error = throwable -> {
-            throwable.printStackTrace();
+            ChatSDK.logError(throwable);
             Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         };
 
-        Action doFinally = () -> dismissProgressDialog();
+        Action doFinally = this::dismissProgressDialog;
 
         showProgressDialog(getString(R.string.authenticating));
 
@@ -214,7 +215,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(() -> dismissProgressDialog())
                     .subscribe(() -> afterLogin(), throwable -> {
-                        throwable.printStackTrace();
+                        ChatSDK.logError(throwable);
+
                         dismissProgressDialog();
                         // This is annoying because if the login fails it just says - details not valid...
 //                            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
@@ -258,9 +260,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     authenticating = false;
                     dismissProgressDialog();
                 })
-                .subscribe(() -> afterLogin(), e -> {
+                .subscribe(this::afterLogin, e -> {
                     toastErrorMessage(e, false);
-                    e.printStackTrace();
+                    ChatSDK.logError(e);
                 });
     }
 

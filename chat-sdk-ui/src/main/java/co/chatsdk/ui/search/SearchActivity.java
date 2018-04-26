@@ -28,6 +28,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.SearchActivityType;
@@ -143,7 +144,7 @@ public class SearchActivity extends BaseActivity {
 
                         dialog.dismiss();
                         finish();
-                    }, throwable -> throwable.printStackTrace());
+                    }, throwable -> ChatSDK.logError(throwable));
         });
 
     }
@@ -208,29 +209,30 @@ public class SearchActivity extends BaseActivity {
     };
 
     public static void startSearchActivity (final Context context) {
+        if (context != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        // TODO: Localize
-        final List<SearchActivityType> activities = new ArrayList<>(InterfaceManager.shared().a.getSearchActivities());
-        activities.add(new SearchActivityType(InterfaceManager.shared().a.getSearchActivity(), "Search with name"));
+            final List<SearchActivityType> activities = new ArrayList<>(InterfaceManager.shared().a.getSearchActivities());
+            activities.add(new SearchActivityType(InterfaceManager.shared().a.getSearchActivity(), context.getString(R.string.search_with_name)));
 
-        if(activities.size() == 1) {
-            InterfaceManager.shared().a.startActivity(context, activities.get(0).className);
-            return;
+            if(activities.size() == 1) {
+                InterfaceManager.shared().a.startActivity(context, activities.get(0).className);
+                return;
+            }
+
+            String [] items = new String [activities.size()];
+            int i = 0;
+
+            for(SearchActivityType activity : activities) {
+                items[i++] = activity.title;
+            }
+
+            builder.setTitle(context.getString(R.string.search)).setItems(items, (dialogInterface, i1) -> {
+                // Launch the appropriate context
+                InterfaceManager.shared().a.startActivity(context, activities.get(i1).className);
+            });
+
+            builder.show();
         }
-
-        String [] items = new String [activities.size()];
-        int i = 0;
-
-        for(SearchActivityType activity : activities) {
-            items[i++] = activity.title;
-        }
-
-        builder.setTitle("Search").setItems(items, (dialogInterface, i1) -> {
-            // Launch the appropriate context
-            InterfaceManager.shared().a.startActivity(context, activities.get(i1).className);
-        });
-
-        builder.show();
     }
 }

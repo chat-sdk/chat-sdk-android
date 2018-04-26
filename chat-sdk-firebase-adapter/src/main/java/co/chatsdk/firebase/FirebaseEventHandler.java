@@ -13,6 +13,8 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.NM;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.CrashReportingObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Executor;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
@@ -74,13 +76,10 @@ public class FirebaseEventHandler implements EventHandler {
                 thread.getModel().addUser(user);
 
                 // Starting to listen to thread changes.
-                disposableList.add(thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe());
-
-                disposableList.add(thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe());
-
-                disposableList.add(thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe());
-
-                disposableList.add(thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe());
+                thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe(new CrashReportingObserver<>(disposableList));
 
                 eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
@@ -99,13 +98,10 @@ public class FirebaseEventHandler implements EventHandler {
             final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
             // Starting to listen to thread changes.
-            disposableList.add(thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe());
-
-            disposableList.add(thread.lastMessageOn().subscribe(thread1 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1))));
-
-            disposableList.add(thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe());
-
-            disposableList.add(thread.usersOn().doOnNext(user1 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1))).subscribe());
+            thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));
+            thread.lastMessageOn().doOnNext(thread15 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread15))).subscribe(new CrashReportingObserver<>(disposableList));
+            thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+            thread.usersOn().doOnNext(user1 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1))).subscribe(new CrashReportingObserver<>(disposableList));
 
             eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
         }).onChildRemoved((snapshot, hasValue) -> {
@@ -166,7 +162,7 @@ public class FirebaseEventHandler implements EventHandler {
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
 
-        contactsMetaOn().subscribe();
+        contactsMetaOn().subscribe(new CrashReportingCompletableObserver(disposableList));
     }
 
     private Completable contactsMetaOn () {

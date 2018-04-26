@@ -85,7 +85,7 @@ public class ImageUtils {
             outStream.close();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            ChatSDK.logError(e);
             return null;
         }
         Log.e("file", "" + file);
