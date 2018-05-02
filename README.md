@@ -120,7 +120,7 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.204.0.20'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.0.20'
 compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.0.20'
 compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.0.20'
 ```

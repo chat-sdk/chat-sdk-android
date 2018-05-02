@@ -122,11 +122,9 @@ public class MainActivity extends BaseActivity {
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
                 .subscribe(networkEvent -> {
                     if(networkEvent.message != null) {
-                        if(!networkEvent.message.getSender().isMe()) {
+                        if(!networkEvent.message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications()) {
                             // Only show the alert if we'recyclerView not on the private threads tab
-                            if(!(InterfaceManager.shared().a.privateThreadsFragment().getClass().isInstance(adapter.getTabs().get(viewPager.getCurrentItem()).fragment))) {
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
-                            }
+                            NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
                         }
                     }
                 }));
@@ -196,6 +194,8 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
+                InterfaceManager.shared().a.setShowLocalNotifications(showLocalNotificationsForTab(tab));
+
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
                 for(int i = 0; i < tabs.size(); i++) {
@@ -237,6 +237,15 @@ public class MainActivity extends BaseActivity {
         viewPager.setOffscreenPageLimit(3);
 
 
+    }
+
+    public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
+        // Don't show notifications on the threads tabs
+        Tab t = adapter.getTabs().get(tab.getPosition());
+
+        Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
+
+        return !t.fragment.getClass().isInstance(privateThreadsFragmentClass);
     }
 
     public void clearData () {

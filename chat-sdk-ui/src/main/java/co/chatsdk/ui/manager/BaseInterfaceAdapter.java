@@ -54,6 +54,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public ChatOptionsHandler chatOptionsHandler = null;
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
 
+    protected boolean showLocalNotifications;
+
     private WeakReference<Context> context;
 
     public BaseInterfaceAdapter (Context context) {
@@ -305,6 +307,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public List<CustomMessageHandler> getCustomMessageHandlers() {
         return customMessageHandlers;
+    }
+
+    @Override
+    public boolean showLocalNotifications() {
+        return showLocalNotifications && ChatSDK.config().showLocalNotifications;
+    }
+
+    @Override
+    public void setShowLocalNotifications(boolean shouldShow) {
+        showLocalNotifications = shouldShow;
     }
 
 

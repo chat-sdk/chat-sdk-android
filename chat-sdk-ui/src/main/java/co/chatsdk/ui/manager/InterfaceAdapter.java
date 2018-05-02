@@ -68,4 +68,7 @@ public interface InterfaceAdapter {
     void addCustomMessageHandler (CustomMessageHandler handler);
     void removeCustomMessageHandler (CustomMessageHandler handler);
     List<CustomMessageHandler> getCustomMessageHandlers();
+
+    boolean showLocalNotifications();
+    void setShowLocalNotifications(boolean shouldShow);
 }

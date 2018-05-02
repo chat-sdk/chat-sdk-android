@@ -111,6 +111,7 @@ public class Configuration {
     public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
 
     public String pushNotificationSound = "";
+    public boolean showLocalNotifications = true;
 
     public int loginScreenDrawableResourceID = -1;
 
@@ -362,6 +363,11 @@ public class Configuration {
 
         public Builder setCrashHandler (CrashHandler handler) {
             config.crashHandler = handler;
+            return this;
+        }
+
+        public Builder setShowLocalNotifications (boolean show) {
+            config.showLocalNotifications = show;
             return this;
         }
 
