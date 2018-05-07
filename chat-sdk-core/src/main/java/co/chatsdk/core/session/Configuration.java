@@ -296,6 +296,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setPushNotificationAction (String action) {
+            config.pushNotificationAction = action;
+            return this;
+        }
+
         public Builder twitterLoginEnabled (boolean value) {
             config.twitterLoginEnabled = value;
             return this;

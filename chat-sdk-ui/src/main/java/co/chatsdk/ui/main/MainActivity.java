@@ -194,7 +194,7 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
-                InterfaceManager.shared().a.setShowLocalNotifications(showLocalNotificationsForTab(tab));
+                InterfaceManager.shared().a. setShowLocalNotifications(showLocalNotificationsForTab(tab));
 
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
@@ -236,7 +236,6 @@ public class MainActivity extends BaseActivity {
 
         viewPager.setOffscreenPageLimit(3);
 
-
     }
 
     public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
@@ -245,7 +244,7 @@ public class MainActivity extends BaseActivity {
 
         Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
 
-        return !t.fragment.getClass().isInstance(privateThreadsFragmentClass);
+        return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
     }
 
     public void clearData () {
