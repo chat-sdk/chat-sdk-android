@@ -70,7 +70,10 @@ public class MainActivity extends BaseActivity {
             //requestVideoAccess().subscribe();
         }))))));
 
+
     }
+
+
 
     public void requestPermissionSafely (Completable c) {
         c.subscribe(new CrashReportingCompletableObserver());

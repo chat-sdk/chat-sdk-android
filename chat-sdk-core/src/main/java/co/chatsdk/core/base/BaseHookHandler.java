@@ -24,6 +24,9 @@ public class BaseHookHandler implements HookHandler {
     public static String Logout = "Logout";
     public static String Logout_User = "Logout_User";
 
+    public static String SetUserOnline = "SetUserOnline";
+    public static String SetUserOffline = "SetUserOffline";
+
     HashMap<String, ArrayList> hooks = new HashMap<>();
 
     @Override

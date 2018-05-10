@@ -131,9 +131,31 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     protected boolean scrolling = false;
 
+
+    // Added to support launch from push notification even if the app is closed
+//    @Override
+//    public Intent getSupportParentActivityIntent() {
+//        Timber.v("ParentActivity");
+//        return new Intent(this, InterfaceManager.shared().a.getMainActivity());
+//    }
+//
+//    @Override
+//    public Intent getParentActivityIntent() {
+//        Timber.v("ParentActivity");
+//        return new Intent(this, InterfaceManager.shared().a.getMainActivity());
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check that we are logged in - this is relevant if we launch from a push notification
+//        if (NM.auth().userAuthenticated()) {
+//            NM.auth().authenticateWithCachedToken();
+//        }
+//        else {
+//            InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false);
+//        }
 
         initViews();
 
@@ -517,6 +539,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
 
         if (!updateThreadFromBundle(intent.getExtras()))
             return;

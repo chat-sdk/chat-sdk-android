@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.Date;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
+import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -46,45 +47,6 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> disposableList.dispose());
     }
-
-    /** Unlike the iOS code the current user need to be saved before you call this method.*/
-//    public Completable pushUser () {
-//        return Single.create((SingleOnSubscribe<User>) e -> {
-//            // Check to see if the avatar URL is local or remote
-//            File avatar = new File(NM.currentUser().getAvatarURL());
-//            if (avatar.exists() && NM.upload() != null) {
-//                // Upload the image
-//                Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
-//                NM.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
-//                    @Override
-//                    public void onSubscribe(@NonNull Disposable d) {
-//                    }
-//
-//                    @Override
-//                    public void onNext(@NonNull FileUploadResult fileUploadResult) {
-//                        if (fileUploadResult.urlValid()) {
-//                            NM.currentUser().setAvatarURL(fileUploadResult.url);
-//                            NM.currentUser().update();
-//                            NM.events().source().onNext(NetworkEvent.userMetaUpdated(NM.currentUser()));
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(@NonNull Throwable ex) {
-//                        ex.printStackTrace();
-//                        e.onSuccess(NM.currentUser());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        e.onSuccess(NM.currentUser());
-//                    }
-//                });
-//            } else {
-//                e.onSuccess(NM.currentUser());
-//            }
-//        }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
-//    }
 
     public Completable pushUser () {
         return Single.create((SingleOnSubscribe<User>) e -> {
@@ -133,6 +95,10 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
+        if(NM.hook() != null) {
+            NM.hook().executeHook(BaseHookHandler.SetUserOnline, null);
+        }
+
         return Completable.complete();
     }
 
@@ -144,6 +110,10 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             return updateLastOnline()
                     .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline());
         }
+        if(NM.hook() != null) {
+            NM.hook().executeHook(BaseHookHandler.SetUserOffline, null);
+        }
+
         return Completable.complete();
     }
 
@@ -159,8 +129,8 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             }
             else {
                 DatabaseReference.goOnline();
-                setUserOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
             }
+            setUserOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
         }));
     }
 

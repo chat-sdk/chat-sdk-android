@@ -187,23 +187,26 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         addUser(user, false);
     }
 
-    public void addUser (UserListItem user, boolean notify) {
-        if(!items.contains(user)) {
-            items.add(user);
-            if(notify) {
-                notifyDataSetChanged();
-            }
-        }
-    }
 
     public List<Object> getItems () {
         return items;
     }
 
+    public void addUser (UserListItem user, boolean notify) {
+        addUser(user, -1, notify);
+    }
+
     public void addUser (UserListItem user, int atIndex, boolean notify) {
-        items.add(atIndex, user);
-        if(notify) {
-            notifyDataSetChanged();
+        if(!items.contains(user)) {
+            if (atIndex >= 0) {
+                items.add(atIndex, user);
+            }
+            else {
+                items.add(user);
+            }
+            if(notify) {
+                notifyDataSetChanged();
+            }
         }
     }
 
