@@ -7,6 +7,7 @@
 
 package co.chatsdk.ui.chat;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.text.Editable;
@@ -23,12 +24,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.audio.Recording;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.InfiniteToast;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
@@ -41,6 +48,9 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     protected InfiniteToast toast;
     protected WeakReference<TextInputDelegate> delegate;
     protected Rect rect;
+    protected Date recordingStart;
+    protected Disposable toastUpdateDisposable;
+    protected boolean audioMaxLengthReached = false;
 
     public TextInputView(Context context) {
         super(context);
@@ -94,33 +104,12 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
 
                 // Start recording when we press down
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    recording = new Recording();
-                    recording.start().subscribe(() -> toast = new InfiniteToast(getContext(), R.string.recording, true));
-
-                    rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+                    startRecording(view);
                 }
 
                 // Stop recording
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    if(recording != null) {
-                        recording.stop();
-                        if(delegate != null && recording.getDurationMillis() > 1000) {
-                            if(!rect.contains(view.getLeft() + (int) motionEvent.getX(), view.getTop() + (int) motionEvent.getY())){
-                                // User moved outside bounds
-                                ToastHelper.show(getContext(), "Recording cancelled");
-                            }
-                            else {
-                                delegate.get().sendAudio(recording);
-                            }
-                        }
-                        else {
-                            ToastHelper.show(getContext(), "Recording is too short");
-                        }
-                        recording = null;
-                    }
-                    if(toast != null) {
-                        toast.cancel();
-                    }
+                    stopRecording(view, motionEvent);
                 }
             }
             return btnSend.onTouchEvent(motionEvent);
@@ -162,6 +151,88 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
             }
         });
 
+    }
+
+    public void startRecording (View view) {
+
+        audioMaxLengthReached = false;
+
+        recording = new Recording();
+        recording.start().subscribe(() -> toast = new InfiniteToast(getContext(), R.string.recording, false));
+
+        rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+        recordingStart = new Date();
+
+        toastUpdateDisposable = Observable.interval(0, 1000, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+            long remainingTime = ChatSDK.config().audioMessageMaxLengthSeconds - (new Date().getSeconds() - recordingStart.getSeconds());
+            if (remainingTime <= 10) {
+                toast.setText(String.format(getContext().getString(R.string.seconds_remaining__), remainingTime));
+            }
+            if (remainingTime <= 0) {
+                audioMaxLengthReached = true;
+                this.presentAlertView();
+            }
+        });
+
+    }
+
+    public void presentAlertView () {
+        finishRecording();
+        toast.hide();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+        builder.setTitle(getContext().getString(R.string.audio_length_limit_reached));
+
+        // Set up the buttons
+        builder.setPositiveButton(getContext().getString(R.string.send), (dialog, which) -> {
+            delegate.get().sendAudio(recording);
+            recording = null;
+            dialog.cancel();
+            audioMaxLengthReached = false;
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            dialog.cancel();
+            audioMaxLengthReached = false;
+        });
+
+        builder.show();
+
+    }
+
+    public void stopRecording (View view, MotionEvent motionEvent) {
+
+        if (audioMaxLengthReached) {
+            return;
+        }
+
+        finishRecording();
+        if(recording != null) {
+            if(delegate != null && recording.getDurationMillis() > 1000) {
+                if(!rect.contains(view.getLeft() + (int) motionEvent.getX(), view.getTop() + (int) motionEvent.getY())){
+                    // User moved outside bounds
+                    ToastHelper.show(getContext(), getContext().getString(R.string.recording_cancelled));
+                }
+                else {
+                    delegate.get().sendAudio(recording);
+                }
+            }
+            else {
+                ToastHelper.show(getContext(), getContext().getString(R.string.recording_too_short));
+            }
+            recording = null;
+        }
+    }
+
+    public void finishRecording () {
+        if(recording != null) {
+            recording.stop();
+        }
+        if(toast != null) {
+            toast.cancel();
+        }
+        if (toastUpdateDisposable != null) {
+            toastUpdateDisposable.dispose();
+        }
     }
 
     public void setAudioModeEnabled (boolean audioEnabled) {

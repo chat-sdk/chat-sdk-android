@@ -58,6 +58,9 @@ public class Configuration {
     public int pushNotificationImageDefaultResourceId;
     public String pushNotificationAction;
 
+    // Should the client send the push or is a server script handling it?
+    public boolean clientPushEnabled = true;
+
     // If this is true, then we will only send a push notification if the recipient is offline
     public boolean onlySendPushToOfflineUsers = false;
     public boolean showEmptyChats = false;
@@ -109,6 +112,7 @@ public class Configuration {
     public String contactDeveloperEmailSubject = "";
     public String contactDeveloperDialogTitle = "";
     public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
+    public int audioMessageMaxLengthSeconds = 300;
 
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = true;
@@ -226,6 +230,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setAudioMessageMaxLengthSeconds (int seconds) {
+            config.audioMessageMaxLengthSeconds = seconds;
+            return this;
+        }
+
         public Builder xmppAcceptAllCertificates (boolean acceptAllCertificates) {
             config.xmppAcceptAllCertificates = acceptAllCertificates;
             return this;
@@ -301,6 +310,8 @@ public class Configuration {
             return this;
         }
 
+
+
         public Builder twitterLoginEnabled (boolean value) {
             config.twitterLoginEnabled = value;
             return this;
@@ -368,6 +379,11 @@ public class Configuration {
 
         public Builder setCrashHandler (CrashHandler handler) {
             config.crashHandler = handler;
+            return this;
+        }
+
+        public Builder setClientPushEnabled (boolean clientPushEnabled) {
+            config.clientPushEnabled = clientPushEnabled;
             return this;
         }
 

@@ -45,7 +45,11 @@
     <string name="__typing">%s typing..</string>
     <string name="message_doesnt_have_a_thread">Message doesn\'t have a thread</string>
     <string name="login_method_doesnt_exist">Login method doesn\'t exist</string>
-
+    <string name="seconds_remaining__">Seconds remaining %d</string>
+    <string name="audio_length_limit_reached">Audio length limit reached</string>
+    <string name="send_or_discard_recording">Send or discard recording</string>
+    <string name="recording_cancelled">Recording cancelled</string>
+    <string name="recording_too_short">Recording too short</string>
 
     <!--ThreadDetails context-->
     <string name="thread_details_activity_title">Thread Details</string>

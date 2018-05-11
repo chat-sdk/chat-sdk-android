@@ -137,6 +137,11 @@ public class FirebasePushHandler implements PushHandler {
 
     private Completable pushToChannel (final String channel, final Map<String, String> notification, final Map<String, String> data) {
         return Completable.create(e -> {
+            if (!ChatSDK.config().clientPushEnabled) {
+                e.onComplete();
+                return;
+            }
+
             final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             String serverKey = "key=" + ChatSDK.config().firebaseCloudMessagingServerKey;
 
