@@ -15,7 +15,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
-import co.chatsdk.core.interfaces.StorageAdapter;
 import timber.log.Timber;
 
 import static co.chatsdk.core.dao.DaoCore.daoSession;
@@ -28,7 +27,6 @@ import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
 public class StorageManager {
 
     private final static StorageManager instance = new StorageManager();
-    public StorageAdapter a;
 
     public static StorageManager shared() {
         return instance;

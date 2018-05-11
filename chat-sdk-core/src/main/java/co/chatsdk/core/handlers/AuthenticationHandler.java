@@ -1,14 +1,9 @@
 package co.chatsdk.core.handlers;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AccountType;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.internal.operators.observable.ObservableElementAt;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -30,9 +25,14 @@ public interface AuthenticationHandler {
     Completable authenticate (AccountDetails details);
 
     /**
-    * Checks whether the user has been authenticated this session
+    * Checks whether the user is authenticated
     */
     Boolean userAuthenticated();
+
+    /**
+     * Has been authenticated this session
+     */
+    Boolean userAuthenticatedThisSession();
 
     /**
     * Logout the user from the current account

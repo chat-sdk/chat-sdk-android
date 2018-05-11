@@ -4,17 +4,15 @@ import android.content.SharedPreferences;
 
 import java.util.Map;
 
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.handlers.AuthenticationHandler;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AccountType;
 import co.chatsdk.core.types.AuthKeys;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -24,6 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 public abstract class AbstractAuthenticationHandler implements AuthenticationHandler {
 
     public static String provider = "";
+    protected boolean authenticatedThisSession = false;
 
     private AuthStatus authStatus = AuthStatus.IDLE;
 
@@ -41,6 +40,10 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     protected void setAuthStateToIdle() {
         authStatus = AuthStatus.IDLE;
+    }
+
+    public Boolean userAuthenticatedThisSession () {
+        return userAuthenticated() && authenticatedThisSession;
     }
 
     /**
@@ -129,5 +132,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     public Map<String, ?> getLoginInfo() {
         return ChatSDK.shared().getPreferences().getAll();
     }
+
+
 
 }

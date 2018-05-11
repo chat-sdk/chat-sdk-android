@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
@@ -53,6 +55,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected EditText usernameEditText;
     protected EditText passwordEditText;
 
+    // This is a list of extras that are passed to the login view
+    protected HashMap<String, Object> extras = new HashMap<>();
+
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
 
@@ -62,6 +67,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         setContentView(R.layout.chat_sdk_activity_login);
 
@@ -77,6 +83,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
 
+        updateExtras(getIntent().getExtras());
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        updateExtras(intent.getExtras());
+    }
+
+    protected void updateExtras (Bundle bundle) {
+        if (bundle != null) {
+            for (String s : bundle.keySet()) {
+                extras.put(s, bundle.get(s));
+            }
+        }
     }
 
     protected void initViews () {
@@ -213,8 +235,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             NM.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(() -> dismissProgressDialog())
-                    .subscribe(() -> afterLogin(), throwable -> {
+                    .doFinally(this::dismissProgressDialog)
+                    .subscribe(this::afterLogin, throwable -> {
 //                        ChatSDK.logError(throwable);
 
                         dismissProgressDialog();
@@ -225,7 +247,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
         AppBackgroundMonitor.shared().setEnabled(true);
-        InterfaceManager.shared().a.startMainActivity(this);
+
+        // We pass the extras in case this activity was laucned by a push. In that case
+        // we can load up the thread the message belongs to
+        InterfaceManager.shared().a.startMainActivity(this, extras);
     }
 
     public void passwordLogin() {
@@ -373,4 +398,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void setExitOnBackPressed(boolean exitOnBackPressed) {
         this.exitOnBackPressed = exitOnBackPressed;
     }
+
+
 }

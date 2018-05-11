@@ -20,14 +20,16 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/chat_blue" />
 
-        <service
-            android:name="co.chatsdk.firebase.push.MessagingService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
+        <!--<service-->
+            <!--android:name="co.chatsdk.firebase.push.MessagingService"-->
+            <!--android:enabled="true"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.MESSAGING_EVENT"/>-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+
+        <activity android:name="co.chatsdk.firebase.push.LaunchAppActivity" />
 
         <service
             android:name="co.chatsdk.firebase.push.InstanceIdService">
@@ -35,6 +37,17 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
+
+        <receiver
+            android:name="co.chatsdk.firebase.push.DefaultBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

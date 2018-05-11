@@ -18,6 +18,7 @@ public class AppBackgroundMonitor {
     private boolean wasInBackground = false;
     private long MaxActivityTransitionTime = 5000;
     private boolean enabled = false;
+    private boolean inBackground = false;
 
     public static AppBackgroundMonitor shared () {
         return instance;
@@ -27,6 +28,7 @@ public class AppBackgroundMonitor {
         if(!enabled || !NM.auth().userAuthenticated()) {
             return;
         }
+        inBackground = true;
         activityTransitionTimer = new Timer();
         activityTransitionTimerTask = new TimerTask() {
             public void run() {
@@ -43,6 +45,7 @@ public class AppBackgroundMonitor {
         if (!enabled) {
             return;
         }
+        inBackground = false;
 
         if (activityTransitionTimerTask != null) {
             activityTransitionTimerTask.cancel();
@@ -75,5 +78,9 @@ public class AppBackgroundMonitor {
 
     public boolean wasInBackground () {
         return wasInBackground;
+    }
+
+    public boolean inBackground () {
+        return inBackground;
     }
 }

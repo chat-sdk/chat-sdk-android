@@ -30,7 +30,6 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.NotificationUtils;
-import co.chatsdk.ui.helpers.OpenFromPushChecker;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import io.reactivex.Completable;
@@ -41,7 +40,6 @@ public class MainActivity extends BaseActivity {
     protected TabLayout tabLayout;
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
-    protected OpenFromPushChecker mOpenFromPushChecker;
 
     DisposableList disposables = new DisposableList();
 
@@ -60,20 +58,22 @@ public class MainActivity extends BaseActivity {
 
         initViews();
 
-        mOpenFromPushChecker = new OpenFromPushChecker();
-        if(mOpenFromPushChecker.checkOnCreate(getIntent(), savedInstanceState)) {
-            String threadEntityID = getIntent().getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-            InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
-        }
-
         requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestMicrophoneAccess().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
             //requestVideoAccess().subscribe();
         }))))));
 
+        launchFromPush(getIntent().getExtras());
 
     }
 
-
+    public void launchFromPush (Bundle bundle) {
+        if (bundle != null) {
+            String threadID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+            if (threadID != null && !threadID.isEmpty()) {
+                InterfaceManager.shared().a.startChatActivityForID(getBaseContext(), threadID);
+            }
+        }
+    }
 
     public void requestPermissionSafely (Completable c) {
         c.subscribe(new CrashReportingCompletableObserver());
@@ -150,24 +150,14 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        
-        if (mOpenFromPushChecker == null) {
-            mOpenFromPushChecker = new OpenFromPushChecker();
-        }
 
-        if (mOpenFromPushChecker.checkOnNewIntent(intent)) {
-            String threadEntityID = intent.getExtras().getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-            if(threadEntityID != null) {
-                InterfaceManager.shared().a.startChatActivityForID(this, threadEntityID);
-            }
-        }
+        launchFromPush(intent.getExtras());
+
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putInt(PAGE_ADAPTER_POS, pageAdapterPos);
-        mOpenFromPushChecker.onSaveInstanceState(outState);
     }
 
     protected void initViews() {

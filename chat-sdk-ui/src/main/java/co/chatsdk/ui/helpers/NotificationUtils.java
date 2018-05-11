@@ -13,293 +13,118 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.PowerManager;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.MissingResourceException;
-
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
-import co.chatsdk.core.types.Defines;
+import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.ui.R;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.threads.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ImageBuilder;
-import co.chatsdk.core.utils.Strings;
-import io.reactivex.SingleSource;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Function;
 
 public class NotificationUtils {
 
-    @Deprecated
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
 
-    private static final String TAG = NotificationUtils.class.getSimpleName();
+    public static void createMessageNotification(Context context, Message message) {
 
-    public static final String TITLE = "title";
-    public static final String TICKER = "ticker";
-    public static final String CONTENT = "content";
-    public static final String LINES = "lines";
-    public static final String SUMMARY= "summary";
+        String threadID = message.getThread().getEntityID();
 
-    private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, int smallIconResID, Uri soundUri, int number){
-       createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
+        Intent openChatIntent = new Intent(context, InterfaceManager.shared().a.getChatActivity());
+        openChatIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadID);
+        openChatIntent.setAction(threadID);
+        openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getTextString());
+
     }
 
-    private static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data, Bitmap bitmap, int smallIconResID, Uri soundUri, int number){
-        String title, content;
+    public static void createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String title, String message) {
 
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        context,
-                        id,
-                        resultIntent, PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        int pushIcon = ChatSDK.config().pushNotificationImageDefaultResourceId;
+        if(pushIcon <= 0) {
+            pushIcon = R.drawable.icn_72_push_mask;
+        }
+        final int smallPushIcon = pushIcon;
 
-        if (data.getString(TITLE) != null)
-            title = data.getString(TITLE);
-        else throw new MissingResourceException("you must have a title for creating notification.", NotificationUtils.class.getSimpleName(), TITLE);
+        final Bitmap largePushIcon = BitmapFactory.decodeResource(context.getResources(), smallPushIcon);
 
-        if (data.getString(CONTENT) != null)
-            content = data.getString(CONTENT);
-        else throw new MissingResourceException("you must have a content for creating notification.", NotificationUtils.class.getSimpleName(), CONTENT);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        Notification.Builder mBuilder =
+
+        if (userEntityID != null && !userEntityID.isEmpty()) {
+            User user = StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            if (user != null) {
+                ImageBuilder.bitmapForURL(context, user.getAvatarURL()).subscribe((bitmap, throwable) -> {
+                    if (throwable != null) {
+                        ChatSDK.logError(throwable);
+                    }
+                    if (bitmap == null) {
+                        bitmap = largePushIcon;
+                    }
+                    createAlertNotification(context, resultIntent, title, message, bitmap, smallPushIcon, alarmSound, -1);
+                });
+            } else {
+                createAlertNotification(context, resultIntent, title, message, largePushIcon, smallPushIcon, alarmSound, -1);
+            }
+        }
+    }
+
+    /**
+     * @param context
+     * @param resultIntent
+     * @param title
+     * @param message
+     * @param largeIcon
+     * @param smallIconResID
+     * @param soundUri
+     * @param number - Number of notifications represented by this alert
+     */
+    public static void createAlertNotification(Context context, Intent resultIntent, String title, String message, Bitmap largeIcon, int smallIconResID, Uri soundUri, int number){
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Notification.Builder builder =
                 new Notification.Builder(context)
                         .setContentTitle(title)
-                        .setContentText(content)
+                        .setContentText(message)
                         .setSmallIcon(smallIconResID)
-                        .setLights(0xFF0000FF, 500, 3000)
+//                        .setLights(0xFF0000FF, 500, 3000)
                         .setVibrate(new long[]{0, 250, 100, 250})
                         .setSound(soundUri)
                         .setNumber(number)
-                        .setContentIntent(resultPendingIntent);
+                        .setContentIntent(pendingIntent)
+                        .setTicker(title + ": " + message)
+                        .setPriority(Notification.PRIORITY_HIGH);
 
-        if (data.getString(TICKER) != null)
-            mBuilder.setTicker(data.getString(TICKER));
+        if (largeIcon != null) {
+            Notification.InboxStyle style = new Notification.InboxStyle()
+                    .setBigContentTitle(title)
+                    .setSummaryText(message);
 
-        if (bitmap != null)
-        {
-            if (Build.VERSION.SDK_INT >= 16)
-            {
-                Notification.InboxStyle style = new Notification.InboxStyle()
-                        .setBigContentTitle(title)
-                        .setSummaryText(content);
-
-
-                // Adding the lines to the notification
-                if (data.containsKey(LINES)) {
-                    ArrayList<String> list = data.getStringArrayList(LINES);
-
-                    if (list != null && list.size()>0) {
-                        for (String s : list) {
-                            style.addLine(s);
-                        }
-                    }
-                }
-
-                // ADding notification summary
-                if (data.containsKey(SUMMARY))
-                    style.setSummaryText(data.getString(SUMMARY));
-                
-                mBuilder.setStyle(style);
-            }
-            
-            mBuilder.setLargeIcon(ImageUtils.scaleImage(bitmap, (int) (context.getResources().getDisplayMetrics().density * 48)));
-
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            mBuilder.setColor(context.getResources().getColor(R.color.accent_material_dark));
+            builder.setStyle(style);
+            builder.setLargeIcon(ImageUtils.scaleImage(largeIcon, (int) (context.getResources().getDisplayMetrics().density * 48)));
         }
 
-        Notification notification;
-        if (Build.VERSION.SDK_INT < 16)
-            notification = mBuilder.getNotification();
-        else {
-            mBuilder.setPriority(Notification.PRIORITY_HIGH);
-            notification = mBuilder.build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setColor(context.getResources().getColor(R.color.chat_blue));
         }
+
+        Notification notification = builder.build();
 
         notification.flags = Notification.FLAG_AUTO_CANCEL ;
 
-        NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        mNotifyMgr.notify(id, notification);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
 
         wakeScreen(context);
-    }
-
-    /** Create and alert notification that the connection has lost.*/
-    public static void createAlertNotification(Context context, int id, Intent resultIntent, Bundle data){
-        createAlertNotification(context, id, resultIntent, data, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
-    }
-
-    public static void createMessageNotification(Context context, Message message){
-        createMessageNotification(context, message, R.drawable.ic_launcher, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), -1);
-    }
-    
-    public static void createMessageNotification(Context context, Message message, int smallIconResID, Uri soundUri, int number){
-        createMessageNotification(context, MESSAGE_NOTIFICATION_ID, message, smallIconResID, soundUri, number);
-    }
-
-    public static void createMessageNotification(final Context context, final int id, Message message, final int smallIconResID, final Uri soundUri, final int number){
-
-        final Intent resultIntent = getChatResultIntent(context);
-        resultIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID,  message.getThread().getEntityID());
-        resultIntent.putExtra(Defines.FROM_PUSH, true);
-        resultIntent.putExtra(Defines.MSG_TIMESTAMP, message.getDate().toDate().getTime());
-
-        String messageContent = Strings.payloadAsString(message);
-
-        String title = !StringUtils.isEmpty(
-                message.getSender().getName()) ? message.getSender().getName() : " ";
-
-        final Bundle data = NotificationUtils.getDataBundle(title, String.format(context.getString(R.string.new_message_from__), message.getSender().getName()), messageContent);
-
-        getNotificationLines(context, data);
-
-        ThreadImageBuilder.getImageUriForThread(context, message.getThread()).flatMap(uri -> ImageBuilder.bitmapForURL(context, uri.toString())).subscribe((bitmap, throwable) -> {
-            if(throwable == null) {
-                createAlertNotification(context, id, resultIntent, data, bitmap, smallIconResID, soundUri, number);
-            }
-            else {
-                createAlertNotification(context, id, resultIntent, data, null, smallIconResID, soundUri, number);
-            }
-        });
-    }
-    
- 
-    private static String getMessageContent(Message message){
-        return String.format("%s: %s",
-                message.getSender().getName(),
-                Strings.payloadAsString(message));
-    }
- 
-    private static ArrayList<String> getNotificationLines(Context context, Bundle data){
-        List<Thread> threads = NM.thread().getThreads(ThreadType.Private);
-
-        if (threads == null)
-            return new ArrayList<>();
-
-        ArrayList<String> lines = new ArrayList<>();
-        ArrayList<String> senders = new ArrayList<>();
-        
-        int linesCount = 0;
-        List<Message> m;
-
-        // Getting the lines to use for this message notification
-        // A max of three lines could be added from each thread.
-        // There is also a max amount of lines to use defined in Keys.MaxInboxNotificationLines.
-        for (Thread t : threads)
-        {
-            m = t.getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-            // Max of three lines from each thread.
-            for (int i = 0 ; i < 3; i++){
-                if ( validateLinesAndMessagesSize(m, i, lines) )
-                {
-                    addLine(context, m.get(i), lines, senders);
-                }
-                else break;
-            }
-            
-            // Checking to see that we are still under the max amount of lines to use.
-            if (linesCount >= ChatSDK.config().maxInboxNotificationLines)
-                break;
-        }
-
-        // Creating the title for the notification
-        if (senders.size() > 1)
-        {
-            data.putString(TITLE, StringUtils.join(senders, ", "));
-        }
-        
-        // Adding the lines bundle
-        if (lines.size() > 0)
-        {
-            data.putStringArrayList(LINES, lines);
-            
-            // Adding summary, Total amount of unread messages.
-            if (lines.size() > 3)
-            {
-                data.putString(SUMMARY, String.format(context.getString(R.string.not_messages_summary), NM.thread().getUnreadMessagesAmount(false)));
-            }
-        }
-        
-        return lines;
-    }
-    
-    private static boolean addLine(Context context, Message message, ArrayList<String> lines, ArrayList<String> senders){
-
-        if(message != null && !message.wasRead())
-        {
-            lines.add(getMessageContent(message));
-
-            String senderName = message.getSender().getName();
-            if (!senders.contains(senderName))
-                senders.add(senderName);
-
-            return true;
-        }
-
-        return false;
-    }
-  
-    private static boolean validateLinesAndMessagesSize(List<Message> m, int minMessagesSize, ArrayList<String> lines){
-        return m.size() > minMessagesSize && lines.size() < ChatSDK.config().maxInboxNotificationLines;
-    }
-
-    private static Intent getChatResultIntent(Context context){
-        return new Intent(context, InterfaceManager.shared().a.getMainActivity());
-    }
-
-    /** Cancel the ongoing notification that controls the connection state and play/stop*/
-    public static void cancelNotification(Context context, int id){
-        NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotifyMgr.cancel(id);
-    }
-
-    public static void cancelNotification(Context context, String tag, int id){
-        NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        mNotifyMgr.cancel(tag, id);
-    }
-
-    public static Bundle getDataBundle(String title, String ticker, String content){
-        Bundle data = new Bundle();
-
-        if (StringUtils.isNotEmpty(title))
-            data.putString(TITLE, title);
-        else throw new MissingResourceException("you must have a title for creating notification.", NotificationUtils.class.getSimpleName(), TITLE);
-
-        if (StringUtils.isNotEmpty(content))
-            data.putString(CONTENT, content);
-        else throw new MissingResourceException("you must have a content for creating notification.", NotificationUtils.class.getSimpleName(), CONTENT);
-
-        if (StringUtils.isNotEmpty(ticker))
-            data.putString(TICKER, ticker);
-
-        return data;
     }
 
     /**

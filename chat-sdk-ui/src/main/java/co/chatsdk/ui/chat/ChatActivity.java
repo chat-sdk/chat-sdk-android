@@ -149,7 +149,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Check that we are logged in - this is relevant if we launch from a push notification
+//         Check that we are logged in - this is relevant if we launch from a push notification
 //        if (NM.auth().userAuthenticated()) {
 //            NM.auth().authenticateWithCachedToken();
 //        }

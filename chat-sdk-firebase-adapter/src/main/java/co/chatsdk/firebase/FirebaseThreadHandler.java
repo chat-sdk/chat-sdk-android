@@ -158,7 +158,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
             if (entityID != null) {
-                Thread t = StorageManager.shared().a.fetchThreadWithEntityID(entityID);
+                Thread t = StorageManager.shared().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     e.onSuccess(t);
                     return;

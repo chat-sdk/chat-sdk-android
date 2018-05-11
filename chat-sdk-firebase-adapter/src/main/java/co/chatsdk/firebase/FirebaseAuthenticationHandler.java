@@ -37,8 +37,7 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
     public Completable authenticateWithCachedToken() {
-        return Single.create((SingleOnSubscribe<FirebaseUser>)
-                emitter->{
+        return Single.create((SingleOnSubscribe<FirebaseUser>) emitter-> {
                     if (isAuthenticating()) {
                         emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
                     } else {
@@ -138,6 +137,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         NM.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
 
+                        authenticatedThisSession = true;
+
                         userWrapper.push().subscribe(emitter::onComplete, emitter::onError);
                     }, emitter::onError);
                 })
@@ -195,6 +196,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             data.put(BaseHookHandler.Logout_User, user);
                             NM.hook().executeHook(BaseHookHandler.Logout, data);
                         }
+
+                        authenticatedThisSession = false;
 
                         emitter.onComplete();
                     }, emitter::onError);

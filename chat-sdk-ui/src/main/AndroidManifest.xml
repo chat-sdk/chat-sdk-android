@@ -28,10 +28,10 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme">
 
-            <intent-filter>
-                <action android:name="co.chatsdk.QuickReply" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="co.chatsdk.QuickReply" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
 
         </activity>
 

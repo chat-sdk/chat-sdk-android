@@ -33,7 +33,7 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
 
             // If the entity ID is set, see if the thread exists and return it if it does
             if (entityID != null) {
-                Thread t = StorageManager.shared().a.fetchThreadWithEntityID(entityID);
+                Thread t = StorageManager.shared().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     e.onSuccess(t);
                     return;

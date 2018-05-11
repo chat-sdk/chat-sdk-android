@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
+import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
@@ -51,6 +52,7 @@ public interface InterfaceAdapter {
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
     void startMainActivity (Context context);
+    void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);
     void startSelectContactsActivity(Context context);
 

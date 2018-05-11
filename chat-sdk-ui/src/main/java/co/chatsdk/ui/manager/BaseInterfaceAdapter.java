@@ -11,8 +11,8 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestListener;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -56,11 +56,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     protected boolean showLocalNotifications;
 
-    private WeakReference<Context> context;
-
     public BaseInterfaceAdapter (Context context) {
-
-        this.context = new WeakReference<>(context);
 
         DiskCacheConfig diskCacheConfig = DiskCacheConfig
                 .newBuilder(context)
@@ -91,7 +87,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             chatOptions.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
         }
 
-        this.context = new WeakReference<>(context);
     }
 
     @Override
@@ -191,9 +186,28 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         return ProfileActivity.class;
     }
 
-    public void startActivity(Context context, Class activity){
+    public void startActivity(Context context, Class activity, HashMap<String, Object> extras){
         Intent intent = new Intent(context, activity);
+        for (String key : extras.keySet()) {
+            Object value = extras.get(key);
+            if (value instanceof String) {
+                intent.putExtra(key, (String) extras.get(key));
+            }
+            if (value instanceof Integer) {
+                intent.putExtra(key, (Integer) extras.get(key));
+            }
+            if (value instanceof Double) {
+                intent.putExtra(key, (Double) extras.get(key));
+            }
+            if (value instanceof Float) {
+                intent.putExtra(key, (Float) extras.get(key));
+            }
+        }
         startActivity(context, intent);
+    }
+
+    public void startActivity(Context context, Class activity){
+        startActivity(context, activity, null);
     }
 
     public void startActivity (Context context, Intent intent) {
@@ -219,8 +233,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, intent);
     }
 
+    public void startMainActivity (Context context, HashMap<String, Object> extras) {
+        startActivity(context, getMainActivity(), extras);
+    }
+
     public void startMainActivity (Context context) {
-        startActivity(context, getMainActivity());
+        startMainActivity(context, null);
     }
 
     public void startSearchActivity (Context context) {
