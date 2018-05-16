@@ -103,7 +103,11 @@ public class FirebasePaths{
     public static DatabaseReference threadMessagesRef(String firebaseId){
         return threadRef(firebaseId).child(MessagesPath);
     }
-    
+
+    public static DatabaseReference threadMetaRef(String firebaseId){
+        return threadRef(firebaseId).child(MetaPath);
+    }
+
     public static DatabaseReference publicThreadsRef(){
         return firebaseRef().child(PublicThreadsPath);
     }

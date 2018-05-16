@@ -6,12 +6,14 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
+import co.chatsdk.core.interfaces.CoreEntity;
+
 /**
  * Created by ben on 5/16/18.
  */
 
 @Entity
-public class MetaValue {
+public class ThreadMetaValue implements CoreEntity {
 
     @Id
     private Long id;
@@ -29,19 +31,19 @@ public class MetaValue {
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 1297251612)
-    private transient MetaValueDao myDao;
+    @Generated(hash = 3171812)
+    private transient ThreadMetaValueDao myDao;
 
-    @Generated(hash = 476137967)
-    public MetaValue(Long id, String key, String value, Long threadId) {
+    @Generated(hash = 965961666)
+    public ThreadMetaValue(Long id, String key, String value, Long threadId) {
         this.id = id;
         this.key = key;
         this.value = value;
         this.threadId = threadId;
     }
 
-    @Generated(hash = 707464007)
-    public MetaValue() {
+    @Generated(hash = 1556136064)
+    public ThreadMetaValue() {
     }
 
     public Long getId() {
@@ -145,10 +147,19 @@ public class MetaValue {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 524334213)
+    @Generated(hash = 720159862)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getMetaValueDao() : null;
+        myDao = daoSession != null ? daoSession.getThreadMetaValueDao() : null;
     }
 
+
+    @Override
+    public void setEntityID(String entityID) {
+    }
+
+    @Override
+    public String getEntityID() {
+        return null;
+    }
 }

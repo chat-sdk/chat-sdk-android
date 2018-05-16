@@ -80,6 +80,7 @@ public class FirebaseEventHandler implements EventHandler {
                 thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe(new CrashReportingObserver<>(disposableList));
                 thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
                 thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.metaOn().doOnNext(thread1 -> eventSource.onNext(NetworkEvent.threadMetaUpdated(thread.getModel()))).subscribe(new CrashReportingObserver<>(disposableList));
 
                 eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 

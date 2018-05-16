@@ -14,6 +14,7 @@ public enum EventType {
     FollowingRemoved,
     ThreadDetailsUpdated,
     ThreadLastMessageUpdated,
+    ThreadMetaUpdated,
     MessageAdded,
     ThreadUsersChanged,
     UserMetaUpdated,

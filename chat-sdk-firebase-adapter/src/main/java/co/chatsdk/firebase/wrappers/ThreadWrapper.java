@@ -24,6 +24,7 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -40,7 +41,6 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 public class ThreadWrapper  {
@@ -134,6 +134,7 @@ public class ThreadWrapper  {
     public void off() {
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadDetailsRef(model.getEntityID()));
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadLastMessageRef(model.getEntityID()));
+        metaOff();
         if(NM.typingIndicator() != null) {
             NM.typingIndicator().typingOff(model);
         }
@@ -244,6 +245,53 @@ public class ThreadWrapper  {
         FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
+    public Observable<Thread> metaOn () {
+
+        return Observable.create((ObservableOnSubscribe<Thread>) e -> {
+            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
+            FirebaseReferenceManager.shared().addRef(ref, ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue &&  snapshot.getValue() instanceof Map) {
+                    Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
+                    for (String key : value.keySet()) {
+                        if (value.get(key) instanceof String) {
+                            model.setMetaValue(key, (String) value.get(key));
+                        }
+                    }
+                }
+                e.onNext(model);
+            })));
+        }).subscribeOn(Schedulers.single());
+    }
+
+    public Completable pushMeta() {
+        return Completable.create(e -> {
+
+            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
+
+            HashMap<String, String> meta = new HashMap<>();
+
+            List<ThreadMetaValue> values = model.getMetaValues();
+            for(ThreadMetaValue value : values) {
+                meta.put(value.getKey(), value.getValue());
+            }
+
+            ref.setValue(meta, ((databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    e.onComplete();
+                }
+                else {
+                    e.onError(databaseError.toException());
+                }
+            }));
+
+        }).subscribeOn(Schedulers.single());
+    }
+
+    public void metaOff () {
+        DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
+        FirebaseReferenceManager.shared().removeListeners(ref);
+    }
+
     //Note the old listener that was used to process the thread bundle is still in use.
     /**
      * Start listening to users added to this thread.
@@ -262,12 +310,7 @@ public class ThreadWrapper  {
                     .onChildAdded((snapshot, s, hasValue) -> {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
-                        NM.core().userOn(user.getModel()).subscribe(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                e.onNext(user.getModel());
-                            }
-                        }, e::onError);
+                        NM.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
 
                     }).onChildRemoved((snapshot, hasValue) -> {
                         UserWrapper user = new UserWrapper(snapshot);
