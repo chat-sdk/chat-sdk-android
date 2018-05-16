@@ -188,19 +188,21 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public void startActivity(Context context, Class activity, HashMap<String, Object> extras){
         Intent intent = new Intent(context, activity);
-        for (String key : extras.keySet()) {
-            Object value = extras.get(key);
-            if (value instanceof String) {
-                intent.putExtra(key, (String) extras.get(key));
-            }
-            if (value instanceof Integer) {
-                intent.putExtra(key, (Integer) extras.get(key));
-            }
-            if (value instanceof Double) {
-                intent.putExtra(key, (Double) extras.get(key));
-            }
-            if (value instanceof Float) {
-                intent.putExtra(key, (Float) extras.get(key));
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                if (value instanceof String) {
+                    intent.putExtra(key, (String) extras.get(key));
+                }
+                if (value instanceof Integer) {
+                    intent.putExtra(key, (Integer) extras.get(key));
+                }
+                if (value instanceof Double) {
+                    intent.putExtra(key, (Double) extras.get(key));
+                }
+                if (value instanceof Float) {
+                    intent.putExtra(key, (Float) extras.get(key));
+                }
             }
         }
         startActivity(context, intent);
