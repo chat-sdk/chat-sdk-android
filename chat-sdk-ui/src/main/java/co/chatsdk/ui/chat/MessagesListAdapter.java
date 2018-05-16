@@ -213,6 +213,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 }
             }
         }
+        else if (messageItem.getMessage().getMessageType() == MessageType.File) {
+            holder.setTextHidden(false);
+            holder.setImageHidden(false);
+        }
 
         for(CustomMessageHandler handler : ChatSDK.ui().getCustomMessageHandlers()) {
             handler.updateMessageCellView(messageItem.message, holder, activity);

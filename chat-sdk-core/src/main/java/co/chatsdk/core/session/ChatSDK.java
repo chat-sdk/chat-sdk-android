@@ -21,6 +21,7 @@ import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EventHandler;
+import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
@@ -262,6 +263,10 @@ public class ChatSDK {
 
     public static StickerMessageHandler stickerMessage () {
         return a().stickerMessage;
+    }
+
+    public static FileMessageHandler fileMessage () {
+        return a().fileMessage;
     }
 
     public static ImageMessageHandler imageMessage () {
