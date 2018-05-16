@@ -18,6 +18,7 @@ import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.StickerMessageHandler;
+import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
@@ -99,6 +100,10 @@ public class NM {
 
     public static StickerMessageHandler stickerMessage () {
         return a().stickerMessage;
+    }
+
+    public static FileMessageHandler fileMessage () {
+        return a().fileMessage;
     }
 
     public static ImageMessageHandler imageMessage () {
