@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/list_threads_search_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal">
+
+        <EditText
+            android:id="@+id/list_threads_search_input"
+            android:backgroundTint="@color/chat_blue"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/list_threads_search_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:text="@string/search"
+            android:src="@drawable/ic_search"
+            android:layout_gravity="right" />
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_threads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_threads_search_linear"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="none"
+        android:visibility="visible" />
+
+</RelativeLayout>

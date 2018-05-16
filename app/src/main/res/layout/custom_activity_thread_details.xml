@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|start"
+            android:orientation="vertical">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/chat_sdk_thread_image_view"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_users"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                fresco:failureImage="@drawable/icn_100_public_thread"
+                fresco:placeholderImage="@drawable/icn_100_public_thread"
+                fresco:roundAsCircle="true" />
+
+            <ImageView
+                android:id="@+id/ivLocation"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_image_view"
+                app:layout_goneMarginTop="0dp"
+                app:srcCompat="@drawable/icn_36_location" />
+
+            <TextView
+                android:id="@+id/chat_sdk_thread_building_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:gravity="start"
+                android:text="@string/location_building"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="17sp"
+                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_image_view" />
+
+            <TextView
+                android:id="@+id/chat_sdk_thread_city_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:gravity="start"
+                android:text="@string/location_city"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="17sp"
+                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_building_tv" />
+
+            <TextView
+                android:id="@+id/chat_sdk_thread_pdf_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="16dp"
+                android:gravity="start"
+                android:text="@string/pdf_link"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toTopOf="@+id/frame_thread_users"
+                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_city_tv" />
+
+            <FrameLayout
+                android:id="@+id/frame_thread_users"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_pdf_tv" />
+
+        </android.support.constraint.ConstraintLayout>
+    </RelativeLayout>
+</ScrollView>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="co.chatsdk.android.app">
+
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS"
+        tools:ignore="ProtectedPermissions" />
 
     <application
         android:allowBackup="true"
@@ -16,12 +20,13 @@
             </intent-filter>
         </activity>
 
-        <!--<activity android:name="co.chatsdk.firebase.ui.SplashScreenActivity">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
+        <activity android:name=".CustomThreadDetailsActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
+        <activity android:name=".CustomPublicThreadEditDetailsActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <meta-data android:name="twitter_key" android:value="@string/twitter_key" />
         <meta-data android:name="twitter_secret" android:value="@string/twitter_secret" />
