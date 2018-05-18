@@ -71,6 +71,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((_thread, throwable) -> {
                         if (throwable == null) {
+                            thread.setMetaValue("name", threadName);
                             thread.setMetaValue("building", buildingInput.getText().toString());
                             thread.setMetaValue("city", cityInput.getText().toString());
                             thread.setMetaValue("pdf", pdfInput.getText().toString());
@@ -89,6 +90,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
         } else {
             thread.setName(threadName);
             thread.update();
+            thread.setMetaValue("name", threadName);
             thread.setMetaValue("building", buildingInput.getText().toString());
             thread.setMetaValue("city", cityInput.getText().toString());
             thread.setMetaValue("pdf", pdfInput.getText().toString());

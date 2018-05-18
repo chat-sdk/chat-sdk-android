@@ -17,15 +17,12 @@ public class CustomThreadDetailsActivity extends ThreadDetailsActivity {
     protected void initViews() {
         setContentView(R.layout.custom_activity_thread_details);
         super.initViews();
-
-        updateMetaData();
-
-        disposableList.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                .subscribe(networkEvent -> updateMetaData()));
     }
 
-    private void updateMetaData() {
+    @Override
+    protected void updateMetaData() {
+        super.updateMetaData();
+
         TextView buildingLabel = findViewById(R.id.chat_sdk_thread_building_tv);
         TextView cityLabel = findViewById(R.id.chat_sdk_thread_city_tv);
         TextView pdfLabel = findViewById(R.id.chat_sdk_thread_pdf_tv);
