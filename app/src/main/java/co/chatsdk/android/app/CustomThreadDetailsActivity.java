@@ -1,5 +1,6 @@
 package co.chatsdk.android.app;
 
+import android.view.Menu;
 import android.widget.TextView;
 
 import co.chatsdk.core.dao.ThreadMetaValue;
@@ -9,6 +10,8 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
 public class CustomThreadDetailsActivity extends ThreadDetailsActivity {
+
+    protected boolean isAdmin = false;
 
     @Override
     protected void initViews() {
@@ -37,7 +40,27 @@ public class CustomThreadDetailsActivity extends ThreadDetailsActivity {
         if (cityMetaValue != null)
             cityLabel.setText(cityMetaValue.getValue());
 
-        if (pdfMetaValue!= null)
+        if (pdfMetaValue != null)
             pdfLabel.setText(pdfMetaValue.getValue());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isAdmin = NM.currentUser().metaBooleanForKey("admin");
+        if (settingsItem != null) {
+            settingsItem.setEnabled(isAdmin);
+            settingsItem.setVisible(isAdmin);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Boolean result = super.onCreateOptionsMenu(menu);
+        if (settingsItem != null) {
+            settingsItem.setEnabled(isAdmin);
+            settingsItem.setVisible(isAdmin);
+        }
+        return result;
     }
 }
