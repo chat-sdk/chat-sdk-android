@@ -1,9 +1,8 @@
 package co.chatsdk.android.app;
 
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.core.dao.Thread;
@@ -17,14 +16,27 @@ public class CustomThreadsListAdapter extends ThreadsListAdapter {
         super(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+//    @RequiresApi(api = Build.VERSION_CODES.N)
     public void filterThreads(String filter) {
+        List<Thread> filteredThreads = new ArrayList<>();
         List<Thread> newThreads = NM.thread().getThreads(ThreadType.Public);
-        if (filter != null && !filter.equals("")) {
-            newThreads.removeIf(t -> !t.getName().toLowerCase().contains(filter.toLowerCase()));
+        for(Thread t : newThreads) {
+            if (t.getName().toLowerCase().contains(filter.toLowerCase())) {
+                filteredThreads.add(t);
+            }
         }
         clearData();
-        updateThreads(newThreads);
+        updateThreads(filteredThreads);
+
+//        if (filter != null && !filter.equals("")) {
+//            newThreads.removeIf(new Predicate<Thread>() {
+//                @Override
+//                public boolean test(Thread t) {
+//                    return !t.getName().toLowerCase().contains(filter.toLowerCase());
+//                }
+//            });
+
+
     }
 
 }

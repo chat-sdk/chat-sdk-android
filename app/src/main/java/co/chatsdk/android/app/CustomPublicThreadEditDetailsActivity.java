@@ -39,18 +39,20 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
         cityInput = findViewById(R.id.chat_sdk_edit_thread_city_et);
         pdfInput = findViewById(R.id.chat_sdk_edit_thread_pdf_et);
 
-        ThreadMetaValue buildingMetaValue = thread.metaValueForKey("building");
-        ThreadMetaValue cityMetaValue = thread.metaValueForKey("city");
-        ThreadMetaValue pdfMetaValue = thread.metaValueForKey("pdf");
+        if (thread != null) {
+            ThreadMetaValue buildingMetaValue = thread.metaValueForKey("building");
+            ThreadMetaValue cityMetaValue = thread.metaValueForKey("city");
+            ThreadMetaValue pdfMetaValue = thread.metaValueForKey("pdf");
 
-        if (buildingMetaValue != null)
-            buildingInput.setText(buildingMetaValue.getValue());
+            if (buildingMetaValue != null)
+                buildingInput.setText(buildingMetaValue.getValue());
 
-        if (cityMetaValue != null)
-            cityInput.setText(cityMetaValue.getValue());
+            if (cityMetaValue != null)
+                cityInput.setText(cityMetaValue.getValue());
 
-        if (pdfMetaValue!= null)
-            pdfInput.setText(pdfMetaValue.getValue());
+            if (pdfMetaValue!= null)
+                pdfInput.setText(pdfMetaValue.getValue());
+        }
 
         Button uploadPDFButton = findViewById(R.id.chat_sdk_edit_thread_pdf_btn);
         uploadPDFButton.setOnClickListener(v -> {
@@ -69,17 +71,17 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
 
             disposableList.add(NM.publicThread().createPublicThreadWithName(threadName)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((_thread, throwable) -> {
+                    .subscribe((newThread, throwable) -> {
                         if (throwable == null) {
-                            thread.setMetaValue("name", threadName);
-                            thread.setMetaValue("building", buildingInput.getText().toString());
-                            thread.setMetaValue("city", cityInput.getText().toString());
-                            thread.setMetaValue("pdf", pdfInput.getText().toString());
-                            disposableList.add(new ThreadWrapper(thread).pushMeta().subscribe(() -> {
+                            newThread.setMetaValue("name", threadName);
+                            newThread.setMetaValue("building", buildingInput.getText().toString());
+                            newThread.setMetaValue("city", cityInput.getText().toString());
+                            newThread.setMetaValue("pdf", pdfInput.getText().toString());
+                            disposableList.add(new ThreadWrapper(newThread).pushMeta().subscribe(() -> {
                                 dismissProgressDialog();
                                 ToastHelper.show(ChatSDK.shared().context(), String.format(getString(co.chatsdk.ui.R.string.public_thread__is_created), threadName));
 
-                                InterfaceManager.shared().a.startChatActivityForID(ChatSDK.shared().context(), _thread.getEntityID());
+                                InterfaceManager.shared().a.startChatActivityForID(ChatSDK.shared().context(), newThread.getEntityID());
                             }));
                         } else {
                             ChatSDK.logError(throwable);
