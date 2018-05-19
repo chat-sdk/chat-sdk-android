@@ -13,12 +13,10 @@ import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Observable;
@@ -66,7 +64,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                     public void onNext(FileUploadResult result) {
                         if(!StringChecker.isNullOrEmpty(result.url))  {
 
-                            message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
+//                            message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
 
                             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
                             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);

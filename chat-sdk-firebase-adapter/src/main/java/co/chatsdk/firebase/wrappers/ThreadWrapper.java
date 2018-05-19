@@ -113,6 +113,59 @@ public class ThreadWrapper  {
         }).subscribeOn(Schedulers.single());
     }
 
+    // When we remove the listener it seems to remove the general message listener too
+    // This would be better implemented with a cloud function
+
+//    public Completable updateLastMessage () {
+//        return Completable.create(e -> {
+//            DatabaseReference ref = messagesRef();
+//            Query queryByDate = ref.orderByChild(Keys.Date).limitToLast(1);
+//
+//            queryByDate.addChildEventListener(new ChildEventListener() {
+//                @Override
+//                public void onChildAdded(DataSnapshot snapshot, String s) {
+//                    if (snapshot.getValue() != null && snapshot.getKey() != null) {
+//                        Message m = StorageManager.shared().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
+//                        HashMap<String, Object> messageData = new MessageWrapper(m).lastMessageData();
+//                        pushLastMessage(messageData).subscribe(e::onComplete, e::onError);
+//                    }
+//                    else {
+//                        e.onError(new Throwable("No messages exist in thread"));
+//                    }
+//                    //ref.removeEventListener(this);
+//                }
+//
+//                @Override
+//                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//                    ref.removeEventListener(this);
+//                    e.onComplete();
+//                }
+//
+//                @Override
+//                public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                    ref.removeEventListener(this);
+//                    e.onComplete();
+//                }
+//
+//                @Override
+//                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//                    ref.removeEventListener(this);
+//                    e.onComplete();
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//                    e.onComplete();
+//                }
+//            });
+//
+//        }).observeOn(Schedulers.single());
+//    }
+
+    public DatabaseReference messagesRef () {
+        return FirebasePaths.threadMessagesRef(model.getEntityID());
+    }
+
     public Completable once () {
         return Completable.create(e -> {
 
@@ -140,6 +193,21 @@ public class ThreadWrapper  {
         }
     }
 
+    public Observable<Message> messageRemovedOn() {
+        return Observable.create(e -> {
+            final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
+            ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
+                if(hasValue) {
+                    MessageWrapper message = new MessageWrapper(snapshot);
+                    this.model.removeMessage(message.getModel());
+//                    updateLastMessage().subscribe(new CrashReportingCompletableObserver());
+                    e.onNext(message.getModel());
+                }
+            }));
+            FirebaseReferenceManager.shared().addRef(ref, removedListener);
+        });
+    }
+
     /**
      * Start listening to incoming messages.
      **/
@@ -150,20 +218,13 @@ public class ThreadWrapper  {
 
             final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-            if(FirebaseReferenceManager.shared().isOn(ref)) {
-                e.onComplete();
-                return;
-            }
+//            if(FirebaseReferenceManager.shared().isOn(ref)) {
+//                e.onComplete();
+//                return;
+//            }
 
             // Add the delete listener
-            ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
-                if(hasValue) {
-                    MessageWrapper message = new MessageWrapper(snapshot);
 
-                }
-            }));
-
-            FirebaseReferenceManager.shared().addRef(ref, removedListener);
 
             threadDeletedDate()
                     .subscribeOn(Schedulers.single())
@@ -237,8 +298,9 @@ public class ThreadWrapper  {
 
     }
 
+
     /**
-     * Stop Lisetenig to incoming messages.
+     * Stop listening to incoming messages.
      **/
     public void messagesOff() {
         DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
@@ -449,7 +511,7 @@ public class ThreadWrapper  {
                         e.onSuccess(messages);
                     }
                     else {
-                        e.onSuccess(new ArrayList<Message>());
+                        e.onSuccess(new ArrayList<>());
                     }
                 }));
             }
@@ -481,6 +543,23 @@ public class ThreadWrapper  {
         value.put(FirebasePaths.DetailsPath, nestedMap);
                 
         return value;
+    }
+
+    public Completable pushName () {
+        return Completable.create(e -> {
+            DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.DetailsPath);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put(Keys.Name, model.getName());
+            ref.updateChildren(map, (databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+                    e.onComplete();
+                }
+                else {
+                    e.onError(databaseError.toException());
+                }
+            });
+        }).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -567,7 +646,7 @@ public class ThreadWrapper  {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Completable pushLastMessage (final HashMap<Object, Object> messageData) {
+    public Completable pushLastMessage (final HashMap<String, Object> messageData) {
         return Completable.create(e -> FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.LastMessagePath).setValue(messageData, (databaseError, databaseReference) -> {
             if(databaseError == null) {
                 e.onComplete();

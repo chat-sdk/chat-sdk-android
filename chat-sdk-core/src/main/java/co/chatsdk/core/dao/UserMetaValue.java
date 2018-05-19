@@ -1,19 +1,19 @@
 package co.chatsdk.core.dao;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
 
 import co.chatsdk.core.interfaces.CoreEntity;
 
 /**
- * Created by ben on 5/16/18.
+ * Created by ben on 5/17/18.
  */
 
 @Entity
-public class ThreadMetaValue implements CoreEntity, MetaValue {
+public class UserMetaValue implements CoreEntity, MetaValue {
 
     @Id
     private Long id;
@@ -21,29 +21,29 @@ public class ThreadMetaValue implements CoreEntity, MetaValue {
     private String key;
     private String value;
 
-    private Long threadId;
+    private Long userId;
 
-    @ToOne(joinProperty = "threadId")
-    private Thread thread;
+    @ToOne(joinProperty = "userId")
+    private User user;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 3171812)
-    private transient ThreadMetaValueDao myDao;
+    @Generated(hash = 2030443077)
+    private transient UserMetaValueDao myDao;
 
-    @Generated(hash = 965961666)
-    public ThreadMetaValue(Long id, String key, String value, Long threadId) {
+    @Generated(hash = 129952477)
+    public UserMetaValue(Long id, String key, String value, Long userId) {
         this.id = id;
         this.key = key;
         this.value = value;
-        this.threadId = threadId;
+        this.userId = userId;
     }
 
-    @Generated(hash = 1556136064)
-    public ThreadMetaValue() {
+    @Generated(hash = 1661261771)
+    public UserMetaValue() {
     }
 
     public Long getId() {
@@ -70,43 +70,43 @@ public class ThreadMetaValue implements CoreEntity, MetaValue {
         this.value = value;
     }
 
-    public Long getThreadId() {
-        return this.threadId;
+    public Long getUserId() {
+        return this.userId;
     }
 
-    public void setThreadId(Long threadId) {
-        this.threadId = threadId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    @Generated(hash = 1974258785)
-    private transient Long thread__resolvedKey;
+    @Generated(hash = 251390918)
+    private transient Long user__resolvedKey;
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1483947909)
-    public Thread getThread() {
-        Long __key = this.threadId;
-        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
+    @Generated(hash = 859885876)
+    public User getUser() {
+        Long __key = this.userId;
+        if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            ThreadDao targetDao = daoSession.getThreadDao();
-            Thread threadNew = targetDao.load(__key);
+            UserDao targetDao = daoSession.getUserDao();
+            User userNew = targetDao.load(__key);
             synchronized (this) {
-                thread = threadNew;
-                thread__resolvedKey = __key;
+                user = userNew;
+                user__resolvedKey = __key;
             }
         }
-        return thread;
+        return user;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1938921797)
-    public void setThread(Thread thread) {
+    @Generated(hash = 1065606912)
+    public void setUser(User user) {
         synchronized (this) {
-            this.thread = thread;
-            threadId = thread == null ? null : thread.getId();
-            thread__resolvedKey = threadId;
+            this.user = user;
+            userId = user == null ? null : user.getId();
+            user__resolvedKey = userId;
         }
     }
 
@@ -147,15 +147,15 @@ public class ThreadMetaValue implements CoreEntity, MetaValue {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 720159862)
+    @Generated(hash = 1457790970)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getThreadMetaValueDao() : null;
+        myDao = daoSession != null ? daoSession.getUserMetaValueDao() : null;
     }
-
 
     @Override
     public void setEntityID(String entityID) {
+
     }
 
     @Override

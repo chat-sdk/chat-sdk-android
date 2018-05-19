@@ -227,9 +227,9 @@ public class Thread implements CoreEntity {
         setLastMessage(message);
         message.setThreadId(this.getId());
         message.update();
-
+        getMessages().add(message);
         update();
-        resetMessages();
+//        resetMessages();
     }
 
     @Keep
@@ -248,37 +248,33 @@ public class Thread implements CoreEntity {
 
     @Keep
     public ThreadMetaValue metaValueForKey (String key) {
-        if (getMetaValues() != null) {
-            for (ThreadMetaValue value : getMetaValues()) {
-                if (value.getKey() != null && key != null) {
-                    if (value.getKey().equals(key)) {
-                        return value;
-                    }
-                }
-            }
-        }
-        return null;
+        ArrayList<MetaValue> values = new ArrayList<>();
+        values.addAll(getMetaValues());
+        return (ThreadMetaValue) MetaValueHelper.metaValueForKey(key, values);
     }
 
-//    public void removeMessage (Message message) {
-//        // If this is the last message
-//        if(message.getEntityID().equals(lastMessage().getEntityID())) {
-//            List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
-//            if (messages.size() > 1) {
-//                setLastMessage(messages.get(messages.size() - 1));
-//            }
-//            else {
-//                setLastMessage(null);
-//            }
-//        }
-//
-//        setLastMessage(message);
-//        message.setThreadId(this.getId());
-//        message.update();
-//
-//        update();
-//        resetMessages();
-//    }
+    public void removeMessage (Message message) {
+
+        List<Message> messages = getMessages();
+
+        if (messages.contains(message)) {
+            messages.remove(message);
+        }
+
+        message.delete();
+
+        update();
+        resetMessages();
+
+        if (messages.size() > 1) {
+            setLastMessage(messages.get(messages.size()-1));
+        }
+        else {
+            //
+            setLastMessageId(0);
+            update();
+        }
+    }
 
     public boolean hasUser(User user) {
 
@@ -294,7 +290,7 @@ public class Thread implements CoreEntity {
         List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
         for (Message m : messages)
         {
-            if(!m.wasRead())
+            if(!m.isRead())
                 count++;
             else break;
         }
@@ -304,7 +300,7 @@ public class Thread implements CoreEntity {
 
     public boolean isLastMessageWasRead(){
         List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
-        return messages == null || messages.size() == 0 || messages.get(0).wasRead();
+        return messages == null || messages.size() == 0 || messages.get(0).isRead();
     }
 
     public boolean isDeleted(){

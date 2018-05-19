@@ -71,8 +71,10 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             //Adding new table
 
             ThreadMetaValueDao.createTable(db, true);
-            //UserDao.createTable(db, false);
-//            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + MetaValue.Properties.LastMessageId.columnName + " LONG");
+            UserMetaValueDao.createTable(db, true);
+            db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " DROP COLUMN " + "META_DATA");
+            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " DROP COLUMN " + "RESOURCES");
+
         }
     }
 

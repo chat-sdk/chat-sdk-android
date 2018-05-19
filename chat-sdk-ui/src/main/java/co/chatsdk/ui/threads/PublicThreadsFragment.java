@@ -147,7 +147,8 @@ public class PublicThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        adapter.notifyDataSetChanged();
+//        adapter.notifyDataSetChanged();
+        reloadData();
     }
 
     @Override

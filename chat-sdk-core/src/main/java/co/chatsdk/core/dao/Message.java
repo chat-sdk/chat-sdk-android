@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -40,9 +41,8 @@ public class Message implements CoreEntity {
 
     @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
     private DateTime date;
-    private Boolean read;
-    private String resources;
     private String text;
+    private Boolean read;
     private Integer type;
     private Integer status;
     private Long senderId;
@@ -80,16 +80,14 @@ public class Message implements CoreEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 2031601659)
-    public Message(Long id, String entityID, DateTime date, Boolean read, String resources, String text,
-            Integer type, Integer status, Long senderId, Long threadId, Long nextMessageId,
-            Long lastMessageId) {
+    @Generated(hash = 504905291)
+    public Message(Long id, String entityID, DateTime date, String text, Boolean read, Integer type,
+            Integer status, Long senderId, Long threadId, Long nextMessageId, Long lastMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
-        this.read = read;
-        this.resources = resources;
         this.text = text;
+        this.read = read;
         this.type = type;
         this.status = status;
         this.senderId = senderId;
@@ -114,9 +112,20 @@ public class Message implements CoreEntity {
     @Generated(hash = 88977546)
     private transient Long lastMessage__resolvedKey;
 
-    /** Null safe version of getIsRead*/
-    public boolean wasRead() {
-        return read != null && read;
+    public boolean isRead() {
+        ReadStatus status = readStatusForUser(NM.currentUser());
+        if (status != null && status.is(ReadStatus.read())) {
+            return true;
+        }
+        else if (sender != null && sender.isMe()) {
+            return true;
+        }
+        else if (read == null) {
+            return false;
+        }
+        else {
+            return read;
+        }
     }
 
     @Override
@@ -146,18 +155,6 @@ public class Message implements CoreEntity {
 
     public void setDate(DateTime date) {
         this.date = date;
-    }
-
-    public Boolean getIsRead() {
-        return this.read;
-    }
-
-    public void setIsRead(Boolean isRead) {
-        this.read = isRead;
-    }
-
-    public String getResources() {
-        return this.resources;
     }
 
     public String getRawJSONPayload() {
@@ -474,10 +471,6 @@ public class Message implements CoreEntity {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getMessageDao() : null;
-    }
-
-    public void setResources(String resources) {
-        this.resources = resources;
     }
 
     /**

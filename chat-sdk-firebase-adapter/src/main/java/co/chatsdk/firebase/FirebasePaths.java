@@ -10,6 +10,7 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 
 public class FirebasePaths{
@@ -29,7 +30,7 @@ public class FirebasePaths{
     public static final String UpdatedPath = "updated";
     public static final String LastMessagePath = "lastMessage";
     public static final String TypingPath = "typing";
-    public static final String ReadPath = "read";
+    public static final String ReadPath = Keys.Read;
     public static final String LocationPath = "location";
 
 

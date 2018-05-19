@@ -48,7 +48,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.ChatOptionType;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.ActivityResult;
@@ -131,41 +130,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     protected boolean scrolling = false;
 
-
-    // Added to support launch from push notification even if the app is closed
-//    @Override
-//    public Intent getSupportParentActivityIntent() {
-//        Timber.v("ParentActivity");
-//        return new Intent(this, InterfaceManager.shared().a.getMainActivity());
-//    }
-//
-//    @Override
-//    public Intent getParentActivityIntent() {
-//        Timber.v("ParentActivity");
-//        return new Intent(this, InterfaceManager.shared().a.getMainActivity());
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//         Check that we are logged in - this is relevant if we launch from a push notification
-//        if (NM.auth().userAuthenticated()) {
-//            NM.auth().authenticateWithCachedToken();
-//        }
-//        else {
-//            InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false);
-//        }
-
         initViews();
-
-//        Bundle bundle = getIntent().getExtras();
-//        if (bundle != null) {
-//            String threadEnityID = bundle.getString(FirebasePushHandler.ThreadEntityID);
-//            if (threadEnityID != null && threadEnityID.length() > 0) {
-//                InterfaceManager.shared().a.startChatActivityForID(this, threadEnityID);
-//            }
-//        }
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
@@ -378,8 +347,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onStart() {
         super.onStart();
 
+
+
         disposableList.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated, EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
 
@@ -412,6 +383,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     if(NM.readReceipts() != null) {
                         NM.readReceipts().markRead(thread);
                     }
+                }));
+
+        disposableList.add(NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageRemoved))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    messageListAdapter.removeRow(networkEvent.message, true);
                 }));
 
         disposableList.add(NM.events().sourceOnMain()
@@ -497,8 +475,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         // We have to do this because otherwise if we background the app
         // we will miss any messages that came through while we were in
         // the background
-        messageListAdapter.setMessages(thread.getMessages());
-        scrollListTo(ListPosition.Bottom, false);
+        loadMessages(true, -1, ListPosition.Bottom);
+
+
+//        messageListAdapter.setMessages(thread.getMessages());
+//        scrollListTo(ListPosition.Bottom, false);
 
     }
 
@@ -777,17 +758,17 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     /**
      * If the chat was open from a push notification we won't pass the backPress to the system instead we will navigate him to the main context.
      */
-    @Override
-    public void onBackPressed() {
-        // If the message was opend from a notification back button should lead us to the main context.
-        if (bundle.containsKey(Defines.FROM_PUSH)) {
-            bundle.remove(Defines.FROM_PUSH);
-
-            InterfaceManager.shared().a.startMainActivity(this);
-            return;
-        }
-        super.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        // If the message was opened from a notification back button should lead us to the main context.
+//        if (bundle.containsKey(Defines.FROM_PUSH)) {
+//            bundle.remove(Defines.FROM_PUSH);
+//
+//            InterfaceManager.shared().a.startMainActivity(this);
+//            return;
+//        }
+//        super.onBackPressed();
+//    }
 
     public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
 

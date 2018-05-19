@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 /** Source from : https://gist.github.com/codebutler/2339666*/
+@Deprecated
 public class JsonHelper {
 
     public static Object toJSON(Object object) throws JSONException {

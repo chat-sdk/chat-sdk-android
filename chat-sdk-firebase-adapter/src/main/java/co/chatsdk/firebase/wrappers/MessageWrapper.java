@@ -82,6 +82,15 @@ public class MessageWrapper  {
         return null;
     }
 
+    private HashMap<String, Object> map (Map<String, Object> value, String key) {
+        if(contains(value, key)) {
+            if (value.get(key) instanceof HashMap) {
+                return (HashMap<String, Object>) value.get(key);
+            }
+        }
+        return null;
+    }
+
     private Long long_ (Map<String, Object> value, String key) {
         if(contains(value, key)) {
             Object o = value.get(key);
@@ -139,7 +148,39 @@ public class MessageWrapper  {
 
         }
 
+        // Get read information
+        HashMap<String, Object> readMap = map(value, Keys.Read);
+        if (readMap != null) {
+            updateReadReceipts(readMap);
+        }
+
         model.update();
+    }
+
+    public void updateReadReceipts (HashMap<String, Object> map) {
+        for(String key : map.keySet()) {
+
+            User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, key);
+
+            Object innerMap = map.get(key);
+
+            if(innerMap != null && innerMap instanceof HashMap) {
+
+                Map<String, Object> statusMap = (Map) innerMap;
+                long status = ReadStatus.None;
+                long date = 0;
+
+                if(statusMap.get(Keys.Status) instanceof Long) {
+                    status = (Long) statusMap.get(Keys.Status);
+                }
+                if(statusMap.get(Keys.Date) instanceof Long) {
+                    date = (Long) statusMap.get(Keys.Date);
+                }
+
+                model.setUserReadStatus(user, new ReadStatus((int) status), new DateTime(date));
+            }
+        }
+
     }
 
     public Completable push() {
@@ -178,8 +219,8 @@ public class MessageWrapper  {
 
     }
 
-    public HashMap<Object, Object> lastMessageData () {
-        HashMap<Object, Object> map = new HashMap<>();
+    public HashMap<String, Object> lastMessageData () {
+        HashMap<String, Object> map = new HashMap<>();
         map.put(Keys.Payload, model.getTextString());
         map.put(Keys.JSON, model.getText());
         map.put(Keys.Type, model.getType());
@@ -187,6 +228,20 @@ public class MessageWrapper  {
         map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
         map.put(Keys.UserName, model.getSender().getName());
         return map;
+    }
+
+    public Completable delete () {
+        return Completable.create(e -> {
+            DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
+            ref.removeValue((databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    e.onComplete();
+                }
+                else {
+                    e.onError(new Throwable(databaseError.getMessage()));
+                }
+            });
+        });
     }
     
     private DatabaseReference ref(){

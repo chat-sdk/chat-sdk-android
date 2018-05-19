@@ -7,6 +7,8 @@
 
 package co.chatsdk.ui.chat;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -38,9 +40,11 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.manager.InterfaceManager;
+import timber.log.Timber;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
 
@@ -75,6 +79,33 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
                     new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
                 }
+            });
+
+            itemView.setOnLongClickListener(v -> {
+
+                if (messageItem.message.getSender().isMe()) {
+                    return false;
+                }
+
+                Context context = v.getContext();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(itemView.getContext().getString(R.string.delete_message));
+
+                // Set up the buttons
+                builder.setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
+                    try {
+                        NM.thread().deleteMessage(messageItem.message).subscribe( new CrashReportingCompletableObserver());
+                    }
+                    catch (NoSuchMethodError e) {
+                        ChatSDK.logError(e);
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+                builder.show();
+
+                return false;
             });
 
 
@@ -259,6 +290,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             return false;
         }
 
+        Timber.d("Add Message Item: " + item.message.getTextString());
         messageItems.add(item);
 
         if(sort) {
@@ -297,13 +329,29 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         return false;
     }
 
-    protected boolean messageExists (Message message) {
-        for(MessageListItem i : messageItems) {
-            if(i.message.getEntityID().equals(message.getEntityID())) {
-                return true;
+    public boolean removeRow (Message message, boolean notify) {
+        MessageListItem item = messageItemForMessage(message);
+        if (item != null) {
+            messageItems.remove(item);
+            if (notify) {
+                notifyDataSetChanged();
             }
+            return true;
         }
         return false;
+    }
+
+    protected boolean messageExists (Message message) {
+        return messageItemForMessage(message) != null;
+    }
+
+    protected MessageListItem messageItemForMessage (Message message) {
+        for(MessageListItem i : messageItems) {
+            if(i.message.getEntityID().equals(message.getEntityID())) {
+                return i;
+            }
+        }
+        return null;
     }
 
     public int maxWidth () {

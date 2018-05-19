@@ -4,20 +4,17 @@ import com.google.android.gms.maps.model.LatLng;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.handlers.LocationMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
-import co.chatsdk.core.types.Defines;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.core.utils.ImageUtils;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
-import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by ben on 10/24/17.
@@ -34,12 +31,12 @@ public class BaseLocationMessageHandler implements LocationMessageHandler {
 
             // Add the LatLng data to the message and the image url and thumbnail url
             // TODO: Deprecated
-            message.setTextString(String.valueOf(location.latitude)
-                    + Defines.DIVIDER
-                    + String.valueOf(location.longitude)
-                    + Defines.DIVIDER + imageURL
-                    + Defines.DIVIDER + imageURL
-                    + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
+//            message.setTextString(String.valueOf(location.latitude)
+//                    + Defines.DIVIDER
+//                    + String.valueOf(location.longitude)
+//                    + Defines.DIVIDER + imageURL
+//                    + Defines.DIVIDER + imageURL
+//                    + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
 
             message.setValueForKey(location.longitude, Keys.MessageLongitude);
             message.setValueForKey(location.latitude, Keys.MessageLatitude);

@@ -44,7 +44,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage, final Thread thread) {
         return Single.create((SingleOnSubscribe<List<Message>>) e -> {
 
-            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
+            //
+            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : null;
 
             // First try to load the messages from the database
             List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);

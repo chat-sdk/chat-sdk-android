@@ -20,11 +20,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
+import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
@@ -124,10 +126,14 @@ public class MainActivity extends BaseActivity {
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
                 .subscribe(networkEvent -> {
-                    if(networkEvent.message != null) {
-                        if(!networkEvent.message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications()) {
-                            // Only show the alert if we'recyclerView not on the private threads tab
-                            NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                    Message message = networkEvent.message;
+                    if(message != null) {
+                        if(!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications()) {
+                            ReadStatus status = message.readStatusForUser(NM.currentUser());
+                            if (!message.isRead() && !status.is(ReadStatus.delivered())) {
+                                // Only show the alert if we'recyclerView not on the private threads tab
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            }
                         }
                     }
                 }));

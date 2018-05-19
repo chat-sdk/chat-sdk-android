@@ -125,6 +125,7 @@
     <!--Save Contact Dialog-->
     <string name="alert_save_contact">Saving</string>
     <string name="contact_book">Contact Book</string>
+    <string name="delete_message">Delete Message</string>
 
     <!--Delete Contact Dialog-->
     <string name="alert_delete_contact">Are you sure you want to delete this contact?</string>

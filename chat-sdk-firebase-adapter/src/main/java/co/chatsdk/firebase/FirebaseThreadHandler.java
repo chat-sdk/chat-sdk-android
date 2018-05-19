@@ -255,6 +255,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }
     }
 
+    public Completable deleteMessage (Message message) {
+        return new MessageWrapper(message).delete();
+    }
 
     public Completable leaveThread (Thread thread) {
         return null;

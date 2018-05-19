@@ -19,6 +19,5 @@ public class Defines {
     }
 
     public static final String FROM_PUSH = "from_push";
-    public static final String MSG_TIMESTAMP = "timestamp";
 
 }

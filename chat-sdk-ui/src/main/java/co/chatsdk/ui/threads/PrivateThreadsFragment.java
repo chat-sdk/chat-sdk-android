@@ -162,7 +162,8 @@ public class PrivateThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        adapter.notifyDataSetChanged();
+        reloadData();
+//        adapter.notifyDataSetChanged();
     }
 
     @Override

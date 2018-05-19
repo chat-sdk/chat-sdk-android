@@ -8,7 +8,7 @@ import java.io.IOException;
 import co.chatsdk.core.session.ChatSDK;
 
 /**
- * Created by ben on 9/29/17.
+ * Created by ben on 5/17/18.
  */
 
 public class FileUtils {

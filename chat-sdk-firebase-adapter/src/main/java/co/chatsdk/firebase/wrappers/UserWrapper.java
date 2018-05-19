@@ -226,13 +226,13 @@ public class UserWrapper {
 
     void deserializeMeta(Map<String, Object> value){
         if (value != null) {
-            Map<String, Object> oldData = model.metaMap();
+            Map<String, String> oldData = model.metaMap();
             Map<String, Object> newData = value;
 
             // Updating the old bundle
             for (String key : newData.keySet()) {
                 if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
-                    oldData.put(key, newData.get(key));
+                    oldData.put(key, newData.get(key).toString());
                 }
             }
 

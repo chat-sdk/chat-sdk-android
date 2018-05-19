@@ -77,6 +77,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageAdded, thread, message);
     }
 
+    public static NetworkEvent messageRemoved (Thread thread, Message message) {
+        return new NetworkEvent(EventType.MessageRemoved, thread, message);
+    }
+
     public static NetworkEvent threadUsersChanged (Thread thread, User user) {
         return new NetworkEvent(EventType.ThreadUsersChanged, thread, null, user);
     }
@@ -176,6 +180,7 @@ public class NetworkEvent {
                 EventType.ThreadRemoved,
                 EventType.ThreadLastMessageUpdated,
                 EventType.ThreadUsersChanged,
+                EventType.MessageRemoved,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }

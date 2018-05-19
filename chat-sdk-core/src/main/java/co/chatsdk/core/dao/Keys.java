@@ -9,20 +9,7 @@ package co.chatsdk.core.dao;
 
 public class Keys {
 
-    public static final class Defaults {
-        public static final int SDKExitMode = Exit.EXIT_MODE_DOUBLE_BACK;
-    }
-
-    public static final class Exit {
-        public static final int EXIT_MODE_NONE = 1990;
-        public static final int EXIT_MODE_DOUBLE_BACK = 1991;
-        public static final int EXIT_MODE_DIALOG = 1992;
-
-        public static final int DOUBLE_CLICK_INTERVAL = 2000;
-    }
-
-
-    /*Metadata*/
+    /* Metadata */
     public static final String Email = "email";
     public static final String Key = "key";
     public static final String Value = "value";
@@ -52,6 +39,7 @@ public class Keys {
     public static final String Threads = "threads";
     public static final String Users = "users";
     public static final String UID = "uid";
+    public static final String Read = "read";
 
     public static final String Owner = "owner";
     public static final String Member = "member";
@@ -72,24 +60,6 @@ public class Keys {
     public static final String MessageAudioLength = "audio-length";
     public static final String MessageStickerName = "sticker";
 
-    // For pushes
-//    public static final String ACTION = "action";
-//    public static final String ALERT = "alert";
-//    public static final String BADGE = "badge", INCREMENT = "Increment";
-//    public static final String CONTENT = "text";
-//    public static final String MESSAGE_ENTITY_ID = "message_entity_id";
-//    public static final String THREAD_ENTITY_ID = "thread_entity_id";
-//    public static final String MESSAGE_DATE ="message_date";
-//    public static final String MESSAGE_SENDER_ENTITY_ID ="message_sender_entity_id";
-//    public static final String MESSAGE_SENDER_NAME ="message_sender_name";
-//    public static final String MESSAGE_TYPE = "message_type";
-//    public static final String MESSAGE_PAYLOAD= "message_payload";
-
-//    public static final String SOUND = "sound";
-//    public static final String Default = "default";
-//
-//    public static final String Channel = "channel";
-
     // CoreUser details
     public static final String Gender = "gender";
     public static final String CountryCode = "country-code";
@@ -97,13 +67,5 @@ public class Keys {
     public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
     public static final String PushToken = "pushToken";
-
-
-
-//    public static final class ThirdParty {
-//        public static final String Name = "name";
-//        public static final String ImageURL = "profile_image_url";
-//        public static final String AccessToken = "accessToken";
-//    }
 
 }

@@ -49,6 +49,8 @@ public interface ThreadHandler {
     Completable leaveThread (Thread thread);
     Completable joinThread (Thread thread);
 
+    Completable deleteMessage (Message message);
+
     /**
      * Send different types of message to a particular thread
      */

@@ -87,4 +87,6 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
 
         }).subscribeOn(Schedulers.single());
     }
+
+
 }
