@@ -34,42 +34,32 @@
                 fresco:placeholderImage="@drawable/icn_100_public_thread"
                 fresco:roundAsCircle="true" />
 
-            <ImageView
-                android:id="@+id/ivLocation"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_image_view"
-                app:layout_goneMarginTop="0dp"
-                app:srcCompat="@drawable/icn_36_location" />
-
             <TextView
                 android:id="@+id/chat_sdk_thread_building_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:gravity="start"
                 android:text="@string/location_building"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="17sp"
-                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_image_view" />
 
             <TextView
                 android:id="@+id/chat_sdk_thread_city_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:gravity="start"
                 android:text="@string/location_city"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="17sp"
-                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_building_tv" />
 
             <Button
