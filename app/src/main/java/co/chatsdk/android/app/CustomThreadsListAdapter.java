@@ -16,27 +16,16 @@ public class CustomThreadsListAdapter extends ThreadsListAdapter {
         super(context);
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.N)
     public void filterThreads(String filter) {
         List<Thread> filteredThreads = new ArrayList<>();
         List<Thread> newThreads = NM.thread().getThreads(ThreadType.Public);
-        for(Thread t : newThreads) {
-            if (t.getName().toLowerCase().contains(filter.toLowerCase())) {
+        for (Thread t : newThreads) {
+            if (t.getName() != null && t.getName().toLowerCase().contains(filter.toLowerCase())) {
                 filteredThreads.add(t);
             }
         }
         clearData();
         updateThreads(filteredThreads);
-
-//        if (filter != null && !filter.equals("")) {
-//            newThreads.removeIf(new Predicate<Thread>() {
-//                @Override
-//                public boolean test(Thread t) {
-//                    return !t.getName().toLowerCase().contains(filter.toLowerCase());
-//                }
-//            });
-
-
     }
 
 }
