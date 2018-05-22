@@ -1,6 +1,8 @@
 package co.chatsdk.android.app;
 
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,10 +42,25 @@ public class CustomPublicThreadsFragment extends PublicThreadsFragment {
     public void onResume() {
         super.onResume();
 
-
-
         searchImageView.setOnClickListener(v -> {
             ((CustomThreadsListAdapter)adapter).filterThreads(searchTextView.getText().toString());
+        });
+
+        searchTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchImageView.callOnClick();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
         });
 
         searchTextView.setOnEditorActionListener((v, actionId, event) -> {
