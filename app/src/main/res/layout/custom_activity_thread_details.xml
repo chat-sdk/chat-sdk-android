@@ -2,6 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -71,33 +72,29 @@
                 app:layout_constraintLeft_toRightOf="@id/ivLocation"
                 app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_building_tv" />
 
-            <TextView
-                android:id="@+id/chat_sdk_thread_pdf_tv"
+            <Button
+                android:id="@+id/pdf_attachment_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="16dp"
-                android:gravity="start"
-                android:text="@string/pdf_link"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="17sp"
-                app:layout_constraintBottom_toTopOf="@+id/frame_thread_users"
-                app:layout_constraintLeft_toRightOf="@id/ivLocation"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/pdf_attachment"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_city_tv" />
 
             <FrameLayout
                 android:id="@+id/frame_thread_users"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_thread_pdf_tv" />
+                app:layout_constraintTop_toBottomOf="@+id/pdf_attachment_btn" />
 
         </android.support.constraint.ConstraintLayout>
     </RelativeLayout>

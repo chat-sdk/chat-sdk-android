@@ -4,5 +4,6 @@
     <string name="location_city">City</string>
     <string name="location_building">Building</string>
     <string name="pdf_link">PDF Link</string>
+    <string name="pdf_attachment">PDF Attachment</string>
 
 </resources>
