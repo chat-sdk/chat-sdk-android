@@ -3,9 +3,11 @@ package co.chatsdk.android.app;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import co.chatsdk.core.dao.ThreadMetaValue;
@@ -29,6 +31,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
     protected EditText buildingInput;
     protected EditText cityInput;
     protected EditText pdfInput;
+    protected ProgressBar progressBar;
 
     @Override
     protected void initViews() {
@@ -38,6 +41,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
         buildingInput = findViewById(R.id.chat_sdk_edit_thread_building_et);
         cityInput = findViewById(R.id.chat_sdk_edit_thread_city_et);
         pdfInput = findViewById(R.id.chat_sdk_edit_thread_pdf_et);
+        progressBar = findViewById(R.id.pdf_progress_bar);
 
         if (thread != null) {
             ThreadMetaValue buildingMetaValue = thread.metaValueForKey("building");
@@ -118,7 +122,8 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
             // Get fileData
             byte[] fileData = "File content".getBytes(); //FileUtils.fileToBytes(new File(filePath));
 
-            Log.d("UPLOADING", fileName);
+            pdfInput.setText("");
+            progressBar.setVisibility(View.VISIBLE);
 
             NM.upload().uploadFile(fileData, fileName, mimeType).subscribe(new Observer<FileUploadResult>() {
                 @Override
@@ -141,7 +146,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
 
                 @Override
                 public void onComplete() {
-                    Log.d("UPLOADED", fileName);
+                    progressBar.setVisibility(View.INVISIBLE);
                 }
             });
         } else {
