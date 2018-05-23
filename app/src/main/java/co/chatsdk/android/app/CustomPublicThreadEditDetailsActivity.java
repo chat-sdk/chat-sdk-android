@@ -10,10 +10,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.File;
+
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.FileUploadResult;
+import co.chatsdk.core.utils.FileUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.ui.manager.InterfaceManager;
@@ -120,7 +123,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
             }
 
             // Get fileData
-            byte[] fileData = "File content".getBytes(); //FileUtils.fileToBytes(new File(filePath));
+            byte[] fileData = FileUtils.fileToBytes(new File(filePath));
 
             pdfInput.setText("");
             progressBar.setVisibility(View.VISIBLE);
