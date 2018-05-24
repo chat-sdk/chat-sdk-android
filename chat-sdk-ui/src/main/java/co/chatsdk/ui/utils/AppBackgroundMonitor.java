@@ -18,7 +18,7 @@ public class AppBackgroundMonitor {
     private boolean wasInBackground = false;
     private long MaxActivityTransitionTime = 5000;
     private boolean enabled = false;
-    private boolean inBackground = false;
+    private boolean inBackground = true;
 
     public static AppBackgroundMonitor shared () {
         return instance;
