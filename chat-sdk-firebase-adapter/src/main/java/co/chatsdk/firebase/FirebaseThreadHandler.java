@@ -118,6 +118,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return new ThreadWrapper(thread).push();
     }
 
+    public Completable pushThreadMeta(Thread thread) {
+        return new ThreadWrapper(thread).pushMeta();
+    }
+
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.

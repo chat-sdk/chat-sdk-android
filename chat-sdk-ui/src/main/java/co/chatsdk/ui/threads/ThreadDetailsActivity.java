@@ -11,14 +11,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.ThreadMetaValue;
+import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
@@ -46,6 +48,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     protected DisposableList disposableList = new DisposableList();
 
     protected ActionBar actionBar;
+    protected MenuItem settingsItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,26 +78,29 @@ public class ThreadDetailsActivity extends BaseActivity {
     }
 
     protected void initViews() {
-
         actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(Strings.nameForThread(thread));
             actionBar.setHomeButtonEnabled(true);
         }
 
-        final View actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_activity_thread_details, null);
-
-        // Allow the thread name to be modified by a long click
-        actionBarView.setOnLongClickListener(v -> {
-            // TODO: Implement this
-            return true;
-        });
-
         threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
+
+        updateMetaData();
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .subscribe(networkEvent -> updateMetaData()));
+    }
+
+    protected void updateMetaData() {
+        // TODO: permanently move thread name into meta data
+        ThreadMetaValue nameMetaValue = thread.metaValueForKey("name");
+        if (nameMetaValue != null)
+            actionBar.setTitle(nameMetaValue.getValue());
     }
 
     protected void loadData () {
-
         ThreadImageBuilder.load(threadImageView, thread);
 
         // CoreThread users bundle
@@ -152,7 +158,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         getDataFromBundle(intent.getExtras());
     }
 
-    protected void getDataFromBundle(Bundle bundle){
+    protected void getDataFromBundle(Bundle bundle) {
         if (bundle == null) {
             return;
         }
@@ -161,13 +167,12 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         String threadEntityID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
 
-        if(threadEntityID != null && threadEntityID.length() > 0) {
+        if (threadEntityID != null && threadEntityID.length() > 0) {
             thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
         }
         else {
             finish();
         }
-
     }
 
     @Override
@@ -178,11 +183,20 @@ public class ThreadDetailsActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
+        settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        settingsItem.setIcon(R.drawable.icn_24_settings);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        if (item.getItemId() == android.R.id.home)
-        {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+        }
+        if (item.getItemId() == R.id.action_chat_sdk_settings) {
+            InterfaceManager.shared().a.startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
         }
         return true;
     }

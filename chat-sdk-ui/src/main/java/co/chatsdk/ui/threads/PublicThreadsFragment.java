@@ -7,28 +7,23 @@
 
 package co.chatsdk.ui.threads;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -98,45 +93,8 @@ public class PublicThreadsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-            builder.setTitle(getString(R.string.add_public_chat_dialog_title));
-
-            // Set up the input
-            final EditText input = new EditText(this.getContext());
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-
-            builder.setView(input);
-
-            // Set up the buttons
-            builder.setPositiveButton(getString(R.string.create), (dialog, which) -> {
-
-                showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                final String threadName = input.getText().toString();
-
-                ChatSDK.publicThread().createPublicThreadWithName(threadName)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe((thread, throwable) -> {
-                            if(throwable == null) {
-                                dismissProgressDialog();
-                                adapter.addRow(thread);
-
-                                ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__is_created), threadName));
-
-                                ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
-                            }
-                            else {
-                                ChatSDK.logError(throwable);
-                                Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                dismissProgressDialog();                            }
-                        });
-
-            });
-            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-            builder.show();
-
+        if (id == R.id.action_chat_sdk_add) {
+            InterfaceManager.shared().a.startActivity(getContext(), InterfaceManager.shared().a.getPublicThreadEditDetailsActivity());
             return true;
         }
         return super.onOptionsItemSelected(item);

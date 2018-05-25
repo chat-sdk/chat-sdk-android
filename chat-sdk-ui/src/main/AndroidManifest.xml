@@ -33,6 +33,10 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
+        <activity android:name=".threads.PublicThreadEditDetailsActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
         <activity android:name=".chat.ChatActivity"
             android:parentActivityName=".main.MainActivity"
             android:launchMode = "singleTop"
