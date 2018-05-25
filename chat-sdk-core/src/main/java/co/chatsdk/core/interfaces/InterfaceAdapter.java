@@ -31,6 +31,7 @@ public interface InterfaceAdapter {
     Class getMainActivity();
     Class getChatActivity();
     Class getThreadDetailsActivity();
+    Class getThreadEditDetailsActivity();
     Class getSelectContactActivity();
     Class getSearchActivity();
     Class getEditProfileActivity();
@@ -48,6 +49,7 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+    void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
     void startLoginActivity(Context context, boolean attemptCachedLogin);
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
