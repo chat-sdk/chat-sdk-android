@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="white">#ffffff</color>
     <color name="me_color">#abcff4</color>
     <color name="reply_color">#d7d4d3</color>
     <color name="chat_bg">#e3e3e3</color>
