@@ -34,7 +34,8 @@
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">Search with name</string>
     <string name="add_conversation">Add Conversation</string>
-    <string name="public_thread__is_created" formatted="false">Public thread %s is created</string>
+    <string name="thread__created" formatted="false">Thread %s created</string>
+    <string name="public_thread__created" formatted="false">Public thread %s created</string>
     <string name="creating_thread">Creating Thread</string>
 
     <string name="send_mail">Send Mail</string>
