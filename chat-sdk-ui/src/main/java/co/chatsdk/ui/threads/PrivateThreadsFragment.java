@@ -133,7 +133,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, container, false);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_private_threads, container, false);
 
         initViews();
 
