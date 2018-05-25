@@ -7,11 +7,11 @@
 
 package co.chatsdk.ui.threads;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -29,8 +28,6 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -38,6 +35,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class PublicThreadsFragment extends BaseFragment {
 
     protected RecyclerView listThreads;
+    protected EditText searchField;
     protected ThreadsListAdapter adapter;
 
     @Override
@@ -73,8 +71,10 @@ public class PublicThreadsFragment extends BaseFragment {
     }
 
     public void initViews(LayoutInflater inflater) {
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_public_threads, null);
+        searchField = mainView.findViewById(R.id.search_field);
         listThreads = mainView.findViewById(R.id.list_threads);
+
         adapter = new ThreadsListAdapter(getActivity());
 
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -110,8 +110,24 @@ public class PublicThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-//        adapter.notifyDataSetChanged();
         reloadData();
+
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filterThreads(searchField.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -131,6 +147,7 @@ public class PublicThreadsFragment extends BaseFragment {
         if(adapter != null) {
             adapter.clearData();
             adapter.updateThreads(NM.thread().getThreads(ThreadType.Public));
+            adapter.filterThreads(searchField.getText().toString());
         }
     }
 
