@@ -100,45 +100,8 @@ public class PublicThreadsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-            builder.setTitle(getString(R.string.add_public_chat_dialog_title));
-
-            // Set up the input
-            final EditText input = new EditText(this.getContext());
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-
-            builder.setView(input);
-
-            // Set up the buttons
-            builder.setPositiveButton(getString(R.string.create), (dialog, which) -> {
-
-                showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
-                final String threadName = input.getText().toString();
-
-                NM.publicThread().createPublicThreadWithName(threadName)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe((thread, throwable) -> {
-                            if(throwable == null) {
-                                dismissProgressDialog();
-                                adapter.addRow(thread);
-
-                                ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__is_created), threadName));
-
-                                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
-                            }
-                            else {
-                                ChatSDK.logError(throwable);
-                                Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                dismissProgressDialog();                            }
-                        });
-
-            });
-            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-            builder.show();
-
+        if (id == R.id.action_chat_sdk_add) {
+            InterfaceManager.shared().a.startActivity(getContext(), InterfaceManager.shared().a.getPublicThreadEditDetailsActivity());
             return true;
         }
         return super.onOptionsItemSelected(item);
