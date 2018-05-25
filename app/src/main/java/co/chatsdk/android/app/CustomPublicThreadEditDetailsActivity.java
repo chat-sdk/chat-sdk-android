@@ -4,13 +4,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.io.File;
 
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.session.ChatSDK;
@@ -64,7 +61,7 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
         Button uploadPDFButton = findViewById(R.id.chat_sdk_edit_thread_pdf_btn);
         uploadPDFButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("*/*" );
+            intent.setType("application/pdf" );
             Intent chooser = Intent.createChooser(intent, "Choose a file");
             startActivityForResult(chooser, CHOOSE_FILE);
         });
@@ -108,27 +105,16 @@ public class CustomPublicThreadEditDetailsActivity extends PublicThreadEditDetai
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == CHOOSE_FILE && resultCode == RESULT_OK) {
-            // Get filePath and fileName
-            Uri fileUri = data.getData();
-            String filePath = fileUri.getPath();
-            String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-
-            // Get mimeType
-            String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
-            String mimeType = "application/octet-stream";
-            if (extension != null) {
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            }
-
-            // Get fileData
-            byte[] fileData = FileUtils.fileToBytes(new File(filePath));
+            Uri fileUri = intent.getData();
+            String fileName = FileUtils.getFileName(ChatSDK.shared().context(), fileUri);
+            byte[] fileData = FileUtils.fileToBytes(ChatSDK.shared().context(), fileUri);
 
             pdfInput.setText("");
             progressBar.setVisibility(View.VISIBLE);
 
-            NM.upload().uploadFile(fileData, fileName, mimeType).subscribe(new Observer<FileUploadResult>() {
+            NM.upload().uploadFile(fileData, fileName, "application/pdf").subscribe(new Observer<FileUploadResult>() {
                 @Override
                 public void onSubscribe(Disposable d) {
                 }
