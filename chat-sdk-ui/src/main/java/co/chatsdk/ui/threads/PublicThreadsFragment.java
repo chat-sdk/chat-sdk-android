@@ -10,18 +10,22 @@ package co.chatsdk.ui.threads;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 
@@ -31,8 +35,11 @@ import co.chatsdk.ui.main.BaseFragment;
 public class PublicThreadsFragment extends BaseFragment {
 
     protected RecyclerView listThreads;
+    protected EditText searchField;
     protected ThreadsListAdapter adapter;
     protected MenuItem addMenuItem;
+
+    private DisposableList disposableList = new DisposableList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,22 +51,22 @@ public class PublicThreadsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         initViews(inflater);
 
-        ChatSDK.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterPublicThreadsUpdated())
                 .subscribe(networkEvent -> {
-                    if(tabIsVisible) {
+                    if (tabIsVisible) {
                         reloadData();
                     }
-                });
+                }));
 
-        ChatSDK.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
                 .subscribe(networkEvent -> {
-                    if(tabIsVisible) {
+                    if (tabIsVisible) {
                         adapter.setTyping(networkEvent.thread, networkEvent.text);
                         adapter.notifyDataSetChanged();
                     }
-                });
+                }));
 
         reloadData();
 
@@ -67,14 +74,18 @@ public class PublicThreadsFragment extends BaseFragment {
     }
 
     public void initViews(LayoutInflater inflater) {
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_threads, null);
+        mainView = inflater.inflate(R.layout.chat_sdk_activity_public_threads, null);
+        searchField = mainView.findViewById(R.id.search_field);
         listThreads = mainView.findViewById(R.id.list_threads);
+
         adapter = new ThreadsListAdapter(getActivity());
 
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
+        disposableList.add(adapter.onClickObservable().subscribe(thread -> {
+            ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
+        }));
     }
 
 
@@ -103,13 +114,29 @@ public class PublicThreadsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-//        adapter.notifyDataSetChanged();
         reloadData();
+
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filterThreads(searchField.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
     public void clearData() {
-        if(adapter != null) {
+        if (adapter != null) {
             adapter.clearData();
         }
     }
@@ -121,10 +148,17 @@ public class PublicThreadsFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        if(adapter != null) {
+        if (adapter != null) {
             adapter.clearData();
             adapter.updateThreads(ChatSDK.thread().getThreads(ThreadType.Public));
+            adapter.filterThreads(searchField.getText().toString());
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposableList.dispose();
     }
 
 }
