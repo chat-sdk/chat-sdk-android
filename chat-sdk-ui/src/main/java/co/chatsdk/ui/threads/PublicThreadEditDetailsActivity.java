@@ -8,6 +8,7 @@
 package co.chatsdk.ui.threads;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +23,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -37,6 +39,7 @@ public class PublicThreadEditDetailsActivity extends BaseActivity {
 
     protected DisposableList disposableList = new DisposableList();
 
+    protected ActionBar actionBar;
     protected String threadEntityID;
     protected Thread thread;
     protected EditText nameInput;
@@ -56,10 +59,14 @@ public class PublicThreadEditDetailsActivity extends BaseActivity {
     }
 
     protected void initViews() {
+        actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+
         nameInput = findViewById(R.id.chat_sdk_edit_thread_name_et);
         saveButton = findViewById(R.id.chat_sdk_edit_thread_update_b);
 
         if (thread != null) {
+            actionBar.setTitle(Strings.nameForThread(thread));
             nameInput.setText(thread.getName());
             saveButton.setText(R.string.update_public_thread);
 
