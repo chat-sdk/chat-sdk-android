@@ -57,6 +57,7 @@ public class Configuration {
     public int pushNotificationImageDefaultResourceId;
     public String pushNotificationAction;
     public boolean pushNotificationsForPublicChatRoomsEnabled;
+    public boolean unreadMessagesCountForPublicChatRoomsEnabled;
 
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = true;
@@ -320,6 +321,11 @@ public class Configuration {
 
         public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
             config.pushNotificationsForPublicChatRoomsEnabled = value;
+            return this;
+        }
+
+        public Builder unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
+            config.unreadMessagesCountForPublicChatRoomsEnabled = value;
             return this;
         }
 

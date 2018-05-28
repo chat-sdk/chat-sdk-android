@@ -91,7 +91,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         int unreadMessageCount = thread.getUnreadMessagesCount();
 
-        if (unreadMessageCount != 0 && thread.typeIs(ThreadType.Private)) {
+        if (unreadMessageCount != 0 && (thread.typeIs(ThreadType.Private) || ChatSDK.config().unreadMessagesCountForPublicChatRoomsEnabled)) {
 
             holder.unreadMessageCountTextView.setText(String.valueOf(unreadMessageCount));
             holder.unreadMessageCountTextView.setVisibility(View.VISIBLE);
