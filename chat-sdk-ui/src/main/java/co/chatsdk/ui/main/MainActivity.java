@@ -32,6 +32,8 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 
 
 public class MainActivity extends BaseActivity {
@@ -112,6 +114,21 @@ public class MainActivity extends BaseActivity {
 //        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
 //    }
 
+    public void addLocalNotifications(Observable<NetworkEvent> messageAddedEvents, int threadType) {
+        disposables.add(messageAddedEvents.filter(NetworkEvent.filterThreadType(threadType))
+                .subscribe(networkEvent -> {
+                    Message message = networkEvent.message;
+                    if(message != null) {
+                        if(!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications(threadType)) {
+                            ReadStatus status = message.readStatusForUser(NM.currentUser());
+                            if (!message.isRead() && !status.is(ReadStatus.delivered())) {
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            }
+                        }
+                    }
+                }));
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -119,21 +136,13 @@ public class MainActivity extends BaseActivity {
         disposables.dispose();
 
          // TODO: Check this
-        disposables.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
-                .filter(NetworkEvent.filterThreadType(ThreadType.Private))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
-                    if(message != null) {
-                        if(!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications()) {
-                            ReadStatus status = message.readStatusForUser(NM.currentUser());
-                            if (!message.isRead() && !status.is(ReadStatus.delivered())) {
-                                // Only show the alert if we'recyclerView not on the private threads tab
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
-                            }
-                        }
-                    }
-                }));
+        Observable<NetworkEvent> messageEvents = NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded));
+
+        addLocalNotifications(messageEvents, ThreadType.Private);
+        if (ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled) {
+            addLocalNotifications(messageEvents, ThreadType.Public);
+        }
 
         disposables.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
@@ -181,6 +190,7 @@ public class MainActivity extends BaseActivity {
         }
 
         ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
+        setShowLocalNotificationsForTab(tabLayout.getTabAt(0));
 
         viewPager.setAdapter(adapter);
 
@@ -190,7 +200,7 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
-                InterfaceManager.shared().a. setShowLocalNotifications(showLocalNotificationsForTab(tab));
+                setShowLocalNotificationsForTab(tab);
 
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
@@ -234,13 +244,17 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
-        // Don't show notifications on the threads tabs
+    public void setShowLocalNotificationsForTab (TabLayout.Tab tab) {
         Tab t = adapter.getTabs().get(tab.getPosition());
 
         Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
+        Class publicThreadsFragmentClass = InterfaceManager.shared().a.publicThreadsFragment().getClass();
 
-        return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        boolean showPrivateNotifications = !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        boolean showPublicNotifications = !t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
+
+        InterfaceManager.shared().a.setShowLocalNotifications(ThreadType.Private, showPrivateNotifications);
+        InterfaceManager.shared().a.setShowLocalNotifications(ThreadType.Public, showPublicNotifications);
     }
 
     public void clearData () {

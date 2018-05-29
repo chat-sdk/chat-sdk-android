@@ -14,6 +14,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -250,7 +251,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             return;
         }
 
-        if (message.getThread().typeIs(ThreadType.Private)) {
+        if (message.getThread().typeIs(ThreadType.Private) || ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled) {
             NM.push().pushToUsers(message.getThread().getUsers(), message);
         }
     }
