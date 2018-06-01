@@ -31,6 +31,7 @@ public class AppObj extends MultiDexApplication {
         builder.publicRoomCreationEnabled(true);
         builder.pushNotificationsForPublicChatRoomsEnabled(true);
         builder.unreadMessagesCountForPublicChatRoomsEnabled(true);
+        builder.setMessageTimeFormat("hh:mm dd.MM.yy");
 
         ChatSDK.initialize(builder.build());
 
