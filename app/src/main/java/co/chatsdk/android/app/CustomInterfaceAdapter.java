@@ -13,6 +13,16 @@ public class CustomInterfaceAdapter extends BaseInterfaceAdapter {
     }
 
     @Override
+    public Fragment privateThreadsFragment() {
+        return CustomPrivateThreadsFragment.newInstance();
+    }
+
+    @Override
+    public Fragment publicThreadsFragment() {
+        return new CustomPublicThreadsFragment();
+    }
+
+    @Override
     public Class getThreadDetailsActivity() {
         return CustomThreadDetailsActivity.class;
     }
