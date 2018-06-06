@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -56,7 +57,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         public SimpleDraweeView avatarImageView;
         public TextView timeTextView;
         public SimpleDraweeView messageImageView;
+        public ConstraintLayout messageBubble;
         public TextView messageTextView;
+        public ImageView messageIconView;
         public LinearLayout extraLayout;
         public ImageView readReceiptImageView;
         public MessageListItem messageItem;
@@ -66,7 +69,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             timeTextView = itemView.findViewById(R.id.txt_time);
             avatarImageView = itemView.findViewById(R.id.img_user_image);
+            messageBubble = itemView.findViewById(R.id.message_bubble);
             messageTextView = itemView.findViewById(R.id.txt_content);
+            messageIconView = itemView.findViewById(R.id.message_icon);
             messageImageView = itemView.findViewById(R.id.chat_sdk_image);
             extraLayout = itemView.findViewById(R.id.extra_layout);
             readReceiptImageView = itemView.findViewById(R.id.read_receipt);
@@ -110,24 +115,59 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         }
 
-        public void setImageHidden (boolean hidden) {
-            messageImageView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        public void setIconSize(int width, int height) {
+            ConstraintLayout.LayoutParams iconLayoutParams = (ConstraintLayout.LayoutParams) messageIconView.getLayoutParams();
+            iconLayoutParams.width = width;
+            iconLayoutParams.height = height;
+            messageIconView.setLayoutParams(iconLayoutParams);
+            messageIconView.requestLayout();
+        }
+
+        public void setImageSize(int width, int height) {
             LinearLayout.LayoutParams imageLayoutParams = (LinearLayout.LayoutParams) messageImageView.getLayoutParams();
-            if(hidden) {
-                imageLayoutParams.width = 0;
-                imageLayoutParams.height = 0;
-            }
-            else {
-                imageLayoutParams.width = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
-                imageLayoutParams.height = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
-            }
+            imageLayoutParams.width = width;
+            imageLayoutParams.height = height;
             messageImageView.setLayoutParams(imageLayoutParams);
             messageImageView.requestLayout();
+        }
+
+        public void setBubbleHidden (boolean hidden) {
+            messageBubble.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+            LinearLayout.LayoutParams bubbleLayoutParams = (LinearLayout.LayoutParams) messageBubble.getLayoutParams();
+            if (hidden) {
+                bubbleLayoutParams.width = 0;
+                bubbleLayoutParams.height = 0;
+            } else {
+                bubbleLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                bubbleLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+            messageBubble.setLayoutParams(bubbleLayoutParams);
+            messageBubble.requestLayout();
+        }
+
+        public void setIconHidden (boolean hidden) {
+            messageIconView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+            if (hidden) {
+                setIconSize(0, 0);
+            } else {
+                setIconSize(activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_width), activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_height));
+            }
+            messageBubble.requestLayout();
+        }
+
+        public void setImageHidden (boolean hidden) {
+            messageImageView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+            if (hidden) {
+                setImageSize(0, 0);
+            } else {
+                setImageSize(activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width), activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height));
+            }
 
         }
+
         public void setTextHidden (boolean hidden) {
             messageTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
-            LinearLayout.LayoutParams textLayoutParams = (LinearLayout.LayoutParams) messageTextView.getLayoutParams();
+            ConstraintLayout.LayoutParams textLayoutParams = (ConstraintLayout.LayoutParams) messageTextView.getLayoutParams();
             if(hidden) {
                 textLayoutParams.width = 0;
                 textLayoutParams.height = 0;
@@ -138,6 +178,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             }
             messageTextView.setLayoutParams(textLayoutParams);
             messageTextView.requestLayout();
+            messageBubble.requestLayout();
         }
     }
 
@@ -168,7 +209,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         MessageListItem messageItem = messageItems.get(position);
         holder.messageItem = messageItem;
 
+        holder.setBubbleHidden(true);
         holder.setTextHidden(true);
+        holder.setIconHidden(true);
         holder.setImageHidden(true);
 
         if(holder.readReceiptImageView != null) {
@@ -177,6 +220,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         if (messageItem.getMessage().getMessageType() == MessageType.Text) {
             holder.messageTextView.setText(messageItem.getMessage().getTextString() == null ? "" : messageItem.getMessage().getTextString());
+            holder.setBubbleHidden(false);
             holder.setTextHidden(false);
         }
         else if (messageItem.getMessage().getMessageType() == MessageType.Location || messageItem.getMessage().getMessageType() == MessageType.Image) {
@@ -214,8 +258,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             }
         }
         else if (messageItem.getMessage().getMessageType() == MessageType.File) {
+            holder.setBubbleHidden(false);
             holder.setTextHidden(false);
-            holder.setImageHidden(false);
+            holder.setIconHidden(false);
         }
 
         for(CustomMessageHandler handler : ChatSDK.ui().getCustomMessageHandlers()) {
@@ -234,11 +279,11 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         if (messageItem.message.getSender().isMe()) {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);
-            holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
+            holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
         else {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorReply);
-            holder.messageTextView.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
+            holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
 
         updateReadStatus(holder, messageItem.message);
