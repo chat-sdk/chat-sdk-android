@@ -13,6 +13,11 @@ public class CustomInterfaceAdapter extends BaseInterfaceAdapter {
     }
 
     @Override
+    public Class getChatActivity() {
+        return CustomChatActivity.class;
+    }
+
+    @Override
     public Fragment privateThreadsFragment() {
         return CustomPrivateThreadsFragment.newInstance();
     }

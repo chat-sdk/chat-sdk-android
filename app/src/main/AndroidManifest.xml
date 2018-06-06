@@ -21,6 +21,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CustomChatActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
         <activity android:name=".CustomThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
