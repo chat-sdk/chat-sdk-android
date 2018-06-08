@@ -68,7 +68,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @param userThreadLinkType - 1 => Add, 2 => Remove
      * @return
      */
-    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
+    protected Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
         return Completable.create(e -> {
 
             DatabaseReference ref = FirebasePaths.firebaseRawRef();
@@ -153,7 +153,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return createThread(name, users, type, null);
     }
 
-     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
