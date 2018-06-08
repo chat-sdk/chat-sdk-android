@@ -6,7 +6,7 @@ import android.support.multidex.MultiDexApplication;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
-import co.chatsdk.firebase.FirebaseModule;
+import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.ui.manager.InterfaceManager;
@@ -37,7 +37,7 @@ public class AppObj extends MultiDexApplication {
 
         UserInterfaceModule.activate(context);
 
-        FirebaseModule.activate();
+        NetworkManager.shared().a = new CustomFirebaseNetworkAdapter();
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();
