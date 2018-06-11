@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package co.patchat.android.app;
 
 import android.view.Menu;
 

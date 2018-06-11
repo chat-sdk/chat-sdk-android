@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package co.patchat.android.app;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;

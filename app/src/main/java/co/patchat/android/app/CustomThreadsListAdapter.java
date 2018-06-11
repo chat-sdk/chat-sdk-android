@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package co.patchat.android.app;
 
 import android.content.Context;
 import android.graphics.Typeface;

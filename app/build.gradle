@@ -9,7 +9,7 @@ android {
 
 
     defaultConfig {
-        applicationId "co.chatsdk.android.app"
+        applicationId "co.patchat.android.app"
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.MIN_SDK)

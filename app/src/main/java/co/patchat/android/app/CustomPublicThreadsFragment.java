@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package co.patchat.android.app;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;

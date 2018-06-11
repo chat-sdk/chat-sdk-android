@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package co.patchat.android.app;
 
 import android.content.Context;
 import android.support.multidex.MultiDex;
@@ -32,6 +32,7 @@ public class AppObj extends MultiDexApplication {
         builder.pushNotificationsForPublicChatRoomsEnabled(true);
         builder.unreadMessagesCountForPublicChatRoomsEnabled(true);
         builder.setMessageTimeFormat("HH:mm dd.MM.yy");
+        builder.loginScreenDrawableResourceID(R.drawable.ic_launcher_big);
 
         ChatSDK.initialize(builder.build());
 
