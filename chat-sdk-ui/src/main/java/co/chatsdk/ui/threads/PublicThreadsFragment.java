@@ -8,6 +8,7 @@
 package co.chatsdk.ui.threads;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -37,6 +38,9 @@ public class PublicThreadsFragment extends BaseFragment {
     protected RecyclerView listThreads;
     protected EditText searchField;
     protected ThreadsListAdapter adapter;
+
+    protected ActionBar actionBar;
+    protected MenuItem settingsItem;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,10 +92,9 @@ public class PublicThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (ChatSDK.config().publicRoomCreationEnabled) {
-            MenuItem item =
-                    menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.public_thread_fragment_add_item_text));
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            item.setIcon(R.drawable.ic_plus);
+            settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.public_thread_fragment_add_item_text));
+            settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            settingsItem.setIcon(R.drawable.ic_plus);
         }
     }
 
