@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +21,13 @@ public class CustomThreadsListAdapter extends ThreadsListAdapter {
 
     public CustomThreadsListAdapter(Context context) {
         super(context);
+    }
+
+    @Override
+    public ThreadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View row = inflater.inflate(R.layout.custom_row_thread, null);
+        return new ThreadViewHolder(row);
     }
 
     @Override
