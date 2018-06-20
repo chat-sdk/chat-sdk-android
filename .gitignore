@@ -26,3 +26,7 @@ app/release
 # Java .class files
 **/*.class
 *.diff
+
+# Premium Modules
+chat-sdk-sticker-message
+chat-sdk-file-message
