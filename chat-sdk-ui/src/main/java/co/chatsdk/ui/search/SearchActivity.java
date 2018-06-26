@@ -126,7 +126,7 @@ public class SearchActivity extends BaseActivity {
             ArrayList<Completable> completables = new ArrayList<>();
 
             for(UserListItem u : adapter.getSelectedUsers()) {
-                if(u instanceof User && !((User) u).isMe()) {
+                if (u instanceof User && !((User) u).isMe()) {
                     completables.add(NM.contact().addContact((User) u, ConnectionType.Contact));
                 }
             }
@@ -180,7 +180,7 @@ public class SearchActivity extends BaseActivity {
                 @Override
                 public void onNext(@NonNull User user) {
 
-                    if(!existingContacts.contains(user)) {
+                    if (!existingContacts.contains(user) && !user.isMe()) {
                         users.add(user);
                         adapter.setUsers(users, true);
                         hideSoftKeyboard(SearchActivity.this);
@@ -207,7 +207,7 @@ public class SearchActivity extends BaseActivity {
                                 @Override
                                 public void onNext(@NonNull User user) {
 
-                                    if(!existingContacts.contains(user)) {
+                                    if (!existingContacts.contains(user) && !user.isMe()) {
                                         users.add(user);
                                         adapter.setUsers(users, true);
                                         hideSoftKeyboard(SearchActivity.this);
@@ -224,7 +224,7 @@ public class SearchActivity extends BaseActivity {
                                 @Override
                                 public void onComplete() {
                                     dialog.dismiss();
-                                    if(users.size() == 0) {
+                                    if (users.size() == 0) {
                                         showToast(getString(R.string.search_activity_no_user_found_toast));
                                     }
                                 }
@@ -244,7 +244,7 @@ public class SearchActivity extends BaseActivity {
             final List<SearchActivityType> activities = new ArrayList<>(InterfaceManager.shared().a.getSearchActivities());
             activities.add(new SearchActivityType(InterfaceManager.shared().a.getSearchActivity(), context.getString(R.string.search_with_name)));
 
-            if(activities.size() == 1) {
+            if (activities.size() == 1) {
                 InterfaceManager.shared().a.startActivity(context, activities.get(0).className);
                 return;
             }
