@@ -28,14 +28,12 @@ import java.util.List;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.core.session.InterfaceManager;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -70,7 +68,7 @@ public class SearchActivity extends BaseActivity {
         super.onNewIntent(intent);
     }
 
-    protected void initViews(){
+    protected void initViews() {
         searchImageView = findViewById(R.id.chat_sdk_btn_search);
         addContactsButton = findViewById(R.id.chat_sdk_btn_add_contacts);
         searchTextView = findViewById(R.id.chat_sdk_et_search_input);
@@ -124,8 +122,8 @@ public class SearchActivity extends BaseActivity {
 
             ArrayList<Completable> completables = new ArrayList<>();
 
-            for(UserListItem u : adapter.getSelectedUsers()) {
-                if(u instanceof User && !((User) u).isMe()) {
+            for (UserListItem u : adapter.getSelectedUsers()) {
+                if (u instanceof User && !((User) u).isMe()) {
                     completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
                 }
             }
@@ -179,7 +177,7 @@ public class SearchActivity extends BaseActivity {
                 @Override
                 public void onNext(@NonNull User user) {
 
-                    if(!existingContacts.contains(user)) {
+                    if (!existingContacts.contains(user) && !user.isMe()) {
                         users.add(user);
                         adapter.setUsers(users, true);
                         hideSoftKeyboard(SearchActivity.this);
@@ -196,7 +194,7 @@ public class SearchActivity extends BaseActivity {
                 @Override
                 public void onComplete() {
                     dialog.dismiss();
-                    if(users.size() == 0) {
+                    if (users.size() == 0) {
                         showToast(getString(R.string.search_activity_no_user_found_toast));
                     }
                 }
@@ -214,7 +212,7 @@ public class SearchActivity extends BaseActivity {
             final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
             activities.add(new SearchActivityType(ChatSDK.ui().getSearchActivity(), context.getString(R.string.search_with_name)));
 
-            if(activities.size() == 1) {
+            if (activities.size() == 1) {
                 ChatSDK.ui().startActivity(context, activities.get(0).className);
                 return;
             }
@@ -222,7 +220,7 @@ public class SearchActivity extends BaseActivity {
             String [] items = new String [activities.size()];
             int i = 0;
 
-            for(SearchActivityType activity : activities) {
+            for (SearchActivityType activity : activities) {
                 items[i++] = activity.title;
             }
 
