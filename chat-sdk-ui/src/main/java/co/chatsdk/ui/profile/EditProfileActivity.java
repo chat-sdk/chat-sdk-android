@@ -213,12 +213,12 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void saveAndExit () {
 
-        String status = statusEditText.getText().toString();
-        String availability = getAvailability();
-        String name = nameEditText.getText().toString();
-        String location = locationEditText.getText().toString();
-        String phoneNumber = phoneNumberEditText.getText().toString();
-        String email = emailEditText.getText().toString();
+        String status = statusEditText.getText().toString().trim();
+        String availability = getAvailability().trim();
+        String name = nameEditText.getText().toString().trim();
+        String location = locationEditText.getText().toString().trim();
+        String phoneNumber = phoneNumberEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
 
         currentUser.setStatus(status);
         currentUser.setAvailability(availability);
