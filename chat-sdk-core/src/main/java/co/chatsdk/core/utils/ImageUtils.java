@@ -16,6 +16,7 @@ import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
@@ -35,6 +36,11 @@ import static android.os.Environment.isExternalStorageRemovable;
 
 public class ImageUtils {
 
+    static {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+    }
+
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 
     public static File getDiskCacheDir(Context context, String uniqueName) {
@@ -46,6 +52,20 @@ public class ImageUtils {
                         context.getCacheDir().getPath();
 
         return new File(cachePath + File.separator + uniqueName);
+    }
+
+    public static File generateImageFile(File dir, String ext) {
+        if (!dir.exists()) dir.mkdirs();
+        File file = new File(dir, UUID.randomUUID() + ext);
+        while (file.exists()) {
+            file = new File(dir, UUID.randomUUID() + ext);
+        }
+        return file;
+    }
+
+    public static File generateImageFile(Context context, String ext) {
+        File imageDir = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+        return generateImageFile(imageDir, ext);
     }
 
     public static File saveImageToCache (Context context, Bitmap image) {
