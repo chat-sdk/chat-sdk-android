@@ -196,10 +196,39 @@ public class SearchActivity extends BaseActivity {
 
                 @Override
                 public void onComplete() {
-                    dialog.dismiss();
-                    if(users.size() == 0) {
-                        showToast(getString(R.string.search_activity_no_user_found_toast));
-                    }
+                    NM.search().usersForIndex(Keys.Email, searchTextView.getText().toString())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Observer<User>() {
+                                @Override
+                                public void onSubscribe(@NonNull Disposable d) {
+                                    disposableList.add(d);
+                                }
+
+                                @Override
+                                public void onNext(@NonNull User user) {
+
+                                    if(!existingContacts.contains(user)) {
+                                        users.add(user);
+                                        adapter.setUsers(users, true);
+                                        hideSoftKeyboard(SearchActivity.this);
+                                        dialog.dismiss();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(@NonNull Throwable e) {
+                                    showToast(getString(R.string.search_activity_no_user_found_toast));
+                                    dialog.dismiss();
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                    dialog.dismiss();
+                                    if(users.size() == 0) {
+                                        showToast(getString(R.string.search_activity_no_user_found_toast));
+                                    }
+                                }
+                            });
                 }
             });
 
