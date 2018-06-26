@@ -1,9 +1,9 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +32,7 @@ public class MediaSelector {
     private static final int CHOOSE_VIDEO = 103;
 
     protected Result resultHandler;
+    protected Uri fileUri;
     protected CropType cropType = CropType.Rectangle;
 
     public enum CropType {
@@ -47,7 +48,11 @@ public class MediaSelector {
     public void startTakePhotoActivity (Activity activity, Result resultHandler) throws Exception {
         this.resultHandler = resultHandler;
 
+        Context context = ChatSDK.shared().context();
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File destination = ImageUtils.generateImageFile(context, ".jpg");
+        fileUri = Uri.fromFile(destination);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivityForResult(intent, TAKE_PHOTO);
         }
@@ -85,7 +90,7 @@ public class MediaSelector {
 
                 Uri uri = data.getData();
 
-                if(!ChatSDK.config().imageCroppingEnabled) {
+                if (!ChatSDK.config().imageCroppingEnabled) {
 
                     // Let's read picked image path using content resolver
                     String[] filePath = { MediaStore.Images.Media.DATA };
@@ -138,7 +143,7 @@ public class MediaSelector {
             ImageUtils.scanFilePathForGallery(activity, path);
         }
 
-        if(resultHandler != null) {
+        if (resultHandler != null) {
             resultHandler.result(path);
             clear();
         }
@@ -154,22 +159,23 @@ public class MediaSelector {
         }
 
         else if (requestCode == TAKE_PHOTO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
-                Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
-                File file = ImageUtils.saveImageToCache(activity, bitmap);
-                resultHandler.result(file.getPath());
+            if (resultHandler != null) {
+                if (fileUri != null) {
+                    ChatSDK.shared().context().getContentResolver().notifyChange(fileUri, null);
+                    resultHandler.result(fileUri.getPath());
+                }
                 clear();
             }
         }
         else if (requestCode == TAKE_VIDEO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
+            if (resultHandler != null) {
                 Uri videoUri = intent.getData();
                 resultHandler.result(videoUri.getPath());
                 clear();
             }
         }
         else if (requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
+            if (resultHandler != null) {
                 Uri videoUri = intent.getData();
 
                 // Let's read picked image path using content resolver
