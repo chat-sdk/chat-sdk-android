@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
@@ -13,6 +15,7 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 8/23/17.
@@ -23,6 +26,8 @@ public class ProfileActivity extends BaseActivity {
     protected User user;
     protected boolean startingChat = false;
 
+    protected ArrayList<Disposable> disposables = new ArrayList<>();
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,9 +35,9 @@ public class ProfileActivity extends BaseActivity {
 
         String userEntityID = getIntent().getStringExtra(BaseInterfaceAdapter.USER_ENTITY_ID);
 
-        if(userEntityID != null && !userEntityID.isEmpty()) {
+        if (userEntityID != null && !userEntityID.isEmpty()) {
             user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
-            if(user != null) {
+            if (user != null) {
                 ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profile_fragment);
                 fragment.setUser(user);
                 fragment.updateInterface();
@@ -79,7 +84,7 @@ public class ProfileActivity extends BaseActivity {
 
         showProgressDialog(getString(R.string.creating_thread));
 
-        NM.thread().createThread("", user, NM.currentUser())
+        disposables.add(NM.thread().createThread("", user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();
@@ -89,7 +94,7 @@ public class ProfileActivity extends BaseActivity {
                     InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
                 }, throwable -> {
                     ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-                });
+                }));
 
 
     }
@@ -99,4 +104,14 @@ public class ProfileActivity extends BaseActivity {
         super.onBackPressed();
         this.finish();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (Disposable d : disposables) {
+            d.dispose();
+        }
+        disposables.clear();
+    }
+
 }
