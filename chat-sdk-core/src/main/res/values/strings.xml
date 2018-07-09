@@ -169,6 +169,7 @@
     <string name="action_save">Save</string>
     <string name="action_chat">Chat</string>
     <string name="action_settings">Settings</string>
+    <string name="action_menu_overflow">Menu</string>
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>
     <string name="actions">Actions</string>
