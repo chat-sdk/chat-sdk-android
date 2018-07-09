@@ -36,9 +36,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':chat-sdk-core')
-    compile 'com.google.firebase:firebase-storage:' + project.GOOGLE_SERVICES_VERSION
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
+    api 'com.google.firebase:firebase-storage:' + project.GOOGLE_SERVICES_VERSION
 }
 
 // Bintray upload properties

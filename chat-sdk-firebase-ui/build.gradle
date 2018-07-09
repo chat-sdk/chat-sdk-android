@@ -36,15 +36,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':chat-sdk-core')
-    compile project(':chat-sdk-ui')
-    compile project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-ui')
+    implementation project(':chat-sdk-firebase-adapter')
 
-    compile 'com.firebaseui:firebase-ui-auth:3.1.2'
-    compile 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
-    compile 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.firebaseui:firebase-ui-auth:3.1.2'
+    api 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
+    api 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
 
 }
 

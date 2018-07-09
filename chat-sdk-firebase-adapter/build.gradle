@@ -31,14 +31,14 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile 'com.google.firebase:firebase-core:' + project.GOOGLE_SERVICES_VERSION
-    compile 'com.google.firebase:firebase-database:' + project.GOOGLE_SERVICES_VERSION
-    compile 'com.google.firebase:firebase-storage:' + project.GOOGLE_SERVICES_VERSION
-    compile 'com.google.firebase:firebase-auth:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.firebase:firebase-core:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.firebase:firebase-database:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.firebase:firebase-storage:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.firebase:firebase-auth:' + project.GOOGLE_SERVICES_VERSION
 
-    compile project(':chat-sdk-core')
+    implementation project(':chat-sdk-core')
 }
 
 // Bintray upload properties

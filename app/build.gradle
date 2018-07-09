@@ -69,14 +69,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:multidex:1.0.3'
-    compile project(path: ':chat-sdk-ui')
-    compile project(path: ':chat-sdk-firebase-adapter')
-    compile project(path: ':chat-sdk-firebase-push')
-    compile project(path: ':chat-sdk-firebase-file-storage')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api 'com.android.support:multidex:1.0.3'
+    implementation project(path: ':chat-sdk-core')
+    implementation project(path: ':chat-sdk-ui')
+    implementation project(path: ':chat-sdk-firebase-adapter')
+    implementation project(path: ':chat-sdk-firebase-push')
+    implementation project(path: ':chat-sdk-firebase-file-storage')
 
-    compile project(path: ':chat-sdk-firebase-ui')
+    implementation project(path: ':chat-sdk-firebase-ui')
 }
 
 apply plugin: 'com.google.gms.google-services'

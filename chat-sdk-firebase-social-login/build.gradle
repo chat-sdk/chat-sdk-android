@@ -31,21 +31,15 @@ android {
 
 dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-//    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
-    compile 'com.facebook.android:facebook-login:4.32.0'
+    api 'com.facebook.android:facebook-login:4.33.0'
+    api 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.twitter.sdk.android:twitter:3.1.1'
 
-    compile 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
-
-    compile('com.twitter.sdk.android:twitter:3.1.1')
-//            {
-//        transitive = true
-//    }
-
-    compile project(path: ':chat-sdk-firebase-adapter')
-    compile project(path: ':chat-sdk-core')
-    compile project(path: ':chat-sdk-ui')
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-ui')
 
 }
 

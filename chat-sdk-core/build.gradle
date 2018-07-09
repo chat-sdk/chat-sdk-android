@@ -39,17 +39,17 @@ greendao {
 
 dependencies {
 
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile 'org.greenrobot:greendao:3.2.2'
-    compile 'joda-time:joda-time:2.9.9'
-    compile 'com.jakewharton.timber:timber:4.3.1'
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.7'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
-    compile 'com.google.android.gms:play-services:' + project.GOOGLE_SERVICES_VERSION
-    compile 'id.zelory:compressor:2.1.0'
+    api 'org.greenrobot:greendao:3.2.2'
+    api 'joda-time:joda-time:2.9.9'
+    api 'com.jakewharton.timber:timber:4.3.1'
+    api 'com.google.code.gson:gson:2.8.0'
+    api 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    api 'io.reactivex.rxjava2:rxjava:2.1.7'
+    api 'org.apache.commons:commons-lang3:3.3.2'
+    api 'com.google.android.gms:play-services:' + project.GOOGLE_SERVICES_VERSION
+    api 'id.zelory:compressor:2.1.0'
 }
 
 // Bintray upload properties

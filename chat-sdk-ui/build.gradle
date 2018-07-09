@@ -38,27 +38,27 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
-    compile 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
-    compile 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
-    compile 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
-    compile "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
+    api 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
+    api 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
+    api 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
+    api 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
+    api "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
+    api "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
+    api "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
 
     // Seems to be an issue with Android Studio... Not actually a problem
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
+    api 'com.android.support.constraint:constraint-layout:1.0.2'
+    api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
 
-    compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
-    compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile 'id.zelory:compressor:2.1.0'
-    compile 'com.soundcloud.android:android-crop:1.0.1@aar'
-    compile 'com.facebook.fresco:fresco:1.5.0'
+    api 'com.github.mukeshsolanki:country-picker-android:1.1.9'
+    api 'com.github.chrisbanes.photoview:library:1.2.4'
+    api 'id.zelory:compressor:2.1.0'
+    api 'com.soundcloud.android:android-crop:1.0.1@aar'
+    api 'com.facebook.fresco:fresco:1.5.0'
 
-    compile project(path: ':chat-sdk-core')
+    implementation project(':chat-sdk-core')
 }
 
 // Bintray upload properties
