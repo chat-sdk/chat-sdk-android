@@ -22,6 +22,7 @@ public class ProfileActivity extends BaseActivity {
 
     protected User user;
     protected boolean startingChat = false;
+    protected MenuItem chatMenuItem;
 
     private DisposableList disposableList = new DisposableList();
 
@@ -49,10 +50,9 @@ public class ProfileActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_chat, 1, getString(R.string.action_chat));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.icn_24_chat);
+        chatMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_chat, 1, getString(R.string.action_chat));
+        chatMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        chatMenuItem.setIcon(R.drawable.icn_24_chat);
 
         return true;
     }
