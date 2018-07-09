@@ -7,8 +7,10 @@
 
 package co.chatsdk.ui.chat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.InfiniteToast;
@@ -81,6 +84,17 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         etMessage = findViewById(R.id.chat_sdk_et_message_to_send);
     }
 
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -101,16 +115,22 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         // Handle recording when the record button is held down
         btnSend.setOnTouchListener((view, motionEvent) -> {
             if(recordOnPress) {
+                PermissionRequestHandler.shared().requestRecordAudio(getActivity()).subscribe(() -> {
+                    if (PermissionRequestHandler.shared().recordPermissionGranted()) {
+                        // Start recording when we press down
+                        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                            startRecording(view);
+                        }
 
-                // Start recording when we press down
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    startRecording(view);
+                    // Stop recording
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        stopRecording(view, motionEvent);
+                    }
                 }
-
-                // Stop recording
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    stopRecording(view, motionEvent);
-                }
+                else {
+                        ToastHelper.show(getContext(), getContext().getString(R.string.record_permission_not_granted));
+                    }
+                });
             }
             return btnSend.onTouchEvent(motionEvent);
         });

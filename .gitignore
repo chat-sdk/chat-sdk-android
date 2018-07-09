@@ -21,6 +21,7 @@ build/
 .idea
 /out/
 /captures
+app/release
 
 # Java .class files
 **/*.class

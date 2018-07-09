@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -41,6 +42,10 @@ public class PermissionRequestHandler {
         return requestPermission(activity, Manifest.permission.RECORD_AUDIO, RECORD_AUDIO_REQUEST);
     }
 
+    public boolean recordPermissionGranted () {
+        return ContextCompat.checkSelfPermission(ChatSDK.shared().context(), Manifest.permission.RECORD_AUDIO) != PERMISSION_DENIED;
+    }
+
     public Completable requestWriteExternalStorage (Activity activity) {
         return requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE_REQUEST);
     }
@@ -68,9 +73,9 @@ public class PermissionRequestHandler {
             int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission);
 
             if(permissionCheck == PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{permission},
-                        result);
+                if(!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
+                    e.onError(new Throwable(activity.getString(R.string.record_permission_not_granted)));
+                }
             }
             else {
                 e.onComplete();

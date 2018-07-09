@@ -24,7 +24,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder builder = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        builder.firebaseRootPath("18_05");
+        builder.firebaseRootPath("18_07");
         builder.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         builder.firebaseCloudMessagingServerKey("AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug");
         builder.publicRoomCreationEnabled(true);

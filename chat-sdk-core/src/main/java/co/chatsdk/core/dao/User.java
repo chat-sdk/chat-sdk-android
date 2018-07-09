@@ -125,20 +125,20 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public void deleteContact (User user, ConnectionType type) {
-        // For some reason the default ContactLinks do not persist, have to find in DB
+
         Property [] properties = {
                 ContactLinkDao.Properties.LinkOwnerUserDaoId,
+                ContactLinkDao.Properties.UserId,
                 ContactLinkDao.Properties.Type
         };
 
         List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperties(ContactLink.class,
-                properties, this.getId(), type.ordinal());
+                properties, this.getId(), user.getId(), type.ordinal());
 
         for(ContactLink link : contactLinks) {
-            if(link.getUser().equals(user)) {
-                DaoCore.deleteEntity(link);
-            }
+            DaoCore.deleteEntity(link);
         }
+
         daoSession.update(this);
     }
 

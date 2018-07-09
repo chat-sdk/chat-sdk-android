@@ -308,7 +308,8 @@ public class Thread implements CoreEntity {
     }
 
     public void markRead () {
-        for(Message m : getMessages()) {
+        ArrayList<Message> messages = new ArrayList<>(getMessages());
+        for(Message m : messages) {
             m.setRead(true);
             m.update();
         }

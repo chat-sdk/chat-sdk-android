@@ -60,9 +60,9 @@ public class MainActivity extends BaseActivity {
 
         initViews();
 
-        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestMicrophoneAccess().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
+        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
             //requestVideoAccess().subscribe();
-        }))))));
+        }))));
 
         launchFromPush(getIntent().getExtras());
 

@@ -173,6 +173,7 @@
     <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
     <string name="unable_to_send_message">unable to send message&#8230;</string>
     <string name="file_read_permission_not_granted">Read external storage permission not granted</string>
+    <string name="record_permission_not_granted">Record permission not granted</string>
     <string name="unable_to_save_image_to_disk">Unable to save image to disk</string>
     <string name="couldnt_load_sticker_pack">Couldn\'t load sticker pack</string>
     <string name="unable_to_load_image">Unable to load image</string>
@@ -319,6 +320,8 @@
 
     <string name="user_list_username">Username</string>
     <string name="user_list_availability_placeholder">Availability</string>
+
+
 
 
 </resources>
