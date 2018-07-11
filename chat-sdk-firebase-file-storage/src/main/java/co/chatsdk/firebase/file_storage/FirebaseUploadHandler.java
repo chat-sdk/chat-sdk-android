@@ -47,7 +47,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
             }).addOnSuccessListener(taskSnapshot -> {
                 result.name = name;
                 result.mimeType = mimeType;
-                result.url = taskSnapshot.getDownloadUrl().toString();
+                result.url = fileRef.getDownloadUrl().toString();
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
                 e.onNext(result);
                 e.onComplete();

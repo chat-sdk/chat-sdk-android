@@ -5,4 +5,5 @@
     <string name="unknown_error">Unknown Error</string>
     <string name="unknown_sign_in_response">Unknown sign in response</string>
     <string name="authenticating">Authenticating</string>
+    <string name="back_not_available">Back not available</string>
 </resources>

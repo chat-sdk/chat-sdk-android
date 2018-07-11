@@ -2,8 +2,9 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
+        google()
+        maven { url "https://jitpack.io" }
         jcenter()
-        mavenCentral()
     }
 
     dependencies {
@@ -38,7 +39,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
-    api 'com.google.firebase:firebase-storage:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.firebase:firebase-storage:16.0.1'
 }
 
 // Bintray upload properties

@@ -2,8 +2,9 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
+        google()
+        maven { url "https://jitpack.io" }
         jcenter()
-        mavenCentral()
     }
 
     dependencies {
@@ -33,8 +34,9 @@ dependencies {
     implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-ui')
 
-    api 'com.google.firebase:firebase-messaging:' + project.GOOGLE_SERVICES_VERSION
-    api 'com.squareup.okhttp3:okhttp:3.9.0'
+    // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
+    api 'com.google.firebase:firebase-messaging:17.0.0'
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
 }
 
 // Bintray upload properties

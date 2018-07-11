@@ -16,7 +16,7 @@ public class FirebaseUIInterfaceAdapter extends BaseInterfaceAdapter {
 
     @Override
     public Class getLoginActivity() {
-        return FirebaseUIActivity.class;
+        return FirebaseUIModule.shared().getSplashScreenActivity();
     }
 
 }

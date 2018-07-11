@@ -2,13 +2,14 @@ package co.chatsdk.firebase.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.firebase.auth.FirebaseAuth;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.InterfaceManager;
@@ -16,20 +17,28 @@ import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+import static co.chatsdk.firebase.ui.FirebaseUIModule.RC_SIGN_IN;
+
 /**
  * Created by ben on 1/2/18.
  */
 
-public class FirebaseUIActivity extends BaseActivity {
+public class SplashScreenActivity extends BaseActivity {
+
+    Button signInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.chat_sdk_firebase_ui_activity);
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
-            FirebaseUIModule.shared().impl_startAuthenticationActivity(FirebaseUIActivity.this);
-        }
+        signInButton = (Button) findViewById(R.id.signInButton);
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAuthenticationActivity();
+            }
+        });
     }
 
     @Override
@@ -38,24 +47,32 @@ public class FirebaseUIActivity extends BaseActivity {
         authenticateWithCachedToken();
     }
 
+    public void startAuthenticationActivity () {
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(FirebaseUIModule.shared().getIdps())
+                        .build(),
+                RC_SIGN_IN);
+    }
+
     protected void authenticateWithCachedToken () {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            showProgressDialog(getString(R.string.authenticating));
-            NM.auth().authenticateWithCachedToken()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(this::dismissProgressDialog)
-                    .subscribe(() -> {
-                        AppBackgroundMonitor.shared().setEnabled(true);
-                        InterfaceManager.shared().a.startMainActivity(FirebaseUIActivity.this);
-                    }, throwable -> ChatSDK.logError(throwable));
-        }
+//        showProgressDialog(getString(R.string.authenticating));
+        NM.auth().authenticateWithCachedToken()
+                .observeOn(AndroidSchedulers.mainThread())
+//                .doFinally(this::dismissProgressDialog)
+                .subscribe(() -> {
+                    AppBackgroundMonitor.shared().setEnabled(true);
+                    InterfaceManager.shared().a.startMainActivity(SplashScreenActivity.this);
+                }, throwable -> {
+//                    startAuthenticationActivity();
+                });
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.
-        if (requestCode == FirebaseUIModule.RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             // Successfully signed in
@@ -71,12 +88,12 @@ public class FirebaseUIActivity extends BaseActivity {
                     return;
                 }
 
-                if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                     ToastHelper.show(this, R.string.no_internet_connection);
                     return;
                 }
 
-                if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
                     ToastHelper.show(this, R.string.unknown_error);
                     return;
                 }

@@ -37,7 +37,7 @@ public class AppObj extends MultiDexApplication {
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();
-
+//        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
     }
 

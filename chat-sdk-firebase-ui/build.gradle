@@ -2,8 +2,9 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
+        google()
+        maven { url "https://jitpack.io" }
         jcenter()
-        mavenCentral()
     }
 
     dependencies {
@@ -20,7 +21,6 @@ android {
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-        resConfigs "auto"
     }
 
     buildTypes {
@@ -42,9 +42,8 @@ dependencies {
     implementation project(':chat-sdk-ui')
     implementation project(':chat-sdk-firebase-adapter')
 
-    api 'com.firebaseui:firebase-ui-auth:3.1.2'
+    api 'com.firebaseui:firebase-ui-auth:4.1.0'
     api 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
 
 }
 
