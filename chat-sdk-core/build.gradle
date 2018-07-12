@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -19,7 +19,6 @@ apply plugin: 'org.greenrobot.greendao'
 android {
 
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
-    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
@@ -49,8 +48,8 @@ dependencies {
     api 'io.reactivex.rxjava2:rxandroid:2.0.1'
     api 'io.reactivex.rxjava2:rxjava:2.1.7'
     api 'org.apache.commons:commons-lang3:3.3.2'
-    api 'com.google.android.gms:play-services-auth:' + project.GOOGLE_SERVICES_VERSION
-    api 'com.google.android.gms:play-services-maps:' + project.GOOGLE_SERVICES_VERSION
+    api 'com.google.android.gms:play-services-auth:15.0.1'
+    api 'com.google.android.gms:play-services-maps:15.0.1'
 
 //    api 'com.google.android.gms:play-services:' + project.GOOGLE_SERVICES_VERSION
 //    api 'com.google.android.gms:play-services-games:15.0.1'

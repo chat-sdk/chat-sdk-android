@@ -57,10 +57,14 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void authenticateWithCachedToken () {
-//        showProgressDialog(getString(R.string.authenticating));
+        showProgressDialog(getString(R.string.authenticating));
+        signInButton.setEnabled(false);
         NM.auth().authenticateWithCachedToken()
                 .observeOn(AndroidSchedulers.mainThread())
-//                .doFinally(this::dismissProgressDialog)
+                .doFinally(() -> {
+                    signInButton.setEnabled(true);
+                    dismissProgressDialog();
+                })
                 .subscribe(() -> {
                     AppBackgroundMonitor.shared().setEnabled(true);
                     InterfaceManager.shared().a.startMainActivity(SplashScreenActivity.this);

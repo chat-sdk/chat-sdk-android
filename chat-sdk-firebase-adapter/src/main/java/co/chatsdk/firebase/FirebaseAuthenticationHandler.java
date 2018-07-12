@@ -104,7 +104,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public Completable authenticateWithUser(final FirebaseUser user) {
         return Completable.create(
-                emitter->{
+                e->{
                     final Map<String, Object> loginInfoMap = new HashMap<>();
                     // Save the authentication ID for the current user
                     // Set the current user
@@ -139,8 +139,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         authenticatedThisSession = true;
 
-                        userWrapper.push().subscribe(emitter::onComplete, emitter::onError);
-                    }, emitter::onError);
+                        userWrapper.push().subscribe(e::onComplete, e::onError);
+                    }, e::onError);
                 })
                 .subscribeOn(Schedulers.single());
     }

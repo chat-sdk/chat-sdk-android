@@ -120,9 +120,9 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.1.0'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.1.0'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.1.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.1.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.1.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.1.1'
 ```
 
 You may also need to enable Java 8:
@@ -307,7 +307,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.1.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.1.1'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -338,7 +338,7 @@ FirebasePushModule.activateForFirebase();
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.1.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.1.1'
 ```
 
 ##### Enable the module
@@ -382,7 +382,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.1.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.1.1'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -572,13 +572,10 @@ Now that the modules have been added, we need to configure the project.
 Now you will see that gradle cannot be sync because it missing some parameters. Open to **gradle.properties** file in the root of the project and make sure the following lines are set to the [latest values](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties).
 
 ```
-MIN_SDK = 
-ANDROID_BUILD_TARGET_SDK_VERSION = 
-ANDROID_COMPILE_SDK_VERSION = 
-
-GOOGLE_SERVICES_VERSION = 
-ANDROID_SUPPORT_VERSION = 
-ANDROID_BUILD_TOOLS_VERSION = 
+MIN_SDK = 16
+ANDROID_BUILD_TARGET_SDK_VERSION = 25
+ANDROID_COMPILE_SDK_VERSION = 27
+ANDROID_SUPPORT_VERSION = 27.1.1
 ```
 
 > **Note:**
