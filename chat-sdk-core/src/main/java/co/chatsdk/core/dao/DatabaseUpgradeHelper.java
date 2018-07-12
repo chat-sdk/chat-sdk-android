@@ -34,7 +34,9 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
     private List<Migration> getMigrations() {
         List<Migration> migrations = new ArrayList<>();
+        migrations.add(new MigrationV2());
         migrations.add(new MigrationV3());
+        migrations.add(new MigrationV4());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -75,6 +77,20 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " DROP COLUMN " + "META_DATA");
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " DROP COLUMN " + "RESOURCES");
 
+        }
+    }
+
+    private static class MigrationV4 implements Migration {
+
+        @Override
+        public Integer getVersion() {
+            return 4;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            //Adding new table
+            db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " DROP COLUMN " + "LAST_UPDATED");
         }
     }
 

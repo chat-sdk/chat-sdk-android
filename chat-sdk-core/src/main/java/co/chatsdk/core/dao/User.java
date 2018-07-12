@@ -34,7 +34,6 @@ public class User implements CoreEntity, UserListItem {
     private String entityID;
     private Integer authenticationType;
     private Date lastOnline;
-    private Date lastUpdated;
 
     @ToMany(referencedJoinProperty = "userId")
     private List<UserMetaValue> metaValues;
@@ -55,13 +54,12 @@ public class User implements CoreEntity, UserListItem {
     private transient UserDao myDao;
 
 
-    @Generated(hash = 1591398925)
-    public User(Long id, String entityID, Integer authenticationType, Date lastOnline, Date lastUpdated) {
+    @Generated(hash = 41386694)
+    public User(Long id, String entityID, Integer authenticationType, Date lastOnline) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationType = authenticationType;
         this.lastOnline = lastOnline;
-        this.lastUpdated = lastUpdated;
     }
 
     @Generated(hash = 586692638)
@@ -474,16 +472,6 @@ public class User implements CoreEntity, UserListItem {
 
     public void setLastOnline(java.util.Date lastOnline) {
         this.lastOnline = lastOnline;
-    }
-
-
-    public java.util.Date getLastUpdated() {
-        return this.lastUpdated;
-    }
-
-
-    public void setLastUpdated(java.util.Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
     }
 
     /**
