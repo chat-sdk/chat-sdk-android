@@ -122,15 +122,14 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
                             startRecording(view);
                         }
 
-                    // Stop recording
-                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                        stopRecording(view, motionEvent);
-                    }
-                }
-                else {
+                        // Stop recording
+                        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                            stopRecording(view, motionEvent);
+                        }
+                    } else {
                         ToastHelper.show(getContext(), getContext().getString(R.string.record_permission_not_granted));
                     }
-                });
+                }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage()));
             }
             return btnSend.onTouchEvent(motionEvent);
         });
