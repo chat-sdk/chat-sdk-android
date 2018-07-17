@@ -34,7 +34,8 @@ public class PermissionRequestHandler {
     private static int READ_EXTERNAL_STORAGE_REQUEST = 101;
     private static int RECORD_AUDIO_REQUEST = 102;
     private static int RECORD_VIDEO_REQUEST = 103;
-    private static int READ_CONTACTS_REQUEST = 104;
+    private static int CAMERA_REQUEST = 104;
+    private static int READ_CONTACTS_REQUEST = 105;
 
 //    HashMap<Integer, Boolean> requested = new HashMap<>();
 
@@ -54,8 +55,13 @@ public class PermissionRequestHandler {
         return requestPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_REQUEST);
     }
 
+    public Completable requestCameraAccess (Activity activity) {
+        return requestPermission(activity, Manifest.permission.CAMERA, CAMERA_REQUEST);
+    }
+
     public Completable requestVideoAccess (Activity activity) {
-        return requestPermission(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT, RECORD_VIDEO_REQUEST);
+        return requestCameraAccess(activity);
+//        return requestPermission(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT, RECORD_VIDEO_REQUEST);
     }
 
     public Completable requestReadContact (Activity activity) {
@@ -74,7 +80,7 @@ public class PermissionRequestHandler {
 
             if(permissionCheck == PERMISSION_DENIED) {
                 if(!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
-                    e.onError(new Throwable(activity.getString(R.string.record_permission_not_granted)));
+                    e.onError(new Throwable(String.format(activity.getString(R.string.__permission_not_granted), permission.replace("android.permission.",""))));
                 }
             }
             else {

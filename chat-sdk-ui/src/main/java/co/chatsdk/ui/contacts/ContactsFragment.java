@@ -63,8 +63,6 @@ public class ContactsFragment extends BaseFragment {
 
     /** When a user clicked he will be added to the current thread.*/
     public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
-    /** Used for the share intent, When a user press on a user the attached bundle from the share intent will be sent to the selected user.*/
-    public static final int CLICK_MODE_SHARE_CONTENT = 2992;
     /** Open profile context when user is clicked.*/
     public static final int CLICK_MODE_SHOW_PROFILE = 2993;
     /** Nothing happen on list item click.*/
@@ -328,8 +326,9 @@ public class ContactsFragment extends BaseFragment {
 
                     case CLICK_MODE_NONE:
                         break;
-                    default:
+                    case CLICK_MODE_SHOW_PROFILE:
                         InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
+                    default:
                 }
             }
         });

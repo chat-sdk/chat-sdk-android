@@ -13,14 +13,17 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
+import com.github.chrisbanes.photoview.PhotoView;
+
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import uk.co.senab.photoview.PhotoView;
+
 
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.
@@ -59,15 +62,18 @@ public class ImageMessageClickListener implements View.OnClickListener {
             final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button);
 
             saveButton.setOnClickListener(v1 -> {
-                if (bitmap != null) {
-                    String url = MediaStore.Images.Media.insertImage(activity.getContentResolver(), this.bitmap, "" , "");
-                    if (url != null) {
-                        ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                PermissionRequestHandler.shared().requestWriteExternalStorage(activity).subscribe(() -> {
+                    if (bitmap != null) {
+                        String url = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
+                        if (url != null) {
+                            ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                        }
+                        else {
+                            ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                        }
                     }
-                    else {
-                        ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
-                    }
-                }
+                }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage()));
+
             });
 
             saveButton.setVisibility(View.INVISIBLE);

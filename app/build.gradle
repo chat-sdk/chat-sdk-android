@@ -7,7 +7,6 @@ android {
         preDexLibraries = false
     }
 
-
     defaultConfig {
         applicationId "co.chatsdk.android.app"
 
@@ -68,15 +67,15 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.jar'], dir: 'libs')
     api 'com.android.support:multidex:1.0.3'
-    implementation project(path: ':chat-sdk-core')
-    implementation project(path: ':chat-sdk-ui')
-    implementation project(path: ':chat-sdk-firebase-adapter')
-    implementation project(path: ':chat-sdk-firebase-push')
-    implementation project(path: ':chat-sdk-firebase-file-storage')
+//    api project(path: ':chat-sdk-core')
+    api project(path: ':chat-sdk-ui')
+    api project(path: ':chat-sdk-firebase-adapter')
+    api project(path: ':chat-sdk-firebase-push')
+    api project(path: ':chat-sdk-firebase-file-storage')
 
-    implementation project(path: ':chat-sdk-firebase-ui')
+    api project(path: ':chat-sdk-firebase-ui')
 }
 
 apply plugin: 'com.google.gms.google-services'

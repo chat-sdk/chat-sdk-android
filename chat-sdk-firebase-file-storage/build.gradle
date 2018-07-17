@@ -8,7 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -36,8 +37,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':chat-sdk-core')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':chat-sdk-core')
     api 'com.google.firebase:firebase-storage:16.0.1'
 }
 

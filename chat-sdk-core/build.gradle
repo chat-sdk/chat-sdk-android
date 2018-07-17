@@ -9,10 +9,11 @@ buildscript {
 
     dependencies {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
+
 
 apply plugin: 'org.greenrobot.greendao'
 
@@ -39,20 +40,18 @@ greendao {
 
 dependencies {
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.jar'], dir: 'libs')
 
     api 'org.greenrobot:greendao:3.2.2'
-    api 'joda-time:joda-time:2.9.9'
-    api 'com.jakewharton.timber:timber:4.3.1'
-    api 'com.google.code.gson:gson:2.8.2'
-    api 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    api 'io.reactivex.rxjava2:rxjava:2.1.7'
-    api 'org.apache.commons:commons-lang3:3.3.2'
+    api 'joda-time:joda-time:2.10'
+    api 'com.jakewharton.timber:timber:4.7.1'
+    api 'com.google.code.gson:gson:2.8.5'
+    api 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    api 'io.reactivex.rxjava2:rxjava:2.1.16'
+    api 'org.apache.commons:commons-lang3:3.7'
     api 'com.google.android.gms:play-services-auth:15.0.1'
     api 'com.google.android.gms:play-services-maps:15.0.1'
 
-//    api 'com.google.android.gms:play-services:' + project.GOOGLE_SERVICES_VERSION
-//    api 'com.google.android.gms:play-services-games:15.0.1'
     api 'id.zelory:compressor:2.1.0'
 }
 

@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
-//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -38,7 +38,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.jar'], dir: 'libs')
 
     api 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
     api 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
@@ -49,17 +49,15 @@ dependencies {
     api "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
     api "com.google.android.gms:play-services-places:15.0.1"
 
-    // Seems to be an issue with Android Studio... Not actually a problem
     api 'com.android.support.constraint:constraint-layout:1.1.2'
     api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
 
-    api 'com.github.mukeshsolanki:country-picker-android:1.1.9'
-    api 'com.github.chrisbanes.photoview:library:1.2.4'
-    api 'id.zelory:compressor:2.1.0'
+    api 'com.github.mukeshsolanki:country-picker-android:1.2.4'
+    implementation 'com.github.chrisbanes:PhotoView:2.1.4'
     api 'com.soundcloud.android:android-crop:1.0.1@aar'
-    api 'com.facebook.fresco:fresco:1.5.0'
+    api 'com.facebook.fresco:fresco:1.9.0'
 
-    implementation project(':chat-sdk-core')
+    api project(':chat-sdk-core')
 }
 
 // Bintray upload properties

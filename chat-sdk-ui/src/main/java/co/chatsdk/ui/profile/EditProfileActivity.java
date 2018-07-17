@@ -16,7 +16,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.mukesh.countrypicker.Country;
 import com.mukesh.countrypicker.CountryPicker;
+import com.mukesh.countrypicker.OnCountryPickerListener;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -136,13 +138,16 @@ public class EditProfileActivity extends BaseActivity {
 
         countryButton.setOnClickListener(view -> {
 
-            final CountryPicker picker = CountryPicker.newInstance(getString(R.string.select_country));
-            picker.setListener((name1, countryCode1, phoneExtension, i) -> {
-                countryButton.setText(name1);
-                currentUser.setCountryCode(countryCode1);
-                picker.dismiss();
-            });
-            picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
+            final CountryPicker picker = new CountryPicker.Builder().with(EditProfileActivity.this).listener(new OnCountryPickerListener() {
+                @Override
+                public void onSelectCountry(Country country) {
+                    countryButton.setText(country.getName());
+                    currentUser.setCountryCode(country.getCode());
+                }
+            }).build();
+
+            picker.showDialog(getSupportFragmentManager());
+
         });
 
         logoutButton.setOnClickListener(view -> logout());
