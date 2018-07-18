@@ -100,7 +100,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         contactsFragment.setInflateMenu(false);
         contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
         contactsFragment.setExtraData(thread.getEntityID());
-        contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_NONE);
+        contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_SHOW_PROFILE);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
     }

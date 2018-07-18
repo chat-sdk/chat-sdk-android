@@ -61,12 +61,10 @@ public class ContactsFragment extends BaseFragment {
 
     public static final int MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD = 1996;
 
-    /** When a user clicked he will be added to the current thread.*/
-    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 2991;
     /** Open profile context when user is clicked.*/
-    public static final int CLICK_MODE_SHOW_PROFILE = 2993;
-    /** Nothing happen on list item click.*/
-    public static final int CLICK_MODE_NONE = 2994;
+    public static final int CLICK_MODE_SHOW_PROFILE = 0;
+    /** When a user clicked he will be added to the current thread.*/
+    public static final int CLICK_MODE_ADD_USER_TO_THREAD = 1;
 
     public static final String LOADING_MODE = "Loading_Mode";
     public static final String CLICK_MODE = "Click_Mode";
@@ -323,12 +321,9 @@ public class ContactsFragment extends BaseFragment {
                                     });
                         }
                         break;
-
-                    case CLICK_MODE_NONE:
-                        break;
                     case CLICK_MODE_SHOW_PROFILE:
-                        InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
                     default:
+                        InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
                 }
             }
         });

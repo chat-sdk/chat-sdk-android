@@ -1,10 +1,7 @@
 package co.chatsdk.core.session;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Bundle;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -45,7 +42,6 @@ public class Configuration {
     public String xmppDomain;
     public String xmppHostAddress;
     public int xmppPort;
-    public String xmppSearchService;
     public String xmppResource = "Android";
     public boolean xmppSslEnabled;
     public boolean xmppAcceptAllCertificates;
@@ -149,7 +145,6 @@ public class Configuration {
 
         public Builder (Context context) {
             config = new Configuration();
-            configureFromManifest(context);
             config.context = new WeakReference<>(context);
         }
 
@@ -216,15 +211,14 @@ public class Configuration {
             return this;
         }
 
-        public Builder xmpp (String domain, String hostAddress, int port, String searchService, String resource) {
-            return xmpp(domain, hostAddress, port, searchService, resource, false);
+        public Builder xmpp (String domain, String hostAddress, int port, String resource) {
+            return xmpp(domain, hostAddress, port, resource, false);
         }
 
-        public Builder xmpp (String domain, String hostAddress, int port, String searchService, String resource, boolean sslEnabled) {
+        public Builder xmpp (String domain, String hostAddress, int port, String resource, boolean sslEnabled) {
             config.xmppDomain = domain;
             config.xmppHostAddress = hostAddress;
             config.xmppPort = port;
-            config.xmppSearchService = searchService;
             config.xmppResource = resource;
             config.xmppSslEnabled = sslEnabled;
             return this;
@@ -503,41 +497,40 @@ public class Configuration {
             return this;
         }
 
-        public Builder configureFromManifest (Context context) {
-            try {
-
-                ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-                Bundle appBundle = ai.metaData;
-
-                twitterLogin(
-                        appBundle.getString("twitter_key"),
-                        appBundle.getString("twitter_secret")
-                );
-
-                firebase(
-                    appBundle.getString("firebase_root_path"),
-                    appBundle.getString("firebase_cloud_messaging_server_key")
-                );
-
-                String port = appBundle.getString("xmpp_port");
-
-                xmpp(
-                        appBundle.getString("xmpp_domain"),
-                        appBundle.getString("xmpp_host_address"),
-                        port != null && !port.isEmpty()? Integer.valueOf(port) : 5222,
-                        appBundle.getString("xmpp_search_service"),
-                        appBundle.getString("xmpp_resource")
-                );
-
-                googleMaps(appBundle.getString("com.google.android.geo.API_KEY"));
-                googleLogin(appBundle.getString("google_web_client_id"));
-
-            } catch (PackageManager.NameNotFoundException e) {
-                ChatSDK.logError(e);
-            }
-
-            return this;
-        }
+//        public Builder configureFromManifest (Context context) {
+//            try {
+//
+//                ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+//                Bundle appBundle = ai.metaData;
+//
+//                twitterLogin(
+//                        appBundle.getString("twitter_key"),
+//                        appBundle.getString("twitter_secret")
+//                );
+//
+//                firebase(
+//                    appBundle.getString("firebase_root_path"),
+//                    appBundle.getString("firebase_cloud_messaging_server_key")
+//                );
+//
+//                String port = appBundle.getString("xmpp_port");
+//
+//                xmpp(
+//                        appBundle.getString("xmpp_domain"),
+//                        appBundle.getString("xmpp_host_address"),
+//                        port != null && !port.isEmpty()? Integer.valueOf(port) : 5222,
+//                        appBundle.getString("xmpp_resource")
+//                );
+//
+//                googleMaps(appBundle.getString("com.google.android.geo.API_KEY"));
+//                googleLogin(appBundle.getString("google_web_client_id"));
+//
+//            } catch (PackageManager.NameNotFoundException e) {
+//                ChatSDK.logError(e);
+//            }
+//
+//            return this;
+//        }
 
         public Configuration build () {
             return config;
