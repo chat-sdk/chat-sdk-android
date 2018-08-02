@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
@@ -169,7 +168,7 @@ public class SearchActivity extends BaseActivity {
 
             final List<User> existingContacts = NM.contact().contacts();
 
-            NM.search().usersForIndex(Keys.Name, searchTextView.getText().toString())
+            NM.search().usersForIndex(searchTextView.getText().toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<User>() {
                 @Override
@@ -190,7 +189,7 @@ public class SearchActivity extends BaseActivity {
 
                 @Override
                 public void onError(@NonNull Throwable e) {
-                    showToast(getString(R.string.search_activity_no_user_found_toast));
+                    showToast(e.getLocalizedMessage());
                     dialog.dismiss();
                 }
 

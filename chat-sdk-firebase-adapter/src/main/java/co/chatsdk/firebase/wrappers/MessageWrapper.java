@@ -49,6 +49,7 @@ public class MessageWrapper  {
 
         values.put(Keys.Payload, model.getTextString());
         values.put(Keys.JSON, model.getRawJSONPayload());
+        values.put(Keys.JSONV2, model.getJSON());
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());

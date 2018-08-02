@@ -9,6 +9,13 @@ import io.reactivex.Observable;
 
 public interface SearchHandler {
 
-    Observable<User> usersForIndex(final String index, final String value);
+    // Checks all indexes
+    Observable<User> usersForIndex(final String value);
+
+    // Checks a particular index
+    Observable<User> usersForIndex(final String value, final String index);
+
+    // Checks a list of indexes
+    Observable<User> usersForIndexes(final String value, final String... indexes);
 
 }

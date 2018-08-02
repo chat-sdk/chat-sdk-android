@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
-import timber.log.Timber;
 
 @Entity
 public class Message implements CoreEntity {
@@ -65,12 +65,13 @@ public class Message implements CoreEntity {
     @ToOne(joinProperty = "lastMessageId")
     private Message lastMessage;
 
-    @Transient
-    public static final String TAG = Message.class.getSimpleName();
 
     // We cache the payload to improve performance
     @Transient
-    private JSONObject jsonPayload;
+    private JSONObject jsonObject;
+
+    @Transient
+    private HashMap<String, Object> json;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -161,31 +162,69 @@ public class Message implements CoreEntity {
         return this.text;
     }
 
+    public HashMap<String, Object> getJSON() {
+        if (json == null) {
+            json = new HashMap<>();
+            JSONObject object = getJSONObject();
+
+            Iterator<String> iterator = object.keys();
+            while(iterator.hasNext()) {
+                String key = iterator.next();
+                try {
+                    json.put(key, object.get(key));
+                }
+                catch (JSONException e) {
+                    ChatSDK.logError(e);
+                }
+            }
+
+        }
+        return json;
+    }
+
+    public JSONObject getJSONObject () {
+        if (jsonObject == null) {
+            try {
+                String json = getRawJSONPayload();
+                jsonObject = new JSONObject(json);
+            }
+            catch (Exception e) {
+                jsonObject = new JSONObject();
+                ChatSDK.logError(e);
+            }
+        }
+        return jsonObject;
+    }
+
     public void setRawJSONPayload (String payload) {
         this.text = payload;
+        // If we update the JSON payload, make sure to kill
+        // these objects so they're regenerated
+        jsonObject = null;
+        json = null;
     }
 
     public Object valueForKey (String key) {
+        return getJSON().get(key);
+    }
 
-        try {
-            String json = getRawJSONPayload();
-            if(json == null || json.length() == 0 ) {
-                return "";
-            }
-            if(jsonPayload == null) {
-                jsonPayload = new JSONObject(json);
-            }
-            if(jsonPayload.has(key)) {
-                return  jsonPayload.get(key);
-            }
-            else {
-                return "";
-            }
+    public String stringForKey (String key) {
+        Object value = valueForKey(key);
+        if (value instanceof String) {
+            return (String) value;
         }
-        catch (JSONException e) {
-            Timber.v(e.getLocalizedMessage());
-//            e.printStackTrace();
+        else {
             return "";
+        }
+    }
+
+    public Double doubleForKey (String key) {
+        Object value = valueForKey(key);
+        if (value instanceof Double) {
+            return (Double) value;
+        }
+        else {
+            return (double) 0;
         }
     }
 
@@ -216,41 +255,24 @@ public class Message implements CoreEntity {
     }
 
     public LatLng getLocation () {
-        Double latitude = (Double) valueForKey(Keys.MessageLatitude);
-        Double longitude = (Double) valueForKey(Keys.MessageLongitude);
+        Double latitude = doubleForKey(Keys.MessageLatitude);
+        Double longitude = doubleForKey(Keys.MessageLongitude);
         return new LatLng(latitude, longitude);
     }
 
     public void setValueForKey (Object payload, String key) {
         try {
-            if(jsonPayload == null) {
-                String jsonString = getRawJSONPayload();
-                jsonPayload = jsonString != null ? new JSONObject(jsonString) : new JSONObject();
-            }
-            jsonPayload.put(key, payload);
-            setRawJSONPayload(jsonPayload.toString());
+            jsonObject = getJSONObject();
+            jsonObject.put(key, payload);
+            setRawJSONPayload(jsonObject.toString());
         }
         catch (JSONException e) {
-            Timber.v(e.getLocalizedMessage());
-//            e.printStackTrace();
+            ChatSDK.logError(e);
         }
     }
 
     public HashMap<String, Object> values () {
-        HashMap<String, Object> values = new HashMap<>();
-        try {
-            JSONObject json = new JSONObject(getRawJSONPayload());
-
-            for(Iterator<String> iter = json.keys(); iter.hasNext(); ) {
-                String key = iter.next();
-                values.put(key, json.get(key));
-            }
-        }
-        catch (JSONException e) {
-        }
-        finally {
-            return values;
-        }
+        return getJSON();
     }
 
     /**
@@ -263,7 +285,7 @@ public class Message implements CoreEntity {
     }
 
     public String getTextString() {
-        return valueForKey(Keys.MessageText).toString();
+        return stringForKey(Keys.MessageText);
     }
 
     /**

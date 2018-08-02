@@ -116,7 +116,6 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         btnSend.setOnTouchListener((view, motionEvent) -> {
             if(recordOnPress) {
                 PermissionRequestHandler.shared().requestRecordAudio(getActivity()).subscribe(() -> {
-                    if (PermissionRequestHandler.shared().recordPermissionGranted()) {
                         // Start recording when we press down
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                             startRecording(view);
@@ -126,9 +125,6 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
                         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                             stopRecording(view, motionEvent);
                         }
-                    } else {
-                        ToastHelper.show(getContext(), getContext().getString(R.string.record_permission_not_granted));
-                    }
                 }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage()));
             }
             return btnSend.onTouchEvent(motionEvent);

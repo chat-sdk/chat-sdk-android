@@ -7,52 +7,49 @@
 
 package co.chatsdk.ui.utils;
 
-import android.content.Context;
-import android.content.Intent;
+import android.app.Activity;
 import android.net.Uri;
-import android.provider.MediaStore;
 
-import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.crop.CropImageActivity;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 /**
  * Created by braunster on 04/09/14.
  */
 public class Cropper {
-    private Uri source;
 
-    interface Extra {
-        String ASPECT_X = "aspect_x";
-        String ASPECT_Y = "aspect_y";
-    }
+    /**
+     * @return Intent that will open the crop context with an adjustable bounds for the cropping square.
+     * * * */
+    public static void startActivity(Activity activity, Uri output){
 
-    public Cropper(Uri source) {
-        this.source = source;
+        // start picker to get image for cropping and then use the image in cropping activity
+        CropImage.activity(output)
+                .setAllowFlipping(false)
+                .setInitialCropWindowPaddingRatio(0)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .start(activity);
+
     }
 
     /**
      * @return Intent that will open the crop context with an adjustable bounds for the cropping square.
      * * * */
-    public Intent getIntent(Context context, Uri output){
-        Intent cropIntent = new Intent();
-        cropIntent.setData(source);
-        cropIntent.setClass(context, CropImageActivity.class);
-        cropIntent.putExtra(Extra.ASPECT_X, 1);
-        cropIntent.putExtra(Extra.ASPECT_Y, 1);
-        cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, output);
-
-        return cropIntent;
+    public static void startSquareActivity(Activity activity, Uri output){
+        CropImage.activity(output)
+                .setAspectRatio(1,1)
+                .setInitialCropWindowPaddingRatio(0)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .start(activity);
     }
 
-    /**
-     * @return Intent that will open the crop context with an adjustable bounds for the cropping square.
-     * * * */
-    public Intent getAdjustIntent(Context context, Uri output){
-        Intent cropIntent = new Intent();
-        cropIntent.setData(source);
-        cropIntent.setClass(context, CropImageActivity.class);
-        cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, output);
-
-        return cropIntent;
+    public static void startCircleActivity(Activity activity, Uri output){
+        CropImage.activity(output)
+                .setCropShape(CropImageView.CropShape.OVAL)
+                .setInitialCropWindowPaddingRatio(0)
+                .setAspectRatio(1, 1)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .start(activity);
     }
+
 }

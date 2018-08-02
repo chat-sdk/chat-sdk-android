@@ -1,23 +1,19 @@
 package co.chatsdk.ui.chat.options;
 
-import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.utils.ActivityResult;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -65,17 +61,31 @@ public class MediaChatOption extends BaseChatOption {
                     }
                 };
 
+                Disposable d = null;
+
+                Consumer<? super Throwable> consumer = (Consumer<Throwable>) throwable -> {
+                    ToastHelper.show(activity, throwable.getLocalizedMessage());
+                };
+
                 if(type == Type.TakePhoto) {
-                    mediaSelector.startTakePhotoActivity(activity, handleResult);
+                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).subscribe(() -> {
+                            mediaSelector.startTakePhotoActivity(activity, handleResult);
+                        }, consumer);
                 }
                 if(type == Type.ChoosePhoto) {
-                    mediaSelector.startChooseImageActivity(activity, handleResult);
+                    d = PermissionRequestHandler.shared().requestReadExternalStorage(activity).subscribe(() -> {
+                        mediaSelector.startChooseImageActivity(activity, MediaSelector.CropType.Rectangle, handleResult);
+                    }, consumer);
                 }
                 if(type == Type.TakeVideo) {
-                    mediaSelector.startTakeVideoActivity(activity, handleResult);
+                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).subscribe(() -> {
+                        mediaSelector.startTakeVideoActivity(activity, handleResult);
+                    }, consumer);
                 }
                 if(type == Type.ChooseVideo) {
-                    mediaSelector.startChooseVideoActivity(activity, handleResult);
+                    d = PermissionRequestHandler.shared().requestReadExternalStorage(activity).subscribe(() -> {
+                        mediaSelector.startChooseVideoActivity(activity, handleResult);
+                    }, consumer);
                 }
             } catch (Exception ex) {
                 ToastHelper.show(activity, ex.getLocalizedMessage());

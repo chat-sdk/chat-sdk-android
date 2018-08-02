@@ -27,8 +27,6 @@ public class MessageListItem {
 
         this.message = message;
 
-        message.valueForKey(Keys.MessageImageWidth);
-
     }
 
     public String getEntityID () {
@@ -48,7 +46,7 @@ public class MessageListItem {
     }
 
     public String getImageURL () {
-        return (String) message.valueForKey(Keys.MessageImageURL);
+        return message.stringForKey(Keys.MessageImageURL);
     }
 
     public MessageSendStatus status () {
@@ -56,26 +54,9 @@ public class MessageListItem {
     }
 
     public LatLng getLatLng() {
-        double longitude = objectToDouble(message.valueForKey(Keys.MessageLongitude));
-        double latitude = objectToDouble(message.valueForKey(Keys.MessageLatitude));
+        double longitude = message.doubleForKey(Keys.MessageLongitude);
+        double latitude = message.doubleForKey(Keys.MessageLatitude);
         return new LatLng(latitude, longitude);
-    }
-
-    public Double objectToDouble (Object value) {
-        if(value != null) {
-            if(value instanceof String) {
-                try {
-                    return Double.parseDouble((String) value);
-                }
-                catch (NumberFormatException e) {
-                    ChatSDK.logError(e);
-                }
-            }
-            if(value instanceof Double) {
-                return (Double) value;
-            }
-        }
-        return 0.0;
     }
 
     public Message getMessage () {

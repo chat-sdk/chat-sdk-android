@@ -1,6 +1,9 @@
 {
   "rules": {
         
+    // ".read": "auth != null",
+    // ".write": "auth != null",
+    
     "$root": {
       
       // Clients can write a time value indexed by their user ID
@@ -73,6 +76,13 @@
           // The only thread users can read the thread
           // Anyone can read a public thread
           ".read": "data.child('users/'+auth.uid).exists() || data.child('details/type').val() == 1  || data.child('details/type_v4').val() == 4",
+
+          "meta": {
+
+            // Any user can make a new thread. Only the creator can change the details 
+            ".write": "!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
+
+          },
             
           "details": {
 
@@ -114,17 +124,22 @@
 
           "lastMessage": {
             
-            ".write": "!data.exists() || data.parent().child('users/' + auth.uid).exists()",
+            ".write": "!data.exists() || data.parent().parent().parent().child('users/' + auth.uid).exists()",
 
             "type": {
-              // Can only be set on message creation must be 0 - 6
-              ".validate": "newData.val() >= 0 && newData.val() <= 6"
+              // Can only be set on message creation must be 0 - 7
+              ".validate": "newData.val() >= 0 && newData.val() <= 7"
              },
 
-            "user-firebase-id": {
-              // Can only be set on message creation - a user can only mark a message with their uid
-              ".validate": "newData.val() == auth.uid"
-            }
+             // It should be the same as the last message
+             // "JSON": {
+             //   ".validate": "newData.val() == data.parent().parent().child('messages')"
+             // }   
+            
+            // "user-firebase-id": {
+            //   // Can only be set on message creation - a user can only mark a message with their uid
+            //   ".validate": "newData.val() == auth.uid"
+            // }
 
           },
 
@@ -132,7 +147,7 @@
             
             // Allow the client to update the thread if they are a member
             // or if it's a public thread
-            ".write": "!data.exists() || data.parent().child('users/' + auth.uid).exists()|| data.parent().child('details/type').val() == 1  || data.parent().child('details/type_v4').val() == 4",
+            ".write": "!data.exists() || data.parent().parent().parent().child('users/' + auth.uid).exists()|| data.parent().child('details/type').val() == 1  || data.parent().child('details/type_v4').val() == 4",
               
             "details": {
               ".validate": "newData.val() == now"
@@ -152,8 +167,14 @@
               // The user must be in the user list. 
               // Any user can make a new message
               // Only the sender can modify a message
+              // Make sure that if this is a private thread that the user isn't blocked
               ".write": "data.parent().parent().child('users/' + auth.uid).exists() && (!data.exists() || data.child('user-firebase-id').val() == auth.uid)",
+//  || root.child($root + '/users/' + auth.uid + '/blocked/' + newData.child('user-firbease-id').val()).exists() == false && false
+                // ".validate": "data.parent().parent().child('details/type_v4').val() != 2 || !data.parent().parent().child('details/type_v4').exists() || root.child($root + '/users/' + auth.uid + '/blocked/' + newData.child('user-firbease-id').val()).exists()",
 
+                // The problem is that we don't know who the message is to
+                 // ".validate": "root.child($root + '/users/' + data.parent().parent().child('users').child('') + auth.uid + '/blocked/').exists()",
+                
               "date": {
                 // Must be current time
                 ".validate": "newData.val() == now"
@@ -164,8 +185,8 @@
               },
 
               "type": {
-                // Can only be set on message creation must be 0 - 6
-                ".validate": "!data.exists() && (newData.val() >=0 && newData.val() <= 6)"
+                // Can only be set on message creation must be 0 - 7
+                ".validate": "!data.exists() && (newData.val() >= 0 && newData.val() <= 7)"
               },
 
               "user-firebase-id": {
@@ -214,7 +235,7 @@
             "$user_id": {
 
               // Members can add users and the creator can too
-              ".write": "data.parent().parent().child('users/' + auth.uid).exists() || data.parent().parent().child('details/creator-entity-id').val() == auth.uid || data.parent().parent().child('details/type').val() == 1  || data.parent().parent().child('details/type_v4').val() == 4",
+              ".write": "data.parent().parent().child('users/' + auth.uid).exists() || data.parent().parent().child('details/creator-entity-id').val() == auth.uid",
               
                // Add this back in - this is removed because it will prevent us from
                // creating a thread with a user who doesn't exist. This is a problem
@@ -237,6 +258,8 @@
          ".read": "data.child(auth.uid).exists() || !data.child(auth.uid).exists()",
          
           "$user_id": {
+
+            // ".read": "$user_id == auth.uid || data.parent().child(auth.uid).exists()",
  
             "last-online": {
               ".write": "auth.uid == $user_id",

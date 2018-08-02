@@ -5,6 +5,7 @@ import com.google.firebase.database.Query;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.Keys;
@@ -25,7 +26,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class FirebaseSearchHandler implements SearchHandler {
 
-    public Observable<User> usersForIndex(final String index, final String value) {
+    public Observable<User> usersForIndex(final String value) {
+        return usersForIndexes(value, Keys.Name, Keys.Email, Keys.Phone);
+    }
+
+    public Observable<User> usersForIndexes(final String value, final String... indexes) {
+        ArrayList<Observable<User>> observables = new ArrayList<>();
+        for (String index : indexes) {
+            observables.add(usersForIndex(value, index));
+        }
+        return Observable.merge(observables);
+    }
+
+    public Observable<User> usersForIndex(final String value, final String index) {
         return Observable.create((ObservableOnSubscribe<User>) e -> {
 
             if (StringUtils.isBlank(value))
@@ -38,6 +51,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                     .orderByChild(Keys.Meta + '/' + index)
                     .startAt(value)
                     .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
+            query.keepSynced(true);
 
             query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                 if (hasValue) {
@@ -64,6 +78,9 @@ public class FirebaseSearchHandler implements SearchHandler {
                     }
                 }
                 e.onComplete();
+            }).onCancelled(error -> {
+                e.onError(new Throwable(error.getMessage()));
+//                e.onComplete();
             }));
 
             e.setDisposable(new Disposable() {

@@ -29,8 +29,6 @@ import java.util.HashMap;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
@@ -81,7 +79,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
-        PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
+//        PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
 
         updateExtras(getIntent().getExtras());
 

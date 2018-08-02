@@ -27,14 +27,11 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import io.reactivex.Completable;
 
 
 public class MainActivity extends BaseActivity {
@@ -60,9 +57,9 @@ public class MainActivity extends BaseActivity {
 
         initViews();
 
-        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
-            //requestVideoAccess().subscribe();
-        }))));
+//        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
+//            //requestVideoAccess().subscribe();
+//        }))));
 
         launchFromPush(getIntent().getExtras());
 
@@ -77,43 +74,43 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void requestPermissionSafely (Completable c) {
-        c.subscribe(new CrashReportingCompletableObserver());
-    }
-
-    public Completable requestMicrophoneAccess () {
-        if(NM.audioMessage() != null) {
-            return PermissionRequestHandler.shared().requestRecordAudio(this);
-        }
-        return Completable.complete();
-    }
-
-    public Completable requestExternalStorage () {
+//    public void requestPermissionSafely (Completable c) {
+//        c.subscribe(new CrashReportingCompletableObserver());
+//    }
+//
+//    public Completable requestMicrophoneAccess () {
 //        if(NM.audioMessage() != null) {
-            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
+//            return PermissionRequestHandler.shared().requestRecordAudio(this);
 //        }
 //        return Completable.complete();
-    }
+//    }
+//
+//    public Completable requestExternalStorage () {
+////        if(NM.audioMessage() != null) {
+//            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
+////        }
+////        return Completable.complete();
+//    }
+//
+//    public Completable requestVideoAccess () {
+//        if(NM.videoMessage() != null) {
+//            return PermissionRequestHandler.shared().requestVideoAccess(this);
+//        }
+//        return Completable.complete();
+//    }
+//
+//    public Completable requestReadContacts () {
+//        if(NM.contact() != null) {
+//            return PermissionRequestHandler.shared().requestReadContact(this);
+//        }
+//        return Completable.complete();
+//    }
 
-    public Completable requestVideoAccess () {
-        if(NM.videoMessage() != null) {
-            return PermissionRequestHandler.shared().requestVideoAccess(this);
-        }
-        return Completable.complete();
-    }
 
-    public Completable requestReadContacts () {
-        if(NM.contact() != null) {
-            return PermissionRequestHandler.shared().requestReadContact(this);
-        }
-        return Completable.complete();
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
+//    }
 
     @Override
     protected void onResume() {

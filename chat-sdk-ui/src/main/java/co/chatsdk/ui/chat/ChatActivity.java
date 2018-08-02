@@ -109,7 +109,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected MessagesListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView subtitleTextView;
-    protected PermissionRequestHandler permissionHandler = new PermissionRequestHandler();
 
     protected DisposableList disposableList = new DisposableList();
     protected Disposable typingTimerDisposable;
@@ -269,7 +268,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**

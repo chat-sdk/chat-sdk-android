@@ -102,6 +102,25 @@
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="submit">Submit</string>
+    <string name="ok">OK</string>
+
+    <string name="permission_record_audio_title">Microphone Access</string>
+    <string name="permission_record_audio_message">Grant permission to send audio messages</string>
+
+    <string name="permission_write_external_storage_title">Gallery Access</string>
+    <string name="permission_write_external_storage_message">Grant permission to allow images to be saved to your phone</string>
+
+    <string name="permission_read_external_storage_title">Gallery Access</string>
+    <string name="permission_read_external_storage_message">Grant permission to allow images to be sent from your gallery</string>
+
+    <string name="permission_camera_title">Camera Access</string>
+    <string name="permission_camera_message">Grant permission to allow image messages to be sent</string>
+
+    <string name="permission_video_output_title">Camera Access</string>
+    <string name="permission_video_output_message">Grant permission to allow video messages to be sent</string>
+
+    <string name="permission_read_contacts_title">Contacts Access</string>
+    <string name="permission_read_contacts_message">Grant permission to allow contact book search</string>
 
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
@@ -140,6 +159,7 @@
     <string name="login_activity_auth_failed">Auth Failed</string>
     <string name="connecting">Connecting&#8230;</string>
     <string name="registering">Registering&#8230;</string>
+
 
     <!--Acceptability-->
     <string name="acces_message_option_button">Message option button</string>

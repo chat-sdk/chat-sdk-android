@@ -42,6 +42,7 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 8/14/17.
@@ -59,7 +60,6 @@ public class EditProfileActivity extends BaseActivity {
     protected Button countryButton;
     protected Button logoutButton;
     protected HashMap<String, Object> userMeta;
-    private String avatarURL;
     protected MediaSelector mediaSelector = new MediaSelector();
 
     protected User currentUser;
@@ -107,7 +107,7 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        avatarImageView.setOnClickListener(view -> mediaSelector.startChooseImageActivity(EditProfileActivity.this, result -> {
+        avatarImageView.setOnClickListener(view -> mediaSelector.startChooseImageActivity(EditProfileActivity.this, MediaSelector.CropType.Circle,result -> {
 
             try{
                 File compress = new Compressor(ChatSDK.shared().context())
@@ -166,7 +166,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected void logout () {
-        NM.auth().logout()
+        Disposable d = NM.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
             ChatSDK.logError(throwable);
