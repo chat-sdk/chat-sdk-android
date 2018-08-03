@@ -156,13 +156,17 @@ public class ProfileFragment extends BaseFragment {
         if (view != null) view.setVisibility(visibility);
     }
 
+    protected void setViewVisibility(View view, boolean visible) {
+        setViewVisibility(view, visible ? View.VISIBLE : View.INVISIBLE);
+    }
+
     protected void setViewText(TextView textView, String text) {
         if (textView != null) textView.setText(text);
     }
 
     protected void setRowVisible (int textViewID, int imageViewID, boolean visible) {
-        setViewVisibility(mainView.findViewById(textViewID), visible ? View.VISIBLE : View.INVISIBLE);
-        setViewVisibility(mainView.findViewById(imageViewID), visible ? View.VISIBLE : View.INVISIBLE);
+        setViewVisibility(mainView.findViewById(textViewID), visible);
+        setViewVisibility(mainView.findViewById(imageViewID), visible);
     }
 
     protected void updateBlockedButton(boolean blocked) {
@@ -272,14 +276,14 @@ public class ProfileFragment extends BaseFragment {
         boolean isCurrentUser = user.isMe();
         setHasOptionsMenu(isCurrentUser);
 
-        int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
+        boolean visible = !isCurrentUser;
 
-        setViewVisibility(followsImageView, visibility);
-        setViewVisibility(followedImageView, visibility);
-        setViewVisibility(followsTextView, visibility);
-        setViewVisibility(followedTextView, visibility);
-        setViewVisibility(blockOrUnblockButton, visibility);
-        setViewVisibility(addOrDeleteButton, visibility);
+        setViewVisibility(followsImageView, visible);
+        setViewVisibility(followedImageView, visible);
+        setViewVisibility(followsTextView, visible);
+        setViewVisibility(followedTextView, visible);
+        setViewVisibility(blockOrUnblockButton, visible);
+        setViewVisibility(addOrDeleteButton, visible);
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
@@ -295,7 +299,7 @@ public class ProfileFragment extends BaseFragment {
             }
             else {
                 // TODO: Set height to zero
-                setViewVisibility(blockOrUnblockButton, View.INVISIBLE);
+                setViewVisibility(blockOrUnblockButton, false);
             }
 
             updateFriendsButton(ChatSDK.contact().exists(getUser()));
@@ -304,13 +308,13 @@ public class ProfileFragment extends BaseFragment {
 
         // Country Flag
         String countryCode = getUser().getCountryCode();
-        setViewVisibility(flagImageView, View.INVISIBLE);
+        setViewVisibility(flagImageView, false);
 
         if (countryCode != null && !countryCode.isEmpty()) {
             int flagResourceId = getFlagResId(countryCode);
             if (flagImageView != null && flagResourceId >= 0) {
                 flagImageView.setImageResource(flagResourceId);
-                setViewVisibility(flagImageView, View.VISIBLE);
+                setViewVisibility(flagImageView, true);
             }
         }
 
@@ -330,13 +334,11 @@ public class ProfileFragment extends BaseFragment {
         String availability = getUser().getAvailability();
 
         // Availability
-        if (availability != null && !isCurrentUser) {
-            if (availabilityImageView != null) {
-                availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
-            }
-            setViewVisibility(availabilityImageView, View.VISIBLE);
+        if (availability != null && !isCurrentUser && availabilityImageView != null) {
+            availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
+            setViewVisibility(availabilityImageView, true);
         } else {
-            setViewVisibility(availabilityImageView, View.INVISIBLE);
+            setViewVisibility(availabilityImageView, false);
         }
 
         // Location
