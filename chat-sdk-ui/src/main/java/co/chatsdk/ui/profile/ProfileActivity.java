@@ -4,18 +4,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 8/23/17.
@@ -27,7 +25,7 @@ public class ProfileActivity extends BaseActivity {
     protected boolean startingChat = false;
     protected MenuItem chatMenuItem;
 
-    protected ArrayList<Disposable> disposables = new ArrayList<>();
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -76,7 +74,7 @@ public class ProfileActivity extends BaseActivity {
 
     public void startChat () {
 
-        if(startingChat) {
+        if (startingChat) {
             return;
         }
 
@@ -84,7 +82,7 @@ public class ProfileActivity extends BaseActivity {
 
         showProgressDialog(getString(R.string.creating_thread));
 
-        disposables.add(NM.thread().createThread("", user, NM.currentUser())
+        disposableList.add(NM.thread().createThread("", user, NM.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();
@@ -95,8 +93,6 @@ public class ProfileActivity extends BaseActivity {
                 }, throwable -> {
                     ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
                 }));
-
-
     }
 
     @Override
@@ -108,10 +104,7 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (Disposable d : disposables) {
-            d.dispose();
-        }
-        disposables.clear();
+        disposableList.dispose();
     }
 
 }

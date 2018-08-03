@@ -41,7 +41,6 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 8/14/17.
@@ -63,7 +62,7 @@ public class EditProfileActivity extends BaseActivity {
 
     protected User currentUser;
 
-    DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -164,7 +163,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected void logout () {
-        disposables.add(NM.auth().logout()
+        disposableList.add(NM.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
             ChatSDK.logError(throwable);
@@ -270,7 +269,7 @@ public class EditProfileActivity extends BaseActivity {
 
         if (changed) {
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
-            disposables.add(NM.core().pushUser()
+            disposableList.add(NM.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         dismissProgressDialog();
@@ -332,6 +331,12 @@ public class EditProfileActivity extends BaseActivity {
         }
         availabilitySpinner.setSelection(getIndex(availabilitySpinner, availability));
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposableList.dispose();
     }
 
 }

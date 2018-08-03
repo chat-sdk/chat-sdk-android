@@ -19,11 +19,10 @@ public class DisposableListenerList {
     }
 
     public void dispose () {
-        for(IsDisposable d : disposables) {
+        for (IsDisposable d : disposables) {
             d.dispose();
         }
         disposables.clear();
     }
-
 
 }

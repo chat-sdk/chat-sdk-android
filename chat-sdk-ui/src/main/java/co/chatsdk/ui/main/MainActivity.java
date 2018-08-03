@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity {
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
 
-    DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,28 +81,28 @@ public class MainActivity extends BaseActivity {
 //    }
 //
 //    public Completable requestMicrophoneAccess () {
-//        if(NM.audioMessage() != null) {
+//        if (NM.audioMessage() != null) {
 //            return PermissionRequestHandler.shared().requestRecordAudio(this);
 //        }
 //        return Completable.complete();
 //    }
 //
 //    public Completable requestExternalStorage () {
-////        if(NM.audioMessage() != null) {
+////        if (NM.audioMessage() != null) {
 //            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
 ////        }
 ////        return Completable.complete();
 //    }
 //
 //    public Completable requestVideoAccess () {
-//        if(NM.videoMessage() != null) {
+//        if (NM.videoMessage() != null) {
 //            return PermissionRequestHandler.shared().requestVideoAccess(this);
 //        }
 //        return Completable.complete();
 //    }
 //
 //    public Completable requestReadContacts () {
-//        if(NM.contact() != null) {
+//        if (NM.contact() != null) {
 //            return PermissionRequestHandler.shared().requestReadContact(this);
 //        }
 //        return Completable.complete();
@@ -115,11 +115,11 @@ public class MainActivity extends BaseActivity {
 //    }
 
     public void addLocalNotifications(Observable<NetworkEvent> messageAddedEvents, int threadType) {
-        disposables.add(messageAddedEvents.filter(NetworkEvent.filterThreadType(threadType))
+        disposableList.add(messageAddedEvents.filter(NetworkEvent.filterThreadType(threadType))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
-                    if(message != null) {
-                        if(!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications(threadType)) {
+                    if (message != null) {
+                        if (!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications(threadType)) {
                             ReadStatus status = message.readStatusForUser(NM.currentUser());
                             if (!message.isRead() && !status.is(ReadStatus.delivered())) {
                                 NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
@@ -133,7 +133,7 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        disposables.dispose();
+        disposableList.dispose();
 
          // TODO: Check this
         Observable<NetworkEvent> messageEvents = NM.events().sourceOnMain()
@@ -144,7 +144,7 @@ public class MainActivity extends BaseActivity {
             addLocalNotifications(messageEvents, ThreadType.Public);
         }
 
-        disposables.add(NM.events().sourceOnMain()
+        disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 
@@ -156,7 +156,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause () {
         super.onPause();
-        disposables.dispose();
+        disposableList.dispose();
     }
 
     @Override
@@ -259,7 +259,7 @@ public class MainActivity extends BaseActivity {
 
     public void clearData () {
         for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).clearData();
             }
         }
@@ -267,7 +267,7 @@ public class MainActivity extends BaseActivity {
 
     public void reloadData () {
         for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).safeReloadData();
             }
         }
@@ -286,8 +286,7 @@ public class MainActivity extends BaseActivity {
             String subject = ChatSDK.config().contactDeveloperEmailSubject;
             String dialogTitle = ChatSDK.config().contactDeveloperDialogTitle;
 
-            if(StringUtils.isNotEmpty(emailAddress))
-            {
+            if (StringUtils.isNotEmpty(emailAddress)) {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                         "mailto", emailAddress, null));
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);

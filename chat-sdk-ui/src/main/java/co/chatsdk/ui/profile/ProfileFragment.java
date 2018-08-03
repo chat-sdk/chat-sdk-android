@@ -26,6 +26,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
@@ -63,7 +64,7 @@ public class ProfileFragment extends BaseFragment {
     protected ImageView phoneImageView;
     protected ImageView emailImageView;
 
-    protected ArrayList<Disposable> disposables = new ArrayList<>();
+    protected DisposableList disposableList = new DisposableList();
 
     protected User user;
 
@@ -85,10 +86,10 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        disposables.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        disposableList.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if(networkEvent.user.equals(getUser())) {
+                    if (networkEvent.user.equals(getUser())) {
                         reloadData();
                     }
                 }));
@@ -133,11 +134,11 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void addUserMetaUpdatedEventListenert() {
-        disposables.add(NM.events().sourceOnMain()
+        disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if(networkEvent.user.equals(getUser())) {
+                    if (networkEvent.user.equals(getUser())) {
                         reloadData();
                     }
                 }));
@@ -174,7 +175,7 @@ public class ProfileFragment extends BaseFragment {
     protected void block() {
         if (isCurrentUser(getUser())) return;
 
-        disposables.add(NM.blocking().blockUser(getUser().getEntityID())
+        disposableList.add(NM.blocking().blockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateBlockedButton(true);
@@ -189,7 +190,7 @@ public class ProfileFragment extends BaseFragment {
     protected void unblock() {
         if (isCurrentUser(getUser())) return;
 
-        disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
+        disposableList.add(NM.blocking().unblockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateBlockedButton(false);
@@ -212,7 +213,7 @@ public class ProfileFragment extends BaseFragment {
     protected void delete() {
         if (isCurrentUser(getUser())) return;
 
-        disposables.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
+        disposableList.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     ToastHelper.show(getContext(), getString(R.string.user_deleted));
@@ -235,12 +236,12 @@ public class ProfileFragment extends BaseFragment {
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
 
-        setViewVisibility(followsImageView,  visibility);
-        setViewVisibility(followedImageView, visibility);
-        setViewVisibility(followsTextView,   visibility);
-        setViewVisibility(followedTextView,  visibility);
-        setViewVisibility(blockButton,       visibility);
-        setViewVisibility(deleteButton,      visibility);
+        setViewVisibility(followsImageView, visible);
+        setViewVisibility(followedImageView, visible);
+        setViewVisibility(followsTextView, visible);
+        setViewVisibility(followedTextView, visible);
+        setViewVisibility(blockButton, visible);
+        setViewVisibility(deleteButton, visible);
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
@@ -318,7 +319,7 @@ public class ProfileFragment extends BaseFragment {
 //            followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
 //        }
 //
-//        if(follows) {
+//        if (follows) {
 //            followsImageView.setMaxHeight(followsHeight);
 //            followsTextView.setMaxHeight(followsHeight);
 //        }
@@ -326,7 +327,7 @@ public class ProfileFragment extends BaseFragment {
 //            followsImageView.setMaxHeight(0);
 //            followsTextView.setMaxHeight(0);
 //        }
-//        if(followed) {
+//        if (followed) {
 //            followedImageView.setMaxHeight(followedHeight);
 //            followedTextView.setMaxHeight(followedHeight);
 //        }
@@ -439,11 +440,7 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        for (Disposable d : disposables) {
-            d.dispose();
-        }
-        disposables.clear();
+        disposableList.dispose();
     }
 
     @Override
@@ -459,4 +456,5 @@ public class ProfileFragment extends BaseFragment {
     public void setUser (User user) {
         this.user = user;
     }
+
 }
