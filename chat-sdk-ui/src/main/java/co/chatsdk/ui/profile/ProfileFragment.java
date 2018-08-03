@@ -168,12 +168,8 @@ public class ProfileFragment extends BaseFragment {
 //        updateInterface();
     }
 
-    protected boolean isCurrentUser(User user) {
-        return NM.currentUser().equals(user);
-    }
-
     protected void block() {
-        if (isCurrentUser(getUser())) return;
+        if (getUser().isMe()) return;
 
         disposableList.add(NM.blocking().blockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -188,7 +184,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void unblock() {
-        if (isCurrentUser(getUser())) return;
+        if (getUser().isMe()) return;
 
         disposableList.add(NM.blocking().unblockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -203,7 +199,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void toggleBlocked() {
-        if (isCurrentUser(getUser())) return;
+        if (getUser().isMe()) return;
 
         boolean blocked = NM.blocking().isBlocked(getUser().getEntityID());
         if (blocked) unblock();
@@ -211,7 +207,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void delete() {
-        if (isCurrentUser(getUser())) return;
+        if (getUser().isMe()) return;
 
         disposableList.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -231,7 +227,7 @@ public class ProfileFragment extends BaseFragment {
         if (user == null) return;
         //this.user = user;
 
-        boolean isCurrentUser = isCurrentUser(user);
+        boolean isCurrentUser = user.isMe();
         setHasOptionsMenu(isCurrentUser);
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
