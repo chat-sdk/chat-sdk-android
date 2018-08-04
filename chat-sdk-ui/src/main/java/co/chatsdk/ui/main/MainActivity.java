@@ -22,11 +22,13 @@ import java.util.List;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
+import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.NotificationUtils;
 import co.chatsdk.ui.R;
-
 
 public class MainActivity extends BaseActivity {
 
@@ -34,7 +36,7 @@ public class MainActivity extends BaseActivity {
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
 
-    protected DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +69,30 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        disposables.dispose();
+        disposableList.dispose();
 
-        disposables.add(ChatSDK.events().sourceOnMain()
+        // TODO: Check this
+        Runnable r = () -> disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .subscribe(networkEvent -> {
+                    if (networkEvent.thread.typeIs(ThreadType.Private) || (networkEvent.thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
+                        if (networkEvent.message == null || networkEvent.message.getSender().isMe()) return;
+                        TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
+                        if (showLocalNotificationsForTab(tab, networkEvent.thread.getType())) {
+                            ReadStatus status = networkEvent.message.readStatusForUser(ChatSDK.currentUser());
+                            if (!networkEvent.message.isRead() && !status.is(ReadStatus.delivered())) {
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            }
+                        }
+                    }
+                }));
+
+        r.run();
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 
-        updateLocalNotificationsForTab();
         reloadData();
 
     }
@@ -81,7 +100,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause () {
         super.onPause();
-        disposables.dispose();
+        disposableList.dispose();
     }
 
     @Override
@@ -124,8 +143,6 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
-                updateLocalNotificationsForTab();
-
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
                 for(int i = 0; i < tabs.size(); i++) {
@@ -147,18 +164,17 @@ public class MainActivity extends BaseActivity {
         viewPager.setOffscreenPageLimit(3);
     }
 
-    public void updateLocalNotificationsForTab () {
-        TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
-        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab));
-    }
-
-    public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
+    public boolean showLocalNotificationsForTab (TabLayout.Tab tab, int threadType) {
         // Don't show notifications on the threads tabs
         Tab t = adapter.getTabs().get(tab.getPosition());
 
         Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
+        Class publicThreadsFragmentClass = ChatSDK.ui().publicThreadsFragment().getClass();
 
-        return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        boolean isPrivateTab = t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        boolean isPublicTab = t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
+
+        return (threadType == ThreadType.Private && !isPrivateTab) || (threadType == ThreadType.Public && !isPublicTab);
     }
 
     public void clearData () {

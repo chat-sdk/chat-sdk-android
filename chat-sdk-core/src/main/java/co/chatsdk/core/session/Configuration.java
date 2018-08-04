@@ -60,6 +60,7 @@ public class Configuration {
     // Push notification
     public int pushNotificationImageDefaultResourceId;
     public String pushNotificationAction;
+    public boolean pushNotificationsForPublicChatRoomsEnabled;
     public boolean unreadMessagesCountForPublicChatRoomsEnabled;
     public boolean inboundPushHandlingEnabled = true;
 
@@ -331,6 +332,11 @@ public class Configuration {
 
         public Builder setPushNotificationAction (String action) {
             config.pushNotificationAction = action;
+            return this;
+        }
+
+        public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
+            config.pushNotificationsForPublicChatRoomsEnabled = value;
             return this;
         }
 
