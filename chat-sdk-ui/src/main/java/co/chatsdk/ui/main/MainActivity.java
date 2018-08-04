@@ -114,21 +114,6 @@ public class MainActivity extends BaseActivity {
 //        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
 //    }
 
-    public void addLocalNotifications(Observable<NetworkEvent> messageAddedEvents, int threadType) {
-        disposableList.add(messageAddedEvents.filter(NetworkEvent.filterThreadType(threadType))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
-                    if (message != null) {
-                        if (!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications(threadType)) {
-                            ReadStatus status = message.readStatusForUser(NM.currentUser());
-                            if (!message.isRead() && !status.is(ReadStatus.delivered())) {
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
-                            }
-                        }
-                    }
-                }));
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -136,18 +121,26 @@ public class MainActivity extends BaseActivity {
         disposableList.dispose();
 
          // TODO: Check this
-        Observable<NetworkEvent> messageEvents = NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded));
+        Runnable r = () -> disposableList.add(NM.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .subscribe(networkEvent -> {
+                    if (networkEvent.thread.typeIs(ThreadType.Private) ||
+                            (networkEvent.thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
+                        if (networkEvent.message == null || networkEvent.message.getSender().isMe()) return;
+                        if (InterfaceManager.shared().a.showLocalNotifications(networkEvent.thread.getType())) {
+                            ReadStatus status = networkEvent.message.readStatusForUser(NM.currentUser());
+                            if (!networkEvent.message.isRead() && !status.is(ReadStatus.delivered())) {
+                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                            }
+                        }
+                    }
+                }));
 
-        addLocalNotifications(messageEvents, ThreadType.Private);
-        if (ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled) {
-            addLocalNotifications(messageEvents, ThreadType.Public);
-        }
+        r.run();
 
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
-
 
         reloadData();
 
