@@ -130,10 +130,10 @@ public class ProfileFragment extends BaseFragment {
 
         reloadData();
 
-        addUserMetaUpdatedEventListenert();
+        addUserMetaUpdatedEventListener();
     }
 
-    protected void addUserMetaUpdatedEventListenert() {
+    protected void addUserMetaUpdatedEventListener() {
         disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
