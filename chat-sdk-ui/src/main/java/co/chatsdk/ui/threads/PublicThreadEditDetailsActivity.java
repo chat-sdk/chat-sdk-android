@@ -24,7 +24,6 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Strings;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
@@ -70,13 +69,8 @@ public class PublicThreadEditDetailsActivity extends BaseActivity {
 
         if (thread != null) {
             actionBar.setTitle(Strings.nameForThread(thread));
-            nameInput.setText(thread.getName());
+            nameInput.setText(thread.getDisplayName());
             saveButton.setText(R.string.update_public_thread);
-
-            // TODO: permanently move thread name into meta data
-            ThreadMetaValue nameMetaValue = thread.metaValueForKey("name");
-            if (nameMetaValue != null)
-                nameInput.setText(nameMetaValue.getValue());
         } else {
             saveButton.setEnabled(false);
         }
@@ -114,8 +108,8 @@ public class PublicThreadEditDetailsActivity extends BaseActivity {
                     .subscribe((_thread, throwable) -> {
                         if (throwable == null) {
                             // TODO: permanently move thread name into meta data
-                            thread.setMetaValue("name", threadName);
-                            disposableList.add(new ThreadWrapper(thread).pushMeta().subscribe(() -> {
+                            _thread.setMetaValue("name", threadName);
+                            disposableList.add(NM.thread().pushThreadMeta(_thread).subscribe(() -> {
                                 dismissProgressDialog();
                                 ToastHelper.show(ChatSDK.shared().context(), String.format(getString(co.chatsdk.ui.R.string.public_thread__is_created), threadName));
 
@@ -132,8 +126,7 @@ public class PublicThreadEditDetailsActivity extends BaseActivity {
             thread.setName(threadName);
             thread.update();
             thread.setMetaValue("name", threadName);
-            // TODO: Update the thread name
-            disposableList.add(new ThreadWrapper(thread).pushMeta().subscribe(this::finish));
+            disposableList.add(NM.thread().pushThreadMeta(thread).subscribe(this::finish));
         }
     }
 

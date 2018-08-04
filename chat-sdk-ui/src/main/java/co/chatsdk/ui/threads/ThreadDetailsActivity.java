@@ -97,10 +97,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     }
 
     protected void updateMetaData() {
-        // TODO: permanently move thread name into meta data
-        ThreadMetaValue nameMetaValue = thread.metaValueForKey("name");
-        if (nameMetaValue != null)
-            actionBar.setTitle(nameMetaValue.getValue());
+        actionBar.setTitle(thread.getDisplayName());
     }
 
     protected void loadData () {

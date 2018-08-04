@@ -58,7 +58,6 @@ dependencies {
     api 'com.facebook.fresco:fresco:1.9.0'
 
     api project(':chat-sdk-core')
-    api project(':chat-sdk-firebase-adapter')
 }
 
 // Bintray upload properties
