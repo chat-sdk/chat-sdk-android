@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -32,8 +31,6 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 
 
 public class MainActivity extends BaseActivity {
@@ -41,6 +38,7 @@ public class MainActivity extends BaseActivity {
     protected TabLayout tabLayout;
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
+    protected TabLayout.Tab selectedTab;
 
     protected DisposableList disposableList = new DisposableList();
 
@@ -127,7 +125,15 @@ public class MainActivity extends BaseActivity {
                     if (networkEvent.thread.typeIs(ThreadType.Private) ||
                             (networkEvent.thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
                         if (networkEvent.message == null || networkEvent.message.getSender().isMe()) return;
-                        if (InterfaceManager.shared().a.showLocalNotifications(networkEvent.thread.getType())) {
+
+                        Tab t = adapter.getTabs().get(selectedTab.getPosition());
+                        Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
+                        Class publicThreadsFragmentClass = InterfaceManager.shared().a.publicThreadsFragment().getClass();
+                        boolean showPrivateNotifications = !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+                        boolean showPublicNotifications = !t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
+
+                        if ((networkEvent.thread.getType() != ThreadType.Private && showPrivateNotifications) ||
+                                (networkEvent.thread.getType() != ThreadType.Public && showPublicNotifications)) {
                             ReadStatus status = networkEvent.message.readStatusForUser(NM.currentUser());
                             if (!networkEvent.message.isRead() && !status.is(ReadStatus.delivered())) {
                                 NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
@@ -166,7 +172,6 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void initViews() {
-
         viewPager = findViewById(R.id.pager);
 
         tabLayout = findViewById(R.id.tab_layout);
@@ -183,7 +188,7 @@ public class MainActivity extends BaseActivity {
         }
 
         ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
-        setShowLocalNotificationsForTab(tabLayout.getTabAt(0));
+        selectedTab = tabLayout.getTabAt(0);
 
         viewPager.setAdapter(adapter);
 
@@ -193,11 +198,11 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
-                setShowLocalNotificationsForTab(tab);
+                selectedTab = tab;
 
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
-                for(int i = 0; i < tabs.size(); i++) {
+                for (int i = 0; i < tabs.size(); i++) {
                     ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
                 }
             }
@@ -234,24 +239,10 @@ public class MainActivity extends BaseActivity {
 //        });
 
         viewPager.setOffscreenPageLimit(3);
-
-    }
-
-    public void setShowLocalNotificationsForTab (TabLayout.Tab tab) {
-        Tab t = adapter.getTabs().get(tab.getPosition());
-
-        Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
-        Class publicThreadsFragmentClass = InterfaceManager.shared().a.publicThreadsFragment().getClass();
-
-        boolean showPrivateNotifications = !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
-        boolean showPublicNotifications = !t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
-
-        InterfaceManager.shared().a.setShowLocalNotifications(ThreadType.Private, showPrivateNotifications);
-        InterfaceManager.shared().a.setShowLocalNotifications(ThreadType.Public, showPublicNotifications);
     }
 
     public void clearData () {
-        for(Tab t : adapter.getTabs()) {
+        for (Tab t : adapter.getTabs()) {
             if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).clearData();
             }
@@ -259,7 +250,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void reloadData () {
-        for(Tab t : adapter.getTabs()) {
+        for (Tab t : adapter.getTabs()) {
             if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).safeReloadData();
             }

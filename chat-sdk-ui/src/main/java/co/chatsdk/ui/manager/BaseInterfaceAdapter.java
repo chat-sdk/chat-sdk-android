@@ -353,14 +353,4 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         showLocalNotifications.put(ThreadType.Private, shouldShow);
     }
 
-    @Override
-    public boolean showLocalNotifications(int threadType) {
-        return showLocalNotifications.get(threadType) && ChatSDK.config().showLocalNotifications;
-    }
-
-    @Override
-    public void setShowLocalNotifications(int threadType, boolean shouldShow) {
-        showLocalNotifications.put(threadType, shouldShow);
-    }
-
 }

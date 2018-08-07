@@ -73,11 +73,6 @@ public interface InterfaceAdapter {
     void removeCustomMessageHandler (CustomMessageHandler handler);
     List<CustomMessageHandler> getCustomMessageHandlers();
 
-    @Deprecated
     boolean showLocalNotifications();
-    @Deprecated
     void setShowLocalNotifications(boolean shouldShow);
-
-    boolean showLocalNotifications(int threadType);
-    void setShowLocalNotifications(int threadType, boolean shouldShow);
 }
