@@ -1,5 +1,7 @@
 package co.chatsdk.core.session;
 
+import java.util.Map;
+
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.AudioMessageHandler;
@@ -23,6 +25,9 @@ import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
 
+import co.chatsdk.core.types.AccountDetails;
+import io.reactivex.Completable;
+
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
  */
@@ -34,7 +39,14 @@ public class NM {
     }
 
     public static AuthenticationHandler auth () {
-        return a().auth;
+        if (a()==null)
+        {
+            return new BaseNetworkAdapter().auth;
+
+        }
+        else {
+            return a().auth;
+        }
     }
 
     public static ThreadHandler thread () {
