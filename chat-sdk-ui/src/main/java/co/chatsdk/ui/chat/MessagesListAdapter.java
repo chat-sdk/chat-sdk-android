@@ -83,7 +83,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             itemView.setOnLongClickListener(v -> {
 
-                if (messageItem.message.getSender().isMe()) {
+                if (!messageItem.message.getSender().isMe()) {
                     return false;
                 }
 

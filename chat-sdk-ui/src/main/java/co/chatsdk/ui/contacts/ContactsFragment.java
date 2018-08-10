@@ -79,7 +79,7 @@ public class ContactsFragment extends BaseFragment {
 
     protected Disposable listOnClickListenerDisposable;
 
-    protected DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
      * {@link #loadingMode}*/
@@ -187,11 +187,11 @@ public class ContactsFragment extends BaseFragment {
             setRetainInstance(true);
         }
 
-        disposables.add(NM.events().sourceOnMain()
+        disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
                 .subscribe(networkEvent -> loadData(false)));
 
-        disposables.add(NM.events().sourceOnMain()
+        disposableList.add(NM.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
 
@@ -396,7 +396,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        disposables.dispose();
+        disposableList.dispose();
     }
 
 }

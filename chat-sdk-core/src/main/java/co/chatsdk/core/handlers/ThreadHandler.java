@@ -78,4 +78,5 @@ public interface ThreadHandler {
     void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, Thread thread);
 
     Completable pushThread(Thread thread);
+    Completable pushThreadMeta(Thread thread);
 }

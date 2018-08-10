@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import co.chatsdk.core.Tab;
@@ -24,6 +25,7 @@ import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.ui.R;
@@ -40,6 +42,7 @@ import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.profile.ProfileFragment;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
+import co.chatsdk.ui.threads.PublicThreadEditDetailsActivity;
 import co.chatsdk.ui.threads.PublicThreadsFragment;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
@@ -54,7 +57,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public ChatOptionsHandler chatOptionsHandler = null;
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
 
-    protected boolean showLocalNotifications;
+    protected Map<Integer, Boolean> showLocalNotifications = new HashMap<Integer, Boolean>();
 
     public BaseInterfaceAdapter (Context context) {
 
@@ -87,6 +90,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             chatOptions.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
         }
 
+        showLocalNotifications.put(ThreadType.Private, false);
+        showLocalNotifications.put(ThreadType.Public, false);
     }
 
     @Override
@@ -167,6 +172,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class getPublicThreadEditDetailsActivity() { return PublicThreadEditDetailsActivity.class; }
+
+    @Override
     public Class getSelectContactActivity() {
         return SelectContactActivity.class;
     }
@@ -232,6 +240,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public void startEditProfileActivity(Context context, String userEntityID){
         Intent intent = new Intent(context, getEditProfileActivity());
         intent.putExtra(USER_ENTITY_ID, userEntityID);
+        startActivity(context, intent);
+    }
+
+    public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
+        Intent intent = new Intent(context, getPublicThreadEditDetailsActivity());
+        intent.putExtra(THREAD_ENTITY_ID, threadEntityID);
         startActivity(context, intent);
     }
 
@@ -331,13 +345,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public boolean showLocalNotifications() {
-        return showLocalNotifications && ChatSDK.config().showLocalNotifications;
+        return showLocalNotifications.get(ThreadType.Private) && ChatSDK.config().showLocalNotifications;
     }
 
     @Override
     public void setShowLocalNotifications(boolean shouldShow) {
-        showLocalNotifications = shouldShow;
+        showLocalNotifications.put(ThreadType.Private, shouldShow);
     }
-
 
 }

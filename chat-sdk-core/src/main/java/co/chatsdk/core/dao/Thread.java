@@ -365,7 +365,11 @@ public class Thread implements CoreEntity {
 
     public String getDisplayName () {
         // Either get the name or return the names of the participants
-        if(!StringChecker.isNullOrEmpty(getName())) {
+        ThreadMetaValue nameMetaValue = metaValueForKey("name");
+        if (nameMetaValue != null && !StringChecker.isNullOrEmpty(nameMetaValue.getValue())) {
+            return nameMetaValue.getValue();
+        }
+        else if (!StringChecker.isNullOrEmpty(getName())) {
             return getName();
         }
         else {

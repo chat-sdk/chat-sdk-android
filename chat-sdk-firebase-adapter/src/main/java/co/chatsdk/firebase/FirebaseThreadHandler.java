@@ -14,6 +14,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -67,7 +68,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @param userThreadLinkType - 1 => Add, 2 => Remove
      * @return
      */
-    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
+    protected Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
         return Completable.create(e -> {
 
             DatabaseReference ref = FirebasePaths.firebaseRawRef();
@@ -118,6 +119,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return new ThreadWrapper(thread).push();
     }
 
+    public Completable pushThreadMeta(Thread thread) {
+        return new ThreadWrapper(thread).pushMeta();
+    }
+
     /** Send a message,
      *  The message need to have a owner thread attached to it or it cant be added.
      *  If the destination thread is public the system will add the user to the message thread if needed.
@@ -152,7 +157,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return createThread(name, users, type, null);
     }
 
-     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
@@ -250,7 +255,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             return;
         }
 
-        if (message.getThread().typeIs(ThreadType.Private)) {
+        if (message.getThread().typeIs(ThreadType.Private) || ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled) {
             NM.push().pushToUsers(message.getThread().getUsers(), message);
         }
     }

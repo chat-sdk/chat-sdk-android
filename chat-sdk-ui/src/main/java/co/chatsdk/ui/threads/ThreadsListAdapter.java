@@ -24,6 +24,8 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.utils.Strings;
 import io.reactivex.Observable;
@@ -89,7 +91,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         int unreadMessageCount = thread.getUnreadMessagesCount();
 
-        if (unreadMessageCount != 0 && thread.typeIs(ThreadType.Private)) {
+        if (unreadMessageCount != 0 && (thread.typeIs(ThreadType.Private) || ChatSDK.config().unreadMessagesCountForPublicChatRoomsEnabled)) {
 
             holder.unreadMessageCountTextView.setText(String.valueOf(unreadMessageCount));
             holder.unreadMessageCountTextView.setVisibility(View.VISIBLE);
@@ -196,4 +198,17 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         clearData(false);
         updateThreads(threads);
     }
+
+    public void filterThreads(String filter) {
+        List<Thread> filteredThreads = new ArrayList<>();
+        List<Thread> newThreads = NM.thread().getThreads(ThreadType.Public);
+        for (Thread t : newThreads) {
+            if (t.getName() != null && t.getName().toLowerCase().contains(filter.toLowerCase())) {
+                filteredThreads.add(t);
+            }
+        }
+        clearData();
+        updateThreads(filteredThreads);
+    }
+
 }

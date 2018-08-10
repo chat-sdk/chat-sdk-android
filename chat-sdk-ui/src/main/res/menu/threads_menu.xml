@@ -42,4 +42,10 @@
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="10" />
+
+    <item android:id="@+id/action_chat_sdk_menu_overflow"
+        android:title="@string/action_menu_overflow"
+        android:icon="@drawable/ic_overflow"
+        android:orderInCategory="17"/>
+
 </menu>

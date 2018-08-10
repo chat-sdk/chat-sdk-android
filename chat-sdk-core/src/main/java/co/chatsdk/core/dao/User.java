@@ -319,7 +319,11 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public String metaStringForKey(String key) {
-        return (String) metaMap().get(key);
+        return metaMap().get(key);
+    }
+
+    public Boolean metaBooleanForKey(String key) {
+        return metaValueForKey(key) != null && metaValueForKey(key).getValue().toLowerCase().equals("true");
     }
 
     public void setMetaString(String key, String value) {

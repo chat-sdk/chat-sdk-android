@@ -20,16 +20,16 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('/Users/ben/.android/release.keystore')
-            keyAlias 'androidreleasekey'
+            storeFile file('release.keystore')
             storePassword 'R3l3ase123!'
+            keyAlias 'androidreleasekey'
             keyPassword 'R3l3ase123!'
         }
         debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'D3bug123'
             storeFile file('debug.keystore')
             storePassword 'D3bug123'
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
         }
     }
 

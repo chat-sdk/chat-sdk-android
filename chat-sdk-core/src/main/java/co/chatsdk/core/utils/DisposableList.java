@@ -21,7 +21,7 @@ public class DisposableList {
     }
 
     public void dispose () {
-        for(Disposable d : disposables) {
+        for (Disposable d : disposables) {
             d.dispose();
         }
         disposables.clear();
