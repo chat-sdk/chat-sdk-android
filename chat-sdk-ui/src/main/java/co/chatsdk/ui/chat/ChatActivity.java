@@ -259,6 +259,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         recyclerView = findViewById(R.id.list_chat);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                scrollListTo(ListPosition.Bottom, false);
+            }
+        });
+
         if (messageListAdapter == null) {
             messageListAdapter = new MessagesListAdapter(ChatActivity.this);
         }

@@ -74,11 +74,13 @@ public class ThreadDetailsActivity extends BaseActivity {
         loadData();
     }
 
-    private void initViews() {
+    protected void initViews() {
 
         actionBar = getSupportActionBar();
-        actionBar.setTitle(Strings.nameForThread(thread));
-        actionBar.setHomeButtonEnabled(true);
+        if (actionBar != null) {
+            actionBar.setTitle(Strings.nameForThread(thread));
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         final View actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_activity_thread_details, null);
 
