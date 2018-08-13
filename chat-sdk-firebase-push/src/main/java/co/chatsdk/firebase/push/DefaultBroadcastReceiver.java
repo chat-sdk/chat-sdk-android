@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
@@ -31,7 +32,7 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
         // This will be the case if the app
         // If the app is in the background
         Intent appIntent = null;
-        if (!NM.auth().userAuthenticatedThisSession()) {
+        if (!NM.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, InterfaceManager.shared().a.getLoginActivity());
         } else if (AppBackgroundMonitor.shared().inBackground() && NM.auth().userAuthenticatedThisSession()) {
             appIntent = new Intent(context, InterfaceManager.shared().a.getChatActivity());

@@ -116,6 +116,10 @@ public class Configuration {
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = true;
 
+    // If this is set to true, we will simulate what happens when a push is recieved and the app
+    // is in the killed state. This is useful to help us debug that process.
+    public boolean backgroundPushTestModeEnabled = false;
+
     public int loginScreenDrawableResourceID = -1;
 
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
@@ -356,6 +360,11 @@ public class Configuration {
 
         public Builder setMessageColorReply (String hexColor) {
             config.messageColorReply = Color.parseColor(hexColor);
+            return this;
+        }
+
+        public Builder setBackgroundPushTestModeEnabled (boolean enabled) {
+            config.backgroundPushTestModeEnabled = enabled;
             return this;
         }
 
