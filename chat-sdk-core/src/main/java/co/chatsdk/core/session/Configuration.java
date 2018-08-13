@@ -115,6 +115,7 @@ public class Configuration {
 
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = true;
+    public int pushNotificationColor = Color.parseColor("#ff33b5e5");
 
     // If this is set to true, we will simulate what happens when a push is recieved and the app
     // is in the killed state. This is useful to help us debug that process.
@@ -514,40 +515,15 @@ public class Configuration {
             return this;
         }
 
-//        public Builder configureFromManifest (Context context) {
-//            try {
-//
-//                ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-//                Bundle appBundle = ai.metaData;
-//
-//                twitterLogin(
-//                        appBundle.getString("twitter_key"),
-//                        appBundle.getString("twitter_secret")
-//                );
-//
-//                firebase(
-//                    appBundle.getString("firebase_root_path"),
-//                    appBundle.getString("firebase_cloud_messaging_server_key")
-//                );
-//
-//                String port = appBundle.getString("xmpp_port");
-//
-//                xmpp(
-//                        appBundle.getString("xmpp_domain"),
-//                        appBundle.getString("xmpp_host_address"),
-//                        port != null && !port.isEmpty()? Integer.valueOf(port) : 5222,
-//                        appBundle.getString("xmpp_resource")
-//                );
-//
-//                googleMaps(appBundle.getString("com.google.android.geo.API_KEY"));
-//                googleLogin(appBundle.getString("google_web_client_id"));
-//
-//            } catch (PackageManager.NameNotFoundException e) {
-//                ChatSDK.logError(e);
-//            }
-//
-//            return this;
-//        }
+        public Builder pushNotificationColor (String hexColor) {
+            config.pushNotificationColor = Color.parseColor(hexColor);
+            return this;
+        }
+
+        public Builder pushNotificationColor (int color) {
+            config.pushNotificationColor = color;
+            return this;
+        }
 
         public Configuration build () {
             return config;

@@ -12,7 +12,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.SearchHandler;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
@@ -67,7 +67,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                                         String childValue = (String) meta.child(index).getValue();
                                         if (childValue.toLowerCase().contains(value.toLowerCase())) {
                                             final UserWrapper wrapper = new UserWrapper(userSnapshot);
-                                            if (!wrapper.getModel().equals(NM.currentUser()) && !NM.contact().exists(wrapper.getModel())) {
+                                            if (!wrapper.getModel().equals(ChatSDK.currentUser()) && !ChatSDK.contact().exists(wrapper.getModel())) {
                                                 e.onNext(wrapper.getModel());
                                             }
                                         }

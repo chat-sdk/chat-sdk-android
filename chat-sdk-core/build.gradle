@@ -54,6 +54,8 @@ dependencies {
 
     api 'id.zelory:compressor:2.1.0'
     api 'android.arch.lifecycle:extensions:1.1.1'
+    api 'com.facebook.fresco:fresco:1.9.0'
+
 }
 
 // Bintray upload properties

@@ -6,11 +6,9 @@ import android.os.Bundle;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
-import co.chatsdk.ui.helpers.NotificationUtils;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
+import co.chatsdk.core.utils.NotificationUtils;
 
 /**
  * Created by ben on 5/10/18.
@@ -22,8 +20,8 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
 
-        final String threadEntityID = extras.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
-        final String userEntityID = extras.getString(BaseInterfaceAdapter.USER_ENTITY_ID);
+        final String threadEntityID = extras.getString(InterfaceManager.THREAD_ENTITY_ID);
+        final String userEntityID = extras.getString(InterfaceManager.USER_ENTITY_ID);
         final String title = extras.getString("gcm.notification.title");
         final String body = extras.getString("gcm.notification.body");
         final String action = extras.getString("gcm.notification.click_action");
@@ -32,13 +30,13 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
         // This will be the case if the app
         // If the app is in the background
         Intent appIntent = null;
-        if (!NM.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
-            appIntent = new Intent(context, InterfaceManager.shared().a.getLoginActivity());
-        } else if (AppBackgroundMonitor.shared().inBackground() && NM.auth().userAuthenticatedThisSession()) {
-            appIntent = new Intent(context, InterfaceManager.shared().a.getChatActivity());
+        if (!ChatSDK.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
+            appIntent = new Intent(context, ChatSDK.ui().getLoginActivity());
+        } else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().userAuthenticatedThisSession()) {
+            appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {
-            appIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadEntityID);
+            appIntent.putExtra(InterfaceManager.THREAD_ENTITY_ID, threadEntityID);
             appIntent.setAction(threadEntityID);
 //            appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

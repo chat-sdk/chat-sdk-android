@@ -1,6 +1,6 @@
 package co.chatsdk.firebase.push;
 
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 
@@ -11,11 +11,11 @@ import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 public class FirebasePushModule  {
 
     public static void activateForFirebase () {
-        FirebasePushModule.activate(() -> NM.core().pushUser().subscribe(new CrashReportingCompletableObserver()));
+        FirebasePushModule.activate(() -> ChatSDK.core().pushUser().subscribe(new CrashReportingCompletableObserver()));
     }
 
     public static void activateForXMPP () {
-        FirebasePushModule.activate(() -> NM.core().pushUser().doOnComplete(() -> NM.core().goOnline()).subscribe(new CrashReportingCompletableObserver()));
+        FirebasePushModule.activate(() -> ChatSDK.core().pushUser().doOnComplete(() -> ChatSDK.core().goOnline()).subscribe(new CrashReportingCompletableObserver()));
     }
 
 

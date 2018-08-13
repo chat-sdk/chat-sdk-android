@@ -94,7 +94,7 @@ public class StorageManager {
     }
 
     public List<Thread> allThreads () {
-        List<UserThreadLink> links =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, NM.currentUser().getId());
+        List<UserThreadLink> links =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
         ArrayList<Thread> threads = new ArrayList<>();
         for(UserThreadLink link : links) {
             threads.add(link.getThread());

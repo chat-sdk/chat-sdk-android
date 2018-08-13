@@ -84,8 +84,8 @@ public class ThreadWrapper  {
 
             FirebaseReferenceManager.shared().addRef(detailsRef, listener);
 
-            if(NM.typingIndicator() != null) {
-                NM.typingIndicator().typingOn(model);
+            if(ChatSDK.typingIndicator() != null) {
+                ChatSDK.typingIndicator().typingOn(model);
             }
         }).subscribeOn(Schedulers.single());
     }
@@ -188,8 +188,8 @@ public class ThreadWrapper  {
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadDetailsRef(model.getEntityID()));
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadLastMessageRef(model.getEntityID()));
         metaOff();
-        if(NM.typingIndicator() != null) {
-            NM.typingIndicator().typingOff(model);
+        if(ChatSDK.typingIndicator() != null) {
+            ChatSDK.typingIndicator().typingOff(model);
         }
     }
 
@@ -259,7 +259,7 @@ public class ThreadWrapper  {
                                     Object userIDObject = hashValue.get(Keys.UserFirebaseId);
                                     if (userIDObject instanceof String) {
                                         String userID = (String) userIDObject;
-                                        if (NM.blocking() != null && NM.blocking().isBlocked(userID)) {
+                                        if (ChatSDK.blocking() != null && ChatSDK.blocking().isBlocked(userID)) {
                                             return;
                                         }
                                     }
@@ -271,10 +271,10 @@ public class ThreadWrapper  {
 
                                 boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
-                                if(NM.hook() != null) {
+                                if(ChatSDK.hook() != null) {
                                     HashMap<String, Object> data = new HashMap<>();
                                     data.put(BaseHookHandler.MessageReceived_Message, message);
-                                    NM.hook().executeHook(BaseHookHandler.MessageReceived, data);
+                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
                                 }
 
                                 message.getModel().setMessageStatus(MessageSendStatus.Delivered);
@@ -372,7 +372,7 @@ public class ThreadWrapper  {
                     .onChildAdded((snapshot, s, hasValue) -> {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
-                        NM.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
+                        ChatSDK.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
 
                     }).onChildRemoved((snapshot, hasValue) -> {
                         UserWrapper user = new UserWrapper(snapshot);
@@ -401,7 +401,7 @@ public class ThreadWrapper  {
      **/
     private Single<Long> threadDeletedDate() {
         return Single.create((SingleOnSubscribe<Long>) e -> {
-            User user = NM.currentUser();
+            User user = ChatSDK.currentUser();
 
             DatabaseReference currentThreadUser = FirebasePaths.threadRef(model.getEntityID())
                     .child(FirebasePaths.UsersPath)
@@ -441,7 +441,7 @@ public class ThreadWrapper  {
 
                 model.update();
 
-                final User currentUser = NM.currentUser();
+                final User currentUser = ChatSDK.currentUser();
 
                 DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
                         .child(currentUser.getEntityID());
@@ -466,7 +466,7 @@ public class ThreadWrapper  {
                 }
                 else {
 
-                    NM.thread().removeUsersFromThread(model, currentUser).subscribe(e::onComplete, e::onError);
+                    ChatSDK.thread().removeUsersFromThread(model, currentUser).subscribe(e::onComplete, e::onError);
                 }
             }
         }).subscribeOn(Schedulers.single());
@@ -658,8 +658,8 @@ public class ThreadWrapper  {
     }
 
     private void updateReadReceipts() {
-        if(NM.readReceipts() != null) {
-            NM.readReceipts().updateReadReceipts(model);
+        if(ChatSDK.readReceipts() != null) {
+            ChatSDK.readReceipts().updateReadReceipts(model);
         }
     }
 

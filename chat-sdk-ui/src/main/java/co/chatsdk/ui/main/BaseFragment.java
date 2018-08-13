@@ -82,7 +82,7 @@ public abstract class BaseFragment extends DialogFragment {
 
     abstract public void clearData ();
     public void safeReloadData () {
-        if(getView() != null && NM.auth().userAuthenticated()) {
+        if(getView() != null && ChatSDK.auth().userAuthenticated()) {
             reloadData();
         }
     }

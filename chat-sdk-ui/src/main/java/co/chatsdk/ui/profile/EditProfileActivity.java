@@ -32,14 +32,12 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -69,7 +67,7 @@ public class EditProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_edit_profile);
 
-        String userEntityID = getIntent().getStringExtra(BaseInterfaceAdapter.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
 
         if(userEntityID == null || userEntityID.isEmpty()) {
             showToast("User Entity ID not set");
@@ -118,7 +116,7 @@ public class EditProfileActivity extends BaseActivity {
                 Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
 
                 // Cache the file
-                File file = ImageUtils.saveImageToCache(ChatSDK.shared().context(), bitmap, NM.currentUser().getEntityID());
+                File file = ImageUtils.saveImageToCache(ChatSDK.shared().context(), bitmap, ChatSDK.currentUser().getEntityID());
 
                 avatarImageView.setImageURI(Uri.fromFile(file));
                 currentUser.setAvatarURL(Uri.fromFile(file).toString());
@@ -166,9 +164,9 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected void logout () {
-        Disposable d = NM.auth().logout()
+        Disposable d = ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> InterfaceManager.shared().a.startLoginActivity(getApplicationContext(), false), throwable -> {
+                .subscribe(() -> ChatSDK.ui().startLoginActivity(getApplicationContext(), false), throwable -> {
             ChatSDK.logError(throwable);
             Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         });
@@ -253,7 +251,7 @@ public class EditProfileActivity extends BaseActivity {
 
         if(presenceChanged && !changed) {
             // Send presence
-            NM.core().goOnline();
+            ChatSDK.core().goOnline();
         }
 
         // TODO: Add this in for Firebase maybe move this to push user...
@@ -277,7 +275,7 @@ public class EditProfileActivity extends BaseActivity {
 
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
 
-            NM.core().pushUser()
+            ChatSDK.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         dismissProgressDialog();

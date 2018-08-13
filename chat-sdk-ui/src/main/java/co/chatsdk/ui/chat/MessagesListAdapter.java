@@ -43,7 +43,7 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import timber.log.Timber;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
@@ -94,7 +94,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 // Set up the buttons
                 builder.setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
                     try {
-                        NM.thread().deleteMessage(messageItem.message).subscribe( new CrashReportingCompletableObserver());
+                        ChatSDK.thread().deleteMessage(messageItem.message).subscribe( new CrashReportingCompletableObserver());
                     }
                     catch (NoSuchMethodError e) {
                         ChatSDK.logError(e);
@@ -172,7 +172,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         holder.setImageHidden(true);
 
         if(holder.readReceiptImageView != null) {
-            holder.readReceiptImageView.setVisibility(NM.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
+            holder.readReceiptImageView.setVisibility(ChatSDK.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
         }
 
         if (messageItem.getMessage().getMessageType() == MessageType.Text) {
@@ -214,7 +214,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             }
         }
 
-        for(CustomMessageHandler handler : InterfaceManager.shared().a.getCustomMessageHandlers()) {
+        for(CustomMessageHandler handler : ChatSDK.ui().getCustomMessageHandlers()) {
             handler.updateMessageCellView(messageItem.message, holder, activity);
         }
 
@@ -260,7 +260,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         ReadStatus status = message.getReadStatus();
 
         // Hide the read receipt for public threads
-        if(message.getThread().typeIs(ThreadType.Public) || NM.readReceipts() == null) {
+        if(message.getThread().typeIs(ThreadType.Public) || ChatSDK.readReceipts() == null) {
             status = ReadStatus.hide();
         }
 

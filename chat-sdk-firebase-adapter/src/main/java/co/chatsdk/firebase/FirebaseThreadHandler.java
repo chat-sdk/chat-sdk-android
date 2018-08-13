@@ -14,7 +14,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
@@ -84,7 +84,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 //
                 if(userThreadLinkType == UserThreadLinkTypeAddUser) {
                     data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
-                    data.put(userThreadsPath, NM.currentUser().getEntityID());
+                    data.put(userThreadsPath, ChatSDK.currentUser().getEntityID());
 
                     if (thread.typeIs(ThreadType.Public)) {
                         threadUsersRef.onDisconnect().removeValue();
@@ -165,7 +165,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 }
             }
 
-            User currentUser = NM.currentUser();
+            User currentUser = ChatSDK.currentUser();
 
             if(!users.contains(currentUser)) {
                 users.add(currentUser);
@@ -231,7 +231,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             else {
                 e.onSuccess(thread);
             }
-        })).doOnSuccess(thread -> thread.addUser(NM.currentUser())).subscribeOn(Schedulers.single());
+        })).doOnSuccess(thread -> thread.addUser(ChatSDK.currentUser())).subscribeOn(Schedulers.single());
     }
 
     public Completable deleteThread(Thread thread) {
@@ -246,12 +246,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     protected void pushForMessage(final Message message){
-        if (NM.push() == null) {
+        if (ChatSDK.push() == null) {
             return;
         }
 
         if (message.getThread().typeIs(ThreadType.Private)) {
-            NM.push().pushToUsers(message.getThread().getUsers(), message);
+            ChatSDK.push().pushToUsers(message.getThread().getUsers(), message);
         }
     }
 

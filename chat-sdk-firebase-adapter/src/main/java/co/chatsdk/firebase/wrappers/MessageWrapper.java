@@ -113,7 +113,12 @@ public class MessageWrapper  {
 
         String json = string(value, Keys.JSON);
 
-        if(json != null) {
+        Object json2 = snapshot.child(Keys.JSONV2).getValue();
+
+        if (json2 != null && json2 instanceof HashMap) {
+            model.setJSON((HashMap) json2);
+        }
+        else if(json != null) {
             model.setRawJSONPayload(json);
         }
         else {

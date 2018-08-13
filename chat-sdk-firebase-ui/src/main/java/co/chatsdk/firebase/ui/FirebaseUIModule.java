@@ -12,7 +12,7 @@ import com.google.firebase.auth.TwitterAuthProvider;
 
 import java.util.ArrayList;
 
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 
 /**
  * Created by ben on 1/2/18.

@@ -20,11 +20,10 @@ import android.view.ViewGroup;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -52,7 +51,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(inflateMenuItems);
 
-        NM.events().sourceOnMain()
+        ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterPrivateThreadsUpdated())
                 .subscribe(networkEvent -> {
                     if(tabIsVisible) {
@@ -60,7 +59,7 @@ public class PrivateThreadsFragment extends BaseFragment {
                     }
                 });
 
-        NM.events().sourceOnMain()
+        ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
                 .subscribe(networkEvent -> {
                     if(tabIsVisible) {
@@ -86,11 +85,11 @@ public class PrivateThreadsFragment extends BaseFragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setClickable(true);
 
-        adapter.onClickObservable().subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID()));
+        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
 
         adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {
-                    NM.thread().deleteThread(thread)
+                    ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new CompletableObserver() {
                                 @Override
@@ -152,7 +151,7 @@ public class PrivateThreadsFragment extends BaseFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
-            InterfaceManager.shared().a.startSelectContactsActivity(getContext());
+            ChatSDK.ui().startSelectContactsActivity(getContext());
             return true;
         }
 
@@ -170,7 +169,7 @@ public class PrivateThreadsFragment extends BaseFragment {
     public void reloadData() {
         if(adapter != null) {
             adapter.clearData();
-            adapter.updateThreads(NM.thread().getThreads(ThreadType.Private));
+            adapter.updateThreads(ChatSDK.thread().getThreads(ThreadType.Private));
         }
     }
 

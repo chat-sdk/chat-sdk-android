@@ -12,7 +12,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -56,7 +55,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                     return;
                 }
 
-                NM.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
+                ChatSDK.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
                     @Override
                     public void onSubscribe(Disposable d) {}
 
@@ -95,7 +94,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                         e.onNext(new MessageSendProgress(message));
 
                         ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                        connector.connect(NM.thread().sendMessage(message), e);
+                        connector.connect(ChatSDK.thread().sendMessage(message), e);
 
                     }
                 });

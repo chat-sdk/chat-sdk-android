@@ -342,7 +342,6 @@
     <string name="user_list_username">Username</string>
     <string name="user_list_availability_placeholder">Availability</string>
 
-
-
+    <string name="push_channel_name">Message Notifications</string>
 
 </resources>

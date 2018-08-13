@@ -25,7 +25,6 @@ import java.util.List;
 
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
@@ -114,7 +113,7 @@ public class Message implements CoreEntity {
     private transient Long lastMessage__resolvedKey;
 
     public boolean isRead() {
-        ReadStatus status = readStatusForUser(NM.currentUser());
+        ReadStatus status = readStatusForUser(ChatSDK.currentUser());
         if (status != null && status.is(ReadStatus.read())) {
             return true;
         }
@@ -182,11 +181,20 @@ public class Message implements CoreEntity {
         return json;
     }
 
+    public void setJSON (HashMap json) {
+        this.json = json;
+        this.jsonObject = null;
+        for(Object key : json.keySet()) {
+            if (key instanceof String)
+            setValueForKey(json.get(key), (String) key);
+        }
+    }
+
     public JSONObject getJSONObject () {
-        if (jsonObject == null && json != null) {
+        if (jsonObject == null && text != null) {
             try {
                 String json = getRawJSONPayload();
-                jsonObject = new JSONObject(json);
+                jsonObject = new JSONObject(text);
             }
             catch (Exception e) {
                 ChatSDK.logError(e);

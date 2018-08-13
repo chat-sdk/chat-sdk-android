@@ -5,12 +5,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -28,7 +27,7 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_profile_activity);
 
-        String userEntityID = getIntent().getStringExtra(BaseInterfaceAdapter.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
 
         if(userEntityID != null && !userEntityID.isEmpty()) {
             user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
@@ -79,14 +78,14 @@ public class ProfileActivity extends BaseActivity {
 
         showProgressDialog(getString(R.string.creating_thread));
 
-        NM.thread().createThread("", user, NM.currentUser())
+        ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();
                     startingChat = false;
                 })
                 .subscribe(thread -> {
-                    InterfaceManager.shared().a.startChatActivityForID(getApplicationContext(), thread.getEntityID());
+                    ChatSDK.ui().startChatActivityForID(getApplicationContext(), thread.getEntityID());
                 }, throwable -> {
                     ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
                 });

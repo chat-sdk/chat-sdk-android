@@ -15,7 +15,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.ChatSDK;
 
 /**
  * Created by itzik on 6/16/2014.
@@ -26,7 +26,7 @@ public class PagerAdapterTabs extends FragmentStatePagerAdapter {
 
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
-        tabs = InterfaceManager.shared().a.defaultTabs();
+        tabs = ChatSDK.ui().defaultTabs();
     }
 
     public List<Tab> getTabs() {

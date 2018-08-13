@@ -20,7 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Strings;
@@ -29,7 +30,6 @@ import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
  * Created by braunster on 24/11/14.
@@ -67,7 +67,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         initViews();
 
-        disposableList.add(NM.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.threadUsersUpdated())
                 .subscribe(networkEvent -> loadData()));
 
@@ -112,7 +112,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         super.onResume();
 
         // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(NM.currentUser().getEntityID())) {
+        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUser().getEntityID())) {
             //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
             threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
         }
@@ -159,7 +159,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
 
-        String threadEntityID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+        String threadEntityID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
 
         if(threadEntityID != null && threadEntityID.length() > 0) {
             thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
@@ -173,7 +173,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(BaseInterfaceAdapter.THREAD_ENTITY_ID, thread.getEntityID());
+        outState.putString(InterfaceManager.THREAD_ENTITY_ID, thread.getEntityID());
         outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
 

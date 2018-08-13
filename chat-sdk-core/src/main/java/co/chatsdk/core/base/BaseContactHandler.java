@@ -3,9 +3,9 @@ package co.chatsdk.core.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.ContactHandler;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
 
@@ -17,8 +17,8 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public List<User> contacts() {
-        if(NM.currentUser() != null) {
-            return NM.currentUser().getContacts();
+        if(ChatSDK.currentUser() != null) {
+            return ChatSDK.currentUser().getContacts();
         }
         return new ArrayList<>();
     }
@@ -35,26 +35,26 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public List<User> contactsWithType(ConnectionType type) {
-        if(NM.currentUser() != null) {
-            return NM.currentUser().getContacts(type);
+        if(ChatSDK.currentUser() != null) {
+            return ChatSDK.currentUser().getContacts(type);
         }
         return new ArrayList<>();
     }
 
     @Override
     public Completable addContact(User user, ConnectionType type) {
-        if(NM.currentUser() != null && !user.isMe()) {
-            NM.currentUser().addContact(user, type);
-            NM.core().userOn(user);
+        if(ChatSDK.currentUser() != null && !user.isMe()) {
+            ChatSDK.currentUser().addContact(user, type);
+            ChatSDK.core().userOn(user);
         }
         return Completable.complete();
     }
 
     @Override
     public Completable deleteContact(User user, ConnectionType type) {
-        if(NM.currentUser() != null && !user.isMe()) {
-            NM.currentUser().deleteContact(user, type);
-            NM.core().userOff(user);
+        if(ChatSDK.currentUser() != null && !user.isMe()) {
+            ChatSDK.currentUser().deleteContact(user, type);
+            ChatSDK.core().userOff(user);
         }
         return Completable.complete();
     }

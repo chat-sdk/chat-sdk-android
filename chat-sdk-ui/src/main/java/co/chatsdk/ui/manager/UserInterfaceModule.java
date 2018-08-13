@@ -2,6 +2,8 @@ package co.chatsdk.ui.manager;
 
 import android.content.Context;
 
+import co.chatsdk.core.session.InterfaceManager;
+
 /**
  * Created by ben on 10/27/17.
  */

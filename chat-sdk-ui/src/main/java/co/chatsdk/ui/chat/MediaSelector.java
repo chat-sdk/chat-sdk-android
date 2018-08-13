@@ -16,6 +16,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.Cropper;
+import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -180,6 +181,9 @@ public class MediaSelector {
                 resultHandler.result(videoPath);
                 clear();
             }
+        }
+        else {
+            Timber.d("Error handling photo");
         }
     }
 

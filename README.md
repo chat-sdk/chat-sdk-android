@@ -174,14 +174,15 @@ Configuration.Builder builder = new Configuration.Builder(context);
 builder.firebaseRootPath("prod");
 
 // Initialize the Chat SDK
-ChatSDK.initialize(builder.build());
-UserInterfaceModule.activate(context);
-
-// Activate the Firebase module
-FirebaseModule.activate();
+try {
+    ChatSDK.initialize(builder.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
+}
+    catch (ChatSDKException e) {
+}
 
 // File storage is needed for profile image upload and image messages
 FirebaseFileStorageModule.activate();
+FirebasePushModule.activateForFirebase();
 
 // Activate any other modules you need.
 // ...

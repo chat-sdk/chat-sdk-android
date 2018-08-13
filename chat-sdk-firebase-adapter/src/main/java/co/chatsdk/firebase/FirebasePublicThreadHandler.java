@@ -44,7 +44,7 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
             // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
             final Thread thread = new Thread();
 
-            User currentUser = NM.currentUser();
+            User currentUser = ChatSDK.currentUser();
             thread.setCreator(currentUser);
             thread.setCreatorEntityId(currentUser.getEntityID());
             thread.setType(ThreadType.PublicGroup);

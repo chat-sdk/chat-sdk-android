@@ -55,22 +55,16 @@ public class ChatError extends Throwable {
         return new ChatError(Code.EXCEPTION, message, e);
     }
 
-    public static final class Code{
+    public static final class Code {
 
         // General Errors
-        public static final int SESSION_CLOSED = 10;
-        public static final int TAGGED = 11; // All error details are inside the tag object.
         public static final int EXCEPTION = 12; // When an exception occurred that cause the error.
         public static final int NO_PATH = 13; // When an entity does not have valid path to push to.
         public static final int NETWORK_ERROR = 14;
-        public static final int BACKENDLESS_EXCEPTION = 15; // When a parse exception occurs the tag will contain the exception object.
         public static final int NULL = 16; // If something that related to the wanted method was null.
         public static final int NO_LOGIN_INFO = 17; // When there is no available login info to use when login.
-        public static final int ACCESS_TOKEN_REFUSED = 18;
-        public static final int BAD_RESPONSE = 19;
         public static final int NO_LOGIN_TYPE = 20;
         public static final int EXPIRED_TOKEN = 21;
-        public static final int INVALID_CREDENTIALS = 22;
         public static final int OPERATION_FAILED = 23;
         public static final int PERMISSION_DENIED = 24;
         public static final int DISCONNECTED = 25;
@@ -83,18 +77,8 @@ public class ChatError extends Throwable {
         public static final int WRITE_CANCELED = 32;
         public static final int FIREBASE_STORAGE_EXCEPTION = 33;
 
-        // Login Errors
-        public static final int USER_ALREADY_EXIST = 100;
-        public static final int INVALID_EMAIL = 101;
-        public static final int EMAIL_TAKEN = 102;
-        public static final int INVALID_PASSWORD = 103;
-        public static final int USER_DOES_NOT_EXIST = 104;
         public static final int AUTH_IN_PROCESS = 105;
         public static final int NO_AUTH_DATA = 106;
-
-        // Index
-        public static final int NO_USER_FOUND = 1000;
-        public static final int INDEX_NO_ACCURATE = 1001;
 
     }
 

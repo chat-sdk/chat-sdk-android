@@ -27,13 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -113,16 +111,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
-        if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
+        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
             ((ViewGroup) btnFacebook.getParent()).removeView(btnFacebook);
         }
-        if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Twitter)) {
+        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Twitter)) {
             ((ViewGroup) btnTwitter.getParent()).removeView(btnTwitter);
         }
-        if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Google)) {
+        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Google)) {
             ((ViewGroup) btnGoogle.getParent()).removeView(btnGoogle);
         }
-        if(!NM.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
+        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
             ((ViewGroup) btnAnonymous.getParent()).removeView(btnAnonymous);
         }
 
@@ -143,8 +141,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(NM.socialLogin() != null) {
-            NM.socialLogin().onActivityResult(requestCode, resultCode, data);
+        if(ChatSDK.socialLogin() != null) {
+            ChatSDK.socialLogin().onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -189,24 +187,24 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             showForgotPasswordDialog();
         }
         else if (i == R.id.chat_sdk_btn_twitter_login) {
-            if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithTwitter(this).doOnError(error)
+            if(ChatSDK.socialLogin() != null) {
+                ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
                         .subscribe(completion, error);
             }
         }
         else if (i == R.id.chat_sdk_btn_facebook_login) {
-            if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithFacebook(this).doOnError(error)
+            if(ChatSDK.socialLogin() != null) {
+                ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
                         .subscribe(completion, error);
             }
         }
         else if (i == R.id.chat_sdk_btn_google_login) {
-            if(NM.socialLogin() != null) {
-                NM.socialLogin().loginWithGoogle(this).doOnError(error)
+            if(ChatSDK.socialLogin() != null) {
+                ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
                         .subscribe(completion, error);
@@ -223,12 +221,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         // If the logged out flag isn't set...
         if (getIntent() == null ||
                 getIntent().getExtras() == null ||
-                getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN) == null ||
-                (boolean) getIntent().getExtras().get(BaseInterfaceAdapter.ATTEMPT_CACHED_LOGIN)) {
+                getIntent().getExtras().get(InterfaceManager.ATTEMPT_CACHED_LOGIN) == null ||
+                (boolean) getIntent().getExtras().get(InterfaceManager.ATTEMPT_CACHED_LOGIN)) {
 
             showProgressDialog(getString(R.string.authenticating));
 
-            NM.auth().authenticateWithCachedToken()
+            ChatSDK.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(this::dismissProgressDialog)
                     .subscribe(this::afterLogin, throwable -> {
@@ -243,7 +241,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void afterLogin() {
         // We pass the extras in case this activity was laucned by a push. In that case
         // we can load up the thread the message belongs to
-        InterfaceManager.shared().a.startMainActivity(this, extras);
+        ChatSDK.ui().startMainActivity(this, extras);
     }
 
     public void passwordLogin() {
@@ -270,7 +268,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.connecting));
 
-        NM.auth().authenticate(details)
+        ChatSDK.auth().authenticate(details)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     authenticating = false;
@@ -379,7 +377,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected Completable requestNewPassword (String email) {
-        return NM.auth().sendPasswordResetMail(email);
+        return ChatSDK.auth().sendPasswordResetMail(email);
     }
 
     protected boolean isNetworkAvailable() {

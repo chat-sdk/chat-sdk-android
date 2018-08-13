@@ -17,11 +17,9 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
-import co.chatsdk.core.utils.AppBackgroundMonitor;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
@@ -127,17 +125,17 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
 
-                        if (NM.push() != null) {
-                            NM.push().subscribeToPushChannel(userWrapper.pushChannel());
+                        if (ChatSDK.push() != null) {
+                            ChatSDK.push().subscribeToPushChannel(userWrapper.pushChannel());
                         }
 
-                        if (NM.hook() != null) {
+                        if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
                             data.put(BaseHookHandler.UserAuthFinished_User, userWrapper.getModel());
-                            NM.hook().executeHook(BaseHookHandler.UserAuthFinished, data);
+                            ChatSDK.hook().executeHook(BaseHookHandler.UserAuthFinished, data);
                         }
 
-                        NM.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+                        ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
 
                         authenticatedThisSession = true;
 
@@ -173,30 +171,30 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable logout() {
         return Completable.create(
                 emitter->{
-                    final User user = NM.currentUser();
+                    final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
                     FirebaseEventHandler.shared().userOff(user.getEntityID());
 
                     // Removing the push channel
-                    if (NM.push() != null) {
-                        NM.push().unsubscribeToPushChannel(user.getPushChannel());
+                    if (ChatSDK.push() != null) {
+                        ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
                     }
 
-                    NM.core().setUserOffline().subscribe(()->{
+                    ChatSDK.core().setUserOffline().subscribe(()->{
 
                         FirebaseAuth.getInstance().signOut();
 
-                        NM.events().source().onNext(NetworkEvent.logout());
+                        ChatSDK.events().source().onNext(NetworkEvent.logout());
 
-                        if (NM.socialLogin() != null) {
-                            NM.socialLogin().logout();
+                        if (ChatSDK.socialLogin() != null) {
+                            ChatSDK.socialLogin().logout();
                         }
 
-                        if (NM.hook() != null) {
+                        if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
                             data.put(BaseHookHandler.Logout_User, user);
-                            NM.hook().executeHook(BaseHookHandler.Logout, data);
+                            ChatSDK.hook().executeHook(BaseHookHandler.Logout, data);
                         }
 
                         authenticatedThisSession = false;
@@ -230,8 +228,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             return ChatSDK.config().anonymousLoginEnabled;
         } else if (type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
             return true;
-        } else if (NM.socialLogin() != null) {
-            return NM.socialLogin().accountTypeEnabled(type);
+        } else if (ChatSDK.socialLogin() != null) {
+            return ChatSDK.socialLogin().accountTypeEnabled(type);
         } else {
             return false;
         }

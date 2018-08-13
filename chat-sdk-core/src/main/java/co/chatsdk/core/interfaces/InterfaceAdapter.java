@@ -1,4 +1,4 @@
-package co.chatsdk.ui.manager;
+package co.chatsdk.core.interfaces;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,10 +10,6 @@ import java.util.List;
 
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.interfaces.ChatOptionsDelegate;
-import co.chatsdk.core.interfaces.ChatOptionsHandler;
-import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.types.SearchActivityType;
 
 /**

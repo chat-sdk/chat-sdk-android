@@ -10,9 +10,8 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -58,14 +57,14 @@ public class SplashScreenActivity extends BaseActivity {
     protected void authenticateWithCachedToken () {
         showProgressDialog(getString(R.string.authenticating));
         signInButton.setEnabled(false);
-        NM.auth().authenticateWithCachedToken()
+        ChatSDK.auth().authenticateWithCachedToken()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     signInButton.setEnabled(true);
                     dismissProgressDialog();
                 })
                 .subscribe(() -> {
-                    InterfaceManager.shared().a.startMainActivity(SplashScreenActivity.this);
+                    ChatSDK.ui().startMainActivity(SplashScreenActivity.this);
                 }, throwable -> {
 //                    startAuthenticationActivity();
                 });

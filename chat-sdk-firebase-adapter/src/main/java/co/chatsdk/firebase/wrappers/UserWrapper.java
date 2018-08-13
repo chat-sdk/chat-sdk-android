@@ -85,7 +85,7 @@ public class UserWrapper {
     private void updateUserFromAuthData(FirebaseUser authData){
         Timber.v("updateUserFromAuthData");
 
-//        model.setAuthenticationType((Integer) NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
+//        model.setAuthenticationType((Integer) ChatSDK.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey));
 
         model.setEntityID(authData.getUid());
 
@@ -125,7 +125,7 @@ public class UserWrapper {
 
         model.update();
 
-//        switch ((Integer) (NM.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
+//        switch ((Integer) (ChatSDK.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
 //        {
 //            case Defines.ProviderInt.Facebook:
 //                linkedAccount = model.getAccountWithType(LinkedAccount.Type.FACEBOOK);

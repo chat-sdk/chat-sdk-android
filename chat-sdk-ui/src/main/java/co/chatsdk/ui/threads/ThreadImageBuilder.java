@@ -22,7 +22,7 @@ import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-import static co.chatsdk.ui.utils.ImageBuilder.bitmapForURL;
+import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.

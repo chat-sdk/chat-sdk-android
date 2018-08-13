@@ -22,10 +22,14 @@ import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
+import co.chatsdk.core.interfaces.InterfaceAdapter;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
  */
+
+/* @deprecated Use ChatSDK.core() etc... instead */
+@Deprecated
 
 public class NM {
 
@@ -58,7 +62,7 @@ public class NM {
     }
 
     public static User currentUser () {
-        return NM.core().currentUserModel();
+        return ChatSDK.core().currentUserModel();
     }
 
     public static SearchHandler search () {
@@ -115,6 +119,10 @@ public class NM {
 
     public static BaseNetworkAdapter a() {
         return NetworkManager.shared().a;
+    }
+
+    public static InterfaceAdapter ui () {
+        return ChatSDK.ui();
     }
 
 }

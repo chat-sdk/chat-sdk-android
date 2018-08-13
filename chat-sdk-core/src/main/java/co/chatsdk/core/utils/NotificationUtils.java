@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.helpers;
+package co.chatsdk.core.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -20,15 +20,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.utils.ImageBuilder;
 
 public class NotificationUtils {
 
@@ -39,8 +36,8 @@ public class NotificationUtils {
 
         String threadID = message.getThread().getEntityID();
 
-        Intent openChatIntent = new Intent(context, InterfaceManager.shared().a.getChatActivity());
-        openChatIntent.putExtra(BaseInterfaceAdapter.THREAD_ENTITY_ID, threadID);
+        Intent openChatIntent = new Intent(context, ChatSDK.ui().getChatActivity());
+        openChatIntent.putExtra(InterfaceManager.THREAD_ENTITY_ID, threadID);
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -117,7 +114,7 @@ public class NotificationUtils {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setColor(context.getResources().getColor(R.color.chat_blue));
+            builder.setColor(ChatSDK.config().pushNotificationColor);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

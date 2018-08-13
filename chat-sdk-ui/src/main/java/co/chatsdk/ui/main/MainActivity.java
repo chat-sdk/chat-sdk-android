@@ -20,18 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
-import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 
 
 public class MainActivity extends BaseActivity {
@@ -40,7 +36,7 @@ public class MainActivity extends BaseActivity {
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
 
-    DisposableList disposables = new DisposableList();
+    protected DisposableList disposables = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +63,9 @@ public class MainActivity extends BaseActivity {
 
     public void launchFromPush (Bundle bundle) {
         if (bundle != null) {
-            String threadID = bundle.getString(BaseInterfaceAdapter.THREAD_ENTITY_ID);
+            String threadID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
             if (threadID != null && !threadID.isEmpty()) {
-                InterfaceManager.shared().a.startChatActivityForID(getBaseContext(), threadID);
+                ChatSDK.ui().startChatActivityForID(getBaseContext(), threadID);
             }
         }
     }
@@ -79,28 +75,28 @@ public class MainActivity extends BaseActivity {
 //    }
 //
 //    public Completable requestMicrophoneAccess () {
-//        if(NM.audioMessage() != null) {
+//        if(ChatSDK.audioMessage() != null) {
 //            return PermissionRequestHandler.shared().requestRecordAudio(this);
 //        }
 //        return Completable.complete();
 //    }
 //
 //    public Completable requestExternalStorage () {
-////        if(NM.audioMessage() != null) {
+////        if(ChatSDK.audioMessage() != null) {
 //            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
 ////        }
 ////        return Completable.complete();
 //    }
 //
 //    public Completable requestVideoAccess () {
-//        if(NM.videoMessage() != null) {
+//        if(ChatSDK.videoMessage() != null) {
 //            return PermissionRequestHandler.shared().requestVideoAccess(this);
 //        }
 //        return Completable.complete();
 //    }
 //
 //    public Completable requestReadContacts () {
-//        if(NM.contact() != null) {
+//        if(ChatSDK.contact() != null) {
 //            return PermissionRequestHandler.shared().requestReadContact(this);
 //        }
 //        return Completable.complete();
@@ -118,24 +114,7 @@ public class MainActivity extends BaseActivity {
 
         disposables.dispose();
 
-         // TODO: Check this
-        disposables.add(NM.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
-                .filter(NetworkEvent.filterThreadType(ThreadType.Private))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
-                    if(message != null) {
-                        if(!message.getSender().isMe() && InterfaceManager.shared().a.showLocalNotifications()) {
-                            ReadStatus status = message.readStatusForUser(NM.currentUser());
-                            if (!message.isRead() && !status.is(ReadStatus.delivered())) {
-                                // Only show the alert if we'recyclerView not on the private threads tab
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
-                            }
-                        }
-                    }
-                }));
-
-        disposables.add(NM.events().sourceOnMain()
+        disposables.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 
@@ -224,7 +203,7 @@ public class MainActivity extends BaseActivity {
 //
 //            @Override
 //            public void onPageSelected(int position) {
-//                NM.core().setUserOnline();
+//                ChatSDK.core().setUserOnline();
 //            }
 //
 //            @Override
@@ -239,7 +218,7 @@ public class MainActivity extends BaseActivity {
 
     public void updateLocalNotificationsForTab () {
         TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
-        InterfaceManager.shared().a. setShowLocalNotifications(showLocalNotificationsForTab(tab));
+        ChatSDK.ui(). setShowLocalNotifications(showLocalNotificationsForTab(tab));
 
     }
 
@@ -247,7 +226,7 @@ public class MainActivity extends BaseActivity {
         // Don't show notifications on the threads tabs
         Tab t = adapter.getTabs().get(tab.getPosition());
 
-        Class privateThreadsFragmentClass = InterfaceManager.shared().a.privateThreadsFragment().getClass();
+        Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
 
         return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
     }

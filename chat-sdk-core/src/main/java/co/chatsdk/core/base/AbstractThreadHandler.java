@@ -22,7 +22,6 @@ import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -80,7 +79,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public static Message newMessage (MessageType type, Thread thread) {
         Message message = new Message();
         DaoCore.createEntity(message);
-        message.setSender(NM.currentUser());
+        message.setSender(ChatSDK.currentUser());
         message.setMessageStatus(MessageSendStatus.Sending);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
@@ -157,11 +156,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }
 
         // We may access this method post authentication
-        if(NM.currentUser() == null) {
+        if(ChatSDK.currentUser() == null) {
             return new ArrayList<>();
         }
 
-        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, NM.currentUser().getId());
+        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
 
         List<Thread> threads = new ArrayList<>();
 

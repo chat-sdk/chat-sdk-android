@@ -39,8 +39,8 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onAppForeground () {
         inBackground = false;
-        if(NM.auth().userAuthenticated() && ChatSDK.config().disconnectFromFirebaseWhenInBackground) {
-            NM.core().goOnline();
+        if(ChatSDK.auth().userAuthenticated() && ChatSDK.config().disconnectFromFirebaseWhenInBackground) {
+            ChatSDK.core().goOnline();
         }
     }
 
@@ -48,7 +48,7 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     public void onAppBackground () {
         inBackground = true;
         if (ChatSDK.config().disconnectFromFirebaseWhenInBackground) {
-            NM.core().goOffline();
+            ChatSDK.core().goOffline();
         }
     }
 

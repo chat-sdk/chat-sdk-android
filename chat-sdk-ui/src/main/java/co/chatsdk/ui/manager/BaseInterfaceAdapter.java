@@ -24,7 +24,9 @@ import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
@@ -45,14 +47,13 @@ import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
-    public static String USER_ENTITY_ID = "chat_sdk_user_entity_id";
-    public static final String THREAD_ENTITY_ID = "chat_sdk_thread_entity_id";
-    public static final String ATTEMPT_CACHED_LOGIN = "ATTEMPT_CACHED_LOGIN";
-
     public List<SearchActivityType> searchActivities = new ArrayList<>();
     public List<ChatOption> chatOptions = new ArrayList<>();
     public ChatOptionsHandler chatOptionsHandler = null;
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
+    public boolean defaultChatOptionsAdded = false;
+
+
 
     protected boolean showLocalNotifications;
 
@@ -77,15 +78,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Fresco.initialize(context, config);
 //        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
 
-        // Setup the default chat options
-        if(ChatSDK.config().locationMessagesEnabled) {
-            chatOptions.add(new LocationChatOption("Location"));
-        }
-
-        if(ChatSDK.config().imageMessagesEnabled) {
-            chatOptions.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
-            chatOptions.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
-        }
 
     }
 
@@ -219,19 +211,19 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public void startChatActivityForID(Context context, String threadEntityID) {
         Intent intent = new Intent(context, getChatActivity());
-        intent.putExtra(THREAD_ENTITY_ID, threadEntityID);
+        intent.putExtra(InterfaceManager.THREAD_ENTITY_ID, threadEntityID);
         startActivity(context, intent);
     }
 
     public void startLoginActivity(Context context, boolean attemptCachedLogin){
         Intent intent = new Intent(context, getLoginActivity());
-        intent.putExtra(ATTEMPT_CACHED_LOGIN, attemptCachedLogin);
+        intent.putExtra(InterfaceManager.ATTEMPT_CACHED_LOGIN, attemptCachedLogin);
         startActivity(context, intent);
     }
 
     public void startEditProfileActivity(Context context, String userEntityID){
         Intent intent = new Intent(context, getEditProfileActivity());
-        intent.putExtra(USER_ENTITY_ID, userEntityID);
+        intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
         startActivity(context, intent);
     }
 
@@ -289,12 +281,25 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public List<ChatOption> getChatOptions() {
+        // Setup the default chat options
+        if (!defaultChatOptionsAdded) {
+            if(ChatSDK.config().locationMessagesEnabled) {
+                chatOptions.add(new LocationChatOption("Location"));
+            }
+
+            if(ChatSDK.config().imageMessagesEnabled) {
+                chatOptions.add(new MediaChatOption("Take Photo", MediaChatOption.Type.TakePhoto));
+                chatOptions.add(new MediaChatOption("Choose Photo", MediaChatOption.Type.ChoosePhoto));
+            }
+            defaultChatOptionsAdded = true;
+        }
+
         return chatOptions;
     }
 
     public void startProfileActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfileActivity());
-        intent.putExtra(USER_ENTITY_ID, userEntityID);
+        intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
         startActivity(context, intent);
     }
 

@@ -87,8 +87,8 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
 
-                    NM.auth().addLoginInfoData(AuthKeys.Token, loginResult.getAccessToken().getToken());
-                    NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Facebook.ordinal());
+                    ChatSDK.auth().addLoginInfoData(AuthKeys.Token, loginResult.getAccessToken().getToken());
+                    ChatSDK.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Facebook.ordinal());
 
                     e.onSuccess(FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken()));
                 }
@@ -118,8 +118,8 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                 @Override
                 public void success(Result<TwitterSession> result) {
 
-                    NM.auth().addLoginInfoData(AuthKeys.Token, result.data.getAuthToken().token);
-                    NM.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Twitter.ordinal());
+                    ChatSDK.auth().addLoginInfoData(AuthKeys.Token, result.data.getAuthToken().token);
+                    ChatSDK.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Twitter.ordinal());
 
                     e.onSuccess(TwitterAuthProvider.getCredential(result.data.getAuthToken().token, result.data.getAuthToken().secret));
                 }
@@ -202,7 +202,7 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                     if (task.isSuccessful() && task.isComplete()) {
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                        FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) NM.auth();
+                        FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) ChatSDK.auth();
 
                         handler.authenticateWithUser(user).subscribe(e::onComplete, e::onError);
                     }

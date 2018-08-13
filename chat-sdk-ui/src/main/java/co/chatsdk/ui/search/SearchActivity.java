@@ -35,7 +35,7 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -126,7 +126,7 @@ public class SearchActivity extends BaseActivity {
 
             for(UserListItem u : adapter.getSelectedUsers()) {
                 if(u instanceof User && !((User) u).isMe()) {
-                    completables.add(NM.contact().addContact((User) u, ConnectionType.Contact));
+                    completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
                 }
             }
 
@@ -166,9 +166,9 @@ public class SearchActivity extends BaseActivity {
 
             final List<UserListItem> users = new ArrayList<>();
 
-            final List<User> existingContacts = NM.contact().contacts();
+            final List<User> existingContacts = ChatSDK.contact().contacts();
 
-            NM.search().usersForIndex(searchTextView.getText().toString())
+            ChatSDK.search().usersForIndex(searchTextView.getText().toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<User>() {
                 @Override
@@ -211,11 +211,11 @@ public class SearchActivity extends BaseActivity {
         if (context != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-            final List<SearchActivityType> activities = new ArrayList<>(InterfaceManager.shared().a.getSearchActivities());
-            activities.add(new SearchActivityType(InterfaceManager.shared().a.getSearchActivity(), context.getString(R.string.search_with_name)));
+            final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
+            activities.add(new SearchActivityType(ChatSDK.ui().getSearchActivity(), context.getString(R.string.search_with_name)));
 
             if(activities.size() == 1) {
-                InterfaceManager.shared().a.startActivity(context, activities.get(0).className);
+                ChatSDK.ui().startActivity(context, activities.get(0).className);
                 return;
             }
 
@@ -228,7 +228,7 @@ public class SearchActivity extends BaseActivity {
 
             builder.setTitle(context.getString(R.string.search)).setItems(items, (dialogInterface, i1) -> {
                 // Launch the appropriate context
-                InterfaceManager.shared().a.startActivity(context, activities.get(i1).className);
+                ChatSDK.ui().startActivity(context, activities.get(i1).className);
             });
 
             builder.show();

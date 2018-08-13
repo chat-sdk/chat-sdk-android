@@ -1,4 +1,4 @@
-package co.chatsdk.ui.utils;
+package co.chatsdk.core.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,8 +14,7 @@ import com.facebook.imagepipeline.image.CloseableImage;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
-import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.R;
+import co.chatsdk.core.R;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;

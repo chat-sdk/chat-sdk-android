@@ -55,7 +55,6 @@ dependencies {
     api 'com.github.mukeshsolanki:country-picker-android:1.2.4'
     implementation 'com.github.chrisbanes:PhotoView:2.1.4'
     api 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
-    api 'com.facebook.fresco:fresco:1.9.0'
 
     api project(':chat-sdk-core')
 }

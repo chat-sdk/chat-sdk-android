@@ -36,7 +36,7 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
@@ -187,11 +187,11 @@ public class ContactsFragment extends BaseFragment {
             setRetainInstance(true);
         }
 
-        disposables.add(NM.events().sourceOnMain()
+        disposables.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
                 .subscribe(networkEvent -> loadData(false)));
 
-        disposables.add(NM.events().sourceOnMain()
+        disposables.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
 
@@ -308,7 +308,7 @@ public class ContactsFragment extends BaseFragment {
                         }
 
                         if(thread != null) {
-                            NM.thread().addUsersToThread(thread, clickedUser)
+                            ChatSDK.thread().addUsersToThread(thread, clickedUser)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(() -> {
                                         ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
@@ -323,7 +323,7 @@ public class ContactsFragment extends BaseFragment {
                         break;
                     case CLICK_MODE_SHOW_PROFILE:
                     default:
-                        InterfaceManager.shared().a.startProfileActivity(getContext(), clickedUser.getEntityID());
+                        ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
                 }
             }
         });
@@ -337,7 +337,7 @@ public class ContactsFragment extends BaseFragment {
                // If this is not a dialog we will load the contacts of the user.
                 switch (loadingMode) {
                     case MODE_LOAD_CONTACTS:
-                        sourceUsers.addAll(NM.contact().contacts());
+                        sourceUsers.addAll(ChatSDK.contact().contacts());
                         Timber.d("Contacts: " + sourceUsers.size());
                         break;
 
@@ -346,13 +346,13 @@ public class ContactsFragment extends BaseFragment {
 
                         // Remove the current user from the list.
                         List<User> users = thread.getUsers();
-                        users.remove(NM.currentUser());
+                        users.remove(ChatSDK.currentUser());
 
                         sourceUsers.addAll(users);
                         break;
 
                     case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
-                        List<User> users1 = NM.contact().contacts();
+                        List<User> users1 = ChatSDK.contact().contacts();
                         thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
                         List<User> threadUser = thread.getUsers();
                         users1.removeAll(threadUser);

@@ -28,7 +28,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -50,7 +50,7 @@ public class PublicThreadsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         initViews(inflater);
 
-        NM.events().sourceOnMain()
+        ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterPublicThreadsUpdated())
                 .subscribe(networkEvent -> {
                     if(tabIsVisible) {
@@ -58,7 +58,7 @@ public class PublicThreadsFragment extends BaseFragment {
                     }
                 });
 
-        NM.events().sourceOnMain()
+        ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
                 .subscribe(networkEvent -> {
                     if(tabIsVisible) {
@@ -80,7 +80,7 @@ public class PublicThreadsFragment extends BaseFragment {
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        adapter.onClickObservable().subscribe(thread -> InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID()));
+        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
     }
 
 
@@ -117,7 +117,7 @@ public class PublicThreadsFragment extends BaseFragment {
                 showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
                 final String threadName = input.getText().toString();
 
-                NM.publicThread().createPublicThreadWithName(threadName)
+                ChatSDK.publicThread().createPublicThreadWithName(threadName)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe((thread, throwable) -> {
                             if(throwable == null) {
@@ -126,7 +126,7 @@ public class PublicThreadsFragment extends BaseFragment {
 
                                 ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__is_created), threadName));
 
-                                InterfaceManager.shared().a.startChatActivityForID(getContext(), thread.getEntityID());
+                                ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
                             }
                             else {
                                 ChatSDK.logError(throwable);
@@ -167,7 +167,7 @@ public class PublicThreadsFragment extends BaseFragment {
     public void reloadData() {
         if(adapter != null) {
             adapter.clearData();
-            adapter.updateThreads(NM.thread().getThreads(ThreadType.Public));
+            adapter.updateThreads(ChatSDK.thread().getThreads(ThreadType.Public));
         }
     }
 

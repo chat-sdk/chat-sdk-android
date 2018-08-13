@@ -29,7 +29,7 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.manager.InterfaceManager;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -85,7 +85,7 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        disposables.add(NM.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        disposables.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
                     if(networkEvent.user.equals(getUser())) {
@@ -129,7 +129,7 @@ public class ProfileFragment extends BaseFragment {
 
         reloadData();
 
-        disposables.add(NM.events().sourceOnMain()
+        disposables.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
@@ -169,7 +169,7 @@ public class ProfileFragment extends BaseFragment {
         }
         //this.user = user;
 
-        boolean isCurrentUser = NM.currentUser().equals(user);
+        boolean isCurrentUser = ChatSDK.currentUser().equals(user);
         setHasOptionsMenu(isCurrentUser);
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
@@ -189,14 +189,14 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            if(NM.blocking() != null && NM.blocking().blockingSupported()) {
+            if(ChatSDK.blocking() != null && ChatSDK.blocking().blockingSupported()) {
 
-                updateBlockedButton(NM.blocking().isBlocked(getUser().getEntityID()));
+                updateBlockedButton(ChatSDK.blocking().isBlocked(getUser().getEntityID()));
 
                 blockButton.setOnClickListener(v -> {
-                    boolean blocked = NM.blocking().isBlocked(getUser().getEntityID());
+                    boolean blocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
                     if(blocked) {
-                        disposables.add(NM.blocking().unblockUser(getUser().getEntityID())
+                        disposables.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(() -> {
                                     updateBlockedButton(false);
@@ -207,7 +207,7 @@ public class ProfileFragment extends BaseFragment {
                                 }));
                     }
                     else {
-                        disposables.add(NM.blocking().blockUser(getUser().getEntityID())
+                        disposables.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(() -> {
                                     updateBlockedButton(true);
@@ -224,7 +224,7 @@ public class ProfileFragment extends BaseFragment {
                 blockButton.setVisibility(View.INVISIBLE);
             }
 
-            deleteButton.setOnClickListener(view -> disposables.add(NM.contact().deleteContact(getUser(), ConnectionType.Contact)
+            deleteButton.setOnClickListener(view -> disposables.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         ToastHelper.show(getContext(), getString(R.string.user_deleted));
@@ -349,7 +349,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected User getUser () {
-        return user != null ? user : NM.currentUser();
+        return user != null ? user : ChatSDK.currentUser();
     }
 
     /**
@@ -377,7 +377,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showSettings() {
-        InterfaceManager.shared().a.startEditProfileActivity(getContext(), NM.currentUser().getEntityID());
+        ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUser().getEntityID());
     }
 
     @Override

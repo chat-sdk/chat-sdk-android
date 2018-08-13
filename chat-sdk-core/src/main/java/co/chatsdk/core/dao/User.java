@@ -19,7 +19,7 @@ import java.util.Map;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.ConnectionType;
 
@@ -428,7 +428,7 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public boolean isMe(){
-        return getId().longValue() == NM.currentUser().getId().longValue();
+        return getId().longValue() == ChatSDK.currentUser().getId().longValue();
     }
 
     public String toString() {

@@ -17,11 +17,10 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
@@ -55,7 +54,7 @@ public class FirebasePushHandler implements PushHandler {
             }
         });
 
-        NM.hook().addHook(authHook, BaseHookHandler.UserAuthFinished);
+        ChatSDK.hook().addHook(authHook, BaseHookHandler.UserAuthFinished);
 
         TokenChangeConnector.shared().addListener(token -> {
 
@@ -75,10 +74,10 @@ public class FirebasePushHandler implements PushHandler {
     }
 
     public boolean updatePushToken () {
-        if(token != null && token.length() > 0 && NM.currentUser() != null) {
-            String currentToken = NM.currentUser().metaStringForKey(Keys.PushToken);
+        if(token != null && token.length() > 0 && ChatSDK.currentUser() != null) {
+            String currentToken = ChatSDK.currentUser().metaStringForKey(Keys.PushToken);
             if(currentToken == null || !currentToken.equals(token)) {
-                NM.currentUser().setMetaString(Keys.PushToken, token);
+                ChatSDK.currentUser().setMetaString(Keys.PushToken, token);
                 return true;
             }
         }
@@ -108,7 +107,7 @@ public class FirebasePushHandler implements PushHandler {
     public void pushToUsers(List<User> users, Message message) {
         ArrayList<String> channels = new ArrayList<>();
 
-        User currentUser = NM.currentUser();
+        User currentUser = ChatSDK.currentUser();
 
         for(User user : users) {
             String pushToken = user.metaStringForKey(Keys.PushToken);
@@ -128,8 +127,8 @@ public class FirebasePushHandler implements PushHandler {
 
         HashMap<String, String> data = new HashMap<>();
 
-        data.put(BaseInterfaceAdapter.THREAD_ENTITY_ID, message.getThread().getEntityID());
-        data.put(BaseInterfaceAdapter.USER_ENTITY_ID, message.getSender().getEntityID());
+        data.put(InterfaceManager.THREAD_ENTITY_ID, message.getThread().getEntityID());
+        data.put(InterfaceManager.USER_ENTITY_ID, message.getSender().getEntityID());
 
         pushToChannels(channels, notification, data);
 

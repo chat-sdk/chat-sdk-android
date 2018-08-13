@@ -68,7 +68,7 @@ public class Strings {
         }
 
         // Due to the bundle printing when the app execute on debug this sometime is null.
-        User currentUser = NM.currentUser();
+        User currentUser = ChatSDK.currentUser();
         String name = "";
 
         if (thread.typeIs(ThreadType.Private)) {

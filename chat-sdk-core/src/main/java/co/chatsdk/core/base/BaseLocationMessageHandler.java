@@ -48,7 +48,7 @@ public class BaseLocationMessageHandler implements LocationMessageHandler {
             e.onNext(new MessageSendProgress(message));
 
             ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-            connector.connect(NM.thread().sendMessage(message), e);
+            connector.connect(ChatSDK.thread().sendMessage(message), e);
 
         }).subscribeOn(Schedulers.single());
     }
