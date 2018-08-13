@@ -8,6 +8,7 @@
 package co.chatsdk.ui.helpers;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -32,6 +33,7 @@ import co.chatsdk.ui.utils.ImageBuilder;
 public class NotificationUtils {
 
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
+    public static String ChatSDKMessageChannel = "co.chatsdk.notification.Message";
 
     public static void createMessageNotification(Context context, Message message) {
 
@@ -96,13 +98,14 @@ public class NotificationUtils {
                         .setContentTitle(title)
                         .setContentText(message)
                         .setSmallIcon(smallIconResID)
-//                        .setLights(0xFF0000FF, 500, 3000)
                         .setVibrate(new long[]{0, 250, 100, 250})
                         .setSound(soundUri)
                         .setNumber(number)
                         .setContentIntent(pendingIntent)
                         .setTicker(title + ": " + message)
                         .setPriority(Notification.PRIORITY_HIGH);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (largeIcon != null) {
             Notification.InboxStyle style = new Notification.InboxStyle()
@@ -117,11 +120,29 @@ public class NotificationUtils {
             builder.setColor(context.getResources().getColor(R.color.chat_blue));
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            builder.setChannelId(ChatSDKMessageChannel);
+
+            CharSequence name = context.getString(R.string.app_name);
+            String description = context.getString(R.string.push_channel_name);
+
+            NotificationChannel channel = new NotificationChannel(ChatSDKMessageChannel, name, NotificationManager.IMPORTANCE_HIGH);
+            channel.enableVibration(true);
+            channel.setDescription(description);
+
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+
+        }
+
+
         Notification notification = builder.build();
 
         notification.flags = Notification.FLAG_AUTO_CANCEL ;
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
 
         wakeScreen(context);

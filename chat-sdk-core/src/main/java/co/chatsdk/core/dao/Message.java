@@ -183,15 +183,17 @@ public class Message implements CoreEntity {
     }
 
     public JSONObject getJSONObject () {
-        if (jsonObject == null) {
+        if (jsonObject == null && json != null) {
             try {
                 String json = getRawJSONPayload();
                 jsonObject = new JSONObject(json);
             }
             catch (Exception e) {
-                jsonObject = new JSONObject();
                 ChatSDK.logError(e);
             }
+        }
+        if (jsonObject == null) {
+            jsonObject = new JSONObject();
         }
         return jsonObject;
     }
