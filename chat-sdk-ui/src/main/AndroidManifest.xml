@@ -58,7 +58,8 @@
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <!--Crop image-->
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"/>
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
 
         <!-- Google Maps Metadata-->
         <meta-data
