@@ -190,7 +190,7 @@ public class MainActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
-                InterfaceManager.shared().a. setShowLocalNotifications(showLocalNotificationsForTab(tab));
+                updateLocalNotificationsForTab();
 
                 // We mark the tab as visible. This lets us be more efficient with updates
                 // because we only
@@ -209,6 +209,9 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+
+        updateLocalNotificationsForTab();
+
 
 //        tabLayout.setViewPager(viewPager);
 //
@@ -231,6 +234,12 @@ public class MainActivity extends BaseActivity {
 //        });
 
         viewPager.setOffscreenPageLimit(3);
+
+    }
+
+    public void updateLocalNotificationsForTab () {
+        TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
+        InterfaceManager.shared().a. setShowLocalNotifications(showLocalNotificationsForTab(tab));
 
     }
 
