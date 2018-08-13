@@ -38,6 +38,9 @@ public class Configuration {
     public String firebaseStorageUrl;
     public String firebaseCloudMessagingServerKey;
 
+    // Should we call disconnect when the app is in the background for more than 5 seconds?
+    public boolean disconnectFromFirebaseWhenInBackground = true;
+
     // XMPP
     public String xmppDomain;
     public String xmppHostAddress;
@@ -284,7 +287,12 @@ public class Configuration {
             return this;
         }
 
-        public Builder publicRoomCreationEnabled (boolean value) {
+        public Builder disconnectFromFirebaseWhenInBackground (boolean disconnect) {
+            config.disconnectFromFirebaseWhenInBackground = disconnect;
+            return this;
+        }
+
+         public Builder publicRoomCreationEnabled (boolean value) {
             config.publicRoomCreationEnabled = value;
             return this;
         }

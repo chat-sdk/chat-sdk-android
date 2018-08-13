@@ -24,8 +24,8 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.ui.R;
 import co.chatsdk.core.utils.Strings;
+import co.chatsdk.ui.R;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
@@ -79,6 +79,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
                     thread.update();
                 }
             }
+
 
             holder.lastMessageTextView.setText(getLastMessageText(message));
         }

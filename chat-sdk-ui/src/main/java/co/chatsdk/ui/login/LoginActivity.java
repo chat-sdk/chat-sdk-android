@@ -34,7 +34,6 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -219,8 +218,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void onResume() {
         super.onResume();
 
-        AppBackgroundMonitor.shared().setEnabled(false);
-
         initListeners();
 
         // If the logged out flag isn't set...
@@ -244,8 +241,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
-        AppBackgroundMonitor.shared().setEnabled(true);
-
         // We pass the extras in case this activity was laucned by a push. In that case
         // we can load up the thread the message belongs to
         InterfaceManager.shared().a.startMainActivity(this, extras);

@@ -31,7 +31,6 @@ import java.util.List;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
 
 public class BaseActivity extends AppCompatActivity {
@@ -92,13 +91,11 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppBackgroundMonitor.shared().stopActivityTransitionTimer();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        AppBackgroundMonitor.shared().startActivityTransitionTimer();
     }
 
     @Override

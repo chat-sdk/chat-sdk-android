@@ -2,7 +2,6 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -23,26 +22,16 @@ import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.
  */
 
-public class ImageMessageClickListener implements View.OnClickListener {
+public class ImageMessageOnClickHandler {
 
-    private String url;
-    private Activity activity;
-    private Bitmap bitmap;
-
-    public ImageMessageClickListener (Activity activity, String  url) {
-        this.url = url;
-        this.activity = activity;
-    }
-
-    @Override
-    public void onClick(View v) {
-
+    public static void onClick (Activity activity, View view, String url) {
         BaseActivity.hideSoftKeyboard(activity);
 
         if (StringUtils.isNotBlank(url)) {
@@ -61,38 +50,35 @@ public class ImageMessageClickListener implements View.OnClickListener {
             final ProgressBar progressBar = popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
             final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button);
 
-            saveButton.setOnClickListener(v1 -> {
-                PermissionRequestHandler.shared().requestWriteExternalStorage(activity).subscribe(() -> {
-                    if (bitmap != null) {
-                        String url = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
-                        if (url != null) {
-                            ToastHelper.show(activity, activity.getString(R.string.image_saved));
-                        }
-                        else {
-                            ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
-                        }
-                    }
-                }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage()));
-
-            });
-
             saveButton.setVisibility(View.INVISIBLE);
 
             progressBar.setVisibility(View.VISIBLE);
 
-            ImageBuilder.bitmapForURL(activity, url)
+            Disposable d = ImageBuilder.bitmapForURL(activity, url)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-            .subscribe(bitmap -> {
-                imageView.setImageBitmap(bitmap);
-                this.bitmap = bitmap;
-                saveButton.setVisibility(View.VISIBLE);
-            }, throwable -> {
-                ToastHelper.show(activity, R.string.unable_to_fetch_image);
-                imagePopup.dismiss();
-            });
+                    .subscribe(bitmap -> {
+                        imageView.setImageBitmap(bitmap);
+                        saveButton.setVisibility(View.VISIBLE);
+                        saveButton.setOnClickListener(v1 -> PermissionRequestHandler.shared().requestWriteExternalStorage(activity).subscribe(() -> {
+                            if (bitmap != null) {
+                                String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
+                                if (bitmapURL != null) {
+                                    ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                                }
+                                else {
+                                    ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                                }
+                            }
+                        }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
 
-            imagePopup.showAtLocation(v, Gravity.CENTER, 0, 0);
+
+                    }, throwable -> {
+                        ToastHelper.show(activity, R.string.unable_to_fetch_image);
+                        imagePopup.dismiss();
+                    });
+
+            imagePopup.showAtLocation(view, Gravity.CENTER, 0, 0);
 
         }
     }

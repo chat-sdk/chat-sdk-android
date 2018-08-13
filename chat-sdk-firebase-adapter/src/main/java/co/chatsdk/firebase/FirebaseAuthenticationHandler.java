@@ -21,6 +21,7 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
+import co.chatsdk.core.utils.AppBackgroundMonitor;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
@@ -47,6 +48,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         if (user != null) {
                             emitter.onSuccess(user);
+
                         } else {
                             emitter.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth bundle found"));
                         }

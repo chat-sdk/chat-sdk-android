@@ -13,7 +13,6 @@ import chatsdk.co.chat_sdk_firebase_ui.R;
 import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.utils.AppBackgroundMonitor;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -66,7 +65,6 @@ public class SplashScreenActivity extends BaseActivity {
                     dismissProgressDialog();
                 })
                 .subscribe(() -> {
-                    AppBackgroundMonitor.shared().setEnabled(true);
                     InterfaceManager.shared().a.startMainActivity(SplashScreenActivity.this);
                 }, throwable -> {
 //                    startAuthenticationActivity();

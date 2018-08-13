@@ -9,7 +9,7 @@ import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.helpers.NotificationUtils;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.ui.manager.InterfaceManager;
-import co.chatsdk.ui.utils.AppBackgroundMonitor;
+import co.chatsdk.core.utils.AppBackgroundMonitor;
 
 /**
  * Created by ben on 5/10/18.

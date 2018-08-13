@@ -53,6 +53,7 @@ dependencies {
     api 'com.google.android.gms:play-services-maps:15.0.1'
 
     api 'id.zelory:compressor:2.1.0'
+    api 'android.arch.lifecycle:extensions:1.1.1'
 }
 
 // Bintray upload properties

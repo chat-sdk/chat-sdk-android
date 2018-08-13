@@ -73,11 +73,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             itemView.setOnClickListener(view -> {
                 if (messageItem.getMessage().getMessageType() == MessageType.Location) {
-                    LatLng latLng = messageItem.getLatLng();
-                    new LocationMessageClickListener(activity, latLng).onClick(view);
+                    LocationMessageOnClickHandler.onClick(activity, messageItem.getLatLng());
                 }
                 else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
-                    new ImageMessageClickListener(activity, messageItem.getImageURL()).onClick(view);
+                    ImageMessageOnClickHandler.onClick(activity, view, messageItem.getImageURL());
                 }
             });
 

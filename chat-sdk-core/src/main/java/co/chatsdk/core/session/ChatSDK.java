@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import java.lang.ref.WeakReference;
 
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.utils.AppBackgroundMonitor;
 import timber.log.Timber;
 
 /**
@@ -32,6 +33,9 @@ public class ChatSDK {
         shared().config = config;
 
         DaoCore.init(shared().context());
+
+        // Monitor the app so if it goes into the background we know
+        AppBackgroundMonitor.shared().setEnabled(true);
 
 //        if (debug) {
         // TODO: Update this
