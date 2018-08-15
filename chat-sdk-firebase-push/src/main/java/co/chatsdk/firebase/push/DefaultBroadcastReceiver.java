@@ -30,6 +30,21 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
         // This will be the case if the app
         // If the app is in the background
         Intent appIntent = null;
+        
+          if(ChatSDK.a()==null) {
+            Configuration.Builder builder = new Configuration.Builder(context);
+
+            builder.firebaseRootPath("Rootpath");
+            builder.firebaseCloudMessagingServerKey("FCMKEY");
+
+// Initialize the Chat SDK
+            try {
+                ChatSDK.initialize(builder.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
+            } catch (ChatSDKException e) {
+
+            }
+          }
+        
         if (!ChatSDK.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getLoginActivity());
         } else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().userAuthenticatedThisSession()) {
