@@ -8,7 +8,6 @@
 package co.chatsdk.core.dao.sorter;
 
 import java.util.Comparator;
-import java.util.Date;
 
 import co.chatsdk.core.dao.Thread;
 

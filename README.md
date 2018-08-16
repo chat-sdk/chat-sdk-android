@@ -54,7 +54,17 @@ The Chat SDK has a number of additional modules that can easily be installed inc
  
 ## Firebase Firestore
 
-If you are interested in a version of the Chat SDK that supports Firebase's new database please vote on [this issue](https://github.com/chat-sdk/chat-sdk-android/issues/148). 
+If you are interested in a version of the Chat SDK that supports Firebase's new database please vote on [this issue](https://github.com/chat-sdk/chat-sdk-android/issues/148) and help us meet our target on [Paetron](https://www.patreon.com/chatsdk).
+
+## Support the project
+
+We would love to work full time developing the open source. At the moment we have to spend a substantial amount of time doing other consulting work to cover our costs. If you like what we're doing and would like to support us to focus more of our time on the open source project we would be very grateful. 
+
++ Support us directly on [Paetron](https://www.patreon.com/chatsdk) 🙏
++ Giving us a Github star ⭐
++ Upvoting our page on [Product Hunt](https://www.producthunt.com/posts/chat-sdk)
++ Tweet about the project using [@chat_sdk](https://mobile.twitter.com/chat_sdk) 
+ 
  
 ## Get involved!
 We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
