@@ -232,7 +232,10 @@ public class UserWrapper {
             // Updating the old bundle
             for (String key : newData.keySet()) {
                 if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
-                    oldData.put(key, newData.get(key).toString());
+                    // We don't store availability data in the Firebase meta - it's handled by the online flag
+                    if (!key.equals(Keys.Availability)) {
+                        oldData.put(key, newData.get(key).toString());
+                    }
                 }
             }
 
@@ -268,7 +271,11 @@ public class UserWrapper {
     Map<String, Object> serialize(){
         Map<String, Object> values = new HashMap<>();
 
-        values.put(Keys.Meta, model.metaMap());
+        // Don't push availability to Firebase
+        HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
+        metaMap.remove(Keys.Availability);
+
+        values.put(Keys.Meta, metaMap);
         values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
 
         return values;

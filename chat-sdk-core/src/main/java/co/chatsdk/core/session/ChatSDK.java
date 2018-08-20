@@ -36,6 +36,7 @@ import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
+import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
@@ -143,7 +144,7 @@ public class ChatSDK {
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
                     if(message != null) {
-                        if(!message.getSender().isMe() && ChatSDK.ui().showLocalNotifications()) {
+                        if(!message.getSender().isMe() && ChatSDK.ui().showLocalNotifications(message.getThread())) {
                             ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                             if (!message.isRead() && !status.is(ReadStatus.delivered())) {
                                 // Only show the alert if we'recyclerView not on the private threads tab
@@ -152,6 +153,10 @@ public class ChatSDK {
                         }
                     }
                 });
+    }
+
+    public void setLocalNotificationHandler (LocalNotificationHandler handler) {
+
     }
 
     public static ChatSDK shared () {

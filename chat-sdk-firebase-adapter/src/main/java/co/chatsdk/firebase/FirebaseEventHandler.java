@@ -3,6 +3,7 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import co.chatsdk.core.base.BaseHookHandler;
@@ -169,10 +170,11 @@ public class FirebaseEventHandler implements EventHandler {
 
     private Completable contactsMetaOn () {
         return Completable.create(e -> {
+            ArrayList<Completable> completables = new ArrayList<>();
             for (User contact : ChatSDK.contact().contacts()) {
-                ChatSDK.core().userOn(contact);
+                completables.add(ChatSDK.core().userOn(contact));
             }
-            e.onComplete();
+            Completable.merge(completables).subscribe(e::onComplete, throwable -> e.onError(throwable));
         }).subscribeOn(Schedulers.single());
     }
 

@@ -29,14 +29,12 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
@@ -272,7 +270,7 @@ public class ContactsFragment extends BaseFragment {
         final ArrayList<User> originalUserList = new ArrayList<>();
         originalUserList.addAll(sourceUsers);
 
-        reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+        Disposable d = reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
             if (!originalUserList.equals(sourceUsers) || force) {
                 adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
                 Timber.v("Update Contact List");

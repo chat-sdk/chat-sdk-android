@@ -23,11 +23,9 @@ import co.chatsdk.core.Tab;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.core.session.InterfaceManager;
 
 
 public class MainActivity extends BaseActivity {
@@ -52,11 +50,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.chat_sdk_activity_view_pager);
 
         initViews();
-
-//        requestPermissionSafely(requestExternalStorage().doFinally(() -> requestPermissionSafely(requestReadContacts().doFinally(() -> {
-//            //requestVideoAccess().subscribe();
-//        }))));
-
         launchFromPush(getIntent().getExtras());
 
     }
@@ -70,44 +63,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-//    public void requestPermissionSafely (Completable c) {
-//        c.subscribe(new CrashReportingCompletableObserver());
-//    }
-//
-//    public Completable requestMicrophoneAccess () {
-//        if(ChatSDK.audioMessage() != null) {
-//            return PermissionRequestHandler.shared().requestRecordAudio(this);
-//        }
-//        return Completable.complete();
-//    }
-//
-//    public Completable requestExternalStorage () {
-////        if(ChatSDK.audioMessage() != null) {
-//            return PermissionRequestHandler.shared().requestReadExternalStorage(this);
-////        }
-////        return Completable.complete();
-//    }
-//
-//    public Completable requestVideoAccess () {
-//        if(ChatSDK.videoMessage() != null) {
-//            return PermissionRequestHandler.shared().requestVideoAccess(this);
-//        }
-//        return Completable.complete();
-//    }
-//
-//    public Completable requestReadContacts () {
-//        if(ChatSDK.contact() != null) {
-//            return PermissionRequestHandler.shared().requestReadContact(this);
-//        }
-//        return Completable.complete();
-//    }
-
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-//        PermissionRequestHandler.shared().onRequestPermissionsResult(requestCode, permissions, grantResults);
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -118,7 +73,7 @@ public class MainActivity extends BaseActivity {
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 
-
+        updateLocalNotificationsForTab();
         reloadData();
 
     }
@@ -189,37 +144,12 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        updateLocalNotificationsForTab();
-
-
-//        tabLayout.setViewPager(viewPager);
-//
-//        // TODO: Check this - whenever we change tabLayout, we set the user online
-//        tabLayout.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                ChatSDK.core().setUserOnline();
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
-
         viewPager.setOffscreenPageLimit(3);
-
     }
 
     public void updateLocalNotificationsForTab () {
         TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
-        ChatSDK.ui(). setShowLocalNotifications(showLocalNotificationsForTab(tab));
-
+        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab));
     }
 
     public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {

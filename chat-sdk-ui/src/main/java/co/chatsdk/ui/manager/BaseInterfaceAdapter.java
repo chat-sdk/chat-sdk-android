@@ -25,9 +25,11 @@ import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
+import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
@@ -52,7 +54,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public ChatOptionsHandler chatOptionsHandler = null;
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
     public boolean defaultChatOptionsAdded = false;
-
+    public LocalNotificationHandler localNotificationHandler;
 
 
     protected boolean showLocalNotifications;
@@ -335,14 +337,18 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public boolean showLocalNotifications() {
-        return showLocalNotifications && ChatSDK.config().showLocalNotifications;
+    public boolean showLocalNotifications(Thread thread) {
+        if (localNotificationHandler != null) {
+            return localNotificationHandler.showLocalNotification(thread);
+        }
+        else {
+            return ChatSDK.config().showLocalNotifications;
+        }
     }
 
     @Override
-    public void setShowLocalNotifications(boolean shouldShow) {
-        showLocalNotifications = shouldShow;
+    public void setLocalNotificationHandler(LocalNotificationHandler handler) {
+        this.localNotificationHandler = handler;
     }
-
 
 }

@@ -160,7 +160,9 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public Completable userOn (final User user) {
         return Completable.create(e -> {
             final UserWrapper wrapper = new UserWrapper(user);
-            disposableList.add(wrapper.onlineOn().doOnDispose(wrapper::onlineOff).subscribe(aBoolean -> ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(user)), e::onError));
+            disposableList.add(wrapper.onlineOn().doOnDispose(wrapper::onlineOff).subscribe(aBoolean -> {
+                ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(user));
+            }, e::onError));
             disposableList.add(wrapper.metaOn().doOnDispose(wrapper::metaOff).subscribe(user1 -> {
                 ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(user1));
                 e.onComplete();

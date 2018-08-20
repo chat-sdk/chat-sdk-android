@@ -11,6 +11,7 @@ import java.util.List;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -67,6 +68,6 @@ public interface InterfaceAdapter {
     void removeCustomMessageHandler (CustomMessageHandler handler);
     List<CustomMessageHandler> getCustomMessageHandlers();
 
-    boolean showLocalNotifications();
-    void setShowLocalNotifications(boolean shouldShow);
+    boolean showLocalNotifications(Thread thread);
+    void setLocalNotificationHandler(LocalNotificationHandler handler);
 }

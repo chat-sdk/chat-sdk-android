@@ -480,9 +480,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         // the background
         loadMessages(true, -1, ListPosition.Bottom);
 
-
-//        messageListAdapter.setMessages(thread.getMessages());
-//        scrollListTo(ListPosition.Bottom, false);
+        // Show a local notification if the message is from a different thread
+        ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.equals(ChatActivity.this.thread));
 
     }
 
