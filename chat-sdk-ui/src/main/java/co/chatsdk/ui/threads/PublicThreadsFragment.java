@@ -25,10 +25,8 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -39,6 +37,7 @@ public class PublicThreadsFragment extends BaseFragment {
 
     protected RecyclerView listThreads;
     protected ThreadsListAdapter adapter;
+    protected MenuItem addMenuItem;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,10 +87,9 @@ public class PublicThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (ChatSDK.config().publicRoomCreationEnabled) {
-            MenuItem item =
-                    menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.public_thread_fragment_add_item_text));
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            item.setIcon(R.drawable.ic_plus);
+            addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.public_thread_fragment_add_item_text));
+            addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            addMenuItem.setIcon(R.drawable.ic_plus);
         }
     }
 
