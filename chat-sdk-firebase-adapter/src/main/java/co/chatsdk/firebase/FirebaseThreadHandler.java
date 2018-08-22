@@ -67,7 +67,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @param userThreadLinkType - 1 => Add, 2 => Remove
      * @return
      */
-    private Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
+    protected Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
         return Completable.create(e -> {
 
             DatabaseReference ref = FirebasePaths.firebaseRawRef();
