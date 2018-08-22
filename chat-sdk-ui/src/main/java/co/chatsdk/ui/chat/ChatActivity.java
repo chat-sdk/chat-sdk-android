@@ -82,6 +82,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // If we are showing a temporary screen like the sticker message screen
     // this should be set to no
     protected boolean removeUserFromChatOnExit = true;
+    protected boolean addUserToChatOnEnter = true;
 
     protected enum ListPosition {
         Top, Current, Bottom
@@ -451,7 +452,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return;
         }
 
-        if (thread != null && thread.typeIs(ThreadType.Public)) {
+        if (thread != null && thread.typeIs(ThreadType.Public) && addUserToChatOnEnter) {
             User currentUser = ChatSDK.currentUser();
             ChatSDK.thread().addUsersToThread(thread, currentUser)
                     .observeOn(AndroidSchedulers.mainThread())
