@@ -50,7 +50,7 @@ public class MediaSelector {
 
         Context context = ChatSDK.shared().context();
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File destination = ImageUtils.generateImageFile(context, ".jpg");
+        File destination = ImageUtils.generateImageFile(context, "capture", ".jpg");
         fileUri = Uri.fromFile(destination);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
@@ -161,8 +161,10 @@ public class MediaSelector {
         else if (requestCode == TAKE_PHOTO && resultCode == RESULT_OK) {
             if (resultHandler != null) {
                 if (fileUri != null) {
-                    ChatSDK.shared().context().getContentResolver().notifyChange(fileUri, null);
-                    resultHandler.result(fileUri.getPath());
+                    activity.getContentResolver().notifyChange(fileUri, null);
+                    String path = fileUri.getPath();
+                    File file = ImageUtils.compressImage(activity, path, "compressed", ".jpg");
+                    resultHandler.result(file.getPath());
                 }
                 clear();
             }
