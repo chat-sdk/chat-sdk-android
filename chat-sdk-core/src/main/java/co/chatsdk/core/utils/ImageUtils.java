@@ -10,6 +10,7 @@ package co.chatsdk.core.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -17,7 +18,6 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -51,53 +51,29 @@ public class ImageUtils {
         return new File(cachePath + File.separator + uniqueName);
     }
 
-    public static File generateImageFile(File dir, String ext) {
+    public static File generateImageFile(File dir, String name, String ext) {
         if (!dir.exists()) dir.mkdirs();
-        File file = new File(dir, UUID.randomUUID() + ext);
+        if (name.contains(ext)) {
+            return new File(dir, name);
+        }
+        String fileName = (name += UUID.randomUUID()).replace("@", "_");
+        File file = new File(dir, fileName + ext);
         while (file.exists()) {
-            file = new File(dir, UUID.randomUUID() + ext);
+            fileName = (name += UUID.randomUUID()).replace("@", "_");
+            file = new File(dir, fileName + ext);
         }
         return file;
     }
 
-    public static File generateImageFile(Context context, String ext) {
+    public static File generateImageFile(Context context, String name, String ext) {
         File imageDir = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-        return generateImageFile(imageDir, ext);
+        return generateImageFile(imageDir, name, ext);
     }
 
-    public static File saveImageToCache (Context context, Bitmap image) {
-        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-        if(!cache.exists()) {
-            cache.mkdirs();
-        }
-
-        File file = new File(cache, UUID.randomUUID() + ".png");
-        while (file.exists()) {
-            file = new File(cache, UUID.randomUUID() + ".png");
-        }
-
-        return saveImageToCache(context, image, file.getName());
-
-    }
-
-    public static File saveImageToCache (Context context, Bitmap image, String name) {
-        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-
-        if(!cache.exists()) {
-            cache.mkdirs();
-        }
-
-        if(!name.contains(".png")) {
-            name += UUID.randomUUID() + ".png";
-        }
-
-        name = name.replace("@", "_");
-
-        File file = new File(cache, name);
-
+    public static File compressImage(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
         try {
-            OutputStream outStream = new FileOutputStream(file);
-            image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+            OutputStream outStream = new FileOutputStream(outFile);
+            bitmap.compress(format, 100, outStream);
             outStream.flush();
             outStream.close();
         }
@@ -105,8 +81,37 @@ public class ImageUtils {
             ChatSDK.logError(e);
             return null;
         }
-        Log.e("file", "" + file);
-        return file;
+        return outFile;
+    }
+
+    public static File compressImage(Bitmap bitmap, File outFile) {
+        String path = outFile.getPath();
+        String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
+        Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+        if (ext == "png") {
+            format = Bitmap.CompressFormat.PNG;
+        }
+        return compressImage(bitmap, outFile, format);
+    }
+
+    public static File compressImage(Context context, Bitmap bitmap, String name, String ext) {
+        File outFile = generateImageFile(context, name, ext);
+        return compressImage(bitmap, outFile);
+    }
+
+    public static File compressImage(Context context, String filePath, String name, String ext) {
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        return compressImage(context, bitmap, name, ext);
+    }
+
+    @Deprecated
+    public static File saveImageToCache (Context context, Bitmap bitmap, String name) {
+        return compressImage(context, bitmap, name, ".png");
+    }
+
+    @Deprecated
+    public static File saveImageToCache (Context context, Bitmap bitmap) {
+        return saveImageToCache(context, bitmap, "IMG");
     }
 
     /**
