@@ -112,6 +112,10 @@ public class PrivateThreadsFragment extends BaseFragment {
                 }));
     }
 
+    public void test () {
+
+    }
+
     public void clearData() {
         if (adapter != null) {
             adapter.clearData();
