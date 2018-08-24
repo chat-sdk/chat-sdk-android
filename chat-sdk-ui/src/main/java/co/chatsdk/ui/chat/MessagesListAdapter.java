@@ -36,14 +36,12 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.session.InterfaceManager;
 import timber.log.Timber;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MessageViewHolder> {
@@ -82,7 +80,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             itemView.setOnLongClickListener(v -> {
 
-                if (messageItem.message.getSender().isMe()) {
+                if (!messageItem.message.getSender().isMe()) {
                     return false;
                 }
 
