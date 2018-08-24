@@ -38,7 +38,9 @@ public class ImageBuilder {
                 dataSource.subscribe(new BaseBitmapDataSubscriber() {
                     @Override
                     protected void onNewResultImpl(Bitmap bitmap) {
-                        e.onSuccess(bitmap);
+                        // We need to copy the bitmap because in some cases, Fresco is recycling the bitmap
+                        // which causes a crash later on. Seen this problem in Android 5
+                        e.onSuccess(bitmap.copy(bitmap.getConfig(), true));
                     }
 
                     @Override
