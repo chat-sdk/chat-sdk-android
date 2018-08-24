@@ -24,7 +24,6 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import io.reactivex.Observable;
@@ -181,6 +180,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         return onLongClickSubject;
     }
 
+
     public void updateThreads (List<Thread> threads) {
         boolean added = false;
         for (Thread t : threads) {
@@ -199,16 +199,5 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         updateThreads(threads);
     }
 
-    public void filterThreads(String filter) {
-        List<Thread> filteredThreads = new ArrayList<>();
-        List<Thread> newThreads = ChatSDK.thread().getThreads(ThreadType.Public);
-        for (Thread t : newThreads) {
-            if (t.getName() != null && t.getName().toLowerCase().contains(filter.toLowerCase())) {
-                filteredThreads.add(t);
-            }
-        }
-        clearData();
-        updateThreads(filteredThreads);
-    }
 
 }

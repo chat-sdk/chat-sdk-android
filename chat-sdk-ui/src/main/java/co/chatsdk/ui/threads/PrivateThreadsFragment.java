@@ -7,83 +7,31 @@
 
 package co.chatsdk.ui.threads;
 
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
-import co.chatsdk.core.events.EventType;
+import java.util.List;
+
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
-import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public class PrivateThreadsFragment extends BaseFragment {
-
-    protected RecyclerView recyclerView;
-    protected ThreadsListAdapter adapter;
-
-    protected boolean inflateMenuItems = true;
-
-    public static PrivateThreadsFragment newInstance() {
-        PrivateThreadsFragment f = new PrivateThreadsFragment();
-        Bundle b = new Bundle();
-        f.setArguments(b);
-        return f;
-    }
+public class PrivateThreadsFragment extends ThreadsFragment {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(inflateMenuItems);
-
-        ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterPrivateThreadsUpdated())
-                .subscribe(networkEvent -> {
-                    if(tabIsVisible) {
-                        reloadData();
-                    }
-                });
-
-        ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
-                .subscribe(networkEvent -> {
-                    if(tabIsVisible) {
-                        adapter.setTyping(networkEvent.thread, networkEvent.text);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-
-    }
-
-    public void initViews() {
-        recyclerView = mainView.findViewById(R.id.list_threads);
-        initList();
-    }
-
-    protected void initList() {
-
-        // Create the adapter only if null, This is here so we wont
-        // override the adapter given from the extended class with setAdapter.
-        adapter = new ThreadsListAdapter(getActivity());
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setClickable(true);
+    public void initViews (LayoutInflater inflater) {
+        super.initViews(inflater);
 
         adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
 
@@ -112,40 +60,13 @@ public class PrivateThreadsFragment extends BaseFragment {
                 }));
     }
 
-    public void clearData() {
-        if (adapter != null) {
-            adapter.clearData();
-        }
-    }
-
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (!inflateMenuItems)
-            return;
-
-        super.onCreateOptionsMenu(menu, inflater);
-        MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getActivity().getString(R.string.add_conversation));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_plus);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        mainView = inflater.inflate(R.layout.chat_sdk_activity_private_threads, container, false);
-
-        initViews();
-
-        reloadData();
-
-        return mainView;
+    protected Predicate<NetworkEvent> mainEventFilter() {
+        return NetworkEvent.filterPrivateThreadsUpdated();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-
-        if (!inflateMenuItems)
-            return super.onOptionsItemSelected(item);
 
         /* Cant use switch in the library*/
         int id = item.getItemId();
@@ -159,28 +80,8 @@ public class PrivateThreadsFragment extends BaseFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        reloadData();
-//        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void reloadData() {
-        if(adapter != null) {
-            adapter.clearData();
-            adapter.updateThreads(ChatSDK.thread().getThreads(ThreadType.Private));
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    public void setTabVisibility (boolean isVisible) {
-        super.setTabVisibility(isVisible);
-        reloadData();
+    protected List<Thread> getThreads() {
+        return ChatSDK.thread().getThreads(ThreadType.Private);
     }
 
 }

@@ -122,7 +122,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Fragment privateThreadsFragment() {
-        return PrivateThreadsFragment.newInstance();
+        return new PrivateThreadsFragment();
     }
 
     @Override
