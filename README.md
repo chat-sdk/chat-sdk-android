@@ -250,6 +250,7 @@ You will also need to add your Google Places API key to the app manifest:
 ```
 <meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR GOOGLE PLACES API KEY"/>
 ```
+Note: you need to enable billing in your google cloud console or else you will not be able to view map images in your messages, For more information visit https://developers.google.com/places/web-service/usage-and-billing#important-enable-billing
 
 You can disable location messages using the `builder.locationMessagesEnabled(false)` option. 
 
