@@ -24,16 +24,14 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 8/15/17.
@@ -63,7 +61,7 @@ public class ProfileFragment extends BaseFragment {
     protected ImageView phoneImageView;
     protected ImageView emailImageView;
 
-    protected ArrayList<Disposable> disposables = new ArrayList<>();
+    private DisposableList disposableList = new DisposableList();
 
     protected User user;
 
@@ -85,10 +83,10 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        disposables.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if(networkEvent.user.equals(getUser())) {
+                    if (networkEvent.user.equals(getUser())) {
                         reloadData();
                     }
                 }));
@@ -98,7 +96,7 @@ public class ProfileFragment extends BaseFragment {
         return mainView;
     }
 
-    public void initViews(LayoutInflater inflater){
+    public void initViews(LayoutInflater inflater) {
         mainView = inflater.inflate(R.layout.chat_sdk_profile_fragment, null);
 
         setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
@@ -129,57 +127,117 @@ public class ProfileFragment extends BaseFragment {
 
         reloadData();
 
-        disposables.add(ChatSDK.events().sourceOnMain()
+        addUserMetaUpdatedEventListener();
+    }
+
+    protected void addUserMetaUpdatedEventListener() {
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if(networkEvent.user.equals(getUser())) {
+                    if (networkEvent.user.equals(getUser())) {
                         reloadData();
                     }
                 }));
     }
 
+    protected void setViewVisibility(View view, int visibility) {
+        if (view != null) view.setVisibility(visibility);
+    }
+
+    protected void setViewText(TextView textView, String text) {
+        if (textView != null) textView.setText(text);
+    }
+
     protected void setRowVisible (int textViewID, int imageViewID, boolean visible) {
-        mainView.findViewById(textViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
-        mainView.findViewById(imageViewID).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        setViewVisibility(mainView.findViewById(textViewID), visible ? View.VISIBLE : View.INVISIBLE);
+        setViewVisibility(mainView.findViewById(imageViewID), visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     protected void updateBlockedButton (boolean blocked) {
         if (blocked) {
-            blockButton.setText(getString(R.string.unblock));
-        }
-        else {
-            blockButton.setText(getString(R.string.block));
+            setViewText(blockButton, getString(R.string.unblock));
+        } else {
+            setViewText(blockButton, getString(R.string.block));
         }
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 //        updateInterface();
+    }
+
+    protected void block() {
+        if (getUser().isMe()) return;
+
+        disposableList.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    updateBlockedButton(true);
+                    updateInterface();
+                    ToastHelper.show(getContext(), getString(R.string.user_blocked));
+                }, throwable1 -> {
+                    ChatSDK.logError(throwable1);
+                    Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    protected void unblock() {
+        if (getUser().isMe()) return;
+
+        disposableList.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    updateBlockedButton(false);
+                    updateInterface();
+                    ToastHelper.show(getContext(), R.string.user_unblocked);
+                }, throwable12 -> {
+                    ChatSDK.logError(throwable12);
+                    Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    protected void toggleBlocked() {
+        if (getUser().isMe()) return;
+
+        boolean blocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
+        if (blocked) unblock();
+        else block();
+    }
+
+    protected void delete() {
+        if (getUser().isMe()) return;
+
+        disposableList.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    ToastHelper.show(getContext(), getString(R.string.user_deleted));
+                    getActivity().finish();
+                }, throwable -> {
+                    ChatSDK.logError(throwable);
+                    Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }));
     }
 
     public void updateInterface() {
 
         User user = getUser();
 
-        if(user == null) {
-            return;
-        }
+        if (user == null) return;
         //this.user = user;
 
-        boolean isCurrentUser = ChatSDK.currentUser().equals(user);
+        boolean isCurrentUser = user.isMe();
         setHasOptionsMenu(isCurrentUser);
 
         int visibility = isCurrentUser ? View.INVISIBLE : View.VISIBLE;
 
-        followsImageView.setVisibility(visibility);
-        followedImageView.setVisibility(visibility);
-        followsTextView.setVisibility(visibility);
-        followedTextView.setVisibility(visibility);
-        blockButton.setVisibility(visibility);
-        deleteButton.setVisibility(visibility);
+        setViewVisibility(followsImageView, visibility);
+        setViewVisibility(followedImageView, visibility);
+        setViewVisibility(followsTextView, visibility);
+        setViewVisibility(followedTextView, visibility);
+        setViewVisibility(blockButton, visibility);
+        setViewVisibility(deleteButton, visibility);
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
@@ -189,108 +247,75 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            if(ChatSDK.blocking() != null && ChatSDK.blocking().blockingSupported()) {
-
-                updateBlockedButton(ChatSDK.blocking().isBlocked(getUser().getEntityID()));
-
-                blockButton.setOnClickListener(v -> {
-                    boolean blocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
-                    if(blocked) {
-                        disposables.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(() -> {
-                                    updateBlockedButton(false);
-                                    ToastHelper.show(getContext(), R.string.user_unblocked);
-                                }, throwable12 -> {
-                                    ChatSDK.logError(throwable12);
-                                    Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                }));
-                    }
-                    else {
-                        disposables.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(() -> {
-                                    updateBlockedButton(true);
-                                    ToastHelper.show(getContext(), getString(R.string.user_blocked));
-                                }, throwable1 -> {
-                                    ChatSDK.logError(throwable1);
-                                    Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                }));
-                    }
-                });
+            if (ChatSDK.blocking() != null && NM.blocking().blockingSupported()) {
+                updateBlockedButton(NM.blocking().isBlocked(getUser().getEntityID()));
+                if (blockButton != null) blockButton.setOnClickListener(v -> toggleBlocked());
             }
             else {
                 // TODO: Set height to zero
-                blockButton.setVisibility(View.INVISIBLE);
+                setViewVisibility(blockButton, View.INVISIBLE);
             }
 
-            deleteButton.setOnClickListener(view -> disposables.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                        ToastHelper.show(getContext(), getString(R.string.user_deleted));
-                        getActivity().finish();
-                    }, throwable -> {
-                        ChatSDK.logError(throwable);
-                        Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            })));
+            if (deleteButton != null) deleteButton.setOnClickListener(view -> delete());
         }
 
 
         // Country Flag
         String countryCode = getUser().getCountryCode();
-        flagImageView.setVisibility(View.INVISIBLE);
+        setViewVisibility(flagImageView, View.INVISIBLE);
 
-        if(countryCode != null && !countryCode.isEmpty()) {
+        if (countryCode != null && !countryCode.isEmpty()) {
             int flagResourceId = getFlagResId(countryCode);
-            if(flagResourceId >= 0) {
+            if (flagImageView != null && flagResourceId >= 0) {
                 flagImageView.setImageResource(flagResourceId);
-                flagImageView.setVisibility(View.VISIBLE);
+                setViewVisibility(flagImageView, View.VISIBLE);
             }
         }
 
         // Profile Image
-        avatarImageView.setImageURI(getUser().getAvatarURL());
+        if (avatarImageView != null) avatarImageView.setImageURI(getUser().getAvatarURL());
 
         String status = getUser().getStatus();
-        if(!StringChecker.isNullOrEmpty(status)) {
-            statusTextView.setText(status);
-        }
-        else {
-            statusTextView.setText("");
+        if (!StringChecker.isNullOrEmpty(status)) {
+            setViewText(statusTextView, status);
+        } else {
+            setViewText(statusTextView, "");
         }
 
         // Name
-        nameTextView.setText(getUser().getName());
+        setViewText(nameTextView, getUser().getName());
 
         String availability = getUser().getAvailability();
 
         // Availability
-        if(availability != null && !isCurrentUser) {
-            availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
-            availabilityImageView.setVisibility(View.VISIBLE);
-        }
-        else {
-            availabilityImageView.setVisibility(View.INVISIBLE);
+        if (availability != null && !isCurrentUser) {
+            if (availabilityImageView != null) {
+                availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
+            }
+            setViewVisibility(availabilityImageView, View.VISIBLE);
+        } else {
+            setViewVisibility(availabilityImageView, View.INVISIBLE);
         }
 
         // Location
-        locationTextView.setText(getUser().getLocation());
+        setViewText(locationTextView, getUser().getLocation());
 
         // Phone
-        phoneTextView.setText(getUser().getPhoneNumber());
+        setViewText(phoneTextView, getUser().getPhoneNumber());
 
-        emailTextView.setText(getUser().getEmail());
+        // Email
+        setViewText(emailTextView, getUser().getEmail());
 
-        String presenceSubscription = getUser().getPresenceSubscription();
-
-        boolean follows = false;
-        boolean followed = false;
-        if(presenceSubscription != null) {
-            follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
-            followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
-        }
-
-//        if(follows) {
+//        String presenceSubscription = getUser().getPresenceSubscription();
+//
+//        boolean follows = false;
+//        boolean followed = false;
+//        if (presenceSubscription != null) {
+//            follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
+//            followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
+//        }
+//
+//        if (follows) {
 //            followsImageView.setMaxHeight(followsHeight);
 //            followsTextView.setMaxHeight(followsHeight);
 //        }
@@ -298,7 +323,7 @@ public class ProfileFragment extends BaseFragment {
 //            followsImageView.setMaxHeight(0);
 //            followsTextView.setMaxHeight(0);
 //        }
-//        if(followed) {
+//        if (followed) {
 //            followedImageView.setMaxHeight(followedHeight);
 //            followedTextView.setMaxHeight(followedHeight);
 //        }
@@ -338,9 +363,9 @@ public class ProfileFragment extends BaseFragment {
     protected void stackViews (ArrayList<Integer> viewIds, Integer firstViewId, ConstraintSet set) {
         int lastViewId = firstViewId;
         final float density = getContext().getResources().getDisplayMetrics().density;
-        for(int viewId : viewIds) {
+        for (int viewId : viewIds) {
             View view = mainView.findViewById(viewId);
-            if(view.getVisibility() == View.VISIBLE) {
+            if (view != null && view.getVisibility() == View.VISIBLE) {
                 set.connect(viewId, ConstraintSet.TOP, lastViewId, ConstraintSet.BOTTOM, (int) (ProfileDetailMargin * density));
                 //set.constrainHeight(viewId, ProfileDetailRowHeight * density);
                 lastViewId = viewId;
@@ -411,11 +436,7 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        for(Disposable d : disposables) {
-            d.dispose();
-        }
-        disposables.clear();
+        disposableList.dispose();
     }
 
     @Override
