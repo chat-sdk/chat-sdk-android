@@ -51,7 +51,7 @@ public class ImageUtils {
         return new File(cachePath + File.separator + uniqueName);
     }
 
-    public static File generateImageFile(File dir, String name, String ext) {
+    public static File createFileInImageDirectory(File dir, String name, String ext) {
         if (!dir.exists()) dir.mkdirs();
         if (name.contains(ext)) {
             return new File(dir, name);
@@ -65,12 +65,12 @@ public class ImageUtils {
         return file;
     }
 
-    public static File generateImageFile(Context context, String name, String ext) {
+    public static File createFileInImageDirectory(Context context, String name, String ext) {
         File imageDir = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-        return generateImageFile(imageDir, name, ext);
+        return createFileInImageDirectory(imageDir, name, ext);
     }
 
-    public static File compressImage(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
+    public static File compressToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
         try {
             OutputStream outStream = new FileOutputStream(outFile);
             bitmap.compress(format, 100, outStream);
@@ -84,29 +84,29 @@ public class ImageUtils {
         return outFile;
     }
 
-    public static File compressImage(Bitmap bitmap, File outFile) {
+    public static File compressToFile(Bitmap bitmap, File outFile) {
         String path = outFile.getPath();
         String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
         Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
         if (ext == "png") {
             format = Bitmap.CompressFormat.PNG;
         }
-        return compressImage(bitmap, outFile, format);
+        return compressToFile(bitmap, outFile, format);
     }
 
-    public static File compressImage(Context context, Bitmap bitmap, String name, String ext) {
-        File outFile = generateImageFile(context, name, ext);
-        return compressImage(bitmap, outFile);
+    public static File compressToFile(Context context, Bitmap bitmap, String name, String ext) {
+        File outFile = createFileInImageDirectory(context, name, ext);
+        return compressToFile(bitmap, outFile);
     }
 
-    public static File compressImage(Context context, String filePath, String name, String ext) {
+    public static File compressToFile(Context context, String filePath, String name, String ext) {
         Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        return compressImage(context, bitmap, name, ext);
+        return compressToFile(context, bitmap, name, ext);
     }
 
     @Deprecated
     public static File saveImageToCache (Context context, Bitmap bitmap, String name) {
-        return compressImage(context, bitmap, name, ".png");
+        return compressToFile(context, bitmap, name, ".png");
     }
 
     @Deprecated
