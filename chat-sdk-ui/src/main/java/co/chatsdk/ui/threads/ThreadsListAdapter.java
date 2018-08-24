@@ -24,6 +24,7 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import io.reactivex.Observable;
@@ -90,7 +91,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         int unreadMessageCount = thread.getUnreadMessagesCount();
 
-        if (unreadMessageCount != 0 && thread.typeIs(ThreadType.Private)) {
+        if (unreadMessageCount != 0 && (thread.typeIs(ThreadType.Private) || ChatSDK.config().unreadMessagesCountForPublicChatRoomsEnabled)) {
 
             holder.unreadMessageCountTextView.setText(String.valueOf(unreadMessageCount));
             holder.unreadMessageCountTextView.setVisibility(View.VISIBLE);
