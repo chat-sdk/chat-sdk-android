@@ -247,8 +247,8 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
             // Find out if the user is blocked already?
-            if (ChatSDK.blocking() != null && NM.blocking().blockingSupported()) {
-                updateBlockedButton(NM.blocking().isBlocked(getUser().getEntityID()));
+            if (ChatSDK.blocking() != null && ChatSDK.blocking().blockingSupported()) {
+                updateBlockedButton(ChatSDK.blocking().isBlocked(getUser().getEntityID()));
                 if (blockButton != null) blockButton.setOnClickListener(v -> toggleBlocked());
             }
             else {

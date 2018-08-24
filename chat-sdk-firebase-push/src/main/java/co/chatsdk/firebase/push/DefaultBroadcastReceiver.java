@@ -30,7 +30,7 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
         // This will be the case if the app
         // If the app is in the background
         Intent appIntent = null;
-        if (!ChatSDK.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
+        if (ChatSDK.auth() == null || !ChatSDK.auth().userAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getLoginActivity());
         } else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().userAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());

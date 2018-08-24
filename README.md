@@ -130,10 +130,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.1.19'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.1.19'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.1.19'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.1.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.1.21'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.1.21'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.1.21'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.1.21'
 ```
 
 You may also need to enable Java 8:
@@ -250,7 +250,8 @@ You will also need to add your Google Places API key to the app manifest:
 ```
 <meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR GOOGLE PLACES API KEY"/>
 ```
-Note: you need to enable billing in your google cloud console or else you will not be able to view map images in your messages, For more information visit https://developers.google.com/places/web-service/usage-and-billing#important-enable-billing
+>**Note:**
+> You need to enable billing in your google cloud console or else you will not be able to view map images in your messages, For more information visit the [Google usage and billing support page](https://developers.google.com/places/web-service/usage-and-billing#important-enable-billing)
 
 You can disable location messages using the `builder.locationMessagesEnabled(false)` option. 
 
@@ -324,7 +325,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.1.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.1.21'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -355,7 +356,7 @@ FirebasePushModule.activateForFirebase();
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.1.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.1.21'
 ```
 
 ##### Enable the module
@@ -399,7 +400,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.1.19'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.1.21'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
