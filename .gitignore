@@ -26,3 +26,14 @@ app/release
 # Java .class files
 **/*.class
 *.diff
+
+# Premium Modules
+chat-sdk-audio-message
+chat-sdk-contact-book
+chat-sdk-file-message
+chat-sdk-firebase-blocking
+chat-sdk-firebase-nearby-users
+chat-sdk-read-receipts
+chat-sdk-sticker-message
+chat-sdk-typing-indicator
+chat-sdk-video-message
