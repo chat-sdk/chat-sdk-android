@@ -132,7 +132,7 @@
     <string name="search_activity_searching_message">Searching</string>
 
     <!--PublicThreadFragment-->
-    <string name="public_thread_fragment_add_item_text">Add public chat room</string>
+    <string name="thread_fragment_add_item_text">Create chat</string>
 
     <!--Add public chat room dialog-->
     <string name="add_public_chat_dialog_title">Add Chat Room</string>
