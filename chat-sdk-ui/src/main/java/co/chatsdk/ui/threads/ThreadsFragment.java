@@ -34,6 +34,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     protected EditText searchField;
     protected ThreadsListAdapter adapter;
     protected String filter;
+    protected MenuItem addMenuItem;
 
     private DisposableList disposableList = new DisposableList();
 
@@ -101,9 +102,9 @@ public abstract class ThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (allowThreadCreation()) {
-            MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.thread_fragment_add_item_text));
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            item.setIcon(R.drawable.ic_plus);
+            addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.thread_fragment_add_item_text));
+            addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            addMenuItem.setIcon(R.drawable.ic_plus);
         }
     }
 
