@@ -4,8 +4,10 @@
 
     <application
         android:allowBackup="false"
+        android:hardwareAccelerated="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:theme="@style/SdkTheme"
         android:name="co.chatsdk.android.app.AppObj">
 
