@@ -84,7 +84,7 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         etMessage = findViewById(R.id.chat_sdk_et_message_to_send);
     }
 
-    private Activity getActivity() {
+    protected Activity getActivity() {
         Context context = getContext();
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
@@ -99,6 +99,7 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     protected void onFinishInflate() {
         super.onFinishInflate();
         initViews();
+
 
         if (isInEditMode()) {
             return;

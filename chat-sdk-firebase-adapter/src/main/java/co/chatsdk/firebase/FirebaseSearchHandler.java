@@ -8,10 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import co.chatsdk.core.base.AbstractSearchHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.FirebaseDefines;
-import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.firebase.wrappers.UserWrapper;
@@ -24,21 +23,24 @@ import io.reactivex.schedulers.Schedulers;
  * Created by benjaminsmiley-andrews on 24/05/2017.
  */
 
-public class FirebaseSearchHandler implements SearchHandler {
+public class FirebaseSearchHandler extends AbstractSearchHandler {
 
-    public Observable<User> usersForIndex(final String value) {
-        return usersForIndexes(value, Keys.Name, Keys.Email, Keys.Phone);
+    @Override
+    public Observable<User> usersForIndex(String value, int limit) {
+        return usersForIndexes(value, limit, Keys.Name, Keys.Email, Keys.Phone);
     }
 
-    public Observable<User> usersForIndexes(final String value, final String... indexes) {
+    @Override
+    public Observable<User> usersForIndexes(String value, int limit, String... indexes) {
         ArrayList<Observable<User>> observables = new ArrayList<>();
         for (String index : indexes) {
-            observables.add(usersForIndex(value, index));
+            observables.add(usersForIndex(value, limit, index));
         }
         return Observable.merge(observables);
     }
 
-    public Observable<User> usersForIndex(final String value, final String index) {
+    @Override
+    public Observable<User> usersForIndex(String value, int limit, String index) {
         return Observable.create((ObservableOnSubscribe<User>) e -> {
 
             if (StringUtils.isBlank(value))
@@ -50,7 +52,7 @@ public class FirebaseSearchHandler implements SearchHandler {
             final Query query = FirebasePaths.usersRef()
                     .orderByChild(Keys.Meta + '/' + index)
                     .startAt(value)
-                    .limitToFirst(FirebaseDefines.NumberOfUserToLoadForIndex);
+                    .limitToFirst(limit);
             query.keepSynced(true);
 
             query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
@@ -65,7 +67,8 @@ public class FirebaseSearchHandler implements SearchHandler {
                                     DataSnapshot meta = userSnapshot.child(Keys.Meta);
                                     if (meta.hasChild(index)) {
                                         String childValue = (String) meta.child(index).getValue();
-                                        if (childValue.toLowerCase().contains(value.toLowerCase())) {
+                                        String name = (String) meta.child(Keys.Name).getValue();
+                                        if (childValue.toLowerCase().indexOf(value.toLowerCase()) == 0 && name != null && !name.isEmpty()) {
                                             final UserWrapper wrapper = new UserWrapper(userSnapshot);
                                             if (!wrapper.getModel().equals(ChatSDK.currentUser()) && !ChatSDK.contact().exists(wrapper.getModel())) {
                                                 e.onNext(wrapper.getModel());
@@ -94,8 +97,7 @@ public class FirebaseSearchHandler implements SearchHandler {
                     return false;
                 }
             });
-        }).subscribeOn(Schedulers.single());
-    }
+        }).subscribeOn(Schedulers.single());    }
 
     public static String processForQuery(String query){
         return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();

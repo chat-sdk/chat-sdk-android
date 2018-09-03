@@ -32,30 +32,26 @@
       },
 
       "flagged": {
-        "threads": {
-          "$thread_id": {
-            "messages": {
-               "$message_id": {
+        "messages": {
+           "$message_id": {
 
-                 // The user who flagged the message can read and write
-                  ".read": "!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
-                  ".write":"!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
+             // The user who flagged the message can read and write
+              ".read": "!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
+              ".write":"!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
 
-                 // The message and thread must exist
-                  ".validate": "root.child($root + '/threads/' + $thread_id + '/messages/' + $message_id).exists()",
+             // The message and thread must exist
+              ".validate": "root.child($root + '/threads/' +newData.child('thread').val() +  '/messages/' + $message_id).exists()",
 
-                  "sender-entity-id":{
-                    ".validate": "root.child($root+'/users/'+newData.val()).exists()"
-                  },
-                  "creator-enitity-id": {
-                    ".validate": "newData.val() == auth.uid"
-                  },
-                  "date": {
-                    ".validate": "newData.val() == now"
-                  }
-               }
-            }
-          }
+              "sender-entity-id":{
+                ".validate": "root.child($root+'/users/'+newData.val()).exists()"
+              },
+              "creator-enitity-id": {
+                ".validate": "newData.val() == auth.uid"
+              },
+              "date": {
+                ".validate": "newData.val() == now"
+              }
+           }
         }
       },
         
@@ -235,7 +231,8 @@
             "$user_id": {
 
               // Members can add users and the creator can too
-              ".write": "data.parent().parent().child('users/' + auth.uid).exists() || data.parent().parent().child('details/creator-entity-id').val() == auth.uid",
+              // Any user can remove themself
+              ".write": "data.parent().parent().child('users/' + auth.uid).exists() || data.parent().parent().child('details/creator-entity-id').val() == auth.uid || $user_id == auth.uid",
               
                // Add this back in - this is removed because it will prevent us from
                // creating a thread with a user who doesn't exist. This is a problem

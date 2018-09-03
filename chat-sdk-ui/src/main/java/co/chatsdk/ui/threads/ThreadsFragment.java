@@ -114,23 +114,25 @@ public abstract class ThreadsFragment extends BaseFragment {
         super.onResume();
         reloadData();
 
-        searchField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        if (searchField != null) {
+            searchField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
+                }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filter = searchField.getText().toString();
-                reloadData();
-            }
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    filter = searchField.getText().toString();
+                    reloadData();
+                }
 
-            @Override
-            public void afterTextChanged(Editable s) {
+                @Override
+                public void afterTextChanged(Editable s) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     @Override

@@ -12,7 +12,6 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -40,7 +39,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage,final Thread thread) {
         return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(messages -> {
             if(messages.isEmpty()) {
-                return new ThreadWrapper(thread).loadMoreMessages(fromMessage, FirebaseDefines.NumberOfMessagesPerBatch);
+                return new ThreadWrapper(thread).loadMoreMessages(fromMessage, ChatSDK.config().messagesToLoadPerBatch);
             }
             return Single.just(messages);
         });

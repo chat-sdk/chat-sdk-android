@@ -19,6 +19,10 @@ public class Configuration {
 
     public WeakReference<Context> context;
 
+    // Basic parameters
+    public int messagesToLoadPerBatch = 30;
+    public int contactsToLoadPerBatch = 20;
+
     // Testing
     public boolean debug = true;
     public String debugUsername = null;
@@ -57,6 +61,7 @@ public class Configuration {
     public int pushNotificationImageDefaultResourceId;
     public String pushNotificationAction;
     public boolean unreadMessagesCountForPublicChatRoomsEnabled;
+    public boolean inboundPushHandlingEnabled = true;
 
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = true;
@@ -220,6 +225,17 @@ public class Configuration {
             return this;
         }
 
+        /**
+         * In this case the resource will be set to the device's IMEI number
+         * @param domain
+         * @param hostAddress
+         * @param port
+         * @return
+         */
+        public Builder xmpp (String domain, String hostAddress, int port) {
+            return xmpp(domain, hostAddress, port, null);
+        }
+
         public Builder xmpp (String domain, String hostAddress, int port, String resource) {
             return xmpp(domain, hostAddress, port, resource, false);
         }
@@ -318,6 +334,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setInboundPushHandlingEnabled (boolean enabled) {
+            config.inboundPushHandlingEnabled = enabled;
+            return this;
+        }
+
         public Builder unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
             config.unreadMessagesCountForPublicChatRoomsEnabled = value;
             return this;
@@ -345,6 +366,16 @@ public class Configuration {
 
         public Builder groupsEnabled (boolean value) {
             config.groupsEnabled = value;
+            return this;
+        }
+
+        public Builder contactsToLoadPerBatch (int number) {
+            config.contactsToLoadPerBatch = number;
+            return this;
+        }
+
+        public Builder messagesToLoadPerBatch (int number) {
+            config.messagesToLoadPerBatch = number;
             return this;
         }
 

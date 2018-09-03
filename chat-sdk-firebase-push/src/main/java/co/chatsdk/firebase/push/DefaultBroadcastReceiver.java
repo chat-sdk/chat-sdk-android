@@ -20,6 +20,10 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
 
+        if(!ChatSDK.config().inboundPushHandlingEnabled) {
+            return;
+        }
+
         final String threadEntityID = extras.getString(InterfaceManager.THREAD_ENTITY_ID);
         final String userEntityID = extras.getString(InterfaceManager.USER_ENTITY_ID);
         final String title = extras.getString("gcm.notification.title");

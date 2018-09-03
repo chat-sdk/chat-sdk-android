@@ -16,7 +16,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.dao.sorter.ThreadsSorter;
-import co.chatsdk.core.defines.FirebaseDefines;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -47,7 +46,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : null;
 
             // First try to load the messages from the database
-            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), FirebaseDefines.NumberOfMessagesPerBatch + 1, messageDate);
+            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, messageDate);
             e.onSuccess(list);
         }).subscribeOn(Schedulers.single());
     }
