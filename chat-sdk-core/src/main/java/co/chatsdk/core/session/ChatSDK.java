@@ -196,6 +196,10 @@ public class ChatSDK {
         return InterfaceManager.shared().a;
     }
 
+    public void setInterfaceAdapter (InterfaceAdapter interfaceAdapter) {
+        InterfaceManager.shared().a = interfaceAdapter;
+    }
+
     public static CoreHandler core () {
         return a().core;
     }
