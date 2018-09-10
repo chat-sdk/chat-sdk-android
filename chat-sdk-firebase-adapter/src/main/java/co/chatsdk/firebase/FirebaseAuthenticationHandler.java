@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.base.BaseHookHandler;
@@ -120,7 +121,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     // Do a once() on the user to push its details to firebase.
                     final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
 
-                    userWrapper.once().subscribe(()->{
+                    userWrapper.once()
+                            .timeout(5, TimeUnit.MILLISECONDS)
+                            .subscribe(()->{
                         userWrapper.getModel().update();
 
                         FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
