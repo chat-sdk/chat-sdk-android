@@ -33,7 +33,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews (LayoutInflater inflater) {
         super.initViews(inflater);
 
-        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
+//        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
 
         adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {

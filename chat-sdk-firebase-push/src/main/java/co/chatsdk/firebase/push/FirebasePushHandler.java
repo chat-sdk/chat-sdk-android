@@ -147,10 +147,10 @@ public class FirebasePushHandler implements PushHandler {
             HashMap<String, Object> params = new HashMap<>();
 
             params.put("to", channel);
-            params.put("notification", notification);
-            params.put("data", data);
-//            params.put("priority", "high");
             params.put("sound", ChatSDK.config().pushNotificationSound);
+            params.put("data", data);
+            params.put("notification", notification);
+//            params.put("priority", "high");
 
             String json = new JSONObject(params).toString();
 
@@ -169,6 +169,7 @@ public class FirebasePushHandler implements PushHandler {
             e.onComplete();
         }).subscribeOn(Schedulers.single());
     }
+
 
 
     public interface TokenPusher {
