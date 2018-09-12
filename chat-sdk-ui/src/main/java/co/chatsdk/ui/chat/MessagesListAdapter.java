@@ -58,6 +58,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         public LinearLayout extraLayout;
         public ImageView readReceiptImageView;
         public MessageListItem messageItem;
+        protected View.OnClickListener onClickListener = null;
+        protected View.OnLongClickListener onLongClickListener = null;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -70,7 +72,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             readReceiptImageView = itemView.findViewById(R.id.read_receipt);
 
             itemView.setOnClickListener(view -> {
-                if (messageItem.getMessage().getMessageType() == MessageType.Location) {
+                if (onClickListener != null) {
+                    onClickListener.onClick(view);
+                }
+                else if (messageItem.getMessage().getMessageType() == MessageType.Location) {
                     LocationMessageOnClickHandler.onClick(activity, messageItem.getLatLng());
                 }
                 else if (messageItem.getMessage().getMessageType() == MessageType.Image) {
@@ -80,32 +85,45 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             itemView.setOnLongClickListener(v -> {
 
-                if (!messageItem.message.getSender().isMe()) {
+                if (onLongClickListener != null) {
+                    return onLongClickListener.onLongClick(v);
+                }
+                else {
+
+                    if (!messageItem.message.getSender().isMe()) {
+                        return false;
+                    }
+
+                    Context context = v.getContext();
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(itemView.getContext().getString(R.string.delete_message));
+
+                    // Set up the buttons
+                    builder.setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
+                        try {
+                            ChatSDK.thread().deleteMessage(messageItem.message).subscribe( new CrashReportingCompletableObserver());
+                        }
+                        catch (NoSuchMethodError e) {
+                            ChatSDK.logError(e);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+                    builder.show();
+
                     return false;
                 }
-
-                Context context = v.getContext();
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(itemView.getContext().getString(R.string.delete_message));
-
-                // Set up the buttons
-                builder.setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
-                    try {
-                        ChatSDK.thread().deleteMessage(messageItem.message).subscribe( new CrashReportingCompletableObserver());
-                    }
-                    catch (NoSuchMethodError e) {
-                        ChatSDK.logError(e);
-                    }
-                });
-                builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-                builder.show();
-
-                return false;
             });
 
+        }
 
+        public void setOnClickListener (View.OnClickListener listener) {
+            onClickListener = listener;
+        }
+
+        public void setOnLongClickListener (View.OnLongClickListener listener) {
+            onLongClickListener = listener;
         }
 
         public void setImageHidden (boolean hidden) {
@@ -163,7 +181,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
 
-        MessageListItem messageItem = messageItems.get(position);
+        MessageListItem messageItem = getMessageItems().get(position);
         holder.messageItem = messageItem;
 
         holder.setTextHidden(true);

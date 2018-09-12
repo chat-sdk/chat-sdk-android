@@ -143,12 +143,12 @@ public class ChatSDK {
                 .filter(NetworkEvent.filterThreadType(ThreadType.Private))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
-                    if(message != null) {
+                    if(message != null && !AppBackgroundMonitor.shared().inBackground()) {
                         if(!message.getSender().isMe() && ChatSDK.ui().showLocalNotifications(message.getThread())) {
                             ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                             if (!message.isRead() && !status.is(ReadStatus.delivered())) {
                                 // Only show the alert if we'recyclerView not on the private threads tab
-                                NotificationUtils.createMessageNotification(context(), networkEvent.message);
+                                NotificationUtils.createMessageNotification(message);
                             }
                         }
                     }

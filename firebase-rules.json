@@ -309,7 +309,7 @@
         // Any authenticated user can read the data
         ".read": "root.child($root+'/users/'+auth.uid).exists()",
         // Index the items to improve search performance
-        ".indexOn": ["name", "email", "phone"],
+        ".indexOn": ["name", "email", "phone", "name-lowercase"],
         "$user_id": {
           // We can only write to the index related to our user
           ".write": "$user_id == auth.uid",

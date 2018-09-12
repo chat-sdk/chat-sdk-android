@@ -138,6 +138,12 @@ public class MessageWrapper  {
 
         Long date = long_(value, Keys.Date);
         if(date != null) {
+            // If the server time of the message is too different to local time
+            // set the status to none, which causes the message to be refreshed
+            // in the chat view.
+            if (this.getModel().getDate() == null || Math.abs(this.getModel().getDate().toDate().getTime() - date) > 1000) {
+                model.setMessageStatus(MessageSendStatus.None);
+            }
             model.setDate(new DateTime(date));
         }
 

@@ -81,7 +81,7 @@ public class MediaChatOption extends BaseChatOption {
                     }, consumer);
                 }
                 if(type == Type.TakeVideo) {
-                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).subscribe(() -> {
+                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).concatWith(PermissionRequestHandler.shared().requestWriteExternalStorage(activity)).subscribe(() -> {
                         mediaSelector.startTakeVideoActivity(activity, handleResult);
                     }, consumer);
                 }

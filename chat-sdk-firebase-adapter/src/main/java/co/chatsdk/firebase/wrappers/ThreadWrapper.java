@@ -28,7 +28,6 @@ import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
@@ -286,6 +285,8 @@ public class ThreadWrapper  {
                                 message.getModel().update();
                                 model.update();
 
+                                // If we remove this, then the thread will update twice for each message.
+                                // That can fix a bug if the user's system time is wrong
                                 if (newMessage) {
                                     e.onNext(message.getModel());
                                 }

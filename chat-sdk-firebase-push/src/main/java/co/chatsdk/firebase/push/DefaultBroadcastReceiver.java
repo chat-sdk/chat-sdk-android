@@ -18,6 +18,7 @@ import co.chatsdk.core.utils.NotificationUtils;
 public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+
         Bundle extras = intent.getExtras();
 
         if(!ChatSDK.config().inboundPushHandlingEnabled) {

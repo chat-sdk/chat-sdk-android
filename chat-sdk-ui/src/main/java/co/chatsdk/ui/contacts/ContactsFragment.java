@@ -75,6 +75,8 @@ public class ContactsFragment extends BaseFragment {
     protected ProgressBar progressBar;
     protected RecyclerView recyclerView;
 
+    private boolean showProfileActivityTransitionStarted = false;
+
     protected Disposable listOnClickListenerDisposable;
 
     protected DisposableList disposables = new DisposableList();
@@ -320,8 +322,12 @@ public class ContactsFragment extends BaseFragment {
                         }
                         break;
                     case CLICK_MODE_SHOW_PROFILE:
-                    default:
-                        ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                    default: {
+                        if (!showProfileActivityTransitionStarted) {
+                            ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                            showProfileActivityTransitionStarted = true;
+                        }
+                    }
                 }
             }
         });
@@ -365,6 +371,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        showProfileActivityTransitionStarted = false;
         loadData(true);
     }
 

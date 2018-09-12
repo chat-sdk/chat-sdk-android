@@ -308,8 +308,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     @Override
                     public void onNext(@NonNull MessageSendProgress messageSendProgress) {
                         Timber.v("Message Status: " + messageSendProgress.getStatus());
-                        if(messageListAdapter.addRow(messageSendProgress.message, true, true)) {
-                            messageListAdapter.notifyDataSetChanged();
+                        // It's best not to sort here because then we are just adding the message
+                        // to the bottom of the list. We only sort after the message has also been
+                        // received from Firebase so the datestamp is also correct
+                        if(messageListAdapter.addRow(messageSendProgress.message, false, true)) {
                             scrollListTo(ListPosition.Bottom, false);
                         }
                     }
@@ -367,9 +369,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     message.setRead(true);
                     message.update();
 
-                    boolean isAdded = messageListAdapter.addRow(message);
-                    if(!isAdded) {
-                        messageListAdapter.notifyDataSetChanged();
+                    boolean isAdded = messageListAdapter.addRow(message, false, false);
+                    if(isAdded || message.getMessageStatus() == MessageSendStatus.None) {
+                        messageListAdapter.sortAndNotify();
                     }
 
                     // Check if the message from the current user, If so return so we wont vibrate for the user messages.
@@ -782,7 +784,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             progressBar.setVisibility(View.INVISIBLE);
         }
 
-        ChatSDK.thread().loadMoreMessagesForThread(null, thread)
+        Disposable d = ChatSDK.thread().loadMoreMessagesForThread(null, thread)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((messages, throwable) -> {
                     progressBar.setVisibility(View.INVISIBLE);

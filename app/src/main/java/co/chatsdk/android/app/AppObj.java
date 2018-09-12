@@ -25,7 +25,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder config = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        config.firebaseRootPath("18_08_test_3");
+        config.firebaseRootPath("18_08_test_4");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.firebaseCloudMessagingServerKey("AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug");
         config.publicRoomCreationEnabled(false);
@@ -36,6 +36,22 @@ public class AppObj extends MultiDexApplication {
         catch (ChatSDKException e) {
 
         }
+
+//        NetworkManager.shared().a.videoMessage = new VideoMessageHandler() {
+//            @Override
+//            public Observable<MessageSendProgress> sendMessageWithVideo(String videoPath, Thread thread) {
+//                Timber.v("");
+//                return null;
+//            }
+//
+//            @Override
+//            public void updateMessageCellView(Message message, Object viewHolder, Context context) {
+//                Timber.v("");
+//            }
+//        };
+//        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.take_video), MediaChatOption.Type.TakeVideo));
+//        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.choose_video), MediaChatOption.Type.ChooseVideo));
+
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();

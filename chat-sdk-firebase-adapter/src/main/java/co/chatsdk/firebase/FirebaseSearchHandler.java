@@ -27,7 +27,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
     @Override
     public Observable<User> usersForIndex(String value, int limit) {
-        return usersForIndexes(value, limit, Keys.Name, Keys.Email, Keys.Phone);
+        return usersForIndexes(value, limit, Keys.Name, Keys.Email, Keys.Phone, Keys.NameLowercase);
     }
 
     @Override
@@ -40,13 +40,19 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
     }
 
     @Override
-    public Observable<User> usersForIndex(String value, int limit, String index) {
+    public Observable<User> usersForIndex(final String finalValue, final int limit, final String index) {
         return Observable.create((ObservableOnSubscribe<User>) e -> {
 
-            if (StringUtils.isBlank(value))
+            if (StringUtils.isBlank(finalValue))
             {
                 e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
                 return;
+            }
+
+            String value = finalValue;
+
+            if (index.equals(Keys.NameLowercase)) {
+                value = value.toLowerCase();
             }
 
             final Query query = FirebasePaths.usersRef()
@@ -68,7 +74,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                                     if (meta.hasChild(index)) {
                                         String childValue = (String) meta.child(index).getValue();
                                         String name = (String) meta.child(Keys.Name).getValue();
-                                        if (childValue.toLowerCase().indexOf(value.toLowerCase()) == 0 && name != null && !name.isEmpty()) {
+                                        if (childValue.toLowerCase().indexOf(finalValue.toLowerCase()) == 0 && name != null && !name.isEmpty()) {
                                             final UserWrapper wrapper = new UserWrapper(userSnapshot);
                                             if (!wrapper.getModel().equals(ChatSDK.currentUser()) && !ChatSDK.contact().exists(wrapper.getModel())) {
                                                 e.onNext(wrapper.getModel());

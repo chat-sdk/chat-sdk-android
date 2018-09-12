@@ -32,8 +32,9 @@ public class NotificationUtils {
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
     public static String ChatSDKMessageChannel = "co.chatsdk.notification.Message";
 
-    public static void createMessageNotification(Context context, Message message) {
+    public static void createMessageNotification(Message message) {
 
+        Context context = ChatSDK.shared().context();
         String threadID = message.getThread().getEntityID();
 
         Intent openChatIntent = new Intent(context, ChatSDK.ui().getChatActivity());

@@ -274,6 +274,7 @@ public class UserWrapper {
         // Don't push availability to Firebase
         HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
         metaMap.remove(Keys.Availability);
+        metaMap.put(Keys.NameLowercase, model.getName() != null ? model.getName().toLowerCase() : "");
 
         values.put(Keys.Meta, metaMap);
         values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
