@@ -25,6 +25,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 
 public abstract class ThreadsFragment extends BaseFragment {
@@ -87,9 +88,9 @@ public abstract class ThreadsFragment extends BaseFragment {
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        disposableList.add(adapter.onClickObservable().subscribe(thread -> {
+        Disposable d = adapter.onClickObservable().subscribe(thread -> {
             ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
-        }));
+        });
     }
 
     protected boolean allowThreadCreation () {
