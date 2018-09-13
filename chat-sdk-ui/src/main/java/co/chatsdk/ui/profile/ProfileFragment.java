@@ -478,8 +478,8 @@ public class ProfileFragment extends BaseFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onStop() {
+        super.onStop();
         disposableList.dispose();
     }
 
