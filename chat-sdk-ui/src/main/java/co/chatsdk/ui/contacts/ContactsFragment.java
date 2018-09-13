@@ -39,9 +39,11 @@ import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -60,6 +62,8 @@ public class ContactsFragment extends BaseFragment {
 
     public static final int MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD = 1996;
 
+    /** Don't do anything when user is clicked.*/
+    public static final int CLICK_MODE_NONE = -1;
     /** Open profile context when user is clicked.*/
     public static final int CLICK_MODE_SHOW_PROFILE = 0;
     /** When a user clicked he will be added to the current thread.*/
@@ -78,9 +82,12 @@ public class ContactsFragment extends BaseFragment {
 
     private boolean showProfileActivityTransitionStarted = false;
 
+    protected PublishSubject<User> onClickSubject = PublishSubject.create();
+    protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
     protected Disposable listOnClickListenerDisposable;
+    protected Disposable listOnLongClickListenerDisposable;
 
-    protected DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
      * {@link #loadingMode}*/
@@ -92,24 +99,24 @@ public class ContactsFragment extends BaseFragment {
     /** Determine which users will be loaded to this fragment.
      *
      * @see
-     *  #MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD,
-     *  #MODE_LOAD_CONTACTS
-     *  #MODE_LOAD_FOLLOWERS
-     *  #MODE_LOAD_FOLLOWS
-     *  #MODE_LOAD_THREAD_USERS
-     *  #MODE_USE_SOURCE
-     *  */
+     * #MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD,
+     * MODE_LOAD_CONTACTS
+     * #MODE_LOAD_FOLLOWERS
+     * #MODE_LOAD_FOLLOWS
+     * #MODE_LOAD_THREAD_USERS
+     * #MODE_USE_SOURCE */
     protected int loadingMode = MODE_LOAD_CONTACTS;
 
     /** Determine what happen after a user is clicked.
      *
      * @see
+     * #CLICK_MODE_NONE
      * #CLICK_MODE_ADD_USER_TO_THREAD
      * #CLICK_MODE_SHARE_CONTENT
      * #CLICK_MODE_SHOW_PROFILEs */
-    protected int clickMode;
+    protected int clickMode = CLICK_MODE_SHOW_PROFILE;
 
-    protected Object extraData ="";
+    protected Object extraData = "";
 
     /** Set to false if you dont want any menu item to be inflated for this fragment.
      *  This should be set before the fragment transaction,
@@ -153,19 +160,19 @@ public class ContactsFragment extends BaseFragment {
         return f;
     }
 
-    public void setDialog(){
+    public void setDialog() {
         this.isDialog = true;
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setLoadingMode(int loadingMode){
+    public void setLoadingMode(int loadingMode) {
         this.loadingMode = loadingMode;
     }
 
-    public void setExtraData(Object extraData){
+    public void setExtraData(Object extraData) {
         this.extraData = extraData;
     }
 
@@ -189,11 +196,11 @@ public class ContactsFragment extends BaseFragment {
             setRetainInstance(true);
         }
 
-        disposables.add(ChatSDK.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
                 .subscribe(networkEvent -> loadData(false)));
 
-        disposables.add(ChatSDK.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
 
@@ -202,7 +209,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (isDialog) {
-            if(title.equals("")) {
+            if (title.equals("")) {
                 getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
             }
             else {
@@ -252,8 +259,7 @@ public class ContactsFragment extends BaseFragment {
         if (!inflateMenu)
             return;
 
-        MenuItem item =
-                menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Chat");
+        MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Chat");
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
     }
@@ -274,17 +280,15 @@ public class ContactsFragment extends BaseFragment {
     }
 
     public void loadData (final boolean force) {
+        final ArrayList<User> originalUserList = new ArrayList<>(sourceUsers);
 
-        final ArrayList<User> originalUserList = new ArrayList<>();
-        originalUserList.addAll(sourceUsers);
-
-        Disposable d = reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+        disposableList.add(reloadUsers().observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
             if (!originalUserList.equals(sourceUsers) || force) {
                 adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
                 Timber.v("Update Contact List");
             }
             setupListClickMode();
-        }, throwable -> ChatSDK.logError(throwable));
+        }, ChatSDK::logError));
     }
 
     @Override
@@ -295,26 +299,26 @@ public class ContactsFragment extends BaseFragment {
     }
 
     protected void setupListClickMode() {
-        if(listOnClickListenerDisposable != null) {
+        if (listOnClickListenerDisposable != null) {
             listOnClickListenerDisposable.dispose();
         }
-        listOnClickListenerDisposable = adapter.getItemClicks().subscribe(o -> {
-            if(o instanceof User) {
+        listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
+            if (o instanceof User) {
                 final User clickedUser = (User) o;
+
+                onClickSubject.onNext(clickedUser);
 
                 switch (clickMode) {
                     case CLICK_MODE_ADD_USER_TO_THREAD:
-
                         Thread thread = null;
                         if (extraData instanceof Long) {
                             thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
-                        }
-                        else if (extraData instanceof String) {
+                        } else if (extraData instanceof String) {
                             thread = StorageManager.shared().fetchThreadWithEntityID((String) extraData);
                         }
 
-                        if(thread != null) {
-                            ChatSDK.thread().addUsersToThread(thread, clickedUser)
+                        if (thread != null) {
+                            disposableList.add(ChatSDK.thread().addUsersToThread(thread, clickedUser)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(() -> {
                                         ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());
@@ -324,17 +328,27 @@ public class ContactsFragment extends BaseFragment {
                                     }, throwable -> {
                                         ChatSDK.logError(throwable);
                                         ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_fail));
-                                    });
+                                    }));
                         }
                         break;
                     case CLICK_MODE_SHOW_PROFILE:
-                    default: {
                         if (!showProfileActivityTransitionStarted) {
                             ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
                             showProfileActivityTransitionStarted = true;
                         }
-                    }
+                        break;
+                    default:
+                        break;
                 }
+            }
+        });
+
+        if (listOnLongClickListenerDisposable != null) {
+            listOnLongClickListenerDisposable.dispose();
+        }
+        listOnLongClickListenerDisposable = adapter.onLongClickObservable().subscribe(o -> {
+            if (o instanceof User) {
+                onLongClickSubject.onNext((User) o);
             }
         });
     }
@@ -348,17 +362,17 @@ public class ContactsFragment extends BaseFragment {
                 switch (loadingMode) {
                     case MODE_LOAD_CONTACTS:
                         sourceUsers.addAll(ChatSDK.contact().contacts());
-                        Timber.d("Contacts: " + sourceUsers.size());
+                        Timber.d("Contacts: %s", sourceUsers.size());
                         break;
 
                     case MODE_LOAD_THREAD_USERS:
                         Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, extraData);
-
-                        // Remove the current user from the list.
-                        List<User> users = thread.getUsers();
-                        users.remove(ChatSDK.currentUser());
-
-                        sourceUsers.addAll(users);
+                        if (thread != null) {
+                            // Remove the current user from the list.
+                            List<User> users = thread.getUsers();
+                            users.remove(ChatSDK.currentUser());
+                            sourceUsers.addAll(users);
+                        }
                         break;
 
                     case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
@@ -389,7 +403,6 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
     }
 
     public void setInflateMenu(boolean inflateMenu) {
@@ -399,15 +412,23 @@ public class ContactsFragment extends BaseFragment {
     public void setTextColor(int textColor) {
         this.textColor = textColor;
 
-        if (adapter!=null) {
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public Observable<User> onClickObservable () {
+        return onClickSubject;
+    }
+
+    public Observable<User> onLongClickObservable () {
+        return onLongClickSubject;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        disposables.dispose();
+        disposableList.dispose();
     }
 
 }
