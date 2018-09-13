@@ -167,7 +167,7 @@ public class NotificationUtils {
 
             PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
                     |PowerManager.ON_AFTER_RELEASE
-                    |PowerManager.ACQUIRE_CAUSES_WAKEUP, "MyLock");
+                    |PowerManager.ACQUIRE_CAUSES_WAKEUP, "chat-sdk:MyLock");
 
             wl.acquire(5000);
             wl.release();
