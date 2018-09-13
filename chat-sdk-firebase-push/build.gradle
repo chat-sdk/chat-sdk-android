@@ -41,37 +41,41 @@ dependencies {
 
 // Bintray upload properties
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-if(properties.getProperty('bintray.enabled') != null) {
+File localProperties = project.rootProject.file('local.properties')
+if(localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+    if(properties.getProperty('bintray.enabled') != null) {
 
-    group = CHAT_SDK_GROUP
-    version = CHAT_SDK_VERSION
+        group = CHAT_SDK_GROUP
+        version = CHAT_SDK_VERSION
 
-    ext {
-        bintrayRepo = BINTRAY_REPO
-        bintrayName = 'chat-sdk-firebase-push'
-        bintrayUserOrg = BINTRAY_USER_ORG
+        ext {
+            bintrayRepo = BINTRAY_REPO
+            bintrayName = 'chat-sdk-firebase-push'
+            bintrayUserOrg = BINTRAY_USER_ORG
 
-        publishedGroupId = CHAT_SDK_GROUP
-        libraryName = 'ChatSDKFirebasePush'
-        artifact = 'chat-sdk-firebase-push'
+            publishedGroupId = CHAT_SDK_GROUP
+            libraryName = 'ChatSDKFirebasePush'
+            artifact = 'chat-sdk-firebase-push'
 
-        libraryDescription = 'Chat SDK Firebase Push'
+            libraryDescription = 'Chat SDK Firebase Push'
 
-        siteUrl = SITE_URL
-        gitUrl = GIT_URL
+            siteUrl = SITE_URL
+            gitUrl = GIT_URL
 
-        libraryVersion = CHAT_SDK_VERSION
+            libraryVersion = CHAT_SDK_VERSION
 
-        developerId = DEVELOPER_ID
-        developerName = DEVELOPER_NAME
-        developerEmail = DEVELOPER_EMAIL
+            developerId = DEVELOPER_ID
+            developerName = DEVELOPER_NAME
+            developerEmail = DEVELOPER_EMAIL
 
-        licenseName = LICENSE_NAME
-        licenseUrl = LICENSE_URL
-        allLicenses = ['GPL-3.0']
+            licenseName = LICENSE_NAME
+            licenseUrl = LICENSE_URL
+            allLicenses = ['GPL-3.0']
+        }
+
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
     }
-
-    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
 }
+

@@ -36,6 +36,7 @@ dependencies {
 
     api 'com.facebook.android:facebook-login:4.34.0'
     api 'com.twitter.sdk.android:twitter:3.3.0'
+    api 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
 
     api project(':chat-sdk-firebase-adapter')
     api project(':chat-sdk-core')
@@ -45,39 +46,43 @@ dependencies {
 
 // Bintray upload properties
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-if(properties.getProperty('bintray.enabled') != null) {
+File localProperties = project.rootProject.file('local.properties')
+if(localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+    if(properties.getProperty('bintray.enabled') != null) {
 
-    group = CHAT_SDK_GROUP
-    version = CHAT_SDK_VERSION
+        group = CHAT_SDK_GROUP
+        version = CHAT_SDK_VERSION
 
-    ext {
-        bintrayRepo = BINTRAY_REPO
-        bintrayName = 'chat-sdk-firebase-social-login'
-        bintrayUserOrg = BINTRAY_USER_ORG
+        ext {
+            bintrayRepo = BINTRAY_REPO
+            bintrayName = 'chat-sdk-firebase-social-login'
+            bintrayUserOrg = BINTRAY_USER_ORG
 
-        publishedGroupId = CHAT_SDK_GROUP
-        libraryName = 'ChatSDKFirebaseSocialLogin'
-        artifact = 'chat-sdk-firebase-social-login'
+            publishedGroupId = CHAT_SDK_GROUP
+            libraryName = 'ChatSDKFirebaseSocialLogin'
+            artifact = 'chat-sdk-firebase-social-login'
 
-        libraryDescription = 'Chat SDK Firebase Social Login'
+            libraryDescription = 'Chat SDK Firebase Social Login'
 
-        siteUrl = SITE_URL
-        gitUrl = GIT_URL
+            siteUrl = SITE_URL
+            gitUrl = GIT_URL
 
-        libraryVersion = CHAT_SDK_VERSION
+            libraryVersion = CHAT_SDK_VERSION
 
-        developerId = DEVELOPER_ID
-        developerName = DEVELOPER_NAME
-        developerEmail = DEVELOPER_EMAIL
+            developerId = DEVELOPER_ID
+            developerName = DEVELOPER_NAME
+            developerEmail = DEVELOPER_EMAIL
 
-        licenseName = LICENSE_NAME
-        licenseUrl = LICENSE_URL
-        allLicenses = ['GPL-3.0']
+            licenseName = LICENSE_NAME
+            licenseUrl = LICENSE_URL
+            allLicenses = ['GPL-3.0']
+        }
+
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
     }
-
-    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-    apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
 }
+
 
 
