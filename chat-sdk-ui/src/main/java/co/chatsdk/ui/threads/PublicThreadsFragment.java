@@ -29,7 +29,6 @@ import io.reactivex.functions.Predicate;
  */
 public class PublicThreadsFragment extends ThreadsFragment {
 
-
     @Override
     public void initViews() {
         super.initViews();
@@ -77,7 +76,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
 
-        /* Cant use switch in the library*/
+        /* Cant use switch in the library */
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
@@ -91,4 +90,5 @@ public class PublicThreadsFragment extends ThreadsFragment {
     protected List<Thread> getThreads() {
         return ChatSDK.thread().getThreads(ThreadType.Public);
     }
+
 }
