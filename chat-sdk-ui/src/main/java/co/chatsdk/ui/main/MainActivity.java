@@ -81,7 +81,7 @@ public class MainActivity extends BaseActivity {
                         if (showLocalNotificationsForTab(tab, networkEvent.thread.getType())) {
                             ReadStatus status = networkEvent.message.readStatusForUser(ChatSDK.currentUser());
                             if (!networkEvent.message.isRead() && !status.is(ReadStatus.delivered())) {
-                                NotificationUtils.createMessageNotification(MainActivity.this, networkEvent.message);
+                                NotificationUtils.createMessageNotification(networkEvent.message);
                             }
                         }
                     }
