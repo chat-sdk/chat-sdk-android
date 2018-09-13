@@ -4,13 +4,21 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.error.ChatSDKException;
+import co.chatsdk.core.handlers.VideoMessageHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.session.InterfaceManager;
+import co.chatsdk.core.session.NetworkManager;
+import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import io.reactivex.Observable;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -37,20 +45,20 @@ public class AppObj extends MultiDexApplication {
 
         }
 
-//        NetworkManager.shared().a.videoMessage = new VideoMessageHandler() {
-//            @Override
-//            public Observable<MessageSendProgress> sendMessageWithVideo(String videoPath, Thread thread) {
-//                Timber.v("");
-//                return null;
-//            }
-//
-//            @Override
-//            public void updateMessageCellView(Message message, Object viewHolder, Context context) {
-//                Timber.v("");
-//            }
-//        };
-//        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.take_video), MediaChatOption.Type.TakeVideo));
-//        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.choose_video), MediaChatOption.Type.ChooseVideo));
+        NetworkManager.shared().a.videoMessage = new VideoMessageHandler() {
+            @Override
+            public Observable<MessageSendProgress> sendMessageWithVideo(String videoPath, Thread thread) {
+                return null;
+            }
+
+            @Override
+            public void updateMessageCellView(Message message, Object viewHolder, Context context) {
+
+            }
+        };
+
+        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.take_video), MediaChatOption.Type.TakeVideo));
+        InterfaceManager.shared().a.addChatOption(new MediaChatOption(ChatSDK.shared().context().getString(R.string.choose_video), MediaChatOption.Type.ChooseVideo));
 
 
         FirebaseFileStorageModule.activate();

@@ -161,26 +161,26 @@ public class MediaSelector {
                 clear();
             }
         }
-        else if (requestCode == TAKE_VIDEO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
-                Uri videoUri = intent.getData();
-                resultHandler.result(videoUri.getPath());
-                clear();
-            }
-        }
-        else if (requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
+        else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK && resultHandler != null) {
                 Uri videoUri = intent.getData();
 
-                // Let's read picked image path using content resolver
-                String[] filePath = { MediaStore.Video.Media.DATA };
-                Cursor cursor = activity.getContentResolver().query(videoUri, filePath, null, null, null);
-                cursor.moveToFirst();
-                String videoPath = cursor.getString(cursor.getColumnIndex(filePath[0]));
+                File videoFile = new File(videoUri.getPath());
+                if (videoFile.length() > 0) {
+                    resultHandler.result(videoUri.getPath());
+                }
+                else {
+                    // Try to get it another way for this kind of URL
+                    // content://media/external ...
+                    String[] filePathColumn = { MediaStore.Video.Media.DATA };
 
-                resultHandler.result(videoPath);
+                    Cursor cursor = activity.getContentResolver().query(videoUri, filePathColumn,null, null, null);
+                    cursor.moveToFirst();
+                    String videoPath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+
+                    resultHandler.result(videoPath);
+                }
+
                 clear();
-            }
         }
         else {
             Timber.d("Error handling photo");
