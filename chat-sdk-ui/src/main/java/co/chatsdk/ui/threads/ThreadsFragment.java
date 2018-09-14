@@ -39,6 +39,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
@@ -183,6 +184,11 @@ public abstract class ThreadsFragment extends BaseFragment {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy () {
+        super.onDestroy();
         disposableList.dispose();
     }
 
