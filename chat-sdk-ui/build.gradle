@@ -49,7 +49,7 @@ dependencies {
     api "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
     api "com.google.android.gms:play-services-places:15.0.1"
 
-    api 'com.android.support.constraint:constraint-layout:1.1.2'
+    api 'com.android.support.constraint:constraint-layout:1.1.3'
     api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
 
     api 'com.github.mukeshsolanki:country-picker-android:1.2.4'

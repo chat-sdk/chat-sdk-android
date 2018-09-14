@@ -40,7 +40,7 @@ greendao {
 
 dependencies {
 
-    api fileTree(include: ['*.jar'], dir: 'libs')
+//    api fileTree(include: ['*.jar'], dir: 'libs')
 
     api 'org.greenrobot:greendao:3.2.2'
     api 'joda-time:joda-time:2.10'
@@ -55,6 +55,8 @@ dependencies {
     api 'id.zelory:compressor:2.1.0'
     api 'android.arch.lifecycle:extensions:1.1.1'
     api 'com.facebook.fresco:fresco:1.9.0'
+
+    api 'com.android.support:support-v4:' + project.ANDROID_SUPPORT_VERSION
 
 }
 

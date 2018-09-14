@@ -1,7 +1,6 @@
 package co.chatsdk.core.utils;
 
 import android.content.Context;
-import android.support.annotation.StringRes;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,7 +13,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 
 /**
  * Created by benjaminsmiley-andrews on 07/06/2017.
@@ -22,11 +20,11 @@ import co.chatsdk.core.session.NM;
 
 public class Strings {
 
-    public static String t (Context context, @StringRes int resId) {
+    public static String t (Context context, int resId) {
         return context.getString(resId);
     }
 
-    public static String t (@StringRes int resId) {
+    public static String t (int resId) {
         return t(ChatSDK.shared().context(), resId);
     }
 

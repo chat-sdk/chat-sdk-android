@@ -10,7 +10,7 @@ package co.chatsdk.ui.main;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import co.chatsdk.core.session.ChatSDK;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class PagerAdapterTabs extends FragmentStatePagerAdapter {
+public class PagerAdapterTabs extends FragmentPagerAdapter {
 
     protected List<Tab> tabs;
 

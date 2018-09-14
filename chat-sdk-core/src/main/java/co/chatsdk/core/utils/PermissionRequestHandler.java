@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -70,7 +69,7 @@ public class PermissionRequestHandler {
         return requestPermission(activity, Manifest.permission.READ_CONTACTS, READ_CONTACTS_REQUEST, R.string.permission_read_contacts_title, R.string.permission_read_contacts_message);
     }
 
-    public Completable requestPermission (final Activity activity, final String permission, final int result, @StringRes final int dialogTitle, @StringRes final int dialogMessage) {
+    public Completable requestPermission (final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
         if(completableMap.containsKey(result)) {
             return Completable.complete();
         }

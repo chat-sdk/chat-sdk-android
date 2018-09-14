@@ -123,6 +123,7 @@ public class FirebasePushHandler implements PushHandler {
         notification.put("body", text);
         notification.put("badge", "1");
         notification.put("priority", "high");
+        notification.put("sound", ChatSDK.config().pushNotificationSound);
         notification.put("click_action", ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
 
         HashMap<String, String> data = new HashMap<>();
@@ -147,7 +148,6 @@ public class FirebasePushHandler implements PushHandler {
             HashMap<String, Object> params = new HashMap<>();
 
             params.put("to", channel);
-            params.put("sound", ChatSDK.config().pushNotificationSound);
             params.put("data", data);
             params.put("notification", notification);
 //            params.put("priority", "high");

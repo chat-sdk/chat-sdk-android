@@ -16,9 +16,6 @@ import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.Size;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -106,8 +103,7 @@ public class ImageUtils {
      *
      * @return A Bitmap containing the given images.
      * */
-    @Nullable
-    public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull Bitmap...bitmaps){
+    public static Bitmap getMixImagesBitmap(int width, int height, Bitmap...bitmaps){
 
         if (height == 0 || width == 0 || bitmaps.length == 0) {
             return null;
@@ -140,7 +136,7 @@ public class ImageUtils {
         return finalImage;
     }
 
-    public static Bitmap getMixImagesBitmap(@Size(min = 1) int width, @Size(min = 1) int height, @NonNull List<Bitmap> bitmaps) {
+    public static Bitmap getMixImagesBitmap(int width, int height, List<Bitmap> bitmaps) {
         return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[bitmaps.size()]));
     }
 

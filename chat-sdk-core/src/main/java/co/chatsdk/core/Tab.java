@@ -1,5 +1,6 @@
 package co.chatsdk.core;
 
+
 import android.support.v4.app.Fragment;
 
 import co.chatsdk.core.session.ChatSDK;

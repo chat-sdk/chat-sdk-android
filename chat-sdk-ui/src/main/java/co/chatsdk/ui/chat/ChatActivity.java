@@ -410,11 +410,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged)).subscribe(networkEvent -> {
                     if(networkEvent.thread.equals(thread)) {
-                        if(networkEvent.text != null) {
-                            networkEvent.text += getString(R.string.typing);
+                        String typingText = networkEvent.text;
+                        if(typingText != null) {
+                            typingText += getString(R.string.typing);
                         }
-                        Timber.v(networkEvent.text);
-                        setSubtitleText(networkEvent.text);
+                        Timber.v(typingText);
+                        setSubtitleText(typingText);
                     }
                 }));
     }

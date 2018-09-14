@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
@@ -29,7 +30,6 @@ import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.SearchActivityType;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;

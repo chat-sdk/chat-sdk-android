@@ -10,13 +10,11 @@ package co.chatsdk.ui.main;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 
 /**
  * Created by itzik on 6/17/2014.
