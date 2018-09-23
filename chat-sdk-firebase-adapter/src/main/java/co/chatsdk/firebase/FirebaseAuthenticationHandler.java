@@ -125,9 +125,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
 
-                        if (ChatSDK.push() != null) {
-                            ChatSDK.push().subscribeToPushChannel(userWrapper.pushChannel());
-                        }
+//                        if (ChatSDK.push() != null) {
+//                            ChatSDK.push().subscribeToPushChannel(userWrapper.getModel().getPushChannel());
+//                        }
 
                         if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
@@ -170,16 +170,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public Completable logout() {
         return Completable.create(
-                emitter->{
+                emitter-> {
                     final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
                     FirebaseEventHandler.shared().userOff(user.getEntityID());
 
                     // Removing the push channel
-                    if (ChatSDK.push() != null) {
-                        ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
-                    }
+//                    if (ChatSDK.push() != null) {
+//                        ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
+//                    }
 
                     ChatSDK.core().setUserOffline().subscribe(()->{
 

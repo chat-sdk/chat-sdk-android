@@ -1,7 +1,6 @@
 package co.chatsdk.core.handlers;
 
 import java.util.List;
-import java.util.Map;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
@@ -15,7 +14,7 @@ public interface PushHandler {
     void subscribeToPushChannel(String channel);
     void unsubscribeToPushChannel(String channel);
 
-    void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data);
+//    void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data);
     void pushToUsers (List<User> users, Message message);
 
 }

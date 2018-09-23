@@ -27,9 +27,8 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
 
         final String threadEntityID = extras.getString(InterfaceManager.THREAD_ENTITY_ID);
         final String userEntityID = extras.getString(InterfaceManager.USER_ENTITY_ID);
-        final String title = extras.getString("gcm.notification.title");
-        final String body = extras.getString("gcm.notification.body");
-        final String action = extras.getString("gcm.notification.click_action");
+        final String title = extras.getString(InterfaceManager.PUSH_TITLE);
+        final String body = extras.getString(InterfaceManager.PUSH_BODY);
 
         // Only show the notification if the user is offline
         // This will be the case if the app

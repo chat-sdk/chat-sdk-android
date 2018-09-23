@@ -18,7 +18,6 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import io.reactivex.Completable;
@@ -87,21 +86,21 @@ public class FirebasePushHandler implements PushHandler {
 
     @Override
     public void subscribeToPushChannel(String channel) {
-        FirebaseMessaging.getInstance().subscribeToTopic(safeChannel(channel));
+        FirebaseMessaging.getInstance().subscribeToTopic(channel);
     }
 
     @Override
     public void unsubscribeToPushChannel(String channel) {
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(safeChannel(channel));
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(channel);
     }
 
-    @Override
-    public void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data) {
-
-        for(String channel : channels) {
-            pushToChannel(channel, notification, data).subscribe(new CrashReportingCompletableObserver());
-        }
-    }
+//    @Override
+//    public void pushToChannels(List<String> channels, Map<String, String> notification, Map<String, String> data) {
+//
+//        for(String channel : channels) {
+//            pushToChannel(channel, notification, data).subscribe(new CrashReportingCompletableObserver());
+//        }
+//    }
 
     @Override
     public void pushToUsers(List<User> users, Message message) {
@@ -131,7 +130,7 @@ public class FirebasePushHandler implements PushHandler {
         data.put(InterfaceManager.THREAD_ENTITY_ID, message.getThread().getEntityID());
         data.put(InterfaceManager.USER_ENTITY_ID, message.getSender().getEntityID());
 
-        pushToChannels(channels, notification, data);
+        //pushToChannels(channels, notification, data);
 
     }
 

@@ -425,10 +425,7 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public String getPushChannel(){
-        if (entityID == null)
-            return "";
-
-        return USER_PREFIX + (entityID.replace(":","_"));
+        return entityID;
     }
 
     public boolean isMe(){
