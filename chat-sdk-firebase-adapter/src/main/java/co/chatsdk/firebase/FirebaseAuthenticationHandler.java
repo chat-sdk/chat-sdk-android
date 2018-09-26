@@ -166,6 +166,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
                 })
                 .subscribeOn(Schedulers.single());
+
     }
 
     public Completable logout() {
