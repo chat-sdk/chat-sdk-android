@@ -189,7 +189,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 // Check to see if a thread already exists with these
                 // two users
-                for(Thread thread : getThreads(ThreadType.Private1to1, true)) {
+                for(Thread thread : getThreads(ThreadType.Private1to1, true, true)) {
                     if(thread.getUsers().size() == 2 &&
                             thread.getUsers().contains(currentUser) &&
                             thread.getUsers().contains(otherUser))
