@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -175,7 +176,7 @@ public class UserWrapper {
                 e.onComplete();
             }));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<User> metaOn() {
