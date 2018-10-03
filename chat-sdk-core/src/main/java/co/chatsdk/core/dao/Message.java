@@ -321,6 +321,15 @@ public class Message implements CoreEntity {
         return MessageType.None;
     }
 
+    public boolean messageTypeIs (MessageType... types) {
+        for (MessageType type : types) {
+            if (getMessageType().equals(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setType(Integer type) {
         this.type = type;
     }

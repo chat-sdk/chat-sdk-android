@@ -60,7 +60,7 @@ public class ThreadImageBuilder {
             }
             else {
                 combineBitmaps(context, urls).subscribe(bitmap -> {
-                    File file = ImageUtils.saveImageToCache(context, bitmap);
+                    File file = ImageUtils.compressImageToFile(context, bitmap, "avatar", ".png");
                     if(file != null) {
                         e.onSuccess(Uri.fromFile(file));
                     }

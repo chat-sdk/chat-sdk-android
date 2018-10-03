@@ -10,13 +10,14 @@ package co.chatsdk.core.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
+import android.os.StrictMode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,6 +33,11 @@ import static android.os.Environment.isExternalStorageRemovable;
 
 public class ImageUtils {
 
+    static {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+    }
+
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 
     public static File getDiskCacheDir(Context context, String uniqueName) {
@@ -45,39 +51,29 @@ public class ImageUtils {
         return new File(cachePath + File.separator + uniqueName);
     }
 
-    public static File saveImageToCache (Context context, Bitmap image) {
-        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-        if(!cache.exists()) {
-            cache.mkdirs();
+    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext) {
+        if (!dir.exists()) dir.mkdirs();
+        if (name.contains(ext)) {
+            return new File(dir, name);
         }
-
-        File file = new File(cache, UUID.randomUUID() + ".png");
+        String fileName = (name += UUID.randomUUID()).replace("@", "_");
+        File file = new File(dir, fileName + ext);
         while (file.exists()) {
-            file = new File(cache, UUID.randomUUID() + ".png");
+            fileName = (name += UUID.randomUUID()).replace("@", "_");
+            file = new File(dir, fileName + ext);
         }
-
-        return saveImageToCache(context, image, file.getName());
-
+        return file;
     }
 
-    public static File saveImageToCache (Context context, Bitmap image, String name) {
-        File cache = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+    public static File createEmptyFileInCacheDirectory(Context context, String name, String ext) {
+        File imageDir = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+        return createEmptyFileInCacheDirectory(imageDir, name, ext);
+    }
 
-        if(!cache.exists()) {
-            cache.mkdirs();
-        }
-
-        if(!name.contains(".png")) {
-            name += UUID.randomUUID() + ".png";
-        }
-
-        name = name.replace("@", "_");
-
-        File file = new File(cache, name);
-
+    public static File compressImageToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
         try {
-            OutputStream outStream = new FileOutputStream(file);
-            image.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+            OutputStream outStream = new FileOutputStream(outFile);
+            bitmap.compress(format, 100, outStream);
             outStream.flush();
             outStream.close();
         }
@@ -85,8 +81,27 @@ public class ImageUtils {
             ChatSDK.logError(e);
             return null;
         }
-        Log.e("file", "" + file);
-        return file;
+        return outFile;
+    }
+
+    public static File compressImageToFile(Bitmap bitmap, File outFile) {
+        String path = outFile.getPath();
+        String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
+        Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+        if (ext == "png") {
+            format = Bitmap.CompressFormat.PNG;
+        }
+        return compressImageToFile(bitmap, outFile, format);
+    }
+
+    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
+        File outFile = createEmptyFileInCacheDirectory(context, name, ext);
+        return compressImageToFile(bitmap, outFile);
+    }
+
+    public static File compressImageToFile(Context context, String filePath, String name, String ext) {
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        return compressImageToFile(context, bitmap, name, ext);
     }
 
     /**

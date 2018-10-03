@@ -1,9 +1,9 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +33,7 @@ public class MediaSelector {
 
     protected Result resultHandler;
     protected CropType cropType = CropType.Rectangle;
+    protected Uri fileUri;
 
     public enum CropType {
         Rectangle,
@@ -47,7 +48,12 @@ public class MediaSelector {
     public void startTakePhotoActivity (Activity activity, Result resultHandler) throws Exception {
         this.resultHandler = resultHandler;
 
+        Context context = ChatSDK.shared().context();
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File destination = ImageUtils.createEmptyFileInCacheDirectory(context, "CAPTURE", ".jpg");
+        fileUri = Uri.fromFile(destination);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivityForResult(intent, TAKE_PHOTO);
         }
@@ -85,14 +91,8 @@ public class MediaSelector {
 
                 Uri uri = data.getData();
 
-                if(!ChatSDK.config().imageCroppingEnabled) {
-
-                    // Let's read picked image path using content resolver
-                    String[] filePath = { MediaStore.Images.Media.DATA };
-                    Cursor cursor = activity.getContentResolver().query(uri, filePath, null, null, null);
-                    cursor.moveToFirst();
-                    String imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
-
+                if (!ChatSDK.config().imageCroppingEnabled) {
+                    String imagePath = pathFromURI(uri, activity, MediaStore.Images.Media.DATA);
                     handleImageFile(activity, imagePath);
                 }
                 else {
@@ -111,6 +111,27 @@ public class MediaSelector {
             case AppCompatActivity.RESULT_CANCELED:
                 throw new Exception();
         }
+    }
+
+    protected String pathFromURI (Uri uri, Activity activity, String column) {
+        File file = null;
+        if (uri.getPath() != null) {
+            file = new File(uri.getPath());
+        }
+        if (file != null && file.length() > 0) {
+            return uri.getPath();
+        }
+        else {
+            // Try to get it another way for this kind of URL
+            // content://media/external ...
+            String [] filePathColumn = { column };
+            Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
+            if (cursor != null) {
+                cursor.moveToFirst();
+                return cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+            }
+        }
+        return null;
     }
 
     protected void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
@@ -138,7 +159,7 @@ public class MediaSelector {
             ImageUtils.scanFilePathForGallery(activity, path);
         }
 
-        if(resultHandler != null) {
+        if (resultHandler != null) {
             resultHandler.result(path);
             clear();
         }
@@ -154,32 +175,17 @@ public class MediaSelector {
         }
 
         else if (requestCode == TAKE_PHOTO && resultCode == RESULT_OK) {
-            if(resultHandler != null) {
-                Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
-                File file = ImageUtils.saveImageToCache(activity, bitmap);
+            if(resultHandler != null && fileUri != null) {
+                activity.getContentResolver().notifyChange(fileUri, null);
+                String path = pathFromURI(fileUri, activity, MediaStore.Images.Media.DATA);
+                File file = ImageUtils.compressImageToFile(activity, path, "COMPRESSED", "jpg");
                 resultHandler.result(file.getPath());
                 clear();
             }
         }
         else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK && resultHandler != null) {
                 Uri videoUri = intent.getData();
-
-                File videoFile = new File(videoUri.getPath());
-                if (videoFile.length() > 0) {
-                    resultHandler.result(videoUri.getPath());
-                }
-                else {
-                    // Try to get it another way for this kind of URL
-                    // content://media/external ...
-                    String[] filePathColumn = { MediaStore.Video.Media.DATA };
-
-                    Cursor cursor = activity.getContentResolver().query(videoUri, filePathColumn,null, null, null);
-                    cursor.moveToFirst();
-                    String videoPath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
-
-                    resultHandler.result(videoPath);
-                }
-
+                resultHandler.result(pathFromURI(videoUri, activity, MediaStore.Video.Media.DATA ));
                 clear();
         }
         else {

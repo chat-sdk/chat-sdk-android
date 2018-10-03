@@ -9,7 +9,7 @@
     android:id="@+id/message_root_layout">
 
     <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/img_user_image"
+        android:id="@+id/avatar"
         android:layout_width="38dp"
         android:layout_height="38dp"
         fresco:roundAsCircle="true"
@@ -22,8 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/txt_time"
         android:layout_toStartOf="@id/txt_time"
-        android:layout_toRightOf="@+id/img_user_image"
-        android:layout_toEndOf="@+id/img_user_image"
+        android:layout_toRightOf="@+id/avatar"
+        android:layout_toEndOf="@+id/avatar"
         android:layout_centerVertical="true"
         android:orientation="vertical">
 
@@ -49,7 +49,7 @@
                 fresco:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/message_icon"
+                android:id="@+id/icon"
                 android:layout_width="@dimen/chat_sdk_max_icon_message_width"
                 android:layout_height="@dimen/chat_sdk_max_icon_message_height"
                 android:layout_alignParentBottom="true"
@@ -65,12 +65,17 @@
                 fresco:layout_constraintEnd_toEndOf="parent"
                 fresco:layout_constraintTop_toTopOf="parent" />
 
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
         </android.support.constraint.ConstraintLayout>
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/chat_sdk_image"
+            android:id="@+id/image"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:layout_marginLeft="4dp"

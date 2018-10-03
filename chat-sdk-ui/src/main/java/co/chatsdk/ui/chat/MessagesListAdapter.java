@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -61,6 +62,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         public LinearLayout extraLayout;
         public ImageView readReceiptImageView;
         public MessageListItem messageItem;
+        public ProgressBar progressBar;
         protected View.OnClickListener onClickListener = null;
         protected View.OnLongClickListener onLongClickListener = null;
 
@@ -68,13 +70,14 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             super(itemView);
 
             timeTextView = itemView.findViewById(R.id.txt_time);
-            avatarImageView = itemView.findViewById(R.id.img_user_image);
+            avatarImageView = itemView.findViewById(R.id.avatar);
             messageBubble = itemView.findViewById(R.id.message_bubble);
             messageTextView = itemView.findViewById(R.id.txt_content);
-            messageIconView = itemView.findViewById(R.id.message_icon);
-            messageImageView = itemView.findViewById(R.id.chat_sdk_image);
+            messageIconView = itemView.findViewById(R.id.icon);
+            messageImageView = itemView.findViewById(R.id.image);
             extraLayout = itemView.findViewById(R.id.extra_layout);
             readReceiptImageView = itemView.findViewById(R.id.read_receipt);
+            progressBar = itemView.findViewById(R.id.progress_bar);
 
             itemView.setOnClickListener(view -> {
                 if (onClickListener != null) {
@@ -121,6 +124,16 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 }
             });
 
+        }
+
+        public void showProgressBar () {
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setIndeterminate(true);
+            progressBar.bringToFront();
+        }
+
+        public void hideProgressBar () {
+            progressBar.setVisibility(View.GONE);
         }
 
         public void setOnClickListener (View.OnClickListener listener) {
@@ -239,7 +252,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             holder.setBubbleHidden(false);
             holder.setTextHidden(false);
         }
-        else if (messageItem.getMessage().getMessageType() == MessageType.Location || messageItem.getMessage().getMessageType() == MessageType.Image) {
+        else if (messageItem.getMessage().messageTypeIs(MessageType.Location, MessageType.Image)) {
 
             holder.setImageHidden(false);
 
@@ -255,8 +268,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
                 String url = messageItem.getImageURL();
 
+                Timber.d(messageItem.status().name());
 
-                if(url != null) {
+                if(url != null && url.length() > 0) {
                     ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
                             .setResizeOptions(new ResizeOptions(viewWidth, viewHeight))
                             .build();
@@ -268,8 +282,16 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                                     .build());
                 }
                 else {
+                    // Show the loading indicator
+                    holder.showProgressBar();
+
                     // Loads the placeholder
-                    holder.messageImageView.setImageURI(url);
+                    holder.messageImageView.setActualImageResource(R.drawable.icn_200_image_message_loading);
+//                    holder.messageImageView.setImageURI(url);
+                }
+                // TODO: Finish this
+                if (messageItem.status().equals(MessageSendStatus.Sent)) {
+                    //holder.hideProgressBar();
                 }
             }
         }

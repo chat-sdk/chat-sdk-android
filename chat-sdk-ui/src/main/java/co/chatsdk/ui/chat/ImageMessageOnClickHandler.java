@@ -16,10 +16,10 @@ import com.github.chrisbanes.photoview.PhotoView;
 
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
