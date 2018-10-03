@@ -131,10 +131,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.1.36'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.1.36'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.1.36'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.1.36'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.2.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.2.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.2.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.2.0'
 ```
 
 You may also need to enable Java 8:
@@ -326,7 +326,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.1.36'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.2.0'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -357,7 +357,7 @@ FirebasePushModule.activateForFirebase();
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.1.36'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.2.0'
 ```
 
 ##### Enable the module
@@ -401,7 +401,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.1.36'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.2.0'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
