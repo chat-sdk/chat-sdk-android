@@ -122,6 +122,7 @@ public class Configuration {
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = true;
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
+    public boolean pushNotificationsForPublicChatRoomsEnabled;
 
     // If this is set to true, we will simulate what happens when a push is recieved and the app
     // is in the killed state. This is useful to help us debug that process.
@@ -334,8 +335,18 @@ public class Configuration {
             return this;
         }
 
+        public Builder setShowEmptyChats (boolean showEmpty) {
+            config.showEmptyChats = showEmpty;
+            return this;
+        }
+
         public Builder setInboundPushHandlingEnabled (boolean enabled) {
             config.inboundPushHandlingEnabled = enabled;
+            return this;
+        }
+
+        public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
+            config.pushNotificationsForPublicChatRoomsEnabled = value;
             return this;
         }
 

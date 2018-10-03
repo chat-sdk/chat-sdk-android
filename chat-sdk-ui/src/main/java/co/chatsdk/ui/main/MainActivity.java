@@ -34,7 +34,7 @@ public class MainActivity extends BaseActivity {
     protected ViewPager viewPager;
     protected PagerAdapterTabs adapter;
 
-    protected DisposableList disposables = new DisposableList();
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +67,9 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        disposables.dispose();
+        disposableList.dispose();
 
-        disposables.add(ChatSDK.events().sourceOnMain()
+        disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 
@@ -81,7 +81,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause () {
         super.onPause();
-        disposables.dispose();
+        disposableList.dispose();
     }
 
     @Override
