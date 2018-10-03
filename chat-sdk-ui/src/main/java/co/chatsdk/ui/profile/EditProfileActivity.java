@@ -116,7 +116,7 @@ public class EditProfileActivity extends BaseActivity {
                 Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
 
                 // Cache the file
-                File file = ImageUtils.compressImage(ChatSDK.shared().context(), bitmap, ChatSDK.currentUser().getEntityID(), ".png");
+                File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUser().getEntityID(), ".png");
 
                 avatarImageView.setImageURI(Uri.fromFile(file));
                 currentUser.setAvatarURL(Uri.fromFile(file).toString());
