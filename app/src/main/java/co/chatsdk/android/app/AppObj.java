@@ -31,6 +31,7 @@ public class AppObj extends MultiDexApplication {
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");
 //        config.setClientPushEnabled(false);
+        config.pushNotificationsForPublicChatRoomsEnabled(true);
 
         try {
             ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());

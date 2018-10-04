@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.types.Progress;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.GoogleUtils;
@@ -127,10 +129,22 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
 
         public void showProgressBar () {
-            //progressBar.setVisibility(View.VISIBLE);
-            //progressBar.setIndeterminate(true);
-            //progressBar.bringToFront();
-            progressBar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setIndeterminate(true);
+            progressBar.bringToFront();
+        }
+
+        public void showProgressBar (float progress) {
+            if (progress == 0) {
+                showProgressBar();
+            }
+            else {
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setIndeterminate(false);
+                progressBar.setMax(100);
+                progressBar.setProgress((int) Math.ceil(progress * progressBar.getMax()));
+                progressBar.bringToFront();
+            }
         }
 
         public void hideProgressBar () {
@@ -146,32 +160,21 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
 
         public void setIconSize(int width, int height) {
-            ConstraintLayout.LayoutParams iconLayoutParams = (ConstraintLayout.LayoutParams) messageIconView.getLayoutParams();
-            iconLayoutParams.width = width;
-            iconLayoutParams.height = height;
-            messageIconView.setLayoutParams(iconLayoutParams);
+            messageIconView.getLayoutParams().width = width;
+            messageIconView.getLayoutParams().height = height;
             messageIconView.requestLayout();
         }
 
         public void setImageSize(int width, int height) {
-            LinearLayout.LayoutParams imageLayoutParams = (LinearLayout.LayoutParams) messageImageView.getLayoutParams();
-            imageLayoutParams.width = width;
-            imageLayoutParams.height = height;
-            messageImageView.setLayoutParams(imageLayoutParams);
+            messageImageView.getLayoutParams().width = width;
+            messageImageView.getLayoutParams().height = height;
             messageImageView.requestLayout();
         }
 
         public void setBubbleHidden (boolean hidden) {
             messageBubble.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
-            LinearLayout.LayoutParams bubbleLayoutParams = (LinearLayout.LayoutParams) messageBubble.getLayoutParams();
-            if (hidden) {
-                bubbleLayoutParams.width = 0;
-                bubbleLayoutParams.height = 0;
-            } else {
-                bubbleLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-                bubbleLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            }
-            messageBubble.setLayoutParams(bubbleLayoutParams);
+            messageBubble.getLayoutParams().width = hidden ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
+            messageBubble.getLayoutParams().height = hidden ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
             messageBubble.requestLayout();
         }
 
@@ -190,7 +193,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             if (hidden) {
                 setImageSize(0, 0);
             } else {
-                setImageSize(activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width), activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height));
+//                setImageSize(maxWidth(), maxHeight());
+                setImageSize(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             }
 
         }
@@ -239,10 +243,20 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         MessageListItem messageItem = getMessageItems().get(position);
         holder.messageItem = messageItem;
 
+        // Enable linkify
+        holder.messageTextView.setAutoLinkMask(Linkify.ALL);
+
         holder.setBubbleHidden(true);
         holder.setTextHidden(true);
         holder.setIconHidden(true);
         holder.setImageHidden(true);
+
+        if (messageItem.status().equals(MessageSendStatus.Uploading) || (messageItem.progress > 0 && messageItem.progress < 1)) {
+            holder.showProgressBar(messageItem.progress);
+        }
+        else {
+            holder.hideProgressBar();
+        }
 
         if(holder.readReceiptImageView != null) {
             holder.readReceiptImageView.setVisibility(ChatSDK.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
@@ -257,8 +271,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             holder.setImageHidden(false);
 
-            int viewWidth = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
-            int viewHeight = activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
+            int viewWidth = maxWidth();
+            int viewHeight = maxHeight();
 
             if (messageItem.getMessage().getMessageType() == MessageType.Location) {
                 LatLng latLng = messageItem.getLatLng();
@@ -283,16 +297,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                                     .build());
                 }
                 else {
-                    // Show the loading indicator
-                    holder.showProgressBar();
-
                     // Loads the placeholder
                     holder.messageImageView.setActualImageResource(R.drawable.icn_200_image_message_loading);
 //                    holder.messageImageView.setImageURI(url);
-                }
-                // TODO: Finish this
-                if (messageItem.status().equals(MessageSendStatus.Sent)) {
-                    //holder.hideProgressBar();
                 }
             }
         }
@@ -408,12 +415,21 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         return addRow(message, true, true);
     }
 
-    public boolean addRow(Message message, boolean sort, boolean notify){
-        if(message != null && !messageExists(message)) {
-            MessageListItem item = new MessageListItem(message);
-            return addRow(item, sort, notify);
+    public boolean addRow(Message message, boolean sort, boolean notify, Progress progress){
+        MessageListItem item = messageItemForMessage(message);
+        boolean returnStatus = false;
+        if (item == null) {
+            item = new MessageListItem(message);
+            returnStatus = addRow(item, sort, notify);
         }
-        return false;
+        if (progress != null) {
+            item.progress = progress.asFraction();
+        }
+        return returnStatus;
+    }
+
+    public boolean addRow(Message message, boolean sort, boolean notify) {
+        return addRow(message, sort, notify, null);
     }
 
     public boolean removeRow (Message message, boolean notify) {
@@ -443,6 +459,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
     public int maxWidth () {
         return activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+    }
+
+    public int maxHeight () {
+        return activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
     }
 
     /**

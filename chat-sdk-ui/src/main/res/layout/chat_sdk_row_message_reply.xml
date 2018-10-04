@@ -16,7 +16,7 @@
         fresco:placeholderImage="@drawable/icn_100_profile"
         fresco:failureImage="@drawable/icn_100_profile"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,70 +33,71 @@
             android:layout_height="wrap_content"
             android:background="@drawable/message_received_3">
 
-            <TextView
-                android:id="@+id/txt_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:layout_marginRight="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="2dp"
-                android:autoLink="all"
-                android:gravity="center_vertical"
-                android:text="Message text"
-                fresco:layout_constraintBottom_toBottomOf="parent"
-                fresco:layout_constraintStart_toStartOf="parent"
-                fresco:layout_constraintTop_toTopOf="parent" />
-
             <ImageView
                 android:id="@+id/icon"
                 android:layout_width="@dimen/chat_sdk_max_icon_message_width"
                 android:layout_height="@dimen/chat_sdk_max_icon_message_height"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_marginBottom="2dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
                 android:layout_marginTop="2dp"
-                android:background="@drawable/push_icon"
                 fresco:layout_constraintBottom_toBottomOf="parent"
-                fresco:layout_constraintStart_toEndOf="@+id/txt_content"
+                fresco:layout_constraintEnd_toStartOf="@+id/txt_content"
+                fresco:layout_constraintStart_toStartOf="parent"
+                fresco:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txt_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp"
+                android:autoLink="all"
+                android:gravity="center_vertical"
+                android:text="Message text"
+                fresco:layout_constraintBottom_toBottomOf="parent"
                 fresco:layout_constraintEnd_toEndOf="parent"
                 fresco:layout_constraintTop_toTopOf="parent" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
         </android.support.constraint.ConstraintLayout>
 
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/image"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            fresco:roundedCornerRadius="10dp"
-            fresco:placeholderImage="@drawable/icn_200_image_message_placeholder" />
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                fresco:roundedCornerRadius="10dp"
+                fresco:placeholderImage="@drawable/icn_200_image_message_placeholder" />
 
-        <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/extra_layout"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"
+                android:gravity="start"
+                android:layout_gravity="start"
+                android:orientation="horizontal" />
+
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/extra_layout"
-            android:layout_marginLeft="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginEnd="15dp"
-            android:gravity="start"
-            android:layout_gravity="start"
-            android:orientation="horizontal" />
-
-    </LinearLayout>
+            android:layout_height="match_parent" />
 
     <TextView
         android:layout_width="wrap_content"

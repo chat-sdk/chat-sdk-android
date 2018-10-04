@@ -46,7 +46,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 System.out.print("Progress: " + progress);
 
                 // TODO: With Firebase this appears to be broken
-                //e.onNext(result);
+                e.onNext(result);
             }).addOnSuccessListener(taskSnapshot -> {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override

@@ -307,11 +307,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     @Override
                     public void onNext(@NonNull MessageSendProgress messageSendProgress) {
-                        Timber.v("Message Status: " + messageSendProgress.getStatus());
+                        Timber.d("Message Status: " + messageSendProgress.getStatus());
                         // It's best not to sort here because then we are just adding the message
                         // to the bottom of the list. We only sort after the message has also been
                         // received from Firebase so the datestamp is also correct
-                        if(messageListAdapter.addRow(messageSendProgress.message, false, true)) {
+                        if(messageListAdapter.addRow(messageSendProgress.message, false, true, messageSendProgress.uploadProgress)) {
                             scrollListTo(ListPosition.Bottom, false);
                         }
                     }

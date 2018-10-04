@@ -42,13 +42,14 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 The Chat SDK has a number of additional modules that can easily be installed including:
 
-- [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
-- [Read receipts](http://chatsdk.co/downloads/read-receipts/)
-- [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
-- [Audio messages](http://chatsdk.co/downloads/audio-messages/)
-- [Video messages](http://chatsdk.co/downloads/video-messages/)
-- [Sticker messages](https://chatsdk.co/downloads/sticker-messages/)
-- [Contact book integration](https://chatsdk.co/downloads/contact-book-integration/)
+- [File Messages](http://chatsdk.co/file-messages/)
+- [Typing indicator](http://chatsdk.co/typing-indicator/)
+- [Read receipts](http://chatsdk.co/read-receipts/)
+- [Location based chat](http://chatsdk.co/location-based-chat/)
+- [Audio messages](http://chatsdk.co/audio-messages/)
+- [Video messages](http://chatsdk.co/video-messages/)
+- [Sticker messages](https://chatsdk.co/sticker-messages/)
+- [Contact book integration](https://chatsdk.co/contact-book-integration/)
 - [Social Login](https://github.com/chat-sdk/chat-sdk-android#social-login)
 - [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
 - [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) (Included in basic setup instructions)
@@ -131,10 +132,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.2.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.2.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.2.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.2.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.2.7'
 ```
 
 You may also need to enable Java 8:
@@ -326,7 +327,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.2.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.2.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -357,7 +358,7 @@ FirebasePushModule.activateForFirebase();
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.2.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.2.7'
 ```
 
 ##### Enable the module
@@ -401,7 +402,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.2.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.2.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)

@@ -63,8 +63,6 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                     public void onNext(FileUploadResult result) {
                         if(!StringChecker.isNullOrEmpty(result.url))  {
 
-//                            message.setTextString(result.url + Defines.DIVIDER + result.url + Defines.DIVIDER + ImageUtils.getDimensionAsString(image));
-
                             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
                             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
                             message.setValueForKey(result.url, Keys.MessageImageURL);

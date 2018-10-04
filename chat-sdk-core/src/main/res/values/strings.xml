@@ -110,6 +110,9 @@
     <string name="permission_write_external_storage_title">Gallery Access</string>
     <string name="permission_write_external_storage_message">Grant permission to allow images to be saved to your phone</string>
 
+    <string name="permission_manage_documents_storage_title">Manage Documents</string>
+    <string name="permission_manage_documents_message">Grant permission to allow your documents to be accessed</string>
+
     <string name="permission_read_external_storage_title">Gallery Access</string>
     <string name="permission_read_external_storage_message">Grant permission to allow images to be sent from your gallery</string>
 

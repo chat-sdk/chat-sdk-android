@@ -1,7 +1,5 @@
 package co.chatsdk.core.handlers;
 
-import java.util.Map;
-
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.CustomMessageHandler;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -13,6 +11,6 @@ import io.reactivex.Observable;
 
 public interface FileMessageHandler extends CustomMessageHandler {
 
-    Observable<MessageSendProgress> sendMessageWithFile(Map<String, Object> file, final Thread thread);
+    Observable<MessageSendProgress> sendMessageWithFile(String name, String mimeType, byte[] data, final Thread thread);
 
 }
