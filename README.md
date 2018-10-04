@@ -50,6 +50,7 @@ The Chat SDK has a number of additional modules that can easily be installed inc
 - [Video messages](http://chatsdk.co/video-messages/)
 - [Sticker messages](https://chatsdk.co/sticker-messages/)
 - [Contact book integration](https://chatsdk.co/contact-book-integration/)
+- [User Blocking](http://chatsdk.co/user-blocking/)
 - [Social Login](https://github.com/chat-sdk/chat-sdk-android#social-login)
 - [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
 - [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) (Included in basic setup instructions)
