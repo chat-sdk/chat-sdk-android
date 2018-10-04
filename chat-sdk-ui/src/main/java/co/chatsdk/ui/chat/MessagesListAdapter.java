@@ -127,9 +127,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
 
         public void showProgressBar () {
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setIndeterminate(true);
-            progressBar.bringToFront();
+            //progressBar.setVisibility(View.VISIBLE);
+            //progressBar.setIndeterminate(true);
+            //progressBar.bringToFront();
+            progressBar.setVisibility(View.GONE);
         }
 
         public void hideProgressBar () {
