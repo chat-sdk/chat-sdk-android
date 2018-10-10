@@ -128,7 +128,6 @@ public class FirebasePushHandler implements PushHandler {
         data.put(InterfaceManager.USER_ENTITY_ID, message.getSender().getEntityID());
 
         pushToChannels(channels, notification, data);
-
     }
 
     private Completable pushToChannel (final String channel, final Map<String, String> notification, final Map<String, String> data) {

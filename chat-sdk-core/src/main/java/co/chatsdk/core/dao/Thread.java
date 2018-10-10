@@ -244,7 +244,7 @@ public class Thread implements CoreEntity {
         metaValue.setKey(key);
         metaValue.update();
         update();
-    }
+}
 
     @Keep
     public ThreadMetaValue metaValueForKey (String key) {
