@@ -56,6 +56,7 @@ public class Configuration {
     public boolean xmppAllowClientSideAuthentication;
     public boolean xmppCompressionEnabled;
     public String xmppSecurityMode = "disabled";
+    public int xmppMucMessageHistory = 20;
 
     // Push notification
     public int pushNotificationImageDefaultResourceId;
@@ -255,7 +256,7 @@ public class Configuration {
             return this;
         }
 
-        public Builder xmppAcceptAllCertificates (boolean acceptAllCertificates) {
+        public Builder setXxmppAcceptAllCertificates (boolean acceptAllCertificates) {
             config.xmppAcceptAllCertificates = acceptAllCertificates;
             return this;
         }
@@ -265,12 +266,17 @@ public class Configuration {
             return this;
         }
 
-        public Builder xmppSslEnabled (boolean sslEnabled) {
+        public Builder setXmppSslEnabled (boolean sslEnabled) {
             config.xmppSslEnabled = sslEnabled;
             return this;
         }
 
-        public Builder xmppDisableHostNameVerification (boolean disableHostNameVerification) {
+        public Builder setXmppMucMessageHistory (int history) {
+            config.xmppMucMessageHistory = history;
+            return this;
+        }
+
+        public Builder setXmppDisableHostNameVerification (boolean disableHostNameVerification) {
             config.xmppDisableHostNameVerification = disableHostNameVerification;
             return this;
         }
@@ -280,12 +286,12 @@ public class Configuration {
          * @param allowClientSideAuthentication
          * @return
          */
-        public Builder xmppAllowClientSideAuthentication (boolean allowClientSideAuthentication) {
+        public Builder setXmppAllowClientSideAuthentication (boolean allowClientSideAuthentication) {
             config.xmppAllowClientSideAuthentication = allowClientSideAuthentication;
             return this;
         }
 
-        public Builder xmppCompressionEnabled (boolean compressionEnabled) {
+        public Builder setXmppCompressionEnabled (boolean compressionEnabled) {
             config.xmppCompressionEnabled = compressionEnabled;
             return this;
         }
@@ -298,7 +304,7 @@ public class Configuration {
          * @param securityMode
          * @return
          */
-        public Builder xmppSecurityMode (String securityMode) {
+        public Builder setXmppSecurityMode (String securityMode) {
             config.xmppSecurityMode = securityMode;
             return this;
         }

@@ -105,11 +105,9 @@ public class FirebasePushHandler implements PushHandler {
     public void pushToUsers(List<User> users, Message message) {
         ArrayList<String> channels = new ArrayList<>();
 
-        User currentUser = ChatSDK.currentUser();
-
         for(User user : users) {
             String pushToken = user.metaStringForKey(Keys.PushToken);
-            if(!user.equals(currentUser) && !StringChecker.isNullOrEmpty(pushToken) && (!user.getIsOnline() || !ChatSDK.config().onlySendPushToOfflineUsers)) {
+            if(!user.isMe() && !StringChecker.isNullOrEmpty(pushToken) && (!user.getIsOnline() || !ChatSDK.config().onlySendPushToOfflineUsers)) {
                 channels.add(pushToken);
             }
         }

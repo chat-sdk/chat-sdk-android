@@ -336,17 +336,6 @@ public class UserWrapper {
         return ref().child(FirebasePaths.MetaPath);
     }
 
-//    public String pushChannel() {
-//        return model.getEntityID();
-//        String channel = USER_PREFIX + (model.getEntityID().replace(":", "_"));
-//
-//        if (channel.contains("%3A"))
-//            channel = channel.replace("%3A", "_");
-//        if (channel.contains("%253A"))
-//            channel = channel.replace("%253A", "_");
-//
-//        return channel;
-//    }
 
     public Completable updateIndex() {
         return Completable.create(e -> {
