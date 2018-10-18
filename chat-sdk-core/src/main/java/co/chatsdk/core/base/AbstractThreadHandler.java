@@ -95,6 +95,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
             message.update();
             message.getThread().update();
+
+            if (ChatSDK.encryption() != null) {
+                ChatSDK.encryption().encrypt(message);
+            }
+
             e.onNext(new MessageSendProgress(message));
             e.onComplete();
         }).concatWith(sendMessage(message))

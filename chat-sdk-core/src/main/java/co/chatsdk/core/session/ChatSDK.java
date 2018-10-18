@@ -20,6 +20,7 @@ import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
+import co.chatsdk.core.handlers.EncryptionHandler;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.handlers.HookHandler;
@@ -246,6 +247,10 @@ public class ChatSDK {
 
     public static BlockingHandler blocking () {
         return a().blocking;
+    }
+
+    public static EncryptionHandler encryption () {
+        return a().encryption;
     }
 
     public static LastOnlineHandler lastOnline () {

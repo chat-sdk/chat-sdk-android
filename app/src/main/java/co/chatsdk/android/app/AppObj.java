@@ -7,8 +7,10 @@ import android.support.multidex.MultiDexApplication;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
+import co.chatsdk.firebase.file_storage.FirebaseUploadHandler;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
@@ -40,6 +42,7 @@ public class AppObj extends MultiDexApplication {
 
         }
 
+        NetworkManager.shared().a.encryption = new BaseEncryptionHandler();
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activateForFirebase();
