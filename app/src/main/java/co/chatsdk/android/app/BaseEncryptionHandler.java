@@ -23,9 +23,6 @@ public class BaseEncryptionHandler implements EncryptionHandler {
         Hook auth = new Hook(data -> {
             // This code will run here, when the user is logged in
             // ...
-
-
-
         });
         ChatSDK.hook().addHook(auth, BaseHookHandler.UserAuthFinished);
 
