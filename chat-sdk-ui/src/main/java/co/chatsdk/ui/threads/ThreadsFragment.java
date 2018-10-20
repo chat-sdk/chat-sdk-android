@@ -45,7 +45,6 @@ public abstract class ThreadsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        initViews(inflater);
 
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
@@ -66,6 +65,10 @@ public abstract class ThreadsFragment extends BaseFragment {
 
         reloadData();
 
+        mainView = inflater.inflate(activityLayout(), null);
+
+        initViews();
+
         return mainView;
     }
 
@@ -75,8 +78,7 @@ public abstract class ThreadsFragment extends BaseFragment {
         return R.layout.chat_sdk_activity_threads;
     }
 
-    public void initViews(LayoutInflater inflater) {
-        mainView = inflater.inflate(activityLayout(), null);
+    public void initViews() {
         searchField = mainView.findViewById(R.id.search_field);
         listThreads = mainView.findViewById(R.id.list_threads);
 

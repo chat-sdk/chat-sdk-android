@@ -9,6 +9,7 @@ package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -75,7 +76,7 @@ public class SelectContactActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_activity_pick_friends);
+
         initActionBar();
 
         if (savedInstanceState != null)
@@ -98,6 +99,8 @@ public class SelectContactActivity extends BaseActivity {
         ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .subscribe(networkEvent -> loadData());
+
+        setContentView(activityLayout());
 
         initViews();
     }
@@ -133,6 +136,10 @@ public class SelectContactActivity extends BaseActivity {
             onBackPressed();
         }
         return true;
+    }
+
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_activity_pick_friends;
     }
 
     protected void initViews() {
