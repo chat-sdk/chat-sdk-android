@@ -347,12 +347,24 @@ In your main class `onCreate` method add:
 FirebasePushModule.activateForFirebase();
 ```
 
-3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
-4. Add the following to the setup code in the apps' main `onCreate` method.
+##### Setup Firebase Cloud Functions
 
-   ```
-   builder.firebaseCloudMessagingServerKey("YOUR FIREBASE CLOUD MESSAGING KEY");
-   ```
+To handle push notifications, we use [Firebase Cloud Functions](https://firebase.google.com/docs/functions/). This service allows you to upload a script to Firebase hosting. This script monitors the realtime database and whenever a new messsage is detected, it sends a push notification to the recipient. 
+
+Below is a summary of the steps that are required to setup push using the Firebase Cloud Functions script. For further instructions you can look at the [Firebase Documentation](https://firebase.google.com/docs/functions/get-started). 
+
+1. Run `firebase login` and login using the browser
+2. Make a new directory to store your push functions in. It can be called anything
+3. Navigate to that directory using the terminal
+4. Run `firebase init functions`
+5. Choose the correct app from the list
+6. Choose `JavaScript`
+7. Choose `y` for ESLint
+8. Choose `Y` to install node dependencies
+9. Find the `functions` directory you've just created and copy the `index.js` file from [Github]() into the directory
+10. Run `firebase deploy --only functions:pushListener` 
+
+Now the script is active and push notifications will be set out automatically. 
 
 ### Firebase UI
 

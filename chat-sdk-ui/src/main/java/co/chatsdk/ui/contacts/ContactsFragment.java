@@ -148,6 +148,7 @@ public class ContactsFragment extends BaseFragment {
         f.setExtraData(threadID);
         Bundle b = new Bundle();
         f.setArguments(b);
+
         return f;
     }
 

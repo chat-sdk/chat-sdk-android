@@ -65,7 +65,7 @@ public class Configuration {
     public boolean inboundPushHandlingEnabled = true;
 
     // Should the client send the push or is a server script handling it?
-    public boolean clientPushEnabled = true;
+    public boolean clientPushEnabled = false;
 
     // If this is true, then we will only send a push notification if the recipient is offline
     public boolean onlySendPushToOfflineUsers = false;
