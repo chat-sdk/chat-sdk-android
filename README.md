@@ -191,8 +191,7 @@ builder.firebaseRootPath("prod");
 // Initialize the Chat SDK
 try {
     ChatSDK.initialize(builder.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
-}
-    catch (ChatSDKException e) {
+} catch (ChatSDKException e) {
 }
 
 // File storage is needed for profile image upload and image messages
@@ -311,7 +310,7 @@ For the following modules:
 - Firebase File Storage (free)
 - Firebase Push Notifications (free)
 - Firebase Social Login (free)
-- Fireabse UI (free)
+- Firebase UI (free)
 - [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
 - [Read receipts](http://chatsdk.co/downloads/read-receipts/)
 - [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
