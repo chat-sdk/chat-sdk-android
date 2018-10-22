@@ -191,7 +191,8 @@ builder.firebaseRootPath("prod");
 // Initialize the Chat SDK
 try {
     ChatSDK.initialize(builder.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
-} catch (ChatSDKException e) {
+}
+    catch (ChatSDKException e) {
 }
 
 // File storage is needed for profile image upload and image messages
@@ -310,7 +311,7 @@ For the following modules:
 - Firebase File Storage (free)
 - Firebase Push Notifications (free)
 - Firebase Social Login (free)
-- Firebase UI (free)
+- Fireabse UI (free)
 - [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
 - [Read receipts](http://chatsdk.co/downloads/read-receipts/)
 - [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
@@ -360,7 +361,7 @@ Below is a summary of the steps that are required to setup push using the Fireba
 6. Choose `JavaScript`
 7. Choose `y` for ESLint
 8. Choose `Y` to install node dependencies
-9. Find the `functions` directory you've just created and copy the `index.js` file from [Github]() into the directory
+9. Find the `functions` directory you've just created and copy the `index.js` file from [Github](https://github.com/chat-sdk/chat-sdk-android/tree/master/FirebasePushNotifications) into the directory
 10. Run `firebase deploy --only functions:pushListener` 
 
 Now the script is active and push notifications will be set out automatically. 
