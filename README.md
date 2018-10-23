@@ -135,10 +135,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.3.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.3.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.3.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.3.1'
 ```
 
 You may also need to enable Java 8:
@@ -330,7 +330,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.3.1'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -362,7 +362,7 @@ Below is a summary of the steps that are required to setup push using the Fireba
 7. Choose `y` for ESLint
 8. Choose `Y` to install node dependencies
 9. Find the `functions` directory you've just created and copy the `index.js` file from [Github](https://github.com/chat-sdk/chat-sdk-android/tree/master/FirebasePushNotifications) into the directory
-10. Run `firebase deploy --only functions:pushListener` 
+10. Run `firebase deploy` 
 
 Now the script is active and push notifications will be set out automatically. 
 
@@ -373,7 +373,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.3.1'
 ```
 
 ##### Enable the module
@@ -417,7 +417,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.3.1'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
