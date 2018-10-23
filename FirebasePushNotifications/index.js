@@ -43,12 +43,12 @@ function buildMessage (title, theBody, clickAction, sound, type, senderId, threa
     };
 
     // Make the user ID safe
-    recipientId = recipientId.replace(".", "1");
-    recipientId = recipientId.replace("%2E", "1");
-    recipientId = recipientId.replace("@", "2");
-    recipientId = recipientId.replace("%40", "2");
-    recipientId = recipientId.replace(":", "3");
-    recipientId = recipientId.replace("%3A", "3");
+    recipientId = recipientId.split(".").join("1");
+    recipientId = recipientId.split("%2E").join("1");
+    recipientId = recipientId.split("@").join("2");
+    recipientId = recipientId.split("%40").join("2");
+    recipientId = recipientId.split(":").join("3");
+    recipientId = recipientId.split("%3A").join("3");
 
     return {
         data: data,

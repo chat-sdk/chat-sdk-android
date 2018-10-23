@@ -49,7 +49,7 @@ public class FirebasePushHandler implements PushHandler {
         for(User user : message.getThread().getUsers()) {
 
             String userName = user.getName();
-            String userEntityID = user.getEntityID();
+            String userEntityID = user.getPushChannel();
 
             if (!user.isMe() && !StringChecker.isNullOrEmpty(userEntityID) && !StringChecker.isNullOrEmpty(userName)) {
                 if(!user.getIsOnline() || !ChatSDK.config().onlySendPushToOfflineUsers) {
