@@ -255,7 +255,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }
 
         if (message.getThread().typeIs(ThreadType.Private)) {
-            ChatSDK.push().pushToUsers(message.getThread().getUsers(), message);
+            ChatSDK.push().pushForMessage(message);
         }
     }
 

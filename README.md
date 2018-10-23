@@ -197,7 +197,7 @@ try {
 
 // File storage is needed for profile image upload and image messages
 FirebaseFileStorageModule.activate();
-FirebasePushModule.activateForFirebase();
+FirebasePushModule.activate();
 
 // Activate any other modules you need.
 // ...
@@ -344,7 +344,7 @@ compile project(path: ':chat-sdk-firebase-push')
 In your main class `onCreate` method add:
 
 ```
-FirebasePushModule.activateForFirebase();
+FirebasePushModule.activate();
 ```
 
 ##### Setup Firebase Cloud Functions
@@ -541,15 +541,9 @@ After you have purchased the module you will be provided with a link to the modu
 4. In your main class `onCreate` activate the module:
 
   ```
-  ContactBookModule.activateForFirebase();
+  ContactBookModule.activate();
   ```
   
-  or 
-
-  ```
-  ContactBookModule.activateForXMPP();
-  ```
-
 ### Security Rules
 
 Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 

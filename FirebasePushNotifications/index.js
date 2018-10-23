@@ -31,6 +31,9 @@ function buildMessage (title, theBody, clickAction, sound, type, senderId, threa
     if (messageType === 6) {
         body = "Sticker";
     }
+    // if (messageType === 7) {
+    //     body = "File";
+    // }
 
     let data = {
         chat_sdk_thread_entity_id: threadId,
@@ -38,6 +41,14 @@ function buildMessage (title, theBody, clickAction, sound, type, senderId, threa
         chat_sdk_push_title: title,
         chat_sdk_push_body: body,
     };
+
+    // Make the user ID safe
+    recipientId = recipientId.replace(".", "1");
+    recipientId = recipientId.replace("%2E", "1");
+    recipientId = recipientId.replace("@", "2");
+    recipientId = recipientId.replace("%40", "2");
+    recipientId = recipientId.replace(":", "3");
+    recipientId = recipientId.replace("%3A", "3");
 
     return {
         data: data,
@@ -134,6 +145,55 @@ function getUserName(usersRef, userId) {
 //         });
 //     });
 // });
+
+
+exports.pushToChannels = functions.https.onCall((data, context) => {
+//  exports.pushToChannels = functions.https.onRequest((req, res) => {
+
+    let body = data.body;
+
+    let action = data.action;
+    if(!action) {
+        action = iOSAction;
+    }
+
+    let sound = data.sound;
+    if(!sound) {
+        sound = Sound;
+    }
+
+    let type = data.type;
+    let senderId = String(data.senderId);
+    let threadId = String(data.threadId);
+
+    let userIds = data.userIds;
+
+    if(senderId === "undefined" || !senderId || senderId === null) {
+        throw new functions.https.HttpsError("invalid-argument", "Sender ID not valid");
+    }
+
+    if(threadId === "undefined" || !threadId || threadId === null) {
+        throw new functions.https.HttpsError("invalid-argument", "Sender ID not valid");
+    }
+
+    if(body === "undefined" || !body || body === null) {
+        throw new functions.https.HttpsError("invalid-argument", "Sender ID not valid");
+    }
+
+    var status = {};
+    for(let uid in userIds) {
+        if(userIds.hasOwnProperty(uid)) {
+            let userName = userIds[uid];
+            let message = buildMessage(userName, body, action, sound, type, senderId, threadId, uid);
+            status[uid] = message;
+            admin.messaging().send(message);
+        }
+    }
+    // return Promise.all(promises);
+    // return res.send(status);
+    return status;
+
+});
 
 exports.pushListener = functions.database.ref('{rootPath}/threads/{threadId}/messages/{messageId}').onCreate((messageSnapshot, context) => {
 
