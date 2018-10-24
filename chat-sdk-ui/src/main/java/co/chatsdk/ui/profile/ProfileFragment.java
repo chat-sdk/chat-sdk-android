@@ -1,6 +1,7 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.view.LayoutInflater;
@@ -91,16 +92,20 @@ public class ProfileFragment extends BaseFragment {
                     }
                 }));
 
-        initViews(inflater);
+        mainView = inflater.inflate(activityLayout(), null);
+
+        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
+
+        initViews();
 
         return mainView;
     }
 
-    public void initViews(LayoutInflater inflater) {
-        mainView = inflater.inflate(R.layout.chat_sdk_profile_fragment, null);
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_profile_fragment;
+    }
 
-        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
-
+    public void initViews() {
         avatarImageView = mainView.findViewById(R.id.ivAvatar);
         flagImageView = mainView.findViewById(R.id.ivFlag);
         availabilityImageView = mainView.findViewById(R.id.ivAvailability);

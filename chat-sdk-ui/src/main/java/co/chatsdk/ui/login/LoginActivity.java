@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,18 +64,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        setContentView(R.layout.chat_sdk_activity_login);
-
         setExitOnBackPressed(true);
 
-        mainView = findViewById(R.id.chat_sdk_root_view);
+        setContentView(activityLayout());
 
+        mainView = findViewById(R.id.chat_sdk_root_view);
         setupTouchUIToDismissKeyboard(mainView);
 
-        getSupportActionBar().hide();
-
         initViews();
+
+        getSupportActionBar().hide();
 
 //        PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
 
@@ -96,8 +95,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    protected void initViews () {
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_activity_login;
+    }
 
+    protected void initViews() {
         btnLogin = findViewById(R.id.chat_sdk_btn_login);
         btnAnonymous = findViewById(R.id.chat_sdk_btn_anon_login);
         btnTwitter = findViewById(R.id.chat_sdk_btn_twitter_login);

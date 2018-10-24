@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -130,6 +131,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(activityLayout());
+
         initViews();
 
         if (!updateThreadFromBundle(savedInstanceState)) {
@@ -213,10 +216,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
     }
 
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_activity_chat;
+    }
+
     protected void initViews () {
-
-        setContentView(R.layout.chat_sdk_activity_chat);
-
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = findViewById(R.id.chat_sdk_message_box);
         textInputView.setDelegate(this);
