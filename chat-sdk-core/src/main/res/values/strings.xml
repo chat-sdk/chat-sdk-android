@@ -20,7 +20,8 @@
     <string name="password">Password</string>
     <string name="logout">Logout</string>
     <string name="search">Search</string>
-    <string name="add_contacts">Add Contacts</string>
+    <string name="add_contacts">Add to Contacts</string>
+    <string name="delete_contact">Remove Contact</string>
     <string name="add_users">Add Users</string>
     <string name="start_chat">Start Chat</string>
     <string name="contacts_upper_case">CONTACTS</string>
@@ -223,6 +224,8 @@
     <string name="block">Block</string>
     <string name="blocked">Blocked</string>
     <string name="unblock">Unblock</string>
+    <string name="contact_deleted">Contact deleted</string>
+    <string name="contact_added">Contact added</string>
     <string name="user_blocked">User blocked</string>
     <string name="user_unblocked">User unblocked</string>
     <string name="user_deleted">User deleted</string>
