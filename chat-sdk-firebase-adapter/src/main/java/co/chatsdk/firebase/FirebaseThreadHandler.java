@@ -235,7 +235,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             else {
                 e.onSuccess(thread);
             }
-        })).doOnSuccess(thread -> thread.addUser(ChatSDK.currentUser())).subscribeOn(Schedulers.single());
+        })).doOnSuccess(thread -> thread.addUsers(users)).subscribeOn(Schedulers.single());
     }
 
     public Completable deleteThread(Thread thread) {
