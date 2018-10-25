@@ -13,8 +13,6 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.dao.UserThreadLink;
-import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.dao.sorter.ThreadsSorter;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
@@ -159,23 +157,21 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             return new ArrayList<>();
         }
 
-        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
+        List<Thread> threads = StorageManager.shared().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
 
-        List<Thread> threads = new ArrayList<>();
-
-        // Pull the threads out of the link object . . . if only gDao supported manyToMany . . .
-        for (UserThreadLink link : links) {
-            if(link.getThread().typeIs(type) && (!link.getThread().getDeleted() || allowDeleted)) {
-                if (showEmpty || link.getThread().getMessages().size() > 0) {
-                    threads.add(link.getThread());
+        List<Thread> filteredThreads = new ArrayList<>();
+        for(Thread thread : threads) {
+            if(thread.typeIs(type) && (!thread.getDeleted() || allowDeleted)) {
+                if (showEmpty || thread.getMessages().size() > 0) {
+                    filteredThreads.add(thread);
                 }
             }
         }
 
         // Sort the threads list before returning
-        Collections.sort(threads, new ThreadsSorter());
+        Collections.sort(filteredThreads, new ThreadsSorter());
 
-        return threads;
+        return filteredThreads;
     }
 
     public void sendLocalSystemMessage(String text, Thread thread) {
