@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +66,6 @@ public class EditProfileActivity extends BaseActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_edit_profile);
 
         String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
 
@@ -80,11 +80,17 @@ public class EditProfileActivity extends BaseActivity {
             // Save a copy of the data to see if it has changed
             userMeta = new HashMap<>(currentUser.metaMap());
         }
+
+        setContentView(activityLayout());
+
         initViews();
     }
 
-    protected void initViews() {
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_edit_profile;
+    }
 
+    protected void initViews() {
         avatarImageView = findViewById(R.id.ivAvatar);
         statusEditText = findViewById(R.id.etStatus);
         availabilitySpinner = findViewById(R.id.spAvailability);

@@ -1,6 +1,7 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.view.LayoutInflater;
@@ -52,8 +53,8 @@ public class ProfileFragment extends BaseFragment {
     protected TextView phoneTextView;
     protected TextView followsTextView;
     protected TextView followedTextView;
-    protected Button blockButton;
-    protected Button deleteButton;
+    protected Button blockOrUnblockButton;
+    protected Button addOrDeleteButton;
     protected ImageView followsImageView;
     protected ImageView followedImageView;
 
@@ -91,16 +92,20 @@ public class ProfileFragment extends BaseFragment {
                     }
                 }));
 
-        initViews(inflater);
+        mainView = inflater.inflate(activityLayout(), null);
+
+        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
+
+        initViews();
 
         return mainView;
     }
 
-    public void initViews(LayoutInflater inflater) {
-        mainView = inflater.inflate(R.layout.chat_sdk_profile_fragment, null);
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_profile_fragment;
+    }
 
-        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
-
+    public void initViews() {
         avatarImageView = mainView.findViewById(R.id.ivAvatar);
         flagImageView = mainView.findViewById(R.id.ivFlag);
         availabilityImageView = mainView.findViewById(R.id.ivAvailability);
@@ -112,8 +117,8 @@ public class ProfileFragment extends BaseFragment {
         emailTextView = mainView.findViewById(R.id.tvEmail);
         followsTextView = mainView.findViewById(R.id.tvFollows);
         followedTextView = mainView.findViewById(R.id.tvFollowed);
-        blockButton = mainView.findViewById(R.id.btnBlock);
-        deleteButton = mainView.findViewById(R.id.btnDelete);
+        blockOrUnblockButton = mainView.findViewById(R.id.btnBlockOrUnblock);
+        addOrDeleteButton = mainView.findViewById(R.id.btnAddOrDelete);
 
 //        followsHeight = followsTextView.getHeight();
 //        followedHeight = followedTextView.getHeight();
@@ -154,11 +159,19 @@ public class ProfileFragment extends BaseFragment {
         setViewVisibility(mainView.findViewById(imageViewID), visible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    protected void updateBlockedButton (boolean blocked) {
+    protected void updateBlockedButton(boolean blocked) {
         if (blocked) {
-            setViewText(blockButton, getString(R.string.unblock));
+            setViewText(blockOrUnblockButton, getString(R.string.unblock));
         } else {
-            setViewText(blockButton, getString(R.string.block));
+            setViewText(blockOrUnblockButton, getString(R.string.block));
+        }
+    }
+
+    protected void updateFriendsButton(boolean friend) {
+        if (friend) {
+            setViewText(addOrDeleteButton, getString(R.string.delete_contact));
+        } else {
+            setViewText(addOrDeleteButton, getString(R.string.add_contacts));
         }
     }
 
@@ -206,18 +219,41 @@ public class ProfileFragment extends BaseFragment {
         else block();
     }
 
+    protected void add() {
+        if (getUser().isMe()) return;
+
+        disposableList.add(ChatSDK.contact().addContact(getUser(), ConnectionType.Contact)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    updateFriendsButton(true);
+                    ToastHelper.show(getContext(), getString(R.string.contact_added));
+                }, throwable -> {
+                    ChatSDK.logError(throwable);
+                    Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }));
+    }
+
     protected void delete() {
         if (getUser().isMe()) return;
 
         disposableList.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
-                    ToastHelper.show(getContext(), getString(R.string.user_deleted));
+                    updateFriendsButton(false);
+                    ToastHelper.show(getContext(), getString(R.string.contact_deleted));
                     getActivity().finish();
                 }, throwable -> {
                     ChatSDK.logError(throwable);
                     Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }));
+    }
+
+    protected void toggleFriends() {
+        if (getUser().isMe()) return;
+
+        boolean friends = ChatSDK.contact().exists(getUser());
+        if (friends) delete();
+        else add();
     }
 
     public void updateInterface() {
@@ -236,8 +272,8 @@ public class ProfileFragment extends BaseFragment {
         setViewVisibility(followedImageView, visibility);
         setViewVisibility(followsTextView, visibility);
         setViewVisibility(followedTextView, visibility);
-        setViewVisibility(blockButton, visibility);
-        setViewVisibility(deleteButton, visibility);
+        setViewVisibility(blockOrUnblockButton, visibility);
+        setViewVisibility(addOrDeleteButton, visibility);
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
@@ -249,16 +285,16 @@ public class ProfileFragment extends BaseFragment {
             // Find out if the user is blocked already?
             if (ChatSDK.blocking() != null && ChatSDK.blocking().blockingSupported()) {
                 updateBlockedButton(ChatSDK.blocking().isBlocked(getUser().getEntityID()));
-                if (blockButton != null) blockButton.setOnClickListener(v -> toggleBlocked());
+                if (blockOrUnblockButton != null) blockOrUnblockButton.setOnClickListener(v -> toggleBlocked());
             }
             else {
                 // TODO: Set height to zero
-                setViewVisibility(blockButton, View.INVISIBLE);
+                setViewVisibility(blockOrUnblockButton, View.INVISIBLE);
             }
 
-            if (deleteButton != null) deleteButton.setOnClickListener(view -> delete());
+            updateFriendsButton(ChatSDK.contact().exists(getUser()));
+            if (addOrDeleteButton != null) addOrDeleteButton.setOnClickListener(view -> toggleFriends());
         }
-
 
         // Country Flag
         String countryCode = getUser().getCountryCode();
@@ -352,8 +388,8 @@ public class ProfileFragment extends BaseFragment {
         textViewIds.add(R.id.tvEmail);
         textViewIds.add(R.id.tvFollows);
         textViewIds.add(R.id.tvFollowed);
-        textViewIds.add(R.id.btnDelete);
-        textViewIds.add(R.id.btnBlock);
+        textViewIds.add(R.id.btnAddOrDelete);
+        textViewIds.add(R.id.btnBlockOrUnblock);
 
         stackViews(textViewIds, R.id.tvStatus, set);
 

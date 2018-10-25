@@ -106,11 +106,6 @@ public class NotificationUtils {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (largeIcon != null) {
-            Notification.InboxStyle style = new Notification.InboxStyle()
-                    .setBigContentTitle(title)
-                    .setSummaryText(message);
-
-            builder.setStyle(style);
             builder.setLargeIcon(ImageUtils.scaleImage(largeIcon, (int) (context.getResources().getDisplayMetrics().density * 48)));
         }
 
