@@ -2,22 +2,16 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
-
     dexOptions {
         preDexLibraries = false
     }
-
     defaultConfig {
         applicationId "co.chatsdk.android.app"
-
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.MIN_SDK)
-        targetSdkVersion  Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
         versionName CHAT_SDK_VERSION
-        versionCode CHAT_SDK_BUILD_NUMBER as int
     }
-
     signingConfigs {
         release {
             storeFile file('/Users/ben/.android/release.keystore')
@@ -32,7 +26,6 @@ android {
             storePassword 'D3bug123'
         }
     }
-
     buildTypes {
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -46,7 +39,6 @@ android {
             jniDebuggable true
         }
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
@@ -54,28 +46,29 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-
     dexOptions {
         javaMaxHeapSize "6g"
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
+    productFlavors {
+    }
 }
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api 'com.android.support:multidex:1.0.3'
-//    api project(path: ':chat-sdk-core')
+    //    api project(path: ':chat-sdk-core')
     api project(path: ':chat-sdk-ui')
     api project(path: ':chat-sdk-firebase-adapter')
     api project(path: ':chat-sdk-firebase-push')
     api project(path: ':chat-sdk-firebase-file-storage')
-
     api project(path: ':chat-sdk-firebase-ui')
+
+    implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
+    implementation 'com.virgilsecurity.sdk:sdk:5.0.2'
 }
 
 apply plugin: 'com.google.gms.google-services'
