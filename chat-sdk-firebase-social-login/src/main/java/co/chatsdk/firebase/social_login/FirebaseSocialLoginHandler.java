@@ -151,7 +151,7 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                     e.onSuccess(credential);
                 }
                 else {
-                    e.onError(new Exception(result.getStatus().getStatusMessage()));
+                    e.onError(new Exception(result.getStatus().toString()));
                 }
             };
 
