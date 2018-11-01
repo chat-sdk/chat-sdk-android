@@ -254,6 +254,7 @@ public class Message implements CoreEntity {
         ReadReceiptUserLink link = linkForUser(user);
         if(link == null) {
             link = StorageManager.shared().createEntity(ReadReceiptUserLink.class);
+            link.setReadReceiptId(this.getId());
             readReceiptLinks.add(link);
             update();
         }

@@ -20,7 +20,7 @@ import co.chatsdk.core.utils.DaoDateTimeConverter;
 public class ReadReceiptUserLink implements CoreEntity {
 
     @Id
-    private long id;
+    private Long id;
 
     private long readReceiptId;
     private long userId;
@@ -41,7 +41,7 @@ public class ReadReceiptUserLink implements CoreEntity {
     private transient ReadReceiptUserLinkDao myDao;
 
     @Generated(hash = 305755340)
-    public ReadReceiptUserLink(long id, long readReceiptId, long userId, int status, DateTime date) {
+    public ReadReceiptUserLink(Long id, long readReceiptId, long userId, int status, DateTime date) {
         this.id = id;
         this.readReceiptId = readReceiptId;
         this.userId = userId;
@@ -53,7 +53,7 @@ public class ReadReceiptUserLink implements CoreEntity {
     public ReadReceiptUserLink() {
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
@@ -182,5 +182,8 @@ public class ReadReceiptUserLink implements CoreEntity {
         this.date = date;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
 }
