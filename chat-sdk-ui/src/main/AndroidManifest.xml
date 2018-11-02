@@ -24,6 +24,12 @@
             <!--</meta-data>-->
         <!--</provider>-->
 
+        <provider
+            android:name=".chat.PhotoProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <activity android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SdkTheme">
