@@ -5,7 +5,6 @@ import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.joda.time.DateTime;
 
@@ -40,8 +39,9 @@ public class ReadReceiptUserLink implements CoreEntity {
     @Generated(hash = 642681985)
     private transient ReadReceiptUserLinkDao myDao;
 
-    @Generated(hash = 305755340)
-    public ReadReceiptUserLink(long id, long readReceiptId, long userId, int status, DateTime date) {
+    @Generated(hash = 1063857782)
+    public ReadReceiptUserLink(Long id, Long readReceiptId, Long userId, Integer status,
+            DateTime date) {
         this.id = id;
         this.readReceiptId = readReceiptId;
         this.userId = userId;
@@ -53,36 +53,20 @@ public class ReadReceiptUserLink implements CoreEntity {
     public ReadReceiptUserLink() {
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getReadReceiptId() {
+    public Long getReadReceiptId() {
         return this.readReceiptId;
     }
 
-    public void setReadReceiptId(long readReceiptId) {
-        this.readReceiptId = readReceiptId;
-    }
-
-    public long getUserId() {
+    public Long getUserId() {
         return this.userId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public int getStatus() {
+    public Integer getStatus() {
         return this.status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     @Override
@@ -99,9 +83,9 @@ public class ReadReceiptUserLink implements CoreEntity {
     private transient Long user__resolvedKey;
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 115391908)
+    @Generated(hash = 859885876)
     public User getUser() {
-        long __key = this.userId;
+        Long __key = this.userId;
         if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
@@ -118,15 +102,11 @@ public class ReadReceiptUserLink implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 462495677)
-    public void setUser(@NotNull User user) {
-        if (user == null) {
-            throw new DaoException(
-                    "To-one property 'userId' has not-null constraint; cannot set to-one to null");
-        }
+    @Generated(hash = 1065606912)
+    public void setUser(User user) {
         synchronized (this) {
             this.user = user;
-            userId = user.getId();
+            userId = user == null ? null : user.getId();
             user__resolvedKey = userId;
         }
     }
@@ -180,6 +160,22 @@ public class ReadReceiptUserLink implements CoreEntity {
 
     public void setDate(DateTime date) {
         this.date = date;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setReadReceiptId(Long readReceiptId) {
+        this.readReceiptId = readReceiptId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
 

@@ -76,7 +76,11 @@ function getUserName(usersRef, userId) {
     return usersRef.child(userId).child('meta').once('value').then((meta) => {
         let metaValue = meta.val();
         if (metaValue !== null) {
-            return metaValue["name"];
+            let name = metaValue["name"];
+            if(!name || name === "undefined" || name === null) {
+                name = "No Name";
+            }
+            return name;
         }
         return null;
     });

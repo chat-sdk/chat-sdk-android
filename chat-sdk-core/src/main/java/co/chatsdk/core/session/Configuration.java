@@ -161,6 +161,7 @@ public class Configuration {
         public Builder (Context context) {
             config = new Configuration();
             config.context = new WeakReference<>(context);
+            config.updateDefaultName();
         }
 
         public Builder debugModeEnabled (boolean debug) {

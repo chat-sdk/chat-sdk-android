@@ -28,7 +28,7 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property UserId = new Property(1, Long.class, "userId", false, "USER_ID");
         public final static Property LinkOwnerUserDaoId = new Property(2, Long.class, "linkOwnerUserDaoId", false, "LINK_OWNER_USER_DAO_ID");
-        public final static Property Type = new Property(3, int.class, "type", false, "TYPE");
+        public final static Property Type = new Property(3, Integer.class, "type", false, "TYPE");
     }
 
     private DaoSession daoSession;
