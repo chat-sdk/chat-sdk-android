@@ -20,11 +20,11 @@ import co.chatsdk.core.utils.DaoDateTimeConverter;
 public class ReadReceiptUserLink implements CoreEntity {
 
     @Id
-    private long id;
+    private Long id;
 
-    private long readReceiptId;
-    private long userId;
-    private int status;
+    private Long readReceiptId;
+    private Long userId;
+    private Integer status;
 
     @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
     private DateTime date;

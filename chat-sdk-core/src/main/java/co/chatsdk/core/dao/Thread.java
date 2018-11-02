@@ -42,8 +42,8 @@ public class Thread implements CoreEntity {
     private String imageUrl;
     private String rootKey;
     private String apiKey; // TODO: Delete this
-    private long creatorId;
-    private long lastMessageId;
+    private Long creatorId;
+    private Long lastMessageId;
 
     @ToOne(joinProperty = "lastMessageId")
     private Message lastMessage;
