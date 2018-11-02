@@ -5,6 +5,7 @@ import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
+import co.chatsdk.core.handlers.EncryptionHandler;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.handlers.ImageMessageHandler;
@@ -53,5 +54,6 @@ public class BaseNetworkAdapter {
     public SocialLoginHandler socialLogin;
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();
+    public EncryptionHandler encryption;
 
 }
