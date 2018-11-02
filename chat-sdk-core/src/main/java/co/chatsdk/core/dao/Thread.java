@@ -1,5 +1,6 @@
 package co.chatsdk.core.dao;
 
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Generated;
@@ -376,7 +377,7 @@ public class Thread implements CoreEntity {
     public String getUserListString () {
         String name = "";
         for(User u : getUsers()) {
-            if(!u.isMe()) {
+            if(!u.isMe() && !StringUtils.isEmpty(u.getName())) {
                 name += u.getName() + ", ";
             }
         }

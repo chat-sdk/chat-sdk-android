@@ -83,7 +83,7 @@ public class Strings {
         }
 
         if(name.length() == 0) {
-            name = Strings.t(R.string.thread);
+            name = Strings.t(R.string.no_name);
         }
         return name;
     }

@@ -10,6 +10,7 @@
     <string name="sticker_message">Sticker</string>
     <string name="file_message">File</string>
     <string name="thread">Thread</string>
+    <string name="no_name">No Name</string>
 
     <string name="register">Register</string>
     <string name="login">Login</string>

@@ -40,7 +40,6 @@ public class Configuration {
     // Firebase
     public String firebaseRootPath = "default";
     public String firebaseStorageUrl;
-    public String firebaseCloudMessagingServerKey;
 
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
@@ -200,19 +199,13 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebaseCloudMessagingServerKey (String cloudMessagingServerKey) {
-            config.firebaseCloudMessagingServerKey = cloudMessagingServerKey;
-            return this;
-        }
-
-        public Builder firebase (String rootPath, String cloudMessagingServerKey) {
+        public Builder firebase (String rootPath) {
 
             if(rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
             }
 
             firebaseRootPath(rootPath);
-            firebaseCloudMessagingServerKey(cloudMessagingServerKey);
 
             return this;
         }
