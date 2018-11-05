@@ -259,11 +259,11 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
 
     public void updateSendButton () {
         if(StringChecker.isNullOrEmpty(getMessageText()) && audioModeEnabled) {
-            btnSend.setBackgroundResource(R.drawable.ic_36_mic);
+            btnSend.setImageResource(R.drawable.ic_36_mic);
             recordOnPress = true;
         }
         else {
-            btnSend.setBackgroundResource(R.drawable.ic_36_send);
+            btnSend.setImageResource(R.drawable.ic_36_send);
             recordOnPress = false;
         }
     }
