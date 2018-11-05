@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Rect;
+import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -42,7 +43,7 @@ import io.reactivex.disposables.Disposable;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
-    protected ImageButton btnSend;
+    protected AppCompatImageButton btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
     protected boolean audioModeEnabled = false;
