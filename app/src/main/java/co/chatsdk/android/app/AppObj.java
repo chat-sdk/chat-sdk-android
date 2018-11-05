@@ -29,7 +29,7 @@ public class AppObj extends MultiDexApplication {
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");
-        config.pushNotificationsForPublicChatRoomsEnabled(true);
+//        config.pushNotificationsForPublicChatRoomsEnabled(true);
 
         try {
             ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
