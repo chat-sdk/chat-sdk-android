@@ -3,6 +3,7 @@ package co.chatsdk.core.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -111,7 +112,7 @@ public class PermissionRequestHandler {
         }).doOnError(throwable -> ChatSDK.logError(throwable));
     }
 
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(Context context, int requestCode, String permissions[], int[] grantResults) {
         CompletableEmitter e = completableMap.get(requestCode);
         if(e != null) {
             completableMap.remove(requestCode);
@@ -121,7 +122,7 @@ public class PermissionRequestHandler {
             else {
                 // TODO: this is being called for the contact book (maybe it's better to request contacts
                 // from inside the contact book module
-                e.onError(new Throwable("Permission not granted: " + requestCode));
+                e.onError(new Throwable(context.getString(R.string.error_permission_not_granted, requestCode)));
             }
         }
     }
