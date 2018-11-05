@@ -201,6 +201,7 @@
     <string name="couldnt_load_sticker_pack">Couldn\'t load sticker pack</string>
     <string name="unable_to_load_image">Unable to load image</string>
     <string name="__permission_not_granted" formatted="true">%s permission not granted. Please enable this permission in your phone\'s settings.</string>
+    <string name="error_permission_not_granted">Permission not granted: %d</string>
 
     <!--State-->
     <string name="sending">Sending&#8230;</string>
