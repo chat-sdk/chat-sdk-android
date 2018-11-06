@@ -45,7 +45,6 @@ import timber.log.Timber;
 
 public class UserWrapper {
 
-    private static final String USER_PREFIX = "user";
     private User model;
 
     public static UserWrapper initWithAuthData(FirebaseUser authData){

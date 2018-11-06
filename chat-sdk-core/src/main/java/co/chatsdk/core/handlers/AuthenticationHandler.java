@@ -19,9 +19,6 @@ public interface AuthenticationHandler {
     /**
     * Authenticate with Firebase
     */
-    @Deprecated
-    Completable authenticateWithMap (final Map<String, Object> details);
-
     Completable authenticate (AccountDetails details);
 
     /**

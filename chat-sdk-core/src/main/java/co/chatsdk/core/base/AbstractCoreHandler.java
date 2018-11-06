@@ -22,6 +22,9 @@ public abstract class AbstractCoreHandler implements CoreHandler {
             if (StringUtils.isNotEmpty(entityID)) {
                 cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
             }
+            else {
+                cachedUser = null;
+            }
         }
        return cachedUser;
     }

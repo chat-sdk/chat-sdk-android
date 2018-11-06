@@ -31,9 +31,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.firebase.FirebaseAuthenticationHandler;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -87,9 +85,6 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
 
-                    ChatSDK.auth().addLoginInfoData(AuthKeys.Token, loginResult.getAccessToken().getToken());
-                    ChatSDK.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Facebook.ordinal());
-
                     e.onSuccess(FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken()));
                 }
 
@@ -117,10 +112,6 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
             twitterButton.setCallback(new Callback<TwitterSession>() {
                 @Override
                 public void success(Result<TwitterSession> result) {
-
-                    ChatSDK.auth().addLoginInfoData(AuthKeys.Token, result.data.getAuthToken().token);
-                    ChatSDK.auth().addLoginInfoData(AuthKeys.Type, AccountDetails.Type.Twitter.ordinal());
-
                     e.onSuccess(TwitterAuthProvider.getCredential(result.data.getAuthToken().token, result.data.getAuthToken().secret));
                 }
 
