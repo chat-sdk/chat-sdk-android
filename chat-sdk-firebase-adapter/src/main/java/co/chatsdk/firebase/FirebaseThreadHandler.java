@@ -180,7 +180,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             if (users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
 
                 User otherUser = null;
-                Thread jointThread = null;
 
                 for (User user : users) {
                     if (!user.equals(currentUser)) {
@@ -189,22 +188,24 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 }
 
-                // Check to see if a thread already exists with these
-                // two users
+                // Check to see if a thread already exists with these two users
                 for (Thread thread : getThreads(ThreadType.Private1to1, true, true)) {
                     if (thread.getUsers().size() == 2 &&
                             thread.getUsers().contains(currentUser) &&
-                            thread.getUsers().contains(otherUser)) {
-                        jointThread = thread;
-                        break;
+                            thread.getUsers().contains(otherUser) && !thread.isDeleted()) {
+                        if (!thread.isDeleted()) {
+                            e.onSuccess(thread);
+                            return;
+                        } else if (ChatSDK.config().reuseDeletedThreads) {
+                            // TODO: Need to "undelete" it on firebase
+                            thread.setDeleted(false);
+                            DaoCore.updateEntity(thread);
+                            e.onSuccess(thread);
+                            return;
+                        } else {
+                            break;
+                        }
                     }
-                }
-
-                if (jointThread != null) {
-                    jointThread.setDeleted(false);
-                    DaoCore.updateEntity(jointThread);
-                    e.onSuccess(jointThread);
-                    return;
                 }
             }
 
