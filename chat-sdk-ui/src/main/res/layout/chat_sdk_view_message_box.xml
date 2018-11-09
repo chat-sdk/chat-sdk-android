@@ -34,7 +34,7 @@
             android:inputType="textShortMessage|textMultiLine"/>
     </FrameLayout>
 
-    <ImageButton
+    <AppCompatImageButton
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:src="@drawable/ic_36_mic"
