@@ -155,7 +155,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return createThread(name, users, type, null);
     }
 
-     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
+        return createThread(name, users, type, entityID, ChatSDK.config().reuseDeletedThreads);
+    }
+
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID, boolean reuseDeletedThreads) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
@@ -189,7 +193,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 // Check to see if a thread already exists with these
                 // two users
-                for(Thread thread : getThreads(ThreadType.Private1to1, true, true)) {
+                for(Thread thread : getThreads(ThreadType.Private1to1, reuseDeletedThreads, true)) {
                     if(thread.getUsers().size() == 2 &&
                             thread.containsUser(currentUser) &&
                             thread.containsUser(otherUser))

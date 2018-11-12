@@ -82,6 +82,9 @@ public class Configuration {
     public boolean twitterLoginEnabled = true;
     public boolean googleLoginEnabled = true;
 
+    // Should we open a new thread with a user after the thread has been deleted?
+    public boolean reuseDeletedThreads = true;
+
     public boolean resetPasswordEnabled = true;
 
     // Message types
@@ -356,6 +359,11 @@ public class Configuration {
 
         public Builder setInboundPushHandlingEnabled(boolean enabled) {
             config.inboundPushHandlingEnabled = enabled;
+            return this;
+        }
+
+        public Builder reuseDeletedThreads(boolean reuse) {
+            config.reuseDeletedThreads = reuse;
             return this;
         }
 
