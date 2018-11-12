@@ -1,7 +1,7 @@
 package co.chatsdk.firebase;
 
 import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Collection;
@@ -17,14 +17,14 @@ public class FirebaseReferenceManager {
 
         private ChildEventListener cel;
         private ValueEventListener vel;
-        private DatabaseReference ref;
+        private Query ref;
 
-        private Value (DatabaseReference ref, ChildEventListener listener) {
+        private Value (Query ref, ChildEventListener listener) {
             this.cel = listener;
             this.ref = ref;
         }
 
-        private Value (DatabaseReference ref, ValueEventListener listener) {
+        private Value (Query ref, ValueEventListener listener) {
             this.vel = listener;
             this.ref = ref;
         }
@@ -50,19 +50,19 @@ public class FirebaseReferenceManager {
         return instance;
     }
 
-    public void addRef (DatabaseReference ref, ChildEventListener l) {
+    public void addRef (Query ref, ChildEventListener l) {
         references.put(ref.toString(), new Value(ref, l));
     }
 
-    public void addRef (DatabaseReference ref, ValueEventListener l) {
+    public void addRef (Query ref, ValueEventListener l) {
         references.put(ref.toString(), new Value(ref, l));
     }
 
-    public boolean isOn (DatabaseReference ref) {
+    public boolean isOn (Query ref) {
         return references.get(ref.toString()) != null;
     }
 
-    public void removeListeners (DatabaseReference ref) {
+    public void removeListeners (Query ref) {
         if(isOn(ref)) {
             Value v = references.get(ref.toString());
             v.removeListener();

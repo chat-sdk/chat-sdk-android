@@ -103,6 +103,10 @@ public class Configuration {
     public String lastOnlineTimeFormat = "HH:mm";
 
     public int maxMessagesToLoad = 30;
+
+    public int messageHistoryDownloadLimit = 30;
+    public int messageDeletionListenerLimit = 30;
+
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
     public int imageMaxThumbnailDimension = 400;
@@ -377,6 +381,16 @@ public class Configuration {
 
         public Builder groupsEnabled (boolean value) {
             config.groupsEnabled = value;
+            return this;
+        }
+
+        public Builder messageHistoryDownloadLimit (int downloadLimit) {
+            config.messageHistoryDownloadLimit = downloadLimit;
+            return this;
+        }
+
+        public Builder messageDeletionListenerLimit (int limit) {
+            config.messageDeletionListenerLimit = limit;
             return this;
         }
 

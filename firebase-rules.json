@@ -158,7 +158,9 @@
 
           "messages": {
 
-            "$message_id": {
+            ".indexOn": ["date"],
+
+              "$message_id": {
 
               // The user must be in the user list. 
               // Any user can make a new message
@@ -250,7 +252,7 @@
         
       "users": {
         
-       ".indexOn": ["meta/name", "meta/phone", "meta/email"],
+       ".indexOn": ["meta/name", "meta/phone", "meta/email", "meta/location", "meta/country-code"],
 
          ".read": "data.child(auth.uid).exists() || !data.child(auth.uid).exists()",
          
