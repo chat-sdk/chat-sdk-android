@@ -42,9 +42,6 @@ public class Configuration {
     public String firebaseDatabaseUrl;
     public String firebaseStorageUrl;
 
-    // TODO: expose in builder when reuse is supported
-    public boolean reuseDeletedThreads = false;
-
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
 
@@ -86,7 +83,7 @@ public class Configuration {
     public boolean googleLoginEnabled = true;
 
     // Should we open a new thread with a user after the thread has been deleted?
-    public boolean reuseDeletedThreads = true;
+    public boolean reuseDeleted1to1Threads = true;
 
     public boolean resetPasswordEnabled = true;
 
@@ -365,8 +362,8 @@ public class Configuration {
             return this;
         }
 
-        public Builder reuseDeletedThreads(boolean reuse) {
-            config.reuseDeletedThreads = reuse;
+        public Builder reuseDeleted1to1Threads(boolean reuse) {
+            config.reuseDeleted1to1Threads = reuse;
             return this;
         }
 

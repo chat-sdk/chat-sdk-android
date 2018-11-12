@@ -158,7 +158,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
-        return createThread(name, users, type, entityID, ChatSDK.config().reuseDeletedThreads);
+        return createThread(name, users, type, entityID, ChatSDK.config().reuseDeleted1to1Threads);
     }
 
     public Single<Thread> createThread(String name, List<User> users, int type, String entityID, boolean reuseDeletedThreads) {
@@ -184,6 +184,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             if (users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
 
                 User otherUser = null;
+                Thread jointThread = null;
 
                 for (User user : users) {
                     if (!user.equals(currentUser)) {
@@ -202,6 +203,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                         jointThread = thread;
                         break;
                     }
+                }
+
+                if(jointThread != null) {
+                    jointThread.setDeleted(false);
+                    DaoCore.updateEntity(jointThread);
+                    e.onSuccess(jointThread);
+                    return;
                 }
             }
 
