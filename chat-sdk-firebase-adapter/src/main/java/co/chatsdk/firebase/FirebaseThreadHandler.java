@@ -26,6 +26,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -187,23 +188,24 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     }
                 }
 
-                // Check to see if a thread already exists with these
-                // two users
-                for(Thread thread : getThreads(ThreadType.Private1to1, true)) {
-                    if(thread.getUsers().size() == 2 &&
-                            thread.getUsers().contains(currentUser) &&
-                            thread.getUsers().contains(otherUser))
-                    {
-                        jointThread = thread;
-                        break;
+                if (ChatSDK.config().reusePrivate1to1Threads) {
+                    // Check to see if a thread already exists with these
+                    // two users
+                    for (Thread thread : getThreads(ThreadType.Private1to1, true)) {
+                        if (thread.getUsers().size() == 2 &&
+                                thread.getUsers().contains(currentUser) &&
+                                thread.getUsers().contains(otherUser)) {
+                            jointThread = thread;
+                            break;
+                        }
                     }
-                }
 
-                if(jointThread != null) {
-                    jointThread.setDeleted(false);
-                    DaoCore.updateEntity(jointThread);
-                    e.onSuccess(jointThread);
-                    return;
+                    if (jointThread != null) {
+                        jointThread.setDeleted(false);
+                        DaoCore.updateEntity(jointThread);
+                        e.onSuccess(jointThread);
+                        return;
+                    }
                 }
             }
 

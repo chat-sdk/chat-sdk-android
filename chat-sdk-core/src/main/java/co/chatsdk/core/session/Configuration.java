@@ -93,6 +93,7 @@ public class Configuration {
     public boolean threadDetailsEnabled = true;
     public boolean publicRoomCreationEnabled = false;
     public boolean saveImagesToDirectory = false;
+    public boolean reusePrivate1to1Threads = true;
 
     public int messageColorMe = Color.parseColor("#b0cfea");
     public int messageColorReply = Color.parseColor("#dadada");
@@ -463,6 +464,11 @@ public class Configuration {
 
         public Builder saveImagesToDirectoryEnabled (boolean value) {
             config.saveImagesToDirectory = value;
+            return this;
+        }
+
+        public Builder reusePrivate1to1ThreadsEnabled(boolean value) {
+            config.reusePrivate1to1Threads = value;
             return this;
         }
 
