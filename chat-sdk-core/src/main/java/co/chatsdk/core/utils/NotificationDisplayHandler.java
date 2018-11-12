@@ -27,7 +27,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 
-public class NotificationUtils {
+public class NotificationDisplayHandler {
 
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
     public static String ChatSDKMessageChannel = "co.chatsdk.notification.Message";

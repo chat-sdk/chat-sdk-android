@@ -8,7 +8,6 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
-import co.chatsdk.core.utils.NotificationUtils;
 
 /**
  * Created by ben on 5/10/18.
@@ -44,7 +43,7 @@ public class DefaultBroadcastReceiver extends WakefulBroadcastReceiver {
             appIntent.setAction(threadEntityID);
 //            appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            NotificationUtils.createMessageNotification(context, appIntent, userEntityID, title, body);
+            ChatSDK.ui().notificationDisplayHandler().createMessageNotification(context, appIntent, userEntityID, title, body);
         }
 
     }
