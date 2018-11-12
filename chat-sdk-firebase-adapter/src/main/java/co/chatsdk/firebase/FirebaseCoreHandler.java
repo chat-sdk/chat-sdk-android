@@ -48,42 +48,45 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public Completable pushUser() {
         return Single.create((SingleOnSubscribe<User>) e -> {
-
-            // Check to see if the avatar URL is local or remote
-            File avatar = new File(new URI(ChatSDK.currentUser().getAvatarURL()).getPath());
-            Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
-
-            if (new URL(ChatSDK.currentUser().getAvatarURL()).getHost() != null && bitmap != null && ChatSDK.upload() != null) {
-                // Upload the image
-                ChatSDK.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                    }
-
-                    @Override
-                    public void onNext(@NonNull FileUploadResult fileUploadResult) {
-                        if (fileUploadResult.urlValid()) {
-                            ChatSDK.currentUser().setAvatarURL(fileUploadResult.url);
-                            ChatSDK.currentUser().update();
-                            ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable ex) {
-                        ChatSDK.logError(ex);
-                        e.onSuccess(ChatSDK.currentUser());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        e.onSuccess(ChatSDK.currentUser());
-                    }
-                });
-            } else {
+            String url = ChatSDK.currentUser().getAvatarURL();
+            if (url == null || url.isEmpty()) {
                 e.onSuccess(ChatSDK.currentUser());
-            }
+            } else {
+                // Check to see if the avatar URL is local or remote
+                File avatar = new File(new URI(ChatSDK.currentUser().getAvatarURL()).getPath());
+                Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
 
+                if (new URL(ChatSDK.currentUser().getAvatarURL()).getHost() != null && bitmap != null && ChatSDK.upload() != null) {
+                    // Upload the image
+                    ChatSDK.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
+
+                        @Override
+                        public void onNext(@NonNull FileUploadResult fileUploadResult) {
+                            if (fileUploadResult.urlValid()) {
+                                ChatSDK.currentUser().setAvatarURL(fileUploadResult.url);
+                                ChatSDK.currentUser().update();
+                                ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable ex) {
+                            ChatSDK.logError(ex);
+                            e.onSuccess(ChatSDK.currentUser());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            e.onSuccess(ChatSDK.currentUser());
+                        }
+                    });
+                } else {
+                    e.onSuccess(ChatSDK.currentUser());
+                }
+            }
         }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
     }
 
