@@ -42,6 +42,9 @@ public class Configuration {
     public String firebaseDatabaseUrl;
     public String firebaseStorageUrl;
 
+    // TODO: expose in builder when reuse is supported
+    public boolean reuseDeletedThreads = false;
+
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
 
