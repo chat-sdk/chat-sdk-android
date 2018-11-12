@@ -25,7 +25,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder config = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        config.firebaseRootPath("18_11");
+        config.firebaseRootPath("18_11_profile");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");
@@ -41,6 +41,7 @@ public class AppObj extends MultiDexApplication {
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
 //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+
 
     }
 

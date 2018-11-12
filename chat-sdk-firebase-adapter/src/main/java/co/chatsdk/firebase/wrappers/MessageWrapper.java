@@ -201,7 +201,6 @@ public class MessageWrapper  {
             // Getting the message ref. Will be created if not exist.
             final DatabaseReference ref = ref();
             model.setEntityID(ref.getKey());
-//new Gson().toJson(serialize())
             DaoCore.updateEntity(model);
 
             ref.setValue(serialize(), ServerValue.TIMESTAMP, (firebaseError, firebase) -> {

@@ -30,6 +30,7 @@ import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.core.utils.NotificationDisplayHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
@@ -55,9 +56,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
     public boolean defaultChatOptionsAdded = false;
     public LocalNotificationHandler localNotificationHandler;
-
-
-    protected boolean showLocalNotifications;
+    public NotificationDisplayHandler notificationDisplayHandler;
 
     public BaseInterfaceAdapter (Context context) {
 
@@ -349,6 +348,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setLocalNotificationHandler(LocalNotificationHandler handler) {
         this.localNotificationHandler = handler;
+    }
+
+    public NotificationDisplayHandler notificationDisplayHandler () {
+        if(notificationDisplayHandler == null) {
+            notificationDisplayHandler = new NotificationDisplayHandler();
+        }
+        return notificationDisplayHandler;
     }
 
 }

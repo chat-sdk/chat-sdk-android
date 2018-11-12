@@ -5,7 +5,6 @@ import com.google.firebase.database.Query;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import co.chatsdk.core.base.AbstractSearchHandler;
@@ -28,15 +27,6 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
     @Override
     public Observable<User> usersForIndex(String value, int limit) {
         return usersForIndexes(value, limit, Keys.Name, Keys.Email, Keys.Phone, Keys.NameLowercase);
-    }
-
-    @Override
-    public Observable<User> usersForIndexes(String value, int limit, String... indexes) {
-        ArrayList<Observable<User>> observables = new ArrayList<>();
-        for (String index : indexes) {
-            observables.add(usersForIndex(value, limit, index));
-        }
-        return Observable.merge(observables);
     }
 
     @Override

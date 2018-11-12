@@ -42,9 +42,6 @@ public class Configuration {
     public String firebaseDatabaseUrl;
     public String firebaseStorageUrl;
 
-    // TODO: expose in builder when reuse is supported
-    public boolean reuseDeletedThreads = false;
-
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
 
@@ -85,6 +82,9 @@ public class Configuration {
     public boolean twitterLoginEnabled = true;
     public boolean googleLoginEnabled = true;
 
+    // Should we open a new thread with a user after the thread has been deleted?
+    public boolean reuseDeleted1to1Threads = true;
+
     public boolean resetPasswordEnabled = true;
 
     // Message types
@@ -107,6 +107,10 @@ public class Configuration {
     public String lastOnlineTimeFormat = "HH:mm";
 
     public int maxMessagesToLoad = 30;
+
+    public int messageHistoryDownloadLimit = 30;
+    public int messageDeletionListenerLimit = 30;
+
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
     public int imageMaxThumbnailDimension = 400;
@@ -358,6 +362,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder reuseDeleted1to1Threads(boolean reuse) {
+            config.reuseDeleted1to1Threads = reuse;
+            return this;
+        }
+
         public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
             config.pushNotificationsForPublicChatRoomsEnabled = value;
             return this;
@@ -393,7 +402,17 @@ public class Configuration {
             return this;
         }
 
-        public Builder contactsToLoadPerBatch(int number) {
+        public Builder messageHistoryDownloadLimit (int downloadLimit) {
+            config.messageHistoryDownloadLimit = downloadLimit;
+            return this;
+        }
+
+        public Builder messageDeletionListenerLimit (int limit) {
+            config.messageDeletionListenerLimit = limit;
+            return this;
+        }
+
+        public Builder contactsToLoadPerBatch (int number) {
             config.contactsToLoadPerBatch = number;
             return this;
         }

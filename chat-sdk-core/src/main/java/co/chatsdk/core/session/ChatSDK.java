@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.events.EventType;
@@ -42,8 +43,6 @@ import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
-import co.chatsdk.core.utils.NotificationUtils;
-import co.chatsdk.core.dao.Thread;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -152,7 +151,7 @@ public class ChatSDK {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                                 if (!message.isRead() && !status.is(ReadStatus.delivered())) {
                                     // Only show the alert if we'recyclerView not on the private threads tab
-                                    NotificationUtils.createMessageNotification(message);
+                                    ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message);
                                 }
                             }
                         }
