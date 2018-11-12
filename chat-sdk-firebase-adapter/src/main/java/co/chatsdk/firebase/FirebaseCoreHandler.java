@@ -39,14 +39,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     private DisposableList disposableList = new DisposableList();
 
-    public FirebaseCoreHandler () {
+    public FirebaseCoreHandler() {
         // When the user logs out, turn off all the existing listeners
         FirebaseEventHandler.shared().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> disposableList.dispose());
     }
 
-    public Completable pushUser () {
+    public Completable pushUser() {
         return Single.create((SingleOnSubscribe<User>) e -> {
 
             // Check to see if the avatar URL is local or remote
@@ -93,7 +93,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
-        if(ChatSDK.hook() != null) {
+        if (ChatSDK.hook() != null) {
             ChatSDK.hook().executeHook(BaseHookHandler.SetUserOnline, null);
         }
 
@@ -102,13 +102,12 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public Completable setUserOffline() {
         User current = ChatSDK.currentUser();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID()))
-        {
+        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
             // Update the last online figure then go offline
             return updateLastOnline()
                     .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline());
         }
-        if(ChatSDK.hook() != null) {
+        if (ChatSDK.hook() != null) {
             ChatSDK.hook().executeHook(BaseHookHandler.SetUserOffline, null);
         }
 
@@ -122,17 +121,16 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOnline() {
         FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-            if(hasValue) {
+            if (hasValue) {
                 Timber.v("Already online!");
-            }
-            else {
+            } else {
                 DatabaseReference.goOnline();
             }
             setUserOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
         }));
     }
 
-    public Completable updateLastOnline () {
+    public Completable updateLastOnline() {
         return Completable.create(e -> {
             User currentUser = ChatSDK.currentUser();
             currentUser.setLastOnline(new Date());
@@ -156,7 +154,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 //        }).subscribeOn(Schedulers.single());
 //    }
 
-    public Completable userOn (final User user) {
+    public Completable userOn(final User user) {
         return Completable.create(e -> {
             final UserWrapper wrapper = new UserWrapper(user);
             disposableList.add(wrapper.onlineOn().doOnDispose(wrapper::onlineOff).subscribe(aBoolean -> {
@@ -169,13 +167,13 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         });
     }
 
-    public void userOff (final User user) {
+    public void userOff(final User user) {
         UserWrapper wrapper = new UserWrapper(user);
         wrapper.onlineOff();
         wrapper.metaOff();
     }
 
-    public void save () {
+    public void save() {
 
     }
 }
