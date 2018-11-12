@@ -5,8 +5,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 
-import static android.support.v4.content.PermissionChecker.PERMISSION_DENIED;
+import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
 /**
  * Created by ben on 9/28/17.

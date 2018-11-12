@@ -68,7 +68,7 @@ android {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'com.android.support:multidex:1.0.3'
+    api 'androidx.multidex:multidex:2.0.0'
 //    api project(path: ':chat-sdk-core')
     api project(path: ':chat-sdk-ui')
     api project(path: ':chat-sdk-firebase-adapter')

@@ -1,9 +1,9 @@
 package co.chatsdk.ui.profile;
 
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
+import androidx.annotation.LayoutRes;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;

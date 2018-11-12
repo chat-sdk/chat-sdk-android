@@ -1,8 +1,8 @@
 package co.chatsdk.android.app;
 
 import android.content.Context;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
 
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;

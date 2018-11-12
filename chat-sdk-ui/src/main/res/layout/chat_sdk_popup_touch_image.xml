@@ -17,7 +17,7 @@
         android:id="@+id/chat_sdk_popup_image_progressbar"
         android:visibility="invisible"/>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/floating_button"
         android:layout_width="64dp"

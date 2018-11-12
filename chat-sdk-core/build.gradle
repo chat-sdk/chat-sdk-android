@@ -53,7 +53,7 @@ dependencies {
     api 'com.google.android.gms:play-services-maps:15.0.1'
 
     api 'id.zelory:compressor:2.1.0'
-    api 'android.arch.lifecycle:extensions:1.1.1'
+    api 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     api 'com.facebook.fresco:fresco:1.9.0'
 
     api 'com.android.support:support-v4:' + project.ANDROID_SUPPORT_VERSION
