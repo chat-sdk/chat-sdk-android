@@ -191,8 +191,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 // two users
                 for(Thread thread : getThreads(ThreadType.Private1to1, true, true)) {
                     if(thread.getUsers().size() == 2 &&
-                            thread.getUsers().contains(currentUser) &&
-                            thread.getUsers().contains(otherUser))
+                            thread.containsUser(currentUser) &&
+                            thread.containsUser(otherUser))
                     {
                         jointThread = thread;
                         break;

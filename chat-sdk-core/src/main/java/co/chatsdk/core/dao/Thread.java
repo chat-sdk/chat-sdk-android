@@ -124,6 +124,15 @@ public class Thread implements CoreEntity {
         return users;
     }
 
+    public boolean containsUser (User user) {
+        for(User u : getUsers()) {
+            if (u.getEntityID().equals(user.getEntityID())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Date lastMessageAddedDate (){
         Date date = creationDate;
 
