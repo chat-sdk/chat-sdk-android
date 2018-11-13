@@ -72,7 +72,7 @@ public class BaseContactHandler implements ContactHandler {
     public Completable deleteContacts(ArrayList<User> users, ConnectionType type) {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
-            completables.add(addContact(user, type));
+            completables.add(deleteContact(user, type));
         }
         return Completable.concat(completables);
     }
