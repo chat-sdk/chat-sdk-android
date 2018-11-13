@@ -1,36 +1,42 @@
 package co.chatsdk.core.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HashMapHelper {
 
-    public static HashMap<String, Object> expand(Map<String, Object> flatMap) {
+    public static HashMap<String, Object> expand (HashMap<String, String> flatMap) {
 
         HashMap<String, Object> expandedMap = new HashMap<>();
 
         for (String key : flatMap.keySet()) {
-            String[] split = key.split("/");
-            Object value = flatMap.get(key);
+            String [] splitKey = key.split("/");
+            String value = flatMap.get(key);
 
             // In this case, we have a composite key i.e. A/B/C which needs to be expanded
-            if (split.length > 1) {
+            if (splitKey.length > 1) {
 
                 // Split the key into the first part A and child part B/C
-                String parentKey = split[0];
+                String parentKey = splitKey[0];
                 String childKey = key.replace(parentKey + "/", "");
 
                 // Make a new child map which would contain the value keyed by the child key
-                // If the map already exists it becomes the child map, otherwise the child map is simply made new
-                HashMap<String, Object> childMap = expandedMap.containsKey(parentKey) ? (HashMap) expandedMap.get(parentKey) : new HashMap<>();
-
-                //Here the value and new string is inserted into the child map
+                // i.e. B/C => Value
+                HashMap<String, String> childMap = new HashMap<>();
                 childMap.put(childKey, value);
-                //The child map itself is now expanded. This will repeat until split.length =1,
-                //at which time the else function below will be triggered.
-                expandedMap.put(parentKey, expand(childMap));
+
+                // It may be that we already have a sub map, mapped to this key,
+                // in that case get it
+                HashMap<String, Object> existingMap = expandedMap.get(parentKey) instanceof HashMap ? (HashMap) expandedMap.get(parentKey) : new HashMap<>();
+
+                // Expand the child map recursively and merge it with the existing map
+                existingMap.putAll(expand(childMap));
+
+                // Add existing map back in if necessary
+                expandedMap.put(parentKey, existingMap);
             }
-            else{
+            else {
                 expandedMap.put(key, value);
             }
         }
@@ -53,6 +59,17 @@ public class HashMapHelper {
             String newKey = previousKey == null ? key : previousKey + "/" + key;
 
             //If the value is a hashmap, the function loops on itself, otherwise the value is placed into the final map.
+            // In Firebase if we have a number indexing the data, Firebase thinks its an array list.
+            if (value instanceof ArrayList) {
+                ArrayList arrayList = (ArrayList) value;
+                HashMap<String, Object> tempMap = new HashMap<>();
+                for(Integer i = 0; i < arrayList.size(); i++) {
+                    if (arrayList.get(i) != null) {
+                        tempMap.put(i.toString(), arrayList.get(i));
+                    }
+                }
+                value = tempMap;
+            }
             if (value instanceof HashMap) {
                 outputMap.putAll(flatten((HashMap) value, newKey));
             }
