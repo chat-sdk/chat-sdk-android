@@ -52,9 +52,9 @@ dependencies {
     api 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
     api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
 
-    api 'com.github.mukeshsolanki:country-picker-android:1.2.4'
-    implementation 'com.github.chrisbanes:PhotoView:2.1.4'
-    api 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
+    api 'com.github.mukeshsolanki:country-picker-android:2.0.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.2.0'
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
 
     api project(':chat-sdk-core')
 }

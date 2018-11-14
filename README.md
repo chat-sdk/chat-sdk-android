@@ -147,10 +147,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.3'
 ```
 
 You may also need to enable Java 8:
@@ -333,7 +333,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.3'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -376,7 +376,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.3'
 ```
 
 ##### Enable the module
@@ -420,7 +420,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.3'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -606,8 +606,8 @@ Now you will see that gradle cannot be sync because it missing some parameters. 
 ```
 MIN_SDK = 16
 ANDROID_BUILD_TARGET_SDK_VERSION = 25
-ANDROID_COMPILE_SDK_VERSION = 27
-ANDROID_SUPPORT_VERSION = 27.1.1
+ANDROID_COMPILE_SDK_VERSION = 28
+ANDROID_SUPPORT_VERSION = 28.0.0
 ```
 
 > **Note:**

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +26,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.annotation.LayoutRes;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
@@ -147,7 +147,7 @@ public class EditProfileActivity extends BaseActivity {
                 currentUser.setCountryCode(country.getCode());
             }).build();
 
-            picker.showDialog(getSupportFragmentManager());
+            picker.showDialog(EditProfileActivity.this);
 
         });
 
