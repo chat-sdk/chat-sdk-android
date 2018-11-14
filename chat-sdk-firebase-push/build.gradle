@@ -36,50 +36,20 @@ dependencies {
 
     //    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
 
-
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
     implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 }
 
-// Bintray upload properties
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if (localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-    if (properties.getProperty('bintray.enabled') != null) {
-
-        group = CHAT_SDK_GROUP
-        version = CHAT_SDK_VERSION
-
-        ext {
-            bintrayRepo = BINTRAY_REPO
-            bintrayName = 'chat-sdk-firebase-push'
-            bintrayUserOrg = BINTRAY_USER_ORG
-
-            publishedGroupId = CHAT_SDK_GROUP
-            libraryName = 'ChatSDKFirebasePush'
-            artifact = 'chat-sdk-firebase-push'
-
-            libraryDescription = 'Chat SDK Firebase Push'
-
-            siteUrl = SITE_URL
-            gitUrl = GIT_URL
-
-            libraryVersion = CHAT_SDK_VERSION
-
-            developerId = DEVELOPER_ID
-            developerName = DEVELOPER_NAME
-            developerEmail = DEVELOPER_EMAIL
-
-            licenseName = LICENSE_NAME
-            licenseUrl = LICENSE_URL
-            allLicenses = ['GPL-3.0']
-        }
-
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
-    }
+ext {
+    bintrayName = 'chat-sdk-firebase-push'
+    libraryName = 'ChatSDKFirebasePush'
+    artifact = 'chat-sdk-firebase-push'
+    libraryDescription = 'Chat SDK Firebase Push'
 }
 
+def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
+if (bintrayGradleFile.exists()) {
+    apply from: bintrayGradleFile
+}

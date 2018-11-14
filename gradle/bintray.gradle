@@ -1,0 +1,34 @@
+Properties properties = new Properties()
+File localProperties = project.rootProject.file('local.properties')
+if (localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+    if (properties.getProperty('bintray.enabled') != null) {
+
+        group = CHAT_SDK_GROUP
+        version = CHAT_SDK_VERSION
+
+        ext {
+            bintrayRepo = BINTRAY_REPO
+            bintrayUserOrg = BINTRAY_USER_ORG
+
+            publishedGroupId = CHAT_SDK_GROUP
+
+
+            siteUrl = SITE_URL
+            gitUrl = GIT_URL
+
+            libraryVersion = CHAT_SDK_VERSION
+
+            developerId = DEVELOPER_ID
+            developerName = DEVELOPER_NAME
+            developerEmail = DEVELOPER_EMAIL
+
+            licenseName = LICENSE_NAME
+            licenseUrl = LICENSE_URL
+            allLicenses = ['GPL-3.0']
+        }
+
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
+        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
+    }
+}

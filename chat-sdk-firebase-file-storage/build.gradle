@@ -46,44 +46,13 @@ dependencies {
     implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
 }
 
-// Bintray upload properties
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if (localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-    if (properties.getProperty('bintray.enabled') != null) {
-
-        group = CHAT_SDK_GROUP
-        version = CHAT_SDK_VERSION
-
-        ext {
-            bintrayRepo = BINTRAY_REPO
-            bintrayName = 'chat-sdk-firebase-file-storage'
-            bintrayUserOrg = BINTRAY_USER_ORG
-
-            publishedGroupId = CHAT_SDK_GROUP
-            libraryName = 'ChatSDKFirebaseFileStorage'
-            artifact = 'chat-sdk-firebase-file-storage'
-
-            libraryDescription = 'Chat SDK Firebase File Storage'
-
-            siteUrl = SITE_URL
-            gitUrl = GIT_URL
-
-            libraryVersion = CHAT_SDK_VERSION
-
-            developerId = DEVELOPER_ID
-            developerName = DEVELOPER_NAME
-            developerEmail = DEVELOPER_EMAIL
-
-            licenseName = LICENSE_NAME
-            licenseUrl = LICENSE_URL
-            allLicenses = ['GPL-3.0']
-        }
-
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
-    }
+ext {
+    bintrayName = 'chat-sdk-firebase-file-storage'
+    libraryName = 'ChatSDKFirebaseFileStorage'
+    artifact = 'chat-sdk-firebase-file-storage'
+    libraryDescription = 'Chat SDK Firebase File Storage'
 }
-
-//apply from: rootProject.file('bintray.gradle')
+def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
+if (bintrayGradleFile.exists()) {
+    apply from: bintrayGradleFile
+}
