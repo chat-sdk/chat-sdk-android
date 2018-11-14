@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -42,10 +42,10 @@ dependencies {
     implementation project(':chat-sdk-ui')
     implementation project(':chat-sdk-firebase-adapter')
 
-    implementation "com.firebaseui:firebase-ui-auth:$rootProject.ext.firebaseUiVersion"
+    implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 }
 
 // Bintray upload properties

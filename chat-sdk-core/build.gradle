@@ -8,9 +8,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.greenrobot:greendao-gradle-plugin:$rootProject.ext.greenDaoVersion"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "org.greenrobot:greendao-gradle-plugin:$greenDaoVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -42,19 +42,20 @@ dependencies {
 
 //    api fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "org.greenrobot:greendao:$rootProject.ext.greenDaoVersion"
-    api "joda-time:joda-time:$rootProject.ext.jodaTimeVersion"
-    api "com.jakewharton.timber:timber:$rootProject.ext.timberVersion"
-    api "com.google.code.gson:gson:$rootProject.ext.gsonVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
-    implementation "org.apache.commons:commons-lang3:$rootProject.ext.apacheCommonsVersion"
-    api "com.google.android.gms:play-services-auth:$rootProject.ext.playAuthVersion"
-    api "com.google.android.gms:play-services-maps:$rootProject.ext.playMapsVersion"
+    implementation "org.greenrobot:greendao:$greenDaoVersion"
+    api "joda-time:joda-time:$jodaTimeVersion"
+    api "com.jakewharton.timber:timber:$timberVersion"
+    api "com.google.code.gson:gson:$gsonVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
+    implementation "com.google.android.gms:play-services-basement:16.1.0"
+
 
     implementation "com.facebook.fresco:fresco:$frescoVersion"
-    implementation "id.zelory:compressor:$rootProject.ext.compressorVersion"
-    implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.ext.androidxLifecycleExtensionsVersion"
+    implementation "id.zelory:compressor:$compressorVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
 
 }
 

@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -40,17 +40,17 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':chat-sdk-core')
-    api "androidx.appcompat:appcompat:$rootProject.ext.androidxAppcompatVersion"
-    implementation "androidx.recyclerview:recyclerview:$rootProject.ext.androidxRecyclerViewVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$rootProject.ext.androidxConstraintLayoutVersion"
-    implementation "com.google.android.material:material:$rootProject.ext.materialVersion"
-    implementation "com.google.android.gms:play-services-places:$rootProject.ext.playPlacesVersion"
+    api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation "com.google.android.gms:play-services-places:$playPlacesVersion"
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
-    implementation "org.apache.commons:commons-lang3:$rootProject.ext.apacheCommonsVersion"
-    implementation "id.zelory:compressor:$rootProject.ext.compressorVersion"
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+    implementation "id.zelory:compressor:$compressorVersion"
 
     implementation "com.facebook.fresco:fresco:$frescoVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"

@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -35,14 +35,18 @@ dependencies {
     implementation project(':chat-sdk-core')
 
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
-    implementation "com.google.firebase:firebase-core:$rootProject.ext.firebaseCoreVersion"
-    implementation "com.google.firebase:firebase-database:$rootProject.ext.firebaseCoreVersion"
-    implementation "com.google.firebase:firebase-auth:$rootProject.ext.firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 
-    implementation "org.apache.commons:commons-lang3:$rootProject.ext.apacheCommonsVersion"
+    // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
+    // Can likely be removed later
+    implementation "com.google.firebase:firebase-iid:17.0.4"
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
 }
 

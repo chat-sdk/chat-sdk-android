@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -40,10 +40,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
-    implementation "com.google.firebase:firebase-storage:$rootProject.ext.firebaseStorageVersion"
+    implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
 }
 
 // Bintray upload properties

@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -40,7 +40,7 @@ dependencies {
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
     implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okHttpVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 }
 
 // Bintray upload properties
