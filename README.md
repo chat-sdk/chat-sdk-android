@@ -119,16 +119,9 @@ If you have an app that uses the Chat SDK let us know and we'll add a link.
 This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
 
 > **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version that is defined in the [`gradle.properties`](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties) file under the `ANDROID_BUILD_TOOLS_VERSION` property. 
+>You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 8.1 and onwards should be installed. **Android SDK Build-Tools** version that is defined in the [`gradle.properties`](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties) file under the `ANDROID_BUILD_TOOLS_VERSION` property. 
 
-The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that you need to do the following.
-
-## Branches
-
-There are three main branches in the project:
-
-- **master** - the latest stable release version of the code
-- **v3_final** - the legacy version of the project (no longer maintained)
+The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that continue [here](https://github.com/chat-sdk/chat-sdk-android#firebase-setup).
 
 ### Setup Service
 
@@ -190,10 +183,6 @@ Add this to the end of your app level `build.gradle` file:
 apply plugin: 'com.google.gms.google-services'
 ```
 
-#### Troubleshooting issues with Gradle
-
-
-
 ### Initializing the Chat SDK
 
 Now open your applications's main class and find the `onCreate` method. Add the following to setup the Chat SDK:
@@ -251,12 +240,7 @@ InterfaceManager.shared().a.startLoginActivity(context, true);
 5. Click **Settings** (the gear icon). On the General tab, click **Add App -> Add Firebase to your Android app**
 6. Enter your package name - found in your app's `build.gradle` file, app name and SHA-1 key (optional)
 7. Download the **google-services.json** file and add it to your app project. It should be added inside the `app` folder.
-
-  >**Note:**  
-  >It is worth opening your downloaded ```GoogleService-Info.plist``` and checking there is an ```API_KEY``` field included. Sometimes Firebase's automatic download doesn’t include this in the plist. To rectify, just re-download the plist from the project settings menu.  
-  
 8. Set a custom root path. The chat SDK allows you to run multiple chat instances on one Firebase database. This could be useful if you want *test* and *production* environments for example. To do this set `builder.firebaseRootPath("prod")` in the configuration builder.  
-  
 9. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
 
 ### Enabling location messages
