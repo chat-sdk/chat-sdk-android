@@ -1,7 +1,46 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 import org.gradle.internal.os.OperatingSystem
 
+
+ext {
+    bintrayVersion = "1.8.4"
+    mavenGradleVersion = "2.1"
+    playAuthVersion = "16.0.0"
+    playMapsVersion = "15.0.1"
+    playPlacesVersion = "15.0.1"
+    timberVersion = "4.7.1"
+    androidxAppcompatVersion = "1.0.2"
+    androidxConstraintLayoutVersion = "2.0.0-alpha2"
+    androidxLifecycleExtensionsVersion = "2.0.0"
+    androidxRecyclerViewVersion = "1.0.0"
+    materialVersion = "1.0.0"
+    firebaseCoreVersion = "16.0.1"
+    firebaseDatabaseVersion = "16.0.1"
+    firebaseAuthVersion = "16.0.1"
+    firebaseStorageVersion = "16.0.1"
+    firebaseMessagingVersion = "17.0.0"
+    firebaseFunctionsVersion = "16.0.1"
+    firebaseUiVersion = "4.1.0"
+    greenDaoVersion = "3.2.2"
+    frescoVersion = "1.10.0"
+    rxJavaVersion = "2.2.3"
+    rxAndroidVersion = "2.1.0"
+    gsonVersion = "2.8.5"
+    jodaTimeVersion = "2.10.1"
+    apacheCommonsVersion = "3.7"
+    compressorVersion = "2.1.0"
+    okHttpVersion = "3.11.0"
+    facebookLoginVersion = "4.34.0"
+    twitterVersion = "3.3.0"
+    prettyTimeVersion = "4.0.1.Final"
+    countryPickerVersion = "2.0.0"
+    imageCropperVersion = "2.0.0"
+    photoViewVersion = "2.2.0"
+
+}
+
 buildscript {
+    ext.bintrayVersion = "1.8.4"
     repositories {
         google()
         jcenter()
@@ -9,7 +48,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.google.gms:google-services:4.0.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
     }
 }
 
@@ -23,4 +62,5 @@ allprojects {
         jcenter()
     }
 }
+
 

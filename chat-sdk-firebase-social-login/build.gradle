@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
     }
 }
 
@@ -32,24 +32,25 @@ android {
 
 dependencies {
 
-    api fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-ui')
 
-    api 'com.facebook.android:facebook-login:4.34.0'
-    api 'com.twitter.sdk.android:twitter:3.3.0'
-    api 'com.android.support:customtabs:' + project.ANDROID_SUPPORT_VERSION
-
-    api project(':chat-sdk-firebase-adapter')
-    api project(':chat-sdk-core')
-    api project(':chat-sdk-ui')
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+    implementation "com.google.firebase:firebase-auth:$rootProject.ext.firebaseCoreVersion"
+    implementation "com.facebook.android:facebook-login:$rootProject.ext.facebookLoginVersion"
+    implementation "com.twitter.sdk.android:twitter:$rootProject.ext.twitterVersion"
 
 }
 
 // Bintray upload properties
 Properties properties = new Properties()
 File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
+if (localProperties.exists()) {
     properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+    if (properties.getProperty('bintray.enabled') != null) {
 
         group = CHAT_SDK_GROUP
         version = CHAT_SDK_VERSION

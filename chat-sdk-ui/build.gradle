@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
     }
 }
 
@@ -38,33 +38,33 @@ android {
 }
 
 dependencies {
-    api fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':chat-sdk-core')
+    api "androidx.appcompat:appcompat:$rootProject.ext.androidxAppcompatVersion"
+    implementation "androidx.recyclerview:recyclerview:$rootProject.ext.androidxRecyclerViewVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$rootProject.ext.androidxConstraintLayoutVersion"
+    implementation "com.google.android.material:material:$rootProject.ext.materialVersion"
+    implementation "com.google.android.gms:play-services-places:$rootProject.ext.playPlacesVersion"
 
-    api 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
-    api "com.google.android.gms:play-services-places:15.0.1"
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
 
-    api 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
-    api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
+    implementation "org.apache.commons:commons-lang3:$rootProject.ext.apacheCommonsVersion"
+    implementation "id.zelory:compressor:$rootProject.ext.compressorVersion"
 
-    api 'com.github.mukeshsolanki:country-picker-android:2.0.0'
-    implementation 'com.github.chrisbanes:PhotoView:2.2.0'
-    api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
-
-    api project(':chat-sdk-core')
+    implementation "com.facebook.fresco:fresco:$frescoVersion"
+    implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
+    implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
+    implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
+    implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
 }
 
 // Bintray upload properties
 Properties properties = new Properties()
 File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
+if (localProperties.exists()) {
     properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+    if (properties.getProperty('bintray.enabled') != null) {
 
         group = CHAT_SDK_GROUP
         version = CHAT_SDK_VERSION

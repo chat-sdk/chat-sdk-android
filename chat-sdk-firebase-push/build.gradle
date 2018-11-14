@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
     }
 }
 
@@ -30,22 +30,25 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':chat-sdk-core')
-    api project(':chat-sdk-ui')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-ui')
+
+    //    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
+
 
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
-    api 'com.google.firebase:firebase-messaging:17.0.0'
-    api 'com.google.firebase:firebase-functions:16.0.1'
-    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
+    implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okHttpVersion"
 }
 
 // Bintray upload properties
 Properties properties = new Properties()
 File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
+if (localProperties.exists()) {
     properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+    if (properties.getProperty('bintray.enabled') != null) {
 
         group = CHAT_SDK_GROUP
         version = CHAT_SDK_VERSION

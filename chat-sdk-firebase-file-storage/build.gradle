@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$rootProject.ext.bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$rootProject.ext.mavenGradleVersion"
     }
 }
 
@@ -37,17 +37,21 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':chat-sdk-core')
-    api 'com.google.firebase:firebase-storage:16.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
+
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
+
+    implementation "com.google.firebase:firebase-storage:$rootProject.ext.firebaseStorageVersion"
 }
 
 // Bintray upload properties
 Properties properties = new Properties()
 File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
+if (localProperties.exists()) {
     properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+    if (properties.getProperty('bintray.enabled') != null) {
 
         group = CHAT_SDK_GROUP
         version = CHAT_SDK_VERSION
@@ -81,6 +85,5 @@ if(localProperties.exists()) {
         apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
     }
 }
-
 
 //apply from: rootProject.file('bintray.gradle')
