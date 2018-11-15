@@ -54,6 +54,7 @@ dependencies {
     implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 }
 
 ext {

@@ -41,6 +41,7 @@ dependencies {
     api project(':chat-sdk-core')
 
     api "com.google.firebase:firebase-storage:$firebaseStorageVersion"
+
 }
 
 ext {

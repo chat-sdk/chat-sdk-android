@@ -43,6 +43,7 @@ dependencies {
     implementation project(':chat-sdk-firebase-adapter')
 
     api "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 
 }
 ext {

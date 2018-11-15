@@ -40,6 +40,7 @@ dependencies {
     api "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     api "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 }
 
 ext {
