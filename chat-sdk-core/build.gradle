@@ -42,20 +42,19 @@ dependencies {
 
 //    api fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "org.greenrobot:greendao:$greenDaoVersion"
+    api "org.greenrobot:greendao:$greenDaoVersion"
     api "joda-time:joda-time:$jodaTimeVersion"
-    api "com.jakewharton.timber:timber:$timberVersion"
-    api "com.google.code.gson:gson:$gsonVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
-    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
-    implementation "com.google.android.gms:play-services-basement:16.1.0"
+    api "com.google.android.gms:play-services-maps:$playMapsVersion"
 
 
     implementation "com.facebook.fresco:fresco:$frescoVersion"
     implementation "id.zelory:compressor:$compressorVersion"
-    implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
+    api "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
 
 }
 

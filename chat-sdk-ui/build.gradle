@@ -39,20 +39,17 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':chat-sdk-core')
+    api project(':chat-sdk-core')
     api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
-    implementation "com.google.android.material:material:$materialVersion"
+    api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    api "com.google.android.material:material:$materialVersion"
     implementation "com.google.android.gms:play-services-places:$playPlacesVersion"
-
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
     implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
     implementation "id.zelory:compressor:$compressorVersion"
 
-    implementation "com.facebook.fresco:fresco:$frescoVersion"
+    api "com.facebook.fresco:fresco:$frescoVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
     implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"

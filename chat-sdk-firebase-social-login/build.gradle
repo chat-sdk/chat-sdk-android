@@ -33,17 +33,14 @@ android {
 dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':chat-sdk-core')
     implementation project(':chat-sdk-firebase-adapter')
-    implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-ui')
 
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
-    implementation "com.google.android.gms:play-services-auth:$playAuthVersion"
-    implementation "com.facebook.android:facebook-login:$facebookLoginVersion"
-    implementation "com.twitter.sdk.android:twitter:$twitterVersion"
-
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    api "com.google.android.gms:play-services-auth:$playAuthVersion"
+    api "com.facebook.android:facebook-login:$facebookLoginVersion"
+    api "com.twitter.sdk.android:twitter:$twitterVersion"
 
 }
 

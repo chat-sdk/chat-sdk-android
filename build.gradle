@@ -1,6 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 import org.gradle.internal.os.OperatingSystem
 
+buildscript {
+    ext.bintrayVersion = "1.8.4"
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.google.gms:google-services:4.0.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+    }
+}
 
 ext {
     bintrayVersion = "1.8.4"
@@ -36,20 +48,6 @@ ext {
     countryPickerVersion = "2.0.0"
     imageCropperVersion = "2.8.0"
     photoViewVersion = "2.2.0"
-
-}
-
-buildscript {
-    ext.bintrayVersion = "1.8.4"
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.google.gms:google-services:4.0.1'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
-    }
 }
 
 allprojects {

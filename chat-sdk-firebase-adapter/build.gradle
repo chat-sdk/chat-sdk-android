@@ -36,17 +36,14 @@ dependencies {
 
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
-    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+    api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 
     // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
     // Can likely be removed later
     implementation "com.google.firebase:firebase-iid:17.0.4"
 
     implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
-
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
 }
 

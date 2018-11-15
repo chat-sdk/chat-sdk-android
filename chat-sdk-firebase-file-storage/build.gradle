@@ -38,12 +38,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':chat-sdk-core')
+    api project(':chat-sdk-core')
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-
-    implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
+    api "com.google.firebase:firebase-storage:$firebaseStorageVersion"
 }
 
 ext {
