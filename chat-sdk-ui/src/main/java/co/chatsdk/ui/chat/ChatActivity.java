@@ -348,11 +348,33 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return layoutManager;
     }
 
+    protected void setSubtitleText(String text) {
+        if(StringChecker.isNullOrEmpty(text)) {
+            if(thread.typeIs(ThreadType.Private1to1)) {
+                text = getString(R.string.tap_here_for_contact_info);
+            }
+            else {
+                text = "";
+                for(User u : thread.getUsers()) {
+                    if(!u.isMe()) {
+                        String name = u.getName();
+                        if (name != null && name.length() > 0) {
+                            text += name + ", ";
+                        }
+                    }
+                }
+                if(text.length() > 0) {
+                    text = text.substring(0, text.length() - 2);
+                }
+            }
+        }
+        final String finalText = text;
+        new Handler(getMainLooper()).post(() -> subtitleTextView.setText(finalText));
+    }
+
     @Override
-    protected void onStart() {
-        super.onStart();
-
-
+    protected void onResume() {
+        super.onResume();
 
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated, EventType.MessageRemoved))
@@ -418,35 +440,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         setSubtitleText(typingText);
                     }
                 }));
-    }
-
-    protected void setSubtitleText(String text) {
-        if(StringChecker.isNullOrEmpty(text)) {
-            if(thread.typeIs(ThreadType.Private1to1)) {
-                text = getString(R.string.tap_here_for_contact_info);
-            }
-            else {
-                text = "";
-                for(User u : thread.getUsers()) {
-                    if(!u.isMe()) {
-                        String name = u.getName();
-                        if (name != null && name.length() > 0) {
-                            text += name + ", ";
-                        }
-                    }
-                }
-                if(text.length() > 0) {
-                    text = text.substring(0, text.length() - 2);
-                }
-            }
-        }
-        final String finalText = text;
-        new Handler(getMainLooper()).post(() -> subtitleTextView.setText(finalText));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         removeUserFromChatOnExit = true;
 
