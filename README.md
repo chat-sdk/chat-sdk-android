@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/8va5GN)** or **[XMPP](https://i.diawi.com/GLCG8S)** open this link on your Android phone to install
+- **Demo Versions.** **[Firebase](https://i.diawi.com/NUcnaL)** or **[XMPP](https://i.diawi.com/ZpPscm)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 
@@ -147,10 +147,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.3'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.3'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.3'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.4'
 ```
 
 You may also need to enable Java 8:
@@ -333,7 +333,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.4'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -376,7 +376,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.4'
 ```
 
 ##### Enable the module
@@ -420,7 +420,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.4'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -591,6 +591,46 @@ If you want to import modules manually, you should add the following to your `gr
 
 ```
 useLocal=true
+```
+
+You will also need to make sure that you've included the library versions in your main project level `build.gradle` file by adding the following:
+
+```
+ext {
+    bintrayVersion = "1.8.4"
+    mavenGradleVersion = "2.1"
+    androidxAppcompatVersion = "1.0.2"
+    androidxConstraintLayoutVersion = "2.0.0-alpha2"
+    androidxLifecycleExtensionsVersion = "2.0.0"
+    androidxRecyclerViewVersion = "1.0.0"
+    materialVersion = "1.0.0"
+    playAuthVersion = "16.0.1"
+    playMapsVersion = "16.0.0"
+    playPlacesVersion = "16.0.0"
+    firebaseUiVersion = "4.2.1"
+    firebaseCoreVersion = "16.0.5"
+    firebaseDatabaseVersion = "16.0.5"
+    firebaseAuthVersion = "16.0.5"
+    firebaseStorageVersion = "16.0.5"
+    firebaseMessagingVersion = "17.3.4"
+    firebaseFunctionsVersion = "16.1.3"
+    timberVersion = "4.7.1"
+    greenDaoVersion = "3.2.2"
+    frescoVersion = "1.10.0"
+    rxJavaVersion = "2.2.3"
+    rxAndroidVersion = "2.1.0"
+    gsonVersion = "2.8.5"
+    jodaTimeVersion = "2.10.1"
+    apacheCommonsVersion = "3.7"
+    compressorVersion = "2.1.0"
+    okHttpVersion = "3.11.0"
+    facebookLoginVersion = "4.34.0"
+    twitterVersion = "3.3.0"
+    prettyTimeVersion = "4.0.1.Final"
+    countryPickerVersion = "2.0.0"
+    imageCropperVersion = "2.8.0"
+    photoViewVersion = "2.2.0"
+}
 ```
 
 This will prompt the modules to use local versions of the core Chat SDK modules rather than the versions hosted on Gradle. 
