@@ -111,7 +111,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Tab profileTab() {
-        return new Tab (R.string.profile, R.drawable.ic_action_user, ProfileFragment.newInstance());
+        return new Tab (R.string.profile, R.drawable.ic_action_user, profileFragment(null));
     }
 
     @Override
