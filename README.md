@@ -147,10 +147,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.5'
 ```
 
 You may also need to enable Java 8:
@@ -181,6 +181,15 @@ Add this to the end of your app level `build.gradle` file:
 
 ```
 apply plugin: 'com.google.gms.google-services'
+```
+
+#### Android X
+
+Make sure you've added the following to your `gradle.properties` file:
+
+```
+android.useAndroidX=true
+android.enableJetifier=true
 ```
 
 ### Initializing the Chat SDK
@@ -333,7 +342,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.5'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -376,7 +385,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.5'
 ```
 
 ##### Enable the module
@@ -420,7 +429,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.5'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
