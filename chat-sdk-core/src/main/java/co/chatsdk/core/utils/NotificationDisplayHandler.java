@@ -42,7 +42,7 @@ public class NotificationDisplayHandler {
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getTextString());
+        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getText());
 
     }
 

@@ -276,12 +276,6 @@ public class ThreadWrapper  {
 
                                 boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
-                                if(ChatSDK.hook() != null) {
-                                    HashMap<String, Object> data = new HashMap<>();
-                                    data.put(BaseHookHandler.MessageReceived_Message, message.getModel());
-                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
-                                }
-
                                 message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
                                 model.addMessage(message.getModel());
@@ -290,6 +284,13 @@ public class ThreadWrapper  {
                                 // Update the message and thread
                                 message.getModel().update();
                                 model.update();
+
+                                if(ChatSDK.hook() != null) {
+                                    HashMap<String, Object> data = new HashMap<>();
+                                    data.put(BaseHookHandler.MessageReceived_Message, message.getModel());
+                                    data.put(BaseHookHandler.MessageIsNew_Bool, newMessage);
+                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
+                                }
 
                                 // If we remove this, then the thread will update twice for each message.
                                 // That can fix a bug if the user's system time is wrong

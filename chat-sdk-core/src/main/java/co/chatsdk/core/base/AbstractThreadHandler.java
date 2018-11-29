@@ -62,7 +62,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
 
             final Message message = newMessage(MessageType.Text, thread);
-            message.setTextString(text);
+            message.setText(text);
 
             e.onNext(new MessageSendProgress(message));
 

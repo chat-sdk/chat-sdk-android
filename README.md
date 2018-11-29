@@ -61,10 +61,12 @@ The real-time database will support up to **100k concurrent users**. From our ex
 
 The Chat SDK has a number of additional modules that can easily be installed including:
 
+- [End-To-End Encryption](https://chatsdk.co/end-to-end-encryption/)
 - [File Messages](http://chatsdk.co/file-messages/)
 - [Typing indicator](http://chatsdk.co/typing-indicator/)
 - [Read receipts](http://chatsdk.co/read-receipts/)
 - [Location based chat](http://chatsdk.co/location-based-chat/)
+- [Last Online Indicator](https://chatsdk.co/firebase-last-online-indicator/)
 - [Audio messages](http://chatsdk.co/audio-messages/)
 - [Video messages](http://chatsdk.co/video-messages/)
 - [Sticker messages](https://chatsdk.co/sticker-messages/)
@@ -147,10 +149,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.7'
 ```
 
 You may also need to enable Java 8:
@@ -342,7 +344,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -385,7 +387,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.7'
 ```
 
 ##### Enable the module
@@ -429,7 +431,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)

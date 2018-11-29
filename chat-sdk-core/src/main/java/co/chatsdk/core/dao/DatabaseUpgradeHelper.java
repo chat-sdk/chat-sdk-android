@@ -94,6 +94,19 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         }
     }
 
+    private static class MigrationV5 implements Migration {
+
+        @Override
+        public Integer getVersion() {
+            return 5;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            //Adding new table
+            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " DROP COLUMN " + "TEXT");
+        }
+    }
 
     private interface Migration {
         Integer getVersion();

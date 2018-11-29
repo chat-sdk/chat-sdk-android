@@ -31,7 +31,7 @@ public class BaseLocationMessageHandler implements LocationMessageHandler {
 
             // Add the LatLng data to the message and the image url and thumbnail url
             // TODO: Deprecated
-//            message.setTextString(String.valueOf(location.latitude)
+//            message.setText(String.valueOf(location.latitude)
 //                    + Defines.DIVIDER
 //                    + String.valueOf(location.longitude)
 //                    + Defines.DIVIDER + imageURL

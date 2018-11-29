@@ -29,8 +29,6 @@ public class Keys {
     public static final String Null = "null";
     public static final String InvitedBy = "invitedBy";
     public static final String CreationDate = "creation-date";
-    public static final String Payload = "payload";
-    public static final String JSON = "JSON";
     public static final String JSONV2 = "json_v2";
     public static final String Type = "type";
     public static final String Type_v4 = "type_v4";

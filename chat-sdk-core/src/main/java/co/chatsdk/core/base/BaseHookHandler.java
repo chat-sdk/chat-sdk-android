@@ -20,6 +20,7 @@ public class BaseHookHandler implements HookHandler {
 
     public static String MessageReceived = "MessageReceived";
     public static String MessageReceived_Message = "MessageReceived_Message";
+    public static String MessageIsNew_Bool = "MessageIsNew_Bool";
 
     public static String Logout = "Logout";
     public static String Logout_User = "Logout_User";

@@ -263,7 +263,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
 
         if (messageItem.getMessage().getMessageType() == MessageType.Text) {
-            holder.messageTextView.setText(messageItem.getMessage().getTextString() == null ? "" : messageItem.getMessage().getTextString());
+            holder.messageTextView.setText(messageItem.getMessage().getText() == null ? "" : messageItem.getMessage().getText());
             holder.setBubbleHidden(false);
             holder.setTextHidden(false);
         }
@@ -384,7 +384,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             return false;
         }
 
-        Timber.d("Add Message Item: " + item.message.getTextString());
+        Timber.d("Add Message Item: " + item.message.getText());
         messageItems.add(item);
 
         if(sort) {

@@ -47,8 +47,6 @@ public class MessageWrapper  {
     Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(Keys.Payload, model.getTextString());
-        values.put(Keys.JSON, model.getRawJSONPayload());
         values.put(Keys.JSONV2, model.getJSON());
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
@@ -111,24 +109,13 @@ public class MessageWrapper  {
         //if (DEBUG) Timber.v("deserialize, Value: %s", value);
         if (value == null) return;
 
-        String json = string(value, Keys.JSON);
-
         Object json2 = snapshot.child(Keys.JSONV2).getValue();
 
         if (json2 != null && json2 instanceof HashMap) {
             model.setJSON((HashMap) json2);
         }
-        else if(json != null) {
-            model.setRawJSONPayload(json);
-        }
         else {
-            String text = string(value, Keys.Payload);
-            if(text != null) {
-                model.setTextString(text);
-            }
-            else {
-                model.setTextString("");
-            }
+            model.setText("");
         }
 
         Long type = long_(value, Keys.Type);
@@ -232,8 +219,6 @@ public class MessageWrapper  {
 
     public HashMap<String, Object> lastMessageData () {
         HashMap<String, Object> map = new HashMap<>();
-        map.put(Keys.Payload, model.getTextString());
-        map.put(Keys.JSON, model.getText());
         map.put(Keys.Type, model.getType());
         map.put(Keys.Date, ServerValue.TIMESTAMP);
         map.put(Keys.UserFirebaseId, model.getSender().getEntityID());

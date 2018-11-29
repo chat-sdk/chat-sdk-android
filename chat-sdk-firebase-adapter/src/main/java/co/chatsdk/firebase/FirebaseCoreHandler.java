@@ -123,6 +123,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public void goOnline() {
+        super.goOnline();
         FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
             if (hasValue) {
                 Timber.v("Already online!");

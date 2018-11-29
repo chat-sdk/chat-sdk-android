@@ -98,6 +98,7 @@ public class ChatSDK {
 //        if (debug) {
         // TODO: Update this
             Timber.plant(new Timber.DebugTree());
+
 //        } else {
 //            Timber.plant(new Timber.Tree());
 //        }
@@ -296,6 +297,10 @@ public class ChatSDK {
 
     public static BaseNetworkAdapter a() {
         return NetworkManager.shared().a;
+    }
+
+    public static StorageManager db () {
+        return StorageManager.shared();
     }
 
 }

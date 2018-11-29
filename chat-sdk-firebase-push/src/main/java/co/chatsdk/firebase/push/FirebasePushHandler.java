@@ -39,7 +39,7 @@ public class FirebasePushHandler implements PushHandler {
     @Override
     public void pushForMessage (Message message) {
 
-        String body = message.getTextString();
+        String body = message.getText();
 
         if (body == null || body.isEmpty() || !ChatSDK.config().clientPushEnabled) {
             return;
