@@ -13,6 +13,7 @@ import co.chatsdk.core.handlers.LastOnlineHandler;
 import co.chatsdk.core.handlers.LocationMessageHandler;
 import co.chatsdk.core.handlers.ModerationHandler;
 import co.chatsdk.core.handlers.NearbyUsersHandler;
+import co.chatsdk.core.handlers.ProfilePicturesHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
@@ -45,6 +46,7 @@ public class BaseNetworkAdapter {
     public ModerationHandler moderation;
     public SearchHandler search;
     public PublicThreadHandler publicThread;
+    public ProfilePicturesHandler profilePictures;
     public BlockingHandler blocking;
     public LastOnlineHandler lastOnline;
     public NearbyUsersHandler nearbyUsers;

@@ -75,6 +75,7 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-push')
     implementation project(path: ':chat-sdk-firebase-file-storage')
     implementation project(path: ':chat-sdk-firebase-ui')
+    implementation project(path: ':chat-sdk-profile-pictures')
 
     debugImplementation 'com.facebook.flipper:flipper:0.12.0'
 }

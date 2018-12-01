@@ -19,6 +19,7 @@ import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
@@ -43,7 +44,7 @@ public class AppObj extends MultiDexApplication {
 
         Configuration.Builder config = new Configuration.Builder(context);
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        config.firebaseRootPath("18_12_bug");
+        config.firebaseRootPath("pepe_profile_pics");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");
@@ -60,6 +61,7 @@ public class AppObj extends MultiDexApplication {
         FirebasePushModule.activate();
 //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
+        ProfilePicturesModule.activate();
 
     }
 
