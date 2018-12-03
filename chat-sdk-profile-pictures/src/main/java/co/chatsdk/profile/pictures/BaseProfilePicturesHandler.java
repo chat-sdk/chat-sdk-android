@@ -20,29 +20,48 @@ import co.chatsdk.core.utils.HashMapHelper;
 
 public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
 
-    public static final String PictureURLS = "pictures";
+    public static final String KeyPictureURLS = "pictures";
+    public static final String KeyGridPadding = "gridPadding";
+    public static final String KeyPictureMargin = "pictureMargin";
+    public static final String KeyPicturesPerRow = "picturesPerRow";
+    public static final String KeyMaxPictures = "maxPictures";
+    public static final String KeyLimitWarning = "limitWarning";
+    public static final String KeyHideButton = "hideButton";
 
-    private HashMap<String, Object> expandMeta(Map<String, String> meta) {
-        return HashMapHelper.expand((HashMap<String, String>) meta);
+    protected int gridPadding = 4;
+    protected int pictureMargin = 8;
+    protected int picturesPerRow = 2;
+    protected int maxPictures = 6;
+    protected boolean hideButton = false;
+    protected String limitWarning = null;
+
+    protected String getLimitWarning() {
+        if (limitWarning != null) return limitWarning;
+        return "You can only add up to " + maxPictures + " pictures";
     }
 
-    private HashMap<String, String> flattenMeta(Map<String, Object> meta) {
-        meta = HashMapHelper.flatten(meta);
-        HashMap<String, String> flatMeta = new HashMap<>();
-        for (Map.Entry<String, Object> entry : meta.entrySet()) {
-            if (entry.getValue() instanceof String) {
-                flatMeta.put(entry.getKey(), (String) entry.getValue());
-            }
-        }
-        return flatMeta;
+    public void setGridPadding(int padding) {
+        gridPadding = padding;
     }
 
-    private ArrayList<String> addDefaultAvatar(User user, List<String> urls) {
-        String avatarURL = user.getAvatarURL();
-        if (avatarURL != null && !avatarURL.isEmpty() && urls.indexOf(avatarURL) < 0) {
-            urls.add(0, avatarURL);
-        }
-        return (ArrayList<String>) urls;
+    public void setPictureMargin(int margin) {
+        pictureMargin = margin;
+    }
+
+    public void setPicturesPerRow(int count) {
+        picturesPerRow = count;
+    }
+
+    public void setMaxPictures(int count) {
+        maxPictures = count;
+    }
+
+    public void setLimitWarning(String warning) {
+        limitWarning = warning;
+    }
+
+    public void setAddButtonHidden(boolean hidden) {
+        hideButton = hidden;
     }
 
     public void setDefaultPicture(User user, String url, List<String> urls) {
@@ -97,7 +116,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
             pictures.put(Integer.toString(i), urls.get(i));
         }
         Map<String, Object> expendedMeta = expandMeta(user.metaMap());
-        expendedMeta.put(PictureURLS, pictures);
+        expendedMeta.put(KeyPictureURLS, pictures);
         Map<String, String> meta = flattenMeta(expendedMeta);
         user.setMetaMap(meta);
     }
@@ -105,7 +124,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     @SuppressWarnings("unchecked")
     public ArrayList<String> fromUser(User user) {
         Map<String, Object> expandedMeta = expandMeta(user.metaMap());
-        Object picturesData = expandedMeta.get(PictureURLS);
+        Object picturesData = expandedMeta.get(KeyPictureURLS);
         if (picturesData instanceof HashMap) {
             Map<String, String> picturesMap = (HashMap<String, String>) picturesData;
             ArrayList<String> urls = new ArrayList<>(picturesMap.values().size());
@@ -127,7 +146,36 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     public void startProfilePicturesActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfilePicturesActivity());
         intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
+        intent.putExtra(KeyGridPadding, gridPadding);
+        intent.putExtra(KeyPictureMargin, pictureMargin);
+        intent.putExtra(KeyPicturesPerRow, picturesPerRow);
+        intent.putExtra(KeyMaxPictures, maxPictures);
+        intent.putExtra(KeyHideButton, hideButton);
+        intent.putExtra(KeyLimitWarning, getLimitWarning());
         ChatSDK.ui().startActivity(context, intent);
+    }
+
+    protected HashMap<String, Object> expandMeta(Map<String, String> meta) {
+        return HashMapHelper.expand((HashMap<String, String>) meta);
+    }
+
+    protected HashMap<String, String> flattenMeta(Map<String, Object> meta) {
+        meta = HashMapHelper.flatten(meta);
+        HashMap<String, String> flatMeta = new HashMap<>();
+        for (Map.Entry<String, Object> entry : meta.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                flatMeta.put(entry.getKey(), (String) entry.getValue());
+            }
+        }
+        return flatMeta;
+    }
+
+    protected ArrayList<String> addDefaultAvatar(User user, List<String> urls) {
+        String avatarURL = user.getAvatarURL();
+        if (avatarURL != null && !avatarURL.isEmpty() && urls.indexOf(avatarURL) < 0) {
+            urls.add(0, avatarURL);
+        }
+        return (ArrayList<String>) urls;
     }
 
 }

@@ -17,6 +17,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.LayoutRes;
 import co.chatsdk.core.dao.User;
@@ -28,7 +29,6 @@ import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.chat.MediaSelector;
-import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
@@ -41,11 +41,19 @@ import io.reactivex.disposables.Disposable;
  * Created by Pepe on 01/12/19.
  */
 
-public class ProfilePicturesActivity extends BaseActivity {
+public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     protected User user;
     protected GridLayout gridLayout;
+    protected MenuItem addMenuItem;
     protected MediaSelector mediaSelector = new MediaSelector();
+
+    protected int gridPadding = 4;
+    protected int pictureMargin = 8;
+    protected int picturesPerRow = 2;
+    protected int maxPictures = 6;
+    protected boolean hideButton = false;
+    protected String limitWarning = null;
 
     private DisposableList disposableList = new DisposableList();
 
@@ -54,7 +62,6 @@ public class ProfilePicturesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
-
         if (userEntityID != null && !userEntityID.isEmpty()) {
             user = StorageManager.shared().fetchUserWithEntityID(userEntityID);
             if (user == null) {
@@ -64,26 +71,35 @@ public class ProfilePicturesActivity extends BaseActivity {
             }
         }
 
-        setContentView(activityLayout());
-
-        initViews();
+        gridPadding = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyGridPadding, gridPadding);
+        pictureMargin = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyPictureMargin, maxPictures);
+        picturesPerRow = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyPicturesPerRow, picturesPerRow);
+        maxPictures = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyMaxPictures, maxPictures);
+        hideButton = getIntent().getBooleanExtra(BaseProfilePicturesHandler.KeyHideButton, hideButton);
+        String warning = getIntent().getStringExtra(BaseProfilePicturesHandler.KeyLimitWarning);
+        if (warning != null) {
+            limitWarning = warning;
+        }
     }
 
+    @Override
     protected @LayoutRes int activityLayout() {
         return R.layout.chat_sdk_profile_pictures_activity;
     }
 
+    @Override
     protected void initViews() {
+        super.initViews();
         gridLayout = findViewById(R.id.gridLayout);
+        gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
+        gridLayout.setColumnCount(picturesPerRow);
     }
 
     protected View createCellView(String url) {
         SimpleDraweeView cell = new SimpleDraweeView(this);
         cell.setImageURI(url);
         cell.setOnClickListener(v -> {
-            if (getUser().isMe()) {
-
-            }
+            zoomImageFromThumbnail(cell, url);
         });
         if (getUser().isMe()) {
             cell.setOnLongClickListener(v -> {
@@ -122,12 +138,11 @@ public class ProfilePicturesActivity extends BaseActivity {
         if (cell != null) {
             gridLayout.addView(cell);
             GridLayout.LayoutParams params = (GridLayout.LayoutParams) cell.getLayoutParams();
-            int margin = 8;
-            int size = gridLayout.getWidth() / gridLayout.getColumnCount() - margin * 2;
-            params.topMargin = margin;
-            params.leftMargin = margin;
-            params.rightMargin = margin;
-            params.bottomMargin = margin;
+            int size = gridLayout.getWidth() / gridLayout.getColumnCount() - pictureMargin * 2;
+            params.topMargin = pictureMargin;
+            params.leftMargin = pictureMargin;
+            params.rightMargin = pictureMargin;
+            params.bottomMargin = pictureMargin;
             params.width = size;
             params.height = size;
             cell.setLayoutParams(params);
@@ -140,9 +155,23 @@ public class ProfilePicturesActivity extends BaseActivity {
         for (String url : urls) {
             addCellToGridLayout(gridLayout, createCellView(url));
         }
+
+        if (addMenuItem != null) {
+            addMenuItem.setVisible(shouldShowAddButton(urls));
+        }
+    }
+
+    protected boolean shouldShowAddButton(List<String> urls) {
+        return !hideButton || urls.size() < maxPictures;
     }
 
     protected void addProfilePicture() {
+        if (ChatSDK.profilePictures().fromUser(getUser()).size() >= maxPictures && maxPictures > 0) {
+            if (!limitWarning.isEmpty()) {
+                ToastHelper.show(this, limitWarning);
+            }
+            return;
+        }
         mediaSelector.startChooseImageActivity(this, MediaSelector.CropType.Circle, result -> {
             try {
                 File compress = new Compressor(ChatSDK.shared().context())
@@ -248,9 +277,10 @@ public class ProfilePicturesActivity extends BaseActivity {
         if (!getUser().isMe())
             return super.onCreateOptionsMenu(menu);
 
-        MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 12, getString(R.string.action_add_picture));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_plus);
+        addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 12, getString(R.string.action_add_picture));
+        addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        addMenuItem.setIcon(R.drawable.ic_plus);
+        addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);
     }
