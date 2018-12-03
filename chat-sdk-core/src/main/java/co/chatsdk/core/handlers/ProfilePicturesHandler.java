@@ -13,6 +13,13 @@ import co.chatsdk.core.dao.User;
 
 public interface ProfilePicturesHandler {
 
+    void setGridPadding(int padding);
+    void setPictureMargin(int margin);
+    void setPicturesPerRow(int count);
+    void setMaxPictures(int count);
+    void setLimitWarning(String warning);
+    void setAddButtonHidden(boolean hidden);
+
     void setDefaultPicture(User user, String url, List<String> urls);
     void setDefaultPicture(User user, String url);
     void addPicture(User user, String url);
