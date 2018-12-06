@@ -31,7 +31,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property ReadReceiptId = new Property(1, Long.class, "readReceiptId", false, "READ_RECEIPT_ID");
+        public final static Property MessageId = new Property(1, Long.class, "messageId", false, "MESSAGE_ID");
         public final static Property UserId = new Property(2, Long.class, "userId", false, "USER_ID");
         public final static Property Status = new Property(3, Integer.class, "status", false, "STATUS");
         public final static Property Date = new Property(4, Long.class, "date", false, "DATE");
@@ -56,7 +56,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"READ_RECEIPT_USER_LINK\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"READ_RECEIPT_ID\" INTEGER," + // 1: readReceiptId
+                "\"MESSAGE_ID\" INTEGER," + // 1: messageId
                 "\"USER_ID\" INTEGER," + // 2: userId
                 "\"STATUS\" INTEGER," + // 3: status
                 "\"DATE\" INTEGER);"); // 4: date
@@ -77,9 +77,9 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
             stmt.bindLong(1, id);
         }
  
-        Long readReceiptId = entity.getReadReceiptId();
-        if (readReceiptId != null) {
-            stmt.bindLong(2, readReceiptId);
+        Long messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindLong(2, messageId);
         }
  
         Long userId = entity.getUserId();
@@ -107,9 +107,9 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
             stmt.bindLong(1, id);
         }
  
-        Long readReceiptId = entity.getReadReceiptId();
-        if (readReceiptId != null) {
-            stmt.bindLong(2, readReceiptId);
+        Long messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindLong(2, messageId);
         }
  
         Long userId = entity.getUserId();
@@ -143,7 +143,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     public ReadReceiptUserLink readEntity(Cursor cursor, int offset) {
         ReadReceiptUserLink entity = new ReadReceiptUserLink( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // readReceiptId
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // messageId
             cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // userId
             cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // status
             cursor.isNull(offset + 4) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 4)) // date
@@ -154,7 +154,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     @Override
     public void readEntity(Cursor cursor, ReadReceiptUserLink entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setReadReceiptId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setMessageId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
         entity.setUserId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
         entity.setStatus(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
         entity.setDate(cursor.isNull(offset + 4) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 4)));
@@ -186,16 +186,16 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     }
     
     /** Internal query to resolve the "readReceiptLinks" to-many relationship of Message. */
-    public List<ReadReceiptUserLink> _queryMessage_ReadReceiptLinks(Long readReceiptId) {
+    public List<ReadReceiptUserLink> _queryMessage_ReadReceiptLinks(Long messageId) {
         synchronized (this) {
             if (message_ReadReceiptLinksQuery == null) {
                 QueryBuilder<ReadReceiptUserLink> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.ReadReceiptId.eq(null));
+                queryBuilder.where(Properties.MessageId.eq(null));
                 message_ReadReceiptLinksQuery = queryBuilder.build();
             }
         }
         Query<ReadReceiptUserLink> query = message_ReadReceiptLinksQuery.forCurrentThread();
-        query.setParameter(0, readReceiptId);
+        query.setParameter(0, messageId);
         return query.list();
     }
 

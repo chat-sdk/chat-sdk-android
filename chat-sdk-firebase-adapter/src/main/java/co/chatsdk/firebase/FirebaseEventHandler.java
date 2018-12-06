@@ -8,12 +8,15 @@ import java.util.HashMap;
 
 import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.CrashReportingObserver;
 import co.chatsdk.core.utils.DisposableList;
@@ -164,6 +167,38 @@ public class FirebaseEventHandler implements EventHandler {
             eventSource.onNext(NetworkEvent.followingRemoved());
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
+
+        DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUser().getEntityID());
+
+        ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+            if (hasValue) {
+                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                Object value = snapshot.getValue();
+                if (value instanceof HashMap) {
+                    Object type = ((HashMap) value).get(Keys.Type);
+                    if (type instanceof Long) {
+                        ConnectionType connectionType = ConnectionType.values()[((Long) type).intValue()];
+                        ChatSDK.contact().addContactLocal(contact, connectionType);
+                        eventSource.onNext(NetworkEvent.contactAdded(contact));
+                    }
+                }
+            }
+        }));
+
+        ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
+            if (hasValue) {
+                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                Object value = snapshot.getValue();
+                if (value instanceof HashMap) {
+                    Object type = ((HashMap) value).get(Keys.Type);
+                    if (type instanceof Long) {
+                        ConnectionType connectionType = ConnectionType.values()[((Long) type).intValue()];
+                        ChatSDK.contact().deleteContactLocal(contact, connectionType);
+                        eventSource.onNext(NetworkEvent.contactDeleted(contact));
+                    }
+                }
+            }
+        }));
 
         contactsMetaOn().subscribe(new CrashReportingCompletableObserver(disposableList));
     }

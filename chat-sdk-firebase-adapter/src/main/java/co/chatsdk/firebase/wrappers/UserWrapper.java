@@ -329,19 +329,6 @@ public class UserWrapper {
         return FirebasePaths.userRef(model.getEntityID());
     }
 
-    private DatabaseReference imageRef(){
-        return ref().child(FirebasePaths.Image);
-    }
-
-    private DatabaseReference thumbnailRef(){
-        return ref().child(FirebasePaths.Thumbnail);
-    }
-
-    private DatabaseReference metaRef(){
-        return ref().child(FirebasePaths.MetaPath);
-    }
-
-
     public Completable updateIndex() {
         return Completable.create(e -> {
 

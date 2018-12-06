@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -74,8 +73,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public static Message newMessage (MessageType type, Thread thread) {
-        Message message = new Message();
-        DaoCore.createEntity(message);
+        Message message = StorageManager.shared().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setMessageStatus(MessageSendStatus.Sending);
         message.setDate(new DateTime(System.currentTimeMillis()));

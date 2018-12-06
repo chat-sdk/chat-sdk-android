@@ -13,10 +13,10 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.annotation.Unique;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class Message implements CoreEntity {
     private Long nextMessageId;
     private Long lastMessageId;
 
-    @ToMany(referencedJoinProperty = "readReceiptId")
+    @ToMany(referencedJoinProperty = "messageId")
     private List<ReadReceiptUserLink> readReceiptLinks;
 
     @ToOne(joinProperty = "senderId")
@@ -60,8 +60,8 @@ public class Message implements CoreEntity {
     @ToOne(joinProperty = "lastMessageId")
     private Message lastMessage;
 
-    @Transient
-    private HashMap<String, Object> json;
+    @ToMany(referencedJoinProperty = "messageId")
+    private List<MessageMetaValue> metaValues;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -147,19 +147,46 @@ public class Message implements CoreEntity {
         this.date = date;
     }
 
-    public HashMap<String, Object> getJSON() {
-        if (json == null) {
-            json = new HashMap<>();
+    public HashMap<String, Object> getMetaValuesAsMap() {
+        HashMap<String, Object> values = new HashMap<>();
+        for (MessageMetaValue v : getMetaValues()) {
+            values.put(v.getKey(), v.getValue());
         }
-        return json;
+        return values;
     }
 
-    public void setJSON (HashMap json) {
-        this.json = json;
+    public void setMetaValues(HashMap<String, Object> json) {
+        for (String key : json.keySet()) {
+            setMetaValue(key, json.get(key));
+        }
+    }
+
+    protected void setMetaValue(String key, Object value) {
+        MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
+        if (metaValue == null) {
+            metaValue = StorageManager.shared().createEntity(MessageMetaValue.class);
+            metaValue.setMessageId(this.getId());
+            getMetaValues().add(metaValue);
+        }
+        metaValue.setValue(MetaValueHelper.toString(value));
+        metaValue.setKey(key);
+        metaValue.update();
+        update();
+    }
+
+    protected MetaValue metaValue (String key) {
+        ArrayList<MetaValue> values = new ArrayList<>();
+        values.addAll(getMetaValues());
+        return MetaValueHelper.metaValueForKey(key, values);
     }
 
     public Object valueForKey (String key) {
-        return getJSON().get(key);
+        MetaValue value = metaValue(key);
+        if (value != null && value.getValue() != null) {
+            return MetaValueHelper.toObject(value.getValue());
+        } else {
+            return null;
+        }
     }
 
     public String stringForKey (String key) {
@@ -198,14 +225,15 @@ public class Message implements CoreEntity {
         ReadReceiptUserLink link = linkForUser(user);
         if(link == null) {
             link = StorageManager.shared().createEntity(ReadReceiptUserLink.class);
-            readReceiptLinks.add(link);
-            update();
+            link.setMessageId(this.getId());
+            getReadReceiptLinks().add(link);
         }
         link.setUser(user);
         link.setStatus(status.getValue());
         link.setDate(date);
 
         link.update();
+        update();
     }
 
     public LatLng getLocation () {
@@ -215,11 +243,7 @@ public class Message implements CoreEntity {
     }
 
     public void setValueForKey (Object payload, String key) {
-        getJSON().put(key, payload);
-    }
-
-    public HashMap<String, Object> values () {
-        return getJSON();
+        setMetaValue(key, payload);
     }
 
     public String getText() {
@@ -535,6 +559,34 @@ public class Message implements CoreEntity {
             lastMessageId = lastMessage == null ? null : lastMessage.getId();
             lastMessage__resolvedKey = lastMessageId;
         }
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 2015206446)
+    public List<MessageMetaValue> getMetaValues() {
+        if (metaValues == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MessageMetaValueDao targetDao = daoSession.getMessageMetaValueDao();
+            List<MessageMetaValue> metaValuesNew = targetDao._queryMessage_MetaValues(id);
+            synchronized (this) {
+                if (metaValues == null) {
+                    metaValues = metaValuesNew;
+                }
+            }
+        }
+        return metaValues;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 365870950)
+    public synchronized void resetMetaValues() {
+        metaValues = null;
     }
 
 }

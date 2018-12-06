@@ -120,6 +120,7 @@ public class StorageManager {
         return threads;
     }
 
+
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit) {
         return fetchMessagesForThreadWithID(threadID, limit, null);
     }

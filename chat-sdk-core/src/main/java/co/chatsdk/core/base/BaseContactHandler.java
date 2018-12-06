@@ -43,19 +43,29 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable addContact(User user, ConnectionType type) {
-        if (ChatSDK.currentUser() != null && !user.isMe()) {
-            ChatSDK.currentUser().addContact(user, type);
-            ChatSDK.core().userOn(user);
-        }
+        addContactLocal(user, type);
         return Completable.complete();
     }
 
     @Override
-    public Completable deleteContact(User user, ConnectionType type) {
+    public void addContactLocal(User user, ConnectionType type) {
+        if (ChatSDK.currentUser() != null && !user.isMe()) {
+            ChatSDK.currentUser().addContact(user, type);
+            ChatSDK.core().userOn(user);
+        }
+    }
+
+    @Override
+    public void deleteContactLocal(User user, ConnectionType type) {
         if (ChatSDK.currentUser() != null && !user.isMe()) {
             ChatSDK.currentUser().deleteContact(user, type);
             ChatSDK.core().userOff(user);
         }
+    }
+
+    @Override
+    public Completable deleteContact(User user, ConnectionType type) {
+        deleteContactLocal(user, type);
         return Completable.complete();
     }
 

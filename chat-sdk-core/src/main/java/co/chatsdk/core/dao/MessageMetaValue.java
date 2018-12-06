@@ -1,109 +1,122 @@
 package co.chatsdk.core.dao;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.joda.time.DateTime;
 
 import co.chatsdk.core.interfaces.CoreEntity;
-import co.chatsdk.core.utils.DaoDateTimeConverter;
-
-/**
- * Created by ben on 10/5/17.
- */
 
 @Entity
-public class ReadReceiptUserLink implements CoreEntity {
+public class MessageMetaValue implements CoreEntity, MetaValue {
 
     @Id
     private Long id;
 
+    private String key;
+    private String value;
+
     private Long messageId;
-    private Long userId;
-    private Integer status;
 
-    @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
-    private DateTime date;
-
-    @ToOne(joinProperty = "userId")
-    private User user;
+    @ToOne(joinProperty = "messageId")
+    private Message message;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 642681985)
-    private transient ReadReceiptUserLinkDao myDao;
+    @Generated(hash = 1491679537)
+    private transient MessageMetaValueDao myDao;
 
-    @Generated(hash = 1676661430)
-    public ReadReceiptUserLink(Long id, Long messageId, Long userId, Integer status,
-            DateTime date) {
+    @Generated(hash = 304350448)
+    public MessageMetaValue(Long id, String key, String value, Long messageId) {
         this.id = id;
+        this.key = key;
+        this.value = value;
         this.messageId = messageId;
-        this.userId = userId;
-        this.status = status;
-        this.date = date;
     }
 
-    @Generated(hash = 1437583804)
-    public ReadReceiptUserLink() {
+    @Generated(hash = 739600636)
+    public MessageMetaValue() {
+    }
+
+    @Generated(hash = 1728529602)
+    private transient Long message__resolvedKey;
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public void setEntityID(String entityID) {
+
+    }
+
+    @Override
+    public String getEntityID() {
+        return null;
     }
 
     public Long getId() {
         return this.id;
     }
 
-    public Long getUserId() {
-        return this.userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Integer getStatus() {
-        return this.status;
+    public Long getMessageId() {
+        return this.messageId;
     }
 
-    @Override
-    public void setEntityID(String entityID) {
-        setId(Long.parseLong(entityID));
+    public void setMessageId(Long messageId) {
+        this.messageId = messageId;
     }
-
-    @Override
-    public String getEntityID() {
-        return Long.toString(id);
-    }
-
-    @Generated(hash = 251390918)
-    private transient Long user__resolvedKey;
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 859885876)
-    public User getUser() {
-        Long __key = this.userId;
-        if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
+    @Generated(hash = 1905538284)
+    public Message getMessage() {
+        Long __key = this.messageId;
+        if (message__resolvedKey == null || !message__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            UserDao targetDao = daoSession.getUserDao();
-            User userNew = targetDao.load(__key);
+            MessageDao targetDao = daoSession.getMessageDao();
+            Message messageNew = targetDao.load(__key);
             synchronized (this) {
-                user = userNew;
-                user__resolvedKey = __key;
+                message = messageNew;
+                message__resolvedKey = __key;
             }
         }
-        return user;
+        return message;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1065606912)
-    public void setUser(User user) {
+    @Generated(hash = 770507318)
+    public void setMessage(Message message) {
         synchronized (this) {
-            this.user = user;
-            userId = user == null ? null : user.getId();
-            user__resolvedKey = userId;
+            this.message = message;
+            messageId = message == null ? null : message.getId();
+            message__resolvedKey = messageId;
         }
     }
 
@@ -144,39 +157,9 @@ public class ReadReceiptUserLink implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1250799234)
+    @Generated(hash = 371282140)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getReadReceiptUserLinkDao() : null;
+        myDao = daoSession != null ? daoSession.getMessageMetaValueDao() : null;
     }
-
-    public DateTime getDate() {
-        return this.date;
-    }
-
-    public void setDate(DateTime date) {
-        this.date = date;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getMessageId() {
-        return this.messageId;
-    }
-
-    public void setMessageId(Long messageId) {
-        this.messageId = messageId;
-    }
-
-
 }

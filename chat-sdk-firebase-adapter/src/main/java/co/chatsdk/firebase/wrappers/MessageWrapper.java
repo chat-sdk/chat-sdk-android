@@ -47,7 +47,7 @@ public class MessageWrapper  {
     Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<String, Object>();
 
-        values.put(Keys.JSONV2, model.getJSON());
+        values.put(Keys.JSON, model.getMetaValuesAsMap());
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
@@ -109,10 +109,10 @@ public class MessageWrapper  {
         //if (DEBUG) Timber.v("deserialize, Value: %s", value);
         if (value == null) return;
 
-        Object json2 = snapshot.child(Keys.JSONV2).getValue();
+        Object json = snapshot.child(Keys.JSON).getValue();
 
-        if (json2 != null && json2 instanceof HashMap) {
-            model.setJSON((HashMap) json2);
+        if (json != null && json instanceof HashMap) {
+            model.setMetaValues((HashMap) json);
         }
         else {
             model.setText("");
