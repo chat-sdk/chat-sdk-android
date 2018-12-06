@@ -325,10 +325,12 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         if (messageItem.message.getSender().isMe()) {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);
+            holder.messageTextView.setPadding(4,0,4,0);
             holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
         else {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorReply);
+            holder.messageTextView.setPadding(4,0,4,0);
             holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
 
