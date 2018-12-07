@@ -14,7 +14,8 @@
         android:theme="@style/SdkTheme"
         android:name="co.chatsdk.android.app.AppObj">
 
-        <activity android:name="co.chatsdk.ui.login.LoginActivity">
+        <activity android:name="co.chatsdk.android.app.WelcomeActivity"
+            android:label="Gossip Girl">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -23,6 +24,18 @@
 
         <activity android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
             android:exported="true"/>
+        <activity android:name=".ConfirmUsernameActivity"
+            android:label="Please Confirm Your Username"/>
+        <activity android:name=".GossipGirlUsernameActivity"
+            android:label="Please Select Your Username"/>
+        <activity android:name=".LocationActivity"
+            android:label="Location Services"/>
+        <activity android:name=".SocialLogin"
+            android:label="Social Login"/>
+        <activity android:name=".NameChangePetitionActivity"
+            android:label="Name Change Petition"/>
+        <activity android:name=".RequestReceivedActivity"
+            android:label="Request Received"/>
 
         <!--<activity android:name="co.chatsdk.firebase.ui.SplashScreenActivity">-->
             <!--<intent-filter>-->

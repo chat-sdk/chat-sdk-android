@@ -77,6 +77,8 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-ui')
     implementation project(path: ':chat-sdk-profile-pictures')
 
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
     debugImplementation 'com.facebook.flipper:flipper:0.12.0'
 }
 

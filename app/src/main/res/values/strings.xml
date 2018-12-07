@@ -15,4 +15,23 @@
     <!--<string name="firebase_root_path">firebase_v4_web_new_4</string>-->
     <!--<string name="firebase_cloud_messaging_server_key">AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug</string>-->
 
+    <string name="welcome_screen_text_1">Welcome to</string>
+    <string name="welcome_screen_text_2">Gossip Girl</string>
+    <string name="welcome_screen_text_3">Your place to connect\nwith other dancers</string>
+    <string name="get_started">Get Started</string>
+    <string name="location_services">Please allow Gossip Girl\npermission to access\nLocation Services\nto improve your experience\nYour actual location is not\nprovided to other users</string>
+    <string name="continue_string">Continue</string>
+    <string name="username_text">Username</string>
+    <string name="city_location">city_location</string>
+    <string name="stagename_and_location">Stage Name\nCity</string>
+    <string name="back">Back</string>
+    <string name="name_change_petition">Your username should be your stage name granted to you on your enrolment with your studio. The city your studio is in is also stated on your enrolment form. You can upload a photo of your enrolment form, and it will be reviewed by an administrator. You will be granted the requested stage name if the enrollment information is accurate.</string>
+    <string name="desired_stagename">Desired Stage Name:</string>
+    <string name="full_name">Your first and last name</string>
+    <string name="email">Your email address</string>
+    <string name="submit_string">Submit request</string>
+    <string name="request_received">Request received\nYour enrolment form will be reviewed.\nA response to your enquiry will be sent to the email address you entered on the form.</string>
+    <string name="exit">Exit</string>
+    <string name="select_username">Please select your username, this should ideally be your stage name granted to you by your studio.</string>
+    <string name="confirm_username">Please confirm your stage name. This action cannot be undone.</string>
 </resources>
