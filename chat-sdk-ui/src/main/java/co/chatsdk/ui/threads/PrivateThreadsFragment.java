@@ -32,9 +32,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-//        adapter.onClickObservable().subscribe(thread -> ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID()));
-
-        adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+        Disposable d = adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {
                     ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
