@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/mainConstraintLayout">
@@ -187,7 +187,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvFollows" />
 
         <Button
-            android:id="@+id/btnBlock"
+            android:id="@+id/btnBlockOrUnblock"
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginLeft="8dp"
@@ -199,16 +199,16 @@
             app:layout_constraintTop_toBottomOf="@+id/tvFollowed" />
 
         <Button
-            android:id="@+id/btnDelete"
+            android:id="@+id/btnAddOrDelete"
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:text="@string/delete"
+            android:layout_marginRight="8dp"
+            android:text="@string/add_contacts"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnBlock" />
+            app:layout_constraintTop_toBottomOf="@+id/btnBlockOrUnblock" />
 
         <ImageView
             android:id="@+id/ivAvailability"
@@ -220,5 +220,5 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/icn_20_online" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

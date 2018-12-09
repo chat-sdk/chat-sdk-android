@@ -32,6 +32,24 @@ public class StorageManager {
         return instance;
     }
 
+    public List<Thread> fetchThreadsForUserWithID (Long userId) {
+        List<Thread> threads = new ArrayList<>();
+
+        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
+
+        for (UserThreadLink link : links) {
+            Thread thread = link.getThread();
+            if (thread != null) {
+                threads.add(thread);
+            }
+            else {
+                // Delete the link - it's obviously corrupted
+                DaoCore.deleteEntity(link);
+            }
+        }
+        return threads;
+    }
+
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
 
         T entity = DaoCore.fetchEntityWithEntityID(c, entityId);
@@ -101,6 +119,7 @@ public class StorageManager {
         }
         return threads;
     }
+
 
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit) {
         return fetchMessagesForThreadWithID(threadID, limit, null);

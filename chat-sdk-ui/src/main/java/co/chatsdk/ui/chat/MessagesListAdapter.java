@@ -11,9 +11,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -263,7 +263,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
 
         if (messageItem.getMessage().getMessageType() == MessageType.Text) {
-            holder.messageTextView.setText(messageItem.getMessage().getTextString() == null ? "" : messageItem.getMessage().getTextString());
+            holder.messageTextView.setText(messageItem.getMessage().getText() == null ? "" : messageItem.getMessage().getText());
             holder.setBubbleHidden(false);
             holder.setTextHidden(false);
         }
@@ -325,10 +325,12 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
         if (messageItem.message.getSender().isMe()) {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);
+            holder.messageTextView.setPadding(4,0,4,0);
             holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
         else {
             holder.messageTextView.setTextColor(ChatSDK.config().messageTextColorReply);
+            holder.messageTextView.setPadding(4,0,4,0);
             holder.messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
 
@@ -384,7 +386,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             return false;
         }
 
-        Timber.d("Add Message Item: " + item.message.getTextString());
+        Timber.d("Add Message Item: " + item.message.getText());
         messageItems.add(item);
 
         if(sort) {

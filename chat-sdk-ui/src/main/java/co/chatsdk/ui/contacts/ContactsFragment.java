@@ -9,8 +9,9 @@ package co.chatsdk.ui.contacts;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -148,6 +149,7 @@ public class ContactsFragment extends BaseFragment {
         f.setExtraData(threadID);
         Bundle b = new Bundle();
         f.setArguments(b);
+
         return f;
     }
 
@@ -208,7 +210,7 @@ public class ContactsFragment extends BaseFragment {
             }
         }
 
-        mainView = inflater.inflate(R.layout.chat_sdk_fragment_contacts, null);
+        mainView = inflater.inflate(activityLayout(), null);
 
         initViews();
 
@@ -222,6 +224,10 @@ public class ContactsFragment extends BaseFragment {
         super.onSaveInstanceState(outState);
         outState.putInt(LOADING_MODE, loadingMode);
         outState.putBoolean(IS_DIALOG, isDialog);
+    }
+
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_fragment_contacts;
     }
 
     public void initViews() {

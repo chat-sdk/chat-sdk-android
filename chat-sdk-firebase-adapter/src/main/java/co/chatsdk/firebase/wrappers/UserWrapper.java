@@ -31,6 +31,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.core.utils.HashMapHelper;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
@@ -45,7 +46,6 @@ import timber.log.Timber;
 
 public class UserWrapper {
 
-    private static final String USER_PREFIX = "user";
     private User model;
 
     public static UserWrapper initWithAuthData(FirebaseUser authData){
@@ -227,7 +227,9 @@ public class UserWrapper {
     void deserializeMeta(Map<String, Object> value){
         if (value != null) {
             Map<String, String> oldData = model.metaMap();
-            Map<String, Object> newData = value;
+
+            // Expand
+            Map<String, Object> newData = HashMapHelper.flatten(value);
 
             // Updating the old bundle
             for (String key : newData.keySet()) {
@@ -268,7 +270,7 @@ public class UserWrapper {
         FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
-    Map<String, Object> serialize(){
+    Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<>();
 
         // Don't push availability to Firebase
@@ -276,7 +278,10 @@ public class UserWrapper {
         metaMap.remove(Keys.Availability);
         metaMap.put(Keys.NameLowercase, model.getName() != null ? model.getName().toLowerCase() : "");
 
-        values.put(Keys.Meta, metaMap);
+        // Expand
+        Map<String, Object> expandedMetaMap = HashMapHelper.expand(metaMap);
+
+        values.put(Keys.Meta, expandedMetaMap);
         values.put(Keys.LastOnline, ServerValue.TIMESTAMP);
 
         return values;
@@ -323,19 +328,6 @@ public class UserWrapper {
     public DatabaseReference ref(){
         return FirebasePaths.userRef(model.getEntityID());
     }
-
-    private DatabaseReference imageRef(){
-        return ref().child(FirebasePaths.Image);
-    }
-
-    private DatabaseReference thumbnailRef(){
-        return ref().child(FirebasePaths.Thumbnail);
-    }
-
-    private DatabaseReference metaRef(){
-        return ref().child(FirebasePaths.MetaPath);
-    }
-
 
     public Completable updateIndex() {
         return Completable.create(e -> {

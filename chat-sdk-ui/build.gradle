@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -38,63 +38,33 @@ android {
 }
 
 dependencies {
-    api fileTree(include: ['*.jar'], dir: 'libs')
-
-    api 'com.android.support:appcompat-v7:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:support-core-utils:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:design:' + project.ANDROID_SUPPORT_VERSION
-    api 'com.android.support:recyclerview-v7:' + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:support-v13:" + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:cardview-v7:" + project.ANDROID_SUPPORT_VERSION
-    api "com.android.support:design:" + project.ANDROID_SUPPORT_VERSION
-    api "com.google.android.gms:play-services-places:15.0.1"
-
-    api 'com.android.support.constraint:constraint-layout:1.1.3'
-    api 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
-
-    api 'com.github.mukeshsolanki:country-picker-android:1.2.4'
-    implementation 'com.github.chrisbanes:PhotoView:2.1.4'
-    api 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
+    api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+    api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    api "com.google.android.material:material:$materialVersion"
+    implementation "com.google.android.gms:play-services-places:$playPlacesVersion"
+
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+    implementation "id.zelory:compressor:$compressorVersion"
+
+    api "com.facebook.fresco:fresco:$frescoVersion"
+    implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
+    implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
+    implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
+    implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 }
 
-// Bintray upload properties
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+ext {
+    bintrayName = 'chat-sdk-ui'
+    libraryName = 'ChatSDKUI'
+    artifact = 'chat-sdk-ui'
+    libraryDescription = 'Chat SDK UI'
+}
 
-        group = CHAT_SDK_GROUP
-        version = CHAT_SDK_VERSION
-
-        ext {
-            bintrayRepo = BINTRAY_REPO
-            bintrayName = 'chat-sdk-ui'
-            bintrayUserOrg = BINTRAY_USER_ORG
-
-            publishedGroupId = CHAT_SDK_GROUP
-            libraryName = 'ChatSDKUI'
-            artifact = 'chat-sdk-ui'
-
-            libraryDescription = 'Chat SDK UI'
-
-            siteUrl = SITE_URL
-            gitUrl = GIT_URL
-
-            libraryVersion = CHAT_SDK_VERSION
-
-            developerId = DEVELOPER_ID
-            developerName = DEVELOPER_NAME
-            developerEmail = DEVELOPER_EMAIL
-
-            licenseName = LICENSE_NAME
-            licenseUrl = LICENSE_URL
-            allLicenses = ['GPL-3.0']
-        }
-
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
-    }
+def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
+if (bintrayGradleFile.exists()) {
+    apply from: bintrayGradleFile
 }

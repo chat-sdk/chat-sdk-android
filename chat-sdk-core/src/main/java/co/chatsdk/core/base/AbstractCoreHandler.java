@@ -22,8 +22,17 @@ public abstract class AbstractCoreHandler implements CoreHandler {
             if (StringUtils.isNotEmpty(entityID)) {
                 cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
             }
+            else {
+                cachedUser = null;
+            }
         }
        return cachedUser;
     }
 
+    @Override
+    public void goOnline() {
+        if (ChatSDK.lastOnline() != null) {
+            ChatSDK.lastOnline().setLastOnline(currentUserModel());
+        }
+    }
 }

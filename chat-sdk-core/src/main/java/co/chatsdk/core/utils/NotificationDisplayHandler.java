@@ -27,12 +27,12 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.session.StorageManager;
 
-public class NotificationUtils {
+public class NotificationDisplayHandler {
 
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
     public static String ChatSDKMessageChannel = "co.chatsdk.notification.Message";
 
-    public static void createMessageNotification(Message message) {
+    public void createMessageNotification(Message message) {
 
         Context context = ChatSDK.shared().context();
         String threadID = message.getThread().getEntityID();
@@ -42,11 +42,11 @@ public class NotificationUtils {
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getTextString());
+        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getText());
 
     }
 
-    public static void createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String title, String message) {
+    public void createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String title, String message) {
 
         int pushIcon = ChatSDK.config().pushNotificationImageDefaultResourceId;
         if(pushIcon <= 0) {
@@ -87,7 +87,7 @@ public class NotificationUtils {
      * @param soundUri
      * @param number - Number of notifications represented by this alert
      */
-    public static void createAlertNotification(Context context, Intent resultIntent, String title, String message, Bitmap largeIcon, int smallIconResID, Uri soundUri, int number){
+    public void createAlertNotification(Context context, Intent resultIntent, String title, String message, Bitmap largeIcon, int smallIconResID, Uri soundUri, int number){
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -106,11 +106,6 @@ public class NotificationUtils {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (largeIcon != null) {
-            Notification.InboxStyle style = new Notification.InboxStyle()
-                    .setBigContentTitle(title)
-                    .setSummaryText(message);
-
-            builder.setStyle(style);
             builder.setLargeIcon(ImageUtils.scaleImage(largeIcon, (int) (context.getResources().getDisplayMetrics().density * 48)));
         }
 
@@ -149,7 +144,7 @@ public class NotificationUtils {
     /**
      * Waking up the screen
      * * * */
-    private static void wakeScreen(Context context){
+    private void wakeScreen(Context context){
 
         // Waking the screen so the user will see the notification
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);

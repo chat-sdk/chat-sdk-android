@@ -9,10 +9,11 @@ package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,13 +32,11 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -75,7 +74,7 @@ public class SelectContactActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_activity_pick_friends);
+
         initActionBar();
 
         if (savedInstanceState != null)
@@ -98,6 +97,8 @@ public class SelectContactActivity extends BaseActivity {
         ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .subscribe(networkEvent -> loadData());
+
+        setContentView(activityLayout());
 
         initViews();
     }
@@ -133,6 +134,10 @@ public class SelectContactActivity extends BaseActivity {
             onBackPressed();
         }
         return true;
+    }
+
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_activity_pick_friends;
     }
 
     protected void initViews() {

@@ -1,11 +1,11 @@
 package co.chatsdk.core.dao;
 
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.JoinEntity;
 import org.greenrobot.greendao.annotation.Keep;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.OrderBy;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
@@ -41,8 +41,8 @@ public class Thread implements CoreEntity {
     private String imageUrl;
     private String rootKey;
     private String apiKey; // TODO: Delete this
-    private long creatorId;
-    private long lastMessageId;
+    private Long creatorId;
+    private Long lastMessageId;
 
     @ToOne(joinProperty = "lastMessageId")
     private Message lastMessage;
@@ -82,9 +82,9 @@ public class Thread implements CoreEntity {
         this.id = id;
     }
 
-    @Generated(hash = 144747700)
+    @Generated(hash = 859547806)
     public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Boolean deleted, String name, Integer type,
-            String creatorEntityId, String imageUrl, String rootKey, String apiKey, long creatorId, long lastMessageId) {
+            String creatorEntityId, String imageUrl, String rootKey, String apiKey, Long creatorId, Long lastMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -122,6 +122,15 @@ public class Thread implements CoreEntity {
                 users.add(data.getUser());
 
         return users;
+    }
+
+    public boolean containsUser (User user) {
+        for(User u : getUsers()) {
+            if (u.getEntityID().equals(user.getEntityID())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Date lastMessageAddedDate (){
@@ -271,7 +280,7 @@ public class Thread implements CoreEntity {
         }
         else {
             //
-            setLastMessageId(0);
+            setLastMessageId(Long.valueOf(0));
             update();
         }
     }
@@ -376,7 +385,7 @@ public class Thread implements CoreEntity {
     public String getUserListString () {
         String name = "";
         for(User u : getUsers()) {
-            if(!u.isMe()) {
+            if(!u.isMe() && !StringUtils.isEmpty(u.getName())) {
                 name += u.getName() + ", ";
             }
         }
@@ -448,18 +457,14 @@ public class Thread implements CoreEntity {
         return lastMessage;
     }
 
-    public long getCreatorId() {
+    public Long getCreatorId() {
         return this.creatorId;
     }
 
-    public void setCreatorId(long creatorId) {
-        this.creatorId = creatorId;
-    }
-
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 538308466)
+    @Generated(hash = 2088804448)
     public User getCreator() {
-        long __key = this.creatorId;
+        Long __key = this.creatorId;
         if (creator__resolvedKey == null || !creator__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
@@ -476,14 +481,11 @@ public class Thread implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 311004309)
-    public void setCreator(@NotNull User creator) {
-        if (creator == null) {
-            throw new DaoException("To-one property 'creatorId' has not-null constraint; cannot set to-one to null");
-        }
+    @Generated(hash = 501133931)
+    public void setCreator(User creator) {
         synchronized (this) {
             this.creator = creator;
-            creatorId = creator.getId();
+            creatorId = creator == null ? null : creator.getId();
             creator__resolvedKey = creatorId;
         }
     }
@@ -595,18 +597,14 @@ public class Thread implements CoreEntity {
         this.imageUrl = imageUrl;
     }
 
-    public long getLastMessageId() {
+    public Long getLastMessageId() {
         return this.lastMessageId;
     }
 
-    public void setLastMessageId(long lastMessageId) {
-        this.lastMessageId = lastMessageId;
-    }
-
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 2043155402)
+    @Generated(hash = 1697405005)
     public Message getLastMessage() {
-        long __key = this.lastMessageId;
+        Long __key = this.lastMessageId;
         if (lastMessage__resolvedKey == null || !lastMessage__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
@@ -623,14 +621,11 @@ public class Thread implements CoreEntity {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1436385399)
-    public void setLastMessage(@NotNull Message lastMessage) {
-        if (lastMessage == null) {
-            throw new DaoException("To-one property 'lastMessageId' has not-null constraint; cannot set to-one to null");
-        }
+    @Generated(hash = 944284900)
+    public void setLastMessage(Message lastMessage) {
         synchronized (this) {
             this.lastMessage = lastMessage;
-            lastMessageId = lastMessage.getId();
+            lastMessageId = lastMessage == null ? null : lastMessage.getId();
             lastMessage__resolvedKey = lastMessageId;
         }
     }
@@ -661,6 +656,14 @@ public class Thread implements CoreEntity {
     @Generated(hash = 365870950)
     public synchronized void resetMetaValues() {
         metaValues = null;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public void setLastMessageId(Long lastMessageId) {
+        this.lastMessageId = lastMessageId;
     }
 
  

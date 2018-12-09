@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -51,7 +51,7 @@ public class MediaSelector {
         Context context = ChatSDK.shared().context();
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File destination = ImageUtils.createEmptyFileInCacheDirectory(context, "CAPTURE", ".jpg");
-        fileUri = Uri.fromFile(destination);
+        fileUri = PhotoProvider.getPhotoUri(destination, context);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 
         if (intent.resolveActivity(activity.getPackageManager()) != null) {

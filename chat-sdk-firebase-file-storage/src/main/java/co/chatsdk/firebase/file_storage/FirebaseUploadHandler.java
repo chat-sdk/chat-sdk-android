@@ -45,7 +45,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 System.out.print("Progress: " + progress);
 
-                // TODO: With Firebase this appears to be broken
+                // TODO: With Firebase this appears to be brokenProfileFragment.newInstance
                 e.onNext(result);
             }).addOnSuccessListener(taskSnapshot -> {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {

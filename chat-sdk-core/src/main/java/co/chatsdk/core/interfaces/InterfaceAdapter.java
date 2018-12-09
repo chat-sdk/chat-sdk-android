@@ -3,15 +3,16 @@ package co.chatsdk.core.interfaces;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.SearchActivityType;
-import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.utils.NotificationDisplayHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -70,4 +71,6 @@ public interface InterfaceAdapter {
 
     boolean showLocalNotifications(Thread thread);
     void setLocalNotificationHandler(LocalNotificationHandler handler);
+
+    public NotificationDisplayHandler notificationDisplayHandler ();
 }

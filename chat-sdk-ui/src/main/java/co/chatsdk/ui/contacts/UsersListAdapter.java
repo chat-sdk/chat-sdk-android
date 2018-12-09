@@ -7,7 +7,7 @@
 
 package co.chatsdk.ui.contacts;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,11 +56,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     protected class UserViewHolder extends RecyclerView.ViewHolder {
 
-        SimpleDraweeView avatarImageView;
-        TextView nameTextView;
-        CheckBox checkBox;
-        TextView statusTextView;
-        ImageView availabilityImageView;
+        protected SimpleDraweeView avatarImageView;
+        protected TextView nameTextView;
+        protected CheckBox checkBox;
+        protected TextView statusTextView;
+        protected ImageView availabilityImageView;
 
         public UserViewHolder(View view) {
             super(view);

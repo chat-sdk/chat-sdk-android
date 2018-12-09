@@ -33,7 +33,7 @@ public class Strings {
                 switch (message.getMessageType()) {
                     case Text:
                     case System:
-                        return message.getTextString();
+                        return message.getText();
                     case Image:
                         return t(R.string.image_message);
                     case Location:
@@ -83,7 +83,7 @@ public class Strings {
         }
 
         if(name.length() == 0) {
-            name = Strings.t(R.string.thread);
+            name = Strings.t(R.string.no_name);
         }
         return name;
     }

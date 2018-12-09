@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Rect;
+import androidx.appcompat.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -42,7 +43,7 @@ import io.reactivex.disposables.Disposable;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
-    protected ImageButton btnSend;
+    protected AppCompatImageButton btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
     protected boolean audioModeEnabled = false;
@@ -259,11 +260,11 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
 
     public void updateSendButton () {
         if(StringChecker.isNullOrEmpty(getMessageText()) && audioModeEnabled) {
-            btnSend.setBackgroundResource(R.drawable.ic_36_mic);
+            btnSend.setImageResource(R.drawable.ic_36_mic);
             recordOnPress = true;
         }
         else {
-            btnSend.setBackgroundResource(R.drawable.ic_36_send);
+            btnSend.setImageResource(R.drawable.ic_36_send);
             recordOnPress = false;
         }
     }

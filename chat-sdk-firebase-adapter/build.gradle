@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -31,54 +31,33 @@ android {
 }
 
 dependencies {
-    api fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':chat-sdk-core')
 
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
-    api 'com.google.firebase:firebase-core:16.0.1'
-    api 'com.google.firebase:firebase-database:16.0.1'
-    api 'com.google.firebase:firebase-storage:16.0.1'
-    api 'com.google.firebase:firebase-auth:16.0.2'
+    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+    api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 
-    api project(':chat-sdk-core')
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
+    // Can likely be removed later
+    implementation "com.google.firebase:firebase-iid:17.0.4"
+
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+
 }
 
-// Bintray upload properties
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
+ext {
+    bintrayName = 'chat-sdk-firebase-adapter'
+    libraryName = 'ChatSDKFirebaseAdapter'
+    artifact = 'chat-sdk-firebase-adapter'
+    libraryDescription = 'Chat SDK Firebase Adapter'
+}
 
-        group = CHAT_SDK_GROUP
-        version = CHAT_SDK_VERSION
-
-        ext {
-            bintrayRepo = BINTRAY_REPO
-            bintrayName = 'chat-sdk-firebase-adapter'
-            bintrayUserOrg = BINTRAY_USER_ORG
-
-            publishedGroupId = CHAT_SDK_GROUP
-            libraryName = 'ChatSDKFirebaseAdapter'
-            artifact = 'chat-sdk-firebase-adapter'
-
-            libraryDescription = 'Chat SDK Firebase Adapter'
-
-            siteUrl = SITE_URL
-            gitUrl = GIT_URL
-
-            libraryVersion = CHAT_SDK_VERSION
-
-            developerId = DEVELOPER_ID
-            developerName = DEVELOPER_NAME
-            developerEmail = DEVELOPER_EMAIL
-
-            licenseName = LICENSE_NAME
-            licenseUrl = LICENSE_URL
-            allLicenses = ['GPL-3.0']
-        }
-
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
-    }
+def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
+if (bintrayGradleFile.exists()) {
+    apply from: bintrayGradleFile
 }
 

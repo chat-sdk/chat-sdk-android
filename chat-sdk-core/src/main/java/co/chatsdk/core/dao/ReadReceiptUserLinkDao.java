@@ -30,10 +30,10 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
-        public final static Property ReadReceiptId = new Property(1, long.class, "readReceiptId", false, "READ_RECEIPT_ID");
-        public final static Property UserId = new Property(2, long.class, "userId", false, "USER_ID");
-        public final static Property Status = new Property(3, int.class, "status", false, "STATUS");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property MessageId = new Property(1, Long.class, "messageId", false, "MESSAGE_ID");
+        public final static Property UserId = new Property(2, Long.class, "userId", false, "USER_ID");
+        public final static Property Status = new Property(3, Integer.class, "status", false, "STATUS");
         public final static Property Date = new Property(4, Long.class, "date", false, "DATE");
     }
 
@@ -55,10 +55,10 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"READ_RECEIPT_USER_LINK\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY NOT NULL ," + // 0: id
-                "\"READ_RECEIPT_ID\" INTEGER NOT NULL ," + // 1: readReceiptId
-                "\"USER_ID\" INTEGER NOT NULL ," + // 2: userId
-                "\"STATUS\" INTEGER NOT NULL ," + // 3: status
+                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
+                "\"MESSAGE_ID\" INTEGER," + // 1: messageId
+                "\"USER_ID\" INTEGER," + // 2: userId
+                "\"STATUS\" INTEGER," + // 3: status
                 "\"DATE\" INTEGER);"); // 4: date
     }
 
@@ -71,10 +71,26 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     @Override
     protected final void bindValues(DatabaseStatement stmt, ReadReceiptUserLink entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
-        stmt.bindLong(2, entity.getReadReceiptId());
-        stmt.bindLong(3, entity.getUserId());
-        stmt.bindLong(4, entity.getStatus());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
+        Long messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindLong(2, messageId);
+        }
+ 
+        Long userId = entity.getUserId();
+        if (userId != null) {
+            stmt.bindLong(3, userId);
+        }
+ 
+        Integer status = entity.getStatus();
+        if (status != null) {
+            stmt.bindLong(4, status);
+        }
  
         DateTime date = entity.getDate();
         if (date != null) {
@@ -85,10 +101,26 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     @Override
     protected final void bindValues(SQLiteStatement stmt, ReadReceiptUserLink entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
-        stmt.bindLong(2, entity.getReadReceiptId());
-        stmt.bindLong(3, entity.getUserId());
-        stmt.bindLong(4, entity.getStatus());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
+        Long messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindLong(2, messageId);
+        }
+ 
+        Long userId = entity.getUserId();
+        if (userId != null) {
+            stmt.bindLong(3, userId);
+        }
+ 
+        Integer status = entity.getStatus();
+        if (status != null) {
+            stmt.bindLong(4, status);
+        }
  
         DateTime date = entity.getDate();
         if (date != null) {
@@ -104,16 +136,16 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public ReadReceiptUserLink readEntity(Cursor cursor, int offset) {
         ReadReceiptUserLink entity = new ReadReceiptUserLink( //
-            cursor.getLong(offset + 0), // id
-            cursor.getLong(offset + 1), // readReceiptId
-            cursor.getLong(offset + 2), // userId
-            cursor.getInt(offset + 3), // status
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // messageId
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // userId
+            cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // status
             cursor.isNull(offset + 4) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 4)) // date
         );
         return entity;
@@ -121,10 +153,10 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
      
     @Override
     public void readEntity(Cursor cursor, ReadReceiptUserLink entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
-        entity.setReadReceiptId(cursor.getLong(offset + 1));
-        entity.setUserId(cursor.getLong(offset + 2));
-        entity.setStatus(cursor.getInt(offset + 3));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setMessageId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setUserId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setStatus(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
         entity.setDate(cursor.isNull(offset + 4) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 4)));
      }
     
@@ -145,7 +177,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
 
     @Override
     public boolean hasKey(ReadReceiptUserLink entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override
@@ -154,16 +186,16 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
     }
     
     /** Internal query to resolve the "readReceiptLinks" to-many relationship of Message. */
-    public List<ReadReceiptUserLink> _queryMessage_ReadReceiptLinks(long readReceiptId) {
+    public List<ReadReceiptUserLink> _queryMessage_ReadReceiptLinks(Long messageId) {
         synchronized (this) {
             if (message_ReadReceiptLinksQuery == null) {
                 QueryBuilder<ReadReceiptUserLink> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.ReadReceiptId.eq(null));
+                queryBuilder.where(Properties.MessageId.eq(null));
                 message_ReadReceiptLinksQuery = queryBuilder.build();
             }
         }
         Query<ReadReceiptUserLink> query = message_ReadReceiptLinksQuery.forCurrentThread();
-        query.setParameter(0, readReceiptId);
+        query.setParameter(0, messageId);
         return query.list();
     }
 
@@ -188,9 +220,7 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
         int offset = getAllColumns().length;
 
         User user = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
-         if(user != null) {
-            entity.setUser(user);
-        }
+        entity.setUser(user);
 
         return entity;    
     }

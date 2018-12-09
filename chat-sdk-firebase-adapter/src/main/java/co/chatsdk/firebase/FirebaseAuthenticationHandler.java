@@ -186,6 +186,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         FirebaseAuth.getInstance().signOut();
 
+                        removeLoginInfo(AuthKeys.CurrentUserID);
+
                         ChatSDK.events().source().onNext(NetworkEvent.logout());
 
                         if (ChatSDK.socialLogin() != null) {

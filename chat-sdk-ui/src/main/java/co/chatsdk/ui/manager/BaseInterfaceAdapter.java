@@ -2,8 +2,8 @@ package co.chatsdk.ui.manager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.cache.disk.DiskCacheConfig;
 import com.facebook.common.util.ByteConstants;
@@ -30,6 +30,7 @@ import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.core.utils.NotificationDisplayHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
@@ -55,9 +56,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
     public boolean defaultChatOptionsAdded = false;
     public LocalNotificationHandler localNotificationHandler;
-
-
-    protected boolean showLocalNotifications;
+    public NotificationDisplayHandler notificationDisplayHandler;
 
     public BaseInterfaceAdapter (Context context) {
 
@@ -112,7 +111,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Tab profileTab() {
-        return new Tab (R.string.profile, R.drawable.ic_action_user, ProfileFragment.newInstance());
+        return new Tab (R.string.profile, R.drawable.ic_action_user, profileFragment(null));
     }
 
     @Override
@@ -349,6 +348,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setLocalNotificationHandler(LocalNotificationHandler handler) {
         this.localNotificationHandler = handler;
+    }
+
+    public NotificationDisplayHandler notificationDisplayHandler () {
+        if(notificationDisplayHandler == null) {
+            notificationDisplayHandler = new NotificationDisplayHandler();
+        }
+        return notificationDisplayHandler;
     }
 
 }

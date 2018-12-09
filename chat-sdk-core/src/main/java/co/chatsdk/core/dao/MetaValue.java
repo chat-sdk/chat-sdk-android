@@ -10,6 +10,6 @@ public interface MetaValue {
     String getValue();
 
     void setKey(String key);
-    void setValue (String key);
+    void setValue (String value);
 
 }

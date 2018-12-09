@@ -12,9 +12,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -25,6 +22,10 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
@@ -55,7 +56,8 @@ public class SearchActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_activity_search);
+
+        setContentView(activityLayout());
 
         initViews();
 
@@ -66,6 +68,10 @@ public class SearchActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+    }
+
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_activity_search;
     }
 
     protected void initViews() {
@@ -141,7 +147,10 @@ public class SearchActivity extends BaseActivity {
 
                         dialog.dismiss();
                         finish();
-                    }, throwable -> ChatSDK.logError(throwable));
+                    }, throwable -> {
+                        showToast(throwable.getLocalizedMessage());
+                        dialog.dismiss();
+                    });
         });
 
     }

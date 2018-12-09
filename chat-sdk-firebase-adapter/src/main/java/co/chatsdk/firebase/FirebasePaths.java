@@ -18,6 +18,7 @@ public class FirebasePaths{
     public static final String UsersPath = "users";
     public static final String MessagesPath = "messages";
     public static final String ThreadsPath = "threads";
+    public static final String ContactsPath = "contacts";
     public static final String PublicThreadsPath = "public-threads";
     public static final String DetailsPath = "details";
     public static final String IndexPath = "searchIndex";
@@ -25,8 +26,6 @@ public class FirebasePaths{
     public static final String MetaPath = "meta";
     public static final String FollowersPath = "followers";
     public static final String FollowingPath = "follows";
-    public static final String Image = "imaeg";
-    public static final String Thumbnail = "thumbnail";
     public static final String UpdatedPath = "updated";
     public static final String LastMessagePath = "lastMessage";
     public static final String TypingPath = "typing";
@@ -38,7 +37,9 @@ public class FirebasePaths{
     /** @return The main databse ref.*/
 
     public static DatabaseReference firebaseRawRef() {
-        return FirebaseDatabase.getInstance().getReference();
+        String url = ChatSDK.config().firebaseDatabaseUrl;
+        if (url != null) return FirebaseDatabase.getInstance(url).getReference();
+        else return FirebaseDatabase.getInstance().getReference();
     }
 
     public static DatabaseReference firebaseRef () {
@@ -59,6 +60,11 @@ public class FirebasePaths{
     /** @return The user threads ref.*/
     public static DatabaseReference userThreadsRef(String firebaseId){
         return usersRef().child(firebaseId).child(ThreadsPath);
+    }
+
+    /** @return The user threads ref.*/
+    public static DatabaseReference userContactsRef(String firebaseId){
+        return usersRef().child(firebaseId).child(ContactsPath);
     }
 
     /** @return The user meta ref for given id.*/

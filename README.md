@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/VKRnbm)** or **[XMPP](https://i.diawi.com/GLCG8S)** open this link on your Android phone to install
+- **Demo Versions.** **[Firebase](https://i.diawi.com/NUcnaL)** or **[XMPP](https://i.diawi.com/ZpPscm)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 
@@ -38,14 +38,35 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
+## Performance and Scalability
+
+These are the average Firebase hosting costs calculated using the Firebase Database Profiling tool. Firebase charge 1 USD per GB of data downloaded (excluding images or files). We've tabulated a few common operations and how many of them can be performed per 1 USD of monthly hosting cost:
+
+- Messages Received (1kb) = 1,000,000
+- Logins (10kb) = 100,000
+- Profile Update (0.2kb) = 5,000,000
+- User search (2kb) = 500,000 
+
+What's possible on the Firebase free plan (10GB / month):
+
+**500k logins, 5 million messages.** 
+
+What's possible on the Flame plan (20GB / month / 20 USD):
+
+**1 million logins, 10 million messages.**
+
+The real-time database will support up to **100k concurrent users**. From our experience, 1 concurrent connection is enough to support 10 users per minute. That means that at peak capacity, the Chat SDK could support **1 million users per minute** and well over **20 million monthly users**. 
+
 ## Modules
 
 The Chat SDK has a number of additional modules that can easily be installed including:
 
+- [End-To-End Encryption](https://chatsdk.co/end-to-end-encryption/)
 - [File Messages](http://chatsdk.co/file-messages/)
 - [Typing indicator](http://chatsdk.co/typing-indicator/)
 - [Read receipts](http://chatsdk.co/read-receipts/)
 - [Location based chat](http://chatsdk.co/location-based-chat/)
+- [Last Online Indicator](https://chatsdk.co/firebase-last-online-indicator/)
 - [Audio messages](http://chatsdk.co/audio-messages/)
 - [Video messages](http://chatsdk.co/video-messages/)
 - [Sticker messages](https://chatsdk.co/sticker-messages/)
@@ -100,16 +121,9 @@ If you have an app that uses the Chat SDK let us know and we'll add a link.
 This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
 
 > **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 4.4 and onwards should be installed. **Android SDK Build-Tools** version that is defined in the [`gradle.properties`](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties) file under the `ANDROID_BUILD_TOOLS_VERSION` property. 
+>You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 8.1 and onwards should be installed. **Android SDK Build-Tools** version that is defined in the [`gradle.properties`](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties) file under the `ANDROID_BUILD_TOOLS_VERSION` property. 
 
-The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that you need to do the following.
-
-## Branches
-
-There are three main branches in the project:
-
-- **master** - the latest stable release version of the code
-- **v3_final** - the legacy version of the project (no longer maintained)
+The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that continue [here](https://github.com/chat-sdk/chat-sdk-android#firebase-setup).
 
 ### Setup Service
 
@@ -135,10 +149,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.2.7'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.4.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.4.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.4.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.4.8'
 ```
 
 You may also need to enable Java 8:
@@ -160,7 +174,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.google.gms:google-services:3.1.1'
+        classpath 'com.google.gms:google-services:4.0.1'
     }
 }
 ```
@@ -171,9 +185,14 @@ Add this to the end of your app level `build.gradle` file:
 apply plugin: 'com.google.gms.google-services'
 ```
 
-#### Troubleshooting issues with Gradle
+#### Android X
 
+Make sure you've added the following to your `gradle.properties` file:
 
+```
+android.useAndroidX=true
+android.enableJetifier=true
+```
 
 ### Initializing the Chat SDK
 
@@ -197,7 +216,7 @@ try {
 
 // File storage is needed for profile image upload and image messages
 FirebaseFileStorageModule.activate();
-FirebasePushModule.activateForFirebase();
+FirebasePushModule.activate();
 
 // Activate any other modules you need.
 // ...
@@ -232,12 +251,7 @@ InterfaceManager.shared().a.startLoginActivity(context, true);
 5. Click **Settings** (the gear icon). On the General tab, click **Add App -> Add Firebase to your Android app**
 6. Enter your package name - found in your app's `build.gradle` file, app name and SHA-1 key (optional)
 7. Download the **google-services.json** file and add it to your app project. It should be added inside the `app` folder.
-
-  >**Note:**  
-  >It is worth opening your downloaded ```GoogleService-Info.plist``` and checking there is an ```API_KEY``` field included. Sometimes Firebase's automatic download doesn’t include this in the plist. To rectify, just re-download the plist from the project settings menu.  
-  
 8. Set a custom root path. The chat SDK allows you to run multiple chat instances on one Firebase database. This could be useful if you want *test* and *production* environments for example. To do this set `builder.firebaseRootPath("prod")` in the configuration builder.  
-  
 9. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
 
 ### Enabling location messages
@@ -330,7 +344,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.4.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -344,15 +358,27 @@ compile project(path: ':chat-sdk-firebase-push')
 In your main class `onCreate` method add:
 
 ```
-FirebasePushModule.activateForFirebase();
+FirebasePushModule.activate();
 ```
 
-3. Get the push token. Go to the [Firebase Console](https://console.firebase.google.com) click **your project** and then the **Settings** button. Click the **Cloud Messaging** tab. Copy the **Server Key**.
-4. Add the following to the setup code in the apps' main `onCreate` method.
+##### Setup Firebase Cloud Functions
 
-   ```
-   builder.firebaseCloudMessagingServerKey("YOUR FIREBASE CLOUD MESSAGING KEY");
-   ```
+To handle push notifications, we use [Firebase Cloud Functions](https://firebase.google.com/docs/functions/). This service allows you to upload a script to Firebase hosting. This script monitors the realtime database and whenever a new messsage is detected, it sends a push notification to the recipient. 
+
+Below is a summary of the steps that are required to setup push using the Firebase Cloud Functions script. For further instructions you can look at the [Firebase Documentation](https://firebase.google.com/docs/functions/get-started). 
+
+1. Run `firebase login` and login using the browser
+2. Make a new directory to store your push functions in. It can be called anything
+3. Navigate to that directory using the terminal
+4. Run `firebase init functions`
+5. Choose the correct app from the list
+6. Choose `JavaScript`
+7. Choose `y` for ESLint
+8. Choose `Y` to install node dependencies
+9. Find the `functions` directory you've just created and copy the `index.js` file from [Github](https://github.com/chat-sdk/chat-sdk-android/tree/master/FirebasePushNotifications) into the directory
+10. Run `firebase deploy` 
+
+Now the script is active and push notifications will be set out automatically. 
 
 ### Firebase UI
 
@@ -361,7 +387,7 @@ FirebasePushModule.activateForFirebase();
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.4.8'
 ```
 
 ##### Enable the module
@@ -405,7 +431,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.2.7'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.4.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -529,15 +555,9 @@ After you have purchased the module you will be provided with a link to the modu
 4. In your main class `onCreate` activate the module:
 
   ```
-  ContactBookModule.activateForFirebase();
+  ContactBookModule.activate();
   ```
   
-  or 
-
-  ```
-  ContactBookModule.activateForXMPP();
-  ```
-
 ### Security Rules
 
 Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
@@ -584,6 +604,46 @@ If you want to import modules manually, you should add the following to your `gr
 useLocal=true
 ```
 
+You will also need to make sure that you've included the library versions in your main project level `build.gradle` file by adding the following:
+
+```
+ext {
+    bintrayVersion = "1.8.4"
+    mavenGradleVersion = "2.1"
+    androidxAppcompatVersion = "1.0.2"
+    androidxConstraintLayoutVersion = "2.0.0-alpha2"
+    androidxLifecycleExtensionsVersion = "2.0.0"
+    androidxRecyclerViewVersion = "1.0.0"
+    materialVersion = "1.0.0"
+    playAuthVersion = "16.0.1"
+    playMapsVersion = "16.0.0"
+    playPlacesVersion = "16.0.0"
+    firebaseUiVersion = "4.2.1"
+    firebaseCoreVersion = "16.0.5"
+    firebaseDatabaseVersion = "16.0.5"
+    firebaseAuthVersion = "16.0.5"
+    firebaseStorageVersion = "16.0.5"
+    firebaseMessagingVersion = "17.3.4"
+    firebaseFunctionsVersion = "16.1.3"
+    timberVersion = "4.7.1"
+    greenDaoVersion = "3.2.2"
+    frescoVersion = "1.10.0"
+    rxJavaVersion = "2.2.3"
+    rxAndroidVersion = "2.1.0"
+    gsonVersion = "2.8.5"
+    jodaTimeVersion = "2.10.1"
+    apacheCommonsVersion = "3.7"
+    compressorVersion = "2.1.0"
+    okHttpVersion = "3.11.0"
+    facebookLoginVersion = "4.34.0"
+    twitterVersion = "3.3.0"
+    prettyTimeVersion = "4.0.1.Final"
+    countryPickerVersion = "2.0.0"
+    imageCropperVersion = "2.8.0"
+    photoViewVersion = "2.2.0"
+}
+```
+
 This will prompt the modules to use local versions of the core Chat SDK modules rather than the versions hosted on Gradle. 
 
 #### Configuring the project
@@ -597,8 +657,8 @@ Now you will see that gradle cannot be sync because it missing some parameters. 
 ```
 MIN_SDK = 16
 ANDROID_BUILD_TARGET_SDK_VERSION = 25
-ANDROID_COMPILE_SDK_VERSION = 27
-ANDROID_SUPPORT_VERSION = 27.1.1
+ANDROID_COMPILE_SDK_VERSION = 28
+ANDROID_SUPPORT_VERSION = 28.0.0
 ```
 
 > **Note:**

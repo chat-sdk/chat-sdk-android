@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.annotation.LayoutRes;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
@@ -65,7 +66,6 @@ public class EditProfileActivity extends BaseActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_edit_profile);
 
         String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
 
@@ -80,11 +80,17 @@ public class EditProfileActivity extends BaseActivity {
             // Save a copy of the data to see if it has changed
             userMeta = new HashMap<>(currentUser.metaMap());
         }
+
+        setContentView(activityLayout());
+
         initViews();
     }
 
-    protected void initViews() {
+    protected @LayoutRes int activityLayout() {
+        return R.layout.chat_sdk_edit_profile;
+    }
 
+    protected void initViews() {
         avatarImageView = findViewById(R.id.ivAvatar);
         statusEditText = findViewById(R.id.etStatus);
         availabilitySpinner = findViewById(R.id.spAvailability);
@@ -141,7 +147,7 @@ public class EditProfileActivity extends BaseActivity {
                 currentUser.setCountryCode(country.getCode());
             }).build();
 
-            picker.showDialog(getSupportFragmentManager());
+            picker.showDialog(EditProfileActivity.this);
 
         });
 

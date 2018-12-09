@@ -32,7 +32,7 @@
         android:gravity="end"
         android:orientation="vertical">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/message_bubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 fresco:layout_constraintEnd_toEndOf="parent"
                 fresco:layout_constraintTop_toTopOf="parent" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/image"

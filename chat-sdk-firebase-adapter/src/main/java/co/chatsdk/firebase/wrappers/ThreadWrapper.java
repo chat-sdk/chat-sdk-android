@@ -194,8 +194,14 @@ public class ThreadWrapper  {
 
     public Observable<Message> messageRemovedOn() {
         return Observable.create(e -> {
-            final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
-            ChildEventListener removedListener = ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
+
+            Query query = FirebasePaths.threadMessagesRef(model.getEntityID());
+
+            query = query.orderByChild(Keys.Date);
+            query = query.limitToLast(ChatSDK.config().messageDeletionListenerLimit);
+
+
+            ChildEventListener removedListener = query.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
                 if(hasValue) {
                     MessageWrapper message = new MessageWrapper(snapshot);
                     this.model.removeMessage(message.getModel());
@@ -203,7 +209,7 @@ public class ThreadWrapper  {
                     e.onNext(message.getModel());
                 }
             }));
-            FirebaseReferenceManager.shared().addRef(ref, removedListener);
+            FirebaseReferenceManager.shared().addRef(query, removedListener);
         });
     }
 
@@ -244,10 +250,10 @@ public class ThreadWrapper  {
                         }
 
                         if(startTimestamp != null) {
-                            query = query.startAt(startTimestamp);
+                            query = query.startAt(startTimestamp, Keys.Date);
                         }
 
-                        query = query.orderByPriority().limitToLast(ChatSDK.config().maxMessagesToLoad);
+                        query = query.orderByChild(Keys.Date).limitToLast(ChatSDK.config().messageHistoryDownloadLimit);
 
                         ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
                             if (hasValue) {
@@ -270,12 +276,6 @@ public class ThreadWrapper  {
 
                                 boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
-                                if(ChatSDK.hook() != null) {
-                                    HashMap<String, Object> data = new HashMap<>();
-                                    data.put(BaseHookHandler.MessageReceived_Message, message);
-                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
-                                }
-
                                 message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
                                 model.addMessage(message.getModel());
@@ -284,6 +284,13 @@ public class ThreadWrapper  {
                                 // Update the message and thread
                                 message.getModel().update();
                                 model.update();
+
+                                if(ChatSDK.hook() != null) {
+                                    HashMap<String, Object> data = new HashMap<>();
+                                    data.put(BaseHookHandler.MessageReceived_Message, message.getModel());
+                                    data.put(BaseHookHandler.MessageIsNew_Bool, newMessage);
+                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
+                                }
 
                                 // If we remove this, then the thread will update twice for each message.
                                 // That can fix a bug if the user's system time is wrong
@@ -489,8 +496,8 @@ public class ThreadWrapper  {
 
                 DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                Query query = messageRef.orderByPriority()
-                        .endAt(endDate.getTime() - 1)
+                Query query = messageRef.orderByChild(Keys.Date)
+                        .endAt(endDate.getTime() - 1, Keys.Date)
                         .limitToLast(numberOfMessages + 1);
 
                 query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {

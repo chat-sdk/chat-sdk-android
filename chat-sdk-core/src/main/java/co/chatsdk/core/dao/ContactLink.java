@@ -23,7 +23,7 @@ public class ContactLink implements CoreEntity {
 
 
     @NotNull
-    private int type;
+    private Integer type;
 
     @ToOne(joinProperty = "userId")
     private User user;
@@ -35,8 +35,8 @@ public class ContactLink implements CoreEntity {
     /** Used for active entity operations. */
     @Generated(hash = 1108094631)
     private transient ContactLinkDao myDao;
-    @Generated(hash = 1405958224)
-    public ContactLink(Long id, Long userId, Long linkOwnerUserDaoId, int type) {
+    @Generated(hash = 504306434)
+    public ContactLink(Long id, Long userId, Long linkOwnerUserDaoId, @NotNull Integer type) {
         this.id = id;
         this.userId = userId;
         this.linkOwnerUserDaoId = linkOwnerUserDaoId;
@@ -82,11 +82,11 @@ public class ContactLink implements CoreEntity {
         return ConnectionType.values()[this.type];
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

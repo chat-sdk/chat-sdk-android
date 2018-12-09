@@ -8,9 +8,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "org.greenrobot:greendao-gradle-plugin:$greenDaoVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -33,7 +33,7 @@ android {
 }
 
 greendao {
-    schemaVersion 4
+    schemaVersion 7
     targetGenDir "src/main/java"
     daoPackage "co.chatsdk.core.dao"
 }
@@ -42,62 +42,30 @@ dependencies {
 
 //    api fileTree(include: ['*.jar'], dir: 'libs')
 
-    api 'org.greenrobot:greendao:3.2.2'
-    api 'joda-time:joda-time:2.10'
-    api 'com.jakewharton.timber:timber:4.7.1'
-    api 'com.google.code.gson:gson:2.8.5'
-    api 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    api 'io.reactivex.rxjava2:rxjava:2.1.16'
-    api 'org.apache.commons:commons-lang3:3.7'
-    api 'com.google.android.gms:play-services-auth:16.0.0'
-    api 'com.google.android.gms:play-services-maps:15.0.1'
+    api "org.greenrobot:greendao:$greenDaoVersion"
+    api "joda-time:joda-time:$jodaTimeVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+    api "com.google.android.gms:play-services-maps:$playMapsVersion"
 
-    api 'id.zelory:compressor:2.1.0'
-    api 'android.arch.lifecycle:extensions:1.1.1'
-    api 'com.facebook.fresco:fresco:1.9.0'
 
-    api 'com.android.support:support-v4:' + project.ANDROID_SUPPORT_VERSION
+    implementation "com.facebook.fresco:fresco:$frescoVersion"
+    implementation "id.zelory:compressor:$compressorVersion"
+    api "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
 
 }
 
-// Bintray upload properties
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if(localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-    if(properties.getProperty('bintray.enabled') != null) {
-
-        group = CHAT_SDK_GROUP
-        version = CHAT_SDK_VERSION
-
-        ext {
-            bintrayRepo = BINTRAY_REPO
-            bintrayName = 'chat-sdk-core'
-            bintrayUserOrg = BINTRAY_USER_ORG
-
-            publishedGroupId = CHAT_SDK_GROUP
-            libraryName = 'ChatSDKCore'
-            artifact = 'chat-sdk-core'
-
-            libraryDescription = 'Chat SDK Core'
-
-            siteUrl = SITE_URL
-            gitUrl = GIT_URL
-
-            libraryVersion = CHAT_SDK_VERSION
-
-            developerId = DEVELOPER_ID
-            developerName = DEVELOPER_NAME
-            developerEmail = DEVELOPER_EMAIL
-
-            licenseName = LICENSE_NAME
-            licenseUrl = LICENSE_URL
-            allLicenses = ['GPL-3.0']
-        }
-
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/installv1.gradle'
-        apply from: 'https://raw.githubusercontent.com/chat-sdk/JCenter/master/bintrayv1.gradle'
-    }
+ext {
+    bintrayName = 'chat-sdk-core'
+    libraryName = 'ChatSDKCore'
+    artifact = 'chat-sdk-core'
+    libraryDescription = 'Chat SDK Core'
 }
 
-
+def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
+if (bintrayGradleFile.exists()) {
+    apply from: bintrayGradleFile
+}
