@@ -95,12 +95,9 @@ public class ChatSDK {
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
 
-//        if (debug) {
-        // TODO: Update this
+        if (config().debug) {
             Timber.plant(new Timber.DebugTree());
-//        } else {
-//            Timber.plant(new Timber.Tree());
-//        }
+        }
 
         return shared();
     }
