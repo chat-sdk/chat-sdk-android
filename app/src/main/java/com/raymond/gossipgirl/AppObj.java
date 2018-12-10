@@ -20,7 +20,6 @@ import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
@@ -59,8 +58,6 @@ public class AppObj extends MultiDexApplication {
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
 //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
-
-        ProfilePicturesModule.activate();
 
     }
 
