@@ -61,4 +61,5 @@ public class AppObj extends MultiDexApplication {
         super.attachBaseContext(base);
         MultiDex.install(this);
     }
+
 }
