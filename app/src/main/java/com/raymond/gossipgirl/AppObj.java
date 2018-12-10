@@ -9,7 +9,6 @@ import com.facebook.flipper.plugins.inspector.DescriptorMapping;
 import com.facebook.flipper.plugins.inspector.InspectorFlipperPlugin;
 import com.facebook.flipper.plugins.network.NetworkFlipperPlugin;
 import com.facebook.soloader.SoLoader;
-import android.widget.EditText;
 
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
@@ -45,8 +44,6 @@ public class AppObj extends MultiDexApplication {
         Configuration.Builder config = new Configuration.Builder(context);
         config.firebaseRootPath("18_12_raymond_test");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
-        config.publicRoomCreationEnabled(false);
-        config.pushNotificationSound("default");
 
         try {
             ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
@@ -57,8 +54,6 @@ public class AppObj extends MultiDexApplication {
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
-//        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
-
     }
 
     @Override
