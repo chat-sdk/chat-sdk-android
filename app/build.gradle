@@ -67,15 +67,13 @@ android {
 }
 
 dependencies {
-//    implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    implementation project(path: ':chat-sdk-core')
     implementation 'androidx.multidex:multidex:2.0.0'
-    implementation project(path: ':chat-sdk-ui')
-    implementation project(path: ':chat-sdk-firebase-adapter')
-    implementation project(path: ':chat-sdk-firebase-push')
-    implementation project(path: ':chat-sdk-firebase-file-storage')
-    implementation project(path: ':chat-sdk-firebase-ui')
-    implementation project(path: ':chat-sdk-profile-pictures')
+
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-ui:4.4.8-4'
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-adapter:4.4.8-4'
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-push:4.4.8-4'
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-file-storage:4.4.8-4'
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-ui:4.4.8-4'
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
