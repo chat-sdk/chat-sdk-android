@@ -2,27 +2,17 @@ package com.raymond.gossipgirl;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.firebase.ui.SplashScreenActivity;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 import static co.chatsdk.firebase.ui.FirebaseUIModule.RC_SIGN_IN;
 

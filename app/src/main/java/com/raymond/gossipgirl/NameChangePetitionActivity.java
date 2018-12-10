@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 
@@ -43,11 +40,11 @@ public class NameChangePetitionActivity extends AppCompatActivity {
         String stageNameString = (String) i.getSerializableExtra("stageNameTransfer");
 
         //Interfacing with the screen
-        userName = (TextView) findViewById(R.id.textViewUserName);
+        userName = findViewById(R.id.textViewUserName);
         String desiredStageName = getString(R.string.desired_stagename);
         userName.setText(desiredStageName + "\n" + stageNameString);
-        name = (EditText) findViewById(R.id.full_name);
-        email = (EditText) findViewById(R.id.email_address);
+        name = findViewById(R.id.full_name);
+        email = findViewById(R.id.email_address);
     }
 
     public void back_click(View v) {

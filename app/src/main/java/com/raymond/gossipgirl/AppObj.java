@@ -44,12 +44,10 @@ public class AppObj extends MultiDexApplication {
         Context context = getApplicationContext();
 
         Configuration.Builder config = new Configuration.Builder(context);
-//        builder.firebaseRootPath("firebase_v4_web_new_4");
         config.firebaseRootPath("18_12_raymond_test");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");
-//        config.pushNotificationsForPublicChatRoomsEnabled(true);
 
         try {
             ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
