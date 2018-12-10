@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
@@ -19,4 +20,5 @@ public class WelcomeActivity extends AppCompatActivity {
         Intent i = new Intent (WelcomeActivity.this, LocationActivity.class);
         startActivity(i);
     }
+
 }

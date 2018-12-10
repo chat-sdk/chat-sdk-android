@@ -34,6 +34,7 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
         confirmUsername = (TextView) findViewById(R.id.confirm_username);
         confirmUsername.setText(username + "\n" + city);
     }
+
     public void continue_click(View v) {
 
         //If the user clicks this we start the main activity and write their stage name, city and presented stage name to firebase.
@@ -54,8 +55,10 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
 
         ChatSDK.ui().startMainActivity(ConfirmUsernameActivity.this);
     }
+
     public void back_click(View v) {
         Intent i = new Intent (ConfirmUsernameActivity.this, GossipGirlUsernameActivity.class);
         startActivity(i);
     }
+
 }

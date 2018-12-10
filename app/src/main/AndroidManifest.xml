@@ -25,17 +25,17 @@
         <activity android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
             android:exported="true"/>
         <activity android:name=".ConfirmUsernameActivity"
-            android:label="Please Confirm Your Username"/>
+            android:label="@string/title_confirm_username"/>
         <activity android:name=".GossipGirlUsernameActivity"
-            android:label="Please Select Your Username"/>
+            android:label="@string/title_select_username"/>
         <activity android:name=".LocationActivity"
-            android:label="Location Services"/>
+            android:label="@string/title_location_services"/>
         <activity android:name=".SocialLogin"
-            android:label="Social Login"/>
+            android:label="@string/title_social_login"/>
         <activity android:name=".NameChangePetitionActivity"
-            android:label="Name Change Petition"/>
+            android:label="@string/title_name_change_petition"/>
         <activity android:name=".RequestReceivedActivity"
-            android:label="Request Received"/>
+            android:label="@string/title_request_received"/>
 
         <!--<activity android:name="co.chatsdk.firebase.ui.SplashScreenActivity">-->
             <!--<intent-filter>-->

@@ -101,4 +101,5 @@ public class LocationActivity extends AppCompatActivity {
 //            finish();
         }
     }
+
 }

@@ -54,7 +54,6 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
                 "Mackay",
         };
 
-
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -62,7 +61,6 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(this);
-
     }
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
@@ -125,6 +123,6 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         }).subscribe(user -> {
             usernameInUse = true;
         }, throwable -> ToastHelper.show(GossipGirlUsernameActivity.this, throwable.getLocalizedMessage()));
-
     }
+
 }

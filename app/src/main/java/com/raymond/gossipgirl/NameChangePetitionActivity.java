@@ -72,4 +72,5 @@ public class NameChangePetitionActivity extends AppCompatActivity {
         }
         //Otherwise I don't know what we are going to do.
     }
+
 }

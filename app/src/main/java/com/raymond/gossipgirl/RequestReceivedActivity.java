@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RequestReceivedActivity extends AppCompatActivity {
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_requestrecieved);
@@ -19,4 +20,5 @@ public class RequestReceivedActivity extends AppCompatActivity {
         Intent i = new Intent(RequestReceivedActivity.this, WelcomeActivity.class);
         startActivity(i);
     }
+
 }
