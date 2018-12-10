@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package com.raymond.gossipgirl;
 
 import co.chatsdk.core.session.ChatSDK;
 

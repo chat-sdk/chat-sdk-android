@@ -8,7 +8,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "co.chatsdk.android.app"
+        applicationId "com.raymond.gossipgirl"
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.MIN_SDK)

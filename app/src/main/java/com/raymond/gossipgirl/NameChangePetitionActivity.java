@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package com.raymond.gossipgirl;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
