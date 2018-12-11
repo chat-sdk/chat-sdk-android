@@ -69,11 +69,11 @@ android {
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.0'
 
-    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-ui:4.4.8-4'
-    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-adapter:4.4.8-4'
-    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-push:4.4.8-4'
-    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-file-storage:4.4.8-4'
-    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-ui:4.4.8-4'
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-ui:' + project.CHAT_SDK_VERSION
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-adapter:' + project.CHAT_SDK_VERSION
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-push:' + project.CHAT_SDK_VERSION
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-file-storage:' + project.CHAT_SDK_VERSION
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-ui:' + project.CHAT_SDK_VERSION
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
