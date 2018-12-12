@@ -28,6 +28,7 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirmusername);
+        getSupportActionBar().hide();
 
         //Retrieve the data from the last activity
         Intent i = getIntent();

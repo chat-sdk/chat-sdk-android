@@ -10,6 +10,7 @@ public class SocialLogin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_social);
+        getSupportActionBar().hide();
     }
 
     public void continue_click(View v) {
