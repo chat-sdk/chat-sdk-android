@@ -4,16 +4,16 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/silver">
+    android:background="@drawable/ballet">
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="@string/welcome_screen_text_1"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,12 +38,12 @@
 
     <TextView
         android:id="@+id/textView3"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:text="@string/welcome_screen_text_3"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,11 +56,11 @@
         android:layout_width="300dp"
         android:layout_height="70dp"
         android:layout_marginBottom="76dp"
-        android:background="@drawable/chat_sdk_login_button_selector"
+        android:background="@drawable/transparent_button"
         android:onClick="getStarted_click"
         android:text="@string/get_started"
         android:textAllCaps="false"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textColor="@color/white"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

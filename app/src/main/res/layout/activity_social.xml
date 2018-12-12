@@ -5,10 +5,12 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/silver">
+    android:background="@drawable/ballet_blur">
 
     <Button
         android:id="@+id/button_register"
+        android:background="@drawable/transparent_button"
+        android:textColor="@color/white"
         android:layout_width="300dp"
         android:layout_height="70dp"
         android:layout_marginStart="8dp"
@@ -17,11 +19,9 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/chat_sdk_login_button_selector"
         android:onClick="continue_click"
         android:text="@string/continue_string"
         android:textAllCaps="false"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

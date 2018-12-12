@@ -5,19 +5,19 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/silver">
+    android:background="@drawable/ballet_blur">
 
     <Button
         android:id="@+id/button"
+        android:background="@drawable/transparent_button"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="52dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/chat_sdk_login_button_selector"
         android:onClick="back_click"
         android:text="@string/back"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,10 +26,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:textColor="@color/white"
         android:background="@drawable/rounded_edges"
         android:gravity="center"
         android:text="@string/stagename_and_location"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +42,7 @@
         android:layout_marginTop="150dp"
         android:gravity="center"
         android:text="@string/confirm_username"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textColor="@color/white"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,14 +50,14 @@
 
     <Button
         android:id="@+id/button_register"
+        android:background="@drawable/transparent_button"
+        android:textColor="@color/white"
         android:layout_width="300dp"
         android:layout_height="70dp"
         android:layout_marginBottom="76dp"
-        android:background="@drawable/chat_sdk_login_button_selector"
         android:onClick="continue_click"
         android:text="@string/continue_string"
         android:textAllCaps="false"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
