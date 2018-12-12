@@ -74,6 +74,7 @@ dependencies {
     implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-push:' + project.CHAT_SDK_VERSION
     implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-file-storage:' + project.CHAT_SDK_VERSION
     implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-ui:' + project.CHAT_SDK_VERSION
+    implementation 'com.github.chat-sdk.chat-sdk-android:chat-sdk-firebase-social-login:' + project.CHAT_SDK_VERSION
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
