@@ -9,6 +9,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
@@ -18,7 +19,8 @@ import static co.chatsdk.firebase.ui.FirebaseUIModule.RC_SIGN_IN;
 
 public class LocationActivity extends AppCompatActivity {
 
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
         findViewById(R.id.loadingPanel).setVisibility(View.GONE);
@@ -37,7 +39,8 @@ public class LocationActivity extends AppCompatActivity {
                 RC_SIGN_IN);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.
         if (requestCode == RC_SIGN_IN) {

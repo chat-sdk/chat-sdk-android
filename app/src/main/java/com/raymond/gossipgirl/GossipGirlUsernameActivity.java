@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
@@ -21,7 +22,8 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
     private EditText nameEditText;
     private boolean usernameInUse;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gossipgirlusername);
         nameEditText = (EditText) findViewById(R.id.username_text);
@@ -62,11 +64,13 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         dropdown.setOnItemSelectedListener(this);
     }
 
-    public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-        city = (String) parent.getItemAtPosition(position);
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        city = (String) adapterView.getItemAtPosition(i);
     }
 
-    public void onNothingSelected(AdapterView<?> parent) {
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
         // Another interface callback
     }
 
