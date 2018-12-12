@@ -31,8 +31,6 @@
             android:label="@string/title_select_username"/>
         <activity android:name=".LocationActivity"
             android:label="@string/title_location_services"/>
-        <activity android:name=".SocialLogin"
-            android:label="@string/title_social_login"/>
         <activity android:name=".NameChangePetitionActivity"
             android:label="@string/title_name_change_petition"/>
         <activity android:name=".RequestReceivedActivity"
