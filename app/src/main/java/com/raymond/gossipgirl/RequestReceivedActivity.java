@@ -15,7 +15,7 @@ public class RequestReceivedActivity extends AppCompatActivity {
 
     //Here the user is told that their request has been received, and that they will be responded to soon.
     //Now the only thing to do is to go back to the main screen.
-    public void exit_click(View v) {
+    public void didClickOnExit(View v) {
         Intent i = new Intent(RequestReceivedActivity.this, WelcomeActivity.class);
         startActivity(i);
     }

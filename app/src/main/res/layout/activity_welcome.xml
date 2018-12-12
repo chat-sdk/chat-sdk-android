@@ -57,7 +57,7 @@
         android:layout_height="70dp"
         android:layout_marginBottom="76dp"
         android:background="@drawable/transparent_button"
-        android:onClick="getStarted_click"
+        android:onClick="didClickOnGetStarted"
         android:text="@string/get_started"
         android:textAllCaps="false"
         android:textColor="@color/white"

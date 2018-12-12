@@ -46,12 +46,12 @@ public class NameChangePetitionActivity extends AppCompatActivity {
         email = findViewById(R.id.email_address);
     }
 
-    public void back_click(View v) {
+    public void didClickOnBack(View v) {
         Intent i = new Intent (NameChangePetitionActivity.this, GossipGirlUsernameActivity.class);
         startActivity(i);
     }
 
-    public void submit_click(View v) {
+    public void didClickOnSubmit(View v) {
 
         //Check to see if what was entered in the email box was an actual email address, and if it is also an actual name.
         String emailString = email.getText().toString();

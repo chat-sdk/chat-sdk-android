@@ -15,7 +15,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     //Here the introductory message is displayed, and the user can start the process of signing up.
 
-    public void getStarted_click(View v) {
+    public void didClickOnGetStarted(View v) {
         Intent i = new Intent (WelcomeActivity.this, LocationActivity.class);
         startActivity(i);
     }

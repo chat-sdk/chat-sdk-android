@@ -28,7 +28,7 @@
         android:layout_marginBottom="76dp"
         android:background="@drawable/transparent_button"
         android:textColor="@color/white"
-        android:onClick="exit_click"
+        android:onClick="didClickOnExit"
         android:text="@string/back"
         android:textAllCaps="false"
         android:textSize="36sp"

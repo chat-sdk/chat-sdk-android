@@ -16,7 +16,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:onClick="back_click"
+        android:onClick="didClickOnBack"
         android:text="@string/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -55,7 +55,7 @@
         android:layout_width="300dp"
         android:layout_height="70dp"
         android:layout_marginBottom="76dp"
-        android:onClick="continue_click"
+        android:onClick="didClickOnContinue"
         android:text="@string/continue_string"
         android:textAllCaps="false"
         android:textSize="36sp"

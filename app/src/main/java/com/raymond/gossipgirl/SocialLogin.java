@@ -13,7 +13,7 @@ public class SocialLogin extends AppCompatActivity {
         setContentView(R.layout.activity_social);
     }
 
-    public void continue_click(View v) {
+    public void didClickOnContinue(View v) {
         Intent i = new Intent (SocialLogin.this, GossipGirlUsernameActivity.class);
         startActivity(i);
     }

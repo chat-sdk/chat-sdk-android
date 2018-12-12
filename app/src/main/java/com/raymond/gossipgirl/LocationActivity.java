@@ -24,7 +24,7 @@ public class LocationActivity extends AppCompatActivity {
         findViewById(R.id.loadingPanel).setVisibility(View.GONE);
     }
 
-    public void continue_click(View v) {
+    public void didClickOnContinue(View v) {
         startAuthenticationActivity();
     }
 

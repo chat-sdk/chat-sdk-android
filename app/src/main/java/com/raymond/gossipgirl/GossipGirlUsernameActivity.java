@@ -70,7 +70,7 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         // Another interface callback
     }
 
-    public void continue_click(View v) {
+    public void didClickOnContinue(View v) {
 
         String username = nameEditText.getText().toString();
 
