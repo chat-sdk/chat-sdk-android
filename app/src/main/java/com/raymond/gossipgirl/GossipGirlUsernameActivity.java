@@ -1,6 +1,5 @@
 package com.raymond.gossipgirl;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -83,7 +82,7 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
 
         // What happens if the name is blank?
         if (username.isEmpty()) {
-            ToastHelper.show(GossipGirlUsernameActivity.this, "Please enter a username.");
+            ToastHelper.show(getApplicationContext(), "Please enter a username.");
             return;
         }
 
@@ -100,21 +99,13 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
                 AlertDialog.Builder alert = new AlertDialog.Builder(GossipGirlUsernameActivity.this);
                 alert.setTitle("Stage name already in use");
                 alert.setMessage("The stage name " + presentedStageName + " is already in use. You can file a request with the administrator that this be changed, or you can select a new stage name.");
-                alert.setPositiveButton("Select a new stage name", new DialogInterface.OnClickListener() {
-                    @Override
-                    //The user can either pick a new name
-                    public void onClick(DialogInterface dialog, int which) {
-                        return;
-                    }
-                });
-                alert.setNegativeButton("Request this stage name", new DialogInterface.OnClickListener() {
-                    @Override
-                    //Or the user can petition to get the username they want.
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(getApplicationContext(), NameChangePetitionActivity.class);
-                        intent.putExtra("stageNameTransfer", presentedStageName);
-                        ChatSDK.ui().startActivity(getApplicationContext(), intent);
-                    }
+                //The user can either pick a new name
+                alert.setPositiveButton("Select a new stage name", (dialog, which) -> {});
+                //Or the user can petition to get the username they want.
+                alert.setNegativeButton("Request this stage name", (dialog, which) -> {
+                    Intent intent = new Intent(getApplicationContext(), NameChangePetitionActivity.class);
+                    intent.putExtra("stageNameTransfer", presentedStageName);
+                    ChatSDK.ui().startActivity(getApplicationContext(), intent);
                 });
                 alert.show();
             } else {
