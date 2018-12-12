@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -21,6 +22,8 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
     private String city;
     private EditText nameEditText;
     private boolean usernameInUse;
+
+    private DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,7 +93,7 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         String presentedStageName = GossipGirlUserHelper.displayStageName(stageName);
 
         //Is this name already present?
-        ChatSDK.search().usersForIndex(stageName, 1, Keys.StageName)
+        disposableList.add(ChatSDK.search().usersForIndex(stageName, 1, Keys.StageName)
                 .observeOn(AndroidSchedulers.mainThread()).doOnComplete(() -> {
                     //If so, then we have these options:
             if (usernameInUse) {
@@ -125,7 +128,13 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
             }
         }).subscribe(user -> {
             usernameInUse = true;
-        }, throwable -> ToastHelper.show(GossipGirlUsernameActivity.this, throwable.getLocalizedMessage()));
+        }, throwable -> ToastHelper.show(GossipGirlUsernameActivity.this, throwable.getLocalizedMessage())));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposableList.dispose();
     }
 
 }

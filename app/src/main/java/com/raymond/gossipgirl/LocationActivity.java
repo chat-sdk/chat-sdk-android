@@ -12,12 +12,15 @@ import com.firebase.ui.auth.IdpResponse;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.ui.utils.ToastHelper;
 
 import static co.chatsdk.firebase.ui.FirebaseUIModule.RC_SIGN_IN;
 
 public class LocationActivity extends AppCompatActivity {
+
+    private DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +67,7 @@ public class LocationActivity extends AppCompatActivity {
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                ChatSDK.auth().authenticateWithCachedToken().doFinally(() -> {
+                disposableList.add(ChatSDK.auth().authenticateWithCachedToken().doFinally(() -> {
                     findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 }).subscribe(() -> {
@@ -76,7 +79,7 @@ public class LocationActivity extends AppCompatActivity {
                     else {
                         ChatSDK.ui().startMainActivity(LocationActivity.this);
                     }
-                }, throwable -> throwable.printStackTrace());
+                }, throwable -> throwable.printStackTrace()));
 
                 return;
             }
@@ -102,6 +105,12 @@ public class LocationActivity extends AppCompatActivity {
             ToastHelper.show(this, chatsdk.co.chat_sdk_firebase_ui.R.string.unknown_sign_in_response);
 //            finish();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposableList.dispose();
     }
 
 }
