@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.session.ChatSDK;
 
-public class WelcomeActivity extends AppCompatActivity {
+public class GGWelcomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class WelcomeActivity extends AppCompatActivity {
     //Here the introductory message is displayed, and the user can start the process of signing up.
 
     public void didClickOnGetStarted(View v) {
-        ChatSDK.ui().startActivity(getApplicationContext(), LocationActivity.class);
+        ChatSDK.ui().startActivity(getApplicationContext(), GGLocationActivity.class);
     }
 
 }

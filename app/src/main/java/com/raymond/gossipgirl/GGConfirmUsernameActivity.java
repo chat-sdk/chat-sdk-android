@@ -10,7 +10,7 @@ import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
-public class ConfirmUsernameActivity extends AppCompatActivity {
+public class GGConfirmUsernameActivity extends AppCompatActivity {
 
     private String username;
     private String stageName;
@@ -24,10 +24,10 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
 
         //Retrieve the data from the last activity
         Intent i = getIntent();
-        username = (String) i.getSerializableExtra(Keys.Username);
-        stageName = (String) i.getSerializableExtra(Keys.StageName);
-        presentedStageName = (String) i.getSerializableExtra(Keys.PresentedStageName);
-        city = (String) i.getSerializableExtra(Keys.City);
+        username = (String) i.getSerializableExtra(GGKeys.Username);
+        stageName = (String) i.getSerializableExtra(GGKeys.StageName);
+        presentedStageName = (String) i.getSerializableExtra(GGKeys.PresentedStageName);
+        city = (String) i.getSerializableExtra(GGKeys.City);
 
         //The confirmUsername is the same as the presentedStageName, it just needs to be written on two lines.
         confirmUsername = (TextView) findViewById(R.id.confirm_username);
@@ -37,9 +37,9 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
     public void didClickOnContinue(View v) {
 
         //If the user clicks this we start the main activity and write their stage name, city and presented stage name to firebase.
-        ChatSDK.currentUser().setMetaString(Keys.PresentedStageName, presentedStageName);
-        ChatSDK.currentUser().setMetaString(Keys.StageName, stageName);
-        ChatSDK.currentUser().setMetaString(Keys.City, city);
+        ChatSDK.currentUser().setMetaString(GGKeys.PresentedStageName, presentedStageName);
+        ChatSDK.currentUser().setMetaString(GGKeys.StageName, stageName);
+        ChatSDK.currentUser().setMetaString(GGKeys.City, city);
         ChatSDK.core().pushUser().subscribe(new Action() {
             @Override
             public void run() throws Exception {
@@ -52,11 +52,11 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
             }
         });
 
-        ChatSDK.ui().startMainActivity(ConfirmUsernameActivity.this);
+        ChatSDK.ui().startMainActivity(GGConfirmUsernameActivity.this);
     }
 
     public void didClickOnBack(View v) {
-        Intent i = new Intent (ConfirmUsernameActivity.this, GossipGirlUsernameActivity.class);
+        Intent i = new Intent (GGConfirmUsernameActivity.this, GGUsernameActivity.class);
         startActivity(i);
     }
 

@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 
-public class NameChangePetitionActivity extends AppCompatActivity {
+public class GGNameChangePetitionActivity extends AppCompatActivity {
 
     private TextView userName;
     private EditText name;
@@ -47,7 +47,7 @@ public class NameChangePetitionActivity extends AppCompatActivity {
     }
 
     public void didClickOnBack(View v) {
-        Intent i = new Intent (NameChangePetitionActivity.this, GossipGirlUsernameActivity.class);
+        Intent i = new Intent (GGNameChangePetitionActivity.this, GGUsernameActivity.class);
         startActivity(i);
     }
 
@@ -58,15 +58,15 @@ public class NameChangePetitionActivity extends AppCompatActivity {
         String nameString = name.getText().toString();
 
         if (nameString.isEmpty() || !nameString.contains(" ")) {
-            ToastHelper.show(NameChangePetitionActivity.this, "Please enter your first and last name");
+            ToastHelper.show(GGNameChangePetitionActivity.this, "Please enter your first and last name");
             return;
         }
         if (emailString.isEmpty() || !emailString.contains("@")) {
-            ToastHelper.show(NameChangePetitionActivity.this, "Please enter a valid email address.");
+            ToastHelper.show(GGNameChangePetitionActivity.this, "Please enter a valid email address.");
             return;
         } else {
             //If task of submitting is successful:
-            Intent i = new Intent (NameChangePetitionActivity.this, RequestReceivedActivity.class);
+            Intent i = new Intent (GGNameChangePetitionActivity.this, GGRequestReceivedActivity.class);
             startActivity(i);
         }
         //Otherwise I don't know what we are going to do.

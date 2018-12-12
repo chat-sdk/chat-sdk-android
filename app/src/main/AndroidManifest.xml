@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme"
         android:name="com.raymond.gossipgirl.AppObj">
 
-        <activity android:name="com.raymond.gossipgirl.WelcomeActivity"
+        <activity android:name="com.raymond.gossipgirl.GGWelcomeActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,15 +25,15 @@
 
         <activity android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
             android:exported="true"/>
-        <activity android:name=".ConfirmUsernameActivity"
+        <activity android:name=".GGConfirmUsernameActivity"
             android:label="@string/title_confirm_username"/>
-        <activity android:name=".GossipGirlUsernameActivity"
+        <activity android:name=".GGUsernameActivity"
             android:label="@string/title_select_username"/>
-        <activity android:name=".LocationActivity"
+        <activity android:name=".GGLocationActivity"
             android:label="@string/title_location_services"/>
-        <activity android:name=".NameChangePetitionActivity"
+        <activity android:name=".GGNameChangePetitionActivity"
             android:label="@string/title_name_change_petition"/>
-        <activity android:name=".RequestReceivedActivity"
+        <activity android:name=".GGRequestReceivedActivity"
             android:label="@string/title_request_received"/>
 
         <!--Contact Book-->

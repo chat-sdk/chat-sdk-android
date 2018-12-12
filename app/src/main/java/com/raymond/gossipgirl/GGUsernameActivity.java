@@ -16,7 +16,7 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class GossipGirlUsernameActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class GGUsernameActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private String city;
     private EditText nameEditText;
@@ -89,37 +89,37 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
         String stageName = city + "-" + username;
         //The reason for this is that in firebase the stage name is written as city-username, whereas on screen it
         //should be presented as username-city.
-        String presentedStageName = GossipGirlUserHelper.displayStageName(stageName);
+        String presentedStageName = GGUserHelper.displayStageName(stageName);
 
         //Is this name already present?
-        disposableList.add(ChatSDK.search().usersForIndex(stageName, 1, Keys.StageName)
+        disposableList.add(ChatSDK.search().usersForIndex(stageName, 1, GGKeys.StageName)
                 .observeOn(AndroidSchedulers.mainThread()).doOnComplete(() -> {
                     //If so, then we have these options:
             if (usernameInUse) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(GossipGirlUsernameActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(GGUsernameActivity.this);
                 alert.setTitle("Stage name already in use");
                 alert.setMessage("The stage name " + presentedStageName + " is already in use. You can file a request with the administrator that this be changed, or you can select a new stage name.");
                 //The user can either pick a new name
                 alert.setPositiveButton("Select a new stage name", (dialog, which) -> {});
                 //Or the user can petition to get the username they want.
                 alert.setNegativeButton("Request this stage name", (dialog, which) -> {
-                    Intent intent = new Intent(getApplicationContext(), NameChangePetitionActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), GGNameChangePetitionActivity.class);
                     intent.putExtra("stageNameTransfer", presentedStageName);
                     ChatSDK.ui().startActivity(getApplicationContext(), intent);
                 });
                 alert.show();
             } else {
                 //Now the user must confirm this username and city.
-                Intent intent = new Intent (getApplicationContext(), ConfirmUsernameActivity.class);
-                intent.putExtra(Keys.Username, username);
-                intent.putExtra(Keys.StageName, stageName);
-                intent.putExtra(Keys.PresentedStageName, presentedStageName);
-                intent.putExtra(Keys.City, city);
+                Intent intent = new Intent (getApplicationContext(), GGConfirmUsernameActivity.class);
+                intent.putExtra(GGKeys.Username, username);
+                intent.putExtra(GGKeys.StageName, stageName);
+                intent.putExtra(GGKeys.PresentedStageName, presentedStageName);
+                intent.putExtra(GGKeys.City, city);
                 ChatSDK.ui().startActivity(getApplicationContext(), intent);
             }
         }).subscribe(user -> {
             usernameInUse = true;
-        }, throwable -> ToastHelper.show(GossipGirlUsernameActivity.this, throwable.getLocalizedMessage())));
+        }, throwable -> ToastHelper.show(GGUsernameActivity.this, throwable.getLocalizedMessage())));
     }
 
     @Override

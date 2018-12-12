@@ -6,7 +6,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class RequestReceivedActivity extends AppCompatActivity {
+public class GGRequestReceivedActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -16,7 +16,7 @@ public class RequestReceivedActivity extends AppCompatActivity {
     //Here the user is told that their request has been received, and that they will be responded to soon.
     //Now the only thing to do is to go back to the main screen.
     public void didClickOnExit(View v) {
-        Intent i = new Intent(RequestReceivedActivity.this, WelcomeActivity.class);
+        Intent i = new Intent(GGRequestReceivedActivity.this, GGWelcomeActivity.class);
         startActivity(i);
     }
 

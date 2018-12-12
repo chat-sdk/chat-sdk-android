@@ -19,7 +19,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 
 import static co.chatsdk.firebase.ui.FirebaseUIModule.RC_SIGN_IN;
 
-public class LocationActivity extends AppCompatActivity {
+public class GGLocationActivity extends AppCompatActivity {
 
     private DisposableList disposableList = new DisposableList();
 
@@ -64,7 +64,7 @@ public class LocationActivity extends AppCompatActivity {
                 }).subscribe(() -> {
                     String city = ChatSDK.currentUser().metaStringForKey("city");
                     if (city == null) {
-                        ChatSDK.ui().startActivity(getApplicationContext(), GossipGirlUsernameActivity.class);
+                        ChatSDK.ui().startActivity(getApplicationContext(), GGUsernameActivity.class);
                     }
                     else {
                         ChatSDK.ui().startMainActivity(getApplicationContext());
