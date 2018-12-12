@@ -10,7 +10,7 @@ public class RequestReceivedActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_requestrecieved);
+        setContentView(R.layout.activity_request_recieved);
     }
 
     //Here the user is told that their request has been received, and that they will be responded to soon.

@@ -20,7 +20,7 @@ public class ConfirmUsernameActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_confirmusername);
+        setContentView(R.layout.activity_confirm_username);
 
         //Retrieve the data from the last activity
         Intent i = getIntent();

@@ -27,7 +27,7 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gossipgirlusername);
+        setContentView(R.layout.activity_username);
         nameEditText = (EditText) findViewById(R.id.username_text);
 
         //get the spinner from the xml.
