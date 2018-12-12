@@ -13,6 +13,10 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        if (ChatSDK.currentUser() != null) {
+            ChatSDK.ui().startMainActivity(getApplicationContext());
+        }
     }
 
     //Here the introductory message is displayed, and the user can start the process of signing up.
