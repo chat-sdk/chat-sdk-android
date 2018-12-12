@@ -1,11 +1,11 @@
 package com.raymond.gossipgirl;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import co.chatsdk.core.session.ChatSDK;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -18,8 +18,7 @@ public class WelcomeActivity extends AppCompatActivity {
     //Here the introductory message is displayed, and the user can start the process of signing up.
 
     public void didClickOnGetStarted(View v) {
-        Intent i = new Intent (WelcomeActivity.this, LocationActivity.class);
-        startActivity(i);
+        ChatSDK.ui().startActivity(getApplicationContext(), LocationActivity.class);
     }
 
 }

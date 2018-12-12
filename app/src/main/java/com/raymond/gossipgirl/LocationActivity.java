@@ -73,8 +73,7 @@ public class LocationActivity extends AppCompatActivity {
                 }).subscribe(() -> {
                     String location = ChatSDK.currentUser().metaStringForKey("city");
                     if (location == null) {
-                        Intent i = new Intent (LocationActivity.this, GossipGirlUsernameActivity.class);
-                        startActivity(i);
+                        ChatSDK.ui().startActivity(getApplicationContext(), GossipGirlUsernameActivity.class);
                     }
                     else {
                         ChatSDK.ui().startMainActivity(LocationActivity.this);

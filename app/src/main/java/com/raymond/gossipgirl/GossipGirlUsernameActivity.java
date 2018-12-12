@@ -111,20 +111,20 @@ public class GossipGirlUsernameActivity extends AppCompatActivity implements Ada
                     @Override
                     //Or the user can petition to get the username they want.
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent(GossipGirlUsernameActivity.this, NameChangePetitionActivity.class);
-                        i.putExtra("stageNameTransfer", presentedStageName);
-                        GossipGirlUsernameActivity.this.startActivity(i);
+                        Intent intent = new Intent(getApplicationContext(), NameChangePetitionActivity.class);
+                        intent.putExtra("stageNameTransfer", presentedStageName);
+                        ChatSDK.ui().startActivity(getApplicationContext(), intent);
                     }
                 });
                 alert.show();
             } else {
                 //Now the user must confirm this username and city.
-                Intent i = new Intent (GossipGirlUsernameActivity.this, ConfirmUsernameActivity.class);
-                i.putExtra(Keys.Username, username);
-                i.putExtra(Keys.StageName, stageName);
-                i.putExtra(Keys.PresentedStageName, presentedStageName);
-                i.putExtra(Keys.City, city);
-                startActivity(i);
+                Intent intent = new Intent (getApplicationContext(), ConfirmUsernameActivity.class);
+                intent.putExtra(Keys.Username, username);
+                intent.putExtra(Keys.StageName, stageName);
+                intent.putExtra(Keys.PresentedStageName, presentedStageName);
+                intent.putExtra(Keys.City, city);
+                ChatSDK.ui().startActivity(getApplicationContext(), intent);
             }
         }).subscribe(user -> {
             usernameInUse = true;
