@@ -22,7 +22,6 @@ public class LocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
         findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-        getSupportActionBar().hide();
     }
 
     public void continue_click(View v) {

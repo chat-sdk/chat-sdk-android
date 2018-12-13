@@ -20,7 +20,6 @@ public class NameChangePetitionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_namechangepetition);
-        getSupportActionBar().hide();
 
         // This message is telling people that they need to upload their enrollment form for the
         //petition to work
