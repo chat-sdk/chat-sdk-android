@@ -168,6 +168,7 @@ exports.pushToChannels = functions.https.onCall((data, context) => {
 
     let type = data.type;
     let senderId = String(data.senderId);
+    let senderName = data.senderName ? data.senderName : 'You received a message';
     let threadId = String(data.threadId);
 
     let userIds = data.userIds;
@@ -187,8 +188,7 @@ exports.pushToChannels = functions.https.onCall((data, context) => {
     var status = {};
     for(let uid in userIds) {
         if(userIds.hasOwnProperty(uid)) {
-            let userName = userIds[uid];
-            let message = buildMessage(userName, body, action, sound, type, senderId, threadId, uid);
+            let message = buildMessage(senderName, body, action, sound, type, senderId, threadId, uid);
             status[uid] = message;
             admin.messaging().send(message);
         }
@@ -203,7 +203,6 @@ exports.pushListener = functions.database.ref('{rootPath}/threads/{threadId}/mes
 
     let messageValue = messageSnapshot.val();
     let senderId = messageValue["user-firebase-id"];
-
     let pushRef = admin.database().ref(context.params.rootPath).child("push-test");
 
     let threadId = context.params.threadId;
