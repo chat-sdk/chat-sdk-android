@@ -67,6 +67,7 @@ public class FirebasePushHandler implements PushHandler {
         data.put("userIds", users);
         data.put("body", body);
         data.put("type", message.getType());
+        data.put("senderName", message.getSender().getName());
         data.put("senderId", message.getSender().getEntityID());
         data.put("threadId", message.getThread().getEntityID());
         data.put("action", ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
