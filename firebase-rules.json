@@ -272,7 +272,7 @@
             "contacts": {
               "$contact_user_id": {
                 ".write": "auth.uid == $user_id",
-                ".validate": "data.parent().parent().parent().child($blocked_user_id).exists()"
+                ".validate": "data.parent().parent().parent().child($contact_user_id).exists()"
               }
             },
 
