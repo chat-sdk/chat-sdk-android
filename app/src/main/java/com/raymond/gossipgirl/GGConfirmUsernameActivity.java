@@ -5,18 +5,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.mukesh.countrypicker.Country;
+import com.mukesh.countrypicker.CountryPicker;
+
 import androidx.appcompat.app.AppCompatActivity;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
+import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.utils.ToastHelper;
 
 public class GGConfirmUsernameActivity extends AppCompatActivity {
 
     private String username;
     private String stageName;
     private String presentedStageName;
-    private String city;
-    private TextView confirmUsername;
+    private String countryName;
+    private String location;
+
+    private DisposableList disposableList = new DisposableList();
+    private CountryPicker countryPicker = new CountryPicker.Builder().build();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,35 +31,35 @@ public class GGConfirmUsernameActivity extends AppCompatActivity {
 
         //Retrieve the data from the last activity
         Intent i = getIntent();
-        username = (String) i.getSerializableExtra(GGKeys.Username);
-        stageName = (String) i.getSerializableExtra(GGKeys.StageName);
-        presentedStageName = (String) i.getSerializableExtra(GGKeys.PresentedStageName);
-        city = (String) i.getSerializableExtra(GGKeys.City);
+        username = i.getStringExtra(GGKeys.Username);
+        stageName = i.getStringExtra(GGKeys.StageName);
+        presentedStageName = i.getStringExtra(GGKeys.PresentedStageName);
+        countryName = i.getStringExtra(GGKeys.Country);
+        location = i.getStringExtra(Keys.Location);
 
         //The confirmUsername is the same as the presentedStageName, it just needs to be written on two lines.
-        confirmUsername = (TextView) findViewById(R.id.confirm_username);
-        confirmUsername.setText(username + "\n" + city);
+        TextView confirmUsername = findViewById(R.id.confirm_username);
+        confirmUsername.setText(username + "\n" + location);
     }
 
     public void didClickOnContinue(View v) {
 
         //If the user clicks this we start the main activity and write their stage name, city and presented stage name to firebase.
+        ChatSDK.currentUser().setName(username);
+        ChatSDK.currentUser().setLocation(location);
         ChatSDK.currentUser().setMetaString(GGKeys.PresentedStageName, presentedStageName);
         ChatSDK.currentUser().setMetaString(GGKeys.StageName, stageName);
-        ChatSDK.currentUser().setMetaString(GGKeys.City, city);
-        ChatSDK.core().pushUser().subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-
-            }
-        });
-
-        ChatSDK.ui().startMainActivity(GGConfirmUsernameActivity.this);
+        Country country = countryPicker.getCountryByName(countryName);
+        if (country != null) {
+            ChatSDK.currentUser().setCountryCode(country.getCode());
+        } else {
+            ChatSDK.currentUser().setCountryCode(countryName);
+        }
+        disposableList.add(ChatSDK.core().pushUser().subscribe(() -> {
+            ChatSDK.ui().startMainActivity(GGConfirmUsernameActivity.this);
+        }, throwable -> {
+            ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
+        }));
     }
 
     public void didClickOnBack(View v) {
@@ -60,4 +67,9 @@ public class GGConfirmUsernameActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposableList.dispose();
+    }
 }

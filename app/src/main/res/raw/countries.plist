@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<array>
+	<dict>
+		<key>name</key>
+		<string>New Zealand</string>
+		<key>cities</key>
+		<array>
+			<string>Auckland</string>
+			<string>Christchurch</string>
+			<string>Wellington</string>
+			<string>Queenstown</string>
+		</array>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>United States</string>
+		<key>cities</key>
+		<array>
+			<string>New York</string>
+			<string>Los Angeles</string>
+			<string>Chicargo</string>
+			<string>Miami</string>
+			<string>San Fransisco</string>
+			<string>San Diego</string>
+			<string>Washington</string>
+		</array>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Australia</string>
+		<key>cities</key>
+		<array>
+			<string>Sydney</string>
+			<string>Melbourne</string>
+			<string>Brisbane</string>
+			<string>Perth</string>
+			<string>Darwin</string>
+			<string>Adelaide</string>
+			<string>Hobart</string>
+			<string>Canberra</string>
+		</array>
+	</dict>
+	<dict>
+		<key>name</key>
+		<string>Canada</string>
+		<key>cities</key>
+		<array>
+			<string>Toronto</string>
+			<string>Ottawa</string>
+			<string>Montreal</string>
+			<string>Vancouver</string>
+		</array>
+	</dict>
+</array>
+</plist>

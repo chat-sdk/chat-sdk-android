@@ -8,16 +8,28 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.keiji.plistparser.PListArray;
+import io.keiji.plistparser.PListDict;
+import io.keiji.plistparser.PListException;
+import io.keiji.plistparser.PListParser;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class GGUsernameActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class GGUsernameActivity extends AppCompatActivity {
 
+    private String country;
     private String city;
     private EditText nameEditText;
     private boolean usernameInUse;
@@ -28,52 +40,69 @@ public class GGUsernameActivity extends AppCompatActivity implements AdapterView
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_username);
-        nameEditText = (EditText) findViewById(R.id.username_text);
+        nameEditText = findViewById(R.id.username_text);
 
-        //get the spinner from the xml.
-        Spinner dropdown = findViewById(R.id.city_spinner);
+        Spinner countrySpinner = findViewById(R.id.country_spinner);
+        Spinner citySpinner = findViewById(R.id.city_spinner);
 
-        //create a list of items for the spinner.
-        String[] items = new String[] {
-                "Sydney",
-                "Melbourne",
-                "Brisbane",
-                "Perth",
-                "Adelaide",
-                "Gold Coast–Tweed Heads",
-                "Newcastle–Maitland",
-                "Canberra–Queanbeyan",
-                "Sunshine Coast",
-                "Wollongong",
-                "Geelong",
-                "Hobart",
-                "Townsville",
-                "Cairns",
-                "Darwin",
-                "Toowoomba",
-                "Ballarat",
-                "Bendigo",
-                "Albury–Wodonga",
-                "Mackay",
-        };
+        Map<String, List<String>> countries = getCountries();
+        String[] countriesArray = countries.keySet().toArray(new String[0]);
 
-        //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-        //There are multiple variations of this, but this is the basic variant.
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        ArrayAdapter<String> countriesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, countriesArray);
 
-        //set the spinners adapter to the previously created one.
-        dropdown.setAdapter(adapter);
-        dropdown.setOnItemSelectedListener(this);
+        countrySpinner.setAdapter(countriesAdapter);
+        countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                country = (String) adapterView.getItemAtPosition(i);
+                List<String> citiesList = countries.get(country);
+                if (citiesList != null) {
+                    String[] citiesArray = citiesList.toArray(new String[0]);
+                    ArrayAdapter<String> citiesAdapter = new ArrayAdapter<>(GGUsernameActivity.this, android.R.layout.simple_spinner_dropdown_item, citiesArray);
+                    citySpinner.setAdapter(citiesAdapter);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                city = (String) adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        city = (String) adapterView.getItemAtPosition(i);
-    }
+    Map<String, List<String>> getCountries() {
+        Map<String, List<String>> countries = new HashMap<>();
+        InputStream inputStream = getResources().openRawResource(R.raw.countries);
+        try {
+            PListArray countriesArray = PListParser.parse(inputStream);
+            for (int i = 0; i < countriesArray.size(); i++) {
+                PListDict countryDict = (PListDict) countriesArray.get(i);
+                String countryName = countryDict.getString("name");
+                List<String> cities = new ArrayList<>();
+                PListArray citiesArray = countryDict.getPListArray("cities");
+                for (int j = 0; j < citiesArray.size(); j++) {
+                    cities.add(citiesArray.getString(j));
+                }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        // Another interface callback
+                countries.put(countryName, cities);
+
+            }
+        } catch (PListException e) {
+            e.printStackTrace();
+        }
+        return countries;
     }
 
     public void didClickOnContinue(View v) {
@@ -111,10 +140,11 @@ public class GGUsernameActivity extends AppCompatActivity implements AdapterView
             } else {
                 //Now the user must confirm this username and city.
                 Intent intent = new Intent (getApplicationContext(), GGConfirmUsernameActivity.class);
+                intent.putExtra(Keys.Location, city);
                 intent.putExtra(GGKeys.Username, username);
+                intent.putExtra(GGKeys.Country, country);
                 intent.putExtra(GGKeys.StageName, stageName);
                 intent.putExtra(GGKeys.PresentedStageName, presentedStageName);
-                intent.putExtra(GGKeys.City, city);
                 ChatSDK.ui().startActivity(getApplicationContext(), intent);
             }
         }).subscribe(user -> {

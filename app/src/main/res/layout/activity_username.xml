@@ -25,6 +25,19 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
+        android:id="@+id/country_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="@string/country"
+        android:spinnerMode="dropdown"
+        android:textSize="26sp"
+        app:layout_constraintTop_toBottomOf="@id/username_text" />
+
+    <Spinner
         android:id="@+id/city_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,38 +45,39 @@
         android:background="@android:drawable/btn_dropdown"
         android:ems="10"
         android:gravity="center"
-        android:hint="@string/username_text"
+        android:hint="@string/location_hint"
         android:spinnerMode="dropdown"
         android:textSize="26sp"
-        app:layout_constraintTop_toBottomOf="@id/username_text" />
+        app:layout_constraintTop_toBottomOf="@id/country_spinner" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:textColor="@color/white"
         android:text="@string/select_username"
-        android:textSize="30sp"
+        android:textColor="@color/white"
         android:textColorHint="@android:color/white"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/city_spinner" />
 
     <Button
         android:id="@+id/button_register"
-        android:background="@drawable/transparent_button"
-        android:textColor="@color/white"
         android:layout_width="300dp"
         android:layout_height="70dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="76dp"
+        android:background="@drawable/transparent_button"
         android:onClick="didClickOnContinue"
         android:text="@string/continue_string"
         android:textAllCaps="false"
+        android:textColor="@color/white"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

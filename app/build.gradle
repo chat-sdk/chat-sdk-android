@@ -78,6 +78,7 @@ dependencies {
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
+    implementation 'com.github.keiji.plist-parser-java:plist-parser:cade5a7'
 }
 
 apply plugin: 'com.google.gms.google-services'
