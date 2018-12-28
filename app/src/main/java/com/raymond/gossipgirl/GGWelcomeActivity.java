@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 
 public class GGWelcomeActivity extends GGAuthActivity {
@@ -15,9 +16,16 @@ public class GGWelcomeActivity extends GGAuthActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 
-        if (ChatSDK.currentUser() != null) {
-            ChatSDK.ui().startMainActivity(getApplicationContext());
+        User user = ChatSDK.currentUser();
+        if (user != null) {
+            String stageName = user.metaStringForKey(GGKeys.StageName);
+            if (stageName != null && !stageName.isEmpty()) {
+                ChatSDK.ui().startMainActivity(getApplicationContext());
+            } else {
+                ChatSDK.ui().startActivity(getApplicationContext(), GGUsernameActivity.class);
+            }
         }
     }
 
