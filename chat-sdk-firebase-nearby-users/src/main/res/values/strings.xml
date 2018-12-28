@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Firebase Nearby Users</string>
+    <string name="nearby_users">Nearby Users</string>
+    <string name="searching_nearby_users">Searching Nearby Users</string>
+    <string name="distance">Distance</string>
+</resources>

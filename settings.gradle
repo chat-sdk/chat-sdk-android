@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':chat-sdk-firebase-blocking', ':chat-sdk-firebase-nearby-users'

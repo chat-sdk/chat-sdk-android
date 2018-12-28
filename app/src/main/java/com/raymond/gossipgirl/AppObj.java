@@ -15,7 +15,9 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
+import co.chatsdk.firebase.blocking.BlockingModule;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
+import co.chatsdk.firebase.nearby_users.NearbyUsersModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 
@@ -51,6 +53,9 @@ public class AppObj extends MultiDexApplication {
                 FacebookAuthProvider.PROVIDER_ID,
                 TwitterAuthProvider.PROVIDER_ID,
                 GoogleAuthProvider.PROVIDER_ID);
+
+        BlockingModule.activate();
+        NearbyUsersModule.activate(context);
 
         InterfaceManager.shared().a = new GGInterfaceAdapter(context);
     }
