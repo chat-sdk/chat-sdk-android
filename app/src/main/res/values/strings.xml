@@ -4,12 +4,12 @@
     <string name="app_name">Gossip Girl</string>
     <string name="action_settings">Settings</string>
 
-    <string name="facebook_app_id">648056098576150</string>
+    <string name="facebook_app_id">___</string>
 
-    <string name="facebook_application_id" translatable="false">648056098576150</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb648056098576150</string>
-    <string name="twitter_consumer_key" translatable="false">Kqprq5b6bVeEfcMAGoHzUmB3I</string>
-    <string name="twitter_consumer_secret" translatable="false">hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq</string>
+    <string name="facebook_application_id" translatable="false">___</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">___</string>
+    <string name="twitter_consumer_key" translatable="false">___</string>
+    <string name="twitter_consumer_secret" translatable="false">___</string>
 
     <string name="welcome_screen_text_1">Welcome to</string>
     <string name="welcome_screen_text_2">Gossip Girl</string>

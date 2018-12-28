@@ -31,10 +31,10 @@ public class AppObj extends MultiDexApplication {
         Context context = getApplicationContext();
 
         Configuration.Builder config = new Configuration.Builder(context);
-        config.firebaseRootPath("18_12_raymond_test");
-        config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
-        config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
-        config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
+        config.firebaseRootPath("v1");
+        config.googleMaps("___");
+        config.twitterLogin("___", "___");
+        config.googleLogin("___");
 
         try {
             ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
