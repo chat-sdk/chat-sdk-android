@@ -13,11 +13,11 @@ import androidx.multidex.MultiDexApplication;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -37,7 +37,7 @@ public class AppObj extends MultiDexApplication {
         config.googleLogin("___");
 
         try {
-            ChatSDK.initialize(config.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
+            ChatSDK.initialize(config.build(), new GGInterfaceAdapter(context), new FirebaseNetworkAdapter());
         }
         catch (ChatSDKException e) {
 
@@ -51,6 +51,8 @@ public class AppObj extends MultiDexApplication {
                 FacebookAuthProvider.PROVIDER_ID,
                 TwitterAuthProvider.PROVIDER_ID,
                 GoogleAuthProvider.PROVIDER_ID);
+
+        InterfaceManager.shared().a = new GGInterfaceAdapter(context);
     }
 
     @Override

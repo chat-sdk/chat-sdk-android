@@ -37,6 +37,8 @@
             android:label="@string/title_name_change_petition"/>
         <activity android:name=".GGRequestReceivedActivity"
             android:label="@string/title_request_received"/>
+        <activity android:name=".GGEditProfileActivity"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <!--Contact Book-->
         <meta-data android:name="contact_book_invite_contact_email_subject" android:value="@string/contact_book_email_subject" />
