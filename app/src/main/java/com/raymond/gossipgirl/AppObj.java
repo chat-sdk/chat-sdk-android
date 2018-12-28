@@ -2,13 +2,6 @@ package com.raymond.gossipgirl;
 
 import android.content.Context;
 
-import com.facebook.flipper.android.AndroidFlipperClient;
-import com.facebook.flipper.android.utils.FlipperUtils;
-import com.facebook.flipper.core.FlipperClient;
-import com.facebook.flipper.plugins.inspector.DescriptorMapping;
-import com.facebook.flipper.plugins.inspector.InspectorFlipperPlugin;
-import com.facebook.flipper.plugins.network.NetworkFlipperPlugin;
-import com.facebook.soloader.SoLoader;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -34,15 +27,6 @@ public class AppObj extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        SoLoader.init(this, false);
-
-        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-            final FlipperClient client = AndroidFlipperClient.getInstance(this);
-            client.addPlugin(new InspectorFlipperPlugin(this, DescriptorMapping.withDefaults()));
-            client.addPlugin(new NetworkFlipperPlugin());
-            client.start();
-        }
 
         Context context = getApplicationContext();
 
