@@ -3,6 +3,7 @@
 
     <string name="app_name">Gossip Girl</string>
     <string name="action_settings">Settings</string>
+    <string name="conversations">Private</string>
 
     <string name="facebook_app_id">___</string>
 
