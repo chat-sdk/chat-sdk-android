@@ -1,15 +1,22 @@
 package co.chatsdk.android.app;
 
 import android.content.Context;
+
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.PhoneAuthProvider;
+
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
 /**
@@ -24,6 +31,7 @@ public class AppObj extends MultiDexApplication {
         Context context = getApplicationContext();
 
         Configuration.Builder config = new Configuration.Builder(context);
+
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
         config.firebaseRootPath("18_12_bug");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
@@ -40,6 +48,8 @@ public class AppObj extends MultiDexApplication {
 
         FirebaseFileStorageModule.activate();
         FirebasePushModule.activate();
+
+
 //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 

@@ -1,5 +1,8 @@
 package co.chatsdk.core.base;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
@@ -55,5 +58,15 @@ public class BaseNetworkAdapter {
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();
     public EncryptionHandler encryption;
+
+    private HashMap<String, Object> handlers = new HashMap<>();
+
+    public void setHandler(Object handler, String name) {
+        handlers.put(name, handler);
+    }
+
+    public Object getHandler (String name) {
+        return handlers.get(name);
+    }
 
 }
