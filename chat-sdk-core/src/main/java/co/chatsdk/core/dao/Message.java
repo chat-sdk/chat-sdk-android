@@ -194,6 +194,18 @@ public class Message implements CoreEntity {
         if (value instanceof String) {
             return (String) value;
         }
+        else if (value instanceof Double) {
+            String string = value.toString();
+            return string;
+        }
+        else if (value instanceof Integer) {
+            String string = value.toString();
+            return string;
+        }
+        else if (value instanceof Float) {
+            String string = value.toString();
+            return string;
+        }
         else {
             return "";
         }
