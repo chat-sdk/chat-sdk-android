@@ -195,7 +195,7 @@ public class Message implements CoreEntity {
             return (String) value;
         }
         else {
-            return "";
+            return value.toString();
         }
     }
 

@@ -579,7 +579,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return super.onCreateOptionsMenu(menu);
 
         // Adding the add user option only if group chat is enabled.
-        if (ChatSDK.config().groupsEnabled && thread.typeIs(ThreadType.Group)) {
+        if (ChatSDK.config().groupsEnabled && thread.typeIs(ThreadType.Private)) {
             MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.chat_activity_show_users_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             item.setIcon(R.drawable.ic_plus);
