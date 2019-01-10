@@ -69,7 +69,7 @@ android {
 dependencies {
 //    implementation fileTree(include: ['*.jar'], dir: 'libs')
 //    implementation project(path: ':chat-sdk-core')
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation "androidx.multidex:multidex:$androidxMultidexVersion"
     implementation project(path: ':chat-sdk-ui')
     implementation project(path: ':chat-sdk-firebase-adapter')
     implementation project(path: ':chat-sdk-firebase-push')

@@ -104,7 +104,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected TextInputView textInputView;
     protected RecyclerView recyclerView;
-    protected MessagesListAdapter messageListAdapter;
+    protected MessageListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView subtitleTextView;
 
@@ -268,7 +268,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         });
 
         if (messageListAdapter == null) {
-            messageListAdapter = new MessagesListAdapter(ChatActivity.this);
+            messageListAdapter = new MessageListAdapter(ChatActivity.this);
         }
 
         recyclerView.setAdapter(messageListAdapter);

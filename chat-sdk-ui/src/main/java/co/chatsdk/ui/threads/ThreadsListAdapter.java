@@ -116,6 +116,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
     public String getLastMessageText (Message lastMessage) {
         String messageText = Strings.t(R.string.no_messages);
         if (lastMessage != null) {
+
             messageText = Strings.payloadAsString(lastMessage);
         }
         return messageText;

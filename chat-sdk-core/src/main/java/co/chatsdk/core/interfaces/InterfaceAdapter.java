@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.fragment.app.Fragment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.NotificationDisplayHandler;
 
@@ -65,9 +67,11 @@ public interface InterfaceAdapter {
     void setChatOptionsHandler (ChatOptionsHandler handler);
     ChatOptionsHandler getChatOptionsHandler (ChatOptionsDelegate delegate);
 
-    void addCustomMessageHandler (CustomMessageHandler handler);
-    void removeCustomMessageHandler (CustomMessageHandler handler);
-    List<CustomMessageHandler> getCustomMessageHandlers();
+    void setMessageHandler(MessageDisplayHandler handler, MessageType type);
+    void removeMessageHandler(MessageType type);
+    MessageDisplayHandler getMessageHandler(MessageType type);
+
+    Collection<MessageDisplayHandler> getMessageHandlers();
 
     boolean showLocalNotifications(Thread thread);
     void setLocalNotificationHandler(LocalNotificationHandler handler);

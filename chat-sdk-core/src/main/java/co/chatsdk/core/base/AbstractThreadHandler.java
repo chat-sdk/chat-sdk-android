@@ -72,15 +72,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     }
 
-    public static Message newMessage (MessageType type, Thread thread) {
+    public static Message newMessage (int type, Thread thread) {
         Message message = StorageManager.shared().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setMessageStatus(MessageSendStatus.Sending);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
-        message.setMessageType(type);
+        message.setType(type);
         thread.addMessage(message);
         return message;
+    }
+
+    public static Message newMessage (MessageType type, Thread thread) {
+        return newMessage(type.ordinal(), thread);
     }
 
     /**

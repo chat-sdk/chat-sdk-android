@@ -287,8 +287,8 @@ public class ThreadWrapper  {
 
                                 if(ChatSDK.hook() != null) {
                                     HashMap<String, Object> data = new HashMap<>();
-                                    data.put(BaseHookHandler.MessageReceived_Message, message.getModel());
-                                    data.put(BaseHookHandler.MessageIsNew_Bool, newMessage);
+                                    data.put(BaseHookHandler.Message, message.getModel());
+                                    data.put(BaseHookHandler.IsNew_Boolean, newMessage);
                                     ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
                                 }
 

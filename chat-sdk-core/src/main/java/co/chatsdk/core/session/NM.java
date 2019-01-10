@@ -2,7 +2,7 @@ package co.chatsdk.core.session;
 
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.AudioMessageHandler;
+import co.chatsdk.core.handlers.AudioMessageDisplayHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
@@ -18,12 +18,12 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
-import co.chatsdk.core.handlers.StickerMessageHandler;
-import co.chatsdk.core.handlers.FileMessageHandler;
+import co.chatsdk.core.handlers.StickerMessageDisplayHandler;
+import co.chatsdk.core.handlers.FileMessageDisplayHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
-import co.chatsdk.core.handlers.VideoMessageHandler;
+import co.chatsdk.core.handlers.VideoMessageDisplayHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 
 /**
@@ -83,11 +83,11 @@ public class NM {
         return a().lastOnline;
     }
 
-    public static AudioMessageHandler audioMessage () {
+    public static AudioMessageDisplayHandler audioMessage () {
         return a().audioMessage;
     }
 
-    public static VideoMessageHandler videoMessage () {
+    public static VideoMessageDisplayHandler videoMessage () {
         return a().videoMessage;
     }
 
@@ -99,11 +99,11 @@ public class NM {
         return a().socialLogin;
     }
 
-    public static StickerMessageHandler stickerMessage () {
+    public static StickerMessageDisplayHandler stickerMessage () {
         return a().stickerMessage;
     }
 
-    public static FileMessageHandler fileMessage () {
+    public static FileMessageDisplayHandler fileMessage () {
         return a().fileMessage;
     }
 

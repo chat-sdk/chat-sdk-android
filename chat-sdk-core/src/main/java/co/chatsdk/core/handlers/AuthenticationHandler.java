@@ -32,7 +32,7 @@ public interface AuthenticationHandler {
     Boolean userAuthenticatedThisSession();
 
     /**
-    * Logout the user from the current account
+    * DidLogout the user from the current account
     */
     Completable logout();
 

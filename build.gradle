@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.google.gms:google-services:4.0.1'
+        classpath 'com.google.gms:google-services:4.2.0'
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
     }
 }
@@ -18,9 +18,10 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.0.2"
-    androidxConstraintLayoutVersion = "2.0.0-alpha2"
+    androidxConstraintLayoutVersion = "2.0.0-alpha3"
     androidxLifecycleExtensionsVersion = "2.0.0"
     androidxRecyclerViewVersion = "1.0.0"
+    androidxMultidexVersion = "2.0.1"
     materialVersion = "1.0.0"
     playAuthVersion = "16.0.1"
     playMapsVersion = "16.0.0"

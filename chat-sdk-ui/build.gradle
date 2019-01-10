@@ -41,7 +41,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
     api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-    api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
     api "com.google.android.material:material:$materialVersion"
     implementation "com.google.android.gms:play-services-places:$playPlacesVersion"

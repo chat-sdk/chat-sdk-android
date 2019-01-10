@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/NUcnaL)** or **[XMPP](https://i.diawi.com/ZpPscm)** open this link on your Android phone to install
+- **Demo Versions.** **[Firebase](https://i.diawi.com/r6P7of)** or **[XMPP](https://i.diawi.com/boXf6U)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 

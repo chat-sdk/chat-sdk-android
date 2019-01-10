@@ -58,7 +58,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         if(ChatSDK.hook() != null) {
             HashMap<String, Object> data = new HashMap<>();
-            data.put(BaseHookHandler.UserOn_User, user);
+            data.put(BaseHookHandler.User, user);
             ChatSDK.hook().executeHook(BaseHookHandler.UserOn, data);
         }
 

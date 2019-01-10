@@ -2,6 +2,7 @@ package co.chatsdk.ui.manager;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,10 +13,12 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import co.chatsdk.core.Tab;
@@ -24,15 +27,19 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
-import co.chatsdk.core.interfaces.CustomMessageHandler;
+import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.NotificationDisplayHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.chat.handlers.ImageMessageDisplayHandler;
+import co.chatsdk.ui.chat.handlers.LocationMessageDisplayHandler;
+import co.chatsdk.ui.chat.handlers.TextMessageDisplayHandler;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
@@ -53,7 +60,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<SearchActivityType> searchActivities = new ArrayList<>();
     public List<ChatOption> chatOptions = new ArrayList<>();
     public ChatOptionsHandler chatOptionsHandler = null;
-    public List<CustomMessageHandler> customMessageHandlers = new ArrayList<>();
+    public Map<Integer,MessageDisplayHandler> messageHandlers = new HashMap<>();
     public boolean defaultChatOptionsAdded = false;
     public LocalNotificationHandler localNotificationHandler;
     public NotificationDisplayHandler notificationDisplayHandler;
@@ -79,6 +86,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Fresco.initialize(context, config);
 //        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
 
+        setMessageHandler(new TextMessageDisplayHandler(), new MessageType(MessageType.Text));
+        setMessageHandler(new ImageMessageDisplayHandler(), new MessageType(MessageType.Image));
+        setMessageHandler(new LocationMessageDisplayHandler(), new MessageType(MessageType.Location));
 
     }
 
@@ -317,22 +327,26 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void addCustomMessageHandler(CustomMessageHandler handler) {
-        if(!customMessageHandlers.contains(handler)) {
-            customMessageHandlers.add(handler);
+    public void setMessageHandler(MessageDisplayHandler handler, MessageType type) {
+        messageHandlers.put(type.value(), handler);
+    }
+
+    @Override
+    public void removeMessageHandler(MessageType type) {
+        MessageDisplayHandler handler = getMessageHandler(type);
+        if (handler != null) {
+            messageHandlers.remove(handler);
         }
     }
 
     @Override
-    public void removeCustomMessageHandler(CustomMessageHandler handler) {
-        if(customMessageHandlers.contains(handler)) {
-            customMessageHandlers.remove(handler);
-        }
+    public Collection<MessageDisplayHandler> getMessageHandlers() {
+        return messageHandlers.values();
     }
 
     @Override
-    public List<CustomMessageHandler> getCustomMessageHandlers() {
-        return customMessageHandlers;
+    public MessageDisplayHandler getMessageHandler(MessageType type) {
+        return messageHandlers.get(type.value());
     }
 
     @Override

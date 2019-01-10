@@ -50,7 +50,7 @@ dependencies {
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
     api "com.google.android.gms:play-services-maps:$playMapsVersion"
-
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
 
     implementation "com.facebook.fresco:fresco:$frescoVersion"
     implementation "id.zelory:compressor:$compressorVersion"

@@ -11,6 +11,7 @@ import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 
@@ -29,26 +30,11 @@ public class Strings {
     }
 
     public static String payloadAsString (Message message) {
-            if (message.getType() != null) {
-                switch (message.getMessageType()) {
-                    case Text:
-                    case System:
-                        return message.getText();
-                    case Image:
-                        return t(R.string.image_message);
-                    case Location:
-                        return t(R.string.location_message);
-                    case Audio:
-                        return t(R.string.audio_message);
-                    case Video:
-                        return t(R.string.video_message);
-                    case Sticker:
-                        return t(R.string.sticker_message);
-                    case File:
-                        return t(R.string.file_message);
-                }
-            }
-            return t(R.string.unknown_message);
+        MessageDisplayHandler handler =  ChatSDK.ui().getMessageHandler(message.getMessageType());
+        if (handler != null) {
+            return handler.displayName(message);
+        }
+        return t(R.string.unknown_message);
     }
 
     public static String dateTime (Date date) {

@@ -16,14 +16,14 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.AudioMessageHandler;
+import co.chatsdk.core.handlers.AudioMessageDisplayHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EncryptionHandler;
 import co.chatsdk.core.handlers.EventHandler;
-import co.chatsdk.core.handlers.FileMessageHandler;
+import co.chatsdk.core.handlers.FileMessageDisplayHandler;
 import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
@@ -33,11 +33,11 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
-import co.chatsdk.core.handlers.StickerMessageHandler;
+import co.chatsdk.core.handlers.StickerMessageDisplayHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
-import co.chatsdk.core.handlers.VideoMessageHandler;
+import co.chatsdk.core.handlers.VideoMessageDisplayHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -71,7 +71,7 @@ public class ChatSDK {
         return initialize(config, null, null);
     }
 
-    public static ChatSDK initialize (Configuration config, InterfaceAdapter interfaceAdapter, BaseNetworkAdapter networkAdapter) throws ChatSDKException {
+    public static ChatSDK initialize (Configuration config, BaseNetworkAdapter networkAdapter, InterfaceAdapter interfaceAdapter) throws ChatSDKException {
         shared().setContext(config.context.get());
         shared().config = config;
 
@@ -255,11 +255,11 @@ public class ChatSDK {
         return a().lastOnline;
     }
 
-    public static AudioMessageHandler audioMessage () {
+    public static AudioMessageDisplayHandler audioMessage () {
         return a().audioMessage;
     }
 
-    public static VideoMessageHandler videoMessage () {
+    public static VideoMessageDisplayHandler videoMessage () {
         return a().videoMessage;
     }
 
@@ -271,11 +271,11 @@ public class ChatSDK {
         return a().socialLogin;
     }
 
-    public static StickerMessageHandler stickerMessage () {
+    public static StickerMessageDisplayHandler stickerMessage () {
         return a().stickerMessage;
     }
 
-    public static FileMessageHandler fileMessage () {
+    public static FileMessageDisplayHandler fileMessage () {
         return a().fileMessage;
     }
 
