@@ -55,7 +55,6 @@ import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.CrashReportingObserver;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -272,11 +271,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         recyclerView.setAdapter(messageListAdapter);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        PermissionRequestHandler.shared().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 
     /**
@@ -875,7 +869,5 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             option.execute(this, thread).subscribe(new CrashReportingObserver<>());
         }
     }
-
-
 
 }
