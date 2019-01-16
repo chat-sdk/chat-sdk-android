@@ -209,7 +209,7 @@ builder.firebaseRootPath("prod");
 
 // Initialize the Chat SDK
 try {
-    ChatSDK.initialize(builder.build(), new BaseInterfaceAdapter(context), new FirebaseNetworkAdapter());
+     ChatSDK.initialize(builder.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
 }
     catch (ChatSDKException e) {
 }
