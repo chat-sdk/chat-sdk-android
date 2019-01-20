@@ -96,12 +96,12 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         });
 
         saveButton.setOnClickListener(v -> {
-            setSaveButtonOnClickListener();
+            didClickOnSaveButton();
         });
 
     }
 
-    protected void setSaveButtonOnClickListener() {
+    protected void didClickOnSaveButton() {
         final String threadName = nameInput.getText().toString();
         if (thread == null) {
             showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
