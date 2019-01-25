@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -111,27 +110,33 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        avatarImageView.setOnClickListener(view -> mediaSelector.startChooseImageActivity(EditProfileActivity.this, MediaSelector.CropType.Circle,result -> {
+        avatarImageView.setOnClickListener(view -> {
+            if (ChatSDK.profilePictures() != null) {
+                ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
+            } else {
+                mediaSelector.startChooseImageActivity(EditProfileActivity.this, MediaSelector.CropType.Circle,result -> {
 
-            try {
-                File compress = new Compressor(ChatSDK.shared().context())
-                        .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
-                        .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                        .compressToFile(new File(result));
+                    try {
+                        File compress = new Compressor(ChatSDK.shared().context())
+                                .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
+                                .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
+                                .compressToFile(new File(result));
 
-                Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
+                        Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
 
-                // Cache the file
-                File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUser().getEntityID(), ".png");
+                        // Cache the file
+                        File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUser().getEntityID(), ".png");
 
-                avatarImageView.setImageURI(Uri.fromFile(file));
-                currentUser.setAvatarURL(Uri.fromFile(file).toString());
+                        avatarImageView.setImageURI(Uri.fromFile(file));
+                        currentUser.setAvatarURL(Uri.fromFile(file).toString());
+                    }
+                    catch (Exception e) {
+                        ChatSDK.logError(e);
+                        Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-            catch (Exception e) {
-                ChatSDK.logError(e);
-                Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }));
+        });
 
         avatarImageView.setImageURI(currentUser.getAvatarURL());
 
@@ -231,13 +236,10 @@ public class EditProfileActivity extends BaseActivity {
 //        boolean imageChanged = false;
         boolean presenceChanged = false;
 
-        Map<String, Object> metaMap = new HashMap(currentUser.metaMap());
-
-        Iterator<String> i = metaMap.keySet().iterator();
+        Map<String, Object> metaMap = new HashMap<>(currentUser.metaMap());
 
         // Add a synchronized block to prevent concurrent modification exceptions
-        while (i.hasNext()) {
-            String key = i.next();
+        for (String key : metaMap.keySet()) {
             if (key.equals(Keys.AvatarURL)) {
 //                imageChanged = valueChanged(metaMap, userMeta, key);
                 currentUser.setAvatarHash(null);

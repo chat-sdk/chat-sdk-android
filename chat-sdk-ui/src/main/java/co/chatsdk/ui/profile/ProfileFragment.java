@@ -130,6 +130,12 @@ public class ProfileFragment extends BaseFragment {
         followsImageView = mainView.findViewById(R.id.ivFollows);
         followedImageView = mainView.findViewById(R.id.ivFollowed);
 
+        if (ChatSDK.profilePictures() != null) {
+            avatarImageView.setOnClickListener(v -> {
+                ChatSDK.profilePictures().startProfilePicturesActivity(getContext(), getUser().getEntityID());
+            });
+        }
+
         reloadData();
 
         addUserMetaUpdatedEventListener();
