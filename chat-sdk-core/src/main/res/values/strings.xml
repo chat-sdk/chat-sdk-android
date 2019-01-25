@@ -127,6 +127,9 @@
     <string name="permission_read_contacts_title">Contacts Access</string>
     <string name="permission_read_contacts_message">Grant permission to allow contact book search</string>
 
+    <string name="permission_location_title">Location Access</string>
+    <string name="permission_location_message">Grant permission to allow discovery of nearby users</string>
+
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
     <string name="search_activity_no_user_found_toast">No match found</string>

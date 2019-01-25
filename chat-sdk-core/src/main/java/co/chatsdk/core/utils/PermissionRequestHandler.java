@@ -39,6 +39,7 @@ public class PermissionRequestHandler {
     private static int CAMERA_REQUEST = 104;
     private static int READ_CONTACTS_REQUEST = 105;
     private static int MANAGE_DOCUMENTS_REQUEST = 106;
+    private static int FINE_LOCATION_REQUEST = 107;
 
 //    HashMap<Integer, Boolean> requested = new HashMap<>();
 
@@ -73,6 +74,10 @@ public class PermissionRequestHandler {
 
     public Completable requestReadContact(Activity activity) {
         return requestPermission(activity, Manifest.permission.READ_CONTACTS, READ_CONTACTS_REQUEST, R.string.permission_read_contacts_title, R.string.permission_read_contacts_message);
+    }
+
+    public Completable requestLocationAccess(Activity activity) {
+        return requestPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION, FINE_LOCATION_REQUEST, R.string.permission_location_title, R.string.permission_location_message);
     }
 
     public Completable requestPermission(final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
