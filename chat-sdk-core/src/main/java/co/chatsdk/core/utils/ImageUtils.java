@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 
 import static android.os.Environment.isExternalStorageRemovable;
@@ -48,6 +49,9 @@ public class ImageUtils {
                         !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
                         context.getCacheDir().getPath();
 
+        if (uniqueName == null || uniqueName.isEmpty()) {
+            uniqueName = context.getResources().getString(R.string.app_name);
+        }
         return new File(cachePath + File.separator + uniqueName);
     }
 
