@@ -191,12 +191,11 @@ public class Message implements CoreEntity {
 
     public String stringForKey (String key) {
         Object value = valueForKey(key);
+        if (value == null) return "";
         if (value instanceof String) {
             return (String) value;
         }
-        else {
-            return value.toString();
-        }
+        return value.toString();
     }
 
     public Double doubleForKey (String key) {
