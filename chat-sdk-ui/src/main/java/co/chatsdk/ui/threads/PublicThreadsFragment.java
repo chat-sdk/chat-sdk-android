@@ -19,12 +19,50 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import co.chatsdk.ui.helpers.DialogUtils;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public class PublicThreadsFragment extends ThreadsFragment {
+
+    @Override
+    public void initViews() {
+        super.initViews();
+
+        Disposable d = adapter.onLongClickObservable().subscribe(thread -> {
+            if (thread.getCreator() != null && thread.getCreator().isMe()) {
+                DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                        getResources().getString(R.string.cancel), null, () -> {
+                            ChatSDK.thread().deleteThread(thread)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new CompletableObserver() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+                                            adapter.clearData();
+                                            reloadData();
+                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
+                                        }
+                                    });
+                            return null;
+                        });
+            }
+        });
+    }
 
     @Override
     public Predicate<NetworkEvent> mainEventFilter() {
