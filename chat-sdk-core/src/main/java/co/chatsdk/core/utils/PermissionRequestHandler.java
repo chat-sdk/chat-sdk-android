@@ -39,44 +39,49 @@ public class PermissionRequestHandler {
     private static int CAMERA_REQUEST = 104;
     private static int READ_CONTACTS_REQUEST = 105;
     private static int MANAGE_DOCUMENTS_REQUEST = 106;
+    private static int FINE_LOCATION_REQUEST = 107;
 
 //    HashMap<Integer, Boolean> requested = new HashMap<>();
 
-    public Completable requestRecordAudio (Activity activity) {
+    public Completable requestRecordAudio(Activity activity) {
         return requestPermission(activity, Manifest.permission.RECORD_AUDIO, RECORD_AUDIO_REQUEST, R.string.permission_record_audio_title, R.string.permission_record_audio_message);
     }
 
-    public boolean recordPermissionGranted () {
+    public boolean recordPermissionGranted() {
         return ContextCompat.checkSelfPermission(ChatSDK.shared().context(), Manifest.permission.RECORD_AUDIO) != PERMISSION_DENIED;
     }
 
-    public Completable requestWriteExternalStorage (Activity activity) {
+    public Completable requestWriteExternalStorage(Activity activity) {
         return requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE_REQUEST, R.string.permission_write_external_storage_title, R.string.permission_write_external_storage_message);
     }
 
-    public Completable requestManageDocumentsStorage (Activity activity) {
+    public Completable requestManageDocumentsStorage(Activity activity) {
         return requestPermission(activity, Manifest.permission.MANAGE_DOCUMENTS, MANAGE_DOCUMENTS_REQUEST, R.string.permission_manage_documents_storage_title, R.string.permission_manage_documents_message);
     }
 
-    public Completable requestReadExternalStorage (Activity activity) {
+    public Completable requestReadExternalStorage(Activity activity) {
         return requestPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE_REQUEST, R.string.permission_read_external_storage_title, R.string.permission_read_external_storage_message);
     }
 
-    public Completable requestCameraAccess (Activity activity) {
+    public Completable requestCameraAccess(Activity activity) {
         return requestPermission(activity, Manifest.permission.CAMERA, CAMERA_REQUEST, R.string.permission_camera_title, R.string.permission_camera_message);
     }
 
-    public Completable requestVideoAccess (Activity activity) {
+    public Completable requestVideoAccess(Activity activity) {
 //        return requestCameraAccess(activity);
         return requestPermission(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT, RECORD_VIDEO_REQUEST, R.string.permission_video_output_title, R.string.permission_video_output_message);
     }
 
-    public Completable requestReadContact (Activity activity) {
+    public Completable requestReadContact(Activity activity) {
         return requestPermission(activity, Manifest.permission.READ_CONTACTS, READ_CONTACTS_REQUEST, R.string.permission_read_contacts_title, R.string.permission_read_contacts_message);
     }
 
-    public Completable requestPermission (final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
-        if(completableMap.containsKey(result)) {
+    public Completable requestLocationAccess(Activity activity) {
+        return requestPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION, FINE_LOCATION_REQUEST, R.string.permission_location_title, R.string.permission_location_message);
+    }
+
+    public Completable requestPermission(final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
+        if (completableMap.containsKey(result)) {
             return Completable.complete();
         }
         return Completable.create(e -> {
@@ -85,9 +90,9 @@ public class PermissionRequestHandler {
 
             int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission);
 
-            if(permissionCheck == PERMISSION_DENIED) {
+            if (permissionCheck == PERMISSION_DENIED) {
                 String [] permissions = {permission};
-                if(ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                             .setTitle(dialogTitle)
                             .setMessage(dialogMessage)
@@ -114,7 +119,7 @@ public class PermissionRequestHandler {
 
     public void onRequestPermissionsResult(Context context, int requestCode, String permissions[], int[] grantResults) {
         CompletableEmitter e = completableMap.get(requestCode);
-        if(e != null) {
+        if (e != null) {
             completableMap.remove(requestCode);
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 e.onComplete();

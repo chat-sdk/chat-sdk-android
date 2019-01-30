@@ -1,1 +1,1 @@
-include ':app', ':chat-sdk-firebase-adapter', ':chat-sdk-ui', ':chat-sdk-core', ':chat-sdk-firebase-file-storage', ':chat-sdk-firebase-push', ':chat-sdk-firebase-social-login', ':chat-sdk-firebase-ui'
+include ':app', ':chat-sdk-firebase-adapter', ':chat-sdk-ui', ':chat-sdk-core', ':chat-sdk-firebase-file-storage', ':chat-sdk-firebase-push', ':chat-sdk-firebase-social-login', ':chat-sdk-firebase-ui', ':chat-sdk-profile-pictures'

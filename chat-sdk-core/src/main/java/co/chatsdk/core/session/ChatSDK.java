@@ -28,6 +28,7 @@ import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.handlers.LastOnlineHandler;
 import co.chatsdk.core.handlers.LocationMessageHandler;
+import co.chatsdk.core.handlers.ProfilePicturesHandler;
 import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
@@ -95,14 +96,10 @@ public class ChatSDK {
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
 
-//        if (debug) {
-        // TODO: Update this
+        if (config().debug) {
             Timber.plant(new Timber.DebugTree());
-
-//        } else {
-//            Timber.plant(new Timber.Tree());
-//        }
-
+        }
+      
         return shared();
     }
 
@@ -293,6 +290,10 @@ public class ChatSDK {
 
     public static TypingIndicatorHandler typingIndicator () {
         return a().typingIndicator;
+    }
+
+    public static ProfilePicturesHandler profilePictures () {
+        return a().profilePictures;
     }
 
     public static BaseNetworkAdapter a() {

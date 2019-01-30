@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Chat SDK Profile Pictures</string>
+    <string name="action_add_picture">Add Picture</string>
+    <string name="action_delete_picture">Delete Picture</string>
+    <string name="set_as_default">Set as Default</string>
+    <string name="uploading_picture">Uploading Picture</string>
+    <string name="updating_pictures">Updating Pictures</string>
+    <string name="deleting_picture">Deleting Picture</string>
+</resources>
