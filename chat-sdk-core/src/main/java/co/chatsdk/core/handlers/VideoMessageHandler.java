@@ -9,7 +9,7 @@ import io.reactivex.Observable;
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
-public interface VideoMessageDisplayHandler extends MessageDisplayHandler {
+public interface VideoMessageHandler {
 
     /**
      * Send a video message

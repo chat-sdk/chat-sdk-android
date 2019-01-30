@@ -2,7 +2,7 @@ package co.chatsdk.core.base;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.handlers.AudioMessageDisplayHandler;
+import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
@@ -20,12 +20,12 @@ import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
 import co.chatsdk.core.handlers.SocialLoginHandler;
-import co.chatsdk.core.handlers.StickerMessageDisplayHandler;
-import co.chatsdk.core.handlers.FileMessageDisplayHandler;
+import co.chatsdk.core.handlers.StickerMessageHandler;
+import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
-import co.chatsdk.core.handlers.VideoMessageDisplayHandler;
+import co.chatsdk.core.handlers.VideoMessageHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 02/05/2017.
@@ -38,8 +38,8 @@ public class BaseNetworkAdapter {
     public PushHandler push;
     public UploadHandler upload;
     public ThreadHandler thread;
-    public VideoMessageDisplayHandler videoMessage;
-    public AudioMessageDisplayHandler audioMessage;
+    public VideoMessageHandler videoMessage;
+    public AudioMessageHandler audioMessage;
     public ImageMessageHandler imageMessage = new BaseImageMessageHandler();
     public LocationMessageHandler locationMessage = new BaseLocationMessageHandler();
     public ContactHandler contact = new BaseContactHandler();
@@ -51,8 +51,8 @@ public class BaseNetworkAdapter {
     public LastOnlineHandler lastOnline;
     public NearbyUsersHandler nearbyUsers;
     public ReadReceiptHandler readReceipts;
-    public StickerMessageDisplayHandler stickerMessage;
-    public FileMessageDisplayHandler fileMessage;
+    public StickerMessageHandler stickerMessage;
+    public FileMessageHandler fileMessage;
     public SocialLoginHandler socialLogin;
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();

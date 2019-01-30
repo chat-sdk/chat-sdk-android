@@ -9,8 +9,6 @@ import io.reactivex.Observable;
  * Created by Pepe Becker on 01/05/2018.
  */
 
-public interface FileMessageDisplayHandler extends MessageDisplayHandler {
-
+public interface FileMessageHandler {
     Observable<MessageSendProgress> sendMessageWithFile(String name, String mimeType, byte[] data, final Thread thread);
-
 }

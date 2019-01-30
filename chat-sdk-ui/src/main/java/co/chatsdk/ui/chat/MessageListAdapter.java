@@ -24,6 +24,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.Progress;
+import co.chatsdk.ui.chat.handlers.TextMessageDisplayHandler;
 import timber.log.Timber;
 
 public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageViewHolder> {
@@ -43,9 +44,17 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
     public AbstractMessageViewHolder onCreateViewHolder(ViewGroup parent, int type) {
         int viewType = (int) Math.ceil(type / MessageType.Max);
         int messageType = type - viewType * MessageType.Max;
+        boolean isReply = viewType == ViewTypeReply;
 
         MessageDisplayHandler handler = ChatSDK.ui().getMessageHandler(new MessageType(messageType));
-        return handler.newViewHolder(viewType == ViewTypeReply, activity);
+        if (handler != null) {
+            return handler.newViewHolder(isReply, activity);
+        } else {
+            // TODO: Handler this better
+            Timber.w("Message handler not available for message type");
+            handler = new TextMessageDisplayHandler();
+            return handler.newViewHolder(isReply, activity);
+        }
     }
 
     @Override
