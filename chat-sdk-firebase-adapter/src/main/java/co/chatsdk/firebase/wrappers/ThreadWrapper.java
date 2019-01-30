@@ -437,25 +437,25 @@ public class ThreadWrapper  {
     public Completable deleteThread() {
         return Completable.create(e -> {
 
-            // TODO: Check this
-            if (model.typeIs(ThreadType.Public)) {
-                e.onComplete();
+            if (model.typeIs(ThreadType.Public) && !model.getCreator().isMe()) {
+                e.onError(new Throwable("Only the thread creator can delete the thread"));
             }
-            else {
-                List<Message> messages = model.getMessages();
 
-                for (Message m : messages) {
-                    DaoCore.deleteEntity(m);
-                }
+            List<Message> messages = model.getMessages();
 
-                model.update();
+            for (Message m : messages) {
+                DaoCore.deleteEntity(m);
+            }
 
-                final User currentUser = ChatSDK.currentUser();
+            model.update();
 
-                DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
-                        .child(currentUser.getEntityID());
+            final User currentUser = ChatSDK.currentUser();
 
-                if(model.typeIs(ThreadType.Private) && model.getUsers().size() == 2) {
+            DatabaseReference currentThreadUser = FirebasePaths.threadUsersRef(model.getEntityID())
+                    .child(currentUser.getEntityID());
+
+            if (model.typeIs(ThreadType.Private)) {
+                if (model.getUsers().size() == 2) {
 
                     model.setDeleted(true);
                     model.update();
@@ -467,17 +467,30 @@ public class ThreadWrapper  {
                     currentThreadUser.setValue(value, (databaseError, databaseReference) -> {
                         if (databaseError != null) {
                             e.onError(databaseError.toException());
-                        }
-                        else {
+                        } else {
                             e.onComplete();
                         }
                     });
                 }
                 else {
-
                     ChatSDK.thread().removeUsersFromThread(model, currentUser).subscribe(e::onComplete, e::onError);
                 }
             }
+
+            if (model.typeIs(ThreadType.Public)) {
+                model.setDeleted(true);
+                model.update();
+                DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef().child(model.getEntityID());
+                publicThreadRef.removeValue((error, databaseReference) -> {
+                    if (error != null) {
+                        e.onError(error.toException());
+                    } else {
+                        ChatSDK.thread().removeUsersFromThread(model, model.getUsers()).subscribe(e::onComplete, e::onError);
+                        model.delete();
+                    }
+                });
+            }
+
         }).subscribeOn(Schedulers.single());
     }
 
