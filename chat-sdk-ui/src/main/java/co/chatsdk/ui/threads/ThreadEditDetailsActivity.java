@@ -116,6 +116,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                                 dismissProgressDialog();
                                 ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
 
+                                finish();
                                 ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), newThread.getEntityID());
                             }));
                         } else {
