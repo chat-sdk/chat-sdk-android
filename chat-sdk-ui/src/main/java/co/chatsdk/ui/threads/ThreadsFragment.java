@@ -15,7 +15,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Observable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -25,6 +28,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 
@@ -152,11 +156,37 @@ public abstract class ThreadsFragment extends BaseFragment {
         reloadData();
     }
 
+    List<Thread> replaceThread(List<Thread> threads, Thread thread) {
+        List<Thread> newThreads = new ArrayList<>();
+        for (Thread t : threads) {
+            if (t.getEntityID().equals(thread.getEntityID())) {
+                newThreads.add(thread);
+            } else {
+                newThreads.add(t);
+            }
+        }
+        return newThreads;
+    }
+
+    protected void onThreadUpdated(List<Thread> threads, Thread thread) {
+        adapter.clearData();
+        adapter.updateThreads(replaceThread(threads, thread));
+    }
+
     @Override
     public void reloadData() {
         if (adapter != null) {
             adapter.clearData();
+
+
             List<Thread> threads = filter(getThreads());
+
+            for (Thread thread : threads) {
+                disposableList.add(ChatSDK.thread().metaOn(thread)
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe(t -> onThreadUpdated(threads, t), ChatSDK::logError));
+            }
+
             adapter.updateThreads(threads);
         }
     }

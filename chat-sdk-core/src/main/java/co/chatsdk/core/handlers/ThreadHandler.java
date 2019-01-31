@@ -79,4 +79,11 @@ public interface ThreadHandler {
 
     Completable pushThread(Thread thread);
     Completable pushThreadMeta(Thread thread);
+
+    Observable<Thread> on(Thread thread);
+    void off(Thread thread);
+
+    Observable<Thread> metaOn(Thread thread);
+    void metaOff(Thread thread);
+
 }
