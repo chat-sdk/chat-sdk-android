@@ -233,10 +233,12 @@ public class UserWrapper {
 
             // Updating the old bundle
             for (String key : newData.keySet()) {
-                if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
+                Object oldValue = oldData.get(key);
+                Object newValue = newData.get(key);
+                if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
                     // We don't store availability data in the Firebase meta - it's handled by the online flag
                     if (!key.equals(Keys.Availability)) {
-                        oldData.put(key, newData.get(key).toString());
+                        oldData.put(key, newValue.toString());
                     }
                 }
             }

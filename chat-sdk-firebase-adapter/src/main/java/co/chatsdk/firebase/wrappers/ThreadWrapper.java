@@ -23,7 +23,6 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -31,6 +30,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.HashMapHelper;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
@@ -315,37 +315,38 @@ public class ThreadWrapper  {
         FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
-    public Observable<Thread> metaOn () {
-
+    public Observable<Thread> metaOn() {
         return Observable.create((ObservableOnSubscribe<Thread>) e -> {
-            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
-            FirebaseReferenceManager.shared().addRef(ref, ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue &&  snapshot.getValue() instanceof Map) {
-                    Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-                    for (String key : value.keySet()) {
-                        if (value.get(key) instanceof String) {
-                            model.setMetaValue(key, (String) value.get(key));
-                        }
-                    }
-                }
+
+            metaOff();
+
+            final DatabaseReference threadMetaRef = FirebasePaths.threadMetaRef(model.getEntityID());
+
+            if (FirebaseReferenceManager.shared().isOn(threadMetaRef)) {
                 e.onNext(model);
-            })));
+            }
+
+            ValueEventListener listener = threadMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if (hasValue && snapshot.getValue() instanceof Map) {
+                    deserializeMeta((Map<String, Object>) snapshot.getValue());
+                    e.onNext(model);
+                }
+            }));
+
+            FirebaseReferenceManager.shared().addRef(threadMetaRef, listener);
+
         }).subscribeOn(Schedulers.single());
     }
 
     public Completable pushMeta() {
         return Completable.create(e -> {
 
-            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
+            DatabaseReference threadMetaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
-            HashMap<String, String> meta = new HashMap<>();
+            HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
+            Map<String, Object> expandedMetaMap = HashMapHelper.expand(metaMap);
 
-            List<ThreadMetaValue> values = model.getMetaValues();
-            for(ThreadMetaValue value : values) {
-                meta.put(value.getKey(), value.getValue());
-            }
-
-            ref.setValue(meta, ((databaseError, databaseReference) -> {
+            threadMetaRef.setValue(expandedMetaMap, ((databaseError, databaseReference) -> {
                 if (databaseError == null) {
                     e.onComplete();
                 }
@@ -358,8 +359,8 @@ public class ThreadWrapper  {
     }
 
     public void metaOff () {
-        DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListeners(ref);
+        DatabaseReference threadMetaRef= FirebasePaths.threadMetaRef(model.getEntityID());
+        FirebaseReferenceManager.shared().removeListeners(threadMetaRef);
     }
 
     //Note the old listener that was used to process the thread bundle is still in use.
@@ -530,27 +531,35 @@ public class ThreadWrapper  {
      * Converting the thread details to a map object.
      **/
     private Map<String, Object> serialize() {
+        Map<String , Object> values = new HashMap<>();
 
-        Map<String , Object> value = new HashMap<String, Object>();
-        Map<String , Object> nestedMap = new HashMap<String, Object>();
+        // Thread Details
+        Map<String , Object> detialsMap = new HashMap<>();
 
-        nestedMap.put(Keys.CreationDate, ServerValue.TIMESTAMP);
+        Object creationDate = model.getCreationDate();
+        if (creationDate == null) creationDate = ServerValue.TIMESTAMP;
+        detialsMap.put(Keys.CreationDate, creationDate);
 
-        nestedMap.put(Keys.Name, model.getName());
+        detialsMap.put(Keys.Name, model.getName());
 
         // This is the legacy type
         int type = model.typeIs(ThreadType.Public) ? 1 : 0;
 
-        nestedMap.put(Keys.Type, type);
-        nestedMap.put(Keys.Type_v4, model.getType());
+        detialsMap.put(Keys.Type, type);
+        detialsMap.put(Keys.Type_v4, model.getType());
 
-        nestedMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
+        detialsMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
 
-        nestedMap.put(Keys.ImageUrl, this.model.getImageUrl());
+        detialsMap.put(Keys.ImageUrl, this.model.getImageUrl());
 
-        value.put(FirebasePaths.DetailsPath, nestedMap);
-                
-        return value;
+        values.put(FirebasePaths.DetailsPath, detialsMap);
+
+        // Thread Meta
+        HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
+        Map<String, Object> expandedMetaMap = HashMapHelper.expand(metaMap);
+        values.put(Keys.Meta, expandedMetaMap);
+
+        return values;
     }
 
     public Completable pushName () {
@@ -621,8 +630,34 @@ public class ThreadWrapper  {
 
         this.model.setImageUrl((String) value.get(Keys.ImageUrl));
         this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
-        
-        DaoCore.updateEntity(this.model);
+
+        // The entity update is called in the deserializeMeta.
+        deserializeMeta((Map<String, Object>) value.get(FirebasePaths.MetaPath));
+    }
+
+    void deserializeMeta(Map<String, Object> value) {
+        if (value != null) {
+            Map<String, String> oldData = model.metaMap();
+
+            // Expand
+            Map<String, Object> newData = HashMapHelper.flatten(value);
+
+            // Updating the old bundle
+            for (String key : newData.keySet()) {
+                Object oldValue = oldData.get(key);
+                Object newValue = newData.get(key);
+                if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
+                    oldData.put(key, newValue.toString());
+                }
+                if (key.equals(Keys.Name) && newValue != null) {
+                    model.setName(newValue.toString());
+                }
+            }
+
+            model.setMetaMap(oldData);
+
+            model = DaoCore.updateEntity(model);
+        }
     }
 
     /**
@@ -631,12 +666,8 @@ public class ThreadWrapper  {
     public Completable push() {
         return Completable.create(e -> {
 
-            DatabaseReference ref = null;
-
-            if (model.getEntityID() != null && model.getEntityID().length() > 0) {
-                ref = FirebasePaths.threadRef(model.getEntityID());
-            }
-            else {
+            DatabaseReference ref = ref();
+            if (ref == null) {
                 ref = FirebasePaths.threadRef().push();
                 model.setEntityID(ref.getKey());
                 DaoCore.updateEntity(model);
@@ -669,6 +700,13 @@ public class ThreadWrapper  {
         if(ChatSDK.readReceipts() != null) {
             ChatSDK.readReceipts().updateReadReceipts(model);
         }
+    }
+
+    public DatabaseReference ref() {
+        if (model.getEntityID() != null && !model.getEntityID().isEmpty()) {
+            return FirebasePaths.threadRef(model.getEntityID());
+        }
+        return null;
     }
 
 }

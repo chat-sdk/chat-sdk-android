@@ -16,7 +16,9 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.StorageManager;
@@ -241,6 +243,28 @@ public class Thread implements CoreEntity {
 //        resetMessages();
     }
 
+    /**
+     * Setting the metaData, The Map will be converted to a Json String.
+     **/
+    public void setMetaMap(Map<String, String> metadata){
+        for(String key : metadata.keySet()) {
+            setMetaValue(key, metadata.get(key));
+        }
+    }
+
+    /**
+     * Converting the metaData json to a map object
+     **/
+    public Map<String, String> metaMap() {
+        HashMap<String, String> map = new HashMap<>();
+
+        for (ThreadMetaValue v : getMetaValues()) {
+            map.put(v.getKey(), v.getValue());
+        }
+
+        return map;
+    }
+
     @Keep
     public void setMetaValue (String key, String value) {
         ThreadMetaValue metaValue = metaValueForKey(key);
@@ -260,6 +284,15 @@ public class Thread implements CoreEntity {
         ArrayList<MetaValue> values = new ArrayList<>();
         values.addAll(getMetaValues());
         return (ThreadMetaValue) MetaValueHelper.metaValueForKey(key, values);
+    }
+
+    public String metaStringForKey(String key) {
+        return metaMap().get(key);
+    }
+
+    public void setMetaString(String key, String value) {
+        setMetaValue(key, value);
+        update();
     }
 
     public void removeMessage (Message message) {
