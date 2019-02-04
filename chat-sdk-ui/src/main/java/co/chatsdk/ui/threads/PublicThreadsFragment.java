@@ -71,7 +71,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
                                 dismissProgressDialog();
                                 adapter.addRow(thread);
 
-                                ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__is_created), threadName));
+                                ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__created), threadName));
 
                                 ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
                             }

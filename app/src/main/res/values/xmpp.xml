@@ -9,11 +9,11 @@
     <!--<string name="resource">iphone</string>-->
     <!--<string name="debug_mode_enabled">no</string>-->
 
-    <string name="service_name">unitywfms.m.in-app.io</string>
-    <string name="service_host">unitywfms.m.in-app.io</string>
-    <string name="service_port">5222</string>
-    <string name="resource">Android</string>
-    <string name="debug_mode_enabled">no</string>
+    <string name="service_name" translatable="false">unitywfms.m.in-app.io</string>
+    <string name="service_host" translatable="false">unitywfms.m.in-app.io</string>
+    <string name="service_port" translatable="false">5222</string>
+    <string name="resource" translatable="false">Android</string>
+    <string name="debug_mode_enabled" translatable="false">no</string>
 
     <!--<string name="service_name">server.chatcatapp.com</string>-->
     <!--<string name="service_host">server.chatcatapp.com</string>-->

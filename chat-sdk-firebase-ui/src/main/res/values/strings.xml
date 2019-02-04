@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">chat-sdk-firebase-ui</string>
+    <string name="app_name">Chat SDK Firebase UI</string>
     <string name="sign_in_cancelled">Sign in cancelled</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="unknown_error">Unknown Error</string>
