@@ -2,15 +2,14 @@
 <resources>
 
     <string name="app_name">Chat SDK</string>
-    <string name="action_settings">Settings</string>
 
-    <string name="facebook_app_identifier">648056098576150</string>
+    <string name="facebook_app_identifier" translatable="false">648056098576150</string>
 
-    <string name="twitter_key">Kqprq5b6bVeEfcMAGoHzUmB3I</string>
-    <string name="twitter_secret">hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq</string>
+    <string name="twitter_key" translatable="false">Kqprq5b6bVeEfcMAGoHzUmB3I</string>
+    <string name="twitter_secret" translatable="false">hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq</string>
 
-    <string name="google_maps_api_key">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
-    <string name="google_web_client_id">1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com</string>
+    <string name="google_maps_api_key" translatable="false">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
+    <string name="google_web_client_id" translatable="false">1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com</string>
 
     <!--<string name="firebase_root_path">firebase_v4_web_new_4</string>-->
     <!--<string name="firebase_cloud_messaging_server_key">AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug</string>-->
