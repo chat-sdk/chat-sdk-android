@@ -14,6 +14,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
@@ -71,9 +72,7 @@ public class MediaChatOption extends BaseChatOption {
                 };
 
                 if(type == Type.TakePhoto) {
-                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).concatWith(PermissionRequestHandler.shared().requestWriteExternalStorage(activity)).subscribe(() -> {
-                            mediaSelector.startTakePhotoActivity(activity, handleResult);
-                        }, consumer);
+                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).subscribe(() -> mediaSelector.startTakePhotoActivity(activity, handleResult), consumer);
                 }
                 if(type == Type.ChoosePhoto) {
                     d = PermissionRequestHandler.shared().requestReadExternalStorage(activity).subscribe(() -> {
@@ -81,9 +80,7 @@ public class MediaChatOption extends BaseChatOption {
                     }, consumer);
                 }
                 if(type == Type.TakeVideo) {
-                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).concatWith(PermissionRequestHandler.shared().requestWriteExternalStorage(activity)).subscribe(() -> {
-                        mediaSelector.startTakeVideoActivity(activity, handleResult);
-                    }, consumer);
+                    d = PermissionRequestHandler.shared().requestCameraAccess(activity).subscribe(() -> mediaSelector.startTakeVideoActivity(activity, handleResult), consumer);
                 }
                 if(type == Type.ChooseVideo) {
                     d = PermissionRequestHandler.shared().requestReadExternalStorage(activity).subscribe(() -> {

@@ -5,7 +5,6 @@ import com.google.firebase.database.ServerValue;
 
 import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Completable;
-import timber.log.Timber;
 
 /**
  * Created by ben on 9/11/17.
@@ -35,8 +34,6 @@ public class FirebaseEntity {
 
     public static Completable pushUpdated (final String path, final String entityID, final String key) {
         return Completable.create(e -> {
-
-            Timber.v(path +'/'+entityID+'/'+key);
 
             if(StringChecker.isNullOrEmpty(path) || StringChecker.isNullOrEmpty(entityID) || StringChecker.isNullOrEmpty(key)) {
                 e.onComplete();

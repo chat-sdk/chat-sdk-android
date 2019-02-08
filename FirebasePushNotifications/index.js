@@ -220,7 +220,8 @@ exports.pushListener = functions.database.ref('{rootPath}/threads/{threadId}/mes
             for(let key in IDs) {
                 if (IDs.hasOwnProperty(key)) {
                     let userId = IDs[key];
-                    let message = buildMessage(name, messageValue["payload"], iOSAction, Sound, messageValue['type'], senderId, threadId, userId);
+                    let messageText = messageValue["json_v2"]["text"];
+                    let message = buildMessage(name, messageText, iOSAction, Sound, messageValue['type'], senderId, threadId, userId);
                     admin.messaging().send(message).then(success => {
                         return success;
                     }).catch(error => {

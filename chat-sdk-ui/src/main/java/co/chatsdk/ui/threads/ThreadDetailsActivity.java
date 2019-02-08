@@ -116,7 +116,7 @@ public class ThreadDetailsActivity extends BaseActivity {
         super.onResume();
 
         // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUser().getEntityID())) {
+        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
             //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
             threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
         }

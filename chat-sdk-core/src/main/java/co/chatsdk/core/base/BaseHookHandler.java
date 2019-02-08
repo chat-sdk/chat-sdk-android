@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.hook.Hook;
+import io.reactivex.Completable;
 
 /**
  * Created by ben on 9/13/17.
@@ -12,21 +13,7 @@ import co.chatsdk.core.hook.Hook;
 
 public class BaseHookHandler implements HookHandler {
 
-    public static String DidAuthenticate = "DidAuthenticate";
-
-    public static String UserOn = "UserOn";
-
-    public static String MessageReceived = "MessageReceived";
-    public static String Message = "Message";
-    public static String IsNew_Boolean = "IsNew_Boolean";
-
-    public static String DidLogout = "DidLogout";
-    public static String User = "User";
-
-    public static String SetUserOnline = "SetUserOnline";
-    public static String SetUserOffline = "SetUserOffline";
-
-    HashMap<String, ArrayList> hooks = new HashMap<>();
+    protected HashMap<String, ArrayList<Hook>> hooks = new HashMap<>();
 
     @Override
     public void addHook(Hook hook, String name) {
@@ -49,12 +36,14 @@ public class BaseHookHandler implements HookHandler {
     }
 
     @Override
-    public void executeHook(String name, HashMap<String, Object> data) {
+    public Completable executeHook(String name, HashMap<String, Object> data) {
         ArrayList<Hook> existingHooks = hooks.get(name);
+        ArrayList<Completable> comparables = new ArrayList<>();
         if(existingHooks != null) {
             for(Hook hook : existingHooks) {
-                hook.execute(data);
+                comparables.add(hook.execute(data));
             }
         }
+        return Completable.merge(comparables);
     }
 }

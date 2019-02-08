@@ -2,6 +2,8 @@ package co.chatsdk.core.hook;
 
 import java.util.HashMap;
 
+import io.reactivex.Completable;
+
 /**
  * Created by ben on 9/13/17.
  */
@@ -14,14 +16,15 @@ public class Hook {
         this.executor = executor;
     }
 
-    public void execute (HashMap<String, Object> data) {
+    public Completable execute (HashMap<String, Object> data) {
         if(executor != null) {
-            executor.execute(data);
+            return executor.execute(data);
         }
+        return Completable.complete();
     }
 
     public interface Executor {
-        void execute (HashMap<String, Object> data);
+        Completable execute (HashMap<String, Object> data);
     }
 
 }

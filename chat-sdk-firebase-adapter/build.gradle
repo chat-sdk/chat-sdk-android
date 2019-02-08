@@ -35,11 +35,11 @@ dependencies {
     implementation project(':chat-sdk-core')
 
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
-    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    api "com.jakewharton.timber:timber:$timberVersion"
 
     // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
     // Can likely be removed later

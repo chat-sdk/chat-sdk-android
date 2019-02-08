@@ -117,8 +117,7 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         // Handle recording when the record button is held down
         btnSend.setOnTouchListener((view, motionEvent) ->  {
             if(recordOnPress) {
-                Disposable d = PermissionRequestHandler.shared().requestRecordAudio(getActivity())
-                        .concatWith(PermissionRequestHandler.shared().requestWriteExternalStorage(getActivity())).subscribe(() -> {
+                Disposable d = PermissionRequestHandler.shared().requestRecordAudio(getActivity()).subscribe(() -> {
                         // Start recording when we press down
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                             startRecording(view);

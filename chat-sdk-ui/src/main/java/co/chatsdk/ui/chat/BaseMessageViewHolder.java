@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -207,6 +208,18 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         messageIconView.requestLayout();
     }
 
+    public void setIconMargins(int start, int top, int end, int bottom) {
+        // TODO: Make this more elegant...
+        ViewGroup.LayoutParams params = messageIconView.getLayoutParams();
+//        if (params instanceof RelativeLayout.LayoutParams) {
+//            ((RelativeLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
+//        }
+//        if (params instanceof ConstraintLayout.LayoutParams) {
+            ((ConstraintLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
+//        }
+        messageIconView.requestLayout();
+    }
+
     public void setImageSize(int width, int height) {
         messageImageView.getLayoutParams().width = width;
         messageImageView.getLayoutParams().height = height;
@@ -224,8 +237,10 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         messageIconView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         if (hidden) {
             setIconSize(0, 0);
+            setIconMargins(0,0,0,0);
         } else {
             setIconSize(activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_width), activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_height));
+            setIconMargins(5,0,5,0);
         }
         messageBubble.requestLayout();
     }

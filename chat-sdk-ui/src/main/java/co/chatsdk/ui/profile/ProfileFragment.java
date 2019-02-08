@@ -446,7 +446,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showSettings() {
-        ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUser().getEntityID());
+        ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUserID());
     }
 
     @Override

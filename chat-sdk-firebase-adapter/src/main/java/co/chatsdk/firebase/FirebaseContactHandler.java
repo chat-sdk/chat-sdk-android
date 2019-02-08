@@ -16,7 +16,7 @@ public class FirebaseContactHandler extends BaseContactHandler {
     @Override
     public Completable addContact(User user, ConnectionType type) {
         return Completable.create(emitter -> {
-            DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUser().getEntityID()).child(user.getEntityID());
+            DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUserID()).child(user.getEntityID());
             HashMap<String, Integer> data = new HashMap<>();
             data.put(Keys.Type, type.ordinal());
             ref.setValue(data, (databaseError, databaseReference) -> {
@@ -32,7 +32,7 @@ public class FirebaseContactHandler extends BaseContactHandler {
     @Override
     public Completable deleteContact(User user, ConnectionType type) {
         return Completable.create(emitter -> {
-            DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUser().getEntityID()).child(user.getEntityID());
+            DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUserID()).child(user.getEntityID());
             ref.removeValue((databaseError, databaseReference) -> {
                 if (databaseError == null) {
                     emitter.onComplete();

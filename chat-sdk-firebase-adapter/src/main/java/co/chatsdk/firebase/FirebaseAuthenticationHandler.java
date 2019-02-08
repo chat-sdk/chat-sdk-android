@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
-import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
@@ -131,8 +131,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
-                            data.put(BaseHookHandler.User, userWrapper.getModel());
-                            ChatSDK.hook().executeHook(BaseHookHandler.DidAuthenticate, data);
+                            data.put(HookEvent.User, userWrapper.getModel());
+                            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
                         }
 
                         ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
@@ -182,7 +182,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 //                        ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
 //                    }
 
-                    ChatSDK.core().setUserOffline().subscribe(()->{
+                    ChatSDK.hook().executeHook(HookEvent.WillLogout, new HashMap<>()).concatWith(ChatSDK.core().setUserOffline()).subscribe(()->{
 
                         FirebaseAuth.getInstance().signOut();
 
@@ -196,8 +196,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                         if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();
-                            data.put(BaseHookHandler.User, user);
-                            ChatSDK.hook().executeHook(BaseHookHandler.DidLogout, data);
+                            data.put(HookEvent.User, user);
+                            ChatSDK.hook().executeHook(HookEvent.DidLogout, data).subscribe(new CrashReportingCompletableObserver());;
                         }
 
                         authenticatedThisSession = false;

@@ -270,7 +270,7 @@ public class Thread implements CoreEntity {
             messages.remove(message);
         }
 
-        message.delete();
+        message.cascadeDelete();
 
         update();
         resetMessages();

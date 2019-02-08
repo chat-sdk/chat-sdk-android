@@ -21,5 +21,8 @@ public class TextMessageViewHolder extends BaseMessageViewHolder {
         setBubbleHidden(false);
         setTextHidden(false);
 
+//        messageTextView.setText("HelloHelloHelloHel34523_loHelloHelloHelloHelloHelloHelloHelloHelloHello.png");
+//        setIconHidden(false);
+
     }
 }

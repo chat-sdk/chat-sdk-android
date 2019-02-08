@@ -51,6 +51,7 @@ import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.CrashReportingObserver;
@@ -350,8 +351,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onStart() {
         super.onStart();
 
-
-
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.ThreadReadReceiptUpdated, EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
@@ -369,6 +368,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     boolean isAdded = messageListAdapter.addRow(message, false, false);
                     if(isAdded || message.getMessageStatus() == MessageSendStatus.None) {
+                        messageListAdapter.sortAndNotify();
+                        // Make sure to update for read receipts if necessary
+                    } else if (ChatSDK.readReceipts() != null && message.getSender().isMe() && message.getReadStatus() != ReadStatus.read()) {
                         messageListAdapter.sortAndNotify();
                     }
 

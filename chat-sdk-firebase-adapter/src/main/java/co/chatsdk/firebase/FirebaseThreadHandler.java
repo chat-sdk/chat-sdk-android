@@ -84,7 +84,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 //
                 if (userThreadLinkType == UserThreadLinkTypeAddUser) {
                     data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
-                    data.put(userThreadsPath, ChatSDK.currentUser().getEntityID());
+                    data.put(userThreadsPath, ChatSDK.currentUserID());
 
                     if (thread.typeIs(ThreadType.Public)) {
                         threadUsersRef.onDisconnect().removeValue();

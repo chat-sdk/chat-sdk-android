@@ -234,6 +234,10 @@ public class ChatSDK {
         return ChatSDK.core().currentUserModel();
     }
 
+    public static String currentUserID() {
+        return ChatSDK.core().currentUserModel().getEntityID();
+    }
+
     public static SearchHandler search () {
         return a().search;
     }

@@ -19,13 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -287,9 +287,9 @@ public class ThreadWrapper  {
 
                                 if(ChatSDK.hook() != null) {
                                     HashMap<String, Object> data = new HashMap<>();
-                                    data.put(BaseHookHandler.Message, message.getModel());
-                                    data.put(BaseHookHandler.IsNew_Boolean, newMessage);
-                                    ChatSDK.hook().executeHook(BaseHookHandler.MessageReceived, data);
+                                    data.put(HookEvent.Message, message.getModel());
+                                    data.put(HookEvent.IsNew_Boolean, newMessage);
+                                    ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(new CrashReportingCompletableObserver());;
                                 }
 
                                 // If we remove this, then the thread will update twice for each message.

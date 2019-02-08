@@ -13,10 +13,10 @@ import java.net.URL;
 import java.util.Date;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
-import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
@@ -97,7 +97,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
         if (ChatSDK.hook() != null) {
-            ChatSDK.hook().executeHook(BaseHookHandler.SetUserOnline, null);
+            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(new CrashReportingCompletableObserver());;
         }
 
         return Completable.complete();
@@ -105,13 +105,16 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public Completable setUserOffline() {
         User current = ChatSDK.currentUser();
+
+        Completable completable = Completable.complete();
+        if (ChatSDK.hook() != null) {
+            completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+        }
+
         if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
             // Update the last online figure then go offline
-            return updateLastOnline()
-                    .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline());
-        }
-        if (ChatSDK.hook() != null) {
-            ChatSDK.hook().executeHook(BaseHookHandler.SetUserOffline, null);
+            return completable.concatWith(updateLastOnline()
+                    .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
         }
 
         return Completable.complete();

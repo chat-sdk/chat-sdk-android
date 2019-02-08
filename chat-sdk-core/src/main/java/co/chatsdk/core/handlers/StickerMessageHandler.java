@@ -9,6 +9,6 @@ import co.chatsdk.core.dao.Thread;
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
-public interface StickerMessageHandler {
+public interface StickerMessageHandler extends MessageDisplayHandler {
     Observable<MessageSendProgress> sendMessageWithSticker(String stickerImageName, final Thread thread);
 }

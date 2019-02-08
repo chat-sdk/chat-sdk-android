@@ -6,13 +6,13 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.EventHandler;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -58,8 +58,8 @@ public class FirebaseEventHandler implements EventHandler {
 
         if(ChatSDK.hook() != null) {
             HashMap<String, Object> data = new HashMap<>();
-            data.put(BaseHookHandler.User, user);
-            ChatSDK.hook().executeHook(BaseHookHandler.UserOn, data);
+            data.put(HookEvent.User, user);
+            ChatSDK.hook().executeHook(HookEvent.UserOn, data).subscribe(new CrashReportingCompletableObserver());;
         }
 
         // Remove all users from public threads
@@ -168,7 +168,7 @@ public class FirebaseEventHandler implements EventHandler {
         }));
         FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
 
-        DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUser().getEntityID());
+        DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUserID());
 
         ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {

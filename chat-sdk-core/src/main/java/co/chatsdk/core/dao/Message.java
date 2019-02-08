@@ -347,6 +347,16 @@ public class Message implements CoreEntity {
         this.read = read;
     }
 
+    public void cascadeDelete () {
+        for (MessageMetaValue value : getMetaValues()) {
+            value.delete();
+        }
+        for (ReadReceiptUserLink link : getReadReceiptLinks()) {
+            link.delete();
+        }
+        delete();
+    }
+
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 1145839495)
     public User getSender() {
