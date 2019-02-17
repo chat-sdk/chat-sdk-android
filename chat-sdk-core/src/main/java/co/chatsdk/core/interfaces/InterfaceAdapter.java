@@ -37,6 +37,7 @@ public interface InterfaceAdapter {
     Class getProfileActivity();
 
     List<Tab> defaultTabs ();
+    List<Tab> tabs();
 
     Tab privateThreadsTab ();
     Tab publicThreadsTab ();
@@ -44,6 +45,14 @@ public interface InterfaceAdapter {
     Tab profileTab ();
 
     Activity profileActivity (User user);
+
+    void addTab(Tab tab);
+    void addTab(int index, Tab tab);
+
+    void addTab(String title, int icon, Fragment fragment);
+    void addTab(int index, String title, int icon, Fragment fragment);
+
+    void removeTab(int index);
 
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);

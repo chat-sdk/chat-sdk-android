@@ -1,6 +1,8 @@
 package co.chatsdk.core;
 
 
+import android.content.Context;
+
 import androidx.fragment.app.Fragment;
 
 import co.chatsdk.core.session.ChatSDK;
@@ -15,16 +17,18 @@ public class Tab {
     public String title;
     public int icon;
 
-    public Tab (int titleResource, int icon, Fragment fragment) {
-        this.fragment = fragment;
-        this.title = ChatSDK.shared().context().getString(titleResource);
-        this.icon = icon;
-    }
-
     public Tab (String title, int icon, Fragment fragment) {
         this.fragment = fragment;
         this.title = title;
         this.icon = icon;
+    }
+
+    public Tab (Context context, int titleResource, int icon, Fragment fragment) {
+        this(context.getString(titleResource), icon, fragment);
+    }
+
+    public Tab (int titleResource, int icon, Fragment fragment) {
+        this(ChatSDK.shared().context(), titleResource, icon, fragment);
     }
 
 }
