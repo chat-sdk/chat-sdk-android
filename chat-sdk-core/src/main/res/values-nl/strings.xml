@@ -48,8 +48,7 @@
     <string name="recording_too_short">Te korte opname</string>
     <!--ThreadDetails context-->
     <string name="thread_details_activity_title">Gespreksdetails</string>
-    <string name="thread_details_activity_change_name_dialog_title">Gespreksnaam
-geven</string>
+    <string name="thread_details_activity_change_name_dialog_title">Gespreksnaam geven</string>
     <!--CoreMessage list adapter-->
     <string name="message_adapter_no_google_maps">O jee. Je toestel heeft geen Google Maps</string>
     <string name="message_adapter_load_image_fail">Het lukt niet de afbeelding te tonen</string>
@@ -57,8 +56,7 @@ geven</string>
     <string name="chat_sdk__version_label">Versie:</string>
     <string name="login_activity_no_mail_toast">Je e-mail</string>
     <string name="login_activity_no_password_toast">Je paswoord</string>
-    <string name="login_activity_facebook_connection_fail_toast">Verbinding maken met Facebook
-mislukt</string>
+    <string name="login_activity_facebook_connection_fail_toast">Verbinding maken met Facebook mislukt</string>
     <string name="login_activity_failed_to_login_toast">Verbinden mislukt</string> <string name="login_activity_failed_to_register_toast">Registratie mislukt</string>
     <!--BaseFragment/BaseActivity-->
     <string name="create_thread_with_users_fail_toast">Gesprek opstarten mislukt</string> <string name="delete_thread_fail_toast">Gesprek verwijderen mislukt</string>
@@ -100,24 +98,17 @@ mislukt</string>
     <string name="permission_read_contacts_title">Toegang verlenen tot je contacten</string> <string name="permission_read_contacts_message">Toelaten dat er in je telefoonboek wordtgezocht</string>
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Tekst invoeren om te zoeken</string> <string name="search_activity_no_user_found_toast">Meh. Niks gevonden</string>
-    <string name="search_activity_no_contact_selected_toast">Niemand geselecteerd</string> <string name="search_activity_user_added_as_contact_after_count_toast"> Gebruikers
-toegevoegd aan je contacten</string>
-    <string name="search_activity_prog_dialog_init_message">Bezig met thread&#8230; te
-zoeken</string>
-    <string name="search_activity_prog_dialog_before_count_message">thread&#8230; aan het
-zoeken. Gevonden: thread&#160;</string>
+    <string name="search_activity_no_contact_selected_toast">Niemand geselecteerd</string> <string name="search_activity_user_added_as_contact_after_count_toast"> Gebruikers toegevoegd aan je contacten</string>
+    <string name="search_activity_prog_dialog_init_message">Bezig met thread&#8230; te zoeken</string>
+    <string name="search_activity_prog_dialog_before_count_message">thread&#8230; aan het zoeken. Gevonden: thread&#160;</string>
     <string name="search_activity_searching_message">Bezig met zoeken</string>
     <!--PublicThreadFragment-->
     <string name="thread_fragment_add_item_text">Gesprek opstarten</string>
     <!--Add public chat room dialog-->
-    <string name="add_public_chat_dialog_title">Gespreksruimte toevoegen</string> <string name="add_public_chat_dialog_progress_message">Bezig met het maken van
-thread&#8230;</string>
-    <string name="add_public_chat_dialog_toast_success_before_thread_name">Publiek gesprek
-thread&#160;</string>
-    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160; is
-aangemaakt</string>
-    <string name="add_public_chat_dialog_toast_error_before_thread_name">Oj, oj. Publiek gesprek
-thread&#160; aamaken mislukt</string>
+    <string name="add_public_chat_dialog_title">Gespreksruimte toevoegen</string> <string name="add_public_chat_dialog_progress_message">Bezig met het maken van thread&#8230;</string>
+    <string name="add_public_chat_dialog_toast_success_before_thread_name">Publiek gesprek thread&#160;</string>
+    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160; is aangemaakt</string>
+    <string name="add_public_chat_dialog_toast_error_before_thread_name">Oj, oj. Publiek gesprek thread&#160; aanmaken mislukt</string>
     <!--Save Contact Dialog-->
     <string name="alert_save_contact">Bezig met opslaan</string> <string name="contact_book">Contactenlijst</string>
     <string name="delete_message">Gesprek verwijderen</string>
@@ -156,8 +147,7 @@ thread&#160; aamaken mislukt</string>
     <string name="record_permission_not_granted">Ik heb geen toestemming om iets op te nemen</string>
     <string name="unable_to_save_image_to_disk">Ik kan deze afbeelding niet opslaan</string> <string name="couldnt_load_sticker_pack">Emoji’s inladen mislukt</string>
     <string name="unable_to_load_image">Afbeelding tonen mislukt</string>
-    <string name="__permission_not_granted" formatted="true">Geen toestemming om dit te
-doen</string>
+    <string name="__permission_not_granted" formatted="true">Geen toestemming om dit te doen</string>
     <string name="error_permission_not_granted">Toestemming niet verleend: %d</string>
     <!--State-->
     <string name="sending">Aan het versturen</string>
