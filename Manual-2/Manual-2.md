@@ -5,9 +5,9 @@
 
 2. Click on the **Phone and Tablet** tab. Click on the **Add No Activity** tab and click **Next**. Enter a name for the **Application** as you see fit. Change the **Name** of the application as you see fit. Be sure to note the **Application name** and the **Package name**. You will need this information later. NEED MINIMUM API LEVEL. Check the box of the Android X option, then click **Finish**.
 
-3. Open the top level `build.gradle` file. You can do this by clicking on the vertical **Project** tab in the upper left hand corner, then clicking on the horizontal **Project** option in the drop down menu beside it. ![Project and Project](C:\Users\Alpha\AndroidStudioProjects\Chat SDK Manuals\Manual-2\chat-sdk-android\Manual-2\Top Level Build Gradle File.png)
+3. Open the top level `build.gradle` file. You can do this by clicking on the vertical **Project** tab in the upper left hand corner, then clicking on the horizontal **Project** option in the drop down menu beside it. ![Project and Project](C:\Users\Alpha\AndroidStudioProjects\Chat SDK Manuals\Manual-2\chat-sdk-android\Manual-2\Project and Project.png)
 
-4. Click on the folder with the **name of your App**, then click on the **build.gradle** file. When you open it, the tab should have the name of your App. That’s how you know it’s the project level `build.gradle` file. It should have the name of your App when you open it. ![Top Level Build Gradle File](C:\Users\Alpha\AndroidStudioProjects\Chat SDK Manuals\Manual-2\chat-sdk-android\Manual-2\Project and Project.png)
+4. Click on the folder with the **name of your App**, then click on the `build.gradle` file. When you open it, the tab should have the name of your App. That’s how you know it’s the project level `build.gradle` file. It should have the name of your App when you open it. ![Top Level Build Gradle File](C:\Users\Alpha\AndroidStudioProjects\Chat SDK Manuals\Manual-2\chat-sdk-android\Manual-2\Top Level Build Gradle File.png)
 
 5. Find the section of `repositories` in `allprojects`, and add the following code inside of it:
 
