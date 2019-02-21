@@ -44,6 +44,8 @@ dependencies {
 
     api "org.greenrobot:greendao:$greenDaoVersion"
     api "joda-time:joda-time:$jodaTimeVersion"
+    api group: 'org.joda', name: 'joda-convert', version: "$jodaConvertVersion"
+
     implementation "com.jakewharton.timber:timber:$timberVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
