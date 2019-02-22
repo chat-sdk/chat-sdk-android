@@ -1,25 +1,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Base application theme. -->
-    <style name="ChatSDKTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowBackground">@android:color/white</item>
-    </style>
-
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
     <style name="ChatSDKSlidingTransactionTheme" parent="@style/SdkTheme">
         <item name="android:windowIsTranslucent">true</item>
-    </style>
-
-    <!--Action bar style-->
-    <style name="ActionBarStyle" parent="@android:style/Widget.Holo.ActionBar">
-        <item name="android:background">@color/chat_blue</item>
-        <item name="android:titleTextStyle">@style/actionBarTextStyle</item>
-    </style>
-
-    <style name="actionBarTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
-        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <!-- TextView Style-->
@@ -47,13 +30,6 @@
         <item name="android:layout_margin">5dp</item>
     </style>
 
-    <!--Generic Button Style-->
-    <style name="SdkButtonStyle">
-        <item name="android:textColor">@android:color/black</item>
-        <item name="android:gravity">center</item>
-
-    </style>
-
     <!--Circle image view style-->
     <style name="CircleIconStyle">
         <item name="android:layout_width">48dp</item>
@@ -62,12 +38,6 @@
 
     <style name="ThreadListCircleIconStyle" parent="CircleIconStyle">
         <item name="android:layout_margin">3dp</item>
-    </style>
-
-    <!--Rounded corner image view style-->
-    <style name="RoundedCornerImageViewStyle">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
     </style>
 
     <!--Row Margins-->
@@ -88,22 +58,6 @@
     <style name="ImagePopupAnimation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-    </style>
-
-    <style name="ProfileViewTextViewStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:lines">1</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="CountryIconStyle">
-        <item name="android:layout_height">32dp</item>
-        <item name="android:layout_width">32dp</item>
-
     </style>
 
 </resources>

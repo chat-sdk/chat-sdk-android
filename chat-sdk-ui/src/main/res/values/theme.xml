@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="SdkTheme"
-        parent="Theme.AppCompat.Light">
+        parent="Theme.MaterialComponents.Light.Bridge">
         <!-- App Bar -->
         <item name="colorPrimary">@color/sdkPrimary</item>
         <item name="colorPrimaryDark">@color/sdkPrimaryDark</item>
