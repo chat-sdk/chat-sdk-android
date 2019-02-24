@@ -53,11 +53,11 @@
             tools:layout_constraintTop_creator="1" />
 
         <CheckBox
-            android:id="@id/checkbox"
+            android:id="@+id/checkbox"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginRight="6dp"
-            android:buttonTint="@color/chat_blue"
+            android:buttonTint="@color/primary"
             android:enabled="true"
             android:padding="10dp"
             android:visibility="invisible"

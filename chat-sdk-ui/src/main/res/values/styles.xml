@@ -1,23 +1,36 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SdkTheme" parent="Theme.MaterialComponents.Light">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/text_primary</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
+    </style>
 
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
     <style name="ChatSDKSlidingTransactionTheme" parent="@style/SdkTheme">
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <style name="ThemeOverlay.SdkTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">?android:textColorSecondary</item>
+    </style>
+
     <!-- TextView Style-->
     <style name="TextViewStyle">
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:padding">2dp</item>
     </style>
 
     <style name="TextViewStyleSmall">
-        <item name="android:textSize">13dp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:padding">2dp</item>
     </style>
 
     <style name="MessageDateStyle">
-        <item name="android:textSize">13dp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:padding">2dp</item>
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textStyle">italic</item>
@@ -58,6 +71,32 @@
     <style name="ImagePopupAnimation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="ProfileUsernameField"
+        parent="ProfileTextField">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="ProfileUsernameEditField"
+        parent="ProfileUsernameField">
+        <item name="android:background">@drawable/edit_text_background</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="ProfileEditTextField"
+        parent="ProfileTextField">
+        <item name="android:background">@drawable/edit_text_background</item>
+    </style>
+    <style name="ProfileTextField">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:background">@null</item>
+    </style>
+    <style name="ProfileTextFieldIcon">
+        <item name="android:layout_gravity">center_vertical</item>
     </style>
 
 </resources>

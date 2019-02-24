@@ -172,11 +172,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public int maxWidth () {
-        return activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_width);
+        return activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_width);
     }
 
     public int maxHeight () {
-        return activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_image_message_height);
+        return activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_height);
     }
 
     public void showProgressBar () {
@@ -239,7 +239,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
             setIconSize(0, 0);
             setIconMargins(0,0,0,0);
         } else {
-            setIconSize(activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_width), activity.getResources().getDimensionPixelSize(R.dimen.chat_sdk_max_icon_message_height));
+            setIconSize(activity.getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
             setIconMargins(5,0,5,0);
         }
         messageBubble.requestLayout();

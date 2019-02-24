@@ -8,12 +8,12 @@
     android:layout_height="wrap_content">
 
     <View
-        android:layout_width="2dp"
+        android:id="@+id/chat_sdk_indicator"
+        android:layout_width="4dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:layout_height="match_parent"
-        android:id="@+id/chat_sdk_indicator"
-        android:background="@color/sdkOrange"/>
+        android:background="@color/primary"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -87,10 +87,12 @@
                 android:textSize="18sp"
                 style="@style/TextViewStyleSmall"
                 android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
                 android:id="@+id/txt_unread_messages"
                 android:layout_gravity="right"/>
 
         </LinearLayout>
 
     </RelativeLayout>
-    </LinearLayout>
+
+</LinearLayout>

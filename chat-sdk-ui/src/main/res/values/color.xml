@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#ffffff</color>
-    <color name="me_color">#abcff4</color>
-    <color name="reply_color">#d7d4d3</color>
-    <color name="chat_bg">#e3e3e3</color>
-    <color name="chat_blue">@color/sdkPrimary</color>
-    <color name="logout">#ae2020</color>
+    <color name="black">#000000</color>
+
+    <color name="primary">@android:color/holo_blue_light</color>
+    <color name="primary_dark">@android:color/holo_blue_dark</color>
+    <color name="accent">@android:color/holo_blue_light</color>
+    <color name="text_primary">@android:color/white</color>
+    <color name="window_background">@android:color/background_light</color>
+
+    <color name="login_button_color">#1c93db</color>
+    <color name="login_button_color_pressed">#1874ac</color>
+
+    <color name="register_button_color">#78b737</color>
+    <color name="register_button_color_pressed">#59872a</color>
+
+    <color name="anonymous_button_color">#aaaaaa</color>
+    <color name="anonymous_button_color_pressed">#888787</color>
+
+    <color name="logout_button_color">#ae2020</color>
+
 </resources>

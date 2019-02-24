@@ -18,7 +18,7 @@
             android:id="@+id/chat_sdk_et_search_input"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:backgroundTint="@color/chat_blue"
+            android:backgroundTint="@color/primary"
             android:layout_weight="1" />
 
         <ImageView
