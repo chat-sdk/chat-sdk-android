@@ -2,6 +2,7 @@
 <resources>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
+    <color name="dark_text">#5F5F5F</color>
 
     <color name="primary">@android:color/holo_blue_light</color>
     <color name="primary_dark">@android:color/holo_blue_dark</color>
@@ -10,14 +11,8 @@
     <color name="window_background">@android:color/background_light</color>
 
     <color name="login_button_color">#1c93db</color>
-    <color name="login_button_color_pressed">#1874ac</color>
-
     <color name="register_button_color">#78b737</color>
-    <color name="register_button_color_pressed">#59872a</color>
-
     <color name="anonymous_button_color">#aaaaaa</color>
-    <color name="anonymous_button_color_pressed">#888787</color>
-
     <color name="logout_button_color">#ae2020</color>
 
 </resources>

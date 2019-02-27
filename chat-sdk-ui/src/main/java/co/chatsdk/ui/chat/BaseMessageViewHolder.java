@@ -83,7 +83,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     public boolean onLongClick (View v) {
         if (onLongClickListener != null) {
             onLongClickListener.onLongClick(v);
-        } else if (message != null && !message.getSender().isMe()) {
+        } else if (message != null && message.getSender().isMe()) {
 
             Context context = v.getContext();
 

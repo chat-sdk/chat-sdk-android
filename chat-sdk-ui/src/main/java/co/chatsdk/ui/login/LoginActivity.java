@@ -19,14 +19,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.AccountDetails;
@@ -45,11 +50,11 @@ import timber.log.Timber;
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     protected boolean exitOnBackPressed = false;
-    protected LinearLayout mainView;
+    protected ConstraintLayout mainView;
     protected boolean authenticating = false;
 
-    protected EditText usernameEditText;
-    protected EditText passwordEditText;
+    protected TextInputEditText usernameEditText;
+    protected TextInputEditText passwordEditText;
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
@@ -57,7 +62,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
 
-    protected Button btnLogin, btnReg, btnAnonymous, btnTwitter, btnGoogle, btnFacebook, btnResetPassword;
+    protected MaterialButton btnLogin, btnReg,  btnAnonymous, btnResetPassword;
+    protected ImageButton btnTwitter, btnGoogle, btnFacebook;
     protected ImageView appIconImage;
 
     @Override
@@ -100,16 +106,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected void initViews() {
-        btnLogin = findViewById(R.id.chat_sdk_btn_login);
-        btnAnonymous = findViewById(R.id.chat_sdk_btn_anon_login);
-        btnTwitter = findViewById(R.id.chat_sdk_btn_twitter_login);
-        btnReg = findViewById(R.id.chat_sdk_btn_register);
-        usernameEditText = findViewById(R.id.chat_sdk_et_username);
-        passwordEditText = findViewById(R.id.chat_sdk_et_password);
-        btnGoogle = findViewById(R.id.chat_sdk_btn_google_login);
-        btnFacebook = findViewById(R.id.chat_sdk_btn_facebook_login);
+        btnLogin = findViewById(R.id.btn_login);
+        btnAnonymous = findViewById(R.id.btn_anon_login);
+        btnTwitter = findViewById(R.id.btn_twitter);
+        btnReg = findViewById(R.id.btn_register);
+        usernameEditText = findViewById(R.id.et_username);
+        passwordEditText = findViewById(R.id.et_password);
+        btnGoogle = findViewById(R.id.btn_google);
+        btnFacebook = findViewById(R.id.btn_facebook);
         appIconImage = findViewById(R.id.app_icon);
-        btnResetPassword = findViewById(R.id.chat_sdk_btn_reset_password);
+        btnResetPassword = findViewById(R.id.btn_reset_password);
 
         btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
@@ -176,19 +182,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.authenticating));
 
-        if (i == R.id.chat_sdk_btn_login) {
+        if (i == R.id.btn_login) {
             passwordLogin();
         }
-        else if (i == R.id.chat_sdk_btn_anon_login) {
+        else if (i == R.id.btn_anon_login) {
             anonymousLogin();
         }
-        else if (i == R.id.chat_sdk_btn_register) {
+        else if (i == R.id.btn_register) {
             register();
         }
-        else if (i == R.id.chat_sdk_btn_reset_password) {
+        else if (i == R.id.btn_reset_password) {
             showForgotPasswordDialog();
         }
-        else if (i == R.id.chat_sdk_btn_twitter_login) {
+        else if (i == R.id.btn_twitter) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -196,7 +202,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         .subscribe(completion, error);
             }
         }
-        else if (i == R.id.chat_sdk_btn_facebook_login) {
+        else if (i == R.id.btn_facebook) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -204,7 +210,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         .subscribe(completion, error);
             }
         }
-        else if (i == R.id.chat_sdk_btn_google_login) {
+        else if (i == R.id.btn_google) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())

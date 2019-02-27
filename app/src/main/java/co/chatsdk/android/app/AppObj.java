@@ -19,6 +19,8 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/8/2014.
@@ -34,7 +36,7 @@ public class AppObj extends MultiDexApplication {
         Configuration.Builder config = new Configuration.Builder(context);
 
 //        builder.firebaseRootPath("firebase_v4_web_new_4");
-        config.firebaseRootPath("19_01_test");
+        config.firebaseRootPath("19_02");
         config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
         config.publicRoomCreationEnabled(false);
         config.pushNotificationSound("default");

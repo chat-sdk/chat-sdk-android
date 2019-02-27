@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SdkTheme" parent="Theme.MaterialComponents.Light">
+    <style name="SdkTheme" parent="Theme.MaterialComponents.Light.Bridge">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -29,18 +29,28 @@
         <item name="android:padding">2dp</item>
     </style>
 
+    <style name="SocialLoginButton">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_marginTop">@dimen/login_button_outer_margin</item>
+        <item name="android:layout_marginLeft">@dimen/login_button_outer_margin</item>
+        <item name="android:layout_marginStart">@dimen/login_button_outer_margin</item>
+    </style>
+
+    <style name="LoginButton">
+        <item name="android:layout_height">@dimen/login_button_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center</item>
+        <!--<item name="android:layout_margin">4dp</item>-->
+        <item name="android:layout_weight">0.5</item>
+    </style>
+
     <style name="MessageDateStyle">
         <item name="android:textSize">13sp</item>
         <item name="android:padding">2dp</item>
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textStyle">italic</item>
-    </style>
-
-    <!--Login Activity Button style-->
-    <style name="LoginButtonsStyle">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:gravity">center</item>
-        <item name="android:layout_margin">5dp</item>
     </style>
 
     <!--Circle image view style-->
@@ -58,16 +68,6 @@
         <item name="android:padding">2dp</item>
     </style>
 
-    <!--Message Option Button Style-->
-    <style name="MessageOptionButtonStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:background">@null</item>
-        <item name="android:textColor">@color/chat_sdk_option_button_text_color_selector</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-    </style>
-
     <style name="ImagePopupAnimation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
@@ -82,10 +82,7 @@
         <item name="android:background">@drawable/edit_text_background</item>
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="ProfileEditTextField"
-        parent="ProfileTextField">
-        <item name="android:background">@drawable/edit_text_background</item>
-    </style>
+
     <style name="ProfileTextField">
         <item name="android:textSize">18sp</item>
         <item name="android:layout_width">match_parent</item>
@@ -94,9 +91,6 @@
         <item name="android:layout_margin">0dp</item>
         <item name="android:layout_marginBottom">1dp</item>
         <item name="android:background">@null</item>
-    </style>
-    <style name="ProfileTextFieldIcon">
-        <item name="android:layout_gravity">center_vertical</item>
     </style>
 
 </resources>
