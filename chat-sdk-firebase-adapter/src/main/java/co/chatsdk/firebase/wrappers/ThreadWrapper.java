@@ -345,14 +345,18 @@ public class ThreadWrapper  {
                 meta.put(value.getKey(), value.getValue());
             }
 
-            ref.setValue(meta, ((databaseError, databaseReference) -> {
-                if (databaseError == null) {
-                    e.onComplete();
-                }
-                else {
-                    e.onError(databaseError.toException());
-                }
-            }));
+            if (meta.keySet().size() > 0) {
+                ref.setValue(meta, ((databaseError, databaseReference) -> {
+                    if (databaseError == null) {
+                        e.onComplete();
+                    }
+                    else {
+                        e.onError(databaseError.toException());
+                    }
+                }));
+            } else {
+                e.onComplete();
+            }
 
         }).subscribeOn(Schedulers.single());
     }

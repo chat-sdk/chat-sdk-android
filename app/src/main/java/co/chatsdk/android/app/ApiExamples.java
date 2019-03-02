@@ -1,11 +1,15 @@
 package co.chatsdk.android.app;
 
+import android.content.Context;
+import android.content.Intent;
+
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
+import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -86,6 +90,20 @@ public class ApiExamples {
 
         }, throwable -> {
 
+        });
+    }
+
+    /**
+     * Push notifications are handled by the broadcast receiver. For custom handling,
+     * you can register a custom hander. Make sure to do this after activating the
+     * push module.
+     */
+    public void customPushNotificationHandling () {
+        ChatSDK.push().setBroadcastHandler(new BroadcastHandler() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // Handle push notifications here
+            }
         });
     }
 

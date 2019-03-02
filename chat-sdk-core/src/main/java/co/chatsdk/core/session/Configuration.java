@@ -64,6 +64,11 @@ public class Configuration {
     public boolean unreadMessagesCountForPublicChatRoomsEnabled;
     public boolean inboundPushHandlingEnabled = true;
 
+    // Rooms that are older than this will be hidden
+    // Zero is infinite lifetime
+    // Default - 24 hours
+    public int publicChatRoomLifetimeMinutes = 60 * 24;
+
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = false;
 
@@ -600,6 +605,11 @@ public class Configuration {
 
         public Builder pushNotificationColor(int color) {
             config.pushNotificationColor = color;
+            return this;
+        }
+
+        public Builder publicChatRoomLifetimeMinutes (int seconds) {
+            config.publicChatRoomLifetimeMinutes = seconds;
             return this;
         }
 

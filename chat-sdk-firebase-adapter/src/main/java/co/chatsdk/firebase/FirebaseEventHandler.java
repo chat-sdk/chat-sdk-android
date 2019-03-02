@@ -127,7 +127,7 @@ public class FirebaseEventHandler implements EventHandler {
 
             //TODO: Implement this
 
-            //FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
+            //FollowerLink follower = (FollowerLink) FirebaseAdapter.objectFromSnapshot(snapshot);
 //
 //
 //
@@ -139,7 +139,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         }).onChildRemoved((snapshot, hasValue) -> {
 
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
+//                FollowerLink follower = (FollowerLink) FirebaseAdapter.objectFromSnapshot(snapshot);
 //                DaoCore.deleteEntity(follower);
 
             eventSource.onNext(NetworkEvent.followerRemoved());
@@ -151,7 +151,7 @@ public class FirebaseEventHandler implements EventHandler {
         ChildEventListener followingListener = followingRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
 
             // TODO: Implement this
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
+//                FollowerLink follower = (FollowerLink) FirebaseAdapter.objectFromSnapshot(snapshot);
 //
 //                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
 //                wrapper.once();
@@ -161,7 +161,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         }).onChildRemoved((snapshot, hasValue) -> {
 
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
+//                FollowerLink follower = (FollowerLink) FirebaseAdapter.objectFromSnapshot(snapshot);
 //                DaoCore.deleteEntity(follower);
 
             eventSource.onNext(NetworkEvent.followingRemoved());

@@ -16,6 +16,7 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.interfaces.CoreEntity;
@@ -253,7 +254,14 @@ public class Thread implements CoreEntity {
         metaValue.setKey(key);
         metaValue.update();
         update();
-}
+    }
+
+    @Keep
+    public void updateValues (HashMap<String, String> values) {
+        for (String key : values.keySet()) {
+            setMetaValue(key, values.get(key));
+        }
+    }
 
     @Keep
     public ThreadMetaValue metaValueForKey (String key) {

@@ -10,9 +10,12 @@ package co.chatsdk.ui.threads;
 import android.app.AlertDialog;
 import android.text.InputType;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import co.chatsdk.core.dao.Thread;
@@ -93,6 +96,27 @@ public class PublicThreadsFragment extends ThreadsFragment {
 
     @Override
     protected List<Thread> getThreads() {
-        return ChatSDK.thread().getThreads(ThreadType.Public);
+        List<Thread> threads =  ChatSDK.thread().getThreads(ThreadType.Public);
+
+        if (ChatSDK.config().publicChatRoomLifetimeMinutes == 0) {
+            return threads;
+        } else {
+            // Do we need to filter the list to remove old chat rooms?
+            long now = new Date().getTime();
+            List<Thread> filtered = new ArrayList<>();
+            for (Thread t : threads) {
+                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < ChatSDK.config().publicChatRoomLifetimeMinutes * 60000) {
+                    filtered.add(t);
+                }
+            }
+            return filtered;
+        }
+    }
+
+    public void setTabVisibility (boolean isVisible) {
+        super.setTabVisibility(isVisible);
+        if (isVisible) {
+            reloadData();
+        }
     }
 }

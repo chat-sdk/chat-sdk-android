@@ -41,7 +41,7 @@
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name=".chat.ChatActivity"
-            android:parentActivityName=".main.MainActivity"
+            android:parentActivityName=".main.MainAppBarActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme">
@@ -65,7 +65,12 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name=".main.MainActivity"
+        <activity android:name=".main.MainAppBarActivity"
+            android:launchMode = "singleTask"
+            android:theme="@style/SdkTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
+
+        <activity android:name=".main.MainDrawActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>

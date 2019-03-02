@@ -40,6 +40,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import timber.log.Timber;
@@ -234,7 +235,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             showProgressDialog(getString(R.string.authenticating));
 
-            ChatSDK.auth().authenticateWithCachedToken()
+            Disposable d = ChatSDK.auth().authenticateWithCachedToken()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(this::dismissProgressDialog)
                     .subscribe(this::afterLogin, throwable -> {

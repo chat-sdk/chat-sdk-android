@@ -47,6 +47,8 @@ import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.main.MainActivity;
+import co.chatsdk.ui.main.MainAppBarActivity;
+import co.chatsdk.ui.main.MainDrawActivity;
 import co.chatsdk.ui.profile.EditProfileActivity;
 import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.profile.ProfileFragment;
@@ -156,7 +158,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Class getMainActivity() {
-        return MainActivity.class;
+        return MainAppBarActivity.class;
     }
 
     @Override

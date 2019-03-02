@@ -4,6 +4,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
 
+import co.chatsdk.core.base.AbstractPublicThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
@@ -22,13 +23,9 @@ import io.reactivex.schedulers.Schedulers;
  * Created by benjaminsmiley-andrews on 24/05/2017.
  */
 
-public class FirebasePublicThreadHandler implements PublicThreadHandler {
+public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
-    public Single<Thread> createPublicThreadWithName(final String name) {
-        return createPublicThreadWithName(name, null);
-    }
-
-    public Single<Thread> createPublicThreadWithName(final String name, final String entityID) {
+    public Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
@@ -51,6 +48,10 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
             thread.setName(name);
             thread.setEntityID(entityID);
 
+            if (meta != null) {
+                thread.updateValues(meta);
+            }
+
             // Add the path and API key
             // This allows you to restrict public threads to a particular
             // API key or root key
@@ -64,7 +65,7 @@ public class FirebasePublicThreadHandler implements PublicThreadHandler {
             wrapper.push().doOnError(throwable -> {
                 DaoCore.deleteEntity(thread);
                 e.onError(throwable);
-            }).subscribe(() -> {
+            }).concatWith(wrapper.pushMeta()).subscribe(() -> {
                 DaoCore.updateEntity(thread);
 
                 // Add the thread to the list of public threads

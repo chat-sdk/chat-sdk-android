@@ -10,6 +10,7 @@ import java.util.HashMap;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PushHandler;
+import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import timber.log.Timber;
@@ -22,8 +23,18 @@ public class FirebasePushHandler implements PushHandler {
 
     public static String QuickReplyNotificationCategory = "co.chatsdk.QuickReply";
 
+    protected BroadcastHandler broadcastHandler = new BaseBroadcastHandler();
+
     public FirebasePushHandler () {
 
+    }
+
+    public BroadcastHandler getBroadcastHandler() {
+        return broadcastHandler;
+    }
+
+    public void setBroadcastHandler(BroadcastHandler broadcastHandler) {
+        this.broadcastHandler = broadcastHandler;
     }
 
     @Override

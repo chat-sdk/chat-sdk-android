@@ -55,6 +55,8 @@ dependencies {
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
     implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    implementation "com.mikepenz:materialdrawer:6.1.2"
 }
 
 ext {

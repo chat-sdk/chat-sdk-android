@@ -1,5 +1,7 @@
 package co.chatsdk.core.handlers;
 
+import java.util.HashMap;
+
 import co.chatsdk.core.dao.Thread;
 import io.reactivex.Single;
 
@@ -14,4 +16,6 @@ public interface PublicThreadHandler {
      */
     Single<Thread> createPublicThreadWithName(final String name);
     Single<Thread> createPublicThreadWithName(final String name, final String entityID);
+    Single<Thread> createPublicThreadWithName(final String name, HashMap<String, String> meta);
+    Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta);
 }
