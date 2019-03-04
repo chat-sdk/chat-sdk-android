@@ -29,6 +29,7 @@ ext {
     firebaseUiVersion = "4.2.1"
     firebaseCoreVersion = "16.0.7"
     firebaseDatabaseVersion = "16.0.6"
+    firebaseFirestoreVersion = "18.0.1"
     firebaseAuthVersion = "16.1.0"
     firebaseStorageVersion = "16.0.5"
     firebaseMessagingVersion = "17.3.4"

@@ -37,6 +37,7 @@ dependencies {
     // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
     api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+    api "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 
     api "com.jakewharton.timber:timber:$timberVersion"
