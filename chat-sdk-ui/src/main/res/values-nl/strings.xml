@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK UI</string>
+    <string name="search_threads">Gesprekken doorzoeken</string>
+    <string name="push_channel_name">Berichtmeldingen</string>
+    <string name="create_thread">Start een gesprek</string>
+    <string name="update_thread">Gesprek bijwerken</string>
+    <string name="profile_tab_title">Profiel</string>
+</resources>
