@@ -23,12 +23,12 @@ public class Tab {
         this.icon = icon;
     }
 
-    public Tab (Context context, int titleResource, int icon, Fragment fragment) {
+    public Tab (int titleResource, int icon, Fragment fragment, Context context) {
         this(context.getString(titleResource), icon, fragment);
     }
 
     public Tab (int titleResource, int icon, Fragment fragment) {
-        this(ChatSDK.shared().context(), titleResource, icon, fragment);
+        this(titleResource, icon, fragment, ChatSDK.shared().context());
     }
 
 }

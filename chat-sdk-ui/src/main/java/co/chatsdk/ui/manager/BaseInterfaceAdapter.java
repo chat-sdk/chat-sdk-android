@@ -128,7 +128,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void addTab(int index, Tab tab) {
+    public void addTab(Tab tab, int index) {
         additionalTabs.append(index, tab);
     }
 
@@ -138,8 +138,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void addTab(int index, String title, int icon, Fragment fragment) {
-        addTab(index, new Tab(title, icon, fragment));
+    public void addTab(String title, int icon, Fragment fragment, int index) {
+        addTab(new Tab(title, icon, fragment), index);
     }
 
     @Override

@@ -47,10 +47,10 @@ public interface InterfaceAdapter {
     Activity profileActivity (User user);
 
     void addTab(Tab tab);
-    void addTab(int index, Tab tab);
+    void addTab(Tab tab, int index);
 
     void addTab(String title, int icon, Fragment fragment);
-    void addTab(int index, String title, int icon, Fragment fragment);
+    void addTab(String title, int icon, Fragment fragment, int index);
 
     void removeTab(int index);
 
