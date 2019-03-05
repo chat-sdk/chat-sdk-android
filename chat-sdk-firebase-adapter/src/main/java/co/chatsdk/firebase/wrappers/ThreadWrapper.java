@@ -318,22 +318,19 @@ public class ThreadWrapper  {
     public Observable<Thread> metaOn() {
         return Observable.create((ObservableOnSubscribe<Thread>) e -> {
 
-            metaOff();
-
             final DatabaseReference threadMetaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
             if (FirebaseReferenceManager.shared().isOn(threadMetaRef)) {
                 e.onNext(model);
+            } else {
+                ValueEventListener listener = threadMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                    if (hasValue && snapshot.getValue() instanceof Map) {
+                        deserializeMeta((Map<String, Object>) snapshot.getValue());
+                        e.onNext(model);
+                    }
+                }));
+                FirebaseReferenceManager.shared().addRef(threadMetaRef, listener);
             }
-
-            ValueEventListener listener = threadMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if (hasValue && snapshot.getValue() instanceof Map) {
-                    deserializeMeta((Map<String, Object>) snapshot.getValue());
-                    e.onNext(model);
-                }
-            }));
-
-            FirebaseReferenceManager.shared().addRef(threadMetaRef, listener);
 
         }).subscribeOn(Schedulers.single());
     }
@@ -343,8 +340,7 @@ public class ThreadWrapper  {
 
             DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
 
-            HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
-            Map<String, Object> meta = HashMapHelper.expand(metaMap);
+            Map<String, Object> meta = HashMapHelper.expand(model.metaMap());
 
             if (meta.keySet().size() > 0) {
                 ref.setValue(meta, ((databaseError, databaseReference) -> {
@@ -538,25 +534,25 @@ public class ThreadWrapper  {
         Map<String , Object> values = new HashMap<>();
 
         // Thread Details
-        Map<String , Object> detialsMap = new HashMap<>();
+        Map<String , Object> detailsMap = new HashMap<>();
 
         Object creationDate = model.getCreationDate();
         if (creationDate == null) creationDate = ServerValue.TIMESTAMP;
-        detialsMap.put(Keys.CreationDate, creationDate);
+        detailsMap.put(Keys.CreationDate, creationDate);
 
-        detialsMap.put(Keys.Name, model.getName());
+        detailsMap.put(Keys.Name, model.getName());
 
         // This is the legacy type
         int type = model.typeIs(ThreadType.Public) ? 1 : 0;
 
-        detialsMap.put(Keys.Type, type);
-        detialsMap.put(Keys.Type_v4, model.getType());
+        detailsMap.put(Keys.Type, type);
+        detailsMap.put(Keys.Type_v4, model.getType());
 
-        detialsMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
+        detailsMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
 
-        detialsMap.put(Keys.ImageUrl, this.model.getImageUrl());
+        detailsMap.put(Keys.ImageUrl, this.model.getImageUrl());
 
-        values.put(FirebasePaths.DetailsPath, detialsMap);
+        values.put(FirebasePaths.DetailsPath, detailsMap);
 
         // Thread Meta
         HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
@@ -660,7 +656,7 @@ public class ThreadWrapper  {
 
             model.setMetaMap(oldData);
 
-            model = DaoCore.updateEntity(model);
+            model.update();
         }
     }
 

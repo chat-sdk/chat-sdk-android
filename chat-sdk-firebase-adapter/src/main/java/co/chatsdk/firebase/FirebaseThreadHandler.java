@@ -135,12 +135,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         (new ThreadWrapper(thread)).off();
     }
 
-    @Override
+//    @Override
     public Observable<Thread> metaOn(Thread thread) {
         return new ThreadWrapper(thread).metaOn();
     }
 
-    @Override
+//    @Override
     public void metaOff(Thread thread) {
         (new ThreadWrapper(thread)).metaOff();
     }
@@ -244,7 +244,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.setEntityID(entityID);
             thread.setCreator(currentUser);
             thread.setCreatorEntityId(currentUser.getEntityID());
-            thread.setCreationDate(new Date());
             thread.setName(name);
 
             if (type != -1) {

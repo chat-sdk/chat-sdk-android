@@ -300,7 +300,6 @@ public class Thread implements CoreEntity {
 
     public void setMetaString(String key, String value) {
         setMetaValue(key, value);
-        update();
     }
 
     public void removeMessage (Message message) {

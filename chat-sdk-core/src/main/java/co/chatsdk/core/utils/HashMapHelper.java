@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class HashMapHelper {
 
-    public static HashMap<String, Object> expand (HashMap<String, String> flatMap) {
+    public static HashMap<String, Object> expand (Map<String, String> flatMap) {
 
         HashMap<String, Object> expandedMap = new HashMap<>();
 

@@ -183,7 +183,7 @@ public abstract class ThreadsFragment extends BaseFragment {
 
             for (Thread thread : threads) {
                 disposableList.add(ChatSDK.thread().metaOn(thread)
-                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(t -> onThreadUpdated(threads, t), ChatSDK::logError));
             }
 
