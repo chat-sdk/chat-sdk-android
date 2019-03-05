@@ -83,7 +83,4 @@ public interface ThreadHandler {
     Observable<Thread> on(Thread thread);
     void off(Thread thread);
 
-    Observable<Thread> metaOn(Thread thread);
-    void metaOff(Thread thread);
-
 }
