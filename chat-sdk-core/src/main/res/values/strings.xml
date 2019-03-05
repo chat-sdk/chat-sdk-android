@@ -367,7 +367,9 @@
 
     <!-- Edit Thread Details -->
     <string name="create_thread">Create Room</string>
-
     <string name="update_thread">Update Room</string>
+
+    <!-- Delete Public Thread -->
+    <string name="only_thread_creator_can_delete_thread">Only the thread creator can delete the thread</string>
 
 </resources>

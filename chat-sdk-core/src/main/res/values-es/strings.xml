@@ -368,4 +368,7 @@
     <string name="create_thread">Crear</string>
     <string name="update_thread">Actualizar</string>
 
+    <!-- Delete Public Thread -->
+    <string name="only_thread_creator_can_delete_thread">Solo el creador del chat puede borrar el chat</string>
+
 </resources>

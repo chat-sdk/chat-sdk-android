@@ -368,4 +368,7 @@
     <string name="create_thread">Criar</string>
     <string name="update_thread">Atualizar</string>
 
+    <!-- Delete Public Thread -->
+    <string name="only_thread_creator_can_delete_thread">Apenas o criador do bate-papo pode excluir o bate-papo</string>
+
 </resources>

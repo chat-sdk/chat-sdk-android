@@ -365,4 +365,7 @@
     <string name="create_thread">创建聊天室</string>
     <string name="update_thread">更新聊天室名稱</string>
 
+    <!-- Delete Public Thread -->
+    <string name="only_thread_creator_can_delete_thread">只有聊天创建者才能删除聊天</string>
+
 </resources>

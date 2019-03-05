@@ -292,4 +292,7 @@
     <string name="create_thread">Maak een chatroom</string>
     <string name="update_thread">Update chatroom</string>
 
+    <!-- Delete Public Thread -->
+    <string name="only_thread_creator_can_delete_thread">Alleen de maker van de chatroom kan de chatroom verwijderen</string>
+
 </resources>
