@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -17,11 +18,11 @@ import java.util.List;
 
 import androidx.core.content.ContextCompat;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Pepe on 01/25/19.
@@ -30,7 +31,8 @@ import io.reactivex.Single;
 public class BaseLocationAdapter {
 
     protected final FusedLocationProviderClient locationClient;
-    protected final DisposableList disposableList = new DisposableList();
+
+    private Disposable locationDisposable;
 
     protected Context context() {
         return ChatSDK.shared().context();
@@ -46,32 +48,37 @@ public class BaseLocationAdapter {
     }
 
     public Observable<Location> requestLocationUpdates(long interval) {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(interval * 1000);
-        locationRequest.setFastestInterval(interval * 1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return Observable.error(new Error("location permissions not granted"));
-        }
         return Observable.create(observable -> {
+            if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                observable.onError(new Error("location permissions not granted"));
+                return;
+            }
+            LocationRequest locationRequest = new LocationRequest();
+            locationRequest.setInterval(interval * 1000);
+            locationRequest.setFastestInterval(interval * 1000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             LocationCallback locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    Location location = getMostAccurateLocation(locationResult.getLocations());
-                    if (location != null) {
-                        observable.onNext(location);
+                    if (locationDisposable != null) {
+                        locationDisposable.dispose();
                     }
+                    locationDisposable = getMostAccurateLocation(locationResult.getLocations()).subscribe(observable::onNext);
                 }
             };
-            locationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+            HandlerThread locationUpdatesThread = new HandlerThread("LocationUpdatesThread");
+            locationUpdatesThread.start();
+            Looper locationUpdatesLooper = locationUpdatesThread.getLooper();
+            locationClient.requestLocationUpdates(locationRequest, locationCallback, locationUpdatesLooper);
         });
     }
 
     public Single<Location> getLastLocation() {
-        if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return Single.error(new Error("location permissions not granted"));
-        }
         return Single.create(single -> {
+            if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                single.onError(new Error("location permissions not granted"));
+                return;
+            }
             locationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
                     single.onSuccess(location);
@@ -86,19 +93,21 @@ public class BaseLocationAdapter {
         return PermissionRequestHandler.shared().requestLocationAccess(activity);
     }
 
-    public Location getMostAccurateLocation(List<Location> locations) {
-        Location accurrateLocation = null;
-        for (Location location : locations) {
-            if (location == null) continue;
-            if (accurrateLocation == null || location.getAccuracy() >= accurrateLocation.getAccuracy()) {
-                accurrateLocation = location;
+    public Single<Location> getMostAccurateLocation(List<Location> locations) {
+        return Single.create(single -> {
+            Location accurateLocation = null;
+            for (Location location : locations) {
+                if (location == null) continue;
+                if (accurateLocation == null || location.getAccuracy() >= accurateLocation.getAccuracy()) {
+                    accurateLocation = location;
+                }
             }
-        }
-        return accurrateLocation;
-    }
-
-    public void dispose() {
-        disposableList.dispose();
+            if (accurateLocation != null) {
+                single.onSuccess(accurateLocation);
+            } else {
+                single.onError(new Error("no accurate location found"));
+            }
+        });
     }
 
 }
