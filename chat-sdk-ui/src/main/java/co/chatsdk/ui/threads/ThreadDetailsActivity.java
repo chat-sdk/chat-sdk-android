@@ -172,7 +172,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         String threadEntityID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
 
-        if (threadEntityID != null && threadEntityID.length() > 0) {
+        if (threadEntityID != null && !threadEntityID.isEmpty()) {
             thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
         }
         else {

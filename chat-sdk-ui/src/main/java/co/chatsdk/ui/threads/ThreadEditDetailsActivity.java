@@ -15,8 +15,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.security.Key;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.session.ChatSDK;
@@ -71,7 +74,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             saveButton.setText(R.string.update_thread);
 
             // TODO: permanently move thread name into meta data
-            ThreadMetaValue nameMetaValue = thread.metaValueForKey("name");
+            ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
             if (nameMetaValue != null)
                 nameInput.setText(nameMetaValue.getValue());
         } else {
@@ -111,11 +114,13 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                     .subscribe((newThread, throwable) -> {
                         if (throwable == null) {
                             // TODO: permanently move thread name into meta data
-                            newThread.setMetaValue("name", threadName);
+                            newThread.setMetaValue(Keys.Name, threadName);
                             disposableList.add(ChatSDK.thread().pushThreadMeta(newThread).subscribe(() -> {
                                 dismissProgressDialog();
                                 ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
 
+                                // Finish this activity before opening the new thread to prevent the
+                                // user from going back to the creation screen by pressing the back button
                                 finish();
                                 ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), newThread.getEntityID());
                             }));
@@ -129,7 +134,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             // TODO: permanently move thread name into meta data
             thread.setName(threadName);
             thread.update();
-            thread.setMetaValue("name", threadName);
+            thread.setMetaValue(Keys.Name, threadName);
             // TODO: Update the thread name
             disposableList.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(this::finish));
         }
