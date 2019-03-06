@@ -193,6 +193,8 @@ public class UserWrapper {
                 if (hasValue && snapshot.getValue() instanceof Map) {
                     deserializeMeta((Map<String, Object>) snapshot.getValue());
                     e.onNext(model);
+                } else {
+                    e.onError(new Throwable("User doesn't exist"));
                 }
             }));
 

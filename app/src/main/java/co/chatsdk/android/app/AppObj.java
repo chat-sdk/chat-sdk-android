@@ -33,28 +33,28 @@ public class AppObj extends MultiDexApplication {
 
         Context context = getApplicationContext();
 
-        Configuration.Builder config = new Configuration.Builder(context);
+        try {
 
-//        builder.firebaseRootPath("firebase_v4_web_new_4");
-        config.firebaseRootPath("19_02_public_thread");
-        config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
-        config.publicRoomCreationEnabled(true);
-        config.pushNotificationSound("default");
+            Configuration.Builder config = new Configuration.Builder(context);
+
+            config.firebaseRootPath("19_02_public_thread");
+            config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
+            config.publicRoomCreationEnabled(true);
+            config.pushNotificationSound("default");
 //        config.pushNotificationsForPublicChatRoomsEnabled(true);
 
-        try {
             ChatSDK.initialize(config.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
+
+            FirebaseFileStorageModule.activate();
+            FirebasePushModule.activate();
+            ProfilePicturesModule.activate();
+
+            //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+
         }
         catch (ChatSDKException e) {
-
+            e.printStackTrace();
         }
-
-        FirebaseFileStorageModule.activate();
-        FirebasePushModule.activate();
-
-//        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
-
-        ProfilePicturesModule.activate();
 
     }
 

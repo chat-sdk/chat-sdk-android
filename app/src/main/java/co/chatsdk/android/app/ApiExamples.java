@@ -7,18 +7,23 @@ import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -107,5 +112,77 @@ public class ApiExamples {
         });
     }
 
+    /**
+     * How to get the unread message count for a thread
+     * @param thread
+     */
+    public void getUnreadMessageCount (Thread thread) {
+        int count  = thread.getUnreadMessagesCount();
+    }
+
+    /**
+     * How to determine when a message has been sent / uploaded etc...
+     * @param thread
+     */
+    public void getNotificationWhenFileUploaded (Thread thread) {
+        Disposable d = ChatSDK.imageMessage().sendMessageWithImage("file-path", thread).subscribe(messageSendProgress -> {
+            if (messageSendProgress.getStatus() == MessageSendStatus.Uploading) {
+                // Message is uploading
+            }
+            if (messageSendProgress.getStatus() == MessageSendStatus.Sent) {
+                // Message has finished uploading
+            }
+        });
+    }
+
+    /**
+     * How to detect when a new message has been received
+     */
+    public void getMessageReceived () {
+        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
+
+            // Get the payload from the notification
+            if (data.get(HookEvent.Message) instanceof Message) {
+
+                // Cast it as a message
+                Message message = (Message) data.get(HookEvent.Message);
+
+                // Check the message type
+                if (message.getMessageType().is(MessageType.Image)) {
+
+                }
+            }
+
+            // Hooks return a completable which allows them to be asynchronous. When you've
+            // finished you need to register complete
+            emitter.onComplete();
+        })), HookEvent.MessageReceived);
+    }
+
+    /**
+     * To find out if a read receipt has been updated
+     */
+    public void listenForReadReceiptUpdated () {
+        Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
+            if (networkEvent.type == EventType.ThreadReadReceiptUpdated) {
+                // Code here
+            }
+        });
+    }
+
+    /**
+     * Get a user with a given entity ID
+     * @param entityID
+     */
+    public void getUserWithEntityID(String entityID) {
+        User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+        Disposable d = ChatSDK.core().userOn(user).subscribe(() -> {
+            // User object has now been populated and is ready to use
+
+        }, throwable -> {
+
+        });
+
+    }
 
 }

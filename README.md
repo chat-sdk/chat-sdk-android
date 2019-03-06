@@ -201,25 +201,29 @@ Now open your applications's main class and find the `onCreate` method. Add the 
 ```
 Context context = getApplicationContext();
 
-// Create a new configuration
-Configuration.Builder builder = new Configuration.Builder(context);
-
-// Perform any configuration steps (optional)
-builder.firebaseRootPath("prod");
-
-// Initialize the Chat SDK
 try {
-     ChatSDK.initialize(builder.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
-}
-    catch (ChatSDKException e) {
-}
+    // Create a new configuration
+    Configuration.Builder builder = new Configuration.Builder(context);
 
-// File storage is needed for profile image upload and image messages
-FirebaseFileStorageModule.activate();
-FirebasePushModule.activate();
+    // Perform any other configuration steps (optional)
+    builder.firebaseRootPath("prod");
 
-// Activate any other modules you need.
-// ...
+    // Initialize the Chat SDK
+    ChatSDK.initialize(builder.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
+    
+    // File storage is needed for profile image upload and image messages
+    FirebaseFileStorageModule.activate();
+
+    // Push notification module
+    FirebasePushModule.activate();
+
+    // Activate any other modules you need.
+    // ...
+    
+} catch (ChatSDKException e) {
+    // Handle any exceptions
+    e.printStackTrace();
+}
 
 ``` 
 

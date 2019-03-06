@@ -12,6 +12,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -21,9 +22,12 @@ import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -128,13 +132,15 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.
      */
     public Observable<MessageSendProgress> sendMessage(final Message message) {
-        return Observable.create(e -> new MessageWrapper(message).send()
+        return Observable.create(e -> {
+            new MessageWrapper(message).send()
                 .subscribeOn(Schedulers.single())
                 .subscribe(() -> {
                     pushForMessage(message);
                     e.onNext(new MessageSendProgress(message));
                     e.onComplete();
-                }, throwable -> e.onError(throwable)));
+                }, throwable -> e.onError(throwable))
+        ;});
     }
 
     /**

@@ -7,7 +7,10 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.interfaces.CrashHandler;
 import co.chatsdk.core.utils.StringChecker;
 
@@ -213,7 +216,7 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebase(String rootPath) {
+        public Builder firebase(String rootPath) throws ChatSDKException {
 
             if (rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
@@ -234,7 +237,12 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebaseRootPath(String rootPath) {
+        public Builder firebaseRootPath(String rootPath) throws ChatSDKException {
+            Pattern p = Pattern.compile("[^a-z0-9_]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(rootPath);
+            if (m.find()) {
+                throw new ChatSDKException("The root path can only contain letters, numbers and underscores");
+            }
             config.firebaseRootPath = rootPath;
             return this;
         }
