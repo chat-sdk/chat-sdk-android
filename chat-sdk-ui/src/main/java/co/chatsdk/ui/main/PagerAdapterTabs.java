@@ -26,7 +26,7 @@ public class PagerAdapterTabs extends FragmentPagerAdapter {
 
     public PagerAdapterTabs(FragmentManager fm) {
         super(fm);
-        tabs = ChatSDK.ui().defaultTabs();
+        tabs = ChatSDK.ui().tabs();
     }
 
     public List<Tab> getTabs() {

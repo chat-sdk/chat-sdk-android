@@ -2,6 +2,7 @@ package co.chatsdk.ui.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.SparseArray;
 
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,8 +68,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public LocalNotificationHandler localNotificationHandler;
     public NotificationDisplayHandler notificationDisplayHandler;
 
-    public BaseInterfaceAdapter (Context context) {
+    private SparseArray<Tab> additionalTabs = new SparseArray<>();
+    private Tab privateThreadsTab;
+    private Tab publicThreadsTab;
+    private Tab contactsTab;
+    private Tab profileTab;
 
+    public BaseInterfaceAdapter (Context context) {
         DiskCacheConfig diskCacheConfig = DiskCacheConfig
                 .newBuilder(context)
                 .setMaxCacheSizeOnVeryLowDiskSpace(10 * ByteConstants.MB)
@@ -92,38 +98,75 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         setMessageHandler(new ImageMessageDisplayHandler(), new MessageType(MessageType.Image));
         setMessageHandler(new LocationMessageDisplayHandler(), new MessageType(MessageType.Location));
 
+        privateThreadsTab = new Tab(context.getString(R.string.conversations), R.drawable.ic_action_private, privateThreadsFragment());
+        publicThreadsTab = new Tab(context.getString(R.string.chat_rooms), R.drawable.ic_action_public, publicThreadsFragment());
+        contactsTab = new Tab(context.getString(R.string.contacts), R.drawable.ic_action_contacts, contactsFragment());
+        profileTab = new Tab (context.getString(R.string.profile), R.drawable.ic_action_user, profileFragment(null));
     }
 
     @Override
     public List<Tab> defaultTabs() {
-
         ArrayList<Tab> tabs = new ArrayList<>();
         tabs.add(privateThreadsTab());
         tabs.add(publicThreadsTab());
         tabs.add(contactsTab());
         tabs.add(profileTab());
-
         return tabs;
     }
 
     @Override
+    public List<Tab> tabs() {
+        List<Tab> tabs = defaultTabs();
+        for (int i = 0; i < additionalTabs.size(); i++) {
+            int key = additionalTabs.keyAt(i);
+            tabs.add(key, additionalTabs.get(key));
+        }
+        return tabs;
+    }
+
+    @Override
+    public void addTab(Tab tab) {
+        additionalTabs.append(tabs().size(), tab);
+    }
+
+    @Override
+    public void addTab(Tab tab, int index) {
+        additionalTabs.append(index, tab);
+    }
+
+    @Override
+    public void addTab(String title, int icon, Fragment fragment) {
+        addTab(new Tab(title, icon, fragment));
+    }
+
+    @Override
+    public void addTab(String title, int icon, Fragment fragment, int index) {
+        addTab(new Tab(title, icon, fragment), index);
+    }
+
+    @Override
+    public void removeTab(int index) {
+        additionalTabs.remove(index);
+    }
+
+    @Override
     public Tab privateThreadsTab() {
-        return new Tab(R.string.conversations, R.drawable.ic_action_private, privateThreadsFragment());
+        return privateThreadsTab;
     }
 
     @Override
     public Tab publicThreadsTab() {
-        return new Tab(R.string.chat_rooms, R.drawable.ic_action_public, publicThreadsFragment());
+        return publicThreadsTab;
     }
 
     @Override
     public Tab contactsTab() {
-        return new Tab(R.string.contacts, R.drawable.ic_action_contacts, contactsFragment());
+        return contactsTab;
     }
 
     @Override
     public Tab profileTab() {
-        return new Tab (R.string.profile, R.drawable.ic_action_user, profileFragment(null));
+        return profileTab;
     }
 
     @Override
