@@ -41,7 +41,13 @@ public class AppObj extends MultiDexApplication {
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
-//        config.pushNotificationsForPublicChatRoomsEnabled(true);
+            config.pushNotificationsForPublicChatRoomsEnabled(true);
+
+            config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
+            config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
+
+            // For the demo version of the client exire rooms after 24 hours
+            config.publicChatRoomLifetimeMinutes(60 * 24);
 
             ChatSDK.initialize(config.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
 

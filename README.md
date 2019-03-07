@@ -488,18 +488,10 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
 2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
 3. On the **Sign in method** tab, enable the **Twitter** sign-in method and specify the **API Key** and **API Secret** you got from Twitter.
 4. Then, make sure your Firebase **OAuth redirect URI** (e.g. `my-app-12345.firebaseapp.com/__/auth/handler`) is set as your **Callback URL** in your app's settings page on your [Twitter app's config](https://apps.twitter.com/).
-5. Add the following to your `AndroidManifest.xml`:
+5. Add the following to the configuration where you initialize the Chat SDK:
 
   ```
-  <meta-data android:name="twitter_key" android:value="@string/twitter_key" />
-  <meta-data android:name="twitter_secret" android:value="@string/twitter_secret" />
-  ``` 
-  
-  Add the following to your `chat_sdk_firebase.xml` file:
-  
-  ```
-  <string name="twitter_key">[TWITTER KEY]</string>
-  <string name="twitter_secret">[TWITTER SECRET]</string>
+  config.twitterLogin("consumer key", "consumer secret");
   ```
 
 #### Google
@@ -518,16 +510,10 @@ FirebaseSocialLoginModule.activate(getApplicationContext());
 4. You must pass your [server's client ID](https://developers.google.com/identity/sign-in/android/start-integrating#get_your_backend_servers_oauth_20_client_id) to the requestIdToken method. To find the OAuth 2.0 client ID.
 5. Open the [Credentials page](https://console.developers.google.com/apis/credentials) in the API Console.
 6. The **Web application type** client ID is your backend server's OAuth 2.0 client ID.
-7. Add the following to your `AndroidManifest.xml`:
+7. Add the following to the configuration where you initialize the Chat SDK:
 
   ```
-  <meta-data android:name="google_web_client_id" android:value="@string/google_web_client_id" />
-  ``` 
-  
-  Add the following to your `chat_sdk_firebase.xml` file:
-  
-  ```
-  <string name="google_web_client_id">[CLIENT ID]</string>
+  config.googleLogin("web client key");
   ```
   
 Social login can also be enabled or disabled by changing the Chat SDK [configuration](https://github.com/chat-sdk/chat-sdk-android#configuration).   

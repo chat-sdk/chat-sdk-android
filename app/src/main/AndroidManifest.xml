@@ -23,10 +23,7 @@
             <!--</intent-filter>-->
         <!--</activity>-->
 
-        <meta-data android:name="twitter_key" android:value="@string/twitter_key" />
-        <meta-data android:name="twitter_secret" android:value="@string/twitter_secret" />
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
-        <meta-data android:name="google_web_client_id" android:value="@string/google_web_client_id" />
 
         <!--Contact Book-->
         <meta-data android:name="contact_book_invite_contact_email_subject" android:value="@string/contact_book_email_subject" />
