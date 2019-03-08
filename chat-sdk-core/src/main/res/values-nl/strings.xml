@@ -286,4 +286,8 @@
     <string name="location_is_null">Locatie is null</string>
     <string name="search_threads">doorzoek discussies</string>
 
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Maak een chatroom</string>
+    <string name="update_thread">Update chatroom</string>
+
 </resources>

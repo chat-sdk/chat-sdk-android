@@ -359,4 +359,8 @@
     <string name="push_channel_name">消息通知</string>
     <string name="search_threads">搜索主题</string>
 
+    <!-- Edit Thread Details -->
+    <string name="create_thread">创建聊天室</string>
+    <string name="update_thread">更新聊天室名稱</string>
+
 </resources>

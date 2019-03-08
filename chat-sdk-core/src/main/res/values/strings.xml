@@ -363,4 +363,9 @@
     <string name="push_channel_name">Message Notifications</string>
     <string name="search_threads">Search Threads</string>
 
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Create Room</string>
+
+    <string name="update_thread">Update Room</string>
+
 </resources>
