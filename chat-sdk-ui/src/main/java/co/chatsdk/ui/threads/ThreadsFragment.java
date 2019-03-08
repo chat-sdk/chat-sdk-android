@@ -47,34 +47,6 @@ public abstract class ThreadsFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        Disposable d = adapter.onLongClickObservable().subscribe(thread -> {
-            if (thread.getCreator() != null && thread.getCreator().isMe()) {
-                DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                        getResources().getString(R.string.cancel), null, () -> {
-                            ChatSDK.thread().deleteThread(thread)
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new CompletableObserver() {
-                                        @Override
-                                        public void onSubscribe(Disposable d) {
-                                        }
-
-                                        @Override
-                                        public void onComplete() {
-                                            adapter.clearData();
-                                            reloadData();
-                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
-                                        }
-                                    });
-                            return null;
-                        });
-            }
-        });
     }
 
     @Override
@@ -123,6 +95,36 @@ public abstract class ThreadsFragment extends BaseFragment {
 
         Disposable d = adapter.onClickObservable().subscribe(thread -> {
             ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
+        });
+    }
+
+    protected void addLongClickListenerToDeleteThread(boolean needToBeCreator) {
+        Disposable d = adapter.onLongClickObservable().subscribe(thread -> {
+            if (!needToBeCreator || thread.getCreator() != null && thread.getCreator().isMe()) {
+                DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+                        getResources().getString(R.string.cancel), null, () -> {
+                            ChatSDK.thread().deleteThread(thread)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new CompletableObserver() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+                                            adapter.clearData();
+                                            reloadData();
+                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
+                                        }
+                                    });
+                            return null;
+                        });
+            }
         });
     }
 

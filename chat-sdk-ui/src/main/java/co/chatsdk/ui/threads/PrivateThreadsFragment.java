@@ -32,29 +32,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        Disposable d = adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                getResources().getString(R.string.cancel), null, () -> {
-                    ChatSDK.thread().deleteThread(thread)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new CompletableObserver() {
-                                @Override
-                                public void onSubscribe(Disposable d) {
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                    adapter.clearData();
-                                    reloadData();
-                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
-                                }
-                            });
-                    return null;
-                }));
+        addLongClickListenerToDeleteThread(false);
     }
 
     @Override
