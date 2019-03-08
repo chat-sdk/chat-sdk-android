@@ -240,4 +240,7 @@
     <string name="push_channel_name">Berichtmeldingen</string>
     <string name="permission_location_title">Toegang tot je locatie verlenen</string>
     <string name="permission_location_message">Toelaten dat gebruikers je kunnen zien</string>
+    <string name="permission_location_not_granted">Locatie machtigingen niet verleend</string>
+    <string name="location_is_null">Locatie is null</string>
+    <string name="search_threads">doorzoek discussies</string>
 </resources>

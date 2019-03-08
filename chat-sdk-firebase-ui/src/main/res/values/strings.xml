@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Chat SDK Firebase UI</string>
     <string name="sign_in_cancelled">Sign in cancelled</string>
