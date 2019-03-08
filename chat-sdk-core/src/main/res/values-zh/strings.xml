@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK</string>
 
     <string name="image_message">图片</string>
     <string name="location_message">地点</string>
@@ -16,7 +15,7 @@
     <string name="register">寄存器</string>
     <string name="login">登录</string>
     <string name="anonymous_login">匿名登录</string>
-    <string name="loading">载入中...</string>
+    <string name="loading">载入中…</string>
     <string name="email">电子邮件</string>
     <string name="sms">短信</string>
     <string name="password">密码</string>
@@ -221,6 +220,9 @@
     <string name="name_hint">名称</string>
     <string name="phone_number_hint">电话号码</string>
     <string name="email_hint">电子邮件</string>
+    <string name="location">地点</string>
+    <string name="take_photo">拍照</string>
+    <string name="choose_photo">选择照片</string>
     <string name="take_video">拍视频</string>
     <string name="choose_video">选择视频</string>
 
@@ -322,7 +324,7 @@
     <string name="profile_placeholder_user_name">用户名</string>
     <string name="profile_hint_user_name">用户名</string>
     <string name="profile_hint_location">地点</string>
-    <string name="profile_hint_phone_number"> 1 123 456 7890</string>
+    <string name="profile_hint_phone_number">+1 123 456 7890</string>
     <string name="profile_hint_email">example@domain.com</string>
     <string name="profile_hint_birthday">日月年</string>
     <string name="profile_placeholder_user_metadata_null">不可用</string>

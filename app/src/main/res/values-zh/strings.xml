@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK 演示</string>
+
+    <!-- Contact Book -->
+    <string name="contact_book_email_subject">电子邮件主题</string>
+    <string name="contact_book_email_body">电邮内容</string>
+    <string name="contact_book_sms_body">短信内容</string>
+</resources>

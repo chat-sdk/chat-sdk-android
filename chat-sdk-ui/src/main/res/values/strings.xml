@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK UI</string>
+    <string name="app_name" translatable="false">Chat SDK UI</string>
 </resources>
