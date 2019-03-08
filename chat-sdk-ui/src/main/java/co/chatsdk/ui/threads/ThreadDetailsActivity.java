@@ -19,6 +19,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.events.EventType;
@@ -100,7 +101,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
     protected void updateMetaData() {
         // TODO: permanently move thread name into meta data
-        ThreadMetaValue nameMetaValue = thread.metaValueForKey("name");
+        ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
         if (nameMetaValue != null)
             actionBar.setTitle(nameMetaValue.getValue());
     }
