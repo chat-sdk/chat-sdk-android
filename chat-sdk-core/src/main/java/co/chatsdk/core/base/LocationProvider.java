@@ -1,9 +1,8 @@
 package co.chatsdk.core.base;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Looper;
 
@@ -15,7 +14,6 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
-import androidx.core.content.ContextCompat;
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
@@ -40,21 +38,28 @@ public class LocationProvider {
         locationClient = LocationServices.getFusedLocationProviderClient(context());
     }
 
-    public Observable<Location> requestLocationUpdates(long interval, int distance) {
+    public Observable<Location> requestLocationUpdates(Activity activity, long interval, int distance) {
         return requestLocationUpdates(interval)
                 .distinctUntilChanged((l1, l2) -> l1.distanceTo(l2) < distance);
     }
 
-    public Observable<Location> requestLocationUpdates(long interval) {
+    public Observable<Location> requestLocationUpdates(Activity activity, long interval) {
+        return PermissionRequestHandler.shared().requestLocationAccess(activity)
+                .andThen(requestLocationUpdates(interval));
+    }
+
+    public Single<Location> getLastLocation(Activity activity) {
+        return PermissionRequestHandler.shared().requestLocationAccess(activity)
+                .andThen(getLastLocation());
+    }
+
+     @SuppressLint("MissingPermission")
+    protected Observable<Location> requestLocationUpdates(long interval) {
         return Observable.create(observable -> {
             LocationRequest locationRequest = new LocationRequest();
             locationRequest.setInterval(interval * 1000);
             locationRequest.setFastestInterval(interval * 1000);
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                observable.onError(new Error(context().getResources().getString(R.string.permission_location_not_granted)));
-                return;
-            }
             LocationCallback locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
@@ -68,12 +73,9 @@ public class LocationProvider {
         });
     }
 
-    public Single<Location> getLastLocation() {
+    @SuppressLint("MissingPermission")
+    protected Single<Location> getLastLocation() {
         return Single.create(single -> {
-            if (ContextCompat.checkSelfPermission(context(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                single.onError(new Error(context().getResources().getString(R.string.permission_location_not_granted)));
-                return;
-            }
             locationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
                     single.onSuccess(location);
@@ -82,11 +84,6 @@ public class LocationProvider {
                 }
             }).addOnFailureListener(single::onError);
         });
-    }
-
-    public Single<Location> getLastLocation(Activity activity) {
-        return PermissionRequestHandler.shared().requestLocationAccess(activity)
-                .andThen(getLastLocation());
     }
 
     public Location getMostAccurateLocation(List<Location> locations) {
