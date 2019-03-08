@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK Core</string>
+    <string name="app_name" translatable="false">Chat SDK Core</string>
 
     <string name="image_message">Image</string>
     <string name="location_message">Location</string>
@@ -218,6 +219,9 @@
     <string name="name_hint">Name</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
+    <string name="location">Location</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_photo">Choose Photo</string>
     <string name="take_video">Take Video</string>
     <string name="choose_video">Choose Video</string>
 

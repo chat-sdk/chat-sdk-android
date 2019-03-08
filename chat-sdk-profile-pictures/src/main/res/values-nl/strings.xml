@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK Profile Pictures</string>
     <string name="action_add_picture">Een afbeelding toevoegen</string>
     <string name="action_delete_picture">De afbeelding verwijderen</string>
     <string name="set_as_default">Als standaard instellen</string>
