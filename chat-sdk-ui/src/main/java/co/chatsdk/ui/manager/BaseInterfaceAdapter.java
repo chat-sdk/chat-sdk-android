@@ -55,6 +55,7 @@ import co.chatsdk.ui.profile.ProfileActivity;
 import co.chatsdk.ui.profile.ProfileFragment;
 import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.threads.PrivateThreadsFragment;
+import co.chatsdk.ui.threads.ThreadEditDetailsActivity;
 import co.chatsdk.ui.threads.PublicThreadsFragment;
 import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
@@ -223,6 +224,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class getThreadEditDetailsActivity() {
+        return ThreadEditDetailsActivity.class;
+    }
+
+    @Override
     public Class getSelectContactActivity() {
         return SelectContactActivity.class;
     }
@@ -288,6 +294,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public void startEditProfileActivity(Context context, String userEntityID){
         Intent intent = new Intent(context, getEditProfileActivity());
         intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
+        startActivity(context, intent);
+    }
+
+    public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
+        Intent intent = new Intent(context, getThreadEditDetailsActivity());
+        intent.putExtra(InterfaceManager.THREAD_ENTITY_ID, threadEntityID);
         startActivity(context, intent);
     }
 
