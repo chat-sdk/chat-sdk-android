@@ -138,7 +138,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     public void onBackPressed() {
         setResult(AppCompatActivity.RESULT_OK);
 
-        finish();
+        finish(); // Finish needs to be called before animate exit
         if (animateExit) {
             overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
         }
