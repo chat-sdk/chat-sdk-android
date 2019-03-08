@@ -362,4 +362,8 @@
     <string name="push_channel_name">Notificações de mensagens</string>
     <string name="search_threads">Tópicos de pesquisa</string>
 
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Criar</string>
+    <string name="update_thread">Atualizar</string>
+
 </resources>
