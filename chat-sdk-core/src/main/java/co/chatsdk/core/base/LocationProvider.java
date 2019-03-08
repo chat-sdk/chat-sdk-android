@@ -19,7 +19,13 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Pepe on 01/25/19.
@@ -55,7 +61,7 @@ public class LocationProvider {
 
      @SuppressLint("MissingPermission")
     protected Observable<Location> requestLocationUpdates(long interval) {
-        return Observable.create(observable -> {
+        return Observable.create((ObservableOnSubscribe<Location>) observable -> {
             LocationRequest locationRequest = new LocationRequest();
             locationRequest.setInterval(interval * 1000);
             locationRequest.setFastestInterval(interval * 1000);
@@ -70,20 +76,20 @@ public class LocationProvider {
                 }
             };
             locationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-        });
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @SuppressLint("MissingPermission")
     protected Single<Location> getLastLocation() {
-        return Single.create(single -> {
-            locationClient.getLastLocation().addOnSuccessListener(location -> {
-                if (location != null) {
-                    single.onSuccess(location);
-                } else {
-                    single.onError(new Error(context().getResources().getString(R.string.location_is_null)));
-                }
-            }).addOnFailureListener(single::onError);
-        });
+        return Single.create((SingleOnSubscribe<Location>) single -> {
+                locationClient.getLastLocation().addOnSuccessListener(location -> {
+                    if (location != null) {
+                        single.onSuccess(location);
+                    } else {
+                        single.onError(new Error(context().getResources().getString(R.string.location_is_null)));
+                    }
+                }).addOnFailureListener(single::onError);
+        }).subscribeOn(Schedulers.single());
     }
 
     public Location getMostAccurateLocation(List<Location> locations) {
