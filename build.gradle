@@ -26,6 +26,7 @@ ext {
     playAuthVersion = "16.0.1"
     playMapsVersion = "16.0.0"
     playPlacesVersion = "16.0.0"
+    playLocationVersion = "16.0.0"
     firebaseUiVersion = "4.2.1"
     firebaseCoreVersion = "16.0.7"
     firebaseDatabaseVersion = "16.0.6"
