@@ -35,6 +35,7 @@ import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.R;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -441,7 +442,7 @@ public class ThreadWrapper  {
         return Completable.create(e -> {
 
             if (model.typeIs(ThreadType.Public) && !model.getCreator().isMe()) {
-                e.onError(new Throwable("Only the thread creator can delete the thread"));
+                e.onError(new Throwable(ChatSDK.shared().context().getResources().getString(R.string.only_thread_creator_can_delete_thread)));
             }
 
             List<Message> messages = model.getMessages();
