@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_cancelled">Registrarse cancelado</string>
+    <string name="no_internet_connection">Sin conexión a Internet</string>
+    <string name="unknown_error">Error desconocido</string>
+    <string name="unknown_sign_in_response">Signo desconocido en respuesta</string>
+    <string name="back_not_available">Volver no disponible</string>
+</resources>

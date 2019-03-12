@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK Profile Pictures</string>
+    <string name="app_name" translatable="false">Chat SDK Profile Pictures</string>
     <string name="action_add_picture">Add Picture</string>
     <string name="action_delete_picture">Delete Picture</string>
     <string name="set_as_default">Set as Default</string>

@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK Core</string>
+    <string name="app_name" translatable="false">Chat SDK Core</string>
 
     <string name="image_message">Image</string>
     <string name="location_message">Location</string>
@@ -130,6 +131,8 @@
 
     <string name="permission_location_title">Location Access</string>
     <string name="permission_location_message">Grant permission to allow discovery by other users</string>
+    <string name="permission_location_not_granted">Location permissions not granted</string>
+    <string name="location_is_null">Location is null</string>
 
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
@@ -218,6 +221,9 @@
     <string name="name_hint">Name</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
+    <string name="location">Location</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_photo">Choose Photo</string>
     <string name="take_video">Take Video</string>
     <string name="choose_video">Choose Video</string>
 
@@ -356,5 +362,10 @@
 
     <string name="push_channel_name">Message Notifications</string>
     <string name="search_threads">Search Threads</string>
+
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Create Room</string>
+
+    <string name="update_thread">Update Room</string>
 
 </resources>

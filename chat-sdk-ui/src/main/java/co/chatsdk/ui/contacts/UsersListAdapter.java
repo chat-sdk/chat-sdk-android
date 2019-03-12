@@ -43,6 +43,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     protected boolean isMultiSelect = false;
     protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
+    protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
 
     protected class HeaderViewHolder extends RecyclerView.ViewHolder {
 
@@ -76,16 +77,15 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public UsersListAdapter(){
+    public UsersListAdapter() {
         this(null, false);
     }
 
-    public UsersListAdapter(boolean isMultiSelect){
+    public UsersListAdapter(boolean isMultiSelect) {
         this(null, isMultiSelect);
     }
 
-    public UsersListAdapter(List<UserListItem> users, boolean multiSelect){
-
+    public UsersListAdapter(List<UserListItem> users, boolean multiSelect) {
         if (users == null) {
             users = new ArrayList<>();
         }
@@ -93,13 +93,12 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         setUsers(users);
 
         this.isMultiSelect = multiSelect;
-
     }
 
     @Override
     public int getItemViewType(int position) {
         Object item = items.get(position);
-        if(headers.contains(item)) {
+        if (headers.contains(item)) {
             return TYPE_HEADER;
         }
         else {
@@ -115,7 +114,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if(viewType == TYPE_HEADER) {
+        if (viewType == TYPE_HEADER) {
             View row = inflater.inflate(R.layout.chat_sdk_row_header, null);
             return new HeaderViewHolder(row);
         }
@@ -133,13 +132,18 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final Object item = items.get(position);
 
         holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
+        holder.itemView.setOnLongClickListener(view -> {
+            onLongClickSubject.onNext(item);
+            return true;
+        });
 
-        if(type == TYPE_HEADER) {
+        if (type == TYPE_HEADER) {
             HeaderViewHolder hh = (HeaderViewHolder) holder;
             String header = (String) item;
             hh.textView.setText(header);
         }
-        if(type == TYPE_USER) {
+
+        if (type == TYPE_USER) {
             UserViewHolder uh = (UserViewHolder) holder;
             UserListItem user = (UserListItem) item;
 
@@ -169,14 +173,13 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void setUsers(List<UserListItem> users, boolean sort) {
-
         this.items.clear();
 
         if (sort) {
             sortList(users);
         }
 
-        for(UserListItem item : users) {
+        for (UserListItem item : users) {
             addUser(item);
         }
 
@@ -187,7 +190,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         addUser(user, false);
     }
 
-
     public List<Object> getItems () {
         return items;
     }
@@ -197,21 +199,21 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void addUser (UserListItem user, int atIndex, boolean notify) {
-        if(!items.contains(user)) {
+        if (!items.contains(user)) {
             if (atIndex >= 0) {
                 items.add(atIndex, user);
             }
             else {
                 items.add(user);
             }
-            if(notify) {
+            if (notify) {
                 notifyDataSetChanged();
             }
         }
     }
 
     public void addHeader (String header) {
-        if(!items.contains(header)) {
+        if (!items.contains(header)) {
             items.add(header);
             headers.add(header);
         }
@@ -221,7 +223,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         List<UserListItem> users = new ArrayList<>();
         for (int i = 0 ; i < getSelectedCount() ; i++) {
             int pos = getSelectedUsersPositions().keyAt(i);
-            if(items.get(pos) instanceof UserListItem) {
+            if (items.get(pos) instanceof UserListItem) {
                 users.add(((UserListItem) items.get(pos)));
             }
         }
@@ -245,7 +247,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public UserListItem userAtPosition (int position) {
         Object item = getItem(position);
-        if(item instanceof UserListItem) {
+        if (item instanceof UserListItem) {
             return (UserListItem) item;
         }
         else {
@@ -258,14 +260,14 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * 
      * This will be used each time after setting the user item
      * * */
-    protected void sortList(List<UserListItem> list){
+    protected void sortList(List<UserListItem> list) {
         Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
             String s1 = "";
-            if(u1 != null && u1.getName() != null) {
+            if (u1 != null && u1.getName() != null) {
                 s1 = u1.getName();
             }
             String s2 = "";
-            if(u2 != null && u2.getName() != null) {
+            if (u2 != null && u2.getName() != null) {
                 s2 = u2.getName();
             }
 
@@ -296,7 +298,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * * */
     public boolean setViewSelected(int position, boolean selected) {
         UserListItem user = userAtPosition(position);
-        if(user != null) {
+        if (user != null) {
             if (selected) {
                 selectedUsersPositions.put(position, true);
             }
@@ -317,7 +319,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     /**
      * Get the amount of selected users.
      * * * */
-    public int getSelectedCount(){
+    public int getSelectedCount() {
         return selectedUsersPositions.size();
     }
 
@@ -339,13 +341,22 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * 
      * notifyDataSetChanged will be called.
      */
-    public void clearSelection(){
+    public void clearSelection() {
         selectedUsersPositions = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 
-    public Observable<Object> getItemClicks () {
+    public Observable<Object> onClickObservable () {
         return onClickSubject;
+    }
+
+    public Observable<Object> onLongClickObservable () {
+        return onLongClickSubject;
+    }
+
+    @Deprecated
+    public Observable<Object> getItemClicks () {
+        return onClickObservable();
     }
 
 }

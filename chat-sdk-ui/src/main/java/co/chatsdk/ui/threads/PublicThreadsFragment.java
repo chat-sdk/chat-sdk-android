@@ -7,12 +7,7 @@
 
 package co.chatsdk.ui.threads;
 
-import android.app.AlertDialog;
-import android.text.InputType;
 import android.view.MenuItem;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,16 +17,14 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Predicate;
 
 /**
  * Created by itzik on 6/17/2014.
  */
 public class PublicThreadsFragment extends ThreadsFragment {
-
 
     @Override
     public Predicate<NetworkEvent> mainEventFilter() {
@@ -49,7 +42,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
-            createPublicThread();
+            InterfaceManager.shared().a.startActivity(getContext(), InterfaceManager.shared().a.getThreadEditDetailsActivity());
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -119,4 +112,5 @@ public class PublicThreadsFragment extends ThreadsFragment {
             reloadData();
         }
     }
+
 }
