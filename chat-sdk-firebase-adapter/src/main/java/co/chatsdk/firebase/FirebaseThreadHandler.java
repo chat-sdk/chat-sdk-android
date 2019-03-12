@@ -135,16 +135,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         (new ThreadWrapper(thread)).off();
     }
 
-//    @Override
-    public Observable<Thread> metaOn(Thread thread) {
-        return new ThreadWrapper(thread).metaOn();
-    }
-
-//    @Override
-    public void metaOff(Thread thread) {
-        (new ThreadWrapper(thread)).metaOff();
-    }
-
     /**
      * Send a message,
      * The message need to have a owner thread attached to it or it cant be added.
