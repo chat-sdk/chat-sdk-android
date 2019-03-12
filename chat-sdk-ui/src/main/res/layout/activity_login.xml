@@ -152,7 +152,7 @@
         style="@style/LoginButton"
         android:text="@string/reset_password"
         android:textColor="@color/dark_text"
-        app:backgroundTint="@color/white"
+        app:backgroundTint="@color/reset_password_button_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
