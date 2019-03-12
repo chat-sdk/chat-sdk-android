@@ -47,6 +47,7 @@ import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.login.LoginActivity;
+import co.chatsdk.ui.login.SplashScreenActivity;
 import co.chatsdk.ui.main.MainActivity;
 import co.chatsdk.ui.main.MainAppBarActivity;
 import co.chatsdk.ui.main.MainDrawActivity;
@@ -200,6 +201,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class getSplashScreenActivity() {
+        return SplashScreenActivity.class;
+    }
+
+    @Override
     public Class getMainActivity() {
         return MainAppBarActivity.class;
     }
@@ -271,10 +277,22 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, intent);
     }
 
+    /**
+     * @deprecated use {@link #startLoginActivity(Context, HashMap)} ()}
+     * @param attemptCachedLogin
+     */
+    @Deprecated
     public void startLoginActivity(Context context, boolean attemptCachedLogin){
         Intent intent = new Intent(context, getLoginActivity());
-        intent.putExtra(InterfaceManager.ATTEMPT_CACHED_LOGIN, attemptCachedLogin);
         startActivity(context, intent);
+    }
+
+    public void startLoginActivity (Context context, HashMap<String, Object> extras) {
+        startActivity(context, getLoginActivity(), extras);
+    }
+
+    public void startSplashScreenActivity (Context context) {
+        startActivity(context, getLoginActivity());
     }
 
     public void startEditProfileActivity(Context context, String userEntityID){

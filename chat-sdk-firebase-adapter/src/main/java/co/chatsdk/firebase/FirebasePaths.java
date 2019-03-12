@@ -24,8 +24,6 @@ public class FirebasePaths{
     public static final String IndexPath = "searchIndex";
     public static final String OnlinePath = "online";
     public static final String MetaPath = "meta";
-    public static final String FollowersPath = "followers";
-    public static final String FollowingPath = "follows";
     public static final String UpdatedPath = "updated";
     public static final String LastMessagePath = "lastMessage";
     public static final String TypingPath = "typing";
@@ -74,14 +72,6 @@ public class FirebasePaths{
 
     public static DatabaseReference userOnlineRef(String firebaseId){
         return userRef(firebaseId).child(OnlinePath);
-    }
-
-    public static DatabaseReference userFollowingRef(String firebaseId){
-        return userRef(firebaseId).child(FollowingPath);
-    }
-
-    public static DatabaseReference userFollowersRef(String firebaseId){
-        return userRef(firebaseId).child(FollowersPath);
     }
 
     /* Threads */

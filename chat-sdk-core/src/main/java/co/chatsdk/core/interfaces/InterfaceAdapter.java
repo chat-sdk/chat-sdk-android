@@ -35,6 +35,7 @@ public interface InterfaceAdapter {
     Class getSearchActivity();
     Class getEditProfileActivity();
     Class getProfileActivity();
+    Class getSplashScreenActivity();
 
     List<Tab> defaultTabs ();
     List<Tab> tabs();
@@ -57,13 +58,17 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+
+    @Deprecated
     void startLoginActivity(Context context, boolean attemptCachedLogin);
+    void startLoginActivity (Context context, HashMap<String, Object> extras);
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);
     void startSelectContactsActivity(Context context);
+    void startSplashScreenActivity (Context context);
 
     void addSearchActivity (Class className, String name);
     void removeSearchActivity (Class className);

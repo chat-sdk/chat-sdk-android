@@ -57,9 +57,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected TextInputEditText usernameEditText;
     protected TextInputEditText passwordEditText;
 
-    // This is a list of extras that are passed to the login view
-    protected HashMap<String, Object> extras = new HashMap<>();
-
     /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
      * That means the context wont try to authenticate in inResume. */
 
@@ -80,26 +77,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
-        getSupportActionBar().hide();
-
-//        PermissionRequestHandler.shared().requestReadExternalStorage(this).subscribe(new CrashReportingCompletableObserver());
-
-        updateExtras(getIntent().getExtras());
-
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        updateExtras(intent.getExtras());
-    }
-
-    protected void updateExtras (Bundle bundle) {
-        if (bundle != null) {
-            for (String s : bundle.keySet()) {
-                extras.put(s, bundle.get(s));
-            }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
         }
+
     }
 
     protected @LayoutRes int activityLayout() {
@@ -165,7 +146,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnGoogle.setOnClickListener(this);
         btnResetPassword.setOnClickListener(this);
 
-
     }
 
     @Override
@@ -226,24 +206,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         super.onResume();
 
         initListeners();
-
-        // If the logged out flag isn't set...
-        if (getIntent() == null ||
-                getIntent().getExtras() == null ||
-                getIntent().getExtras().get(InterfaceManager.ATTEMPT_CACHED_LOGIN) == null ||
-                (boolean) getIntent().getExtras().get(InterfaceManager.ATTEMPT_CACHED_LOGIN)) {
-
-            showProgressDialog(getString(R.string.authenticating));
-
-            Disposable d = ChatSDK.auth().authenticateWithCachedToken()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(this::dismissProgressDialog)
-                    .subscribe(this::afterLogin, throwable -> {
-//                        ChatSDK.logError(throwable);
-
-                        dismissProgressDialog();
-                    });
-        }
     }
 
     /* Dismiss dialog and open main context.*/
@@ -277,16 +239,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.connecting));
 
-        ChatSDK.auth().authenticate(details)
+        Disposable d = ChatSDK.auth().authenticate(details)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     authenticating = false;
-                    dismissProgressDialog();
+//                    dismissProgressDialog();
                 })
                 .subscribe(this::afterLogin, e -> {
+                    dismissProgressDialog();
                     toastErrorMessage(e, false);
                     ChatSDK.logError(e);
                 });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        dismissProgressDialog();
     }
 
     public void register() {

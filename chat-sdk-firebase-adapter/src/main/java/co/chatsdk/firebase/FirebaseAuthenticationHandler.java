@@ -35,7 +35,7 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    public Completable authenticateWithCachedToken() {
+    public Completable authenticate() {
         return Single.create((SingleOnSubscribe<FirebaseUser>) emitter-> {
                     if (isAuthenticating()) {
                         emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
@@ -146,6 +146,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Boolean userAuthenticated() {
+        return isAuthenticated();
+    }
+
+    public Boolean isAuthenticated() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
@@ -175,7 +179,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
-                    FirebaseEventHandler.shared().userOff(user.getEntityID());
+                    FirebaseEventHandler.shared().currentUserOff(user.getEntityID());
 
                     // Removing the push channel
 //                    if (ChatSDK.push() != null) {

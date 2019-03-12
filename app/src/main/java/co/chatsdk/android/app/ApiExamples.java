@@ -79,7 +79,7 @@ public class ApiExamples {
      * Calling this method will perform all the necessary setup for the Chat SDK
      */
     public void authenticateWithCurrentFirebaseLogin () {
-        Disposable d = ChatSDK.auth().authenticateWithCachedToken().subscribe(() -> {
+        Disposable d = ChatSDK.auth().authenticate().subscribe(() -> {
 
         }, throwable -> {
 

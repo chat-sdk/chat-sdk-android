@@ -93,7 +93,7 @@ public class User implements CoreEntity, UserListItem {
 
     public void addContact(User user, ConnectionType type) {
 
-        if (user.equals(this)) {
+        if (user.isMe()) {
             return;
         }
 

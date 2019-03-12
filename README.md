@@ -232,7 +232,7 @@ Activate the core Chat SDK modules and any other modules you need. See the modul
 Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
 
 ```
-<activity android:name="co.chatsdk.ui.login.LoginActivity">
+<activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -243,7 +243,7 @@ Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
 Or if you want to launch the activity manually, you can do it using:
 
 ```
-InterfaceManager.shared().a.startLoginActivity(context, true);
+InterfaceManager.shared().a.startSplashScreenActivity(context);
 ``` 
 
 ## Firebase Setup
@@ -348,7 +348,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.6.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.6.2'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -391,7 +391,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.6.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.6.2'
 ```
 
 ##### Enable the module
@@ -435,7 +435,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.6.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.6.2'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)

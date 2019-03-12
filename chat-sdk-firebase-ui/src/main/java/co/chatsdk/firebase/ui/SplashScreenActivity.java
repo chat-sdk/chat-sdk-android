@@ -42,7 +42,7 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        authenticateWithCachedToken();
+        authenticate();
     }
 
     public void startAuthenticationActivity () {
@@ -54,10 +54,10 @@ public class SplashScreenActivity extends BaseActivity {
                 RC_SIGN_IN);
     }
 
-    protected void authenticateWithCachedToken () {
+    protected void authenticate () {
         showProgressDialog(getString(R.string.authenticating));
         signInButton.setEnabled(false);
-        ChatSDK.auth().authenticateWithCachedToken()
+        ChatSDK.auth().authenticate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     signInButton.setEnabled(true);

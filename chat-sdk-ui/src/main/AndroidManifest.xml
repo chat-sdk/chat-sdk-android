@@ -36,6 +36,11 @@
             android:theme="@style/SdkTheme">
         </activity>
 
+        <activity android:name=".login.SplashScreenActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/SdkTheme">
+        </activity>
+
         <activity android:name=".threads.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>

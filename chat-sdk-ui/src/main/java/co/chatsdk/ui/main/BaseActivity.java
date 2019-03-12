@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.session.ChatSDK;
@@ -40,12 +41,17 @@ public class BaseActivity extends AppCompatActivity {
 
     protected ProgressDialog progressDialog;
 
+    // This is a list of extras that are passed to the login view
+    protected HashMap<String, Object> extras = new HashMap<>();
+
     public BaseActivity() {
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateExtras(getIntent().getExtras());
+
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }
@@ -54,6 +60,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
+
 
     /**
      * @return the bitmap that will be used for the screen overview also called the recents apps.
@@ -83,13 +90,20 @@ public class BaseActivity extends AppCompatActivity {
             setTaskDescription(td);
         }
     }
-    
+
+    protected void updateExtras (Bundle bundle) {
+        if (bundle != null) {
+            for (String s : bundle.keySet()) {
+                extras.put(s, bundle.get(s));
+            }
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        updateExtras(intent.getExtras());
     }
-
-
 
     @Override
     protected void onResume() {

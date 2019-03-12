@@ -13,8 +13,11 @@ public interface AuthenticationHandler {
 
     /**
      * Check to see if the user is already authenticated
+     * @deprecated use {@link #authenticate()}
      */
+    @Deprecated
     Completable authenticateWithCachedToken();
+    Completable authenticate();
 
     /**
     * Authenticate with Firebase
@@ -22,14 +25,20 @@ public interface AuthenticationHandler {
     Completable authenticate (AccountDetails details);
 
     /**
-    * Checks whether the user is authenticated
-    */
+     * Checks whether the user is authenticated
+     * @deprecated use {@link #isAuthenticated()}
+     */
+    @Deprecated
     Boolean userAuthenticated();
+    Boolean isAuthenticated();
 
     /**
      * Has been authenticated this session
+     * @deprecated use {@link #isAuthenticatedThisSession()}
      */
+    @Deprecated
     Boolean userAuthenticatedThisSession();
+    Boolean isAuthenticatedThisSession();
 
     /**
     * DidLogout the user from the current account
