@@ -144,7 +144,7 @@ public class Configuration {
     // is in the killed state. This is useful to help us debug that process.
     public boolean backgroundPushTestModeEnabled = false;
 
-    public int loginScreenDrawableResourceID = -1;
+    public int logoDrawableResourceID = -1;
 
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
 
@@ -552,7 +552,7 @@ public class Configuration {
         }
 
         public Builder loginScreenDrawableResourceID(int resource) {
-            config.loginScreenDrawableResourceID = resource;
+            config.logoDrawableResourceID = resource;
             return this;
         }
 

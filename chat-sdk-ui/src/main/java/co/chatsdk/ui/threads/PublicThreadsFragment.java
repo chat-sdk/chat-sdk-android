@@ -48,45 +48,6 @@ public class PublicThreadsFragment extends ThreadsFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void createPublicThread () {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-        builder.setTitle(getString(R.string.add_public_chat_dialog_title));
-
-        // Set up the input
-        final EditText input = new EditText(this.getContext());
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton(getString(R.string.create), (dialog, which) -> {
-
-            showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
-            final String threadName = input.getText().toString();
-
-            ChatSDK.publicThread().createPublicThreadWithName(threadName)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((thread, throwable) -> {
-                        if (throwable == null) {
-                            dismissProgressDialog();
-                            adapter.addRow(thread);
-
-                            ToastHelper.show(getContext(), String.format(getString(R.string.public_thread__created), threadName));
-
-                            ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
-                        }
-                        else {
-                            ChatSDK.logError(throwable);
-                            Toast.makeText(PublicThreadsFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                            dismissProgressDialog();                            }
-                    });
-
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-        builder.show();
-    }
-
     @Override
     protected List<Thread> getThreads() {
         List<Thread> threads =  ChatSDK.thread().getThreads(ThreadType.Public);

@@ -17,11 +17,9 @@ import androidx.annotation.LayoutRes;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -29,11 +27,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-
 import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
@@ -122,8 +117,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             passwordEditText.setText(ChatSDK.config().debugPassword);
         }
 
-        if(ChatSDK.config().loginScreenDrawableResourceID > 0) {
-            appIconImage.setImageResource(ChatSDK.config().loginScreenDrawableResourceID);
+        if(ChatSDK.config().logoDrawableResourceID > 0) {
+            appIconImage.setImageResource(ChatSDK.config().logoDrawableResourceID);
         }
 
     }

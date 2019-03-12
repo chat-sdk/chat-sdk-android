@@ -378,21 +378,6 @@ public class User implements CoreEntity, UserListItem {
         }
 
         return map;
-
-//        if(metaMapCache == null || metaMapCache.keySet().size() == 0) {
-//            if(metaData != null) {
-//                try {
-//                    metaMapCache = JsonHelper.toMap(new JSONObject(metaData));
-//                } catch (JSONException e) {
-//                    ChatSDK.logError(e);
-//                    Timber.e(e.getCause(), "Cant parse metaData json to map. Meta: %s", metaData);
-//                }
-//            }
-//        }
-//        if(metaMapCache == null) {
-//            metaMapCache = new HashMap<>();
-//        }
-//        return metaMapCache;
     }
 
     @Keep

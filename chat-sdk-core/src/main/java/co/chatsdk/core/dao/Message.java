@@ -19,6 +19,9 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.lang.Object;
+import java.lang.Class;
+import java.lang.String;
 
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;

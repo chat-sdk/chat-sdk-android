@@ -8,14 +8,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.LayoutRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.types.Progress;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 public class SplashScreenActivity extends BaseActivity {
 
@@ -34,6 +28,10 @@ public class SplashScreenActivity extends BaseActivity {
 
         imageView = (ImageView) mainView.getViewById(R.id.imageView);
         progressBar = (ProgressBar) mainView.getViewById(R.id.progressBar);
+
+        if (ChatSDK.config().logoDrawableResourceID > 0) {
+            imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
+        }
 
         stopProgressBar();
 
