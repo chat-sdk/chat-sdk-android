@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,8 +41,11 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     private DisposableList disposableList = new DisposableList();
 
     public FirebaseCoreHandler() {
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
         // When the user logs out, turn off all the existing listeners
-        FirebaseEventHandler.shared().source()
+        Disposable d = FirebaseEventHandler.shared().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> disposableList.dispose());
     }
