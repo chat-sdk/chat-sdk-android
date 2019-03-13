@@ -131,6 +131,8 @@
     <string name="permission_location_title">位置访问</string>
     <string name="permission_location_message">授予允许其他用户发现的权限</string>
     <string name="permission_location_not_granted">未授予位置权限</string>
+    <string name="location_services_not_enabled">位置服务未启用</string>
+    <string name="location_services_problem_message">位置服务出现问题。 确保在手机设置中启用它们。</string>
     <string name="location_is_null">位置为空</string>
 
     
