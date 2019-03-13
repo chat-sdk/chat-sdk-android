@@ -38,6 +38,14 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
+## Quick Start
+
+- [Standard Documentation](https://github.com/chat-sdk/chat-sdk-android/#adding-the-chat-sdk-to-your-project) (For experienced developers) 
+- [API Documentation](https://github.com/chat-sdk/docs)
+- [Code Examples](https://github.com/chat-sdk/chat-sdk-android/blob/master/app/src/main/java/co/chatsdk/android/app/ApiExamples.java)
+- [Full step-by-step guide](https://github.com/thecmart/manuals/tree/master/Tutorials) (Good for beginners)
+- **New** Video Series: [Part 1](https://www.youtube.com/watch?v=AwhxFx8CXCg), [Part 2](https://www.youtube.com/watch?v=RA-wendcrZw), [Part 3](https://www.youtube.com/watch?v=TldTOCoWLko)
+
 ## Performance and Scalability
 
 These are the average Firebase hosting costs calculated using the Firebase Database Profiling tool. Firebase charge 1 USD per GB of data downloaded (excluding images or files). We've tabulated a few common operations and how many of them can be performed per 1 USD of monthly hosting cost:
