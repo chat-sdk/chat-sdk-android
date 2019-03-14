@@ -29,6 +29,7 @@ public interface ProfilePicturesHandler {
     ArrayList<String> fromUser(User user);
 
     Class getProfilePicturesActivity();
+    void setProfilePicturesActivity(Class profilePicturesActivity);
     void startProfilePicturesActivity(Context context, String userEntityID);
 
 }
