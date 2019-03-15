@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -72,9 +73,13 @@ public class ProfileFragment extends BaseFragment {
 
     public static ProfileFragment newInstance(User user) {
         ProfileFragment f = new ProfileFragment();
-        f.user = user;
 
         Bundle b = new Bundle();
+
+        if (user != null) {
+            b.putString(Keys.UserId, user.getEntityID());
+        }
+
         f.setArguments(b);
         f.setRetainInstance(true);
         return f;
@@ -83,6 +88,10 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.getString(Keys.UserId) != null) {
+            user = ChatSDK.db().fetchUserWithEntityID(savedInstanceState.getString(Keys.UserId));
+        }
 
         disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())

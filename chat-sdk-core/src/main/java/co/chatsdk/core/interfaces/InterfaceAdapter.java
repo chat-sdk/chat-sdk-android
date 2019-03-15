@@ -14,6 +14,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
+import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.core.utils.NotificationDisplayHandler;
 
 /**
@@ -37,6 +38,22 @@ public interface InterfaceAdapter {
     Class getEditProfileActivity();
     Class getProfileActivity();
     Class getSplashScreenActivity();
+
+    void setLoginActivity (Class loginActivity);
+    void setSplashScreenActivity (Class splashScreenActivity);
+    void setMainActivity (Class mainActivity);
+    void setChatActivity (Class chatActivity);
+    void setThreadDetailsActivity (Class threadDetailsActivity);
+    void setThreadEditDetailsActivity (Class threadEditDetailsActivity);
+    void setSelectContactActivity (Class selectContactActivity);
+    void setSearchActivity (Class searchActivity);
+    void setEditProfileActivity (Class editProfileActivity);
+    void setProfileActivity (Class profileActivity);
+
+    void setPrivateThreadsFragment (Fragment privateThreadsFragment);
+    void setPublicThreadsFragment (Fragment publicThreadsFragment);
+    void setContactsFragment (Fragment contactsFragment);
+    void setProfileFragmentProvider (ProfileFragmentProvider profileFragmentProvider);
 
     List<Tab> defaultTabs ();
     List<Tab> tabs();

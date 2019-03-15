@@ -2,25 +2,17 @@ package co.chatsdk.android.app;
 
 import android.content.Context;
 
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.PhoneAuthProvider;
-
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
-import co.chatsdk.core.session.NetworkManager;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/8/2014.

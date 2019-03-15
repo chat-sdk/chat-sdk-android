@@ -52,9 +52,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        threadEntityID = getIntent().getStringExtra(InterfaceManager.THREAD_ENTITY_ID);
+        threadEntityID = getIntent().getStringExtra(Keys.THREAD_ENTITY_ID);
         if (threadEntityID != null) {
-            thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
+            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
 
         setContentView(R.layout.chat_sdk_activity_edit_thread_details);

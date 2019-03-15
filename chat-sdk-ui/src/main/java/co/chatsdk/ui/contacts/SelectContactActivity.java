@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
@@ -105,7 +106,7 @@ public class SelectContactActivity extends BaseActivity {
 
     protected void getDataFromBundle(Bundle bundle){
         mode = bundle.getInt(MODE, mode);
-        threadEntityID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID, threadEntityID);
+        threadEntityID = bundle.getString(Keys.THREAD_ENTITY_ID, threadEntityID);
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
 
@@ -121,7 +122,7 @@ public class SelectContactActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(InterfaceManager.THREAD_ENTITY_ID, threadEntityID);
+        outState.putString(Keys.THREAD_ENTITY_ID, threadEntityID);
         outState.putInt(MODE, mode);
         outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
@@ -194,7 +195,7 @@ public class SelectContactActivity extends BaseActivity {
 
         // Removing the users that is already inside the thread.
         if (mode == MODE_ADD_TO_CONVERSATION && !threadEntityID.equals("")){
-            thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
+            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             List<User> threadUser = thread.getUsers();
             list.removeAll(threadUser);
         }

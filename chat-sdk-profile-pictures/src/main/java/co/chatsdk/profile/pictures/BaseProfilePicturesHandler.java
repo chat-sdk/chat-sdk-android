@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.ProfilePicturesHandler;
 import co.chatsdk.core.session.ChatSDK;
@@ -145,7 +146,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
 
     public void startProfilePicturesActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfilePicturesActivity());
-        intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
+        intent.putExtra(Keys.USER_ENTITY_ID, userEntityID);
         intent.putExtra(KeyGridPadding, gridPadding);
         intent.putExtra(KeyPictureMargin, pictureMargin);
         intent.putExtra(KeyPicturesPerRow, picturesPerRow);

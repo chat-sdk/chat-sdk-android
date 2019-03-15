@@ -40,7 +40,7 @@ public class MessageWrapper  {
     }
 
     public MessageWrapper(DataSnapshot snapshot){
-        this.model = StorageManager.shared().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
+        this.model = ChatSDK.db().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
         deserialize(snapshot);
     }
 
@@ -139,7 +139,7 @@ public class MessageWrapper  {
             User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
             if (user == null)
             {
-                user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, senderID);
+                user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
                 UserWrapper.initWithModel(user).once();
             }
 
@@ -159,7 +159,7 @@ public class MessageWrapper  {
     public void updateReadReceipts (HashMap<String, Object> map) {
         for(String key : map.keySet()) {
 
-            User user = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, key);
+            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, key);
 
             Object innerMap = map.get(key);
 

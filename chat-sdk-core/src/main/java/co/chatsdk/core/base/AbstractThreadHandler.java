@@ -43,7 +43,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : null;
 
             // First try to load the messages from the database
-            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, messageDate);
+            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, messageDate);
             e.onSuccess(list);
         }).subscribeOn(Schedulers.single());
     }
@@ -73,7 +73,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public static Message newMessage (int type, Thread thread) {
-        Message message = StorageManager.shared().createEntity(Message.class);
+        Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setMessageStatus(MessageSendStatus.Sending);
         message.setDate(new DateTime(System.currentTimeMillis()));
@@ -156,7 +156,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public List<Thread> getThreads(int type, boolean allowDeleted, boolean showEmpty){
 
         if(ThreadType.isPublic(type)) {
-            return StorageManager.shared().fetchThreadsWithType(ThreadType.PublicGroup);
+            return ChatSDK.db().fetchThreadsWithType(ThreadType.PublicGroup);
         }
 
         // We may access this method post authentication
@@ -164,7 +164,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             return new ArrayList<>();
         }
 
-        List<Thread> threads = StorageManager.shared().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
+        List<Thread> threads = ChatSDK.db().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
 
         List<Thread> filteredThreads = new ArrayList<>();
         for(Thread thread : threads) {

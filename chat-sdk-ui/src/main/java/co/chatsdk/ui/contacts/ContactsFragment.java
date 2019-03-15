@@ -127,21 +127,21 @@ public class ContactsFragment extends BaseFragment {
     /** When isDialog = true the dialog will always show the list of users given to him or pulled by the thread id.*/
     protected boolean isDialog = false;
 
-    public static ContactsFragment newInstance() {
-        ContactsFragment f = new ContactsFragment();
-        f.setLoadingMode(MODE_LOAD_CONTACTS);
-        Bundle b = new Bundle();
-        f.setArguments(b);
-        return f;
-    }
+//    public static ContactsFragment newInstance() {
+//        ContactsFragment f = new ContactsFragment();
+//        f.setLoadingMode(MODE_LOAD_CONTACTS);
+//        Bundle b = new Bundle();
+//        f.setArguments(b);
+//        return f;
+//    }
 
-    public static ContactsFragment newInstance(int loadingMode, int clickMode, Object extraData) {
-        ContactsFragment f = new ContactsFragment();
-        f.setLoadingMode(loadingMode);
-        f.setClickMode(clickMode);
-        f.setExtraData(extraData);
-        return f;
-    }
+//    public static ContactsFragment newInstance(int loadingMode, int clickMode, Object extraData) {
+//        ContactsFragment f = new ContactsFragment();
+//        f.setLoadingMode(loadingMode);
+//        f.setClickMode(clickMode);
+//        f.setExtraData(extraData);
+//        return f;
+//    }
 
     /** Creates a new contact dialog.
      * @param threadID - The id of the thread that his users is the want you want to show.
@@ -312,9 +312,9 @@ public class ContactsFragment extends BaseFragment {
                     case CLICK_MODE_ADD_USER_TO_THREAD:
                         Thread thread = null;
                         if (extraData instanceof Long) {
-                            thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                            thread = ChatSDK.db().fetchThreadWithID((Long) extraData);
                         } else if (extraData instanceof String) {
-                            thread = StorageManager.shared().fetchThreadWithEntityID((String) extraData);
+                            thread = ChatSDK.db().fetchThreadWithEntityID((String) extraData);
                         }
 
                         if (thread != null) {
@@ -377,7 +377,7 @@ public class ContactsFragment extends BaseFragment {
 
                     case MODE_LOAD_CONTACT_THAT_NOT_IN_THREAD:
                         List<User> users1 = ChatSDK.contact().contacts();
-                        thread = StorageManager.shared().fetchThreadWithID((Long) extraData);
+                        thread = ChatSDK.db().fetchThreadWithID((Long) extraData);
                         List<User> threadUser = thread.getUsers();
                         users1.removeAll(threadUser);
                         sourceUsers.addAll(users1);

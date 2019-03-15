@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
@@ -49,7 +50,7 @@ public abstract class MainActivity extends BaseActivity {
 
     public void launchFromPush (Bundle bundle) {
         if (bundle != null) {
-            String threadID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
+            String threadID = bundle.getString(Keys.THREAD_ENTITY_ID);
             if (threadID != null && !threadID.isEmpty()) {
                 ChatSDK.ui().startChatActivityForID(getBaseContext(), threadID);
             }

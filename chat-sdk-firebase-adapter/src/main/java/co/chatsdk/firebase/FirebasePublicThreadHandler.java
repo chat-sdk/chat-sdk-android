@@ -30,7 +30,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             // If the entity ID is set, see if the thread exists and return it if it does
             if (entityID != null) {
-                Thread t = StorageManager.shared().fetchThreadWithEntityID(entityID);
+                Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     e.onSuccess(t);
                     return;
@@ -48,9 +48,6 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             thread.setName(name);
             thread.setEntityID(entityID);
 
-            if (meta != null) {
-                thread.updateValues(meta);
-            }
 
             // Add the path and API key
             // This allows you to restrict public threads to a particular
@@ -59,6 +56,10 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             // Save the entity to the local db.
             DaoCore.createEntity(thread);
+
+            if (meta != null) {
+                thread.updateValues(meta);
+            }
 
             ThreadWrapper wrapper = new ThreadWrapper(thread);
 

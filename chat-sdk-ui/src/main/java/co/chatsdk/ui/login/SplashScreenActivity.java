@@ -66,11 +66,14 @@ public class SplashScreenActivity extends BaseActivity {
 
     protected void startProgressBar () {
         progressBar.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(true);
         progressBar.animate();
     }
 
     protected void stopProgressBar () {
-        progressBar.setVisibility(View.GONE);
+//        progressBar.setVisibility(View.GONE);
+        progressBar.setProgress(0);
+        progressBar.setIndeterminate(false);
     }
 
     @Override

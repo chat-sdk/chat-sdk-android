@@ -12,6 +12,7 @@ import com.google.firebase.auth.TwitterAuthProvider;
 
 import java.util.ArrayList;
 
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 
 /**
@@ -27,7 +28,7 @@ public class FirebaseUIModule {
     protected Class splashScreenActivity;
 
     public static void activate (Context context, String... providers) {
-        InterfaceManager.shared().a = new FirebaseUIInterfaceAdapter(context);
+        ChatSDK.shared().setInterfaceAdapter(new FirebaseUIInterfaceAdapter(context));
         FirebaseUIModule.shared().setProviders(providers);
     }
 

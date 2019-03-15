@@ -140,7 +140,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
-                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
                 Object value = snapshot.getValue();
                 if (value instanceof HashMap) {
                     Object type = ((HashMap) value).get(Keys.Type);
@@ -155,7 +155,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
             if (hasValue) {
-                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
                 Object value = snapshot.getValue();
                 if (value instanceof HashMap) {
                     Object type = ((HashMap) value).get(Keys.Type);

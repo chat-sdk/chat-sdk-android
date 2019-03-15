@@ -168,7 +168,7 @@ public class Message implements CoreEntity {
     protected void setMetaValue(String key, Object value) {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
-            metaValue = StorageManager.shared().createEntity(MessageMetaValue.class);
+            metaValue = ChatSDK.db().createEntity(MessageMetaValue.class);
             metaValue.setMessageId(this.getId());
             getMetaValues().add(metaValue);
         }
@@ -227,7 +227,7 @@ public class Message implements CoreEntity {
     public void setUserReadStatus (User user, ReadStatus status, DateTime date) {
         ReadReceiptUserLink link = linkForUser(user);
         if(link == null) {
-            link = StorageManager.shared().createEntity(ReadReceiptUserLink.class);
+            link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
             link.setMessageId(this.getId());
             getReadReceiptLinks().add(link);
         }

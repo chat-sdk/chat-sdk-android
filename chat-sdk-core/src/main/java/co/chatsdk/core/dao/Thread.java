@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.StringChecker;
 
@@ -246,7 +247,7 @@ public class Thread implements CoreEntity {
     public void setMetaValue (String key, String value) {
         ThreadMetaValue metaValue = metaValueForKey(key);
         if (metaValue == null) {
-            metaValue = StorageManager.shared().createEntity(ThreadMetaValue.class);
+            metaValue = ChatSDK.db().createEntity(ThreadMetaValue.class);
             metaValue.setThreadId(this.getId());
             getMetaValues().add(metaValue);
         }

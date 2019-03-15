@@ -1,6 +1,6 @@
 package co.chatsdk.firebase.push;
 
-import co.chatsdk.core.session.NetworkManager;
+import co.chatsdk.core.session.ChatSDK;
 
 /**
  * Created by ben on 9/1/17.
@@ -9,7 +9,7 @@ import co.chatsdk.core.session.NetworkManager;
 public class FirebasePushModule  {
 
     public static void activate () {
-        NetworkManager.shared().a.push = new FirebasePushHandler();
+        ChatSDK.shared().a().push = new FirebasePushHandler();
     }
 
 }

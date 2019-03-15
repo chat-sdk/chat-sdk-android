@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import java.util.HashMap;
 
+import androidx.fragment.app.Fragment;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
@@ -17,6 +18,9 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.ui.ProfileFragmentProvider;
+import co.chatsdk.ui.login.LoginActivity;
+import co.chatsdk.ui.profile.ProfileFragment;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -30,6 +34,16 @@ import io.reactivex.functions.Consumer;
  * This class contains a list of example API calls for reference
  */
 public class ApiExamples {
+
+
+    public void customizeUI () {
+
+        // You could define a custom LoginActivity subclass here
+        ChatSDK.ui().setLoginActivity(LoginActivity.class);
+
+        // Or customise the profile fragment
+        ChatSDK.ui().setProfileFragmentProvider(user -> ProfileFragment.newInstance(user));
+    }
 
     /**
      * Example of how to send an image message to a thread

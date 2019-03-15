@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
@@ -61,9 +62,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.USER_ENTITY_ID);
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            user = StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user == null) {
                 ToastHelper.show(this, R.string.user_entity_id_not_set);
                 finish();

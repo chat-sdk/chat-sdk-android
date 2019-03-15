@@ -3,6 +3,8 @@ package co.chatsdk.core.session;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -61,6 +63,10 @@ public class ChatSDK {
     public Configuration config;
     public Disposable localNotificationDisposable;
 
+    protected InterfaceAdapter interfaceAdapter;
+    protected StorageManager storageManager;
+    protected BaseNetworkAdapter networkAdapter;
+
     protected LocationProvider locationProvider;
 
     protected ChatSDK () {
@@ -81,19 +87,21 @@ public class ChatSDK {
 
         DaoCore.init(shared().context());
 
+        shared().storageManager = new StorageManager();
+
         if(interfaceAdapter != null) {
-            InterfaceManager.shared().a = interfaceAdapter;
+            shared().interfaceAdapter = interfaceAdapter;
         }
-        else {
-            shared().activateModule("UserInterfaceModule", "activate", new MethodArgument(Context.class, shared().context()));
-        }
+//        else {
+//            shared().activateModule("UserInterfaceModule", "activate", new MethodArgument(Context.class, shared().context()));
+//        }
 
         if (networkAdapter != null) {
-            NetworkManager.shared().a = networkAdapter;
+            shared().networkAdapter = networkAdapter;
         }
-        else {
-            shared().activateModule("FirebaseModule", "activate");
-        }
+//        else {
+//            shared().activateModule("FirebaseModule", "activate");
+//        }
 
         shared().locationProvider = new LocationProvider();
 
@@ -200,11 +208,11 @@ public class ChatSDK {
      * @return InterfaceAdapter
      */
     public static InterfaceAdapter ui () {
-        return InterfaceManager.shared().a;
+        return shared().interfaceAdapter;
     }
 
     public void setInterfaceAdapter (InterfaceAdapter interfaceAdapter) {
-        InterfaceManager.shared().a = interfaceAdapter;
+        shared().interfaceAdapter = interfaceAdapter;
     }
 
     public static CoreHandler core () {
@@ -310,11 +318,11 @@ public class ChatSDK {
     }
 
     public static BaseNetworkAdapter a() {
-        return NetworkManager.shared().a;
+        return shared().networkAdapter;
     }
 
     public static StorageManager db () {
-        return StorageManager.shared();
+        return shared().storageManager;
     }
 
 }

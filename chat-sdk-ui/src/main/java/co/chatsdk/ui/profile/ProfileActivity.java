@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
@@ -31,10 +32,10 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_sdk_profile_activity);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.USER_ENTITY_ID);
 
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user != null) {
                 ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profile_fragment);
                 fragment.setUser(user);

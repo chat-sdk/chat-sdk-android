@@ -384,7 +384,7 @@ public class User implements CoreEntity, UserListItem {
     public void setMetaValue (String key, String value) {
         UserMetaValue metaValue = metaValueForKey(key);
         if (metaValue == null) {
-            metaValue = StorageManager.shared().createEntity(UserMetaValue.class);
+            metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
             metaValue.setUserId(this.getId());
             getMetaValues().add(metaValue);
         }

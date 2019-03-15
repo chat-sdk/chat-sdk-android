@@ -32,7 +32,6 @@ import co.chatsdk.core.interfaces.InterfaceAdapter;
 
 /* @deprecated Use ChatSDK.core() etc... instead */
 @Deprecated
-
 public class NM {
 
     public static CoreHandler core () {
@@ -124,7 +123,7 @@ public class NM {
     }
 
     public static BaseNetworkAdapter a() {
-        return NetworkManager.shared().a;
+        return ChatSDK.a();
     }
 
     public static InterfaceAdapter ui () {

@@ -1,6 +1,6 @@
 package co.chatsdk.profile.pictures;
 
-import co.chatsdk.core.session.NetworkManager;
+import co.chatsdk.core.session.ChatSDK;
 
 /**
  * Created by Pepe on 01/12/19.
@@ -9,7 +9,7 @@ import co.chatsdk.core.session.NetworkManager;
 public class ProfilePicturesModule {
 
     public static void activate () {
-        NetworkManager.shared().a.profilePictures = new BaseProfilePicturesHandler();
+        ChatSDK.a().profilePictures = new BaseProfilePicturesHandler();
     }
 
 }

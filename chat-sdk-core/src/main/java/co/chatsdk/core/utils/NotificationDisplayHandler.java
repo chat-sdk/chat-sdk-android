@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.PowerManager;
 
 import co.chatsdk.core.R;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
@@ -38,7 +39,7 @@ public class NotificationDisplayHandler {
         String threadID = message.getThread().getEntityID();
 
         Intent openChatIntent = new Intent(context, ChatSDK.ui().getChatActivity());
-        openChatIntent.putExtra(InterfaceManager.THREAD_ENTITY_ID, threadID);
+        openChatIntent.putExtra(Keys.THREAD_ENTITY_ID, threadID);
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -60,7 +61,7 @@ public class NotificationDisplayHandler {
 
 
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            User user = StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user != null) {
                 ImageBuilder.bitmapForURL(context, user.getAvatarURL()).subscribe((bitmap, throwable) -> {
                     if (throwable != null) {

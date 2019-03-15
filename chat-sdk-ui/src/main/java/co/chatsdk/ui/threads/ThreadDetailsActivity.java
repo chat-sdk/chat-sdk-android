@@ -171,10 +171,10 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
 
-        String threadEntityID = bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
+        String threadEntityID = bundle.getString(Keys.THREAD_ENTITY_ID);
 
         if (threadEntityID != null && !threadEntityID.isEmpty()) {
-            thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
+            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
         else {
             finish();
@@ -184,7 +184,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(InterfaceManager.THREAD_ENTITY_ID, thread.getEntityID());
+        outState.putString(Keys.THREAD_ENTITY_ID, thread.getEntityID());
         outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
     }
 
@@ -202,7 +202,7 @@ public class ThreadDetailsActivity extends BaseActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
-            InterfaceManager.shared().a.startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
         }
         return true;
     }

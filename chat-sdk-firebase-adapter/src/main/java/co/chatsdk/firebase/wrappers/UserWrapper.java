@@ -61,12 +61,12 @@ public class UserWrapper {
     }
 
     public static UserWrapper initWithEntityId(String entityId){
-        User model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, entityId);
+        User model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityId);
         return initWithModel(model);
     }
     
     private UserWrapper(FirebaseUser authData){
-        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
+        model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
         updateUserFromAuthData(authData);
     }
 
@@ -75,7 +75,7 @@ public class UserWrapper {
     }
     
     public UserWrapper(DataSnapshot snapshot){
-        model = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+        model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
         deserialize((Map<String, Object>) snapshot.getValue());
     }
     

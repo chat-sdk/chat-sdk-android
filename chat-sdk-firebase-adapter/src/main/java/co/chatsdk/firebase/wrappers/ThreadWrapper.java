@@ -51,7 +51,7 @@ public class ThreadWrapper  {
     }
     
     public ThreadWrapper(String entityId){
-        this(StorageManager.shared().fetchOrCreateEntityWithEntityID(Thread.class, entityId));
+        this(ChatSDK.db().fetchOrCreateEntityWithEntityID(Thread.class, entityId));
     }
 
     public Thread getModel(){
@@ -124,7 +124,7 @@ public class ThreadWrapper  {
 //                @Override
 //                public void onChildAdded(DataSnapshot snapshot, String s) {
 //                    if (snapshot.getValue() != null && snapshot.getKey() != null) {
-//                        Message m = StorageManager.shared().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
+//                        Message m = ChatSDK.db().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
 //                        HashMap<String, Object> messageData = new MessageWrapper(m).lastMessageData();
 //                        pushLastMessage(messageData).subscribe(e::onComplete, e::onError);
 //                    }
@@ -490,7 +490,7 @@ public class ThreadWrapper  {
             Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
 
             // First try to load the messages from the database
-            List<Message> list = StorageManager.shared().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
+            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
 
             if(!list.isEmpty()) {
                 e.onSuccess(list);

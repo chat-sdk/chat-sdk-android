@@ -66,7 +66,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.USER_ENTITY_ID);
 
         if (userEntityID == null || userEntityID.isEmpty()) {
             showToast("User Entity ID not set");
@@ -74,7 +74,7 @@ public class EditProfileActivity extends BaseActivity {
             return;
         }
         else {
-            currentUser =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            currentUser =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
 
             // Save a copy of the data to see if it has changed
             userMeta = new HashMap<>(currentUser.metaMap());
@@ -174,7 +174,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void logout () {
         disposableList.add(ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> ChatSDK.ui().startLoginActivity(getApplicationContext(), false), throwable -> {
+                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), throwable -> {
             ChatSDK.logError(throwable);
             Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }));

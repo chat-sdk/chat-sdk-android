@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.audio.Recording;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -335,7 +336,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         // Save the thread ID
         if (thread != null) {
-            outState.putString(InterfaceManager.THREAD_ENTITY_ID, thread.getEntityID());
+            outState.putString(Keys.THREAD_ENTITY_ID, thread.getEntityID());
         }
 
         // Save the list position
@@ -551,7 +552,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
             if (resultCode == RESULT_OK) {
                 // Updating the selected chat id.
-                if (data != null && data.getExtras() != null && data.getExtras().containsKey(InterfaceManager.THREAD_ENTITY_ID)) {
+                if (data != null && data.getExtras() != null && data.getExtras().containsKey(Keys.THREAD_ENTITY_ID)) {
                     if (!updateThreadFromBundle(data.getExtras())) {
                         return;
                     }
@@ -619,7 +620,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void startAddUsersActivity() {
         Intent intent = new Intent(this, ChatSDK.ui().getSelectContactActivity());
         intent.putExtra(SelectContactActivity.MODE, SelectContactActivity.MODE_ADD_TO_CONVERSATION);
-        intent.putExtra(InterfaceManager.THREAD_ENTITY_ID, thread.getEntityID());
+        intent.putExtra(Keys.THREAD_ENTITY_ID, thread.getEntityID());
         intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
@@ -642,7 +643,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void openThreadDetailsActivity() {
         // Showing the pick friends context.
         Intent intent = new Intent(this, ChatSDK.ui().getThreadDetailsActivity());
-        intent.putExtra(InterfaceManager.THREAD_ENTITY_ID, thread.getEntityID());
+        intent.putExtra(Keys.THREAD_ENTITY_ID, thread.getEntityID());
         intent.putExtra(LIST_POS, listPos);
         intent.putExtra(ANIMATE_EXIT, true);
 
@@ -656,7 +657,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     protected boolean updateThreadFromBundle(Bundle bundle) {
 
-        if (bundle != null && (bundle.containsKey(InterfaceManager.THREAD_ENTITY_ID))) {
+        if (bundle != null && (bundle.containsKey(Keys.THREAD_ENTITY_ID))) {
             this.bundle = bundle;
         }
         else {
@@ -667,10 +668,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             this.bundle = getIntent().getExtras();
         }
 
-        if (this.bundle.containsKey(InterfaceManager.THREAD_ENTITY_ID)) {
-            String threadEntityID = this.bundle.getString(InterfaceManager.THREAD_ENTITY_ID);
+        if (this.bundle.containsKey(Keys.THREAD_ENTITY_ID)) {
+            String threadEntityID = this.bundle.getString(Keys.THREAD_ENTITY_ID);
             if(threadEntityID != null) {
-                thread = StorageManager.shared().fetchThreadWithEntityID(threadEntityID);
+                thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             }
         }
         if (this.bundle.containsKey(LIST_POS)) {

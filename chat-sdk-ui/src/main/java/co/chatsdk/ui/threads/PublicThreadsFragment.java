@@ -42,7 +42,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
-            InterfaceManager.shared().a.startActivity(getContext(), InterfaceManager.shared().a.getThreadEditDetailsActivity());
+            ChatSDK.ui().startActivity(getContext(), ChatSDK.ui().getThreadEditDetailsActivity());
             return true;
         }
         return super.onOptionsItemSelected(item);

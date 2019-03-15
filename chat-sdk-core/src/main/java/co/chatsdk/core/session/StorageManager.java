@@ -26,12 +26,6 @@ import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
 
 public class StorageManager {
 
-    private final static StorageManager instance = new StorageManager();
-
-    public static StorageManager shared() {
-        return instance;
-    }
-
     public List<Thread> fetchThreadsForUserWithID (Long userId) {
         List<Thread> threads = new ArrayList<>();
 
