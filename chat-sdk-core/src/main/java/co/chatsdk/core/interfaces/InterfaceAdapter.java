@@ -54,6 +54,8 @@ public interface InterfaceAdapter {
     void setPublicThreadsFragment (Fragment publicThreadsFragment);
     void setContactsFragment (Fragment contactsFragment);
     void setProfileFragmentProvider (ProfileFragmentProvider profileFragmentProvider);
+    Intent getLoginIntent(Context context, HashMap<String, Object> extras);
+    void setLoginIntent (Intent intent);
 
     List<Tab> defaultTabs ();
     List<Tab> tabs();
@@ -78,9 +80,9 @@ public interface InterfaceAdapter {
     void startChatActivityForID(Context context, String threadEntityID);
     void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
 
-    @Deprecated
-    void startLoginActivity(Context context, boolean attemptCachedLogin);
-    void startLoginActivity (Context context, HashMap<String, Object> extras);
+    // @Deprecated use {@link #getLoginIntent(Context, HashMap)}
+//  void startLoginActivity(Context context, boolean attemptCachedLogin);
+//  void startLoginActivity (Context context, HashMap<String, Object> extras);
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
     void startMainActivity (Context context);

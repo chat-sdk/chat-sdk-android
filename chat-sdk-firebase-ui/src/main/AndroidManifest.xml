@@ -6,10 +6,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <activity android:name="co.chatsdk.firebase.ui.SplashScreenActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/SdkTheme"/>
-
     </application>
 
 </manifest>

@@ -424,25 +424,6 @@ Add the following to the end of your `onCreate` method:
 FirebaseUIModule.activate(context, GoogleAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 ```
 
-Add this to your `AndroidManifest.xml`
-
-```
-<activity android:name="co.chatsdk.firebase.ui.FirebaseUIActivity">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
-</activity>
-```
-
-To specify your own splash screen, you need to make a subclass of the `SplashScrenActivity`. Then call:
-
-```
-FirebaseUIModule.shared().setSplashScreen([your subclass]);
-```
-
-Also make sure to update the Android Manifest with this class too. 
-
 You can provide a list of providers as outlined in the [Firebase documentation](https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#sign-in-examples). 
 
 >**Note**

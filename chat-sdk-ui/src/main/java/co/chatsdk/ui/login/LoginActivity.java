@@ -117,9 +117,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             passwordEditText.setText(ChatSDK.config().debugPassword);
         }
 
-        if(ChatSDK.config().logoDrawableResourceID > 0) {
-            appIconImage.setImageResource(ChatSDK.config().logoDrawableResourceID);
-        }
+        appIconImage.setImageResource(ChatSDK.config().logoDrawableResourceID);
 
     }
 
@@ -205,9 +203,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
-        // We pass the extras in case this activity was laucned by a push. In that case
+        // We pass the extras in case this activity was launched by a push. In that case
         // we can load up the thread the message belongs to
-        ChatSDK.ui().startMainActivity(this, extras);
+//        ChatSDK.ui().startMainActivity(this, extras);
+        finish();
     }
 
     public void passwordLogin() {

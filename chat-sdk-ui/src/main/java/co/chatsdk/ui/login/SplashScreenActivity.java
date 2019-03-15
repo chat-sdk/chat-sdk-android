@@ -13,6 +13,8 @@ import co.chatsdk.ui.main.BaseActivity;
 
 public class SplashScreenActivity extends BaseActivity {
 
+    public static int AUTH = 1;
+
     ConstraintLayout mainView;
 
     protected ImageView imageView;
@@ -29,15 +31,18 @@ public class SplashScreenActivity extends BaseActivity {
         imageView = (ImageView) mainView.getViewById(R.id.imageView);
         progressBar = (ProgressBar) mainView.getViewById(R.id.progressBar);
 
-        if (ChatSDK.config().logoDrawableResourceID > 0) {
-            imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
-        }
+        imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
 
         stopProgressBar();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         if (ChatSDK.auth().isAuthenticatedThisSession()) {
             startMainActivity();
@@ -53,7 +58,6 @@ public class SplashScreenActivity extends BaseActivity {
         } else {
             startLoginActivity();
         }
-
     }
 
     protected void startMainActivity () {
@@ -61,7 +65,7 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void startLoginActivity () {
-        ChatSDK.ui().startLoginActivity(this, extras);
+        startActivityForResult(ChatSDK.ui().getLoginIntent(this, extras), AUTH);
     }
 
     protected void startProgressBar () {
@@ -76,10 +80,6 @@ public class SplashScreenActivity extends BaseActivity {
         progressBar.setIndeterminate(false);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     protected @LayoutRes
     int activityLayout() {

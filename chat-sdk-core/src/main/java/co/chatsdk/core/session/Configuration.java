@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.interfaces.CrashHandler;
 import co.chatsdk.core.utils.StringChecker;
@@ -144,7 +145,7 @@ public class Configuration {
     // is in the killed state. This is useful to help us debug that process.
     public boolean backgroundPushTestModeEnabled = false;
 
-    public int logoDrawableResourceID = -1;
+    public int logoDrawableResourceID = R.drawable.ic_launcher_big;
 
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
 
@@ -551,9 +552,13 @@ public class Configuration {
             return this;
         }
 
-        public Builder loginScreenDrawableResourceID(int resource) {
+        public Builder logoDrawableResourceID(int resource) {
             config.logoDrawableResourceID = resource;
             return this;
+        }
+
+        public boolean logoIsSet () {
+            return config.logoDrawableResourceID != R.drawable.ic_launcher_big;
         }
 
         public Builder contactDeveloperEmailAddress(String value) {

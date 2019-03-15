@@ -1,6 +1,7 @@
 package co.chatsdk.firebase.ui;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -12,8 +13,12 @@ import com.google.firebase.auth.TwitterAuthProvider;
 
 import java.util.ArrayList;
 
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
+import co.chatsdk.firebase.FirebaseEventHandler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 1/2/18.
@@ -21,22 +26,31 @@ import co.chatsdk.core.session.InterfaceManager;
 
 public class FirebaseUIModule {
 
-    public static final int RC_SIGN_IN = 900;
+    public static void activate (String... providers) {
 
-    private ArrayList<AuthUI.IdpConfig> idps = new ArrayList<>();
-    protected static final FirebaseUIModule instance = new FirebaseUIModule();
-    protected Class splashScreenActivity;
+        ArrayList<AuthUI.IdpConfig> idps = getProviders(providers);
 
-    public static void activate (Context context, String... providers) {
-        ChatSDK.shared().setInterfaceAdapter(new FirebaseUIInterfaceAdapter(context));
-        FirebaseUIModule.shared().setProviders(providers);
+        Intent authUILoginIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(idps)
+                .build();
+
+        ChatSDK.ui().setLoginIntent(authUILoginIntent);
+
+        Disposable d = FirebaseEventHandler.shared().source()
+                .filter(NetworkEvent.filterType(EventType.Logout))
+                .subscribe(new Consumer<NetworkEvent>() {
+                    @Override
+                    public void accept(NetworkEvent networkEvent) throws Exception {
+                        AuthUI.getInstance().signOut(ChatSDK.shared().context());
+                    }
+                });
+
     }
 
-    public static FirebaseUIModule shared () {
-        return instance;
-    }
+    public static ArrayList<AuthUI.IdpConfig> getProviders (String... providers) {
+        ArrayList<AuthUI.IdpConfig> idps = new ArrayList<>();
 
-    public void setProviders (String... providers) {
         for(String provider: providers) {
             if (provider.equals(GoogleAuthProvider.PROVIDER_ID)) {
                 idps.add(new AuthUI.IdpConfig.GoogleBuilder().build());
@@ -57,22 +71,6 @@ public class FirebaseUIModule {
                 idps.add(new AuthUI.IdpConfig.GitHubBuilder().build());
             }
         }
-    }
-
-    /**
-     * If you change the splash screen activity, you will also need to update the
-     * code in the Android Manifest to match
-     * @param activity
-     */
-    public void setSplashScreen (Class<? extends SplashScreenActivity> activity) {
-        splashScreenActivity = activity;
-    }
-
-    public Class<? extends SplashScreenActivity> getSplashScreenActivity () {
-        return splashScreenActivity != null ? splashScreenActivity : SplashScreenActivity.class;
-    }
-
-    public ArrayList<AuthUI.IdpConfig> getIdps () {
         return idps;
     }
 

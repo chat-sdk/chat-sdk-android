@@ -66,7 +66,7 @@ public class BaseActivity extends AppCompatActivity {
      * @return the bitmap that will be used for the screen overview also called the recents apps.
      **/
     protected Bitmap getTaskDescriptionBitmap(){
-        return BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        return BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
     }
 
     protected int getTaskDescriptionColor(){

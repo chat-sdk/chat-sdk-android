@@ -80,6 +80,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class editProfileActivity = EditProfileActivity.class;
     protected Class profileActivity = ProfileActivity.class;
 
+    protected Intent loginIntent;
+
     protected Fragment privateThreadsFragment = new PrivateThreadsFragment();
     protected Fragment publicThreadsFragment = new PublicThreadsFragment();
     protected Fragment contactsFragment = new ContactsFragment();
@@ -341,9 +343,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.profileActivity = profileActivity;
     }
 
-    public void startActivity(Context context, Class activity, HashMap<String, Object> extras){
+    public Intent intentForActivity(Context context, Class activity, HashMap<String, Object> extras) {
         Intent intent = new Intent(context, activity);
-        if (extras != null) {
+        addExtrasToIntent(intent, extras);
+        return intent;
+    }
+
+    public void addExtrasToIntent (Intent intent, HashMap<String, Object> extras) {
+        if (extras != null && intent != null) {
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
                 if (value instanceof String) {
@@ -360,7 +367,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
                 }
             }
         }
-        startActivity(context, intent);
+    }
+
+    public void startActivity(Context context, Class activity, HashMap<String, Object> extras){
+        startActivity(context, intentForActivity(context, activity, extras));
     }
 
     public void startActivity(Context context, Class activity){
@@ -379,21 +389,34 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     /**
-     * @deprecated use {@link #startLoginActivity(Context, HashMap)} ()}
-     * @param attemptCachedLogin
+     * @deprecated use {@link #getLoginIntent(Context, HashMap)} ()}
      */
     @Deprecated
-    public void startLoginActivity(Context context, boolean attemptCachedLogin){
-        Intent intent = new Intent(context, getSplashScreenActivity());
-        startActivity(context, intent);
+//    public void startLoginActivity(Context context, boolean attemptCachedLogin){
+//        Intent intent = new Intent(context, getSplashScreenActivity());
+//        startActivity(context, intent);
+//    }
+//
+//    public void startLoginActivity (Context context, HashMap<String, Object> extras) {
+//        startActivity(context, getLoginActivity(), extras);
+//    }
+
+    @Override
+    public Intent getLoginIntent(Context context, HashMap<String, Object> extras) {
+        if (loginIntent != null) {
+            addExtrasToIntent(loginIntent, extras);
+            return loginIntent;
+        }
+        return intentForActivity(context, getLoginActivity(), extras);
     }
 
-    public void startLoginActivity (Context context, HashMap<String, Object> extras) {
-        startActivity(context, getLoginActivity(), extras);
+    @Override
+    public void setLoginIntent (Intent intent) {
+        loginIntent = intent;
     }
 
     public void startSplashScreenActivity (Context context) {
-        startActivity(context, getLoginActivity());
+        startActivity(context, getSplashScreenActivity());
     }
 
     public void startEditProfileActivity(Context context, String userEntityID){

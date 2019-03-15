@@ -2,6 +2,9 @@ package co.chatsdk.android.app;
 
 import android.content.Context;
 
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.PhoneAuthProvider;
+
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
@@ -11,6 +14,7 @@ import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 
@@ -47,7 +51,8 @@ public class AppObj extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
 
-            //        FirebaseUIModule.activate(context, EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+            // Uncomment this to enable Firebase UI
+            // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
         }
         catch (ChatSDKException e) {
