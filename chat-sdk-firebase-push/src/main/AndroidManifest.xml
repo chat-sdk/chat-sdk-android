@@ -29,7 +29,7 @@
 
         <receiver
             android:name="co.chatsdk.firebase.push.DefaultBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
