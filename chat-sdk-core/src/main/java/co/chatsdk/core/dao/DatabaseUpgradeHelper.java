@@ -37,7 +37,6 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV2());
         migrations.add(new MigrationV3());
         migrations.add(new MigrationV4());
-        migrations.add(new MigrationV5());
         migrations.add(new MigrationV6());
         migrations.add(new MigrationV7());
 
@@ -94,20 +93,6 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         public void runMigration(Database db) {
             //Adding new table
             db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " DROP COLUMN " + "LAST_UPDATED");
-        }
-    }
-
-    private static class MigrationV5 implements Migration {
-
-        @Override
-        public Integer getVersion() {
-            return 5;
-        }
-
-        @Override
-        public void runMigration(Database db) {
-            //Adding new table
-            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " DROP COLUMN " + "TEXT");
         }
     }
 
