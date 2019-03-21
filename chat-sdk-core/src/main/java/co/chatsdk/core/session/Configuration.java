@@ -141,6 +141,12 @@ public class Configuration {
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
     public boolean pushNotificationsForPublicChatRoomsEnabled = false;
 
+    // Maximum distance to pick up nearby users
+    public int nearbyUserMaxDistance = 50000;
+
+    // How much distance must be moved to update the server with our new location
+    public int nearbyUsersMinimumLocationChangeToUpdateServer = 50;
+
     // If this is set to true, we will simulate what happens when a push is recieved and the app
     // is in the killed state. This is useful to help us debug that process.
     public boolean backgroundPushTestModeEnabled = false;
