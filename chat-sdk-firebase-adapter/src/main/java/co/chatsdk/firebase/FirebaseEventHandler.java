@@ -34,20 +34,12 @@ import io.reactivex.subjects.PublishSubject;
 
 public class FirebaseEventHandler implements EventHandler {
 
-    final private PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
+    final protected PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
 
-    private static FirebaseEventHandler instance;
-    boolean isOn = false;
-    private DisposableList disposableList = new DisposableList();
+    protected boolean isOn = false;
+    protected DisposableList disposableList = new DisposableList();
 
-    public static FirebaseEventHandler shared() {
-        if (instance == null) {
-            instance = new FirebaseEventHandler();
-        }
-        return instance;
-    }
-
-    public void currentUserOn(final String entityID){
+    public void impl_currentUserOn(final String entityID){
 
         if(isOn) {
             return;
@@ -170,7 +162,7 @@ public class FirebaseEventHandler implements EventHandler {
 
     }
 
-    public void currentUserOff(final String entityID){
+    public void impl_currentUserOff(final String entityID){
         isOn = false;
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);

@@ -9,12 +9,12 @@ import co.chatsdk.core.base.BaseNetworkAdapter;
 public class FirebaseNetworkAdapter extends BaseNetworkAdapter {
 
     public FirebaseNetworkAdapter () {
-        core = new FirebaseCoreHandler();
+        events = new FirebaseEventHandler();
+        core = new FirebaseCoreHandler(events);
         auth = new FirebaseAuthenticationHandler();
         thread = new FirebaseThreadHandler();
         publicThread = new FirebasePublicThreadHandler();
         search = new FirebaseSearchHandler();
-        events = FirebaseEventHandler.shared();
         contact = new FirebaseContactHandler();
     }
 

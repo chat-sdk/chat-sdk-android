@@ -123,7 +123,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     userWrapper.once().subscribe(()->{
                         userWrapper.getModel().update();
 
-                        FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
+                        ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
 
 //                        if (ChatSDK.push() != null) {
 //                            ChatSDK.push().subscribeToPushChannel(userWrapper.getModel().getPushChannel());
@@ -179,7 +179,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
-                    FirebaseEventHandler.shared().currentUserOff(user.getEntityID());
+                    ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
                     // Removing the push channel
 //                    if (ChatSDK.push() != null) {

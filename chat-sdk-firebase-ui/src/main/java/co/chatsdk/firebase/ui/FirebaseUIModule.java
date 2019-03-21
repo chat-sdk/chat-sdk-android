@@ -37,14 +37,9 @@ public class FirebaseUIModule {
 
         ChatSDK.ui().setLoginIntent(authUILoginIntent);
 
-        Disposable d = FirebaseEventHandler.shared().source()
+        Disposable d = ChatSDK.events().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(new Consumer<NetworkEvent>() {
-                    @Override
-                    public void accept(NetworkEvent networkEvent) throws Exception {
-                        AuthUI.getInstance().signOut(ChatSDK.shared().context());
-                    }
-                });
+                .subscribe(networkEvent -> AuthUI.getInstance().signOut(ChatSDK.shared().context()));
 
     }
 
