@@ -131,6 +131,8 @@
     <string name="permission_location_title">Acesso à localização</string>
     <string name="permission_location_message">Conceder permissão para permitir a descoberta por outros usuários</string>
     <string name="permission_location_not_granted">Permissões de localização não concedidas</string>
+    <string name="location_services_not_enabled">Serviços de localização não ativados</string>
+    <string name="location_services_problem_message">Houve um problema com os serviços de localização. Certifique-se de que você os habilitou nas configurações do seu telefone.</string>
     <string name="location_is_null">Localização é nula</string>
 
     

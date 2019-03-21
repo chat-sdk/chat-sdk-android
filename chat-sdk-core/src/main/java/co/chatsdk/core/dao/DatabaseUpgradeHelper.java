@@ -37,9 +37,9 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV2());
         migrations.add(new MigrationV3());
         migrations.add(new MigrationV4());
-        migrations.add(new MigrationV5());
         migrations.add(new MigrationV6());
         migrations.add(new MigrationV7());
+        migrations.add(new MigrationV8());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -97,20 +97,6 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         }
     }
 
-    private static class MigrationV5 implements Migration {
-
-        @Override
-        public Integer getVersion() {
-            return 5;
-        }
-
-        @Override
-        public void runMigration(Database db) {
-            //Adding new table
-            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " DROP COLUMN " + "TEXT");
-        }
-    }
-
     private static class MigrationV6 implements Migration {
 
         @Override
@@ -126,13 +112,9 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             ReadReceiptUserLinkDao.dropTable(db, false);
             ReadReceiptUserLinkDao.createTable(db, true);
 
-//            db.execSQL("ALTER TABLE " + ReadReceiptUserLinkDao.TABLENAME + " DROP COLUMN " + "READRECEIPTID");
-
             // Clear down the message database and re synchronize
-            List<Message> messages = DaoCore.fetchEntitiesOfClass(Message.class);
-            for (Message m : messages) {
-                DaoCore.deleteEntity(m);
-            }
+            MessageDao.dropTable(db, false);
+            MessageDao.createTable(db, true);
         }
     }
 
@@ -147,6 +129,19 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         public void runMigration(Database db) {
             ReadReceiptUserLinkDao.dropTable(db, false);
             ReadReceiptUserLinkDao.createTable(db, true);
+        }
+    }
+
+    private static class MigrationV8 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 8;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            ThreadDao.dropTable(db, true);
+            ThreadDao.createTable(db, true);
         }
     }
 

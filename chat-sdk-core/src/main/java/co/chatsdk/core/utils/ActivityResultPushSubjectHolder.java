@@ -1,6 +1,5 @@
-package co.chatsdk.ui.utils;
+package co.chatsdk.core.utils;
 
-import co.chatsdk.core.utils.ActivityResult;
 import io.reactivex.subjects.PublishSubject;
 
 /**
@@ -9,11 +8,10 @@ import io.reactivex.subjects.PublishSubject;
  */
 public class ActivityResultPushSubjectHolder {
 
-    static PublishSubject<ActivityResult> instance = PublishSubject.create();
+    private static PublishSubject<ActivityResult> instance = PublishSubject.create();
 
-    public static PublishSubject<ActivityResult> shared () {
+    public static PublishSubject<ActivityResult> shared() {
         return instance;
     }
-
 
 }

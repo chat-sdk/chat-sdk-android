@@ -283,6 +283,8 @@
     <string name="permission_location_title">Toegang tot je locatie verlenen</string>
     <string name="permission_location_message">Toelaten dat gebruikers je kunnen zien</string>
     <string name="permission_location_not_granted">Locatie machtigingen niet verleend</string>
+    <string name="location_services_not_enabled">Locatieservices niet ingeschakeld</string>
+    <string name="location_services_problem_message">Er was een probleem met de locatieservices. Zorg ervoor dat je ze hebt ingeschakeld in je telefooninstellingen.</string>s
     <string name="location_is_null">Locatie is null</string>
     <string name="search_threads">doorzoek discussies</string>
 

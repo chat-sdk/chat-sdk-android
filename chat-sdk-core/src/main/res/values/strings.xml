@@ -132,6 +132,8 @@
     <string name="permission_location_title">Location Access</string>
     <string name="permission_location_message">Grant permission to allow discovery by other users</string>
     <string name="permission_location_not_granted">Location permissions not granted</string>
+    <string name="location_services_not_enabled">Location services not enabled</string>
+    <string name="location_services_problem_message">There was a problem with the location services. Make sure you enabled them in your phone settings.</string>
     <string name="location_is_null">Location is null</string>
 
     <!--SearchActivity-->

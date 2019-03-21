@@ -261,8 +261,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             mediaSelector.handleResult(this, requestCode, resultCode, data);
         }
         catch (Exception e) {
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             ChatSDK.logError(e);
+            String localizedMessage = e.getLocalizedMessage();
+            if (localizedMessage != null && !localizedMessage.isEmpty()) {
+                Toast.makeText(this, localizedMessage, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

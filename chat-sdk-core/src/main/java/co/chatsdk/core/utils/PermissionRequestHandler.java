@@ -3,27 +3,20 @@ package co.chatsdk.core.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.pm.PermissionInfo;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
-import io.reactivex.Emitter;
-import io.reactivex.functions.Consumer;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
-import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 /**
  * Created by ben on 9/28/17.
@@ -46,7 +39,7 @@ public class PermissionRequestHandler {
     private static int CAMERA_REQUEST = 104;
     private static int READ_CONTACTS_REQUEST = 105;
     private static int MANAGE_DOCUMENTS_REQUEST = 106;
-    private static int FINE_LOCATION_REQUEST = 107;
+    private static int ACCESS_LOCATION_REQUEST = 107;
     private static int TAKE_PHOTOS = 108;
 
     public Permission recordAudio () {
@@ -118,7 +111,7 @@ public class PermissionRequestHandler {
     }
 
     public Completable requestLocationAccess(Activity activity) {
-        return requestPermissions(activity, FINE_LOCATION_REQUEST, accessFineLocation(), accessCoarseLocation());
+        return requestPermissions(activity, ACCESS_LOCATION_REQUEST, accessFineLocation(), accessCoarseLocation());
     }
 
     public Completable requestPermission(final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
