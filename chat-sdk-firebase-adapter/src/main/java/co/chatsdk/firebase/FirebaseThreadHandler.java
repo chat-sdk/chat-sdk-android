@@ -260,12 +260,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     protected void pushForMessage(final Message message) {
-        if (ChatSDK.push() == null) {
-            return;
-        }
-
-        if (message.getThread().typeIs(ThreadType.Private)) {
-            ChatSDK.push().pushForMessage(message);
+        if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {
+            HashMap<String, Object> data = ChatSDK.push().pushDataForMessage(message);
+            ChatSDK.push().sendPushNotification(data);
         }
     }
 

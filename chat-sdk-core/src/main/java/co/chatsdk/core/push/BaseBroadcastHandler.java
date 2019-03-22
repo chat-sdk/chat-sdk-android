@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.push;
+package co.chatsdk.core.push;
 
 import android.content.Context;
 import android.content.Intent;

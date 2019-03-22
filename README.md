@@ -300,6 +300,11 @@ If you thing that something is missing, you can post a new issue and we will upd
 
 We have a number of additional guides available on our [Wiki](https://github.com/chat-sdk/chat-sdk-android/wiki).
 
+Also checkout the other guides:
+
+1. [Build a custom push notification handler](https://github.com/chat-sdk/docs/blob/master/Custom%20Push%20Handler.md)
+
+
 ## UI Customization
 
 The Chat SDK is designed to be easily customizable. If you want to customize any of the activities you can do it using the `ui` api. 
@@ -370,7 +375,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.6.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.6.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -413,7 +418,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.6.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.6.7'
 ```
 
 ##### Enable the module
@@ -438,7 +443,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.6.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.6.7'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
