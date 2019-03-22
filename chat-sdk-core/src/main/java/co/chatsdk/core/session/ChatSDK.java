@@ -215,6 +215,10 @@ public class ChatSDK {
         shared().interfaceAdapter = interfaceAdapter;
     }
 
+    public void setNetworkAdapter (BaseNetworkAdapter networkAdapter) {
+        shared().networkAdapter = networkAdapter;
+    }
+
     public static CoreHandler core () {
         return a().core;
     }
