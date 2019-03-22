@@ -14,12 +14,12 @@ public abstract class AbstractEventHandler implements EventHandler {
     final protected PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
     protected DisposableList disposableList = new DisposableList();
 
-    public Observable<NetworkEvent> source () {
-        return eventSource.subscribeOn(Schedulers.single());
+    public PublishSubject<NetworkEvent> source () {
+        return eventSource;
     }
 
     public Observable<NetworkEvent> sourceOnMain () {
-        return source().observeOn(AndroidSchedulers.mainThread());
+        return source().subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
 }
