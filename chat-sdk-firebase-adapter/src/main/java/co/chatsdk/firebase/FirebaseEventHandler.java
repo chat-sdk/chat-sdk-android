@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import co.chatsdk.core.base.AbstractEventHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
@@ -32,12 +33,9 @@ import io.reactivex.subjects.PublishSubject;
  * Created by benjaminsmiley-andrews on 10/05/2017.
  */
 
-public class FirebaseEventHandler implements EventHandler {
-
-    final protected PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
+public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected boolean isOn = false;
-    protected DisposableList disposableList = new DisposableList();
 
     public void impl_currentUserOn(final String entityID){
 
@@ -206,15 +204,5 @@ public class FirebaseEventHandler implements EventHandler {
             UserWrapper.initWithModel(contact).metaOff();
         }
     }
-
-
-    public PublishSubject<NetworkEvent> source () {
-        return eventSource;
-    }
-
-    public Observable<NetworkEvent> sourceOnMain () {
-        return eventSource.observeOn(AndroidSchedulers.mainThread());
-    }
-
 
 }
