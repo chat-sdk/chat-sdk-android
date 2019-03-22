@@ -145,10 +145,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 .subscribeOn(Schedulers.single());
     }
 
-    public Boolean userAuthenticated() {
-        return isAuthenticated();
-    }
-
     public Boolean isAuthenticated() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }

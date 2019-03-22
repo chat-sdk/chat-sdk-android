@@ -38,6 +38,11 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     @Deprecated
+    public Boolean userAuthenticated() {
+        return isAuthenticated();
+    }
+
+    @Deprecated
     public Boolean userAuthenticatedThisSession () {
         return isAuthenticatedThisSession();
     }
