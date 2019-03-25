@@ -1,7 +1,8 @@
 package co.chatsdk.android.app;
 
 import android.content.Context;
-
+import android.view.View;
+import com.camerakit.CameraKitView;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 
@@ -23,9 +24,12 @@ import co.chatsdk.ui.manager.BaseInterfaceAdapter;
  */
 public class AppObj extends MultiDexApplication {
 
+    private CameraKitView cameraKitView;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        cameraKitView = findViewById(R.id.camera);
 
         Context context = getApplicationContext();
 

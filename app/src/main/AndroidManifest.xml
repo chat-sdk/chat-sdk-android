@@ -9,7 +9,7 @@
         android:theme="@style/SdkTheme"
         android:name="co.chatsdk.android.app.AppObj">
 
-        <activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
+        <activity android:name="co.chatsdk.android.app.CameraActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
