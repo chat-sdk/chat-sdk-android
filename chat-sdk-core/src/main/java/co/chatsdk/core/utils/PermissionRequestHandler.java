@@ -204,7 +204,6 @@ public class PermissionRequestHandler {
                 // TODO: this is being called for the contact book (maybe it's better to request contacts
                 // from inside the contact book module
                 Throwable throwable = new Throwable(context.getString(R.string.error_permission_not_granted, errorCodes));
-                ChatSDK.logError(throwable);
                 e.onError(throwable);
             }
         }
