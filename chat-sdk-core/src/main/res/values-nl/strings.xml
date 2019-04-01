@@ -169,7 +169,7 @@
     <string name="couldnt_load_sticker_pack">Emoji’s inladen mislukt</string>
     <string name="unable_to_load_image">Afbeelding tonen mislukt</string>
     <string name="__permission_not_granted" formatted="true">Geen toestemming om dit te doen</string>
-    <string name="error_permission_not_granted">Toestemming niet verleend: %d</string>
+    <string name="error_permission_not_granted">Toestemming niet verleend: %s</string>
     <!--State-->
     <string name="sending">Aan het versturen</string>
     <string name="not_messages_summary">%d ongelezen berichten</string>

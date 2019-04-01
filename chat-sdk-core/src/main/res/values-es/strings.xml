@@ -34,8 +34,8 @@
     <string name="tap_here_for_contact_info">Toque aquí para información de contacto</string>
     <string name="search_with_name">Buscar con nombre</string>
     <string name="add_conversation">Añadir conversación</string>
-    <string formatted="false" name="thread__created">Hilo% s creado</string>
-    <string formatted="false" name="public_thread__created">Hilo público% s creado</string>
+    <string formatted="false" name="thread__created">Hilo %s creado</string>
+    <string formatted="false" name="public_thread__created">Hilo público %s creado</string>
     <string name="creating_thread">Creación de hilo</string>
 
     <string name="send_mail">Enviar correo</string>
@@ -45,7 +45,7 @@
     <string name="thread_users_have_no_valid_avatar_urls">Los usuarios de subprocesos no tienen URL de avatar válidas</string>
     <string name="could_not_save_composite_thread_image_to_file">No se pudo guardar la imagen del hilo compuesto en el archivo</string>
     <string name="thread_image_could_not_be_created">No se pudo crear la imagen del hilo.</string>
-    <string formatted="false" name="__typing">% s escribiendo &#8230;</string>
+    <string formatted="false" name="__typing">%s escribiendo &#8230;</string>
     <string name="message_doesnt_have_a_thread">El mensaje no tiene un hilo</string>
     <string name="login_method_doesnt_exist">El método de inicio de sesión no existe</string>
     <string name="seconds_remaining__">Segundos restantes% d</string>
@@ -196,7 +196,7 @@
     <string name="not_follower_ticker">Tienes un nuevo seguidor</string>
     <string name="not_follower_content">¡te está siguiendo!</string>
 
-    <string formatted="false" name="new_message_from__">Nuevo mensaje de% s</string>
+    <string formatted="false" name="new_message_from__">Nuevo mensaje de %s</string>
     <string name="message_already_exists">El mensaje ya existe</string>
 
     
@@ -210,8 +210,8 @@
     <string name="unable_to_save_image_to_disk">No se puede guardar la imagen en el disco</string>
     <string name="couldnt_load_sticker_pack">No se pudo cargar el paquete de pegatinas</string>
     <string name="unable_to_load_image">No se puede cargar la imagen</string>
-    <string formatted="true" name="__permission_not_granted">% s permiso no concedido. Por favor, active este permiso en la configuración de su teléfono.</string>
-    <string name="error_permission_not_granted">Permiso no otorgado:% s</string>
+    <string formatted="true" name="__permission_not_granted">%s permiso no concedido. Por favor, active este permiso en la configuración de su teléfono.</string>
+    <string name="error_permission_not_granted">Permiso no otorgado: %s</string>
 
     
     <string name="sending">Enviando…</string>
@@ -291,8 +291,8 @@
     <string name="requesting">Solicitando</string>
     <string name="password_reset_success">Se le ha enviado un correo electrónico con instrucciones para restablecer su contraseña.</string>
     <string name="reset_password">Restablecer la contraseña</string>
-    <string formatted="false" name="last_seen__">Último visto% s</string>
-    <string formatted="false" name="last_seen_on__at__">Visto por última vez en% s en% s</string>
+    <string formatted="false" name="last_seen__">Último visto %s</string>
+    <string formatted="false" name="last_seen_on__at__">Visto por última vez en %s en %s</string>
 
     
     <string name="preference_database_id" translatable="false">PREFERENCE_DATABASE_SESSION_ID</string>
