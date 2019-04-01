@@ -28,6 +28,7 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -43,15 +44,24 @@ public class ApiExamples {
 
         // Or customise the profile fragment
         ChatSDK.ui().setProfileFragmentProvider(user -> ProfileFragment.newInstance(user));
+
     }
 
-    /**
+                        /**
      * Example of how to send an image message to a thread
      * @param filePath - Local path to image file
      * @param thread - The thread to send the message to
      */
     public void sendImageMessage (String filePath, Thread thread) {
         Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(messageSendProgress -> {
+
+        }, throwable -> {
+
+        });
+    }
+
+    public void sendTextMessage (String message, Thread thread) {
+        Disposable d = ChatSDK.thread().sendMessageWithText(message, thread).subscribe(messageSendProgress -> {
 
         }, throwable -> {
 
@@ -196,7 +206,13 @@ public class ApiExamples {
         }, throwable -> {
 
         });
+    }
 
+    /**
+     * Add extra meta data to a message
+     */
+    public void addMetaDataToMessage (Message message) {
+        message.setValueForKey("Value", "Key");
     }
 
 }
