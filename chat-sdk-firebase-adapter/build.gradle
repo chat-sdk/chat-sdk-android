@@ -37,7 +37,7 @@ dependencies {
 
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
     implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
 }
 
 ext {
