@@ -137,7 +137,7 @@ public class Configuration {
     public int audioMessageMaxLengthSeconds = 300;
 
     public String pushNotificationSound = "";
-    public boolean showLocalNotifications = true;
+    public boolean showLocalNotifications = false;
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
     public boolean pushNotificationsForPublicChatRoomsEnabled = false;
 

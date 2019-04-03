@@ -38,13 +38,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':chat-sdk-core')
-    implementation project(':chat-sdk-ui')
-    implementation project(':chat-sdk-firebase-adapter')
 
-    api "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    api project(':chat-sdk-ui')
+    api project(':chat-sdk-firebase-adapter')
 
+    implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
 }
 ext {
     bintrayName = 'chat-sdk-firebase-ui'

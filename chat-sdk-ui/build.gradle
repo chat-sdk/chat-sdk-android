@@ -40,23 +40,19 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
-    api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+
+    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-    api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
-    api "com.google.android.material:material:$materialVersion"
     implementation "com.google.android.gms:play-services-places:$playPlacesVersion"
-
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
-    implementation "id.zelory:compressor:$compressorVersion"
-
-    api "com.facebook.fresco:fresco:$frescoVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
     implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
 
-    implementation "com.mikepenz:materialdrawer:6.1.2"
+    // Dependencies required by other Chat SDK libraries
+    api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    api "com.google.android.material:material:$materialVersion"
 }
 
 ext {

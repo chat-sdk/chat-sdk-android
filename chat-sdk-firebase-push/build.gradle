@@ -31,16 +31,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':chat-sdk-core')
-    implementation project(':chat-sdk-ui')
 
-    //    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
+    api project(':chat-sdk-ui')
 
-    // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
-    api "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
-    api "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
+    implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
+    implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "com.jakewharton.timber:timber:$timberVersion"
 }
 
 ext {

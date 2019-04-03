@@ -40,24 +40,24 @@ greendao {
 
 dependencies {
 
-//    api fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
+    implementation group: 'org.joda', name: 'joda-convert', version: "$jodaConvertVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
+    implementation "com.google.android.gms:play-services-location:$playLocationVersion"
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
+
+    // Dependencies that are also used by other Chat SDK libraries
     api "org.greenrobot:greendao:$greenDaoVersion"
     api "joda-time:joda-time:$jodaTimeVersion"
-    api group: 'org.joda', name: 'joda-convert', version: "$jodaConvertVersion"
-
-    implementation "com.jakewharton.timber:timber:$timberVersion"
-    implementation "com.google.code.gson:gson:$gsonVersion"
+    api "com.jakewharton.timber:timber:$timberVersion"
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
-    api "com.google.android.gms:play-services-maps:$playMapsVersion"
-    api "com.google.android.gms:play-services-location:$playLocationVersion"
-    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-
-    implementation "com.facebook.fresco:fresco:$frescoVersion"
-    implementation "id.zelory:compressor:$compressorVersion"
-    api "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
+    api "org.apache.commons:commons-lang3:$apacheCommonsVersion"
+    api "com.facebook.fresco:fresco:$frescoVersion"
+    api "id.zelory:compressor:$compressorVersion"
 
 }
 

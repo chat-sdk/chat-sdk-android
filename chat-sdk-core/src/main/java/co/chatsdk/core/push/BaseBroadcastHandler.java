@@ -30,7 +30,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         // If the app is in the background
         Intent appIntent = null;
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
-            appIntent = new Intent(context, ChatSDK.ui().getLoginActivity());
+            appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
         } else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }

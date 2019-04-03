@@ -157,10 +157,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.6.0'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.6.0'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.6.0'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.6.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.1'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.1'
 ```
 
 You may also need to enable Java 8:

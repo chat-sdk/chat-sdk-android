@@ -2,9 +2,6 @@ package co.chatsdk.android.app;
 
 import android.content.Context;
 
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.PhoneAuthProvider;
-
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
@@ -33,7 +30,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder(context);
 
-            config.firebaseRootPath("19_03");
+            config.firebaseRootPath("19_04");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
