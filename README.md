@@ -1,3 +1,9 @@
+# Website down - Important
+
+Our web host recently migrated our site to new hardware without telling us in advance and in the process caused a lot of issues. Currently the site **isn't accessible** our **email server was down from the 30th**. We are working hard to resolve this and it should be fixed in the next 24 - 48 hours. In the meantime if you sent us an email in the last 5 days can you please resend it to [team@sdk.chat](mailto:team@sdk.chat).
+
+If you have any sales enquires or need to access the latest versions of any modules you have purchased you can contact us directly.
+
 # Chat SDK for Android
 ### Open Source Messaging framework for Android
 
@@ -113,7 +119,7 @@ We're very excited about the project and we're looking for other people to get i
 + Write a tutorial - **we pay $100** for quality tutorials
 
 If you're interested please review the [Contributing
-Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) for details of our development flow and the CLA then email me at [**team@chatsdk.co**](mailto:team@chatsdk.co).
+Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) for details of our development flow and the CLA then email me at [**team@sdk.chat**](mailto:team@sdk.chat).
 
 ## Apps that use Chat SDK
 
@@ -672,7 +678,7 @@ The user interface for the Chat SDK is completely decoupled from the backend. Th
 
 2. You can switch the backend your app uses. Imagine that you decide to start off with the Firebase version of the Chat SDK but at some point you decide that you want to switch to using an XMPP server. Usually, this would require a full rewrite of the messaging client but with the Chat SDK it can be achieved by changing one line of code! 
 
-If you want more details about writing a custom network adapter you can email us at [team@chatsdk.co](mailto:team@chatsdk.co).
+If you want more details about writing a custom network adapter you can email us at [team@sdk.chat](mailto:team@sdk.chat).
   
 ## The license
 
