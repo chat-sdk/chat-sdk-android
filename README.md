@@ -1,9 +1,3 @@
-# Website down - Important
-
-Our web host recently migrated our site to new hardware without telling us in advance and in the process caused a lot of issues. Currently the site **isn't accessible** our **email server was down from the 30th**. We are working hard to resolve this and it should be fixed in the next 24 - 48 hours. In the meantime if you sent us an email in the last 5 days can you please resend it to [team@sdk.chat](mailto:team@sdk.chat).
-
-If you have any sales enquires or need to access the latest versions of any modules you have purchased you can contact us directly.
-
 # Chat SDK for Android
 ### Open Source Messaging framework for Android
 
