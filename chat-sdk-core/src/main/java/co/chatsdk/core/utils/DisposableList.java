@@ -1,6 +1,9 @@
 package co.chatsdk.core.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import io.reactivex.disposables.Disposable;
 
@@ -10,7 +13,7 @@ import io.reactivex.disposables.Disposable;
 
 public class DisposableList {
 
-    private ArrayList<Disposable> disposables = new ArrayList<>();
+    private final List<Disposable> disposables = Collections.synchronizedList(new ArrayList<>());
 
     public void add (Disposable d) {
         disposables.add(d);
@@ -21,10 +24,13 @@ public class DisposableList {
     }
 
     public void dispose () {
-        for(Disposable d : disposables) {
-            d.dispose();
+        synchronized (disposables) {
+            Iterator<Disposable> iterator = disposables.iterator();
+            while (iterator.hasNext()) {
+                iterator.next().dispose();
+            }
+            disposables.clear();
         }
-        disposables.clear();
     }
 
 }
