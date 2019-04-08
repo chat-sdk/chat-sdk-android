@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.LayoutRes;
+
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
 
@@ -22,7 +24,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import androidx.annotation.LayoutRes;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
@@ -34,6 +35,7 @@ import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -102,14 +104,14 @@ public class EditProfileActivity extends BaseActivity {
         countryButton = findViewById(R.id.btnCountry);
         logoutButton = findViewById(R.id.btnLogout);
 
-        avatarImageView.setOnClickListener(view -> {
+        ViewHelper.setOnClickListener(avatarImageView, view -> {
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
                 disposableList.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
                     if (throwable == null) {
-                        avatarImageView.setImageURI(Uri.fromFile(new File(result.uri)));
+                        ViewHelper.setImageURI(avatarImageView, Uri.fromFile(new File(result.uri)));
                     } else {
                         ToastHelper.show(EditProfileActivity.this, throwable.getLocalizedMessage());
                     }
@@ -117,10 +119,10 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
-        countryButton.setOnClickListener(view -> {
+        ViewHelper.setOnClickListener(countryButton, view -> {
 
             final CountryPicker picker = new CountryPicker.Builder().with(EditProfileActivity.this).listener(country -> {
-                countryButton.setText(country.getName());
+                ViewHelper.setText(countryButton, country.getName());
                 currentUser.setCountryCode(country.getCode());
             }).build();
 
@@ -128,7 +130,7 @@ public class EditProfileActivity extends BaseActivity {
 
         });
 
-        logoutButton.setOnClickListener(view -> logout());
+        ViewHelper.setOnClickListener(logoutButton, view -> logout());
 
         reloadData();
     }
@@ -147,19 +149,19 @@ public class EditProfileActivity extends BaseActivity {
 
         if (StringUtils.isNotEmpty(countryCode)) {
             Locale l = new Locale("", countryCode);
-            countryButton.setText(l.getDisplayCountry());
+            ViewHelper.setText(countryButton, l.getDisplayCountry());
         }
 
-        statusEditText.setText(status);
+        ViewHelper.setText(statusEditText, status);
 
         if (!StringUtils.isEmpty(availability)) {
             setAvailability(availability);
         }
 
-        nameEditText.setText(name);
-        locationEditText.setText(location);
-        phoneNumberEditText.setText(phoneNumber);
-        emailEditText.setText(email);
+        ViewHelper.setText(nameEditText, name);
+        ViewHelper.setText(locationEditText, location);
+        ViewHelper.setText(phoneNumberEditText, phoneNumber);
+        ViewHelper.setText(emailEditText, email);
     }
 
     protected void logout () {
@@ -197,12 +199,12 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void saveAndExit () {
 
-        String status = statusEditText.getText().toString().trim();
+        String status = ViewHelper.getTextString(statusEditText).trim();
         String availability = getAvailability().trim();
-        String name = nameEditText.getText().toString().trim();
-        String location = locationEditText.getText().toString().trim();
-        String phoneNumber = phoneNumberEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
+        String name = ViewHelper.getTextString(nameEditText).trim();
+        String location = ViewHelper.getTextString(locationEditText).trim();
+        String phoneNumber = ViewHelper.getTextString(phoneNumberEditText).trim();
+        String email = ViewHelper.getTextString(emailEditText).trim();
 
         currentUser.setStatus(status);
         currentUser.setAvailability(availability);
@@ -279,8 +281,8 @@ public class EditProfileActivity extends BaseActivity {
     protected int getIndex(Spinner spinner, String myString) {
         int index = 0;
 
-        for (int i = 0; i<spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)) {
+        for (int i = 0; i < ViewHelper.getCount(spinner); i++) {
+            if (ViewHelper.getStringAtPosition(spinner, i).equalsIgnoreCase(myString)) {
                 index = i;
                 break;
             }
@@ -289,7 +291,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected String getAvailability () {
-        String a = availabilitySpinner.getSelectedItem().toString().toLowerCase();
+        String a = ViewHelper.getSelectedString(availabilitySpinner).toLowerCase();
         switch (a) {
             case "away":
                 return Availability.Away;
@@ -313,8 +315,7 @@ public class EditProfileActivity extends BaseActivity {
         else if (a.equals(Availability.Busy)) {
             availability = "busy";
         }
-        availabilitySpinner.setSelection(getIndex(availabilitySpinner, availability));
-
+        ViewHelper.setSelection(availabilitySpinner, getIndex(availabilitySpinner, availability));
     }
 
 }
