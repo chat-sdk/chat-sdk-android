@@ -30,13 +30,12 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.utils.ViewHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -110,7 +109,7 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        avatarImageView.setOnClickListener(view -> {
+        ViewHelper.setOnClickListener(avatarImageView, view -> {
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
@@ -127,7 +126,7 @@ public class EditProfileActivity extends BaseActivity {
                         // Cache the file
                         File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUserID(), ".png");
 
-                        avatarImageView.setImageURI(Uri.fromFile(file));
+                        ViewHelper.setImageURI(avatarImageView, Uri.fromFile(file));
                         currentUser.setAvatarURL(Uri.fromFile(file).toString());
                     }
                     catch (Exception e) {
@@ -138,17 +137,17 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
-        avatarImageView.setImageURI(currentUser.getAvatarURL());
+        ViewHelper.setImageURI(avatarImageView, currentUser.getAvatarURL());
 
         if (StringUtils.isNotEmpty(countryCode)) {
             Locale l = new Locale("", countryCode);
-            countryButton.setText(l.getDisplayCountry());
+            ViewHelper.setText(countryButton, l.getDisplayCountry());
         }
 
-        countryButton.setOnClickListener(view -> {
+        ViewHelper.setOnClickListener(countryButton, view -> {
 
             final CountryPicker picker = new CountryPicker.Builder().with(EditProfileActivity.this).listener(country -> {
-                countryButton.setText(country.getName());
+                ViewHelper.setText(countryButton, country.getName());
                 currentUser.setCountryCode(country.getCode());
             }).build();
 
@@ -156,18 +155,18 @@ public class EditProfileActivity extends BaseActivity {
 
         });
 
-        logoutButton.setOnClickListener(view -> logout());
+        ViewHelper.setOnClickListener(logoutButton, view -> logout());
 
-        statusEditText.setText(status);
+        ViewHelper.setText(statusEditText, status);
 
         if (!StringUtils.isEmpty(availability)) {
             setAvailability(availability);
         }
 
-        nameEditText.setText(name);
-        locationEditText.setText(location);
-        phoneNumberEditText.setText(phoneNumber);
-        emailEditText.setText(email);
+        ViewHelper.setText(nameEditText, name);
+        ViewHelper.setText(locationEditText, location);
+        ViewHelper.setText(phoneNumberEditText, phoneNumber);
+        ViewHelper.setText(emailEditText, email);
 
     }
 
@@ -218,12 +217,12 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void saveAndExit () {
 
-        String status = statusEditText.getText().toString().trim();
+        String status = ViewHelper.getTextString(statusEditText).trim();
         String availability = getAvailability().trim();
-        String name = nameEditText.getText().toString().trim();
-        String location = locationEditText.getText().toString().trim();
-        String phoneNumber = phoneNumberEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
+        String name = ViewHelper.getTextString(nameEditText).trim();
+        String location = ViewHelper.getTextString(locationEditText).trim();
+        String phoneNumber = ViewHelper.getTextString(phoneNumberEditText).trim();
+        String email = ViewHelper.getTextString(emailEditText).trim();
 
         currentUser.setStatus(status);
         currentUser.setAvailability(availability);
@@ -300,8 +299,8 @@ public class EditProfileActivity extends BaseActivity {
     protected int getIndex(Spinner spinner, String myString) {
         int index = 0;
 
-        for (int i = 0; i<spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)) {
+        for (int i = 0; i < ViewHelper.getCount(spinner); i++) {
+            if (ViewHelper.getStringAtPosition(spinner, i).equalsIgnoreCase(myString)) {
                 index = i;
                 break;
             }
@@ -310,7 +309,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected String getAvailability () {
-        String a = availabilitySpinner.getSelectedItem().toString().toLowerCase();
+        String a = ViewHelper.getSelectedString(availabilitySpinner).toLowerCase();
         switch (a) {
             case "away":
                 return Availability.Away;
@@ -334,8 +333,7 @@ public class EditProfileActivity extends BaseActivity {
         else if (a.equals(Availability.Busy)) {
             availability = "busy";
         }
-        availabilitySpinner.setSelection(getIndex(availabilitySpinner, availability));
-
+        ViewHelper.setSelection(availabilitySpinner, getIndex(availabilitySpinner, availability));
     }
 
 }
