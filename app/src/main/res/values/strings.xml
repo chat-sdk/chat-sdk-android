@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">Camera App</string>
+    <string name="picture_folder">Camera App Images</string>
+    <string name="video_folder">Camera App Videos</string>
 
     <string name="facebook_app_identifier" translatable="false">648056098576150</string>
 

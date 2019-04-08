@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Chat SDK Demo</string>
+    <string name="picture_folder">Camera App Images</string>
+    <string name="video_folder">Camera App Videos</string>
 
     <!-- Contact Book -->
     <string name="contact_book_email_subject">Assunto do email</string>

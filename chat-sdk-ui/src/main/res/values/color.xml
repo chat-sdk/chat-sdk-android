@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#ffffff</color>
+    <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="dark_text">#5F5F5F</color>
 
@@ -13,6 +13,6 @@
     <color name="login_button_color">#1c93db</color>
     <color name="register_button_color">#78b737</color>
     <color name="anonymous_button_color">#aaaaaa</color>
-    <color name="logout_button_color">#ae2020</color>
+    <color name="logout_button_color">#AE2020</color>
 
 </resources>

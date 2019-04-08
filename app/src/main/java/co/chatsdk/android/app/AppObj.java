@@ -6,10 +6,15 @@ import com.camerakit.CameraKitView;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import java.util.List;
+
+import androidx.fragment.app.Fragment;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.error.ChatSDKException;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
@@ -18,18 +23,16 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by itzik on 6/8/2014.
  */
 public class AppObj extends MultiDexApplication {
 
-    private CameraKitView cameraKitView;
-
     @Override
     public void onCreate() {
         super.onCreate();
-        cameraKitView = findViewById(R.id.camera);
 
         Context context = getApplicationContext();
 
@@ -54,6 +57,8 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+
+            ChatSDK.ui().addTab("Snap", R.drawable.push_icon, new SnapFragment(), 0);
 
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
