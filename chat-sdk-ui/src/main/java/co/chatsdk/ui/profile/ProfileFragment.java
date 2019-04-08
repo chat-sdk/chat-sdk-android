@@ -33,6 +33,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -140,7 +141,7 @@ public class ProfileFragment extends BaseFragment {
         followedImageView = mainView.findViewById(R.id.ivFollowed);
 
         if (ChatSDK.profilePictures() != null) {
-            avatarImageView.setOnClickListener(v -> {
+            ViewHelper.setOnClickListener(avatarImageView, v -> {
                 ChatSDK.profilePictures().startProfilePicturesActivity(getContext(), getUser().getEntityID());
             });
         }
@@ -161,36 +162,36 @@ public class ProfileFragment extends BaseFragment {
                 }));
     }
 
-    protected void setViewVisibility(View view, int visibility) {
-        if (view != null) view.setVisibility(visibility);
-    }
-
-    protected void setViewVisibility(View view, boolean visible) {
-        setViewVisibility(view, visible ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    protected void setViewText(TextView textView, String text) {
-        if (textView != null) textView.setText(text);
-    }
+//    protected void setViewVisibility(View view, int visibility) {
+//        if (view != null) view.setVisibility(visibility);
+//    }
+//
+//    protected void setViewVisibility(View view, boolean visible) {
+//        setViewVisibility(view, visible ? View.VISIBLE : View.INVISIBLE);
+//    }
+//
+//    protected void setViewText(TextView textView, String text) {
+//        if (textView != null) textView.setText(text);
+//    }
 
     protected void setRowVisible (int textViewID, int imageViewID, boolean visible) {
-        setViewVisibility(mainView.findViewById(textViewID), visible);
-        setViewVisibility(mainView.findViewById(imageViewID), visible);
+        ViewHelper.setVisible(mainView.findViewById(textViewID), visible);
+        ViewHelper.setVisible(mainView.findViewById(imageViewID), visible);
     }
 
     protected void updateBlockedButton(boolean blocked) {
         if (blocked) {
-            setViewText(blockOrUnblockButton, getString(R.string.unblock));
+            ViewHelper.setText(blockOrUnblockButton, getString(R.string.unblock));
         } else {
-            setViewText(blockOrUnblockButton, getString(R.string.block));
+            ViewHelper.setText(blockOrUnblockButton, getString(R.string.block));
         }
     }
 
     protected void updateFriendsButton(boolean friend) {
         if (friend) {
-            setViewText(addOrDeleteButton, getString(R.string.delete_contact));
+            ViewHelper.setText(addOrDeleteButton, getString(R.string.delete_contact));
         } else {
-            setViewText(addOrDeleteButton, getString(R.string.add_contacts));
+            ViewHelper.setText(addOrDeleteButton, getString(R.string.add_contacts));
         }
     }
 
@@ -287,12 +288,12 @@ public class ProfileFragment extends BaseFragment {
 
         boolean visible = !isCurrentUser;
 
-        setViewVisibility(followsImageView, visible);
-        setViewVisibility(followedImageView, visible);
-        setViewVisibility(followsTextView, visible);
-        setViewVisibility(followedTextView, visible);
-        setViewVisibility(blockOrUnblockButton, visible);
-        setViewVisibility(addOrDeleteButton, visible);
+        ViewHelper.setVisible(followsImageView, visible);
+        ViewHelper.setVisible(followedImageView, visible);
+        ViewHelper.setVisible(followsTextView, visible);
+        ViewHelper.setVisible(followedTextView, visible);
+        ViewHelper.setVisible(blockOrUnblockButton, visible);
+        ViewHelper.setVisible(addOrDeleteButton, visible);
 
         setRowVisible(R.id.ivLocation, R.id.tvLocation, !StringChecker.isNullOrEmpty(user.getLocation()));
         setRowVisible(R.id.ivPhone, R.id.tvPhone, !StringChecker.isNullOrEmpty(user.getPhoneNumber()));
@@ -308,7 +309,7 @@ public class ProfileFragment extends BaseFragment {
             }
             else {
                 // TODO: Set height to zero
-                setViewVisibility(blockOrUnblockButton, false);
+                ViewHelper.setVisible(blockOrUnblockButton, false);
             }
 
             updateFriendsButton(ChatSDK.contact().exists(getUser()));
@@ -317,13 +318,13 @@ public class ProfileFragment extends BaseFragment {
 
         // Country Flag
         String countryCode = getUser().getCountryCode();
-        setViewVisibility(flagImageView, false);
+        ViewHelper.setVisible(flagImageView, false);
 
         if (countryCode != null && !countryCode.isEmpty()) {
             int flagResourceId = getFlagResId(countryCode);
             if (flagImageView != null && flagResourceId >= 0) {
                 flagImageView.setImageResource(flagResourceId);
-                setViewVisibility(flagImageView, true);
+                ViewHelper.setVisible(flagImageView, true);
             }
         }
 
@@ -332,32 +333,32 @@ public class ProfileFragment extends BaseFragment {
 
         String status = getUser().getStatus();
         if (!StringChecker.isNullOrEmpty(status)) {
-            setViewText(statusTextView, status);
+            ViewHelper.setText(statusTextView, status);
         } else {
-            setViewText(statusTextView, "");
+            ViewHelper.setText(statusTextView, "");
         }
 
         // Name
-        setViewText(nameTextView, getUser().getName());
+        ViewHelper.setText(nameTextView, getUser().getName());
 
         String availability = getUser().getAvailability();
 
         // Availability
         if (availability != null && !isCurrentUser && availabilityImageView != null) {
             availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
-            setViewVisibility(availabilityImageView, true);
+            ViewHelper.setVisible(availabilityImageView, true);
         } else {
-            setViewVisibility(availabilityImageView, false);
+            ViewHelper.setVisible(availabilityImageView, false);
         }
 
         // Location
-        setViewText(locationTextView, getUser().getLocation());
+        ViewHelper.setText(locationTextView, getUser().getLocation());
 
         // Phone
-        setViewText(phoneTextView, getUser().getPhoneNumber());
+        ViewHelper.setText(phoneTextView, getUser().getPhoneNumber());
 
         // Email
-        setViewText(emailTextView, getUser().getEmail());
+        ViewHelper.setText(emailTextView, getUser().getEmail());
 
 //        String presenceSubscription = getUser().getPresenceSubscription();
 //
