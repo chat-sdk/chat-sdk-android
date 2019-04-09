@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -34,6 +35,7 @@ import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
 import io.reactivex.subjects.PublishSubject;
+import co.chatsdk.ui.utils.ViewHelper;
 
 public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
@@ -67,12 +69,12 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         itemView.setOnClickListener(this::onClick);
         itemView.setOnLongClickListener(this::onLongClick);
 
-        if(readReceiptImageView != null) {
-            readReceiptImageView.setVisibility(ChatSDK.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
-        }
+        ViewHelper.setVisible(readReceiptImageView, ChatSDK.readReceipts() != null);
 
         // Enable linkify
-        messageTextView.setAutoLinkMask(Linkify.ALL);
+        if (messageTextView != null) {
+            messageTextView.setAutoLinkMask(Linkify.ALL);
+        }
 
     }
 
@@ -113,14 +115,14 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setAlpha(alpha);
 
         String time = String.valueOf(getTimeFormat(message).format(message.getDate().toDate()));
-        timeTextView.setText(time);
+        ViewHelper.setText(timeTextView, time);
 
-        avatarImageView.setImageURI(message.getSender().getAvatarURL());
+        ViewHelper.setImageURI(avatarImageView, message.getSender().getAvatarURL());
 
-        if (message.getSender().isMe()) {
+        if (messageBubble != null && message.getSender().isMe()) {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
-        else {
+        else if (messageBubble != null) {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
 
@@ -152,9 +154,9 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void setAlpha (float alpha) {
-        messageImageView.setAlpha(alpha);
-        messageTextView.setAlpha(alpha);
-        extraLayout.setAlpha(alpha);
+        ViewHelper.setAlpha(messageImageView, alpha);
+        ViewHelper.setAlpha(messageTextView, alpha);
+        ViewHelper.setAlpha(extraLayout, alpha);
     }
 
     @Override
@@ -171,12 +173,14 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void showProgressBar () {
+        if (progressBar == null) return;
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setIndeterminate(true);
         progressBar.bringToFront();
     }
 
     public void showProgressBar (float progress) {
+        if (progressBar == null) return;
         if (progress == 0) {
             showProgressBar();
         }
@@ -190,27 +194,37 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void hideProgressBar () {
+        if (progressBar == null) return;
         progressBar.setVisibility(View.GONE);
     }
 
     public void setIconSize(int width, int height) {
+        if (messageIconView == null) return;
         messageIconView.getLayoutParams().width = width;
         messageIconView.getLayoutParams().height = height;
         messageIconView.requestLayout();
     }
 
     public void setIconMargins(int start, int top, int end, int bottom) {
-        ((ConstraintLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
+        ViewGroup.LayoutParams params = messageIconView.getLayoutParams();
+        if (params instanceof RelativeLayout.LayoutParams) {
+            ((RelativeLayout.LayoutParams) params).setMargins(start, top, end, bottom);
+        }
+        if (params instanceof ConstraintLayout.LayoutParams) {
+            ((ConstraintLayout.LayoutParams) params).setMargins(start, top, end, bottom);
+        }
         messageIconView.requestLayout();
     }
 
     public void setImageSize(int width, int height) {
+        if (messageImageView == null) return;
         messageImageView.getLayoutParams().width = width;
         messageImageView.getLayoutParams().height = height;
         messageImageView.requestLayout();
     }
 
     public void setBubbleHidden (boolean hidden) {
+        if (messageBubble == null) return;
         messageBubble.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         messageBubble.getLayoutParams().width = hidden ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
         messageBubble.getLayoutParams().height = hidden ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -218,16 +232,19 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void setIconHidden (boolean hidden) {
+        if (messageIconView == null) return;
         messageIconView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         if (hidden) {
             setIconSize(0, 0);
         } else {
             setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
         }
+        if (messageBubble == null) return;
         messageBubble.requestLayout();
     }
 
     public void setImageHidden (boolean hidden) {
+        if (messageImageView == null) return;
         messageImageView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         if (hidden) {
             setImageSize(0, 0);
@@ -239,8 +256,9 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void setTextHidden (boolean hidden) {
+        if (messageTextView == null) return;
         messageTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
-        ConstraintLayout.LayoutParams textLayoutParams = (ConstraintLayout.LayoutParams) messageTextView.getLayoutParams();
+        ViewGroup.LayoutParams textLayoutParams = messageTextView.getLayoutParams();
         if(hidden) {
             textLayoutParams.width = 0;
             textLayoutParams.height = 0;
@@ -251,10 +269,12 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         messageTextView.setLayoutParams(textLayoutParams);
         messageTextView.requestLayout();
+        if (messageBubble== null) return;
         messageBubble.requestLayout();
     }
 
     public View viewForClassType (Class classType) {
+        if (extraLayout == null) return null;
         for (int i = 0; i < extraLayout.getChildCount(); i++) {
             View view = extraLayout.getChildAt(i);
             if (classType.isInstance(view)) {
