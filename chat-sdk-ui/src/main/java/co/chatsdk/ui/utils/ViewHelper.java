@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.StringRes;
 
 public class ViewHelper {
@@ -32,6 +33,10 @@ public class ViewHelper {
 
     public static void setEnabled(View view, boolean enabled) {
         if (view != null) view.setEnabled(enabled);
+    }
+
+    public static void setAlpha(View view, @FloatRange(from=0.0, to=1.0) float alpha) {
+        if (view != null) view.setAlpha(alpha);
     }
 
     // TextView
