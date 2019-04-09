@@ -1,11 +1,14 @@
 package co.chatsdk.ui.utils;
 
 import android.net.Uri;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+
+import androidx.annotation.StringRes;
 
 public class ViewHelper {
 
@@ -27,10 +30,18 @@ public class ViewHelper {
         if (view != null) view.setOnClickListener(listener);
     }
 
+    public static void setEnabled(View view, boolean enabled) {
+        if (view != null) view.setEnabled(enabled);
+    }
+
     // TextView
 
     public static void setText(TextView textView, String text) {
         if (textView != null) textView.setText(text);
+    }
+
+    public static void setText(TextView textView, @StringRes int resid) {
+        if (textView != null) textView.setText(resid);
     }
 
     public static CharSequence getText(TextView textView) {
@@ -42,6 +53,10 @@ public class ViewHelper {
         CharSequence charSequence = getText(textView);
         if (charSequence != null) return charSequence.toString();
         else return "";
+    }
+
+    public static void addTextChangedListener(TextView textView, TextWatcher watcher) {
+        if (textView != null) textView.addTextChangedListener(watcher);
     }
 
     // Spinner
