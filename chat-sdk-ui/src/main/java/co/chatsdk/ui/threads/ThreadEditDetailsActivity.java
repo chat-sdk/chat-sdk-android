@@ -15,21 +15,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.security.Key;
-
+import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -57,31 +55,40 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
 
-        setContentView(R.layout.chat_sdk_activity_edit_thread_details);
+        setContentView(activityLayout());
         initViews();
+    }
+
+    @LayoutRes
+    protected int activityLayout() {
+        return R.layout.chat_sdk_activity_edit_thread_details;
     }
 
     protected void initViews() {
         actionBar = getSupportActionBar();
-        actionBar.setHomeButtonEnabled(true);
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         nameInput = findViewById(R.id.chat_sdk_edit_thread_name_et);
         saveButton = findViewById(R.id.chat_sdk_edit_thread_update_b);
 
         if (thread != null) {
-            actionBar.setTitle(Strings.nameForThread(thread));
-            nameInput.setText(thread.getName());
-            saveButton.setText(R.string.update_thread);
+            if (actionBar != null) {
+                actionBar.setTitle(Strings.nameForThread(thread));
+            }
+            ViewHelper.setText(nameInput, thread.getName());
+            ViewHelper.setText(saveButton, R.string.update_thread);
 
             // TODO: permanently move thread name into meta data
             ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
             if (nameMetaValue != null)
-                nameInput.setText(nameMetaValue.getValue());
+                ViewHelper.setText(nameInput, nameMetaValue.getValue());
         } else {
-            saveButton.setEnabled(false);
+            ViewHelper.setEnabled(saveButton, false);
         }
 
-        nameInput.addTextChangedListener(new TextWatcher() {
+        ViewHelper.addTextChangedListener(nameInput, new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -89,7 +96,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                saveButton.setEnabled(!nameInput.getText().toString().isEmpty());
+                ViewHelper.setEnabled(saveButton, !ViewHelper.getTextString(nameInput).isEmpty());
             }
 
             @Override
@@ -98,7 +105,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             }
         });
 
-        saveButton.setOnClickListener(v -> {
+        ViewHelper.setOnClickListener(saveButton, v -> {
             didClickOnSaveButton();
         });
 
