@@ -36,7 +36,7 @@ public class ImageMessageViewHolder extends BaseMessageViewHolder {
 
         String url = getImageURL();
 
-        if (url != null && url.length() > 0) {
+        if (url != null && url.length() > 0 && messageImageView != null) {
             ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
                     .setResizeOptions(new ResizeOptions(viewWidth, viewHeight))
                     .build();
@@ -46,7 +46,7 @@ public class ImageMessageViewHolder extends BaseMessageViewHolder {
                             .setOldController(messageImageView.getController())
                             .setImageRequest(request)
                             .build());
-        } else {
+        } else if (messageImageView != null) {
             // Loads the placeholder
             messageImageView.setActualImageResource(R.drawable.icn_200_image_message_loading);
         }
