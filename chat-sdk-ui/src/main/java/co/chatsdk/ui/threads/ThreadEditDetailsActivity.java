@@ -18,6 +18,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
@@ -70,6 +72,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
 
+//<<<<<<< HEAD
         List<String> userEntityIDs = getIntent().getStringArrayListExtra(Keys.IntentKeyUserEntityIDList);
         if (userEntityIDs != null) {
             for (String userEntityID : userEntityIDs) {
@@ -80,20 +83,27 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             }
         }
 
-        setContentView(R.layout.activity_edit_thread_details);
+        setContentView(activityLayout());
         initViews();
 
     }
 
+    @LayoutRes
+    protected int activityLayout() {
+        return R.layout.activity_edit_thread_details;
+    }
+
     protected void initViews() {
         actionBar = getSupportActionBar();
-        actionBar.setHomeButtonEnabled(true);
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         nameInput = findViewById(R.id.text_name);
         saveButton = findViewById(R.id.button_done);
         threadImageView = findViewById(R.id.image_thread);
 
-        nameInput.addTextChangedListener(new TextWatcher() {
+        ViewHelper.addTextChangedListener(nameInput, new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -110,7 +120,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             }
         });
 
-        saveButton.setOnClickListener(v -> {
+        ViewHelper.setOnClickListener(saveButton, v -> {
             didClickOnSaveButton();
         });
 
@@ -131,7 +141,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     }
 
     protected void updateSaveButtonState () {
-        saveButton.setEnabled(!nameInput.getText().toString().isEmpty());
+        ViewHelper.setEnabled(saveButton, !ViewHelper.getTextString(nameInput).isEmpty());
     }
 
     protected void updateThreadImageURL (String url) {
