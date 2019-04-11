@@ -2,7 +2,6 @@ package co.chatsdk.ui.main;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,84 +12,96 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.ViewHelper;
 
 public class MainAppBarActivity extends MainActivity {
+
     protected TabLayout tabLayout;
     protected ViewPager viewPager;
-    protected PagerAdapterTabs adapter;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    protected PagerAdapter adapter;
+    protected List<Tab> tabs;
 
     protected @LayoutRes
     int activityLayout() {
         return R.layout.chat_sdk_activity_view_pager;
     }
 
-    protected void initViews() {
-        setContentView(activityLayout());
-        viewPager = findViewById(R.id.pager);
-
-        tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-
+    protected PagerAdapter initAdapter() {
         // Only creates the adapter if it wasn't initiated already
         if (adapter == null) {
             adapter = new PagerAdapterTabs(getSupportFragmentManager());
         }
 
-        final List<Tab> tabs = adapter.getTabs();
-        for (Tab tab : tabs) {
-            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
+        tabs = ((PagerAdapterTabs)adapter).getTabs();
+        if (tabLayout != null) {
+            for (Tab tab : tabs) {
+                tabLayout.addTab(tabLayout.newTab().setText(tab.title));
+            }
         }
 
-        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
+        Fragment firstFragment = tabs.get(0).fragment;
+        if (firstFragment instanceof BaseFragment) {
+            ((BaseFragment) firstFragment).setTabVisibility(true);
+        }
+        return adapter;
+    }
 
-        viewPager.setAdapter(adapter);
+    protected void initViews() {
+        viewPager = findViewById(R.id.pager);
+        tabLayout = findViewById(R.id.tab_layout);
 
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
+        if (viewPager != null) {
+            viewPager.setAdapter(initAdapter());
+            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            viewPager.setOffscreenPageLimit(3);
+        }
 
-                updateLocalNotificationsForTab();
+        if (tabLayout != null) {
+            tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    ViewHelper.setCurrentItem(viewPager, tab.getPosition());
 
-                // We mark the tab as visible. This lets us be more efficient with updates
-                // because we only
-                for(int i = 0; i < tabs.size(); i++) {
-                    ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+                    updateLocalNotificationsForTab();
+
+                    // We mark the tab as visible. This lets us be more efficient with updates
+                    // because we only
+                    if (tabs == null) return;
+                    for (int i = 0; i < tabs.size(); i++) {
+                        ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+                    }
                 }
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
 
-            }
+                }
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
 
-            }
-        });
-
-        viewPager.setOffscreenPageLimit(3);
+                }
+            });
+        }
     }
 
     public void updateLocalNotificationsForTab () {
+        if (tabLayout == null) return;
         TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
         ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab));
     }
 
     public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
         // Don't show notifications on the threads tabs
-        Tab t = adapter.getTabs().get(tab.getPosition());
+        if (tabs == null) return false;
+        Tab t = tabs.get(tab.getPosition());
 
         Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
 
@@ -98,16 +109,18 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     public void clearData () {
-        for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+        if (tabs == null) return;
+        for (Tab t : tabs) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).clearData();
             }
         }
     }
 
     public void reloadData () {
-        for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+        if (tabs == null) return;
+        for (Tab t : tabs) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).safeReloadData();
             }
         }
@@ -138,4 +151,5 @@ public class MainAppBarActivity extends MainActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

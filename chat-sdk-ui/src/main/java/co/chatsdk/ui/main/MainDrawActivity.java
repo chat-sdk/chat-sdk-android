@@ -1,30 +1,19 @@
 package co.chatsdk.ui.main;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.material.tabs.TabLayout;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
-import java.util.List;
 
-import androidx.annotation.LayoutRes;
-import androidx.viewpager.widget.ViewPager;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
@@ -99,7 +88,6 @@ public class MainDrawActivity extends MainActivity {
 
     @Override
     protected void initViews() {
-        setContentView(activityLayout());
         getSupportActionBar().hide();
     }
 
