@@ -9,6 +9,7 @@ package co.chatsdk.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -27,6 +28,7 @@ public abstract class MainActivity extends BaseActivity {
             finish();
             return;
         }
+        setContentView(activityLayout());
         initViews();
         launchFromPush(getIntent().getExtras());
     }

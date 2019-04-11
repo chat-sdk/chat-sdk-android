@@ -88,7 +88,6 @@ public class MainDrawActivity extends MainActivity {
 
     @Override
     protected void initViews() {
-        setContentView(activityLayout());
         getSupportActionBar().hide();
     }
 
