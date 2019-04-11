@@ -8,26 +8,13 @@
 package co.chatsdk.ui.main;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import com.google.android.material.tabs.TabLayout;
-import androidx.viewpager.widget.ViewPager;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-
-import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.ui.R;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -44,6 +31,7 @@ public abstract class MainActivity extends BaseActivity {
             finish();
             return;
         }
+        setContentView(activityLayout());
         initViews();
         launchFromPush(getIntent().getExtras());
     }
