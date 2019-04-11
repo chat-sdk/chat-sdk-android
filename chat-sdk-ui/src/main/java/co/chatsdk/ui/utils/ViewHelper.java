@@ -10,6 +10,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.StringRes;
+import androidx.viewpager.widget.ViewPager;
 
 public class ViewHelper {
 
@@ -64,6 +65,16 @@ public class ViewHelper {
         if (textView != null) textView.addTextChangedListener(watcher);
     }
 
+    // SimpleDraweeView
+
+    public static void setImageURI(SimpleDraweeView draweeView, Uri uri) {
+        if (draweeView != null) draweeView.setImageURI(uri);
+    }
+
+    public static void setImageURI(SimpleDraweeView draweeView, String uriString) {
+        if (draweeView != null) draweeView.setImageURI(uriString);
+    }
+
     // Spinner
 
     public static int getCount(Spinner spinner) {
@@ -97,14 +108,8 @@ public class ViewHelper {
         if (spinner != null) spinner.setSelection(position);
     }
 
-    // SimpleDraweeView
-
-    public static void setImageURI(SimpleDraweeView draweeView, Uri uri) {
-        if (draweeView != null) draweeView.setImageURI(uri);
-    }
-
-    public static void setImageURI(SimpleDraweeView draweeView, String uriString) {
-        if (draweeView != null) draweeView.setImageURI(uriString);
+    public static void setCurrentItem(ViewPager viewPager, int item) {
+        if (viewPager != null) viewPager.setCurrentItem(item);
     }
 
 }
