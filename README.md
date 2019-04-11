@@ -251,7 +251,7 @@ Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
 Or if you want to launch the activity manually, you can do it using:
 
 ```
-InterfaceManager.shared().a.startSplashScreenActivity(context);
+ChatSDK.ui().startSplashScreenActivity(context);
 ``` 
 
 ## Firebase Setup

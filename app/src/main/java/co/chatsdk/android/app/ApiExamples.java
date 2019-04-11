@@ -181,6 +181,7 @@ public class ApiExamples {
             // finished you need to register complete
             emitter.onComplete();
         })), HookEvent.MessageReceived);
+
     }
 
     /**
@@ -213,6 +214,12 @@ public class ApiExamples {
      */
     public void addMetaDataToMessage (Message message) {
         message.setValueForKey("Value", "Key");
+    }
+
+    public void deleteMessage (Message message) {
+        ChatSDK.thread().deleteMessage(message).subscribe(() -> {
+            // Message has been deleted
+        });
     }
 
 }

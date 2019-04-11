@@ -8,6 +8,7 @@ public class ThreadType {
 
 //    ThreadType
 
+    public static int None = -1;
     public static int PrivateGroup = 0x1;
     public static int Private1to1 = 0x2;
     public static int PublicGroup = 0x4;
@@ -23,11 +24,15 @@ public class ThreadType {
     public static int PublicV3 = 1;
 
     public static boolean isPublic (int type) {
-        return (type & Public) > 0;
+        return is(type, Public);
     }
 
     public static boolean isPrivate (int type) {
-        return (type & Private) > 0;
+        return is(type, Private);
+    }
+
+    public static boolean is (int type1, int type2) {
+        return (type1 & type2) > 0;
     }
 
 }
