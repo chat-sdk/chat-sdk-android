@@ -8,6 +8,7 @@
 package co.chatsdk.ui.threads;
 
 import android.view.MenuItem;
+import android.widget.Adapter;
 
 import java.util.List;
 
@@ -32,7 +33,8 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        Disposable d = adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+        if (!(adapter instanceof ThreadsListAdapter)) return;
+        Disposable d = ((ThreadsListAdapter)adapter).onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {
                     ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
@@ -43,7 +45,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
 
                                 @Override
                                 public void onComplete() {
-                                    adapter.clearData();
+                                    ((ThreadsListAdapter)adapter).clearData();
                                     reloadData();
                                     ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
                                 }
