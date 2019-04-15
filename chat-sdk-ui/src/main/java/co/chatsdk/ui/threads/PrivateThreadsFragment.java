@@ -10,7 +10,6 @@ package co.chatsdk.ui.threads;
 import android.view.MenuItem;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
@@ -19,13 +18,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.CompletableObserver;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -37,12 +30,13 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        disposableList.add(adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+        if (!(adapter instanceof ThreadsListAdapter)) return;
+        disposableList.add(((ThreadsListAdapter)adapter).onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {
                     disposableList.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
-                                adapter.clearData();
+                                ((ThreadsListAdapter)adapter).clearData();
                                 reloadData();
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
                     return null;
