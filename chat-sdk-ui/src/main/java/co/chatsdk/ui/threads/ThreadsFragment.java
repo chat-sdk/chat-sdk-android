@@ -36,7 +36,7 @@ public abstract class ThreadsFragment extends BaseFragment {
 
     protected RecyclerView listThreads;
     protected EditText searchField;
-    protected ThreadsListAdapter adapter;
+    protected RecyclerView.Adapter adapter;
     protected String filter;
     protected MenuItem addMenuItem;
 
@@ -63,8 +63,8 @@ public abstract class ThreadsFragment extends BaseFragment {
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
                 .subscribe(networkEvent -> {
-                    if (tabIsVisible) {
-                        adapter.setTyping(networkEvent.thread, networkEvent.text);
+                    if (tabIsVisible && adapter instanceof ThreadsListAdapter) {
+                        ((ThreadsListAdapter)adapter).setTyping(networkEvent.thread, networkEvent.text);
                         adapter.notifyDataSetChanged();
                     }
                 }));
@@ -84,18 +84,24 @@ public abstract class ThreadsFragment extends BaseFragment {
         return R.layout.chat_sdk_activity_threads;
     }
 
+    protected RecyclerView.Adapter initAdapter() {
+        return new ThreadsListAdapter(getActivity());
+    }
+
     public void initViews() {
         searchField = mainView.findViewById(R.id.search_field);
         listThreads = mainView.findViewById(R.id.list_threads);
 
-        adapter = new ThreadsListAdapter(getActivity());
+        adapter = initAdapter();
 
         listThreads.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         listThreads.setAdapter(adapter);
 
-        Disposable d = adapter.onClickObservable().subscribe(thread -> {
-            ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
-        });
+        if (adapter instanceof ThreadsListAdapter) {
+            Disposable d = ((ThreadsListAdapter)adapter).onClickObservable().subscribe(thread -> {
+                ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
+            });
+        }
     }
 
     protected boolean allowThreadCreation () {
@@ -146,8 +152,8 @@ public abstract class ThreadsFragment extends BaseFragment {
 
     @Override
     public void clearData() {
-        if (adapter != null) {
-            adapter.clearData();
+        if (adapter instanceof ThreadsListAdapter) {
+            ((ThreadsListAdapter)adapter).clearData();
         }
     }
 
@@ -169,26 +175,24 @@ public abstract class ThreadsFragment extends BaseFragment {
     }
 
     protected void onThreadUpdated(List<Thread> threads, Thread thread) {
-        adapter.clearData();
-        adapter.updateThreads(replaceThread(threads, thread));
+        if (adapter instanceof ThreadsListAdapter) {
+            ((ThreadsListAdapter)adapter).clearData();
+            ((ThreadsListAdapter)adapter).updateThreads(replaceThread(threads, thread));
+        }
     }
 
     @Override
     public void reloadData() {
-        if (adapter != null) {
-            adapter.clearData();
-
-
-            List<Thread> threads = filter(getThreads());
-
-            disposableList.add(ChatSDK.events().sourceOnMain()
-                    .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                    .subscribe(networkEvent -> {
-                        onThreadUpdated(threads, networkEvent.thread);
-                    }, ChatSDK::logError));
-
-            adapter.updateThreads(threads);
-        }
+        if (!(adapter instanceof ThreadsListAdapter)) return;
+        ThreadsListAdapter threadsListAdapter = (ThreadsListAdapter)adapter;
+        threadsListAdapter.clearData();
+        List<Thread> threads = filter(getThreads());
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .subscribe(networkEvent -> {
+                    onThreadUpdated(threads, networkEvent.thread);
+                }, ChatSDK::logError));
+        threadsListAdapter.updateThreads(threads);
     }
 
     protected abstract List<Thread> getThreads ();
