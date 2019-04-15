@@ -42,6 +42,8 @@ public class AppObj extends MultiDexApplication {
             // For the demo version of the client exire rooms after 24 hours
             config.publicChatRoomLifetimeMinutes(60 * 24);
 
+
+
             ChatSDK.initialize(config.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
 
             FirebaseFileStorageModule.activate();

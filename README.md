@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/Hupqfq)** or **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
+- **Demo Versions.** **[Firebase](https://i.diawi.com/msVb8q)** or **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 
@@ -157,10 +157,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.2'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.3'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.3'
 ```
 
 You may also need to enable Java 8:
@@ -623,7 +623,7 @@ ext {
     firebaseStorageVersion = "16.0.5"
     firebaseMessagingVersion = "17.3.4"
     firebaseFunctionsVersion = "16.1.3"
-    timberVersion = "4.7.2"
+    timberVersion = "4.7.3"
     greenDaoVersion = "3.2.2"
     frescoVersion = "1.10.0"
     rxJavaVersion = "2.2.3"

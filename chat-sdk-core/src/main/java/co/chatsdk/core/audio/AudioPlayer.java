@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 
 import java.util.concurrent.TimeUnit;
 
+import co.chatsdk.core.R;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
