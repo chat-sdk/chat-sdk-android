@@ -10,12 +10,13 @@ package co.chatsdk.ui.threads;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.ActionBar;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -27,7 +28,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.utils.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -203,10 +203,13 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
-            ChatSDK.ui().startThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            if (thread.typeIs(ThreadType.Public)) {
+                ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            } else {
+                ChatSDK.ui().startPrivateThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            }
         }
         return true;
     }
-
 
 }
