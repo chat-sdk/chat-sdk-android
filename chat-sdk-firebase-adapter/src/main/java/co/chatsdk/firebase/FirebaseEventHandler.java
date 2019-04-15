@@ -97,15 +97,20 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         // Remove all users from public threads
         // These may not have been cleared down when we exited so clear them down and
         // start again
-        for(Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-            for(User u : thread.getUsers()) {
-                thread.removeUser(u);
-            }
-        }
+//        for(Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+//            for(User u : thread.getUsers()) {
+//                thread.removeUser(u);
+//            }
+//        }
 
         DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
         ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+
+            // Make sure that we're not in the thread
+            // there's an edge case where the user could kill the app and remain
+            // a member of a public thread
+            ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(new CrashReportingCompletableObserver());
 
             // Starting to listen to thread changes.
             thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));

@@ -34,6 +34,7 @@ ext {
     firebaseStorageVersion = "16.1.0"
     firebaseMessagingVersion = "17.5.0"
     firebaseFunctionsVersion = "16.3.0"
+    firebaseIIDVersion = "17.1.1"
     timberVersion = "4.7.1"
     greenDaoVersion = "3.2.2"
     frescoVersion = "1.13.0"
