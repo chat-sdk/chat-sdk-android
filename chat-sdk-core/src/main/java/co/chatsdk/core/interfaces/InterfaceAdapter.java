@@ -34,7 +34,8 @@ public interface InterfaceAdapter {
     Class getMainActivity();
     Class getChatActivity();
     Class getThreadDetailsActivity();
-    Class getThreadEditDetailsActivity();
+    Class getPrivateThreadEditDetailsActivity();
+    Class getPublicThreadEditDetailsActivity();
 
     Class getAddUsersToThreadActivity();
     Class getCreateThreadActivity();
@@ -50,7 +51,8 @@ public interface InterfaceAdapter {
     void setMainActivity (Class mainActivity);
     void setChatActivity (Class chatActivity);
     void setThreadDetailsActivity (Class threadDetailsActivity);
-    void setThreadEditDetailsActivity (Class threadEditDetailsActivity);
+    void setPrivateThreadEditDetailsActivity (Class threadEditDetailsActivity);
+    void setPublicThreadEditDetailsActivity (Class threadEditDetailsActivity);
     void setForwardMessageActivity (Class forwardMessageActivity);
     void setAddUsersToThreadActivity(Class addUsersToThreadActivity);
     void setCreateThreadActivity(Class createThreadActivity);
@@ -86,15 +88,10 @@ public interface InterfaceAdapter {
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
 
-    /**
-     * Use {@link #startThreadEditDetailsActivity(Context, String)}
-     * @param context
-     * @param threadEntityID
-     */
-    @Deprecated
+    void startPrivateThreadEditDetailsActivity(Context context, String threadEntityID);
+    void startPrivateThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
     void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
-    void startThreadEditDetailsActivity(Context context, String threadEntityID);
-    void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
+    void startPublicThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
     // @Deprecated use {@link #getLoginIntent(Context, HashMap)}
 //  void startLoginActivity(Context context, boolean attemptCachedLogin);

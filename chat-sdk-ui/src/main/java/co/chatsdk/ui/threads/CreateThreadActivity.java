@@ -1,13 +1,8 @@
 package co.chatsdk.ui.threads;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.View;
-import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
@@ -65,7 +60,7 @@ public class CreateThreadActivity extends SelectContactActivity {
             for (User u : users) {
                 userEntityIDs.add(u.getEntityID());
             }
-            ChatSDK.ui().startThreadEditDetailsActivity(this, null, userEntityIDs);
+            ChatSDK.ui().startPrivateThreadEditDetailsActivity(this, null, userEntityIDs);
         }
         else {
             createAndOpenThread("", users);
