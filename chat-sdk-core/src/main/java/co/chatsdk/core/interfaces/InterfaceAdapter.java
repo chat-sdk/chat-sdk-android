@@ -32,7 +32,8 @@ public interface InterfaceAdapter {
     Class getMainActivity();
     Class getChatActivity();
     Class getThreadDetailsActivity();
-    Class getThreadEditDetailsActivity();
+    Class getPrivateThreadEditDetailsActivity();
+    Class getPublicThreadEditDetailsActivity();
     Class getSelectContactActivity();
     Class getSearchActivity();
     Class getEditProfileActivity();
@@ -44,7 +45,8 @@ public interface InterfaceAdapter {
     void setMainActivity (Class mainActivity);
     void setChatActivity (Class chatActivity);
     void setThreadDetailsActivity (Class threadDetailsActivity);
-    void setThreadEditDetailsActivity (Class threadEditDetailsActivity);
+    void setPrivateThreadEditDetailsActivity (Class threadEditDetailsActivity);
+    void setPublicThreadEditDetailsActivity (Class threadEditDetailsActivity);
     void setSelectContactActivity (Class selectContactActivity);
     void setSearchActivity (Class searchActivity);
     void setEditProfileActivity (Class editProfileActivity);
@@ -78,6 +80,7 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+    void startPrivateThreadEditDetailsActivity(Context context, String threadEntityID);
     void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
 
     // @Deprecated use {@link #getLoginIntent(Context, HashMap)}

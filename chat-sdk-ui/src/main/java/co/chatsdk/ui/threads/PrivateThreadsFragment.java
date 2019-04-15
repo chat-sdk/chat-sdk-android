@@ -8,7 +8,6 @@
 package co.chatsdk.ui.threads;
 
 import android.view.MenuItem;
-import android.widget.Adapter;
 
 import java.util.List;
 

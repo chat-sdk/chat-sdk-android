@@ -17,7 +17,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.ui.R;
 import io.reactivex.functions.Predicate;
 
@@ -42,7 +41,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_chat_sdk_add) {
-            ChatSDK.ui().startActivity(getContext(), ChatSDK.ui().getThreadEditDetailsActivity());
+            ChatSDK.ui().startActivity(getContext(), ChatSDK.ui().getPublicThreadEditDetailsActivity());
             return true;
         }
         return super.onOptionsItemSelected(item);
