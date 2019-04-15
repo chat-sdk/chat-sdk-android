@@ -7,6 +7,7 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.ViewHelper;
 
 /**
  * Created by benjaminsmiley-andrews on 07/06/2017.
@@ -33,15 +34,12 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    public void showUnreadIndicator(){
-        indicator.setVisibility(View.VISIBLE);
+    public void showUnreadIndicator() {
+        ViewHelper.setVisible(indicator, true);
     }
 
-    public void hideUnreadIndicator(){
-        indicator.setVisibility(View.GONE);
+    public void hideUnreadIndicator() {
+        ViewHelper.setGone(indicator, true);
     }
-
-
-
 
 }
