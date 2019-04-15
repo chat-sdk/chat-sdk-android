@@ -31,6 +31,7 @@ import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 public class ThreadImageBuilder {
 
     public static void load (final SimpleDraweeView imageView, final Thread thread) {
+        if (imageView == null || thread == null) return;
         getImageUriForThread(imageView.getContext(), thread).subscribe(uri -> imageView.setImageURI(uri), throwable -> imageView.setImageURI(defaultBitmapUri(imageView.getContext(), thread)));
     }
 
