@@ -24,6 +24,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Strings;
@@ -193,10 +194,13 @@ public class ThreadDetailsActivity extends BaseActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
-            ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            if (thread.typeIs(ThreadType.Public)) {
+                ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            } else {
+                ChatSDK.ui().startPrivateThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            }
         }
         return true;
     }
-
 
 }

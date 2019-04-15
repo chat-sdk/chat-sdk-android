@@ -74,7 +74,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class mainActivity = MainAppBarActivity.class;
     protected Class chatActivity = ChatActivity.class;
     protected Class threadDetailsActivity = ThreadDetailsActivity.class;
-    protected Class threadEditDetailsActivity = ThreadEditDetailsActivity.class;
+    protected Class privateThreadEditDetailsActivity = ThreadEditDetailsActivity.class;
+    protected Class publicThreadEditDetailsActivity = ThreadEditDetailsActivity.class;
     protected Class selectContactActivity = SelectContactActivity.class;
     protected Class searchActivity = SearchActivity.class;
     protected Class editProfileActivity = EditProfileActivity.class;
@@ -292,13 +293,23 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Class getThreadEditDetailsActivity() {
-        return threadEditDetailsActivity;
+    public Class getPrivateThreadEditDetailsActivity() {
+        return privateThreadEditDetailsActivity;
     }
 
     @Override
-    public void setThreadEditDetailsActivity (Class threadEditDetailsActivity) {
-        this.threadEditDetailsActivity = threadEditDetailsActivity;
+    public void setPrivateThreadEditDetailsActivity (Class threadEditDetailsActivity) {
+        this.privateThreadEditDetailsActivity = threadDetailsActivity;
+    }
+
+    @Override
+    public Class getPublicThreadEditDetailsActivity() {
+        return publicThreadEditDetailsActivity;
+    }
+
+    @Override
+    public void setPublicThreadEditDetailsActivity (Class threadEditDetailsActivity) {
+        this.publicThreadEditDetailsActivity = threadEditDetailsActivity;
     }
 
     @Override
@@ -425,8 +436,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, intent);
     }
 
+    public void startPrivateThreadEditDetailsActivity(Context context, String threadEntityID){
+        Intent intent = new Intent(context, getPrivateThreadEditDetailsActivity());
+        intent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
+        startActivity(context, intent);
+    }
+
     public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
-        Intent intent = new Intent(context, getThreadEditDetailsActivity());
+        Intent intent = new Intent(context, getPublicThreadEditDetailsActivity());
         intent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
         startActivity(context, intent);
     }
