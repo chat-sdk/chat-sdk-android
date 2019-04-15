@@ -32,6 +32,10 @@ public class ViewHelper {
         if (view != null) view.setOnClickListener(listener);
     }
 
+    public static void setOnLongClickListener(View view, View.OnLongClickListener listener) {
+        if (view != null) view.setOnLongClickListener(listener);
+    }
+
     public static void setEnabled(View view, boolean enabled) {
         if (view != null) view.setEnabled(enabled);
     }

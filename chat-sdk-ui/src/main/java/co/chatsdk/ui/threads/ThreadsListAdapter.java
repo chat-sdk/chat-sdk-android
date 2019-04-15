@@ -26,6 +26,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
@@ -57,40 +58,40 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
         final Thread thread = threads.get(position);
 
-        holder.nameTextView.setText(Strings.nameForThread(thread));
+        ViewHelper.setText(holder.nameTextView, Strings.nameForThread(thread));
 
-        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(thread));
+        ViewHelper.setOnClickListener(holder.itemView, view -> onClickSubject.onNext(thread));
 
-        holder.itemView.setOnLongClickListener(view -> {
+        ViewHelper.setOnLongClickListener(holder.itemView, view -> {
             onLongClickSubject.onNext(thread);
             return true;
         });
 
         Message lastMessage = thread.lastMessage();
         if (lastMessage != null) {
-            holder.dateTextView.setText(getLastMessageDateAsString(lastMessage.getDate().toDate()));
-            holder.lastMessageTextView.setText(getLastMessageText(thread.lastMessage()));
+            ViewHelper.setText(holder.dateTextView, getLastMessageDateAsString(lastMessage.getDate().toDate()));
+            ViewHelper.setText(holder.lastMessageTextView, getLastMessageText(thread.lastMessage()));
         } else {
-            holder.dateTextView.setText("");
-            holder.lastMessageTextView.setText("");
+            ViewHelper.setText(holder.dateTextView, "");
+            ViewHelper.setText(holder.lastMessageTextView, "");
         }
 
         if (typing.get(thread) != null) {
-            holder.lastMessageTextView.setText(String.format(context.get().getString(R.string.__typing), typing.get(thread)));
+            ViewHelper.setText(holder.lastMessageTextView, String.format(context.get().getString(R.string.__typing), typing.get(thread)));
         }
 
         int unreadMessageCount = thread.getUnreadMessagesCount();
 
         if (unreadMessageCount != 0 && (thread.typeIs(ThreadType.Private) || ChatSDK.config().unreadMessagesCountForPublicChatRoomsEnabled)) {
 
-            holder.unreadMessageCountTextView.setText(String.valueOf(unreadMessageCount));
-            holder.unreadMessageCountTextView.setVisibility(View.VISIBLE);
+            ViewHelper.setText(holder.unreadMessageCountTextView, String.valueOf(unreadMessageCount));
+            ViewHelper.setVisible(holder.unreadMessageCountTextView, true);
 
             holder.showUnreadIndicator();
         }
         else {
             holder.hideUnreadIndicator();
-            holder.unreadMessageCountTextView.setVisibility(View.INVISIBLE);
+            ViewHelper.setVisible(holder.unreadMessageCountTextView, false);
         }
 
         ThreadImageBuilder.load(holder.imageView, thread);
