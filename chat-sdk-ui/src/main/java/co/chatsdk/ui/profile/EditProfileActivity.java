@@ -53,7 +53,8 @@ public class EditProfileActivity extends BaseActivity {
     protected EditText emailEditText;
     protected Button countryButton;
     protected Button logoutButton;
-    protected HashMap<String, Object> userMeta;
+
+    protected HashMap<String, String> previousMetaMap;
 
     protected User currentUser;
 
@@ -72,7 +73,7 @@ public class EditProfileActivity extends BaseActivity {
             currentUser =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
 
             // Save a copy of the data to see if it has changed
-            userMeta = new HashMap<>(currentUser.metaMap());
+            previousMetaMap = new HashMap<>(currentUser.metaMap());
         }
 
         disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
@@ -197,36 +198,31 @@ public class EditProfileActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    protected void updateUserValues() {
+        currentUser.setStatus(ViewHelper.getTextString(statusEditText).trim());
+        currentUser.setAvailability(getAvailability().trim());
+        currentUser.setName(ViewHelper.getTextString(nameEditText).trim());
+        currentUser.setLocation(ViewHelper.getTextString(locationEditText).trim());
+        currentUser.setPhoneNumber(ViewHelper.getTextString(phoneNumberEditText).trim());
+        currentUser.setEmail(ViewHelper.getTextString(emailEditText).trim());
+    }
+
     protected void saveAndExit () {
+        updateUserValues();
 
-        String status = ViewHelper.getTextString(statusEditText).trim();
-        String availability = getAvailability().trim();
-        String name = ViewHelper.getTextString(nameEditText).trim();
-        String location = ViewHelper.getTextString(locationEditText).trim();
-        String phoneNumber = ViewHelper.getTextString(phoneNumberEditText).trim();
-        String email = ViewHelper.getTextString(emailEditText).trim();
-
-        currentUser.setStatus(status);
-        currentUser.setAvailability(availability);
-        currentUser.setName(name);
-        currentUser.setLocation(location);
-        currentUser.setPhoneNumber(phoneNumber);
-        currentUser.setEmail(email);
-
-        boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
+        Map<String, String> newMetaMap = currentUser.metaMap();
+        boolean changed = !previousMetaMap.equals(newMetaMap);
 //        boolean imageChanged = false;
         boolean presenceChanged = false;
 
-        Map<String, Object> metaMap = new HashMap<>(currentUser.metaMap());
-
         // Add a synchronized block to prevent concurrent modification exceptions
-        for (String key : metaMap.keySet()) {
+        for (String key : newMetaMap.keySet()) {
             if (key.equals(Keys.AvatarURL)) {
 //                imageChanged = valueChanged(metaMap, userMeta, key);
                 currentUser.setAvatarHash(null);
             }
             if (key.equals(Keys.Availability) || key.equals(Keys.Status)) {
-                presenceChanged = presenceChanged || valueChanged(metaMap, userMeta, key);
+                presenceChanged = presenceChanged || valueChanged(newMetaMap, previousMetaMap, key);
             }
         }
 
@@ -268,13 +264,13 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    protected boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {
-        Object o1 = h1.get(key);
-        Object o2 = h2.get(key);
-        if (o1 == null) {
-            return o2 != null;
+    protected boolean valueChanged (Map<String, String> h1, Map<String, String> h2, String key) {
+        String s1 = h1.get(key);
+        String s2 = h2.get(key);
+        if (s1 == null) {
+            return s2 != null;
         } else {
-            return !o1.equals(o2);
+            return !s1.equals(s2);
         }
     }
 
