@@ -46,6 +46,7 @@ public class Strings {
     }
 
     public static String nameForThread (Thread thread) {
+        if (thread == null) return null;
 
         String displayName = thread.getDisplayName();
         if (StringUtils.isNotEmpty(displayName)) {
