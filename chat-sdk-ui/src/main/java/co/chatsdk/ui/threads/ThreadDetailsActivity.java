@@ -42,14 +42,15 @@ public class ThreadDetailsActivity extends BaseActivity {
     /** Set true if you want slide down animation for this context exit. */
     protected boolean animateExit = false;
 
-    protected Thread thread;
-    protected SimpleDraweeView threadImageView;
-
-    protected ContactsFragment contactsFragment;
-    protected DisposableList disposableList = new DisposableList();
-
     protected ActionBar actionBar;
     protected MenuItem settingsItem;
+    protected SimpleDraweeView threadImageView;
+
+    protected Thread thread;
+    protected ContactsFragment contactsFragment;
+    protected boolean startingSettingsActivity;
+
+    protected final DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,8 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        startingSettingsActivity = false;
 
         loadData();
         updateMetaData();
@@ -196,6 +199,8 @@ public class ThreadDetailsActivity extends BaseActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
+            if (startingSettingsActivity) return true;
+            startingSettingsActivity = true;
             if (thread.typeIs(ThreadType.Public)) {
                 ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
             } else {
