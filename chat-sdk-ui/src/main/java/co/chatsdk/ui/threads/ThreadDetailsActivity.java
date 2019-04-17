@@ -191,9 +191,11 @@ public class ThreadDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
-        settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        settingsItem.setIcon(R.drawable.icn_24_settings);
+        if (thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
+            settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
+            settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            settingsItem.setIcon(R.drawable.icn_24_settings);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
