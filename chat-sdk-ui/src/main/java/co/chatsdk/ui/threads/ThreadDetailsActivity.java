@@ -52,6 +52,7 @@ public class ThreadDetailsActivity extends BaseActivity {
 
     protected ActionBar actionBar;
     protected MenuItem settingsItem;
+    protected boolean startingSettingsActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +124,8 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        startingSettingsActivity = false;
 
         // Only if the current user is the admin of this thread.
         if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
@@ -205,6 +208,8 @@ public class ThreadDetailsActivity extends BaseActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
+            if (startingSettingsActivity) return true;
+            startingSettingsActivity = true;
             if (thread.typeIs(ThreadType.Public)) {
                 ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
             } else {
