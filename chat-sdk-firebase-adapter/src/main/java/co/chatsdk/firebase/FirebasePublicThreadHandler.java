@@ -86,7 +86,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                         e.onError(databaseError.toException());
                     }
                 });
-            });
+            }, e::onError);
 
         }).subscribeOn(Schedulers.single());
     }
