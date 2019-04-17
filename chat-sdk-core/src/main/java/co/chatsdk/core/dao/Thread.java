@@ -37,11 +37,7 @@ public class Thread implements CoreEntity {
     private String entityID;
     private Date creationDate;
     private Boolean hasUnreadMessages;
-    private Boolean deleted;
-    private String name;
     private Integer type;
-    private String creatorEntityId;
-    private String imageUrl;
     private String rootKey;
     private String apiKey; // TODO: Delete this
     private Long creatorId;
@@ -85,18 +81,14 @@ public class Thread implements CoreEntity {
         this.id = id;
     }
 
-    @Generated(hash = 859547806)
-    public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Boolean deleted, String name, Integer type,
-            String creatorEntityId, String imageUrl, String rootKey, String apiKey, Long creatorId, Long lastMessageId) {
+    @Generated(hash = 1128149884)
+    public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Integer type, String rootKey, String apiKey,
+            Long creatorId, Long lastMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
         this.hasUnreadMessages = hasUnreadMessages;
-        this.deleted = deleted;
-        this.name = name;
         this.type = type;
-        this.creatorEntityId = creatorEntityId;
-        this.imageUrl = imageUrl;
         this.rootKey = rootKey;
         this.apiKey = apiKey;
         this.creatorId = creatorId;
@@ -353,7 +345,7 @@ public class Thread implements CoreEntity {
     }
 
     public boolean isDeleted(){
-        return deleted != null && deleted;
+        return Boolean.parseBoolean(metaStringForKey(Keys.Deleted));
     }
 
     public void markRead () {
@@ -401,15 +393,15 @@ public class Thread implements CoreEntity {
     }
 
     public Boolean getDeleted() {
-        return deleted != null ? deleted : false;
+        return Boolean.parseBoolean(metaStringForKey(Keys.Deleted));
     }
 
     public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
+        setMetaString(Keys.Deleted, deleted.toString());
     }
 
     public String getName() {
-        return this.name;
+        return metaStringForKey(Keys.Name);
     }
 
     public String getDisplayName () {
@@ -436,7 +428,7 @@ public class Thread implements CoreEntity {
     }
 
     public void setName(String name) {
-        this.name = name;
+        setMetaString(Keys.Name, name);
     }
 
     public Date getLastMessageAddedDate () {
@@ -464,11 +456,11 @@ public class Thread implements CoreEntity {
     }
 
     public String getCreatorEntityId() {
-        return this.creatorEntityId;
+        return metaStringForKey(Keys.CreatorEntityId);
     }
 
     public void setCreatorEntityId(String creatorEntityId) {
-        this.creatorEntityId = creatorEntityId;
+        setMetaString(Keys.CreatorEntityId, creatorEntityId);
     }
 
     public String getRootKey() {
@@ -630,11 +622,11 @@ public class Thread implements CoreEntity {
     }
 
     public String getImageUrl() {
-        return this.imageUrl;
+        return metaStringForKey(Keys.ImageUrl);
     }
 
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        setMetaString(Keys.ImageUrl, imageUrl);
     }
 
     public Long getLastMessageId() {
