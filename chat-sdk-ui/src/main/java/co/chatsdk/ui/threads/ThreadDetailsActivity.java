@@ -71,8 +71,8 @@ public class ThreadDetailsActivity extends BaseActivity {
         }
 
         setContentView(activityLayout());
-
         initViews();
+        updateMetaData();
 
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.threadUsersUpdated())
@@ -94,18 +94,14 @@ public class ThreadDetailsActivity extends BaseActivity {
 
         threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
 
-        updateMetaData();
-
         disposableList.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> updateMetaData()));
     }
 
     protected void updateMetaData() {
-        // TODO: permanently move thread name into meta data
-        ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
-        if (nameMetaValue != null)
-            actionBar.setTitle(nameMetaValue.getValue());
+        actionBar.setTitle(Strings.nameForThread(thread));
     }
 
     protected void loadData () {
@@ -132,11 +128,6 @@ public class ThreadDetailsActivity extends BaseActivity {
             //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
             threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
