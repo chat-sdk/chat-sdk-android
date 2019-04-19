@@ -649,9 +649,6 @@ public class ThreadWrapper  {
                 if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
                     oldData.put(key, newValue.toString());
                 }
-                if (key.equals(Keys.Name) && newValue != null) {
-                    model.setName(newValue.toString());
-                }
             }
 
             model.setMetaMap(oldData);
