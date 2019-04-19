@@ -36,6 +36,7 @@ import java.util.List;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -46,6 +47,9 @@ public class BaseActivity extends AppCompatActivity {
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
+
+    protected DisposableList disposeListOnPause = new DisposableList();
+    protected DisposableList disposeListOnStop = new DisposableList();
 
     public BaseActivity() {
     }
@@ -109,22 +113,24 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
     }
 
     @Override
     protected void onPause() {
+        disposeListOnPause.dispose();
         super.onPause();
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onStop() {
+        disposeListOnStop.dispose();
         super.onStop();
     }
 
