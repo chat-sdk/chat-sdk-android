@@ -142,7 +142,8 @@ public class LocationProvider {
 
     @SuppressLint("MissingPermission")
     public Single<Location> getLastLocation(Activity activity) {
-        return PermissionRequestHandler.shared().requestLocationAccess(activity)
+        return requestEnableLocationServices(activity)
+                .andThen(PermissionRequestHandler.shared().requestLocationAccess(activity))
                 .andThen((Single.create((SingleOnSubscribe<Location>) single -> {
                     locationClient.getLastLocation().addOnSuccessListener(location -> {
                         if (location != null) {
