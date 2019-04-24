@@ -43,7 +43,7 @@ dependencies {
 
     // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
     // Can likely be removed later
-    implementation "com.google.firebase:firebase-iid:17.0.4"
+    implementation "com.google.firebase:firebase-iid:$firebaseIidVersion"
 
     implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
 
