@@ -111,32 +111,27 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
             disposableList.add(ChatSDK.publicThread().createPublicThreadWithName(threadName)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((newThread, throwable) -> {
-                        if (throwable == null) {
-                            // TODO: permanently move thread name into meta data
-                            newThread.setMetaValue(Keys.Name, threadName);
-                            disposableList.add(ChatSDK.thread().pushThreadMeta(newThread).subscribe(() -> {
-                                dismissProgressDialog();
-                                ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
+                    .subscribe(newThread -> {
+                        dismissProgressDialog();
+                        ToastHelper.show(ThreadEditDetailsActivity.this, String.format(getString(R.string.thread__created), threadName));
 
-                                // Finish this activity before opening the new thread to prevent the
-                                // user from going back to the creation screen by pressing the back button
-                                finish();
-                                ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), newThread.getEntityID());
-                            }));
-                        } else {
-                            ChatSDK.logError(throwable);
-                            Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                            dismissProgressDialog();
-                        }
+                        // Finish this activity before opening the new thread to prevent the
+                        // user from going back to the creation screen by pressing the back button
+                        finish();
+                        ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), newThread.getEntityID());
+                    }, throwable -> {
+                        ChatSDK.logError(throwable);
+                        Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        dismissProgressDialog();
                     }));
         } else {
-            // TODO: permanently move thread name into meta data
             thread.setName(threadName);
-            thread.update();
-            thread.setMetaValue(Keys.Name, threadName);
-            // TODO: Update the thread name
-            disposableList.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(this::finish));
+            disposableList.add(ChatSDK.thread()
+                    .pushThread(thread)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::finish, error -> {
+                        ToastHelper.show(ThreadEditDetailsActivity.this, error.getLocalizedMessage());
+                    }));
         }
     }
 

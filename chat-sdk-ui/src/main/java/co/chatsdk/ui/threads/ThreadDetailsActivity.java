@@ -9,11 +9,12 @@ package co.chatsdk.ui.threads;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -21,12 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -71,12 +69,6 @@ public class ThreadDetailsActivity extends BaseActivity {
         setContentView(activityLayout());
 
         initViews();
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.threadUsersUpdated())
-                .subscribe(networkEvent -> loadData()));
-
-        loadData();
     }
 
     protected @LayoutRes int activityLayout() {
@@ -91,19 +83,10 @@ public class ThreadDetailsActivity extends BaseActivity {
         }
 
         threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
-
-        updateMetaData();
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                .subscribe(networkEvent -> updateMetaData()));
     }
 
     protected void updateMetaData() {
-        // TODO: permanently move thread name into meta data
-        ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
-        if (nameMetaValue != null)
-            actionBar.setTitle(nameMetaValue.getValue());
+        actionBar.setTitle(Strings.nameForThread(thread));
     }
 
     protected void loadData () {
@@ -123,15 +106,29 @@ public class ThreadDetailsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        loadData();
+        updateMetaData();
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .subscribe(networkEvent -> updateMetaData()));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.threadUsersUpdated())
+                .subscribe(networkEvent -> loadData()));
+
         // Only if the current user is the admin of this thread.
         if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
             //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
             threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
         }
+
+
     }
 
     @Override
     protected void onPause() {
+        disposableList.dispose();
         super.onPause();
     }
 
@@ -150,12 +147,6 @@ public class ThreadDetailsActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // TODO: Enable thread images
-    }
-
-    @Override
-    protected void onStop() {
-        disposableList.dispose();
-        super.onStop();
     }
 
     @Override
