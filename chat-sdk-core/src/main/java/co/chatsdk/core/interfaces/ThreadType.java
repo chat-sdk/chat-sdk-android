@@ -8,9 +8,22 @@ public class ThreadType {
 
 //    ThreadType
 
+//    public static int Private2 = 0x1;
+//    public static int _1to1 = 0x2;
+//    public static int Public2 = 0x4;
+//    public static int Group2 = 0x8;
+//
+//    public static int PrivateGroup2 = Private2 | Group2;
+//    public static int Private1to12 = _1to1 | Private2;
+//    public static int PublicGroup2 = Public2 | Group2;
+
+    public static int Snap = 0x8;
+
     public static int PrivateGroup = 0x1;
     public static int Private1to1 = 0x2;
     public static int PublicGroup = 0x4;
+
+    public static int Private1to1Snap = Private1to1 | Snap;
 
     // Descriptors
     public static int Private = Private1to1 | PrivateGroup;

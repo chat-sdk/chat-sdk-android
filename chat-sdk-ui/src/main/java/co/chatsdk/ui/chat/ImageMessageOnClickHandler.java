@@ -24,7 +24,6 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-
 /**
  * Created by benjaminsmiley-andrews on 20/06/2017.
  */

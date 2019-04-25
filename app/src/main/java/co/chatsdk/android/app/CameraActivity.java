@@ -1,5 +1,6 @@
 package co.chatsdk.android.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.camerakit.CameraKit;
 import com.camerakit.CameraKitView;
+import com.wonderkiln.camerakit.CameraKit;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,9 +18,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import androidx.appcompat.app.AppCompatActivity;
+import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.ui.chat.MediaSelector;
 
-public class CameraActivity extends AppCompatActivity {
+import co.chatsdk.ui.main.BaseActivity;
+import io.reactivex.disposables.Disposable;
+
+public class CameraActivity extends BaseActivity {
 
     private boolean isRecording = false;
     private CameraKitView cameraKitView;
@@ -27,13 +33,13 @@ public class CameraActivity extends AppCompatActivity {
     File videoFolder;
 
     @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_camera);
-            cameraKitView = findViewById(R.id.camera);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_camera);
+        cameraKitView = findViewById(R.id.camera);
 
-            createImageGallery();
-            createVideoGallery();
+        createImageGallery();
+        createVideoGallery();
     }
 
     @Override
@@ -150,7 +156,29 @@ is from version 0.13.1. I still can'T make it work though. There appears to be n
         startActivity(i);
     }
 
-    public void switchCamera (View v) {
+    public void switchCamera(View v) {
         cameraKitView.toggleFacing();
     }
+
+    public void onGoToGalleryClicked(View v) {
+
+        final MediaSelector mediaSelector = new MediaSelector();
+
+        Disposable activityResultDisposable = ActivityResultPushSubjectHolder.shared().subscribe(result12 -> {
+            mediaSelector.handleResult(this, result12.requestCode, result12.resultCode, result12.data);
+        }, throwable -> {
+            if(!StringChecker.isNullOrEmpty(throwable.getLocalizedMessage())) {
+                Toast.makeText(this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mediaSelector.startChooseImageActivity(this, MediaSelector.CropType.Rectangle, new MediaSelector.Result() {
+            @Override
+            public void result(String result) {
+                File imageFile = new File(result);
+                goToImageEditing(imageFile);
+            }
+        });
+    }
+
 }

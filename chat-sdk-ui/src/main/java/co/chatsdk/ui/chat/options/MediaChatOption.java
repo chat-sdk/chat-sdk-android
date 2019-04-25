@@ -1,5 +1,6 @@
 package co.chatsdk.ui.chat.options;
 
+import android.media.MediaRecorder;
 import android.widget.Toast;
 
 import co.chatsdk.core.rx.ObservableConnector;
@@ -63,6 +64,13 @@ public class MediaChatOption extends BaseChatOption {
                         e.onComplete();
                     }
                 };
+
+                mediaSelector.startChooseImageActivity(activity, MediaSelector.CropType.Rectangle, new MediaSelector.Result() {
+                    @Override
+                    public void result(String result) {
+
+                    }
+                });
 
                 Disposable d = null;
 

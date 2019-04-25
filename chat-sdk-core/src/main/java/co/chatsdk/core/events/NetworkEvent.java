@@ -194,6 +194,15 @@ public class NetworkEvent {
         return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Public).test(networkEvent);
     }
 
+    public static Predicate<NetworkEvent> filterSnapThreadsUpdated () {
+        return new Predicate<NetworkEvent>() {
+            @Override
+            public boolean test(NetworkEvent networkEvent) throws Exception {
+                return threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Private1to1Snap).test(networkEvent);
+            }
+        };
+    }
+
     public static Predicate<NetworkEvent> filterContactsChanged () {
         return filterType(
                 EventType.ContactChanged,

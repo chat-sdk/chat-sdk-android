@@ -187,7 +187,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             }
 
 
-            if (users.size() == 2 && (type == -1 || type == ThreadType.Private1to1)) {
+            if (users.size() == 2 && (type == -1 || (type & ThreadType.Private1to1) > 0)) {
 
                 User otherUser = null;
                 Thread jointThread = null;

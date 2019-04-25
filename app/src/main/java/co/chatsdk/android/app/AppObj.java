@@ -17,6 +17,7 @@ import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
@@ -40,7 +41,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder(context);
 
-            config.firebaseRootPath("19_03");
+            config.firebaseRootPath("19_03_snap");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
@@ -59,8 +60,11 @@ public class AppObj extends MultiDexApplication {
             ProfilePicturesModule.activate();
 
             ChatSDK.ui().addTab("Snap", R.drawable.push_icon, new SnapFragment(), 0);
+            ChatSDK.ui().setMessageHandler(new SnapImageMessageDisplayHandler(), new MessageType(MessageType.Image));
 
-            // Uncomment this to enable Firebase UI
+            //ChatSDK.ui().setMessageHandler();
+            // Uncomment this to enable Firebas
+            // e UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
         }

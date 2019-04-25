@@ -16,11 +16,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="co.chatsdk.android.app.SnapChatActivity" />
+
+        <activity android:name="co.chatsdk.android.app.SnapImageViewActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
         <activity android:name="co.chatsdk.android.app.CameraActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity android:name="co.chatsdk.android.app.ImageEditActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
+        <activity android:name="co.chatsdk.android.app.SelectSnapRecipientActivity" />
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
 

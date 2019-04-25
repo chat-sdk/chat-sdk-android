@@ -14,5 +14,6 @@
     <color name="register_button_color">#78b737</color>
     <color name="anonymous_button_color">#aaaaaa</color>
     <color name="logout_button_color">#AE2020</color>
+    <color name="black_semi_transparent">#A0000000</color>
 
 </resources>

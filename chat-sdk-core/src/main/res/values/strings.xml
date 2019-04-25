@@ -73,6 +73,7 @@
 
     <!--BaseFragment/BaseActivity-->
     <string name="create_thread_with_users_fail_toast">Failed to start chat</string>
+    <string name="create_snap_thread_with_users_fail_toast">Failed to start snap chat</string>
     <string name="delete_thread_fail_toast">Unable to delete thread</string>
     <string name="delete_thread_success_toast">Thread is deleted</string>
 
