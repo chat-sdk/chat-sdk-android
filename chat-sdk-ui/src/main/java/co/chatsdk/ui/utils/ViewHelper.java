@@ -9,12 +9,18 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.IdRes;
 import androidx.annotation.StringRes;
 import androidx.viewpager.widget.ViewPager;
 
 public class ViewHelper {
 
     // View
+
+    public static <T extends View> T findViewById(View view, @IdRes int id) {
+        if (view != null) return view.findViewById(id);
+        else return null;
+    }
 
     public static void setVisibility(View view, int visibility) {
         if (view != null) view.setVisibility(visibility);

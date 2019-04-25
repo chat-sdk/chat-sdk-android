@@ -64,6 +64,7 @@ import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.utils.ViewHelper;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -178,8 +179,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
              */
 
             actionBarView = getLayoutInflater().inflate(R.layout.chat_sdk_actionbar_chat_activity, null);
+            subtitleTextView = ViewHelper.findViewById(actionBarView, R.id.tvSubtitle);
 
-            actionBarView.setOnClickListener(v -> {
+            ViewHelper.setOnClickListener(actionBarView, v -> {
                 if (ChatSDK.config().threadDetailsEnabled) {
                     openThreadDetailsActivity();
                 }
@@ -202,6 +204,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         progressBar = findViewById(R.id.chat_sdk_progressbar);
 
         final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.ptr_layout);
+
 
         mSwipeRefresh.setOnRefreshListener(() -> {
 
@@ -245,18 +248,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         recyclerView.setAdapter(messageListAdapter);
+
+        updateMetaData();
     }
 
     protected void updateMetaData() {
-        TextView textView = actionBarView.findViewById(R.id.tvName);
+        TextView textView = ViewHelper.findViewById(actionBarView, R.id.tvName);
 
         String displayName = Strings.nameForThread(thread);
         setTitle(displayName);
-        textView.setText(displayName);
+        ViewHelper.setText(textView, displayName);
 
-        subtitleTextView = actionBarView.findViewById(R.id.tvSubtitle);
-
-        final SimpleDraweeView circleImageView = actionBarView.findViewById(R.id.ivAvatar);
+        final SimpleDraweeView circleImageView = ViewHelper.findViewById(actionBarView, R.id.ivAvatar);
         ThreadImageBuilder.load(circleImageView, thread);
     }
 
