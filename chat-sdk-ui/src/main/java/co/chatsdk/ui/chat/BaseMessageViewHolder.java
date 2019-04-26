@@ -32,7 +32,8 @@ import co.chatsdk.ui.R;
 public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
     public static final String MoreThanYearFormat = "MM/yy";
-    public static final String MoreThanDayFormat = "MMM dd";
+    public static final String WeekToYearFormat = "dd/MM";
+    public static final String DayToWeekFormat = "EEE";
 
     protected SimpleDraweeView avatarImageView;
     protected TextView timeTextView;
@@ -294,11 +295,14 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         if (interval < 3600 * 24) {
             return simpleDateFormat;
         }
+        else if (interval < 3600 * 24 * 7) {
+            simpleDateFormat.applyPattern(dateFormat + " " + DayToWeekFormat);
+        }
         else if (interval < 3600 * 24 * 365) {
-            simpleDateFormat.applyPattern(dateFormat + " " +MoreThanDayFormat);
+            simpleDateFormat.applyPattern(dateFormat + " " + WeekToYearFormat);
         }
         else {
-            simpleDateFormat.applyPattern(dateFormat + " " +MoreThanYearFormat);
+            simpleDateFormat.applyPattern(dateFormat + " " + MoreThanYearFormat);
         }
         return simpleDateFormat;
     }

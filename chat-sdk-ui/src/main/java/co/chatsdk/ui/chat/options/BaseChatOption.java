@@ -4,10 +4,9 @@ import android.app.Activity;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.types.ChatOptionType;
+import co.chatsdk.core.utils.DisposableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by ben on 10/11/17.
@@ -18,18 +17,16 @@ public class BaseChatOption implements ChatOption {
     protected Action action;
     protected String title;
     protected Integer iconResourceId;
-    protected ChatOptionType type;
-    protected Disposable activityResultDisposable = null;
+    protected DisposableList disposableList = new DisposableList();
 
-    public BaseChatOption (String title, Integer iconResourceId, Action action, ChatOptionType type) {
+    public BaseChatOption (String title, Integer iconResourceId, Action action) {
         this.action = action;
         this.title = title;
         this.iconResourceId = iconResourceId;
-        this.type = type;
     }
 
-    public BaseChatOption (String title, Action action, ChatOptionType type) {
-        this(title, null, action, type);
+    public BaseChatOption (String title, Action action, MediaType type) {
+        this(title, null, action);
     }
 
     @Override
@@ -50,19 +47,11 @@ public class BaseChatOption implements ChatOption {
         return Completable.complete().toObservable();
     }
 
-    @Override
-    public ChatOptionType getType() {
-        return type;
-    }
-
     public interface Action {
         Observable<?> execute(Activity activity, Thread thread);
     }
 
     protected void dispose () {
-        if(activityResultDisposable != null) {
-            activityResultDisposable.dispose();
-            activityResultDisposable = null;
-        }
+        disposableList.dispose();
     }
 }

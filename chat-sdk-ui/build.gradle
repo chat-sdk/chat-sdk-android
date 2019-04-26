@@ -49,6 +49,7 @@ dependencies {
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
     implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
+    implementation "com.zhihu.android:matisse:$matisseVersion"
 
     // Dependencies required by other Chat SDK libraries
     api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"

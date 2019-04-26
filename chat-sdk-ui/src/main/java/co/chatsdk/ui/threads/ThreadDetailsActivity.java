@@ -14,6 +14,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -21,30 +23,28 @@ import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.ThreadMetaValue;
-import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.helpers.ProfilePictureChooserOnClickListener;
-import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.utils.ImagePreviewActivity;
+import co.chatsdk.ui.utils.ToastHelper;
 
 /**
  * Created by braunster on 24/11/14.
  */
-public class ThreadDetailsActivity extends BaseActivity {
+public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     /** Set true if you want slide down animation for this context exit. */
     protected boolean animateExit = false;
 
     protected Thread thread;
     protected SimpleDraweeView threadImageView;
+    protected TextView threadNameTextView;
 
     protected ContactsFragment contactsFragment;
     protected DisposableList disposableList = new DisposableList();
@@ -67,16 +67,13 @@ public class ThreadDetailsActivity extends BaseActivity {
                 finish();
             }
         }
+        if (thread == null) {
+            ToastHelper.show(this, R.string.error_thread_not_found);
+            finish();
+        }
 
-        setContentView(activityLayout());
-
+//        setContentView(activityLayout());
         initViews();
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.threadUsersUpdated())
-                .subscribe(networkEvent -> loadData()));
-
-        loadData();
     }
 
     protected @LayoutRes int activityLayout() {
@@ -84,30 +81,32 @@ public class ThreadDetailsActivity extends BaseActivity {
     }
 
     protected void initViews() {
-        actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(Strings.nameForThread(thread));
-            actionBar.setHomeButtonEnabled(true);
-        }
 
         threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
-
-        updateMetaData();
+        threadNameTextView = findViewById(R.id.name_text_view);
 
         disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                .subscribe(networkEvent -> updateMetaData()));
+                .filter(NetworkEvent.threadsUpdated())
+                .subscribe(networkEvent -> reloadData()));
+
+        reloadData();
     }
 
-    protected void updateMetaData() {
-        // TODO: permanently move thread name into meta data
-        ThreadMetaValue nameMetaValue = thread.metaValueForKey(Keys.Name);
-        if (nameMetaValue != null)
-            actionBar.setTitle(nameMetaValue.getValue());
-    }
+    protected void reloadData () {
+        actionBar = getSupportActionBar();
+        String name = Strings.nameForThread(thread);
+        if (actionBar != null) {
+            actionBar.setTitle(name);
+            actionBar.setHomeButtonEnabled(true);
+        }
+        threadNameTextView.setText(name);
 
-    protected void loadData () {
-        ThreadImageBuilder.load(threadImageView, thread);
+        if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
+            threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
+        } else {
+            ThreadImageBuilder.load(threadImageView, thread);
+            threadImageView.setOnClickListener(null);
+        }
 
         // CoreThread users bundle
         contactsFragment = new ContactsFragment();
@@ -122,12 +121,7 @@ public class ThreadDetailsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Only if the current user is the admin of this thread.
-        if (StringUtils.isNotBlank(thread.getCreatorEntityId()) && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
-            //threadImageView.setOnClickListener(ChatSDKIntentClickListener.getPickImageClickListener(this, THREAD_PIC));
-            threadImageView.setOnClickListener(new ProfilePictureChooserOnClickListener(this));
-        }
+        reloadData();
     }
 
     @Override
@@ -190,10 +184,13 @@ public class ThreadDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
-        settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        settingsItem.setIcon(R.drawable.icn_24_settings);
-        return super.onCreateOptionsMenu(menu);
+        if (thread != null && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
+            settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
+            settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            settingsItem.setIcon(R.drawable.icn_24_settings);
+            return super.onCreateOptionsMenu(menu);
+        }
+        return false;
     }
 
     @Override

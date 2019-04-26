@@ -2,6 +2,7 @@ package co.chatsdk.firebase;
 
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
 
@@ -75,7 +76,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                         .child(thread.getEntityID());
 
                 HashMap<String, Object> value = new HashMap<>();
-                value.put(Keys.Null, "");
+                value.put(Keys.CreationDate, ServerValue.TIMESTAMP);
 
                 publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
                     if(databaseError == null) {

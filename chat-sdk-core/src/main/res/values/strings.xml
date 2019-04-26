@@ -202,6 +202,12 @@
 
     <!--Error-->
     <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
+    <string name="unable_to_start_activity">Unable to start activity</string>
+    <string name="error_processing_image">Error processing image</string>
+    <string name="error_picking_location">Error picking location</string>
+    <string name="error_launching_activity">Error launching activity</string>
+    <string name="error_thread_not_found">Error thread not found</string>
+
     <string name="unable_to_save_file">Unable to save file&#8230;</string>
     <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>
     <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
@@ -369,5 +375,7 @@
     <string name="create_thread">Create Room</string>
 
     <string name="update_thread">Update Room</string>
+    <string name="update_thread_failed">Only the thread creator can update the thread</string>
+    <string name="uploading">Uploading</string>
 
 </resources>

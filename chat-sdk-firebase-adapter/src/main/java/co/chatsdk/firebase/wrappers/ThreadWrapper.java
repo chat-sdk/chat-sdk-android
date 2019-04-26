@@ -635,16 +635,14 @@ public class ThreadWrapper  {
     public Completable push() {
         return Completable.create(e -> {
 
-            DatabaseReference ref = null;
+            // If the thread ID is null, create a new random ID
+            if (model.getEntityID() == null || model.getEntityID().length() == 0) {
+                model.setEntityID(FirebasePaths.threadRef().push().getKey());
+                model.update();
+            }
 
-            if (model.getEntityID() != null && model.getEntityID().length() > 0) {
-                ref = FirebasePaths.threadRef(model.getEntityID());
-            }
-            else {
-                ref = FirebasePaths.threadRef().push();
-                model.setEntityID(ref.getKey());
-                DaoCore.updateEntity(model);
-            }
+            DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID());
+            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
             ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
                 if (databaseError == null) {
@@ -655,6 +653,11 @@ public class ThreadWrapper  {
                     e.onError(databaseError.toException());
                 }
             });
+
+            // Also update the meta ref - we do this for forwards compatibility
+            // in the future we will move everything to the meta area
+            metaRef.updateChildren(serialize());
+
         }).subscribeOn(Schedulers.single());
     }
 

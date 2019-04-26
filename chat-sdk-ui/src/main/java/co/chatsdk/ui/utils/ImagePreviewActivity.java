@@ -1,4 +1,4 @@
-package co.chatsdk.profile.pictures;
+package co.chatsdk.ui.utils;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -41,7 +41,7 @@ public class ImagePreviewActivity extends BaseActivity {
         setContentView(activityLayout());
         mainView = findViewById(android.R.id.content);
 
-        initViews();
+        setupViews();
 
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
@@ -51,7 +51,7 @@ public class ImagePreviewActivity extends BaseActivity {
         return 0;
     }
 
-    protected void initViews() {
+    protected void setupViews() {
         addBackgroundView();
         addExpandedImageView();
     }

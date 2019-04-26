@@ -45,6 +45,7 @@ import co.chatsdk.ui.chat.handlers.TextMessageDisplayHandler;
 import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
+import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.contacts.SelectContactActivity;
 import co.chatsdk.ui.login.LoginActivity;
@@ -492,8 +493,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             }
 
             if(ChatSDK.config().imageMessagesEnabled) {
-                chatOptions.add(new MediaChatOption(stringTakePhoto, MediaChatOption.Type.TakePhoto));
-                chatOptions.add(new MediaChatOption(stringChoosePhoto, MediaChatOption.Type.ChoosePhoto));
+                chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
+                chatOptions.add(new MediaChatOption(stringChoosePhoto, MediaType.choosePhoto()));
             }
             defaultChatOptionsAdded = true;
         }

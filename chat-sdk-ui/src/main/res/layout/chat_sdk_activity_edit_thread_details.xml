@@ -17,7 +17,7 @@
             android:orientation="vertical">
 
             <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/chat_sdk_edit_thread_iv"
+                android:id="@+id/thread_icon_sdv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
@@ -34,33 +34,45 @@
                 fresco:placeholderImage="@drawable/icn_100_public_thread"
                 fresco:roundAsCircle="true" />
 
-            <EditText
-                android:id="@+id/chat_sdk_edit_thread_name_et"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/thread_name_til"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="8dp"
-                android:ems="10"
-                android:hint="@string/name_hint"
-                android:inputType="textCapSentences"
-                android:textSize="14sp"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_edit_thread_iv" />
+                app:layout_constraintTop_toBottomOf="@+id/thread_icon_sdv">
 
-            <Button
-                android:id="@+id/chat_sdk_edit_thread_update_b"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="8dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/thread_name_tet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="8dp"
+                    android:ems="10"
+                    android:gravity="center"
+                    android:hint="@string/name_hint"
+                    android:inputType="textCapSentences"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/done_btn"
+                style="@style/LoginButton"
                 android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginRight="6dp"
                 android:text="@string/create_thread"
-                app:layout_constraintTop_toBottomOf="@+id/chat_sdk_edit_thread_name_et"
+                app:backgroundTint="@color/register_button_color"
+                app:layout_constraintTop_toBottomOf="@+id/thread_name_til"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 

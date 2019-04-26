@@ -47,14 +47,10 @@ import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.types.ChatOptionType;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
-import co.chatsdk.core.utils.CrashReportingObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
@@ -861,12 +857,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void executeChatOption(ChatOption option) {
-        if(option.getType() == ChatOptionType.SendMessage) {
-            handleMessageSend((Observable<MessageSendProgress>) option.execute(this, thread));
-        }
-        else {
-            option.execute(this, thread).subscribe(new CrashReportingObserver<>());
-        }
+        handleMessageSend((Observable<MessageSendProgress>) option.execute(this, thread));
     }
 
 }

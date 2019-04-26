@@ -27,6 +27,7 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
@@ -300,6 +301,9 @@ public class UserWrapper {
                 if (firebaseError == null) {
                     // index should be updated whenever the user is pushed
                     FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+
+                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
+
                     e.onComplete();
                 }
                 else {
