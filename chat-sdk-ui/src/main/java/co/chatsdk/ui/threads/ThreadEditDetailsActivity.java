@@ -99,7 +99,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                saveButton.setEnabled(!nameInput.getText().toString().isEmpty());
+                updateSaveButtonState();
             }
 
             @Override
@@ -128,6 +128,10 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         refreshView();
     }
 
+    protected void updateSaveButtonState () {
+        saveButton.setEnabled(!nameInput.getText().toString().isEmpty());
+    }
+
     protected void updateThreadImageURL (String url) {
         threadImageURL = url;
     }
@@ -146,6 +150,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         } else if (thread != null) {
             threadImageView.setImageURI(thread.getImageUrl());
         }
+        updateSaveButtonState();
     }
 
     protected void didClickOnSaveButton() {

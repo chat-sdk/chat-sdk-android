@@ -32,11 +32,13 @@
 
         <activity android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
+            android:launchMode = "singleTask"
             android:theme="@style/SdkTheme">
         </activity>
 
         <activity android:name=".login.SplashScreenActivity"
             android:screenOrientation="portrait"
+            android:launchMode = "singleTask"
             android:theme="@style/SdkTheme">
         </activity>
 

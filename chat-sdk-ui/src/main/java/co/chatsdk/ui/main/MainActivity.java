@@ -28,6 +28,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
+import timber.log.Timber;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -100,4 +101,8 @@ public abstract class MainActivity extends BaseActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onBackPressed() {
+        // Fixes an issue where if we press back the whole app goes blank
+    }
 }

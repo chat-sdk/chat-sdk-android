@@ -30,7 +30,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder(context);
 
-            config.firebaseRootPath("19_04");
+            config.firebaseRootPath("19_05_fixes");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");

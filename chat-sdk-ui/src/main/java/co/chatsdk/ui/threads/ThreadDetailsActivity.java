@@ -103,6 +103,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
             threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
+            threadImageView.setImageURI(thread.getImageUrl());
         } else {
             ThreadImageBuilder.load(threadImageView, thread);
             threadImageView.setOnClickListener(null);

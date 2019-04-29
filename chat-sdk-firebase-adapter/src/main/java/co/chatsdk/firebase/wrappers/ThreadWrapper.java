@@ -533,46 +533,40 @@ public class ThreadWrapper  {
     /**
      * Converting the thread details to a map object.
      **/
-    private Map<String, Object> serialize() {
-
-        Map<String , Object> value = new HashMap<String, Object>();
-        Map<String , Object> nestedMap = new HashMap<String, Object>();
-
-        nestedMap.put(Keys.CreationDate, ServerValue.TIMESTAMP);
-
-        nestedMap.put(Keys.Name, model.getName());
-
-        // This is the legacy type
-        int type = model.typeIs(ThreadType.Public) ? 1 : 0;
-
-        nestedMap.put(Keys.Type, type);
-        nestedMap.put(Keys.Type_v4, model.getType());
-
-        nestedMap.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
-
-        nestedMap.put(Keys.ImageUrl, this.model.getImageUrl());
-
-        value.put(FirebasePaths.DetailsPath, nestedMap);
-                
-        return value;
+    protected Map<String, Object> serialize() {
+        Map<String , Object> map = new HashMap<String, Object>();
+        map.put(FirebasePaths.DetailsPath, serializeMeta());
+        return map;
     }
 
-    public Completable pushName () {
-        return Completable.create(e -> {
-            DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.DetailsPath);
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(Keys.Name, model.getName());
-            ref.updateChildren(map, (databaseError, databaseReference) -> {
-                if (databaseError == null) {
-                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
-                    e.onComplete();
-                }
-                else {
-                    e.onError(databaseError.toException());
-                }
-            });
-        }).subscribeOn(Schedulers.single());
+    protected Map<String, Object> serializeMeta () {
+        Map<String , Object> map = new HashMap<>();
+
+        map.put(Keys.CreationDate, ServerValue.TIMESTAMP);
+        map.put(Keys.Name, model.getName());
+        map.put(Keys.Type_v4, model.getType());
+        map.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
+        map.put(Keys.ImageUrl, this.model.getImageUrl());
+
+        return map;
     }
+
+//    public Completable pushName () {
+//        return Completable.create(e -> {
+//            DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.DetailsPath);
+//            HashMap<String, Object> map = new HashMap<>();
+//            map.put(Keys.Name, model.getName());
+//            ref.updateChildren(map, (databaseError, databaseReference) -> {
+//                if (databaseError == null) {
+//                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+//                    e.onComplete();
+//                }
+//                else {
+//                    e.onError(databaseError.toException());
+//                }
+//            });
+//        }).subscribeOn(Schedulers.single());
+//    }
 
     /**
      * Updating thread details from given map
@@ -611,11 +605,6 @@ public class ThreadWrapper  {
         // First check to see if the new type value exists
         if(value.containsKey(Keys.Type_v4)) {
             type = (Long) value.get(Keys.Type_v4);
-        }
-        // Handle the legacy value
-        else if (value.containsKey(Keys.Type)) {
-            type = ((Long) value.get(Keys.Type));
-            type = (type == ThreadType.PrivateV3) ? ThreadType.PrivateGroup : ThreadType.PublicGroup;
         }
         model.setType((int)type);
 
@@ -656,7 +645,7 @@ public class ThreadWrapper  {
 
             // Also update the meta ref - we do this for forwards compatibility
             // in the future we will move everything to the meta area
-            metaRef.updateChildren(serialize());
+            metaRef.updateChildren(serializeMeta());
 
         }).subscribeOn(Schedulers.single());
     }
