@@ -10,7 +10,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/msVb8q)** or **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
+- **Demo Versions.** **[Firebase](https://i.diawi.com/Vx6fs3)** or **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
 
@@ -157,10 +157,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.4'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.4'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.5'
 ```
 
 You may also need to enable Java 8:
@@ -609,36 +609,43 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.0.2"
-    androidxConstraintLayoutVersion = "2.0.0-alpha2"
+    androidxConstraintLayoutVersion = "2.0.0-alpha4"
     androidxLifecycleExtensionsVersion = "2.0.0"
     androidxRecyclerViewVersion = "1.0.0"
+    androidxMultidexVersion = "2.0.1"
     materialVersion = "1.0.0"
     playAuthVersion = "16.0.1"
-    playMapsVersion = "16.0.0"
+    playMapsVersion = "16.1.0"
     playPlacesVersion = "16.0.0"
-    firebaseUiVersion = "4.2.1"
-    firebaseCoreVersion = "16.0.5"
-    firebaseDatabaseVersion = "16.0.5"
-    firebaseAuthVersion = "16.0.5"
-    firebaseStorageVersion = "16.0.5"
-    firebaseMessagingVersion = "17.3.4"
-    firebaseFunctionsVersion = "16.1.3"
-    timberVersion = "4.7.4"
+    playLocationVersion = "16.0.0"
+    firebaseUiVersion = "4.3.1"
+    firebaseCoreVersion = "16.0.8"
+    firebaseDatabaseVersion = "16.1.0"
+    firebaseAuthVersion = "16.2.1"
+    firebaseStorageVersion = "16.1.0"
+    firebaseMessagingVersion = "17.5.0"
+    firebaseFunctionsVersion = "16.3.0"
+    firebaseIIDVersion = "17.1.1"
+    timberVersion = "4.7.1"
     greenDaoVersion = "3.2.2"
-    frescoVersion = "1.10.0"
-    rxJavaVersion = "2.2.3"
-    rxAndroidVersion = "2.1.0"
+    frescoVersion = "1.13.0"
+    rxJavaVersion = "2.2.8"
+    rxAndroidVersion = "2.1.1"
     gsonVersion = "2.8.5"
     jodaTimeVersion = "2.10.1"
-    apacheCommonsVersion = "3.7"
+    jodaConvertVersion = "2.2.0"
+    apacheCommonsVersion = "3.8.1"
     compressorVersion = "2.1.0"
     okHttpVersion = "3.11.0"
-    facebookLoginVersion = "4.34.0"
+    facebookLoginVersion = "4.38.1"
     twitterVersion = "3.3.0"
     prettyTimeVersion = "4.0.1.Final"
     countryPickerVersion = "2.0.0"
     imageCropperVersion = "2.8.0"
-    photoViewVersion = "2.2.0"
+    photoViewVersion = "2.3.0"
+    materialDrawerVersion = "6.1.2"
+    androidDatabaseSQLCipher = "4.1.3@aar"
+    matisseVersion = "0.5.2-beta4"
 }
 ```
 
