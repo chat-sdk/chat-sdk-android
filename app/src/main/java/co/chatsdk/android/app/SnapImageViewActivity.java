@@ -2,6 +2,8 @@ package co.chatsdk.android.app;
 
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+
+import com.dinuscxj.progressbar.CircleProgressBar;
 import com.github.chrisbanes.photoview.PhotoView;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -45,7 +47,7 @@ public class SnapImageViewActivity extends AppCompatActivity {
     private String imageURL;
     private String messageEntityID;
     private int lifetime;
-    ProgressBar circleTimer;
+    CircleProgressBar circleTimer;
     TextView textTimer;
     Message message;
 
@@ -57,7 +59,14 @@ public class SnapImageViewActivity extends AppCompatActivity {
         final PhotoView imageView = findViewById(co.chatsdk.ui.R.id.photo_view);
         final ProgressBar progressBar = findViewById(co.chatsdk.ui.R.id.chat_sdk_popup_image_progressbar);
         final FloatingActionButton saveButton = findViewById(co.chatsdk.ui.R.id.floating_button);
-        circleTimer = (ProgressBar) findViewById(R.id.barTimer);
+        circleTimer = (CircleProgressBar) findViewById(R.id.barTimer);
+        /*circleTimer.setProgressFormatter(new CircleProgressBar.ProgressFormatter() {
+            @Override
+            public CharSequence format(int progress, int max) {
+                return "";
+            }
+        });*/
+
         textTimer = (TextView) findViewById(R.id.textTimer);
 
         Intent i = getIntent();
@@ -94,8 +103,9 @@ public class SnapImageViewActivity extends AppCompatActivity {
                 }, throwable -> {
                     ToastHelper.show(this, co.chatsdk.ui.R.string.unable_to_fetch_image);
                 });
-        circleTimer.setMax(lifetime);
+        circleTimer.setMax(lifetime * 1000);
         startTimer(lifetime);
+        ChatSDK.thread().deleteMessage(message).subscribe();
     }
 
     private void startTimer(final int secondsInput) {
@@ -104,9 +114,8 @@ public class SnapImageViewActivity extends AppCompatActivity {
 
             @Override
             public void onTick(long leftTimeInMilliseconds) {
-                long seconds = leftTimeInMilliseconds / 1000;
-                circleTimer.setProgress((int) seconds);
-                textTimer.setText(String.format("%02d", seconds / 60) + ":" + String.format("%02d", seconds % 60));
+                circleTimer.setProgress((int)leftTimeInMilliseconds);
+                textTimer.setText(String.format("%02d", leftTimeInMilliseconds / 60000) + ":" + String.format("%02d", (leftTimeInMilliseconds / 1000) % 60));
                 //format the textview to show the easily readable format
             }
 

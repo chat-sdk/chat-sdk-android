@@ -35,9 +35,28 @@
         android:layout_marginBottom="10dp"
         android:src="@drawable/ic_56_save" />
 
-    <ProgressBar
+    <com.dinuscxj.progressbar.CircleProgressBar
         android:id="@+id/barTimer"
-        style="?android:attr/progressBarStyleHorizontal"
+
+        app:style="solid"
+
+        app:progress_text_color="@color/holo_purple"
+        app:progress_text_size="@dimen/progress_text_size"
+
+        app:progress_stroke_width="1dp"
+        app:progress_start_color="@color/holo_purple"
+        app:progress_end_color="@color/holo_green_light"
+        app:progress_background_color="@color/holo_darker_gray"
+        app:progress_start_degree="-90"
+        app:drawBackgroundOutsideProgress="true"
+
+        app:progress_shader="sweep"
+
+        app:progress_stroke_cap="round"
+
+        app:line_width="4dp"
+        app:line_count="30"
+
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -45,8 +64,7 @@
         android:layout_height="100dp"
         android:indeterminate="false"
         android:max="1000"
-        android:progress="45"
-        android:progressDrawable="@drawable/circular_progress_bar" />
+        android:progress="45"/>
 
     <TextView
         android:id="@+id/textTimer"
