@@ -132,3 +132,4 @@ public class ImageEditActivity extends BaseActivity {
 }
 
 //https://github.com/leinardi/FloatingActionButtonSpeedDial
+//branch alpha
