@@ -5,37 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/baseButtonLayout"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="top|end"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/no_time_limit"
-        tools:layout_editor_absoluteX="-33dp">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/mainFloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="6dp"
-            android:layout_marginRight="6dp"
-            android:clickable="true"
-            android:scaleType="center"
-            android:tint="#ff030f"
-            app:backgroundTint="@color/colorPrimaryDark"
-            app:fabSize="normal"
-            app:srcCompat="@android:drawable/ic_input_add" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
     <TextView
         android:id="@+id/minutes_text"
         android:layout_width="wrap_content"

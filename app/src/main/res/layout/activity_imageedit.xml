@@ -7,62 +7,62 @@
 
     <TextView
         android:id="@+id/minutes_text"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:gravity="center"
         android:text="Minutes"
         android:textColor="@color/white"
         android:textColorHint="@android:color/white"
         android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/seconds_text"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/seconds_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="Seconds"
         android:textColor="@color/white"
         android:textColorHint="@android:color/white"
         android:textSize="36sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/minutes_text"/>
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/minutes_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="135dp"
+        android:layout_height="100dp"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
         android:background="@android:drawable/btn_dropdown"
         android:ems="10"
-        android:gravity="center"
         android:hint="Minutes"
         android:spinnerMode="dropdown"
         android:textSize="36sp"
-        app:layout_constraintTop_toBottomOf="@id/minutes_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/seconds_spinner"/>
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/minutes_text" />
 
     <Spinner
         android:id="@+id/seconds_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="140dp"
+        android:layout_height="100dp"
+        android:layout_marginLeft="12dp"
         android:layout_marginTop="20dp"
         android:background="@android:drawable/btn_dropdown"
         android:ems="10"
-        android:gravity="center"
         android:hint="Seconds"
         android:spinnerMode="dropdown"
         android:textSize="36sp"
-        app:layout_constraintTop_toBottomOf="@id/seconds_text"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/minutes_spinner"/>
+        app:layout_constraintLeft_toRightOf="@id/minutes_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/seconds_text" />
 
     <Button
         android:id="@+id/confirm_viewing_time"
@@ -93,6 +93,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirm_viewing_time" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.50121653" />
+
+    <ImageView
+        android:id="@+id/imageDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/baseButtonLayout"
         android:layout_width="wrap_content"
@@ -102,8 +117,9 @@
         android:layout_alignParentRight="true"
         android:layout_gravity="top|end"
         android:layout_marginBottom="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/mainFloatingActionButton"
@@ -113,6 +129,9 @@
             android:layout_marginTop="6dp"
             android:layout_marginEnd="6dp"
             android:layout_marginRight="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:clickable="true"
             android:scaleType="center"
             android:tint="#ff030f"
@@ -298,32 +317,26 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <ImageView
-        android:id="@+id/imageDisplay"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/sendImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"/>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/sendImageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:onClick="onSendImageButtonClicked"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@drawable/icons8_circled_up_right_2_48"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:tint="@color/white"
-            app:borderWidth="0dp"
-            app:elevation="0dp"
-            app:backgroundTint="@color/fui_transparent"
-            app:maxImageSize="48dp"/>
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:onClick="onSendImageButtonClicked"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:tint="@color/white"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:backgroundTint="@color/fui_transparent"
+        app:maxImageSize="48dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

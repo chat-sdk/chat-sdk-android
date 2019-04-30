@@ -4,10 +4,13 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.io.File;
 
@@ -15,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.w3c.dom.Text;
 
 import co.chatsdk.ui.main.BaseActivity;
 
@@ -34,6 +39,20 @@ public class ImageEditActivity extends BaseActivity {
         picBitmap = BitmapFactory.decodeFile(theImagePath);
         setTheImage();
 
+        TextView minutesText = (TextView) findViewById(R.id.minutes_text);
+        TextView secondsText = (TextView) findViewById(R.id.seconds_text);
+        Spinner minutesSpinner = (Spinner) findViewById(R.id.minutes_spinner);
+        Spinner secondsSpinner = (Spinner) findViewById(R.id.seconds_spinner);
+        Button confirmViewingTimeButton = (Button) findViewById(R.id.confirm_viewing_time);
+        Button noTimeLimitButton = (Button) findViewById(R.id.no_time_limit);
+
+        minutesText.setVisibility(View.GONE);
+        secondsText.setVisibility(View.GONE);
+        minutesSpinner.setVisibility(View.GONE);
+        secondsSpinner.setVisibility(View.GONE);
+        confirmViewingTimeButton.setVisibility(View.GONE);
+        noTimeLimitButton.setVisibility(View.GONE);
+
         FloatingActionButton mFab = (FloatingActionButton) findViewById(R.id.mainFloatingActionButton);
         FloatingActionButton mAddCardButton = (FloatingActionButton) findViewById(R.id.addCardButton);
         FloatingActionButton mReloadCardsButton = (FloatingActionButton) findViewById(R.id.reloadCardsButton);
@@ -46,11 +65,15 @@ public class ImageEditActivity extends BaseActivity {
         final LinearLayout mUserProfileLayout = (LinearLayout) findViewById(R.id.userProfileLayout);
         final LinearLayout mViewingTimeLayout = (LinearLayout) findViewById(R.id.viewingTimeLayout);
 
+        mFab.setVisibility(View.VISIBLE);
+
         mAddCardLayout.setVisibility(View.GONE);
         mReloadCardsLayout.setVisibility(View.GONE);
         mLogOutLayout.setVisibility(View.GONE);
         mUserProfileLayout.setVisibility(View.GONE);
         mViewingTimeLayout.setVisibility(View.GONE);
+
+
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +98,22 @@ public class ImageEditActivity extends BaseActivity {
         mViewingTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (minutesText.getVisibility() == View.VISIBLE && secondsText.getVisibility() == View.VISIBLE) {
+                    minutesText.setVisibility(View.GONE);
+                    secondsText.setVisibility(View.GONE);
+                    minutesSpinner.setVisibility(View.GONE);
+                    secondsSpinner.setVisibility(View.GONE);
+                    confirmViewingTimeButton.setVisibility(View.GONE);
+                    noTimeLimitButton.setVisibility(View.GONE);
+                }
+                else {
+                    minutesText.setVisibility(View.VISIBLE);
+                    secondsText.setVisibility(View.VISIBLE);
+                    minutesSpinner.setVisibility(View.VISIBLE);
+                    secondsSpinner.setVisibility(View.VISIBLE);
+                    confirmViewingTimeButton.setVisibility(View.VISIBLE);
+                    noTimeLimitButton.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
@@ -91,3 +130,5 @@ public class ImageEditActivity extends BaseActivity {
 
     }
 }
+
+//https://github.com/leinardi/FloatingActionButtonSpeedDial
