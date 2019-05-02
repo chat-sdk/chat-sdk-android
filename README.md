@@ -560,7 +560,7 @@ After you have purchased the module you will be provided with a link to the modu
 
 Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
 
-Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-ios/blob/master/rules.json) file into the rules and click publish.
+Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-android/blob/master/firebase-rules.json) file into the rules and click publish.
 
 ### Adding Modules Manually
 
