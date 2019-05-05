@@ -26,10 +26,10 @@ public class SplashScreenActivity extends BaseActivity {
 
         setContentView(activityLayout());
 
-        mainView = findViewById(R.id.chat_sdk_root_view);
+        mainView = findViewById(R.id.view_root);
 
-        imageView = (ImageView) mainView.getViewById(R.id.imageView);
-        progressBar = (ProgressBar) mainView.getViewById(R.id.progressBar);
+        imageView = (ImageView) mainView.getViewById(R.id.image_view);
+        progressBar = (ProgressBar) mainView.getViewById(R.id.progress_bar);
 
         imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
 
@@ -52,13 +52,9 @@ public class SplashScreenActivity extends BaseActivity {
             startMainActivity();
         } else if (ChatSDK.auth().isAuthenticated()) {
             startProgressBar();
-            ChatSDK.auth().authenticate().doFinally(() -> stopProgressBar()).subscribe(() -> {
-                // Launch the Chat SDK
-                startMainActivity();
-            }, throwable -> {
-                // Show the login screen
-                startLoginActivity();
-            });
+            disposableList.add(ChatSDK.auth().authenticate()
+                    .doFinally(this::stopProgressBar)
+                    .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
         } else {
             startLoginActivity();
         }
@@ -87,7 +83,7 @@ public class SplashScreenActivity extends BaseActivity {
 
     protected @LayoutRes
     int activityLayout() {
-        return R.layout.chat_sdk_activity_splash_screen;
+        return R.layout.activity_splash_screen;
     }
 
 }

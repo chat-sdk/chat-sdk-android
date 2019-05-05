@@ -3,6 +3,7 @@ package co.chatsdk.core.interfaces;
 import android.app.Activity;
 
 import co.chatsdk.core.dao.Thread;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 /**
@@ -13,6 +14,6 @@ public interface ChatOption {
 
     int getIconResourceId ();
     String getTitle();
-    Observable<?> execute (Activity activity, Thread thread);
+    Completable execute (Activity activity, Thread thread);
 
 }

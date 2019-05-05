@@ -10,24 +10,30 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.base.AbstractMessageViewHolder;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.message_action.CopyMessageAction;
+import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
+import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
+import io.reactivex.subjects.PublishSubject;
 
 public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
@@ -45,26 +51,21 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
 
-    public BaseMessageViewHolder(View itemView, Activity activity) {
-        super(itemView, activity);
+    public BaseMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
+        super(itemView, activity, actionPublishSubject);
 
-        timeTextView = itemView.findViewById(R.id.txt_time);
-        avatarImageView = itemView.findViewById(R.id.avatar);
-        messageBubble = itemView.findViewById(R.id.message_bubble);
-        messageTextView = itemView.findViewById(R.id.txt_content);
-        messageIconView = itemView.findViewById(R.id.icon);
-        messageImageView = itemView.findViewById(R.id.image);
-        extraLayout = itemView.findViewById(R.id.extra_layout);
-        readReceiptImageView = itemView.findViewById(R.id.read_receipt);
+        timeTextView = itemView.findViewById(R.id.text_time);
+        avatarImageView = itemView.findViewById(R.id.image_avatar);
+        messageBubble = itemView.findViewById(R.id.image_message_bubble);
+        messageTextView = itemView.findViewById(R.id.text_content);
+        messageIconView = itemView.findViewById(R.id.image_icon);
+        messageImageView = itemView.findViewById(R.id.image_message_image);
+        extraLayout = itemView.findViewById(R.id.layout_extra);
+        readReceiptImageView = itemView.findViewById(R.id.image_read_receipt);
         progressBar = itemView.findViewById(R.id.progress_bar);
 
-        itemView.setOnClickListener(v -> {
-            onClick(v);
-        });
-
-        itemView.setOnLongClickListener(v -> {
-            return onLongClick(v);
-        });
+        itemView.setOnClickListener(this::onClick);
+        itemView.setOnLongClickListener(this::onLongClick);
 
         if(readReceiptImageView != null) {
             readReceiptImageView.setVisibility(ChatSDK.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
@@ -86,24 +87,15 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
             onLongClickListener.onLongClick(v);
         } else if (message != null && message.getSender().isMe()) {
 
-            Context context = v.getContext();
+            ArrayList<MessageAction> actions = new ArrayList<>();
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(itemView.getContext().getString(R.string.delete_message));
+            if (message.getSender().isMe()) {
+                actions.add(new DeleteMessageAction(message));
+            }
+            actions.add(new CopyMessageAction(message));
+            actions.add(new ForwardMessageAction(message));
 
-            // Set up the buttons
-            builder.setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
-                try {
-                    ChatSDK.thread().deleteMessage(message).subscribe( new CrashReportingCompletableObserver());
-                }
-                catch (NoSuchMethodError e) {
-                    ChatSDK.logError(e);
-                }
-            });
-            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-            builder.show();
-
+            actionPublishSubject.onNext(actions);
         }
         return false;
     }
@@ -125,13 +117,9 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         avatarImageView.setImageURI(message.getSender().getAvatarURL());
 
         if (message.getSender().isMe()) {
-            messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);
-            messageTextView.setPadding(4,0,4,0);
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
         }
         else {
-            messageTextView.setTextColor(ChatSDK.config().messageTextColorReply);
-            messageTextView.setPadding(4,0,4,0);
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
         }
 
@@ -173,11 +161,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public int maxWidth () {
-        return activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_width);
+        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_max_width);
     }
 
     public int maxHeight () {
-        return activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_height);
+        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_max_height);
     }
 
     public void showProgressBar () {
@@ -210,14 +198,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public void setIconMargins(int start, int top, int end, int bottom) {
-        // TODO: Make this more elegant...
-        ViewGroup.LayoutParams params = messageIconView.getLayoutParams();
-//        if (params instanceof RelativeLayout.LayoutParams) {
-//            ((RelativeLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
-//        }
-//        if (params instanceof ConstraintLayout.LayoutParams) {
-            ((ConstraintLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
-//        }
+        ((ConstraintLayout.LayoutParams) messageIconView.getLayoutParams()).setMargins(start, top, end, bottom);
         messageIconView.requestLayout();
     }
 
@@ -240,7 +221,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
             setIconSize(0, 0);
             setIconMargins(0,0,0,0);
         } else {
-            setIconSize(activity.getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
+            setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
             setIconMargins(5,0,5,0);
         }
         messageBubble.requestLayout();

@@ -68,6 +68,9 @@ public class Keys {
     public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
 
+    public static final String IntentKeyUserEntityID = "user-entity-id";
+    public static final String IntentKeyMessageEntityID = "message-entity-id";
+
     // For push notifications
     public static String USER_ENTITY_ID = "chat_sdk_user_entity_id";
     public static final String THREAD_ENTITY_ID = "chat_sdk_thread_entity_id";

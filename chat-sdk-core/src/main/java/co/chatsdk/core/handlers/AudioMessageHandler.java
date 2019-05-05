@@ -4,6 +4,7 @@ import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.types.MessageSendProgress;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 /**
@@ -15,6 +16,6 @@ public interface AudioMessageHandler extends MessageDisplayHandler {
     /**
      * Send an audio message
      */
-    Observable<MessageSendProgress> sendMessage (final Recording recording, final Thread thread);
+    Completable sendMessage (final Recording recording, final Thread thread);
 
 }

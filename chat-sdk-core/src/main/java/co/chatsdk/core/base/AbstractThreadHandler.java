@@ -13,6 +13,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.sorter.ThreadsSorter;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -23,10 +24,17 @@ import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -36,16 +44,12 @@ import io.reactivex.schedulers.Schedulers;
 
 public abstract class AbstractThreadHandler implements ThreadHandler {
 
-    public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage, final Thread thread) {
-        return Single.create((SingleOnSubscribe<List<Message>>) e -> {
+    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread) {
+        return loadMoreMessagesForThread(fromDate, thread, true);
+    }
 
-            //
-            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : null;
-
-            // First try to load the messages from the database
-            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, messageDate);
-            e.onSuccess(list);
-        }).subscribeOn(Schedulers.single());
+    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
+        return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate)).subscribeOn(Schedulers.single());
     }
 
     /**
@@ -57,19 +61,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When the message is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
-    public Observable<MessageSendProgress> sendMessageWithText(final String text, final Thread thread) {
-        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
-
-            final Message message = newMessage(MessageType.Text, thread);
+    public Completable sendMessageWithText(final String text, final Thread thread) {
+        return Single.just(newMessage(MessageType.Text, thread)).flatMapCompletable(message -> {
             message.setText(text);
-
-            e.onNext(new MessageSendProgress(message));
-
-            ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-            connector.connect(implSendMessage(message), e);
-
+            return implSendMessage(message);
         }).subscribeOn(Schedulers.single());
-
     }
 
     public static Message newMessage (int type, Thread thread) {
@@ -91,25 +87,32 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     /* Convenience method to save the message to the database then pass it to the token network adapter
      * send method so it can be sent via the network
      */
-    public Observable<MessageSendProgress> implSendMessage(final Message message) {
-        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
+    public Completable implSendMessage(final Message message) {
+        return Completable.create(emitter -> {
             message.update();
             message.getThread().update();
 
             if (ChatSDK.encryption() != null) {
                 ChatSDK.encryption().encrypt(message);
             }
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+            emitter.onComplete();
+        }).concatWith(sendMessage(message)).doOnComplete(() -> {
+            message.setMessageStatus(MessageSendStatus.Sent);
+            message.update();
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+        }).doOnError(throwable -> {
+            message.setMessageStatus(MessageSendStatus.Failed);
+            message.update();
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+        }).subscribeOn(Schedulers.single());
+    }
 
-            e.onNext(new MessageSendProgress(message));
-            e.onComplete();
-        }).concatWith(sendMessage(message))
-                .subscribeOn(Schedulers.single()).doOnComplete(() -> {
-                    message.setMessageStatus(MessageSendStatus.Sent);
-                    message.update();
-                }).doOnError(throwable -> {
-                    message.setMessageStatus(MessageSendStatus.Failed);
-                    message.update();
-                });
+    public Completable forwardMessage(Message message, Thread thread) {
+        return Single.just(newMessage(message.getType(), thread)).flatMapCompletable(newMessage -> {
+            newMessage.setMetaValues(message.getMetaValuesAsMap());
+            return implSendMessage(newMessage);
+        }).subscribeOn(Schedulers.single());
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){

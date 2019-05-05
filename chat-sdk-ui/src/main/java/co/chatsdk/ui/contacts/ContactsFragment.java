@@ -30,13 +30,10 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -86,8 +83,6 @@ public class ContactsFragment extends BaseFragment {
     protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
     protected Disposable listOnClickListenerDisposable;
     protected Disposable listOnLongClickListenerDisposable;
-
-    protected DisposableList disposableList = new DisposableList();
 
     /** Users that will be used to fill the adapter, This could be set manually or it will be filled when loading users for
      * {@link #loadingMode}*/
@@ -234,13 +229,13 @@ public class ContactsFragment extends BaseFragment {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_fragment_contacts;
+        return R.layout.fragment_contacts;
     }
 
     public void initViews() {
-        recyclerView = mainView.findViewById(R.id.chat_sdk_list_contacts);
+        recyclerView = mainView.findViewById(R.id.recycler_contacts);
 
-        progressBar = mainView.findViewById(R.id.chat_sdk_progressbar);
+        progressBar = mainView.findViewById(R.id.progress_bar);
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
@@ -259,7 +254,7 @@ public class ContactsFragment extends BaseFragment {
         if (!inflateMenu)
             return;
 
-        MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, "Add Chat");
+        MenuItem item = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.action_add_chat));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setIcon(R.drawable.ic_plus);
     }
@@ -271,8 +266,8 @@ public class ContactsFragment extends BaseFragment {
         int id = item.getItemId();
 
         // Each user that will be found in the search context will be automatically added as a contact.
-        if (id == R.id.action_chat_sdk_add) {
-            SearchActivity.startSearchActivity(getActivity());
+        if (id == R.id.action_add) {
+            ChatSDK.ui().startSearchActivity(getActivity());
             return true;
         }
 
@@ -423,12 +418,6 @@ public class ContactsFragment extends BaseFragment {
 
     public Observable<User> onLongClickObservable () {
         return onLongClickSubject;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        disposableList.dispose();
     }
 
 }

@@ -2,6 +2,7 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -21,9 +23,12 @@ import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -40,12 +45,24 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public static int UserThreadLinkTypeAddUser = 1;
     public static int UserThreadLinkTypeRemoveUser = 2;
 
-    public Single<List<Message>> loadMoreMessagesForThread(final Message fromMessage, final Thread thread) {
-        return super.loadMoreMessagesForThread(fromMessage, thread).flatMap(messages -> {
-            if (messages.isEmpty()) {
-                return new ThreadWrapper(thread).loadMoreMessages(fromMessage, ChatSDK.config().messagesToLoadPerBatch);
+    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
+        return super.loadMoreMessagesForThread(fromDate, thread, loadFromServer).flatMap(localMessages -> {
+
+            int messageToLoad = ChatSDK.config().messagesToLoadPerBatch;
+            int localMessageSize = localMessages.size();
+
+            if (localMessageSize < messageToLoad && loadFromServer) {
+                // If we did load some messages locally, update the from date to the last of those messages
+                Date finalFromDate = localMessages.size() > 0 ? localMessages.get(localMessageSize-1).getDate().toDate() : fromDate;
+
+                return new ThreadWrapper(thread).loadMoreMessages(finalFromDate, messageToLoad).map((Function<List<Message>, List<Message>>) remoteMessages -> {
+                    ArrayList<Message> mergedMessages = new ArrayList<>();
+                    mergedMessages.addAll(localMessages);
+                    mergedMessages.addAll(remoteMessages);
+                    return mergedMessages;
+                });
             }
-            return Single.just(messages);
+            return Single.just(localMessages);
         });
     }
 
@@ -131,16 +148,15 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * If the destination thread is public the system will add the user to the message thread if needed.
      * The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.
      */
-    public Observable<MessageSendProgress> sendMessage(final Message message) {
-        return Observable.create(e -> {
-            new MessageWrapper(message).send()
-                .subscribeOn(Schedulers.single())
-                .subscribe(() -> {
-                    pushForMessage(message);
-                    e.onNext(new MessageSendProgress(message));
-                    e.onComplete();
-                }, throwable -> e.onError(throwable))
-        ;});
+    public Completable sendMessage(final Message message) {
+        return new MessageWrapper(message).send().andThen(new Completable() {
+            @Override
+            protected void subscribeActual(CompletableObserver observer) {
+                pushForMessage(message);
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+                observer.onComplete();
+            }
+        });
     }
 
     /**

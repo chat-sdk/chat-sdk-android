@@ -67,7 +67,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         setContentView(activityLayout());
 
-        mainView = findViewById(R.id.chat_sdk_root_view);
+        mainView = findViewById(R.id.view_root);
         setupTouchUIToDismissKeyboard(mainView);
 
         initViews();
@@ -79,20 +79,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_activity_login;
+        return R.layout.activity_login;
     }
 
     protected void initViews() {
-        btnLogin = findViewById(R.id.btn_login);
-        btnAnonymous = findViewById(R.id.btn_anon_login);
-        btnTwitter = findViewById(R.id.btn_twitter);
-        btnReg = findViewById(R.id.btn_register);
-        usernameEditText = findViewById(R.id.et_username);
-        passwordEditText = findViewById(R.id.et_password);
-        btnGoogle = findViewById(R.id.btn_google);
-        btnFacebook = findViewById(R.id.btn_facebook);
-        appIconImage = findViewById(R.id.app_icon);
-        btnResetPassword = findViewById(R.id.btn_reset_password);
+        btnLogin = findViewById(R.id.button_login);
+        btnAnonymous = findViewById(R.id.button_anonymous_login);
+        btnTwitter = findViewById(R.id.button_twitter);
+        btnReg = findViewById(R.id.button_register);
+        usernameEditText = findViewById(R.id.text_input_username);
+        passwordEditText = findViewById(R.id.text_input_password);
+        btnGoogle = findViewById(R.id.button_google);
+        btnFacebook = findViewById(R.id.button_facebook);
+        appIconImage = findViewById(R.id.image_app_icon);
+        btnResetPassword = findViewById(R.id.button_reset_password);
 
         btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
@@ -156,19 +156,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.authenticating));
 
-        if (i == R.id.btn_login) {
+        if (i == R.id.button_login) {
             passwordLogin();
         }
-        else if (i == R.id.btn_anon_login) {
+        else if (i == R.id.button_anonymous_login) {
             anonymousLogin();
         }
-        else if (i == R.id.btn_register) {
+        else if (i == R.id.button_register) {
             register();
         }
-        else if (i == R.id.btn_reset_password) {
+        else if (i == R.id.button_reset_password) {
             showForgotPasswordDialog();
         }
-        else if (i == R.id.btn_twitter) {
+        else if (i == R.id.button_twitter) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -176,7 +176,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         .subscribe(completion, error);
             }
         }
-        else if (i == R.id.btn_facebook) {
+        else if (i == R.id.button_facebook) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -184,7 +184,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         .subscribe(completion, error);
             }
         }
-        else if (i == R.id.btn_google) {
+        else if (i == R.id.button_google) {
             if(ChatSDK.socialLogin() != null) {
                 ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())

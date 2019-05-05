@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
+import java.util.List;
+
 import co.chatsdk.core.base.AbstractMessageViewHolder;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.viewholder.LocationMessageViewHolder;
+import io.reactivex.subjects.PublishSubject;
 
 public class LocationMessageDisplayHandler extends AbstractMessageDisplayHandler {
     @Override
@@ -23,8 +27,8 @@ public class LocationMessageDisplayHandler extends AbstractMessageDisplayHandler
     }
 
     @Override
-    public AbstractMessageViewHolder newViewHolder(boolean isReply, Activity activity) {
+    public AbstractMessageViewHolder newViewHolder(boolean isReply, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         View row = row(isReply, activity);
-        return new LocationMessageViewHolder(row, activity);
+        return new LocationMessageViewHolder(row, activity, actionPublishSubject);
     }
 }

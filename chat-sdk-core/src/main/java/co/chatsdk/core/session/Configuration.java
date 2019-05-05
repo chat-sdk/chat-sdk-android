@@ -136,6 +136,9 @@ public class Configuration {
     public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
     public int audioMessageMaxLengthSeconds = 300;
 
+    // If we are representing a location as a URL, which service should we use? Google Maps is the default
+    public String locationURLRepresentation = "https://www.google.com/maps/search/?api=1&query=%f,%f";
+
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = false;
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
@@ -629,6 +632,21 @@ public class Configuration {
 
         public Builder publicChatRoomLifetimeMinutes (int minutes) {
             config.publicChatRoomLifetimeMinutes = minutes;
+            return this;
+        }
+
+        public Builder locationURLRepresentation (String representation) {
+            config.locationURLRepresentation = representation;
+            return this;
+        }
+
+        public Builder nearbyUserMaxDistance (int maxDistance) {
+            config.nearbyUserMaxDistance = maxDistance;
+            return this;
+        }
+
+        public Builder nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
+            config.nearbyUsersMinimumLocationChangeToUpdateServer = minimumDistance;
             return this;
         }
 

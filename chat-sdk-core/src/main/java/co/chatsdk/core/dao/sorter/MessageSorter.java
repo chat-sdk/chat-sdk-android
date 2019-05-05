@@ -17,6 +17,9 @@ public class MessageSorter implements Comparator<Message> {
 
     private int order = DaoCore.ORDER_DESC;
 
+    public MessageSorter() {
+    }
+
     public MessageSorter(int order) {
         this.order = order;
     }

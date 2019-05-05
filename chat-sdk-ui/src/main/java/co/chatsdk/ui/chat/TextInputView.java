@@ -12,7 +12,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Rect;
-import androidx.appcompat.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -43,7 +42,7 @@ import io.reactivex.disposables.Disposable;
 
 public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
 
-    protected AppCompatImageButton btnSend;
+    protected ImageButton btnSend;
     protected ImageButton btnOptions;
     protected EditText etMessage;
     protected boolean audioModeEnabled = false;
@@ -76,13 +75,13 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     }
 
     protected void init(){
-        inflate(getContext(), R.layout.chat_sdk_view_message_box, this);
+        inflate(getContext(), R.layout.view_chat_text_input, this);
     }
 
     protected void initViews(){
-        btnSend = findViewById(R.id.chat_sdk_btn_chat_send_message);
-        btnOptions = findViewById(R.id.chat_sdk_btn_options);
-        etMessage = findViewById(R.id.chat_sdk_et_message_to_send);
+        btnSend = findViewById(R.id.button_send);
+        btnOptions = findViewById(R.id.button_options);
+        etMessage = findViewById(R.id.text_input_message);
     }
 
     protected Activity getActivity() {

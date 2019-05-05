@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -49,7 +48,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
     @Override
     public ThreadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View row = inflater.inflate(R.layout.chat_sdk_row_thread, null);
+        View row = inflater.inflate(R.layout.view_thread_row, null);
         return new ThreadViewHolder(row);
     }
 
@@ -71,18 +70,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
         if (lastMessageAddedDate != null) {
             holder.dateTextView.setText(getLastMessageDateAsString(lastMessageAddedDate));
 
-            Message message = thread.getLastMessage();
-            if (message == null) {
-                List<Message> messages = thread.getMessagesWithOrder(DaoCore.ORDER_DESC, 1);
-                if (messages.size() > 0) {
-                    message = messages.get(0);
-                    thread.setLastMessage(message);
-                    thread.update();
-                }
-            }
-
-
-            holder.lastMessageTextView.setText(getLastMessageText(message));
+            holder.lastMessageTextView.setText(getLastMessageText(thread.lastMessage()));
         }
 
         if (typing.get(thread) != null) {
@@ -116,7 +104,6 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
     public String getLastMessageText (Message lastMessage) {
         String messageText = Strings.t(R.string.no_messages);
         if (lastMessage != null) {
-
             messageText = Strings.payloadAsString(lastMessage);
         }
         return messageText;

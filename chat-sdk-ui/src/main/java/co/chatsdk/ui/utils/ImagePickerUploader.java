@@ -14,6 +14,8 @@ import id.zelory.compressor.Compressor;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Function;
 
 public class ImagePickerUploader {
@@ -64,7 +66,12 @@ public class ImagePickerUploader {
     }
 
     public Single<Result> uploadImageFile (File file) {
-        return ChatSDK.upload().uploadImage(BitmapFactory.decodeFile(file.getPath())).flatMapMaybe((Function<FileUploadResult, MaybeSource<Result>>) fileUploadResult -> {
+        return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            final Bitmap image = BitmapFactory.decodeFile(file.getPath(), options);
+            emitter.onSuccess(image);
+        }).flatMapObservable(ChatSDK.upload()::uploadImage).flatMapMaybe((Function<FileUploadResult, MaybeSource<Result>>) fileUploadResult -> {
             if (fileUploadResult.urlValid()) {
                 return Maybe.just(new Result(fileUploadResult.url, file.getPath()));
             } else {
@@ -72,4 +79,5 @@ public class ImagePickerUploader {
             }
         }).firstElement().toSingle();
     }
+
 }

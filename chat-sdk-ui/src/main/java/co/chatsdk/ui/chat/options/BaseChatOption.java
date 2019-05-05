@@ -5,6 +5,7 @@ import android.app.Activity;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.ui.R;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
@@ -31,7 +32,11 @@ public class BaseChatOption implements ChatOption {
 
     @Override
     public int getIconResourceId() {
-        return iconResourceId;
+        if (iconResourceId != null) {
+            return iconResourceId;
+        } else {
+            return R.drawable.ic_plus;
+        }
     }
 
     @Override
@@ -40,15 +45,15 @@ public class BaseChatOption implements ChatOption {
     }
 
     @Override
-    public Observable<?> execute(Activity activity, Thread thread) {
+    public Completable execute(Activity activity, Thread thread) {
         if(action != null) {
             return action.execute(activity, thread);
         }
-        return Completable.complete().toObservable();
+        return Completable.complete();
     }
 
     public interface Action {
-        Observable<?> execute(Activity activity, Thread thread);
+        Completable execute(Activity activity, Thread thread);
     }
 
     protected void dispose () {

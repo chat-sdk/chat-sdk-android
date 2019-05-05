@@ -2,7 +2,6 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Intent;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -77,7 +76,7 @@ public class LocationSelector {
 
         disposable.dispose();
 
-        if (resultCode == AppCompatActivity.RESULT_OK && requestCode == PICK_LOCATION) {
+        if (resultCode == Activity.RESULT_OK && requestCode == PICK_LOCATION) {
             processPickedLocation(data);
         } else {
             notifyError(new Exception(activity.getString(R.string.error_picking_location)));

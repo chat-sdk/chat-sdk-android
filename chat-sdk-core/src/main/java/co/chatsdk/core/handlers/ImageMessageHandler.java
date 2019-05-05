@@ -1,6 +1,8 @@
 package co.chatsdk.core.handlers;
 
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.MessageSendProgress;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import co.chatsdk.core.dao.Thread;
 
@@ -8,7 +10,7 @@ import co.chatsdk.core.dao.Thread;
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
-public interface ImageMessageHandler {
+public interface ImageMessageHandler extends MessageHandler {
     /**
      * Preparing an image message,
      * This is only the build part of the send from here the message will passed to "sendMessage" Method.
@@ -19,5 +21,6 @@ public interface ImageMessageHandler {
      * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the message is sent to.
      */
-    Observable<MessageSendProgress> sendMessageWithImage(String filePath, Thread thread);
+    Completable sendMessageWithImage(String filePath, Thread thread);
+
 }

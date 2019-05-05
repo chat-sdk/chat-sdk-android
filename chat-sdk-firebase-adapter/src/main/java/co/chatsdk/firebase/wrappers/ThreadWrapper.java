@@ -14,6 +14,7 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.dao.sorter.MessageSorter;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -242,7 +244,7 @@ public class ThreadWrapper  {
                         Long startTimestamp = null;
 
                         if(messages.size() > 0) {
-                            startTimestamp = messages.get(0).getDate().toDate().getTime() + 1;
+                            startTimestamp = model.getLastMessageAddedDate().getTime() + 1;
                         }
 
                         if(deletedTimestamp > 0) {
@@ -279,7 +281,6 @@ public class ThreadWrapper  {
                                 message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
                                 model.addMessage(message.getModel());
-                                model.setLastMessage(message.getModel());
 
                                 // Update the message and thread
                                 message.getModel().update();
@@ -484,29 +485,27 @@ public class ThreadWrapper  {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Single<List<Message>> loadMoreMessages(final Message fromMessage, final Integer numberOfMessages){
+    public Single<List<Message>> loadMoreMessages(final Date fromDate, final Integer numberOfMessages){
         return Single.create((SingleOnSubscribe<List<Message>>) e -> {
 
-            Date messageDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
-
             // First try to load the messages from the database
-            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, messageDate);
+            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, fromDate);
 
             if(!list.isEmpty()) {
                 e.onSuccess(list);
             }
             else {
-                Date endDate = fromMessage != null ? fromMessage.getDate().toDate() : new Date();
-
                 DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                Query query = messageRef.orderByChild(Keys.Date)
-                        .endAt(endDate.getTime() - 1, Keys.Date)
-                        .limitToLast(numberOfMessages + 1);
+                Query query = messageRef.orderByChild(Keys.Date).limitToLast(numberOfMessages + 1);
+
+                if (fromDate != null) {
+                    query = query.endAt(fromDate.getTime() - 1, Keys.Date);
+                }
 
                 query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if(hasValue) {
-                        List<Message> messages = new ArrayList<Message>();
+                        List<Message> messages = new ArrayList<>();
 
                         MessageWrapper message;
                         for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
@@ -520,6 +519,10 @@ public class ThreadWrapper  {
                             message.getModel().update();
                             model.update();
                         }
+
+                        // Sort the messages
+                        Collections.sort(messages, new MessageSorter());
+
                         e.onSuccess(messages);
                     }
                     else {

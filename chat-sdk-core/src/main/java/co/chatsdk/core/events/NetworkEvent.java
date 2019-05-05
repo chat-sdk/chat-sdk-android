@@ -1,9 +1,13 @@
 package co.chatsdk.core.events;
 
+import java.util.HashMap;
+
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageSendStatus;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -17,6 +21,9 @@ public class NetworkEvent {
     public Thread thread;
     public User user;
     public String text;
+    public HashMap<String, Object> data;
+
+    public static String MessageSendProgress = "MessageSendProgress";
 
     public NetworkEvent(EventType type) {
         this.type = type;
@@ -31,14 +38,25 @@ public class NetworkEvent {
     }
 
     public NetworkEvent(EventType type, Thread thread, Message message, User user) {
+        this(type, thread, message, user, null);
+    }
+
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, HashMap<String, Object> data) {
         this.type = type;
         this.thread = thread;
         this.message = message;
         this.user = user;
+        this.data = data;
     }
 
     public static NetworkEvent threadAdded (Thread thread) {
         return new NetworkEvent(EventType.ThreadAdded, thread);
+    }
+
+    public static NetworkEvent messageSendStatusChanged (MessageSendProgress progress) {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put(MessageSendProgress, progress);
+        return new NetworkEvent(EventType.MessageSendStatusChanged, progress.message.getThread(), progress.message, progress.message.getSender(), data);
     }
 
     public static NetworkEvent threadRemoved (Thread thread) {

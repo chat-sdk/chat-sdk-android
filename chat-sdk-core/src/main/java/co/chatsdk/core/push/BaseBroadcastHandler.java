@@ -7,7 +7,6 @@ import android.os.Bundle;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 
 public class BaseBroadcastHandler implements BroadcastHandler {

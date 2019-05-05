@@ -7,25 +7,21 @@
 
 package co.chatsdk.ui.threads;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
-
-import org.apache.commons.lang3.StringUtils;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -47,7 +43,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected TextView threadNameTextView;
 
     protected ContactsFragment contactsFragment;
-    protected DisposableList disposableList = new DisposableList();
 
     protected ActionBar actionBar;
     protected MenuItem settingsItem;
@@ -77,7 +72,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_activity_thread_details;
+        return R.layout.activity_thread_details;
     }
 
     protected void initViews() {
@@ -132,7 +127,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(AppCompatActivity.RESULT_OK);
+        setResult(Activity.RESULT_OK);
 
         finish(); // Finish needs to be called before animate exit
         if (animateExit) {
@@ -145,12 +140,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // TODO: Enable thread images
-    }
-
-    @Override
-    protected void onStop() {
-        disposableList.dispose();
-        super.onStop();
     }
 
     @Override

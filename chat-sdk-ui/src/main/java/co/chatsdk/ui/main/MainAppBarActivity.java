@@ -1,14 +1,8 @@
 package co.chatsdk.ui.main;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.google.android.material.tabs.TabLayout;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -30,7 +24,7 @@ public class MainAppBarActivity extends MainActivity {
 
     protected @LayoutRes
     int activityLayout() {
-        return R.layout.chat_sdk_activity_view_pager;
+        return R.layout.activity_view_pager;
     }
 
     protected void initViews() {
@@ -111,31 +105,5 @@ public class MainAppBarActivity extends MainActivity {
                 ((BaseFragment) t.fragment).safeReloadData();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.contact_developer) {
-
-            String emailAddress = ChatSDK.config().contactDeveloperEmailAddress;
-            String subject = ChatSDK.config().contactDeveloperEmailSubject;
-            String dialogTitle = ChatSDK.config().contactDeveloperDialogTitle;
-
-            if(StringUtils.isNotEmpty(emailAddress))
-            {
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", emailAddress, null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-                startActivity(Intent.createChooser(emailIntent, dialogTitle));
-            }
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

@@ -305,6 +305,28 @@ public class Message implements CoreEntity {
         return readStatusForUser(user.getEntityID());
     }
 
+    public String getTextRepresentation () {
+        if (getMessageType().is(MessageType.Text, MessageType.System)) {
+            return getText();
+        }
+        if (getMessageType().is(MessageType.Location) && ChatSDK.locationMessage() != null) {
+            ChatSDK.locationMessage().textRepresentation(this);
+        }
+        if (getMessageType().is(MessageType.Image) && ChatSDK.imageMessage() != null) {
+            return ChatSDK.imageMessage().textRepresentation(this);
+        }
+        if (getMessageType().is(MessageType.Audio)) {
+            // TODO:
+        }
+        if (getMessageType().is(MessageType.Video)) {
+            // TODO:
+        }
+        if (getMessageType().is(MessageType.File)) {
+            // TODO:
+        }
+        return null;
+    }
+
     public ReadStatus readStatusForUser (String userEntityID) {
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
             if(link.getUser() != null && link.getUser().getEntityID().equals(userEntityID)) {

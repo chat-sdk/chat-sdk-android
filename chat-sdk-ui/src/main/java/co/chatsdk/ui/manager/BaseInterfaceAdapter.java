@@ -1,11 +1,11 @@
 package co.chatsdk.ui.manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.SparseArray;
 
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.cache.disk.DiskCacheConfig;
 import com.facebook.common.util.ByteConstants;
@@ -24,6 +24,7 @@ import java.util.Set;
 
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ChatOption;
@@ -46,8 +47,10 @@ import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.chat.options.MediaType;
+import co.chatsdk.ui.contacts.AddUsersToThreadActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.contacts.SelectContactActivity;
+import co.chatsdk.ui.contacts.CreateThreadActivity;
+import co.chatsdk.ui.contacts.ForwardMessageActivity;
 import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.login.SplashScreenActivity;
 import co.chatsdk.ui.main.MainAppBarActivity;
@@ -76,10 +79,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class chatActivity = ChatActivity.class;
     protected Class threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class threadEditDetailsActivity = ThreadEditDetailsActivity.class;
-    protected Class selectContactActivity = SelectContactActivity.class;
+
     protected Class searchActivity = SearchActivity.class;
     protected Class editProfileActivity = EditProfileActivity.class;
     protected Class profileActivity = ProfileActivity.class;
+    protected Class createThreadActivity = CreateThreadActivity.class;
+    protected Class addUsersToThreadActivity = AddUsersToThreadActivity.class;
+    protected Class forwardMessageActivity = ForwardMessageActivity.class;
 
     protected Intent loginIntent;
 
@@ -198,11 +204,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public AppCompatActivity profileActivity(User user) {
-        return null;
-    }
-
-    @Override
     public Fragment privateThreadsFragment() {
         return privateThreadsFragment;
     }
@@ -303,13 +304,33 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Class getSelectContactActivity() {
-        return selectContactActivity;
+    public void setForwardMessageActivity(Class forwardMessageActivity) {
+        this.forwardMessageActivity = forwardMessageActivity;
     }
 
     @Override
-    public void setSelectContactActivity (Class selectContactActivity) {
-        this.selectContactActivity = selectContactActivity;
+    public Class getAddUsersToThreadActivity() {
+        return addUsersToThreadActivity;
+    }
+
+    @Override
+    public Class getCreateThreadActivity() {
+        return createThreadActivity;
+    }
+
+    @Override
+    public Class getForwardMessageActivity() {
+        return forwardMessageActivity;
+    }
+
+    @Override
+    public void setAddUsersToThreadActivity(Class addUsersToThreadActivity) {
+        this.addUsersToThreadActivity = addUsersToThreadActivity;
+    }
+
+    @Override
+    public void setCreateThreadActivity(Class createThreadActivity) {
+        this.createThreadActivity = createThreadActivity;
     }
 
     @Override
@@ -327,7 +348,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public Class getEditProfileActivity() {
         return editProfileActivity;
     }
-
 
     @Override
     public void setEditProfileActivity (Class editProfileActivity) {
@@ -383,6 +403,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         context.startActivity(intent);
     }
 
+    public void startActivityForResult (Activity activity, Intent intent, int code) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        activity.startActivityForResult(intent, code);
+    }
+
     public void startChatActivityForID(Context context, String threadEntityID) {
         Intent intent = new Intent(context, getChatActivity());
         intent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
@@ -422,7 +447,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public void startEditProfileActivity(Context context, String userEntityID){
         Intent intent = new Intent(context, getEditProfileActivity());
-        intent.putExtra(Keys.USER_ENTITY_ID, userEntityID);
+        intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
         startActivity(context, intent);
     }
 
@@ -444,8 +469,21 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, getSearchActivity());
     }
 
-    public void startSelectContactsActivity(Context context) {
-        startActivity(context, getSelectContactActivity());
+    @Override
+    public void startForwardMessageActivityForResult(Activity activity, Message message) {
+        Intent intent = new Intent(activity, getForwardMessageActivity());
+        intent.putExtra(Keys.IntentKeyMessageEntityID, message.getEntityID());
+        startActivityForResult(activity, intent, 0);
+    }
+
+    @Override
+    public void startAddUsersToThreadActivity(Context context) {
+        startActivity(context, getAddUsersToThreadActivity());
+    }
+
+    @Override
+    public void startCreateThreadActivity(Context context) {
+        startActivity(context, getCreateThreadActivity());
     }
 
     @Override
@@ -504,7 +542,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public void startProfileActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfileActivity());
-        intent.putExtra(Keys.USER_ENTITY_ID, userEntityID);
+        intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
         startActivity(context, intent);
     }
 
@@ -515,8 +553,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public ChatOptionsHandler getChatOptionsHandler(ChatOptionsDelegate delegate) {
-        chatOptionsHandler = new DialogChatOptionsHandler(delegate);
-        chatOptionsHandler.setDelegate(delegate);
+        if (chatOptionsHandler == null) {
+//            chatOptionsHandler = new FloatingChatOptionsHandler(delegate);
+            chatOptionsHandler = new DialogChatOptionsHandler(delegate);
+        } else {
+            chatOptionsHandler.setDelegate(delegate);
+        }
         return chatOptionsHandler;
     }
 

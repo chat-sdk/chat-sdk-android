@@ -1,9 +1,6 @@
 package co.chatsdk.ui.profile;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,7 +29,6 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
@@ -56,17 +52,14 @@ public class EditProfileActivity extends BaseActivity {
     protected Button countryButton;
     protected Button logoutButton;
     protected HashMap<String, Object> userMeta;
-    protected MediaSelector mediaSelector = new MediaSelector();
 
     protected User currentUser;
-
-    private DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(Keys.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
         if (userEntityID == null || userEntityID.isEmpty()) {
             showToast("User Entity ID not set");
@@ -94,11 +87,11 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_edit_profile;
+        return R.layout.edit_profile;
     }
 
     protected void initViews() {
-        avatarImageView = findViewById(R.id.ivAvatar);
+        avatarImageView = findViewById(R.id.image_avatar);
         statusEditText = findViewById(R.id.etStatus);
         availabilitySpinner = findViewById(R.id.spAvailability);
         nameEditText = findViewById(R.id.etName);

@@ -37,7 +37,6 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         public final static Property RootKey = new Property(9, String.class, "rootKey", false, "ROOT_KEY");
         public final static Property ApiKey = new Property(10, String.class, "apiKey", false, "API_KEY");
         public final static Property CreatorId = new Property(11, Long.class, "creatorId", false, "CREATOR_ID");
-        public final static Property LastMessageId = new Property(12, Long.class, "lastMessageId", false, "LAST_MESSAGE_ID");
     }
 
     private DaoSession daoSession;
@@ -67,8 +66,7 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
                 "\"IMAGE_URL\" TEXT," + // 8: imageUrl
                 "\"ROOT_KEY\" TEXT," + // 9: rootKey
                 "\"API_KEY\" TEXT," + // 10: apiKey
-                "\"CREATOR_ID\" INTEGER," + // 11: creatorId
-                "\"LAST_MESSAGE_ID\" INTEGER);"); // 12: lastMessageId
+                "\"CREATOR_ID\" INTEGER);"); // 11: creatorId
     }
 
     /** Drops the underlying database table. */
@@ -140,11 +138,6 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (creatorId != null) {
             stmt.bindLong(12, creatorId);
         }
- 
-        Long lastMessageId = entity.getLastMessageId();
-        if (lastMessageId != null) {
-            stmt.bindLong(13, lastMessageId);
-        }
     }
 
     @Override
@@ -210,11 +203,6 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (creatorId != null) {
             stmt.bindLong(12, creatorId);
         }
- 
-        Long lastMessageId = entity.getLastMessageId();
-        if (lastMessageId != null) {
-            stmt.bindLong(13, lastMessageId);
-        }
     }
 
     @Override
@@ -242,8 +230,7 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // imageUrl
             cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // rootKey
             cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // apiKey
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11), // creatorId
-            cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12) // lastMessageId
+            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // creatorId
         );
         return entity;
     }
@@ -262,7 +249,6 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         entity.setRootKey(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
         entity.setApiKey(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
         entity.setCreatorId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
-        entity.setLastMessageId(cursor.isNull(offset + 12) ? null : cursor.getLong(offset + 12));
      }
     
     @Override
@@ -297,12 +283,9 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getMessageDao().getAllColumns());
-            builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(" FROM THREAD T");
-            builder.append(" LEFT JOIN MESSAGE T0 ON T.\"LAST_MESSAGE_ID\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN USER T1 ON T.\"CREATOR_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN USER T0 ON T.\"CREATOR_ID\"=T0.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -312,10 +295,6 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
     protected Thread loadCurrentDeep(Cursor cursor, boolean lock) {
         Thread entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
-
-        Message lastMessage = loadCurrentOther(daoSession.getMessageDao(), cursor, offset);
-        entity.setLastMessage(lastMessage);
-        offset += daoSession.getMessageDao().getAllColumns().length;
 
         User creator = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
         entity.setCreator(creator);

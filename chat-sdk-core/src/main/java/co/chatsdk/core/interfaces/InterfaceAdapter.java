@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.MessageType;
@@ -33,7 +34,11 @@ public interface InterfaceAdapter {
     Class getChatActivity();
     Class getThreadDetailsActivity();
     Class getThreadEditDetailsActivity();
-    Class getSelectContactActivity();
+
+    Class getAddUsersToThreadActivity();
+    Class getCreateThreadActivity();
+    Class getForwardMessageActivity();
+
     Class getSearchActivity();
     Class getEditProfileActivity();
     Class getProfileActivity();
@@ -45,7 +50,10 @@ public interface InterfaceAdapter {
     void setChatActivity (Class chatActivity);
     void setThreadDetailsActivity (Class threadDetailsActivity);
     void setThreadEditDetailsActivity (Class threadEditDetailsActivity);
-    void setSelectContactActivity (Class selectContactActivity);
+    void setForwardMessageActivity (Class forwardMessageActivity);
+    void setAddUsersToThreadActivity(Class addUsersToThreadActivity);
+    void setCreateThreadActivity(Class createThreadActivity);
+
     void setSearchActivity (Class searchActivity);
     void setEditProfileActivity (Class editProfileActivity);
     void setProfileActivity (Class profileActivity);
@@ -64,8 +72,6 @@ public interface InterfaceAdapter {
     Tab publicThreadsTab ();
     Tab contactsTab ();
     Tab profileTab ();
-
-    Activity profileActivity (User user);
 
     void addTab(Tab tab);
     void addTab(Tab tab, int index);
@@ -88,7 +94,11 @@ public interface InterfaceAdapter {
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);
-    void startSelectContactsActivity(Context context);
+    void startForwardMessageActivityForResult(Activity activity, Message message);
+
+    void startAddUsersToThreadActivity(Context context);
+    void startCreateThreadActivity(Context context);
+
     void startSplashScreenActivity (Context context);
 
     void addSearchActivity (Class className, String name);
@@ -111,5 +121,5 @@ public interface InterfaceAdapter {
     boolean showLocalNotifications(Thread thread);
     void setLocalNotificationHandler(LocalNotificationHandler handler);
 
-    public NotificationDisplayHandler notificationDisplayHandler ();
+    NotificationDisplayHandler notificationDisplayHandler ();
 }

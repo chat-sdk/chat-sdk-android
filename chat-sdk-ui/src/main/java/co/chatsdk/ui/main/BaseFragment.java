@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.DisposableList;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -25,6 +26,7 @@ public abstract class BaseFragment extends DialogFragment {
 
     protected View mainView;
     protected boolean tabIsVisible;
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,12 @@ public abstract class BaseFragment extends DialogFragment {
         }
     }
     public abstract void reloadData();
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        disposableList.dispose();
+    }
 
 }
 

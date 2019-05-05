@@ -44,11 +44,7 @@ public class Thread implements CoreEntity {
     private String rootKey;
     private String apiKey; // TODO: Delete this
     private Long creatorId;
-    private Long lastMessageId;
-
-    @ToOne(joinProperty = "lastMessageId")
-    private Message lastMessage;
-
+    
     @ToOne(joinProperty = "creatorId")
     private User creator;
 
@@ -74,9 +70,6 @@ public class Thread implements CoreEntity {
     private transient ThreadDao myDao;
     @Generated(hash = 1767171241)
     private transient Long creator__resolvedKey;
-    @Generated(hash = 88977546)
-    private transient Long lastMessage__resolvedKey;
-
     public Thread() {
     }
 
@@ -84,9 +77,9 @@ public class Thread implements CoreEntity {
         this.id = id;
     }
 
-    @Generated(hash = 859547806)
+    @Generated(hash = 713986075)
     public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Boolean deleted, String name, Integer type,
-            String creatorEntityId, String imageUrl, String rootKey, String apiKey, Long creatorId, Long lastMessageId) {
+            String creatorEntityId, String imageUrl, String rootKey, String apiKey, Long creatorId) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -99,7 +92,6 @@ public class Thread implements CoreEntity {
         this.rootKey = rootKey;
         this.apiKey = apiKey;
         this.creatorId = creatorId;
-        this.lastMessageId = lastMessageId;
     }
 
     public void setMessages(List<Message> messages) {
@@ -235,12 +227,10 @@ public class Thread implements CoreEntity {
     }
 
     public void addMessage (Message message) {
-        setLastMessage(message);
         message.setThreadId(this.getId());
         message.update();
         getMessages().add(message);
         update();
-//        resetMessages();
     }
 
     @Keep
@@ -283,15 +273,6 @@ public class Thread implements CoreEntity {
 
         update();
         resetMessages();
-
-        if (messages.size() > 1) {
-            setLastMessage(messages.get(messages.size()-1));
-        }
-        else {
-            //
-            setLastMessageId(Long.valueOf(0));
-            update();
-        }
     }
 
     public boolean hasUser(User user) {
@@ -457,13 +438,12 @@ public class Thread implements CoreEntity {
     }
 
     public Message lastMessage () {
-        if(lastMessage == null) {
-            List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
-            if (messages.size() > 0) {
-                lastMessage = messages.get(0);
-            }
+        List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC, 1);
+        if (messages.size() > 0) {
+            return messages.get(0);
+        } else {
+            return null;
         }
-        return lastMessage;
     }
 
     public Long getCreatorId() {
@@ -606,39 +586,6 @@ public class Thread implements CoreEntity {
         this.imageUrl = imageUrl;
     }
 
-    public Long getLastMessageId() {
-        return this.lastMessageId;
-    }
-
-    /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1697405005)
-    public Message getLastMessage() {
-        Long __key = this.lastMessageId;
-        if (lastMessage__resolvedKey == null || !lastMessage__resolvedKey.equals(__key)) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            MessageDao targetDao = daoSession.getMessageDao();
-            Message lastMessageNew = targetDao.load(__key);
-            synchronized (this) {
-                lastMessage = lastMessageNew;
-                lastMessage__resolvedKey = __key;
-            }
-        }
-        return lastMessage;
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 944284900)
-    public void setLastMessage(Message lastMessage) {
-        synchronized (this) {
-            this.lastMessage = lastMessage;
-            lastMessageId = lastMessage == null ? null : lastMessage.getId();
-            lastMessage__resolvedKey = lastMessageId;
-        }
-    }
-
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -670,12 +617,5 @@ public class Thread implements CoreEntity {
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
     }
-
-    public void setLastMessageId(Long lastMessageId) {
-        this.lastMessageId = lastMessageId;
-    }
-
- 
-
 
 }

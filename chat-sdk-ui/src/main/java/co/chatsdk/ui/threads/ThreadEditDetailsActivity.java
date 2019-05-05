@@ -7,6 +7,7 @@
 
 package co.chatsdk.ui.threads;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,37 +19,19 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.HashMap;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.utils.ActivityResult;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.profile.EditProfileActivity;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
-import id.zelory.compressor.Compressor;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 /**
@@ -58,8 +41,6 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     /** Set true if you want slide down animation for this context exit. */
     protected boolean animateExit = false;
-
-    protected DisposableList disposableList = new DisposableList();
 
     protected ActionBar actionBar;
     protected String threadEntityID;
@@ -79,7 +60,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
 
-        setContentView(R.layout.chat_sdk_activity_edit_thread_details);
+        setContentView(R.layout.activity_edit_thread_details);
         initViews();
     }
 
@@ -87,9 +68,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
 
-        nameInput = findViewById(R.id.thread_name_tet);
-        saveButton = findViewById(R.id.done_btn);
-        threadImageView = findViewById(R.id.thread_icon_sdv);
+        nameInput = findViewById(R.id.text_name);
+        saveButton = findViewById(R.id.button_done);
+        threadImageView = findViewById(R.id.image_thread);
 
         nameInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -193,7 +174,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(AppCompatActivity.RESULT_OK);
+        setResult(Activity.RESULT_OK);
 
         finish();
         if (animateExit) {
@@ -214,9 +195,4 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         return true;
     }
 
-    @Override
-    public void onDestroy () {
-        super.onDestroy();
-        disposableList.dispose();
-    }
 }

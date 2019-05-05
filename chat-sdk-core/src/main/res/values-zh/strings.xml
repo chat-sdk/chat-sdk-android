@@ -30,7 +30,6 @@
     <string name="send_location">发送这个位置</string>
     <string name="search_upper_case">搜索</string>
     <string name="send">发送</string>
-    <string name="pick_friends">挑选朋友</string>
     <string name="tap_here_for_contact_info">点击此处获取联系信息</string>
     <string name="search_with_name">搜索姓名</string>
     <string name="add_conversation">添加对话</string>
@@ -139,7 +138,6 @@
     <string name="search_activity_no_text_input_toast">请输入一些搜索文本</string>
     <string name="search_activity_no_user_found_toast">找不到匹配项</string>
     <string name="search_activity_no_contact_selected_toast">没有选择任何联系人</string>
-    <string name="search_activity_user_added_as_contact_after_count_toast"> 用户已添加为联系人</string>
     <string name="search_activity_prog_dialog_init_message">正在获取...</string>
     <string name="search_activity_prog_dialog_before_count_message">找...发现：</string>
     <string name="search_activity_searching_message">搜索</string>

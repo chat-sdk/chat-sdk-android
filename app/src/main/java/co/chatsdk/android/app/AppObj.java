@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import co.chatsdk.android.app.test.MessageTestChatOption;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
@@ -39,9 +40,8 @@ public class AppObj extends MultiDexApplication {
             config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
             config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
 
-            // For the demo version of the client exire rooms after 24 hours
+            // For the demo version of the client expire rooms after 24 hours
             config.publicChatRoomLifetimeMinutes(60 * 24);
-
 
 
             ChatSDK.initialize(config.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
@@ -49,6 +49,8 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+
+            ChatSDK.ui().addChatOption(new MessageTestChatOption("Message Burst"));
 
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);

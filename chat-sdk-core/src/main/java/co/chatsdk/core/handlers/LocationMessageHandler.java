@@ -4,13 +4,14 @@ import com.google.android.gms.maps.model.LatLng;
 
 import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.types.MessageSendProgress;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
-public interface LocationMessageHandler {
+public interface LocationMessageHandler extends MessageHandler {
 
     /**
      * Preparing a location message,
@@ -23,5 +24,7 @@ public interface LocationMessageHandler {
      * @param location     is the Latitude and Longitude of the picked location.
      * @param thread       the thread that the message is sent to.
      */
-    Observable<MessageSendProgress> sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread);
+    Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread);
+
+
 }

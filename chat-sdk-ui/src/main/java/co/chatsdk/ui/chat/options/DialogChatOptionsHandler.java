@@ -1,14 +1,13 @@
 package co.chatsdk.ui.chat.options;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 
 import java.util.List;
 
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.ui.AbstractChatOptionsHandler;
 import co.chatsdk.ui.R;
 
 /**
@@ -25,8 +24,8 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
     }
 
     @Override
-    public boolean show(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    public boolean show(Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         final List<ChatOption> options = ChatSDK.ui().getChatOptions();
 
@@ -39,7 +38,7 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
 
         hasExecuted = false;
 
-        builder.setTitle(context.getString(R.string.actions)).setItems(items, (dialogInterface, i1) -> {
+        builder.setTitle(activity.getString(R.string.actions)).setItems(items, (dialogInterface, i1) -> {
             if(!hasExecuted) {
                 executeOption(options.get(i1));
             }
@@ -60,13 +59,4 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
         return false;
     }
 
-    @Override
-    public void setDelegate(ChatOptionsDelegate delegate) {
-
-    }
-
-    @Override
-    public ChatOptionsDelegate getDelegate() {
-        return null;
-    }
 }

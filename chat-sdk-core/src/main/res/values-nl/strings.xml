@@ -29,7 +29,6 @@
     <string name="send_location">Deze plaatsbepaling doorsturen</string>
     <string name="search_upper_case">Zoeken</string>
     <string name="send">Versturen</string>
-    <string name="pick_friends">Gebruikers kiezen</string>
     <string name="tap_here_for_contact_info">Tik voor meer contactinformatie</string>
     <string name="search_with_name">Zoeken volgens naam</string>
     <string name="add_conversation">Gesprek toevoegen</string>
@@ -110,7 +109,6 @@
     <string name="search_activity_no_text_input_toast">Tekst invoeren om te zoeken</string>
     <string name="search_activity_no_user_found_toast">Meh. Niks gevonden</string>
     <string name="search_activity_no_contact_selected_toast">Niemand geselecteerd</string>
-    <string name="search_activity_user_added_as_contact_after_count_toast"> Gebruikers toegevoegd aan je contacten</string>
     <string name="search_activity_prog_dialog_init_message">Bezig met thread&#8230; te zoeken</string>
     <string name="search_activity_prog_dialog_before_count_message">thread&#8230; aan het zoeken. Gevonden: thread&#160;</string>
     <string name="search_activity_searching_message">Bezig met zoeken</string>

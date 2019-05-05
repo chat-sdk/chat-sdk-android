@@ -44,6 +44,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected boolean isMultiSelect = false;
     protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
     protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
+    protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
 
     protected class HeaderViewHolder extends RecyclerView.ViewHolder {
 
@@ -51,7 +52,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         public HeaderViewHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.header_text);
+            textView = itemView.findViewById(R.id.text_header);
         }
     }
 
@@ -66,10 +67,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public UserViewHolder(View view) {
             super(view);
 
-            nameTextView = view.findViewById(R.id.chat_sdk_txt);
-            statusTextView = view.findViewById(R.id.tvStatus);
-            availabilityImageView = view.findViewById(R.id.ivAvailability);
-            avatarImageView = view.findViewById(R.id.img_profile_picture);
+            nameTextView = view.findViewById(R.id.text_name);
+            statusTextView = view.findViewById(R.id.text_status);
+            availabilityImageView = view.findViewById(R.id.image_availability);
+            avatarImageView = view.findViewById(R.id.image_avatar);
             checkBox = view.findViewById(R.id.checkbox);
 
             // Clicks are handled at the list item level
@@ -115,11 +116,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_HEADER) {
-            View row = inflater.inflate(R.layout.chat_sdk_row_header, null);
+            View row = inflater.inflate(R.layout.view_contact_row_header, null);
             return new HeaderViewHolder(row);
         }
         else if (viewType == TYPE_USER) {
-            View row = inflater.inflate(R.layout.chat_sdk_row_contact, null);
+            View row = inflater.inflate(R.layout.view_contact_row_body, null);
             return new UserViewHolder(row);
         }
         return null;
@@ -130,12 +131,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         int type = getItemViewType(position);
         final Object item = items.get(position);
-
-        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
-        holder.itemView.setOnLongClickListener(view -> {
-            onLongClickSubject.onNext(item);
-            return true;
-        });
 
         if (type == TYPE_HEADER) {
             HeaderViewHolder hh = (HeaderViewHolder) holder;
@@ -165,6 +160,12 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 uh.availabilityImageView.setVisibility(View.VISIBLE);
             }
         }
+
+        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
+        holder.itemView.setOnLongClickListener(view -> {
+            onLongClickSubject.onNext(item);
+            return true;
+        });
 
     }
 
@@ -283,7 +284,9 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * notifyDataSetChanged will be called.
      * * */
     public boolean toggleSelection(int position) {
-        return setViewSelected(position, !selectedUsersPositions.get(position));
+        boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
+        onToggleSubject.onNext(getSelectedUsers());
+        return selected;
     }
 
     public boolean toggleSelection(Object object) {
@@ -350,13 +353,12 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return onClickSubject;
     }
 
-    public Observable<Object> onLongClickObservable () {
-        return onLongClickSubject;
+    public Observable<List<UserListItem>> onToggleObserver () {
+        return onToggleSubject;
     }
 
-    @Deprecated
-    public Observable<Object> getItemClicks () {
-        return onClickObservable();
+    public Observable<Object> onLongClickObservable () {
+        return onLongClickSubject;
     }
 
 }

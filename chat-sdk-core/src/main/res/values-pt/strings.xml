@@ -30,7 +30,6 @@
     <string name="send_location">Envie este local</string>
     <string name="search_upper_case">PROCURAR</string>
     <string name="send">Mandar</string>
-    <string name="pick_friends">Escolher amigos</string>
     <string name="tap_here_for_contact_info">Toque aqui para informações de contato</string>
     <string name="search_with_name">Pesquisar com nome</string>
     <string name="add_conversation">Adicionar conversa</string>
@@ -139,7 +138,6 @@
     <string name="search_activity_no_text_input_toast">Por favor, insira algum texto para a pesquisa</string>
     <string name="search_activity_no_user_found_toast">Nenhuma combinação encontrada</string>
     <string name="search_activity_no_contact_selected_toast">Nenhum contato foi selecionado</string>
-    <string name="search_activity_user_added_as_contact_after_count_toast"> Os usuários foram adicionados como contatos</string>
     <string name="search_activity_prog_dialog_init_message">Buscando&#8230;</string>
     <string name="search_activity_prog_dialog_before_count_message">Buscando… Encontrado:</string>
     <string name="search_activity_searching_message">Procurando</string>

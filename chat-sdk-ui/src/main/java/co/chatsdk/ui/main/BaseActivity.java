@@ -19,12 +19,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,9 +39,11 @@ import java.util.List;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.functions.Consumer;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -46,6 +51,7 @@ public class BaseActivity extends AppCompatActivity {
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
+    protected DisposableList disposableList = new DisposableList();
 
     public BaseActivity() {
     }
@@ -59,11 +65,18 @@ public class BaseActivity extends AppCompatActivity {
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }
 
+    protected void setActionBarTitle (int resourceId) {
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setTitle(getString(resourceId));
+            ab.setHomeButtonEnabled(true);
+        }
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
-
 
     /**
      * @return the bitmap that will be used for the screen overview also called the recents apps.
@@ -132,6 +145,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dismissProgressDialog();
+        disposableList.dispose();
     }
 
     @Override
@@ -180,7 +194,7 @@ public class BaseActivity extends AppCompatActivity {
 
     /** Hide the Soft Keyboard.*/
     public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
 
         if (inputMethodManager == null)
             return;
@@ -190,11 +204,31 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /** Show a SuperToast with the given text. */
+    protected void showToast(int textResourceId){
+        showToast(this.getString(textResourceId));
+    }
+
     protected void showToast(String text){
         if (StringUtils.isEmpty(text))
             return;
 
         ToastHelper.show(this, text);
+    }
+
+    protected void showSnackbar(int textResourceId){
+        showSnackbar(this.getString(textResourceId));
+    }
+
+    protected void showSnackbar (String text) {
+        Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_LONG).show();
+    }
+
+    protected Consumer<? super Throwable> toastOnErrorConsumer () {
+        return (Consumer<Throwable>) throwable -> showToast(throwable.getLocalizedMessage());
+    }
+
+    protected void showProgressDialog(int stringResId) {
+        showProgressDialog(getString(stringResId));
     }
 
     protected void showProgressDialog(String message) {
@@ -243,5 +277,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         ActivityResultPushSubjectHolder.shared().onNext(new ActivityResult(requestCode, resultCode, data));
     }
+
+
 
 }

@@ -5,15 +5,20 @@ import com.google.android.gms.maps.model.LatLng;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.LocationMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.NM;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.GoogleUtils;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -22,21 +27,13 @@ import io.reactivex.schedulers.Schedulers;
 
 public class BaseLocationMessageHandler implements LocationMessageHandler {
 
-    public Observable<MessageSendProgress> sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
-        return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
+    public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
+        return Single.create((SingleOnSubscribe<Message>) emitter -> {
+
             final Message message = AbstractThreadHandler.newMessage(MessageType.Location, thread);
 
             int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
             String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
-
-            // Add the LatLng data to the message and the image url and thumbnail url
-            // TODO: Deprecated
-//            message.setText(String.valueOf(location.latitude)
-//                    + Defines.DIVIDER
-//                    + String.valueOf(location.longitude)
-//                    + Defines.DIVIDER + imageURL
-//                    + Defines.DIVIDER + imageURL
-//                    + Defines.DIVIDER + ImageUtils.getDimensionAsString(maxSize, maxSize));
 
             message.setValueForKey(location.longitude, Keys.MessageLongitude);
             message.setValueForKey(location.latitude, Keys.MessageLatitude);
@@ -45,12 +42,14 @@ public class BaseLocationMessageHandler implements LocationMessageHandler {
             message.setValueForKey(imageURL, Keys.MessageImageURL);
             message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
 
-            e.onNext(new MessageSendProgress(message));
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-            ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-            connector.connect(ChatSDK.thread().sendMessage(message), e);
-
-        }).subscribeOn(Schedulers.single());
+            emitter.onSuccess(message);
+        }).flatMapCompletable(ChatSDK.thread()::sendMessage).subscribeOn(Schedulers.single());
     }
 
+    @Override
+    public String textRepresentation(Message message) {
+        return String.format(ChatSDK.config().locationURLRepresentation, message.doubleForKey(Keys.MessageLatitude), message.doubleForKey(Keys.MessageLongitude));
+    }
 }

@@ -3,6 +3,9 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="dark_text">#5F5F5F</color>
+    <color name="button_delete">#CC1515</color>
+    <color name="button_success">#78b737</color>
+    <color name="message_input_border">#E7E7E7</color>
 
     <color name="primary">@android:color/holo_blue_light</color>
     <color name="primary_dark">@android:color/holo_blue_dark</color>

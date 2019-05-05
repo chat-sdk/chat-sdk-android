@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 
 import java.util.HashMap;
+import java.util.List;
 
 import androidx.fragment.app.Fragment;
+
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
@@ -53,18 +56,18 @@ public class ApiExamples {
      * @param thread - The thread to send the message to
      */
     public void sendImageMessage (String filePath, Thread thread) {
-        Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(messageSendProgress -> {
-
-        }, throwable -> {
-
+        Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(() -> {
+            // Handle Success
+        }, (Consumer<Throwable>) throwable -> {
+            // Handle failure
         });
     }
 
     public void sendTextMessage (String message, Thread thread) {
-        Disposable d = ChatSDK.thread().sendMessageWithText(message, thread).subscribe(messageSendProgress -> {
-
+        Disposable d = ChatSDK.thread().sendMessageWithText(message, thread).subscribe(() -> {
+            // Handle Success
         }, throwable -> {
-
+            // Handle failure
         });
     }
 
@@ -97,6 +100,11 @@ public class ApiExamples {
 
     }
 
+    public void openChatActivityWithThread (Context context, Thread thread) {
+        ChatSDK.ui().startChatActivityForID(context, thread.getEntityID());
+    }
+
+
     /**
      * If you already have a Firebase log in for your app you can setup the
      * Chat SDK by calling the following after you user has authenticated.
@@ -112,10 +120,11 @@ public class ApiExamples {
 
     /**
      * An example of how to retrieve a remote user from Firebase using the search API
-     * @param userID
+     * @param name
      */
-    public void getUserFromFirebase (String userID) {
-        Disposable d = ChatSDK.search().usersForIndex(userID, 1).subscribe(user -> {
+    public void getUserFromFirebase (String name) {
+        // You could also use Keys.Email or Keys.Phone
+        Disposable d = ChatSDK.search().usersForIndex(name, 1, Keys.Name).subscribe(user -> {
 
         }, throwable -> {
 
@@ -149,15 +158,17 @@ public class ApiExamples {
      * @param thread
      */
     public void getNotificationWhenFileUploaded (Thread thread) {
-        Disposable d = ChatSDK.imageMessage().sendMessageWithImage("file-path", thread).subscribe(messageSendProgress -> {
-            if (messageSendProgress.getStatus() == MessageSendStatus.Uploading) {
+        ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged)).subscribe(networkEvent -> {
+            MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
+            if (progress.getStatus() == MessageSendStatus.Uploading) {
                 // Message is uploading
             }
-            if (messageSendProgress.getStatus() == MessageSendStatus.Sent) {
+            if (progress.getStatus() == MessageSendStatus.Sent) {
                 // Message has finished uploading
             }
         });
     }
+
 
     /**
      * How to detect when a new message has been received
@@ -220,6 +231,16 @@ public class ApiExamples {
         ChatSDK.thread().deleteMessage(message).subscribe(() -> {
             // Message has been deleted
         });
+    }
+
+    // These fragments can be embedded in your views to display lists of chats
+    public void conversationFragmentExample () {
+        Fragment publicChatsFragment = ChatSDK.ui().publicThreadsFragment();
+        Fragment privateChatsFragment = ChatSDK.ui().privateThreadsFragment();
+    }
+
+    public void listContacts () {
+        List<User> contacts = ChatSDK.contact().contacts();
     }
 
 }

@@ -42,13 +42,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
-    private DisposableList disposableList = new DisposableList();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(Keys.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
         if (userEntityID != null && !userEntityID.isEmpty()) {
             user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user == null) {
@@ -193,7 +191,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (!getUser().isMe())
             return super.onCreateOptionsMenu(menu);
 
-        addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 12, getString(R.string.action_add_picture));
+        addMenuItem = menu.add(Menu.NONE, R.id.action_add, 12, getString(R.string.action_add_picture));
         addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         addMenuItem.setIcon(R.drawable.ic_plus);
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
@@ -206,24 +204,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add) {
+        if (id == R.id.action_add) {
             addProfilePicture();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy () {
-        super.onDestroy();
-        disposableList.dispose();
-    }
-
-
 }

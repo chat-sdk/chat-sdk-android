@@ -9,6 +9,7 @@ import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
@@ -18,10 +19,23 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.StringChecker;
 import id.zelory.compressor.Compressor;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -30,16 +44,20 @@ import timber.log.Timber;
  */
 
 public class BaseImageMessageHandler implements ImageMessageHandler {
+
+        protected Disposable imageUploadDisposable;
+
         @Override
-        public Observable<MessageSendProgress> sendMessageWithImage(final String filePath, final Thread thread) {
-            return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
+        public Completable sendMessageWithImage(final String filePath, final Thread thread) {
+            return Completable.create(emitter -> {
 
                 final Message message = AbstractThreadHandler.newMessage(MessageType.Image, thread);
 
                 // First pass back an empty result so that we add the cell to the table view
                 message.setMessageStatus(MessageSendStatus.Uploading);
                 message.update();
-                e.onNext(new MessageSendProgress(message));
+
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
                 File compress = new Compressor(ChatSDK.shared().context())
                         .setMaxHeight(ChatSDK.config().imageMaxHeight)
@@ -50,18 +68,13 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
 
-                if(image == null) {
-                    e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.unable_to_save_image_to_disk)));
-                    return;
-                }
+                if(image != null) {
 
-                ChatSDK.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {}
+                    imageUploadDisposable = ChatSDK.upload().uploadImage(image).flatMapMaybe((Function<FileUploadResult, MaybeSource<Message>>) result -> {
 
-                    @Override
-                    public void onNext(FileUploadResult result) {
-                        if(!StringChecker.isNullOrEmpty(result.url))  {
+                        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+                        if (result.urlValid()) {
 
                             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
                             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
@@ -70,33 +83,32 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
 
                             message.update();
 
-                            Timber.v("ProgressListener: " + result.progress.asFraction());
-
+                            return Maybe.just(message);
+                        } else {
+                            return Maybe.empty();
                         }
+                    }).firstElement().toSingle().flatMapCompletable(message1 -> {
+                        message1.setMessageStatus(MessageSendStatus.Sending);
+                        message1.update();
 
-                        e.onNext(new MessageSendProgress(message, result.progress));
+                        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message1)));
 
-                    }
+                        return ChatSDK.thread().sendMessage(message1);
+                    }).subscribe(emitter::onComplete, emitter::onError);
 
-                    @Override
-                    public void onError(Throwable ex) {
-                        e.onError(ex);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                        message.setMessageStatus(MessageSendStatus.Sending);
-                        message.update();
-
-                        e.onNext(new MessageSendProgress(message));
-
-                        ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                        connector.connect(ChatSDK.thread().sendMessage(message), e);
-
-                    }
-                });
-            }).subscribeOn(Schedulers.single());
+                } else {
+                    emitter.onError(new Throwable(ChatSDK.shared().context().getString(R.string.unable_to_save_image_to_disk)));
+                }
+            }).subscribeOn(Schedulers.single()).doOnDispose(() -> {
+                if (imageUploadDisposable != null) {
+                    imageUploadDisposable.dispose();
+                }
+            });
 
         }
+
+    @Override
+    public String textRepresentation(Message message) {
+        return message.stringForKey(Keys.MessageImageURL);
+    }
 }

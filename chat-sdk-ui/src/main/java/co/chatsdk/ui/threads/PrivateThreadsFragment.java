@@ -68,8 +68,8 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add) {
-            ChatSDK.ui().startSelectContactsActivity(getContext());
+        if (id == R.id.action_add) {
+            ChatSDK.ui().startCreateThreadActivity(getContext());
             return true;
         }
 
