@@ -157,10 +157,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.5'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.5'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.6'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.6'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.6'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.6'
 ```
 
 You may also need to enable Java 8:
@@ -609,7 +609,7 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.0.2"
-    androidxConstraintLayoutVersion = "2.0.0-alpha4"
+    androidxConstraintLayoutVersion = "2.0.0-alpha5"
     androidxLifecycleExtensionsVersion = "2.0.0"
     androidxRecyclerViewVersion = "1.0.0"
     androidxMultidexVersion = "2.0.1"
@@ -618,14 +618,14 @@ ext {
     playMapsVersion = "16.1.0"
     playPlacesVersion = "16.0.0"
     playLocationVersion = "16.0.0"
-    firebaseUiVersion = "4.3.1"
-    firebaseCoreVersion = "16.0.8"
-    firebaseDatabaseVersion = "16.1.0"
-    firebaseAuthVersion = "16.2.1"
-    firebaseStorageVersion = "16.1.0"
-    firebaseMessagingVersion = "17.5.0"
-    firebaseFunctionsVersion = "16.3.0"
-    firebaseIIDVersion = "17.1.1"
+    firebaseUiVersion = "4.3.2"
+    firebaseCoreVersion = "16.0.9"
+    firebaseDatabaseVersion = "17.0.0"
+    firebaseAuthVersion = "17.0.0"
+    firebaseStorageVersion = "17.0.0"
+    firebaseMessagingVersion = "18.0.0"
+    firebaseFunctionsVersion = "17.0.0"
+    firebaseIIDVersion = "18.0.0"
     timberVersion = "4.7.1"
     greenDaoVersion = "3.2.2"
     frescoVersion = "1.13.0"
@@ -646,6 +646,7 @@ ext {
     materialDrawerVersion = "6.1.2"
     androidDatabaseSQLCipher = "4.1.3@aar"
     matisseVersion = "0.5.2-beta4"
+    speedDial = "2.0.1"
 }
 ```
 
